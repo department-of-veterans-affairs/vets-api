@@ -186,18 +186,63 @@ RSpec.describe Form1010Ezr::Service do
         Flipper.disable(:va1010_forms_enrollment_system_service_enabled) if i == 2
       end
 
-      it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-        VCR.use_cassette(
-          'form1010_ezr/authorized_submit',
-          match_requests_on: %i[method uri body],
-          erb: true,
-          allow_unused_http_interactions: false
-        ) do
-          expect { submit_form(form) }.to change {
-            HCA::EzrSubmissionJob.jobs.size
-          }.by(1)
+      context 'when no error occurs' do
+        it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit',
+            match_requests_on: %i[method uri body],
+            erb: true,
+            allow_unused_http_interactions: false
+          ) do
+            expect { submit_form(form) }.to change {
+              HCA::EzrSubmissionJob.jobs.size
+            }.by(1)
+  
+            HCA::EzrSubmissionJob.drain
+          end
+        end
 
-          HCA::EzrSubmissionJob.drain
+        context "when the 'ezr_associations_api_enabled' flipper is enabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
+            allow_any_instance_of(
+              HCA::EnrollmentEligibility::Service
+            ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
+            allow_any_instance_of(
+              Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+            ).to receive(:reconcile_and_update_associations).and_return(
+              {
+                status: 'success',
+                message: 'All associations were updated successfully',
+                timestamp: '2025-06-08T18:00:00Z'
+              }
+            )
+            # Call the submit_sync method instead of submit_async so that we can ensure that
+            # the associations are removed from the form before it is submitted
+            allow_any_instance_of(
+              Form1010Ezr::Service
+            ).to receive(:submit_async) do |instance, parsed_form|
+              instance.submit_sync(parsed_form)
+            end
+          end
+
+          it 'removes the associations from the form and returns a success object',
+             run_at: 'Mon, 09 Jun 2025 20:30:18 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_updated_associations',
+              match_requests_on: %i[method uri body],
+              erb: true
+            ) do
+              expect(service.submit_form(form_with_associations)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 442_951_612,
+                  timestamp: '2025-06-09T15:30:18.643-05:00'
+                }
+              )
+            end
+          end
         end
       end
 
@@ -281,25 +326,6 @@ RSpec.describe Form1010Ezr::Service do
             allow(Flipper).to receive(:enabled?).and_call_original
             allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
           end
-
-          # context 'when the associations service returns a 200 response' do
-          #   before do
-          #     allow_any_instance_of(
-          #       Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
-          #     ).to receive(:reconcile_and_update_associations).and_return(
-          #       get_fixture('veteran_enrollment_system/associations/associations_maximum')
-          #     )
-          #   end
-          #   it 'removes the associations from the form and returns a success object' do
-          #     VCR.use_cassette('example', :record => :once) do
-          #       submit = service.submit_sync(form_with_associations)
-
-          #       debugger
-
-          #       expect(submit).to be_a(Object)
-          #     end
-          #   end
-          # end
 
           context 'when an error occurs in the associations service' do
             before do
