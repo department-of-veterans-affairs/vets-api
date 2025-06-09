@@ -13,7 +13,6 @@ class MigrateSavedClaimPensionToPensionsSavedClaim < ActiveRecord::Migration[7.2
           SavedClaim.where(id: ids).update_all(type: 'Pensions::SavedClaim')
         rescue => e
           Rails.logger.error("MigrateSavedClaimPensionToPensionsSavedClaim batch failed for IDs: #{ids.inspect} - #{e.class}: #{e.message}")
-          raise
         end
       end
     end
@@ -29,7 +28,6 @@ class MigrateSavedClaimPensionToPensionsSavedClaim < ActiveRecord::Migration[7.2
           SavedClaim.where(id: ids).update_all(type: 'SavedClaim::Pension')
         rescue => e
           Rails.logger.error("MigrateSavedClaimPensionToPensionsSavedClaim rollback batch failed for IDs: #{ids.inspect} - #{e.class}: #{e.message}")
-          raise
         end
       end
     end
