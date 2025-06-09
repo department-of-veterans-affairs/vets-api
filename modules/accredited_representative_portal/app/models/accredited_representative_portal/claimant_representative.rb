@@ -39,9 +39,10 @@ module AccreditedRepresentativePortal
           return build(h)
         end
 
-        nil
-      rescue
-        raise Error
+        raise Common::Exceptions::Forbidden
+      rescue => e
+        console.error(e.detailed_message)
+        raise e
       end
 
       def for_claimant(...)

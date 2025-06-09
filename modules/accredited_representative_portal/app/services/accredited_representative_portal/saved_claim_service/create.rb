@@ -33,7 +33,6 @@ module AccreditedRepresentativePortal
             # agree over time, rather than being set at only one final moment.
             #
             saved_claim.form_attachment = attachments[:form]
-            saved_claim.form_attachment.form_id = saved_claim.form_id
 
             attachments[:documentations].each do |attachment|
               saved_claim.persistent_attachments << attachment

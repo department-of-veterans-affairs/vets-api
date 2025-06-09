@@ -9,11 +9,9 @@ module AccreditedRepresentativePortal
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
 
       def submit
-        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
+        authorize(claimant_representative, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
-        status, confirmation_number = upload_response
-        send_confirmation_email(params, confirmation_number) if status == 200
-        render json: { status:, confirmation_number: }
+        render json: SavedClaimSerializer.new(saved_claim).as_json.to_h.deep_transform_keys { |key| key.camelize(:lower) }
       end
 
       def upload_scanned_form
@@ -32,88 +30,34 @@ module AccreditedRepresentativePortal
 
       private
 
-      def lighthouse_service
-        @lighthouse_service ||= BenefitsIntake::Service.new
+      def claimant_id
+        @claimant_id ||= get_icn
       end
 
-      def upload_response
-        file_path = find_attachment_path(params[:confirmationCode])
-        stamper = SimpleFormsApi::PdfStamper.new(
-          stamped_template_path: file_path,
-          current_loa: @current_user.loa[:current],
-          timestamp: Time.current
+      def saved_claim
+        AccreditedRepresentativePortal::SavedClaimService::Create.perform(
+          type: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim,
+          attachment_guids: [params[:confirmationCode]], # TODO: multi form upload
+          metadata: get_metadata,
+          claimant_representative:
         )
-        stamper.stamp_pdf
-        raw_metadata = validated_metadata
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
-        status, confirmation_number = upload_pdf(file_path, metadata)
-        file_size = File.size(file_path).to_f / (2**20)
-
-        Rails.logger.info(
-          'Accredited Rep Form Upload - scanned form uploaded',
-          { form_number: form_data[:formNumber], status:, confirmation_number:, file_size: }
-        )
-        [status, confirmation_number]
       end
 
-      def find_attachment_path(confirmation_code)
-        PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
-      end
+      def claimant_representative
+        @claimant_representative ||= ClaimantRepresentative.find do |finder|
+          finder.for_claimant(
+            icn: claimant_id,
+          )
 
-      def upload_pdf(file_path, metadata)
-        location, uuid = prepare_for_upload
-        log_upload_details(location, uuid)
-        response = perform_pdf_upload(location, file_path, metadata)
-        [response.status, uuid]
-      end
-
-      def prepare_for_upload
-        location, uuid = lighthouse_service.request_upload
-        create_form_submission_attempt(uuid)
-
-        [location, uuid]
-      end
-
-      def create_form_submission_attempt(uuid)
-        FormSubmissionAttempt.transaction do
-          form_submission = create_form_submission
-          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+          finder.for_representative(
+            icn: current_user.icn,
+            email: current_user.email
+          )
         end
       end
 
-      def create_form_submission
-        FormSubmission.create(
-          form_type: form_data[:formNumber],
-          form_data: form_data.to_json,
-          user_account: @current_user&.user_account
-        )
-      end
-
-      def log_upload_details(location, uuid)
-        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Accredited Rep Form Upload - preparing to upload scanned PDF to benefits intake',
-                          { location:, uuid: })
-      end
-
-      def perform_pdf_upload(location, file_path, metadata)
-        lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: file_path,
-          upload_url: location
-        )
-      end
-
-      def send_confirmation_email(_params, confirmation_number)
-        new_form_data = create_new_form_data
-        config = {
-          form_number: form_data[:formNumber],
-          form_data: new_form_data,
-          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
-          confirmation_number:
-        }
-
-        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
-        notification_email.send
+      def lighthouse_service
+        @lighthouse_service ||= BenefitsIntake::Service.new
       end
 
       def get_icn
