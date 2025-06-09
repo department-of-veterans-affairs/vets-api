@@ -2208,3 +2208,6 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
+  accredited_representative_portal_form:
+    actor_type: user
+    description: Enables form with new options for rep
