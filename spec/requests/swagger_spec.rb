@@ -581,7 +581,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         let(:pdf_file) do
           fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
         end
-        
+
         it 'validates the route for successful submission' do
           expect(subject).to validate(
             :post,
@@ -595,7 +595,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         it 'validates the route for validation errors' do
           image_file = fixture_file_upload('doctors-note.png', 'image/png')
-          
+
           expect(subject).to validate(
             :post,
             '/debts_api/v0/digital_disputes',
@@ -610,7 +610,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService)
             .to receive(:call)
             .and_raise(StandardError.new('Unexpected error'))
-          
+
           expect(subject).to validate(
             :post,
             '/debts_api/v0/digital_disputes',
