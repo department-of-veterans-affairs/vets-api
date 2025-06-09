@@ -70,7 +70,9 @@ module Ccra
     # @return [Float, nil] The booking start time as a float timestamp, or nil if not found
     def fetch_booking_start_time(id, icn)
       cached_data = referral_cache.fetch_referral_data(id:, icn:)
-      cached_data&.[]('booking_start_time')
+      start_time = cached_data&.booking_start_time
+      Rails.logger.warn('Referral booking start time not found.') unless start_time
+      start_time
     end
 
     private
@@ -82,14 +84,12 @@ module Ccra
     # @param icn [String] The patient's ICN
     # @return [Boolean] True if the cache operation was successful
     def cache_referral_data(referral, id, icn)
-      referral_with_timing = referral.attributes.merge(
-        'booking_start_time' => Time.current.to_f
-      )
+      referral.booking_start_time = Time.current.to_f
 
       referral_cache.save_referral_data(
         id:,
         icn:,
-        referral_data: referral_with_timing
+        referral_data: referral
       )
     end
 

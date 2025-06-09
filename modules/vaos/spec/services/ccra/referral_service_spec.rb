@@ -119,12 +119,17 @@ describe Ccra::ReferralService do
             expect(referral_cache).to receive(:save_referral_data).with(
               id:,
               icn:,
-              referral_data: include(
-                'category_of_care' => 'CARDIOLOGY',
-                'referral_number' => 'VA0000005681',
-                'booking_start_time' => expected_start_time
-              )
+              referral_data: instance_of(Ccra::ReferralDetail)
             ).and_return(true)
+
+            # Verify the referral data after the call
+            allow(referral_cache).to receive(:save_referral_data) do |args|
+              referral = args[:referral_data]
+              expect(referral.category_of_care).to eq('CARDIOLOGY')
+              expect(referral.referral_number).to eq('VA0000005681')
+              expect(referral.booking_start_time).to eq(expected_start_time)
+              true
+            end
 
             subject.get_referral(id, icn)
           end
@@ -159,7 +164,7 @@ describe Ccra::ReferralService do
     let(:referral_number) { 'VA0000005681' }
     let(:icn) { '1012845331V153043' }
     let(:booking_start_time) { Time.current.to_f }
-    let(:referral_data) { { 'booking_start_time' => booking_start_time } }
+    let(:referral_data) { instance_double(Ccra::ReferralDetail, booking_start_time:) }
 
     context 'when referral data exists in cache' do
       before do
@@ -188,7 +193,7 @@ describe Ccra::ReferralService do
     end
 
     context 'when referral data exists but has no booking start time' do
-      let(:referral_data) { { 'some_other_data' => 'value' } }
+      let(:referral_data) { instance_double(Ccra::ReferralDetail, booking_start_time: nil) }
 
       before do
         allow(referral_cache).to receive(:fetch_referral_data)
