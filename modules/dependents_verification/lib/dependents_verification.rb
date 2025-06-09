@@ -12,7 +12,15 @@ module DependentsVerification
   # The module path
   MODULE_PATH = 'modules/dependents_verification'
 
+  # Path to the PDF
+  PDF_PATH = "#{MODULE_PATH}/lib/dependents_verification/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
+
   # API Version 0
   module V0
+  end
+
+  # PdfFill
+  # @see lib/pdf_fill
+  module PdfFill
   end
 end
