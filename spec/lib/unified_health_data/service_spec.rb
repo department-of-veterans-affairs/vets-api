@@ -69,7 +69,20 @@ describe UnifiedHealthData::Service, type: :service do
                       'meta' => {},
                       'text' => {
                         'status' => 'generated',
-                        'div' => '<div xmlns=\'http://www.w3.org/1999/xhtml\'><p><b>Service Request</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Code</b>: CBC w/ Diff</p><p><b>Occurrence Start</b>: Jan 27, 2025  8:45 A.M. CST</p><p><b>Occurrence End</b>: Jan 27, 2025  9:42 A.M. CST</p><p><b>Priority</b>: STAT</p><p><b>Reason</b>:</p><ul><li>Lethargy</li></ul><p><b>Status</b>: Completed</p><p><b>Intent</b>: Order</p><p><b>Requester</b>: Borland, Victoria A</p><p><b>Order Detail</b>: 01/27/25 9:40:00 EST, Whole Blood, Stat, Nurse collect</p></div>'
+                        'div' => '<div xmlns=\'http://www.w3.org/1999/xhtml\'>\n' \
+                                 '  <p><b>Service Request</b></p>' \
+                                 '  <p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p>' \
+                                 '  <p><b>Code</b>: CBC w/ Diff</p>' \
+                                 '  <p><b>Occurrence Start</b>: Jan 27, 2025  8:45 A.M. CST</p>' \
+                                 '  <p><b>Occurrence End</b>: Jan 27, 2025  9:42 A.M. CST</p>' \
+                                 '  <p><b>Priority</b>: STAT</p>' \
+                                 '  <p><b>Reason</b>:</p><ul><li>Lethargy</li></ul>' \
+                                 '  <p><b>Status</b>: Completed</p>' \
+                                 '  <p><b>Intent</b>: Order</p>' \
+                                 '  <p><b>Requester</b>: Borland, Victoria A</p>' \
+                                 '  <p><b>Order Detail</b>: 01/27/25 9:40:00 EST, Whole Blood, Stat, ' \
+                                 'Nurse collect</p>' \
+                                 '</div>'
                       },
                       'status' => 'completed',
                       'intent' => 'order',
@@ -464,7 +477,10 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L, Treatment Range: 0.5 mIU/L - 5.0 mIU/L')
+        expect(result.first.reference_range).to eq(
+          'Normal Range: 0.7 mIU/L - 4.5 mIU/L, ' \
+          'Treatment Range: 0.5 mIU/L - 5.0 mIU/L'
+        )
       end
 
       it 'returns empty string for reference range if not present' do
