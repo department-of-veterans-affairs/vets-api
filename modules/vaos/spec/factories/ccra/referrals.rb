@@ -44,6 +44,7 @@ FactoryBot.define do
     referring_facility_state { 'OH' }
     referring_facility_zip { '45428' }
     has_appointments { true }
+    booking_start_time { nil }
 
     initialize_with do
       attributes = {
@@ -55,6 +56,7 @@ FactoryBot.define do
         referral_date:,
         station_id:,
         appointments: has_appointments ? [{ appointment_date: Date.current.to_s }] : [],
+        booking_start_time:,
         referring_facility_info: {
           facility_name: referring_facility_name,
           phone: referring_facility_phone,

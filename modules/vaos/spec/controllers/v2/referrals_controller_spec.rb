@@ -207,6 +207,22 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
+        # Verify booking_start_time is not exposed in the API
+        expect(response_data['data']['attributes']).not_to have_key('bookingStartTime')
+      end
+
+      it 'sets the booking start time internally' do
+        Timecop.freeze do
+          expect_any_instance_of(Ccra::ReferralService).to receive(:get_referral) do |_service, id, user_icn|
+            expect(id).to eq(referral_consult_id)
+            expect(user_icn).to eq(icn)
+            referral_detail.booking_start_time = Time.current.to_f
+            referral_detail
+          end
+
+          get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+          expect(referral_detail.booking_start_time).to eq(Time.current.to_f)
+        end
       end
     end
   end

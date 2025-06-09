@@ -169,6 +169,50 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
+
+      context 'when fetching the same referral multiple times' do
+        let(:initial_time) { Time.current.to_f }
+        let(:referral_with_time) do
+          build(:ccra_referral_detail, referral_number:, booking_start_time: initial_time)
+        end
+
+        before do
+          allow(service_double).to receive(:get_referral)
+            .with(referral_number, icn)
+            .and_return(referral_with_time)
+        end
+
+        it 'preserves the original booking start time in the service' do
+          # First request
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          expect(referral_with_time.booking_start_time).to eq(initial_time)
+
+          # Second request
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          expect(referral_with_time.booking_start_time).to eq(initial_time)
+        end
+      end
+
+      context 'when fetching a referral for the first time' do
+        let(:referral_without_time) do
+          build(:ccra_referral_detail, referral_number:, booking_start_time: nil)
+        end
+
+        before do
+          Timecop.freeze
+          allow(service_double).to receive(:get_referral) do |id, user_icn|
+            referral_without_time.booking_start_time = Time.current.to_f
+            referral_without_time
+          end
+        end
+
+        after { Timecop.return }
+
+        it 'sets the booking start time in the service' do
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          expect(referral_without_time.booking_start_time).to eq(Time.current.to_f)
+        end
+      end
     end
 
     context 'when using invalid referral id' do
