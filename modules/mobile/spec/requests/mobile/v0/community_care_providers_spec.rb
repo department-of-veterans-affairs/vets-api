@@ -72,21 +72,17 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
         end
       end
 
-      # ContactInfoV2Refactor
-      # context 'when the user has no home address' do
-      #   it 'returns 422 with error message' do
-      #     VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
-      #       address = nil
-      #       # address.latitude = nil
-      #       # address.longitude = nil
+      context 'when the user has no home address' do
+        let!(:user) { sis_user(vet360_id: nil, icn: nil) }
+        it 'returns 422 with error message' do
+          VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
 
-      #       params = { serviceType: 'podiatry' }
-      #       get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
-      #       binding.pry
-      #       assert_schema_conform(422)
-      #       expect(response.parsed_body.dig('errors', 0, 'detail')).to eq('User has no home latitude and longitude')
-      #     end
-      #   end
+            params = { serviceType: 'podiatry' }
+            get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
+            assert_schema_conform(422)
+            expect(response.parsed_body.dig('errors', 0, 'detail')).to eq('User has no home latitude and longitude')
+          end
+        end
       end
     end
 
