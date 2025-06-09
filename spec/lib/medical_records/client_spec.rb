@@ -116,12 +116,41 @@ describe MedicalRecords::Client do
             .with(:mhv_medical_records_support_new_model_health_condition).and_return(true)
           allow(Flipper).to receive(:enabled?)
             .with(:mhv_medical_records_support_new_model_vaccine).and_return(true)
+
+          allow(Flipper).to receive(:enabled?)
+            .with(:mhv_medical_records_support_backend_allergy).and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:mhv_medical_records_support_backend_health_condition).and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:mhv_medical_records_support_backend_pagination_vaccine).and_return(true)
         end
 
         shared_examples 'a transformed-record list' do |method_name, model_class, fhir_resource_class, key_suffix|
           # Build the cache key dynamically from the user_uuid and suffix:
           let(:cache_key) { "#{user_uuid}-#{key_suffix}" }
           let(:fake_bundle) { double('FHIR::Bundle', entry: []) }
+
+          # Shared setup for FHIR fetch scenarios
+          shared_context 'fhir fetch setup' do |flipper_flags|
+            let(:fetched_resources) { [double('resA'), double('resB')] }
+            let(:resource_wrappers) { fetched_resources.map { |r| double(resource: r) } }
+            let(:model_objs)        { [double('objA'), double('objB')] }
+            let(:fake_collection)   { double('Vets::Collection', records: model_objs) }
+
+            before do
+              flipper_flags.each do |flag, value|
+                allow(Flipper).to receive(:enabled?).with(flag).and_return(value)
+              end
+              allow(model_class).to receive(:get_cached)
+              allow(client).to receive(:fhir_search).and_return(fake_bundle)
+              allow(fake_bundle).to receive(:entry).and_return(resource_wrappers)
+              allow(model_class).to receive(:from_fhir).and_return(*model_objs)
+              allow(model_class).to receive(:set_cached)
+              allow(Vets::Collection).to receive(:new)
+                .with(model_objs, model_class)
+                .and_return(fake_collection)
+            end
+          end
 
           describe "##{method_name}" do
             context 'when cache is present' do
@@ -181,33 +210,27 @@ describe MedicalRecords::Client do
             end
 
             context 'when cache is disabled (use_cache: false)' do
-              let(:fetched_resources) { [double('resA'), double('resB')] }
-              let(:resource_wrappers) { fetched_resources.map { |r| double(resource: r) } }
-              let(:model_objs)        { [double('objA'), double('objB')] }
-              let(:fake_collection)   { double('Vets::Collection', records: model_objs) }
-
-              before do
-                # Even if get_cached is called, it should not matter—stub it out
-                allow(model_class).to receive(:get_cached)
-                # Always return fake_bundle for fhir_search
-                allow(client).to receive(:fhir_search).and_return(fake_bundle)
-                # Make fake_bundle.entry yield entries wrapping each fetched_resource
-                allow(fake_bundle).to receive(:entry).and_return(resource_wrappers)
-                # Convert each fetched resource into a model object
-                allow(model_class).to receive(:from_fhir).and_return(*model_objs)
-                # Stub set_cached so we can verify it still tries to write a cache
-                allow(model_class).to receive(:set_cached)
-                # Build a Vets::Collection around the fetched model_objs
-                allow(Vets::Collection).to receive(:new)
-                  .with(model_objs, model_class)
-                  .and_return(fake_collection)
-
-                # Allow the ModelClass === operator if any type checks happen internally
-                allow(model_class).to receive(:===).and_return(true)
-              end
-
+              include_context 'fhir fetch setup', {}
               it 'bypasses cache and fetches via FHIR, writes to cache, and returns Vets::Collection' do
                 coll = client.send(method_name, user_uuid, use_cache: false)
+                expect(model_class).not_to have_received(:get_cached)
+                expect(client).to have_received(:fhir_search).with(
+                  fhir_resource_class,
+                  search: hash_including(parameters: hash_including(patient: anything))
+                )
+                expect(model_class).to have_received(:set_cached).with(cache_key, model_objs)
+                expect(coll).to eq(fake_collection)
+              end
+            end
+
+            context 'when backend pagination flags are false' do
+              include_context 'fhir fetch setup', {
+                mhv_medical_records_support_backend_pagination_allergy: false,
+                mhv_medical_records_support_backend_pagination_health_condition: false,
+                mhv_medical_records_support_backend_pagination_vaccine: false
+              }
+              it 'does not use the cache and fetches via FHIR' do
+                coll = client.send(method_name, user_uuid, use_cache: true)
                 expect(model_class).not_to have_received(:get_cached)
                 expect(client).to have_received(:fhir_search).with(
                   fhir_resource_class,

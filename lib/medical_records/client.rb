@@ -98,7 +98,7 @@ module MedicalRecords
       return :patient_not_found unless patient_found?
 
       # Only use cache if the feature flag is enabled
-      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_backend_pagination_allergy)
 
       cache_key = "#{user_uuid}-allergies"
       get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::Allergy) do
@@ -130,7 +130,7 @@ module MedicalRecords
       return :patient_not_found unless patient_found?
 
       # Only use cache if the feature flag is enabled
-      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_backend_pagination_vaccine)
 
       cache_key = "#{user_uuid}-vaccines"
       get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::Vaccine) do
@@ -171,7 +171,7 @@ module MedicalRecords
       return :patient_not_found unless patient_found?
 
       # Only use cache if the feature flag is enabled
-      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_backend_pagination_health_condition)
 
       cache_key = "#{user_uuid}-conditions"
       get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::HealthCondition) do
