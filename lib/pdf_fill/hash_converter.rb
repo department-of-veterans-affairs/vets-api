@@ -109,25 +109,16 @@ module PdfFill
     def set_value(v, key_data, i, from_array_overflow = false)
       k = key_data[:key]
 
-
       return if k.blank?
-    
 
       k = k.gsub(ITERATOR, i.to_s) unless i.nil?
 
       new_value = convert_value(v, key_data)
 
       if overflow?(key_data, new_value, from_array_overflow)
-
-
-      new_value = convert_value(v, key_data)
-
-      if k.present? && overflow?(key_data, new_value, from_array_overflow)
-
         add_to_extras(key_data, new_value, i)
-
         # Track this field for linking
-        track_placeholder_link(k, key_data)
+        track_placeholder_link(key_data)
         new_value = placeholder_text
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
@@ -155,21 +146,21 @@ module PdfFill
     end
 
     def handle_overflow_and_label_all(form_data, pdftk_keys)
-        form_data.each_with_index do |item, idx|
-          item.each do |k, v|
-            key_data = pdftk_keys[k]
-            next unless key_data.is_a?(Hash)
+      form_data.each_with_index do |item, idx|
+        item.each do |k, v|
+          key_data = pdftk_keys[k]
+          next unless key_data.is_a?(Hash)
 
-            if overflow?(key_data, v)
-              text = placeholder_text
-              track_placeholder_link(nil, key_data, idx)
-            else
-              text = v
-            end
-
-            set_value(text, key_data, idx, true)
+          if overflow?(key_data, v)
+            text = placeholder_text
+            track_placeholder_link(key_data, idx)
+          else
+            text = v
           end
+
+          set_value(text, key_data, idx, true)
         end
+      end
     end
 
     def handle_overflow_and_label_first_key(pdftk_keys)
@@ -179,8 +170,7 @@ module PdfFill
       if pdftk_keys[:question_num] && pdftk_keys[first_key]
         first_key_data = pdftk_keys[first_key]
         # Create a field key for the first field that will get placeholder text
-        field_key = first_key_data[:key]&.gsub(ITERATOR, '0') || "array_overflow_#{pdftk_keys[:question_num]}"
-        track_placeholder_link(field_key, first_key_data)
+        track_placeholder_link(first_key_data)
       end
 
       transform_data(
@@ -232,9 +222,8 @@ module PdfFill
 
     private
 
-    def track_placeholder_link(field_key, key_data, idx = nil)
-      question_num = key_data[:question_num]
-      return unless question_num
+    def track_placeholder_link(key_data, idx = nil)
+      return unless key_data[:question_num]
 
       if idx
         modified_key_data = key_data.dup
@@ -251,19 +240,24 @@ module PdfFill
             modified_key_data[:y] = key_data[:y] - (idx * 50)
           end
         end
-        
+
         key_data = modified_key_data
       end
 
       # Store the field info for later link creation
+      add_placeholder_coordinates(key_data)
+    end
+
+    def add_placeholder_coordinates(key_data)
       @placeholder_links << {
-        question_num:,
+        question_num: key_data[:question_num],
         dest_name: key_data[:overflow_destination],
         label: key_data[:question_text],
         page: key_data[:page],
         x: key_data[:x],
         y: key_data[:y],
-        width: key_data[:width]
+        width: key_data[:width],
+        height: 20
       }
     end
   end

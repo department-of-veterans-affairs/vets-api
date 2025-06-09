@@ -636,15 +636,13 @@ module PdfFill
           limit: 50, # TODO: This is a guess.  Need to confirm.
           question_num: 16,
           question_suffix: 'A',
+          question_label: 'Signature',
           question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE',
           page: 3,
           x: 40,
           y: 25,
           width: 190,
           overflow_destination: 'overflow_section_Section VII'
-          question_label: 'Signature',
-          question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE'
-
         },
         'signatureDate' => {
           'month' => {
