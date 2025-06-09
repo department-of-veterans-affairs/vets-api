@@ -34,11 +34,12 @@ module DecisionReviewV1
         end
       end
 
-      # Flip this on (via Flipper) to use the 2024 template
+      # Flip this on to use the 2024 PDF template
       def generate_2024_version?
         Flipper.enabled?(:decision_review_form4142_use_2024_template)
       end
 
+      # Flip this on to validate the schema of the form data
       def should_validate_schema?
         Flipper.enabled?(:decision_review_form4142_validate_schema)
       end

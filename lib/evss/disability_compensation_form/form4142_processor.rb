@@ -36,11 +36,12 @@ module EVSS
         @submission.created_at.in_time_zone(TIMEZONE)
       end
 
-      # Flip this on to use the 2024 template, teams can make independent decisions about when to use the 2024 version
+      # Flip this on to use the 2024 PDF template
       def generate_2024_version?
         Flipper.enabled?(:disability_526_form4142_use_2024_template)
       end
 
+      # Flip this on to validate the schema of the form data
       def should_validate_schema?
         Flipper.enabled?(:disability_526_form4142_validate_schema)
       end
