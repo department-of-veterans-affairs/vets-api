@@ -197,7 +197,7 @@ RSpec.describe Form1010Ezr::Service do
             expect { submit_form(form) }.to change {
               HCA::EzrSubmissionJob.jobs.size
             }.by(1)
-  
+
             HCA::EzrSubmissionJob.drain
           end
         end

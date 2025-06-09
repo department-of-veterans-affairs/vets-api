@@ -209,7 +209,7 @@ module Form1010Ezr
       )
       # Since we are using the Associations API to update the associations, we'll remove the
       # 'nextOfKins' and 'emergencyContacts' from the parsed_form to prevent redundancy
-      ['nextOfKins', 'emergencyContacts'].each { |key| parsed_form.delete(key) }
+      %w[nextOfKins emergencyContacts].each { |key| parsed_form.delete(key) }
 
       parsed_form
     end
