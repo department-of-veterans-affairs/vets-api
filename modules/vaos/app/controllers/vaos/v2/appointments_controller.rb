@@ -127,6 +127,8 @@ module VAOS
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
+        log_referral_booking_duration(params[:referral_number])
+
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
@@ -779,6 +781,24 @@ module VAOS
         drive_time = fetch_drive_times(provider)
 
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
+      end
+
+      # Records the duration between when a referral booking was started and when it completes
+      # by measuring the time between the cached start time and current time.
+      # The duration is recorded as a StatsD metric in milliseconds.
+      #
+      # @param referral_number [String] The referral number to lookup the start time for
+      # @return [void]
+      def log_referral_booking_duration(referral_number)
+        start_time = ccra_referral_service.fetch_booking_start_time(
+          referral_number,
+          current_user.icn
+        )
+
+        return unless start_time
+
+        duration_ms = ((Time.current.to_f - start_time) * 1000).round
+        StatsD.measure('api.vaos.referral.booking.duration', duration_ms)
       end
     end
   end

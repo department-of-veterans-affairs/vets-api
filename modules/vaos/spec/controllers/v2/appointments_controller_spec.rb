@@ -78,8 +78,12 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         slot_id: 'SLOT123'
       }
     end
+    let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
     before do
+      allow(Rails).to receive(:cache).and_return(memory_store)
+      Rails.cache.clear
+
       allow(controller).to receive_messages(
         eps_appointment_service:,
         submit_params:,
@@ -87,24 +91,40 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       )
       allow(controller).to receive(:render)
       allow(StatsD).to receive(:increment)
+      allow(StatsD).to receive(:measure)
       allow(Rails.logger).to receive(:info)
     end
 
     context 'when appointment creation succeeds' do
       let(:appointment) { OpenStruct.new(id: 'APPT123') }
+      let(:current_user) { OpenStruct.new(icn: '123V456') }
+      let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
+        allow(controller).to receive(:current_user).and_return(current_user)
+        allow(controller).to receive(:ccra_referral_service).and_return(ccra_referral_service)
       end
 
-      it 'renders created status with appointment id' do
-        controller.submit_referral_appointment
+      it 'renders created status with appointment id and logs duration' do
+        Timecop.freeze(Time.current) do
+          booking_start_time = Time.current.to_f - 5
+          allow(ccra_referral_service).to receive(:fetch_booking_start_time)
+            .with(submit_params[:referral_number], current_user.icn)
+            .and_return(booking_start_time)
 
-        expect(controller).to have_received(:render).with(
-          json: { data: { id: 'APPT123' } },
-          status: :created
-        )
-        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success')
+          controller.submit_referral_appointment
+
+          expect(controller).to have_received(:render).with(
+            json: { data: { id: 'APPT123' } },
+            status: :created
+          )
+          expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success')
+          expect(StatsD).to have_received(:measure).with(
+            'api.vaos.referral.booking.duration',
+            5000
+          )
+        end
       end
     end
 
