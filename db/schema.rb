@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_05_180405) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -422,7 +422,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "path"
-    t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["entity_id"], name: "index_banners_on_entity_id", unique: true
     t.index ["path"], name: "index_banners_on_path"
   end
 
@@ -1019,7 +1019,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.text "ssn_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
+    t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi", unique: true
     t.index ["needs_kms_rotation"], name: "index_gibs_not_found_users_on_needs_kms_rotation"
   end
 
@@ -1117,7 +1117,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.string "edipi", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
+    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi", unique: true
   end
 
   create_table "ivc_champva_forms", force: :cascade do |t|
@@ -1274,6 +1274,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.integer "doctype"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
     t.index ["needs_kms_rotation"], name: "index_persistent_attachments_on_needs_kms_rotation"
@@ -1541,7 +1542,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.boolean "is_manual_checkin"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_account_id"
     t.index ["account_uuid"], name: "tud_account_availability_logs"
+    t.index ["user_account_id"], name: "idx_on_user_account_id_2569a82908"
   end
 
   create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
@@ -1565,6 +1568,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.string "mfa_code"
     t.uuid "logingov_uuid"
     t.text "id_types", default: [], array: true
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_test_user_dashboard_tud_accounts_on_user_account_id"
   end
 
   create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1708,6 +1713,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "veteran_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "veteran_device_records", force: :cascade do |t|
@@ -2031,6 +2045,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
+  add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
+  add_foreign_key "test_user_dashboard_tud_accounts", "user_accounts"
   add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_actions", "user_action_events"

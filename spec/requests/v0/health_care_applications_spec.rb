@@ -296,38 +296,15 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         }
       end
 
-      context ':hca_json_schemer_validation enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(true)
-        end
+      it 'shows the validation errors' do
+        subject
 
-        it 'shows the validation errors' do
-          subject
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(
-            JSON.parse(response.body)['errors'][0]['detail'].include?(
-              'form - object at root is missing required properties: privacyAgreementAccepted'
-            )
-          ).to be(true)
-        end
-      end
-
-      context ':hca_json_schemer_validation disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(false)
-        end
-
-        it 'shows the validation errors' do
-          subject
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(
-            JSON.parse(response.body)['errors'][0]['detail'].include?(
-              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-            )
-          ).to be(true)
-        end
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            'form - object at root is missing required properties: privacyAgreementAccepted'
+          )
+        ).to be(true)
       end
     end
 

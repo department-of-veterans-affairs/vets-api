@@ -4,11 +4,12 @@ require 'rails_helper'
 require 'dependents/monitor'
 
 RSpec.describe Dependents::Monitor do
-  let(:monitor_v1) { described_class.new(false) }
-  let(:monitor_v2) { described_class.new(true) }
+  let(:claim) { create(:dependency_claim) }
+  let(:claim_v2) { create(:dependency_claim_v2) }
+  let(:monitor_v1) { described_class.new(claim.id) }
+  let(:monitor_v2) { described_class.new(claim_v2.id) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
-  let(:claim) { create(:dependency_claim) }
   let(:user) { create(:evss_user, :loa3) }
 
   let(:vet_info) do
@@ -56,7 +57,12 @@ RSpec.describe Dependents::Monitor do
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim:,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:false'],
+          use_v2: false,
+          user_account_uuid: nil
         }
         tags = { tags: ['service:dependents-application', 'v2:false'] }
 
@@ -73,7 +79,12 @@ RSpec.describe Dependents::Monitor do
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim:,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:false'],
+          use_v2: false,
+          user_account_uuid: nil
         }
         tags = { tags: ['service:dependents-application', 'v2:false'] }
 
@@ -84,17 +95,101 @@ RSpec.describe Dependents::Monitor do
         monitor_v1.track_submission_exhaustion(msg, user_struct.va_profile_email)
       end
     end
+
+    describe '#track_event' do
+      let(:tags) { { tags: ['service:dependents-application', 'function:track_event', 'v2:false'] } }
+
+      it 'handles an error' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags)
+        expect(Rails.logger).to receive(:error).with('Error!', {
+                                                       context: {
+                                                         claim_id: claim.id,
+                                                         confirmation_number: claim.confirmation_number,
+                                                         extra: 'test',
+                                                         form_id: '686C-674',
+                                                         service: 'dependents-application',
+                                                         tags: ['service:dependents-application', 'v2:false'],
+                                                         use_v2: false,
+                                                         user_account_uuid: nil
+                                                       },
+                                                       file: a_kind_of(String),
+                                                       function: 'track_event',
+                                                       line: a_kind_of(Integer),
+                                                       service: 'dependents-application',
+                                                       statsd: 'test.monitor.exhaustion'
+                                                     })
+
+        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', { extra: 'test' })
+      end
+
+      it 'handles an info log' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.success', tags)
+        expect(Rails.logger).to receive(:info).with('Success!', {
+                                                      context: {
+                                                        claim_id: claim.id,
+                                                        confirmation_number: claim.confirmation_number,
+                                                        extra: 'test',
+                                                        form_id: '686C-674',
+                                                        service: 'dependents-application',
+                                                        tags: ['service:dependents-application', 'v2:false'],
+                                                        use_v2: false,
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.success'
+                                                    })
+
+        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', { extra: 'test' })
+      end
+
+      it 'handles a warning' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags)
+        expect(Rails.logger).to receive(:warn).with('Oops!', {
+                                                      context: {
+                                                        claim_id: claim.id,
+                                                        confirmation_number: claim.confirmation_number,
+                                                        extra: 'test',
+                                                        form_id: '686C-674',
+                                                        service: 'dependents-application',
+                                                        tags: ['service:dependents-application', 'v2:false'],
+                                                        use_v2: false,
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.failure'
+                                                    })
+
+        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { extra: 'test' })
+      end
+    end
   end
 
   context 'v2' do
     describe '#track_submission_exhaustion' do
       it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+        msg = { 'args' => [claim_v2.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim: claim_v2,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:true'],
+          use_v2: true,
+          user_account_uuid: nil
         }
 
         expect(monitor_v2).to receive(:log_silent_failure).with(payload, anything)
@@ -106,12 +201,17 @@ RSpec.describe Dependents::Monitor do
       end
 
       it 'logs sidekiq job exhaustion with failure avoided' do
-        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+        msg = { 'args' => [claim_v2.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim: claim_v2,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:true'],
+          use_v2: true,
+          user_account_uuid: nil
         }
 
         expect(monitor_v2).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
@@ -120,6 +220,85 @@ RSpec.describe Dependents::Monitor do
         expect(Rails.logger).to receive(:error).with(log)
 
         monitor_v2.track_submission_exhaustion(msg, user_struct.va_profile_email)
+      end
+    end
+
+    describe '#track_event' do
+      let(:tags) { { tags: ['service:dependents-application', 'function:track_event', 'v2:true'] } }
+
+      it 'handles an error' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags)
+        expect(Rails.logger).to receive(:error).with('Error!', {
+                                                       context: {
+                                                         claim_id: claim_v2.id,
+                                                         confirmation_number: claim_v2.confirmation_number,
+                                                         extra: 'test',
+                                                         form_id: '686C-674-V2',
+                                                         service: 'dependents-application',
+                                                         tags: ['service:dependents-application', 'v2:true'],
+                                                         use_v2: true,
+                                                         user_account_uuid: nil
+                                                       },
+                                                       file: a_kind_of(String),
+                                                       function: 'track_event',
+                                                       line: a_kind_of(Integer),
+                                                       service: 'dependents-application',
+                                                       statsd: 'test.monitor.exhaustion'
+                                                     })
+
+        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', { extra: 'test' })
+      end
+
+      it 'handles an info log' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.success', tags)
+        expect(Rails.logger).to receive(:info).with('Success!', {
+                                                      context: {
+                                                        claim_id: claim_v2.id,
+                                                        confirmation_number: claim_v2.confirmation_number,
+                                                        extra: 'test',
+                                                        form_id: '686C-674-V2',
+                                                        service: 'dependents-application',
+                                                        tags: ['service:dependents-application', 'v2:true'],
+                                                        use_v2: true,
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.success'
+                                                    })
+
+        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', { extra: 'test' })
+      end
+
+      it 'handles a warning' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags)
+        expect(Rails.logger).to receive(:warn).with('Oops!', {
+                                                      context: {
+                                                        claim_id: claim_v2.id,
+                                                        confirmation_number: claim_v2.confirmation_number,
+                                                        extra: 'test',
+                                                        form_id: '686C-674-V2',
+                                                        service: 'dependents-application',
+                                                        tags: ['service:dependents-application', 'v2:true'],
+                                                        use_v2: true,
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.failure'
+                                                    })
+
+        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', { extra: 'test' })
       end
     end
   end

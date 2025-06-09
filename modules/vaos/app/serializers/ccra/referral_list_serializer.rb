@@ -14,6 +14,7 @@ module Ccra
     attribute :referral_number
     attribute :referral_consult_id
     attribute :uuid
+    attribute :station_id
 
     # Include the expiration date formatted as YYYY-MM-DD
     attribute :expiration_date do |referral|

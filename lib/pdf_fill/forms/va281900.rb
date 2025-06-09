@@ -220,7 +220,7 @@ module PdfFill
       def merge_fields(options = {})
         merge_veteran_helpers
         merge_address_helpers
-        merge_preferences_helpers
+        merge_preferences_helpers if @form_data['useEva'].present?
 
         created_at = options[:created_at] if options[:created_at].present?
         expand_signature(@form_data['veteranInformation']['fullName'], created_at&.to_date || Time.zone.today)

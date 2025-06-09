@@ -238,9 +238,9 @@ module ClaimsApi
         vet
       end
 
+      # This is still called by the ApplicationController even though sentry use has been deprecated
       def set_sentry_tags_and_extra_context
         RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
-        Sentry.set_tags(source: 'claims_api')
       end
 
       def edipi_check
