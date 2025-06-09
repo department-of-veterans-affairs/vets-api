@@ -25,9 +25,11 @@ module Mobile
         )
 
         # Only attempt to count travel pay eligible appointments if include_claims flag is true
-        include_claims? && page_meta_data[:meta].merge!(
-          travel_pay_eligible_count: travel_pay_eligible_count(appointments)
-        )
+        if include_claims?
+          page_meta_data[:meta].merge!(
+            travel_pay_eligible_count: travel_pay_eligible_count(appointments)
+          )
+        end
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
