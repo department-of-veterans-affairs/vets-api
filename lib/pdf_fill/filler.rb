@@ -84,18 +84,19 @@ module PdfFill
     #
     # @return [String] The path to the final combined PDF.
     #
-    def combine_extras(old_file_path, extras_generator)
+    def combine_extras(old_file_path, extras_generator, hash_converter = nil)
       require 'hexapdf'
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
         main_reader = PDF::Reader.new(old_file_path)
-        original_page_count = main_reader.page_count
+        main_reader.page_count
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
         # Adds links and destintions to the combined PDF
-        pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates)
+        pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates,
+                                                  hash_converter.placeholder_links)
         pdf_post_processor.process!
 
         File.delete(extras_path)
@@ -162,13 +163,12 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
                                EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
       (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path, file_path, new_hash, flatten: Rails.env.production?
+        template_path, file_path, new_hash, flatten: true
       )
 
       # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
@@ -177,7 +177,7 @@ module PdfFill
       if fill_options.fetch(:extras_redesign, false) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
-      output = combine_extras(file_path, hash_converter.extras_generator)
+      output = combine_extras(file_path, hash_converter.extras_generator, hash_converter)
       Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
     end
