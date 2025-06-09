@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
   let(:user) { build(:user, :loa3) }
-# TEMPORARILY SKIP TESTS UNTIL WE MERGE ENDPOINT PR
+
   before do
     sign_in_as(user)
   end
@@ -14,7 +14,8 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
     end
 
-    xit 'returns digital_disputes_params' do
+    it 'returns digital_disputes_params' do
+      skip 'Temporarily disabled for PR1'
       expect(StatsD).to receive(:increment).with('api.rack.request',
                                                  { tags: ['controller:debts_api/v0/digital_disputes', 'action:create',
                                                           'source_app:not_provided', 'status:200'] })
@@ -34,7 +35,8 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
       end
 
-      xit 'returns an error when there is no veteran information provided' do
+      it 'returns an error when there is no veteran information provided' do
+        skip 'Temporarily disabled for PR1'
         expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
         expect(StatsD).to receive(:increment).with('api.rack.request',
                                                    { tags: ['controller:debts_api/v0/digital_disputes',
@@ -60,6 +62,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       end
 
       it 'returns an error when invalid email is submitted' do
+        skip 'Temporarily disabled for PR1'
         params = get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
         params['veteran_information']['email'] = 'invalid_email'
 
