@@ -2,7 +2,7 @@
 
 module AccreditedRepresentativePortal
   module V0
-    module RepresentativeFormUploadConcern
+    module RepresentativeFormUploadConcern # rubocop:disable Metrics/ModuleLength
       extend ActiveSupport::Concern
 
       def validated_metadata
@@ -34,25 +34,66 @@ module AccreditedRepresentativePortal
         @form_params ||= get_form_params
       end
 
-      def get_form_params
-        params.require(:representative_form_upload).permit(
-          :confirmationCode,
-          :location,
-          :formNumber,
+      def get_form_params # rubocop:disable Metrics/MethodLength
+        unwrapped_params =
+          params.require(:representative_form_upload)
+
+        param_filters = [
           :formName,
-          formData: [
+          :confirmationCode,
+          { formData: [
             :veteranSsn,
-            :formNumber,
             :postalCode,
             :veteranDateOfBirth,
+            :formNumber,
             :email,
-            :postal_code,
             :claimantDateOfBirth,
             :claimantSsn,
             { claimantFullName: %i[first last] },
             { veteranFullName: %i[first last] }
+          ] }
+        ]
+
+        ##
+        # TODO: Remove. This is a workaround while we're in the situation that
+        # OliveBranch modifies our params on staging but not on localhost.
+        # We'll have fixed that bug when it leaves our params alone in both
+        # environments.
+        #
+        # This `blank?` check approach  should suffice to target this
+        # situation without causing some other breakage.
+        #
+        if unwrapped_params[:formData].blank?
+          ##
+          # Manual snakification of `param_filters`. Not done programmatically
+          # because the algorithm would be too long for throaway code.
+          #
+          param_filters = [
+            :confirmation_code,
+            :form_name,
+            { form_data: [
+              :veteran_ssn,
+              :postal_code,
+              :veteran_date_of_birth,
+              :form_number,
+              :email,
+              :claimant_date_of_birth,
+              :claimant_ssn,
+              { claimant_full_name: %i[first last] },
+              { veteran_full_name: %i[first last] }
+            ] }
           ]
-        )
+        end
+
+        ##
+        # TODO: Remove. This is a part of the same workaround above. Once we
+        # have a fix, this transformation will be purely redundant.
+        #
+        unwrapped_params
+          .permit(*param_filters)
+          .deep_transform_keys do |k|
+            k.camelize(:lower)
+          end
       end
 
       def form_data
