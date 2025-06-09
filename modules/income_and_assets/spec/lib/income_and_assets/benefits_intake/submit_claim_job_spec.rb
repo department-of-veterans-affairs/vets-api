@@ -15,72 +15,78 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
-    let(:response) { double('response') }
-    let(:pdf_path) { 'random/path/to/pdf' }
-    let(:location) { 'test_location' }
+    [true, false].each do |extras_redesign|
+      context "when the extras_redesign flipper is #{extras_redesign}" do
+        let(:response) { double('response') }
+        let(:pdf_path) { 'random/path/to/pdf' }
+        let(:location) { 'test_location' }
 
-    before do
-      job.instance_variable_set(:@claim, claim)
-      allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
-      allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
+        before do
+          allow(Flipper).to receive(:enabled?).with(:pension_income_and_assets_overflow_pdf_redesign,
+                                                    anything).and_return(extras_redesign)
+          job.instance_variable_set(:@claim, claim)
+          allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
+          allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: }).and_return(pdf_path)
+          allow(claim).to receive(:persistent_attachments).and_return([])
 
-      job.instance_variable_set(:@intake_service, service)
-      allow(BenefitsIntake::Service).to receive(:new).and_return(service)
-      allow(service).to receive(:uuid)
-      allow(service).to receive(:request_upload)
-      allow(service).to receive_messages(location:, perform_upload: response)
-      allow(response).to receive(:success?).and_return true
+          job.instance_variable_set(:@intake_service, service)
+          allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+          allow(service).to receive(:uuid)
+          allow(service).to receive(:request_upload)
+          allow(service).to receive_messages(location:, perform_upload: response)
+          allow(response).to receive(:success?).and_return true
 
-      job.instance_variable_set(:@monitor, monitor)
+          job.instance_variable_set(:@monitor, monitor)
+        end
+
+        it 'submits the saved claim successfully' do
+          allow(job).to receive(:process_document).and_return(pdf_path)
+          expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: }).and_return(pdf_path)
+          expect(FormSubmission).to receive(:create)
+          expect(FormSubmissionAttempt).to receive(:create)
+          expect(Datadog::Tracing).to receive(:active_trace)
+          expect(UserAccount).to receive(:find)
+
+          expect(service).to receive(:perform_upload).with(
+            upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
+          )
+          expect(job).to receive(:cleanup_file_paths)
+
+          job.perform(claim.id, :user_account_uuid)
+        end
+
+        it 'is unable to find user_account' do
+          expect(IncomeAndAssets::SavedClaim).not_to receive(:find)
+          expect(BenefitsIntake::Service).not_to receive(:new)
+          expect(claim).not_to receive(:to_pdf)
+
+          expect(job).to receive(:cleanup_file_paths)
+          expect(monitor).to receive(:track_submission_retry)
+
+          expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+            ActiveRecord::RecordNotFound,
+            "Couldn't find UserAccount with 'id'=user_account_uuid"
+          )
+        end
+
+        it 'is unable to find saved_claim_id' do
+          allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(nil)
+
+          expect(UserAccount).to receive(:find)
+
+          expect(BenefitsIntake::Service).not_to receive(:new)
+          expect(claim).not_to receive(:to_pdf)
+
+          expect(job).to receive(:cleanup_file_paths)
+          expect(monitor).to receive(:track_submission_retry)
+
+          expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+            IncomeAndAssets::BenefitsIntake::SubmitClaimJob::IncomeAndAssetsBenefitIntakeError,
+            "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
+          )
+        end
+      end
     end
-
-    it 'submits the saved claim successfully' do
-      allow(job).to receive(:process_document).and_return(pdf_path)
-
-      expect(FormSubmission).to receive(:create)
-      expect(FormSubmissionAttempt).to receive(:create)
-      expect(Datadog::Tracing).to receive(:active_trace)
-      expect(UserAccount).to receive(:find)
-
-      expect(service).to receive(:perform_upload).with(
-        upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
-      )
-      expect(job).to receive(:cleanup_file_paths)
-
-      job.perform(claim.id, :user_account_uuid)
-    end
-
-    it 'is unable to find user_account' do
-      expect(IncomeAndAssets::SavedClaim).not_to receive(:find)
-      expect(BenefitsIntake::Service).not_to receive(:new)
-      expect(claim).not_to receive(:to_pdf)
-
-      expect(job).to receive(:cleanup_file_paths)
-      expect(monitor).to receive(:track_submission_retry)
-
-      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        ActiveRecord::RecordNotFound,
-        "Couldn't find UserAccount with 'id'=user_account_uuid"
-      )
-    end
-
-    it 'is unable to find saved_claim_id' do
-      allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(nil)
-
-      expect(UserAccount).to receive(:find)
-
-      expect(BenefitsIntake::Service).not_to receive(:new)
-      expect(claim).not_to receive(:to_pdf)
-
-      expect(job).to receive(:cleanup_file_paths)
-      expect(monitor).to receive(:track_submission_retry)
-
-      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob::IncomeAndAssetsBenefitIntakeError,
-        "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
-      )
-    end
-
     # perform
   end
 
