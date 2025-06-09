@@ -35,7 +35,12 @@ module Ccra
     def get_referral(id, icn)
       # Check if referral data is in cache
       cached_referral = referral_cache.fetch_referral_data(id:, icn:)
-      return cached_referral if cached_referral
+      if cached_referral
+        # Update the booking start time since we're starting the appointment creation process
+        cached_referral.booking_start_time = Time.current.to_f
+        referral_cache.save_referral_data(id:, icn:, referral_data: cached_referral)
+        return cached_referral
+      end
 
       # If not in cache, fetch from API and cache the result
       params = {}

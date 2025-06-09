@@ -92,10 +92,18 @@ describe Ccra::ReferralService do
         allow(referral_cache).to receive(:fetch_referral_data).with(id:, icn:).and_return(referral_detail)
       end
 
-      it 'returns the cached referral detail' do
-        # Just verify the service returns what the cache returns
-        result = subject.get_referral(id, icn)
-        expect(result).to eq(referral_detail)
+      it 'returns the cached referral detail with updated booking start time' do
+        Timecop.freeze(Time.current) do
+          expected_start_time = Time.current.to_f
+          allow(referral_detail).to receive(:booking_start_time=).with(expected_start_time)
+          expect(referral_cache).to receive(:save_referral_data)
+            .with(id:, icn:, referral_data: referral_detail)
+            .and_return(true)
+
+          result = subject.get_referral(id, icn)
+          expect(result).to eq(referral_detail)
+          expect(referral_detail).to have_received(:booking_start_time=).with(expected_start_time)
+        end
       end
     end
 
