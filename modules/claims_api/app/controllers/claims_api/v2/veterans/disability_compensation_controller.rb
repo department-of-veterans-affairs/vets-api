@@ -103,23 +103,24 @@ module ClaimsApi
           auto_claim = shared_submit_methods
 
           unless claims_load_testing # || sandbox_request(request)
-            generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
-            docker_container_service.upload(auto_claim.id)
+            begin
+              generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
+              docker_container_service.upload(auto_claim.id)
+              
+            # Referencing commmon timeout exceptions used elsewhere:
+            # https://vscode.dev/github/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/custom_error.rb#L24
+            rescue Faraday::TimeoutError, ::Common::Exceptions::GatewayTimeout,
+                   Timeout::Error, Breakers::OutageException, Net::HTTPGatewayTimeout => e
+              ClaimsApi::Logger.log('526_synchronous_timeout', detail: "#{e.class} - #{e.message}",
+                                    claim_id: auto_claim&.id, transaction_id: auto_claim&.transaction_id)
+
+              raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout.new
+            end
+            
             queue_flash_updater(auto_claim.flashes, auto_claim.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
           end
-
-          # Rescue possible timeout exceptions.
-          rescue Faraday::TimeoutError, ::Common::Exceptions::GatewayTimeout,
-                Timeout::Error, Breakers::OutageException, Net::HTTPGatewayTimeout,
-                ClaimsApi::Common::Exceptions::Lighthouse::Timeout => e
-
-          # Log timeout exception.
-          ClaimsApi::Logger.log('Form526_timeout', detail: "#{e.class} - #{e.message}", claim_id: auto_claim&.id)?
-
-          # Raise 504 exception (default status code returned in timeout exception handler).
-          raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout.new
 
           render json: ClaimsApi::V2::Blueprints::MetaBlueprint.render(
             auto_claim, async: false
