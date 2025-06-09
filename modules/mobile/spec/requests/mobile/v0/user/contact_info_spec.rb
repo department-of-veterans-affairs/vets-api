@@ -105,21 +105,20 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
     end
   end
 
-  # This will be refactored in the next pull request
-  # describe 'GET /mobile/v0/user/contact_info without vet360 id', :skip_va_profile_user do
-  #   let!(:user) { sis_user(vet360_id: nil) }
+  describe 'GET /mobile/v0/user/contact_info without vet360 id' do
+    let!(:user) { sis_user(vet360_id: nil, icn: nil) }
 
-  #   before do
-  #     get('/mobile/v0/user/contact-info', headers: sis_headers)
-  #   end
+    before do
+      get('/mobile/v0/user/contact-info', headers: sis_headers)
+    end
 
-  #   it 'returns nil' do
-  #     expect(attributes['residentialAddress']).to be_nil
-  #     expect(attributes['mailingAddress']).to be_nil
-  #     expect(attributes['homePhone']).to be_nil
-  #     expect(attributes['mobilePhone']).to be_nil
-  #     expect(attributes['workPhone']).to be_nil
-  #     expect(attributes['contactEmail']).to be_nil
-  #   end
-  # end
+    it 'returns nil' do
+      expect(attributes['residentialAddress']).to be_nil
+      expect(attributes['mailingAddress']).to be_nil
+      expect(attributes['homePhone']).to be_nil
+      expect(attributes['mobilePhone']).to be_nil
+      expect(attributes['workPhone']).to be_nil
+      expect(attributes['contactEmail']).to be_nil
+    end
+  end
 end
