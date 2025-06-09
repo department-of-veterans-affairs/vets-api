@@ -24,8 +24,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test1@email.com' }
+                 'view:has_private_evidence': true
                },
                metadata: {
                  return_url: '/option-claims'
@@ -38,8 +37,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test11@email.com' }
+                 'view:has_private_evidence': true
                },
                metadata: {
                  return_url: '/some-other-page'
@@ -52,8 +50,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test12@email.com' }
+                 'view:has_private_evidence': true
                },
                metadata: {},
                id: 1012)
@@ -64,8 +61,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test13@email.com' }
+                 'view:has_private_evidence': true
                },
                metadata: {
                  return_url: new_return_url
@@ -120,8 +116,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: false,
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test2@email.com' }
+                 'view:has_private_evidence': true
                })
       end
 
@@ -130,8 +125,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': false,
-                 veteran: { email: 'test3@email.com' }
+                 'view:has_private_evidence': false
                })
       end
 
@@ -140,8 +134,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: false,
-                 'view:has_private_evidence': false,
-                 veteran: { email: 'test4@email.com' }
+                 'view:has_private_evidence': false
                })
       end
 
@@ -149,8 +142,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test5@email.com' }
+                 'view:has_private_evidence': true
                })
       end
 
@@ -158,8 +150,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
-                 privacy_agreement_accepted: true,
-                 veteran: { email: 'test6@email.com' }
+                 privacy_agreement_accepted: true
                })
       end
 
@@ -167,7 +158,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
-                 veteran: { email: 'test7@email.com' }
+                 form5103Acknowledged: true
                })
       end
 
@@ -176,8 +167,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: nil,
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test8@email.com' }
+                 'view:has_private_evidence': true
                })
       end
 
@@ -186,8 +176,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': nil,
-                 veteran: { email: 'test9@email.com' }
+                 'view:has_private_evidence': nil
                })
       end
 
@@ -196,8 +185,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: 'true',
-                 'view:has_private_evidence': true,
-                 veteran: { email: 'test10@email.com' }
+                 'view:has_private_evidence': true
                })
       end
 
@@ -255,11 +243,10 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                       form_id: '20-0995',
                       form_data: {
                         privacy_agreement_accepted: true,
-                        'view:has_private_evidence': true,
-                        veteran: { email: 'test14@email.com' }
-                      })
+                        'view:has_private_evidence': true
+                      },
+                      metadata: '')
         # Manually corrupt the metadata to simulate invalid JSON
-        form.update_column(:metadata, 'invalid json string')
         form
       end
 
@@ -307,8 +294,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                  form_id: '20-0995',
                  form_data: {
                    privacy_agreement_accepted: true,
-                   'view:has_private_evidence': true,
-                   veteran: { email: "test#{i}@email.com" }
+                   'view:has_private_evidence': true
                  },
                  metadata: {
                    return_url: '/option-claims'
@@ -344,8 +330,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
              form_id: '20-0995',
              form_data: {
                privacy_agreement_accepted: true,
-               'view:has_private_evidence': true,
-               veteran: { email: 'preview@email.com' }
+               'view:has_private_evidence': true
              },
              metadata: {
                return_url: '/option-claims'
