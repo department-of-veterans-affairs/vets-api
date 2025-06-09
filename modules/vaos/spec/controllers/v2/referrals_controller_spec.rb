@@ -233,6 +233,13 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           }.from(nil).to(Time.current.to_f)
         end
       end
+
+      it 'increments the referral detail page access metric' do
+        expect(StatsD).to receive(:increment).with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC)
+        expect(StatsD).to receive(:increment).with('api.rack.request', any_args)
+
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+      end
     end
   end
 end
