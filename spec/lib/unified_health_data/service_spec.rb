@@ -448,4 +448,43 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
   end
+
+  describe '#fetch_display' do
+    let(:service_instance) { described_class.new(user) }
+
+    it 'returns ServiceRequest code text if present' do
+      record = {
+        'resource' => {
+          'contained' => [
+            { 'resourceType' => 'ServiceRequest', 'code' => { 'text' => 'Blood Test' } }
+          ],
+          'code' => { 'text' => 'Fallback Test' }
+        }
+      }
+      expect(service_instance.send(:fetch_display, record)).to eq('Blood Test')
+    end
+
+    it 'returns code.text if ServiceRequest is not present' do
+      record = {
+        'resource' => {
+          'contained' => [
+            { 'resourceType' => 'OtherType' }
+          ],
+          'code' => { 'text' => 'Fallback Test' }
+        }
+      }
+      expect(service_instance.send(:fetch_display, record)).to eq('Fallback Test')
+    end
+
+    it 'returns empty string if neither ServiceRequest nor code.text is present' do
+      record = {
+        'resource' => {
+          'contained' => [
+            { 'resourceType' => 'OtherType' }
+          ]
+        }
+      }
+      expect(service_instance.send(:fetch_display, record)).to eq('')
+    end
+  end
 end
