@@ -74,9 +74,9 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
 
       context 'when the user has no home address' do
         let!(:user) { sis_user(vet360_id: nil, icn: nil) }
+
         it 'returns 422 with error message' do
           VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
-
             params = { serviceType: 'podiatry' }
             get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
             assert_schema_conform(422)
