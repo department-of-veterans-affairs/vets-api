@@ -4416,10 +4416,13 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           .to receive(:upload).and_raise(Faraday::TimeoutError.new('Form526 submission timed out'))
 
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-          post synchronous_path, params: data, headers: auth_header
-          
-          parsed_response = JSON.parse(response.body)
-          expect(parsed_response['errors'][0]['status']).to eq('504')
+          VCR.use_cassette('claims_api/disability_comp') do
+            post synchronous_path, params: data, headers: auth_header
+
+            expect(response).to have_http_status(:gateway_timeout)
+            parsed_response = JSON.parse(response.body)
+            expect(parsed_response['errors'][0]['status']).to eq('504')
+          end
         end
       end
 
@@ -4429,12 +4432,16 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
 
         expect(ClaimsApi::Logger).to receive(:log).with(
           '526_synchronous_timeout',
-          hash_including(detail: 'Faraday::TimeoutError - Form526 submission timed out')
+          hash_including(
+            detail: 'Faraday::TimeoutError - Form526 submission timed out'
+          )
         )
 
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
-          post synchronous_path, params: data, headers: auth_header
-          expect(response).to have_http_status(:gateway_timeout)
+          VCR.use_cassette('claims_api/disability_comp') do
+            post synchronous_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:gateway_timeout)
+          end
         end
       end
     end
