@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'income_and_assets/benefits_intake/submit_claim_job'
+require 'pdf_fill/filler'
 
 module IncomeAndAssets
   ##
@@ -75,6 +76,10 @@ module IncomeAndAssets
       refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
       files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
+    end
+
+    def to_pdf(file_name = nil, fill_options = {})
+      ::PdfFill::Filler.fill_form(self, file_name, fill_options)
     end
   end
 end

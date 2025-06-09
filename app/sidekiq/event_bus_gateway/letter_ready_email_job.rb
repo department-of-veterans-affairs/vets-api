@@ -38,12 +38,12 @@ module EventBusGateway
       if person
         person[:first_nm].capitalize
       else
-        record_email_send_failure(OpenStruct.new(message: 'Participant ID cannot be found in BGS'))
+        raise StandardError, 'Participant ID cannot be found in BGS'
       end
     end
 
     def record_email_send_failure(error)
-      error_message = 'LetterReadyEmailJob VANotify errored'
+      error_message = 'LetterReadyEmailJob errored'
       ::Rails.logger.error(error_message, { message: error.message })
       StatsD.increment('event_bus_gateway', tags: ['service:event-bus-gateway', "function: #{error_message}"])
     end
