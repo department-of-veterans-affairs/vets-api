@@ -44,8 +44,8 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 502
+      message: Record Not Found
     headers:
       Date:
       - Fri, 07 Feb 2025 15:21:01 GMT
@@ -64,7 +64,7 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS41AAA=</work:WorkContext></env:Header><S:Body><ns0:Fault
-        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->Internal Server Error</faultstring><detail><ns0:MessageException
-        xmlns:ns0="http://intenttofile.services.vetsnet.vba.va.gov/"><message>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->Internal Server Error</message></ns0:MessageException></detail></ns0:Fault></S:Body></S:Envelope>
+        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->No BnftClaim found</faultstring><detail><ns0:MessageException
+        xmlns:ns0="http://intenttofile.services.vetsnet.vba.va.gov/"><message>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->No BnftClaim found</message></ns0:MessageException></detail></ns0:Fault></S:Body></S:Envelope>
   recorded_at: Fri, 07 Feb 2025 15:21:01 GMT
 recorded_with: VCR 6.3.1

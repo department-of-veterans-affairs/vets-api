@@ -19,7 +19,6 @@ module ClaimsApi
       @fault_code = fault&.dig('faultcode')&.split(':')&.dig(1)
       @fault_string = fault&.dig('faultstring')
       @fault_message = fault&.dig('detail', 'MessageException') || fault&.dig('detail', 'MessageFaultException')
-      return {} if @fault_string.include?('IntentToFileWebService') && @fault_string.include?('not found')
 
       get_exception
     end
@@ -27,7 +26,9 @@ module ClaimsApi
     private
 
     def get_exception
-      if not_found?
+      if veteran_not_found?
+        { status: '404', detail: 'Veteran ID not found' }
+      elsif not_found?
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found.')
       elsif bnft_claim_not_found?
         {}
@@ -81,6 +82,12 @@ module ClaimsApi
       has_error = @fault_string.include?('No Record Found')
       soap_logging('404') if has_error
 
+      has_error
+    end
+
+    def veteran_not_found?
+      has_error = @fault_string.include?('IntentToFileWebService') && @fault_string.include?('not found')
+      soap_logging('404') if has_error
       has_error
     end
 
