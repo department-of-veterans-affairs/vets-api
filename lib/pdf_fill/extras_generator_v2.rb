@@ -369,7 +369,7 @@ module PdfFill
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
 
-      value = apply_humanization(value, metadata[:format_options]) if should_humanize?(metadata[:format_options])
+      value = apply_humanization(value, metadata[:format_options])
 
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
@@ -640,10 +640,6 @@ module PdfFill
 
     private
 
-    def should_humanize?(format_options)
-      format_options&.dig(:humanize).present?
-    end
-
     def apply_humanization(value, format_options)
       humanize_config = format_options[:humanize]
 
@@ -667,7 +663,7 @@ module PdfFill
       # Convert to snake_case manually to avoid inflection rules affecting `underscore` method
       # This handles SOCIAL_SECURITY -> "Social Security", CIVIL_SERVICE -> "Civil Service", etc.
       value.to_s
-           # Convert consecutive uppercase letters followed by lowercase (e.g., "SSNNumber" -> "SSN_Number")
+           # Convert consecutive uppercase letters followed by lowercase (e.g., "ABCDExample" -> "ABCD_Example")
            .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
            # Convert camelCase to snake_case (e.g., "firstName" -> "first_name")
            .gsub(/([a-z\d])([A-Z])/, '\1_\2')

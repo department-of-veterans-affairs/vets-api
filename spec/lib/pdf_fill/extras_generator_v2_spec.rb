@@ -871,21 +871,6 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
   end
 
-  describe '#should_humanize?' do
-    [
-      { format_options: { humanize: true }, expected: true, description: 'when humanize is set to true' },
-      { format_options: { humanize: { 'VETERAN' => 'Veteran' } }, expected: true,
-        description: 'when humanize is a hash' },
-      { format_options: {}, expected: false, description: 'when humanize is not present' },
-      { format_options: { humanize: nil }, expected: false, description: 'when humanize is nil' },
-      { format_options: nil, expected: false, description: 'when format_options is nil' }
-    ].each do |test_case|
-      it "returns #{test_case[:expected]} #{test_case[:description]}" do
-        expect(subject.send(:should_humanize?, test_case[:format_options])).to be test_case[:expected]
-      end
-    end
-  end
-
   describe '#apply_humanization' do
     [
       {
