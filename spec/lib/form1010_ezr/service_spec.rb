@@ -283,6 +283,13 @@ RSpec.describe Form1010Ezr::Service do
           end
 
           # context 'when the associations service returns a 200 response' do
+          #   before do
+          #     allow_any_instance_of(
+          #       Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+          #     ).to receive(:reconcile_and_update_associations).and_return(
+          #       get_fixture('veteran_enrollment_system/associations/associations_maximum')
+          #     )
+          #   end
           #   it 'removes the associations from the form and returns a success object' do
           #     VCR.use_cassette('example', :record => :once) do
           #       submit = service.submit_sync(form_with_associations)

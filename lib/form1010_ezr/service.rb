@@ -209,8 +209,8 @@ module Form1010Ezr
       )
       # Since we are using the Associations API to update the associations, we'll remove the
       # 'nextOfKins' and 'emergencyContacts' from the parsed_form to prevent redundancy
-      parsed_form.delete('nextOfKins')
-      parsed_form.delete('emergencyContacts')
+      parsed_form.delete('nextOfKins') if parsed_form.key?('nextOfKins')
+      parsed_form.delete('emergencyContacts') if parsed_form.key?('emergencyContacts')
 
       parsed_form
     end
