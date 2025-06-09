@@ -200,7 +200,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         before do
           Timecop.freeze
-          allow(service_double).to receive(:get_referral) do |id, user_icn|
+          allow(service_double).to receive(:get_referral) do |_id, _user_icn|
             referral_without_time.booking_start_time = Time.current.to_f
             referral_without_time
           end
