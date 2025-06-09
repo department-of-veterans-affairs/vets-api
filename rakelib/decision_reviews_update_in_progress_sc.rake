@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :decision_reviews do
   desc 'Update return_url for in-progress Supplemental Claims forms requiring 4142 re-authorization'
   task update_in_progress_sc: :environment do
@@ -14,7 +16,7 @@ namespace :decision_reviews do
     # Find all in-progress saved forms for Supplemental Claims
     in_progress_forms = InProgressForm.where(form_id: '20-0995')
 
-    puts "Found #{in_progress_forms.count} in-progress Supplemental Claims forms to process..."
+    puts "Found #{in_progress_forms.count} in-progress Supplemental Claims forms to process."
 
     in_progress_forms.find_in_batches(batch_size: 500) do |batch|
       puts "Processing batch of #{batch.size} forms..."
@@ -23,16 +25,14 @@ namespace :decision_reviews do
         total_processed += 1
 
         begin
-          # Use data_and_metadata method to access form data
           form_data = in_progress_form.data_and_metadata[:formData] || {}
 
-          # Check if both conditions are met - both keys must be present and true
+          # Check if conditions are met - both keys must be present and true
           has_privacy_agreement_accepted = form_data['privacy_agreement_accepted'] == true
           has_private_evidence = form_data['view:has_private_evidence'] == true
 
           if has_privacy_agreement_accepted && has_private_evidence
-            # Parse metadata to update return_url
-            metadata = JSON.parse(in_progress_form.metadata || '{}')
+            metadata = in_progress_form.metadata || {}
             old_return_url = metadata['return_url']
 
             # Update the return_url
@@ -51,11 +51,16 @@ namespace :decision_reviews do
             end
           else
             puts "- Skipped user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id}) - conditions not met"
-            puts "  privacy_agreement_accepted: #{form_data['privacy_agreement_accepted']}, view:has_private_evidence: #{form_data['view:has_private_evidence']}"
+            puts "
+              privacy_agreement_accepted: #{form_data['privacy_agreement_accepted']},
+              view:has_private_evidence: #{form_data['view:has_private_evidence']}
+            "
           end
         rescue => e
           failed_ids << in_progress_form.id
-          puts "✗ Unexpected error processing user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id}): #{e.message}"
+          puts "
+            ✗ Unexpected error processing user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id}): #{e.message}
+          "
         end
       end
 
@@ -80,7 +85,7 @@ namespace :decision_reviews do
   end
 
   desc 'Dry run: Preview which Supplemental Claims forms would be updated'
-  task preview_4142_updates: :environment do
+  task preview_update_in_progress_sc: :environment do
     puts 'DRY RUN: Previewing Supplemental Claims forms that would be updated...'
 
     new_return_url = '/supporting-evidence/private-medical-records-authorization'
@@ -106,7 +111,7 @@ namespace :decision_reviews do
 
           if has_privacy_agreement_accepted && has_private_evidence
             eligible_count += 1
-            metadata = JSON.parse(in_progress_form.metadata || '{}')
+            metadata = in_progress_form.metadata || {}
             current_return_url = metadata['return_url']
 
             puts "Would update user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id})"
