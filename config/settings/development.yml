@@ -649,6 +649,10 @@ lighthouse:
       use_mocks: false
     host: https://sandbox-api.va.gov
     use_mocks: false
+  benefits_discovery:
+    host: 'https://sandbox.lighthouse.va.gov'
+    x_api_key: ~
+    x_app_id: ~
   benefits_documents:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -918,6 +922,7 @@ mhv:
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
@@ -1769,15 +1774,7 @@ virtual_agent:
   cxdw_client_secret: fake_secret
   cxdw_dataverse_uri: fake_dataverse_uri
   cxdw_table_prefix: fake_table_prefix
-  lighthouse_api_key: fake_api_key
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
-  speech_token_subscription_key: fake_speech_token_subscription_key
-  webchat_pva2_secret: fake_secret
   webchat_root_bot_secret: fake_secret
-  webchat_secret: fake_secret
-  webchat_secret_msft: fake_secret
-  webchat_secret_nlu: fake_secret
 virtual_hosts:
   - 127.0.0.1
   - localhost
