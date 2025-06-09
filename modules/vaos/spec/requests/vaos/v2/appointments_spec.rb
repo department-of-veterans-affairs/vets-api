@@ -1075,7 +1075,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               type: 'both',
               text: 'text'
             } }
-          end
+        end
         let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
         it 'successfully submits referral appointment' do
@@ -1117,7 +1117,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
                              match_requests_on: %i[method path body]) do
-
               Timecop.freeze(Time.current) do
                 # mimic caching of referral data that occurs when the referral object is created
                 # earlier in the appointment creation process

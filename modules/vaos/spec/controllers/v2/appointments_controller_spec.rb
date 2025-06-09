@@ -102,8 +102,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
-        allow(controller).to receive(:current_user).and_return(current_user)
-        allow(controller).to receive(:ccra_referral_service).and_return(ccra_referral_service)
+        allow(controller).to receive_messages(current_user:, ccra_referral_service:)
       end
 
       it 'renders created status with appointment id and logs duration' do
