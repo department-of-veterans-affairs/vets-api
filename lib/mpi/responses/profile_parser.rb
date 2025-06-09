@@ -146,10 +146,10 @@ module MPI
         name = parse_name(locate_elements(person_component, NAME_XPATH))
         preferred_names = parse_name(locate_elements(person_component, NAME_XPATH), indicator: NAME_PREFERRED_INDICATOR)
         {
-          given_names: name[:given],
+          given_names: name[:given] || [],
           family_name: name[:family],
           suffix: name[:suffix],
-          preferred_names: preferred_names[:given],
+          preferred_names: preferred_names[:given] || [],
           gender: locate_element(person_component, GENDER_XPATH),
           birth_date: locate_element(person_component, DOB_XPATH),
           deceased_date: locate_element(person_component, DECEASED_XPATH),
@@ -188,16 +188,16 @@ module MPI
 
       def parse_multiple_ids(parsed_mvi_ids)
         {
-          mhv_ids: parsed_mvi_ids[:mhv_ids],
-          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
+          mhv_ids: parsed_mvi_ids[:mhv_ids] || [],
+          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids] || [],
           edipis: sanitize_id_array(parsed_mvi_ids[:edipis]),
           participant_ids: sanitize_id_array(parsed_mvi_ids[:vba_corp_ids]),
           mhv_iens: sanitize_id_array(parsed_mvi_ids[:mhv_iens]),
-          sec_ids: parsed_mvi_ids[:sec_ids],
-          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
-          vha_facility_hash: parsed_mvi_ids[:vha_facility_hash],
+          sec_ids: parsed_mvi_ids[:sec_ids] || [],
+          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids] || [],
+          vha_facility_hash: parsed_mvi_ids[:vha_facility_hash] || {},
           birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
-          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
+          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids] || []
         }
       end
 
