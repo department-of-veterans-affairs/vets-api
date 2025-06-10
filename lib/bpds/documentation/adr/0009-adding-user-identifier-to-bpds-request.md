@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-As part of the data submitted to BPDS by the Sidekiq job, we need logic to retrieve a unique identifier that can be used to associate the user with the submission in BPDS. These identifiers are PII and cannot be logged or stored unecrypted.
+As part of the data submitted to BPDS by the Sidekiq job, we need logic to retrieve a unique identifier that can be used to associate the user with the submission in BPDS. These identifiers are PII and cannot be logged or stored unencrypted.
 
 ## Decision
 
