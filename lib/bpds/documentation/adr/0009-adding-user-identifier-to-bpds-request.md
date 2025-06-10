@@ -29,4 +29,4 @@ The logic is as follows:
 
 ## Consequences
 
-This change allows user identifiers to be included in the submission to BPDS when a user submits a form. Logging and metrics have been added to a dashboard for monitoring purposes.
+This change allows user identifiers to be included in the submission to BPDS when a user submits a form. Logging and metrics have been added to a [Datadog dashboard](https://vagov.ddog-gov.com/dashboard/2k5-e24-m9y) for monitoring purposes.
