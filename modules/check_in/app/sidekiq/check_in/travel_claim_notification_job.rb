@@ -126,10 +126,11 @@ module CheckIn
                else
                  Constants::STATSD_OH_SILENT_FAILURE_TAGS
                end
-
+        # Log silent failures as per Watchtower group as per silent failure policy
         StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
       end
 
+      # Log all failures for CIE team metrics tracking
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
       failure_message = "Failed to send Travel Claim Notification SMS: #{message}, Won't Retry"
       log_sms_attempt(opts, logger_instance, failure_message)
