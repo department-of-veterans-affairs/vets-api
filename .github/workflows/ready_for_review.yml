@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+      - name: Set up environment variables
+        run: |
+          echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
       - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
         with:
@@ -24,6 +29,19 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+      - name: Get requested reviewer teams from PR payload
+        id: requested_teams
+        run: |
+          echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.slug) }}' | jq -c '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Check if backend-review-group is requested
+        id: check_backend_requested
+        run: |
+          echo "Requested teams: ${{ steps.requested_teams.outputs.pr_requested_teams }}"
+          echo '${{ steps.requested_teams.outputs.pr_requested_teams }}' | grep -q '"backend-review-group"' && \
+            echo "team_requested=true" >> "$GITHUB_OUTPUT" || \
+            echo "team_requested=false" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -39,13 +57,33 @@ jobs:
 
       - name: Verify backend-review-group approval
         id: verify_approval
+        if: steps.check_backend_requested.outputs.team_requested == 'true'
         run: |
-          approval_status=required
-          team_approval_status=required
-          author_is_backend=false
-
-          BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
-          BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
-          echo "Backend reviewers regex: $BACKEND_REVIEWERS"
+          gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login' > members.txt
+          echo "Backend team members:"
+          cat members.txt
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+      
+      - name: Check if any backend-review-group member approved the PR
+        if: steps.check_backend_requested.outputs.team_requested == 'true'
+        run: |
+          gh pr view "$PR_NUMBER" --repo "$REPO" --json reviews -q '.reviews[] | select(.state=="APPROVED") | .author.login' > approvals.txt
+          echo "Approvals by:"
+          cat approvals.txt
+
+          PASSED=false
+          while IFS= read -r member; do
+            if grep -Fxq "$member" approvals.txt; then
+              echo "✅ $member from backend-review-group has approved"
+              PASSED=true
+              break
+            fi
+          done < members.txt
+
+          if [[ "$PASSED" == "true" ]]; then
+            echo "Backend team approval satisfied."
+          else
+            echo "❌ No approvals from backend-review-group. Failing job."
+            exit 1
+          fi

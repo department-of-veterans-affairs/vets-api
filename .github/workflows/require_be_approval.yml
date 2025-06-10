@@ -1,5 +1,4 @@
 name: Check Backend Review Group Approval
-
 on:
   pull_request:
     types: [opened, reopened, edited, synchronize, review_requested, submitted]
@@ -10,13 +9,12 @@ jobs:
   check-backend-review:
     runs-on: ubuntu-latest
     permissions: write-all
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Set up environment variables
         run: |
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+    
       - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
         with:
