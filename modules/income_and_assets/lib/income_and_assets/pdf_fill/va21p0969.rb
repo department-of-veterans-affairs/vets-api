@@ -54,21 +54,36 @@ module IncomeAndAssets
         12 => 'Waiver of Receipt of Income'
       }.freeze
 
+      LEGACY_QUESTION_KEY = [
+        { question_number: '1', question_text: "Veteran's Identification Information" },
+        { question_number: '2', question_text: "Claimant's Identification Information" },
+        { question_number: '3', question_text: 'Recurring Income Not Associated with Accounts or Assets' },
+        { question_number: '4', question_text: 'Associated Incomes' },
+        { question_number: '5', question_text: 'Income and Net Worth Associated with Owned Assets' },
+        { question_number: '6', question_text: 'Income and Net Worth Associated with Royalties and Other Properties' },
+        { question_number: '7', question_text: 'Asset Transfers' },
+        { question_number: '8', question_text: 'Trusts' },
+        { question_number: '9', question_text: 'Annuities' },
+        { question_number: '10', question_text: 'Assets Previously Not Reported' },
+        { question_number: '11', question_text: 'Discontinued or Irregular Income' },
+        { question_number: '12', question_text: 'Waiver of Receipt of Income' }
+      ].freeze
+
       # V2-style sections grouping question numbers for overflow pages
       SECTIONS = [
-        { label: 'Section I: Veteran\'s Identification Information', question_nums: [1] },
-        { label: 'Section II: Claimant\'s Identification Information', question_nums: [2] },
-        { label: 'Section III: Recurring Income Not Associated with Accounts or Assets', question_nums: [3] },
-        { label: 'Section IV: Associated Incomes', question_nums: [4] },
-        { label: 'Section V: Income and Net Worth Associated with Owned Assets', question_nums: [5] },
+        { label: 'Section I: Veteran\'s Identification Information', question_nums: ['1'] },
+        { label: 'Section II: Claimant\'s Identification Information', question_nums: ['2'] },
+        { label: 'Section III: Recurring Income Not Associated with Accounts or Assets', question_nums: ['3'] },
+        { label: 'Section IV: Associated Incomes', question_nums: ['4'] },
+        { label: 'Section V: Income and Net Worth Associated with Owned Assets', question_nums: ['5'] },
         { label: 'Section VI: Income and Net Worth Associated with Royalties and Other Properties',
-          question_nums: [6] },
-        { label: 'Section VII: Asset Transfers', question_nums: [7] },
-        { label: 'Section VIII: Trusts', question_nums: [8] },
-        { label: 'Section IX: Annuities', question_nums: [9] },
-        { label: 'Section X: Assets Previously Not Reported', question_nums: [10] },
-        { label: 'Section XI: Discontinued or Irregular Income', question_nums: [11] },
-        { label: 'Section XII: Waiver of Receipt of Income', question_nums: [12] }
+          question_nums: ['6'] },
+        { label: 'Section VII: Asset Transfers', question_nums: ['7'] },
+        { label: 'Section VIII: Trusts', question_nums: ['8'] },
+        { label: 'Section IX: Annuities', question_nums: ['9'] },
+        { label: 'Section X: Assets Previously Not Reported', question_nums: ['10'] },
+        { label: 'Section XI: Discontinued or Irregular Income', question_nums: ['11'] },
+        { label: 'Section XII: Waiver of Receipt of Income', question_nums: ['12'] }
       ].freeze
 
       # The list of section classes for form expansion and key building
@@ -86,6 +101,11 @@ module IncomeAndAssets
 
       # Default label column width (points) for redesigned extras in this form
       DEFAULT_LABEL_WIDTH = 130
+
+      # Selects the correct question key mapping for legacy or V2 overflow generator.
+      def self.question_key(extras_redesign: false)
+        extras_redesign ? LEGACY_QUESTION_KEY : QUESTION_KEY
+      end
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
