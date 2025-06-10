@@ -142,6 +142,7 @@ class FormProfile
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0538' => DependentsVerification::FormProfiles::VA210538,
     '21-0966' => ::FormProfiles::VA210966,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
