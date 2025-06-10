@@ -32,6 +32,8 @@ jobs:
           TEAM_SLUG="backend-review-group"
           TEAM_REQUESTED=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json reviewRequests -q '.reviewRequests.teams[].slug' | grep -Fx "$TEAM_SLUG" || true)
 
+          echo "Requested Reviewers= $TEAM_REQUESTED"
+
           if [[ -n "$TEAM_REQUESTED" ]]; then
             echo "Backend team is a requested reviewer"
             echo "team_requested=true" >> $GITHUB_OUTPUT
