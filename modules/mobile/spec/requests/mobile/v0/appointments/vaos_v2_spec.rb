@@ -237,12 +237,23 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          # Only one of the appointments should be eligible for travel pay
+          # Only one of the appointments should be eligible to file for travel pay
           expected_eligible_count = response.parsed_body['data'].count do |appt|
-            appt['attributes']['travelPayEligible']
+            appt['attributes']['travelPayEligible'] &&
+              appt['attributes']['startDateUtc'] >= 30.days.ago.utc &&
+              appt['attributes']['travelPayClaim']['claim'].nil?
           end
+
           expect(expected_eligible_count).to eq(1)
           expect(response.parsed_body['meta']['travelPayEligibleCount']).to eq(expected_eligible_count)
+          expect(response.parsed_body['meta']['travelPayDaysLimit']).to eq(30)
+
+          eligible_appt_types = response.parsed_body['data'].count do |appt|
+            appt['attributes']['travelPayEligible']
+          end
+
+          # All three appointments should be eligible appt types for travel pay
+          expect(eligible_appt_types).to eq(3)
           # The first appointment should have a claim attached
           expect(response.parsed_body.dig('data', 0, 'attributes', 'travelPayClaim'))
             .to eq({
@@ -274,8 +285,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                        'success' => true
                      }
                    })
-          # Only the 3rd appointment should be within 30 days and eligible for travel pay
-          expect(response.parsed_body.dig('data', 2, 'attributes', 'travelPayEligible')).to be true
         end
 
         it 'does not append claim info when flag is not passed' do

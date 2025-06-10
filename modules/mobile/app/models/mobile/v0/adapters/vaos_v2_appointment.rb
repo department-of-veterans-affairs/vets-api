@@ -78,8 +78,6 @@ module Mobile
           'OTHER_REASON' => 'My reason isn’t listed'
         }.freeze
 
-        TRAVEL_PAY_DAYS_LIMIT = 30
-
         attr_reader :appointment
 
         def initialize(appointment)
@@ -450,12 +448,12 @@ module Mobile
           time.is_a?(DateTime) ? time : DateTime.parse(time)
         end
 
+        # checks for if the appointment type is eligible for travel pay
         def travel_pay_eligible?
           [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
-            appointment.start < Time.now.utc && # verify it's a past appointment
-            appointment.start >= TRAVEL_PAY_DAYS_LIMIT.days.ago.utc # verify it's within the last 30 days
+            appointment.start < Time.now.utc # verify it's a past appointment
         end
       end
     end
