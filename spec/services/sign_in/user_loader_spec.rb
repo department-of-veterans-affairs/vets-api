@@ -143,7 +143,7 @@ RSpec.describe SignIn::UserLoader do
         end
 
         it 'reloads user object so that MPI can be called for additional attributes' do
-          expect(subject.edipi).to be edipi
+          expect(subject.edipi).to eq edipi
         end
 
         context 'when the user can create MHV account' do
