@@ -13,54 +13,41 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Set up env vars
-        id: vars
+      - name: Set up environment variables
         run: |
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
-      - name: Get PR author
-        id: author
+      - name: Get requested reviewer teams from PR payload
+        id: requested_teams
         run: |
-          PR_AUTHOR=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json author -q '.author.login')
-          echo "PR author is $PR_AUTHOR"
-          echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
+          echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.slug) }}' | jq -c '.')" >> "$GITHUB_OUTPUT"
 
-      - name: Check if 'backend-review-group' is a requested reviewer team
-        id: check_team
+      - name: Check if backend-review-group is requested
+        id: check_backend_requested
         run: |
-          TEAM_SLUG="backend-review-group"
-          TEAM_REQUESTED=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json reviewRequests -q '.reviewRequests.teams[].slug' | grep -Fx "$TEAM_SLUG" || true)
+          echo "Requested teams: ${{ steps.requested_teams.outputs.pr_requested_teams }}"
+          echo '${{ steps.requested_teams.outputs.pr_requested_teams }}' | grep -q '"backend-review-group"' && \
+            echo "team_requested=true" >> "$GITHUB_OUTPUT" || \
+            echo "team_requested=false" >> "$GITHUB_OUTPUT"
 
-          echo "Requested Reviewers= $TEAM_REQUESTED"
+      - name: Exit early if backend-review-group is NOT requested
+        if: steps.check_backend_requested.outputs.team_requested == 'false'
+        run: echo "Skipping backend review check since backend-review-group is not requested"
 
-          if [[ -n "$TEAM_REQUESTED" ]]; then
-            echo "Backend team is a requested reviewer"
-            echo "team_requested=true" >> $GITHUB_OUTPUT
-          else
-            echo "Backend team is NOT a requested reviewer"
-            echo "team_requested=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Exit early if backend team is not requested
-        if: steps.check_team.outputs.team_requested == 'false'
-        run: echo "Skipping backend review check since team is not requested"
-
-      - name: Get backend team members
-        if: steps.check_team.outputs.team_requested == 'true'
+      - name: Get backend-review-group members
+        if: steps.check_backend_requested.outputs.team_requested == 'true'
         run: |
           gh api orgs/${{ github.repository_owner }}/teams/backend-review-group/members \
             --paginate --jq '.[].login' > members.txt
-
-          echo "Team members:"
+          echo "Backend team members:"
           cat members.txt
 
-      - name: Check if any backend reviewer approved
-        if: steps.check_team.outputs.team_requested == 'true'
+      - name: Check if any backend-review-group member approved the PR
+        if: steps.check_backend_requested.outputs.team_requested == 'true'
         run: |
           gh pr view "$PR_NUMBER" --repo "$REPO" --json reviews -q '.reviews[] | select(.state=="APPROVED") | .author.login' > approvals.txt
-
-          echo "Approved by:"
+          echo "Approvals by:"
           cat approvals.txt
 
           PASSED=false
@@ -73,8 +60,8 @@ jobs:
           done < members.txt
 
           if [[ "$PASSED" == "true" ]]; then
-            echo "Team approval satisfied"
+            echo "Backend team approval satisfied."
           else
-            echo "❌ No approvals from backend-review-group"
+            echo "❌ No approvals from backend-review-group. Failing job."
             exit 1
           fi
