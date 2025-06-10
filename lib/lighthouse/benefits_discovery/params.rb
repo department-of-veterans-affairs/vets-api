@@ -37,10 +37,6 @@ module BenefitsDiscovery
         response = service.get_service_history
         response.episodes
       end
-      # json = JSON.parse(response.episodes.to_json, symbolize_names: true)
-
-      # service = VAProfile::MilitaryPersonnel::Service.new(@current_user)
-      # response = service.get_service_history
     end
   end
 end

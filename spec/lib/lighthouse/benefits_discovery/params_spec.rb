@@ -5,20 +5,15 @@ require 'lighthouse/benefits_discovery/params'
 
 RSpec.describe BenefitsDiscovery::Params do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:params) { described_class.new(user.uuid) }
 
   before do
     token = 'blahblech'
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return(token)
   end
-  # before do
-  # allow(User).to receive(:find_by).with(uuid: '12345').and_return(user)
-  # allow_any_instance_of(VAProfile::MilitaryPersonnel::Service).to receive(:get_service_history).and_return()
-  # allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities).with('test-icn').and_return(90)
-  # end
 
   describe '#prepared_params' do
     it 'returns the correct prepared parameters' do
-      params = described_class.new(user.uuid)
       expected_params = {
         date_of_birth: '1809-02-12',
         discharge_status: ['B'], # is this ok? docs show whole words. need to test.
@@ -29,7 +24,6 @@ RSpec.describe BenefitsDiscovery::Params do
 
       VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          # VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_inactives_response') do
           expect(params.prepared_params).to eq(expected_params)
         end
       end
@@ -37,6 +31,24 @@ RSpec.describe BenefitsDiscovery::Params do
 
     context 'when veteran verification service fails' do
       it 'raises error' do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/504_response') do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+            expect { params.prepared_params }.to raise_error(Common::Exceptions::GatewayTimeout, 'Gateway timeout')
+          end
+        end
+      end
+    end
+
+    context 'when military personnel request fails' do
+      it 'raises error' do
+        VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
+            expect { params.prepared_params }.to raise_error(
+              Common::Exceptions::BackendServiceException,
+              'BackendServiceException: {:source=>"VAProfile::MilitaryPersonnel::Service", :code=>"VET360_CORE100"}'
+            )
+          end
+        end
       end
     end
   end
