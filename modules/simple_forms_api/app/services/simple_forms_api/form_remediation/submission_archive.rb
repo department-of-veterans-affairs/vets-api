@@ -148,7 +148,7 @@ module SimpleFormsApi
       end
 
       def submission_file_name
-        @submission_file_name ||= unique_file_name(form_number, id)
+        @submission_file_name ||= unique_file_name(form_number, id, submission.created_at)
       end
 
       def form_number
