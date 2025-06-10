@@ -3,14 +3,13 @@ name: Check Backend Review Group Approval
 on:
   pull_request:
     types: [opened, reopened, edited, synchronize, review_requested, submitted]
-
+permissions:
+  id-token: write
+  contents: read
 jobs:
   check-backend-review:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-      id-token: write
-      contents: read
+    permissions: write-all
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
