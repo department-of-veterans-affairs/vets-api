@@ -22,7 +22,7 @@ describe 'sm client' do
 
     it 'gets a collection of folders', :vcr do
       folders = client.get_folders('1234', false)
-      expect(folders).to be_a(Common::Collection)
+      expect(folders).to be_a(Vets::Collection)
       expect(folders.type).to eq(Folder)
     end
 
@@ -46,15 +46,15 @@ describe 'sm client' do
         # There are 10 records, 2 per page, so it should loop 6 times making requests
         expect(client).to receive(:perform).and_call_original.exactly(6).times
         messages = client.get_folder_messages('1234', folder_id, false)
-        expect(messages).to be_a(Common::Collection)
-        expect(messages.data.size).to eq(10)
+        expect(messages).to be_a(Vets::Collection)
+        expect(messages.records.size).to eq(10)
       end
 
       it 'gets a collection of messages', :vcr do
         expect(client).to receive(:perform).and_call_original.once
         messages = client.get_folder_messages('1234', folder_id, false)
-        expect(messages).to be_a(Common::Collection)
-        expect(messages.data.size).to eq(10)
+        expect(messages).to be_a(Vets::Collection)
+        expect(messages.records.size).to eq(10)
       end
     end
   end

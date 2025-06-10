@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'burials/benefits_intake/submit_claim_job'
+require 'burials/monitor'
 require 'burials/notification_email'
 
 RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
@@ -12,7 +14,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   let(:job) { described_class.new }
   let(:claim) { create(:burials_saved_claim) }
   let(:service) { double('service') }
-  let(:monitor) { double('monitor') }
+  let(:monitor) { Burials::Monitor.new }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -35,10 +37,6 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(response).to receive(:success?).and_return true
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive :track_submission_begun
-      allow(monitor).to receive :track_submission_attempted
-      allow(monitor).to receive :track_submission_success
-      allow(monitor).to receive :track_submission_retry
     end
 
     context 'Feature burial_submitted_email_notification=false' do
@@ -93,6 +91,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
+      expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
@@ -111,6 +110,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
+      expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         Burials::BenefitsIntake::SubmitClaimJob::BurialsBenefitIntakeError,
@@ -207,7 +207,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
         timestamp: claim.created_at,
         page_number: 5,
         size: 9,
-        template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{claim.form_id}.pdf",
+        template: Burials::PDF_PATH,
         multistamp: true
       ).and_return(pdf_path)
 

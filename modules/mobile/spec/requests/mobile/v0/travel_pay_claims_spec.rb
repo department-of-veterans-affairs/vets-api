@@ -26,6 +26,11 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         post('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
         expect(response.body).to match_json_schema('travel_pay_smoc_response')
         expect(response).to have_http_status(:created)
+        claim_response = response.parsed_body['data']['attributes']
+        expect(claim_response['id']).to eq('3fa85f64-5717-4562-b3fc-2c963f66afa6')
+        expect(claim_response['claimStatus']).to eq('Claim submitted')
+        expect(claim_response['createdOn']).to be_present
+        expect(claim_response['modifiedOn']).to be_present
       end
     end
 

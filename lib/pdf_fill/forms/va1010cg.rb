@@ -2,11 +2,13 @@
 
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/field_mappings/va1010cg'
+require 'pdf_fill/forms/formatters/base'
 
 module PdfFill
   module Forms
     class Va1010cg < FormBase
       KEY = PdfFill::Forms::FieldMappings::Va1010cg::KEY
+      FORMATTER = PdfFill::Forms::Formatters::Base
 
       def merge_fields(options = {})
         @form_data['helpers'] = {
@@ -78,26 +80,7 @@ module PdfFill
 
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
-
-        display_value = if Flipper.enabled? :caregiver_lookup_facility_name_db
-                          selected_facility = HealthFacility.find_by(station_number: target_facility_code)
-                          if selected_facility.nil?
-                            target_facility_code
-                          else
-                            "#{selected_facility.station_number} - #{selected_facility.name}"
-                          end
-                        else
-                          caregiver_facilities = VetsJsonSchema::CONSTANTS['caregiverProgramFacilities'].values.flatten
-                          selected_facility = caregiver_facilities.find do |facility|
-                            facility['code'] == target_facility_code
-                          end
-                          if selected_facility.nil?
-                            target_facility_code
-                          else
-                            "#{selected_facility['code']} - #{selected_facility['label']}"
-                          end
-                        end
-
+        display_value = FORMATTER.format_facility_label(target_facility_code)
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
       end
 

@@ -71,14 +71,9 @@ module VeteranVerification
       end
 
       reason = attributes['not_confirmed_reason']
-      response['data']['message'] =
-        if reason == 'ERROR'
-          VeteranVerification::Constants::ERROR_MESSAGE
-        elsif reason == 'NOT_TITLE_38'
-          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-        else
-          VeteranVerification::Constants::NOT_FOUND_MESSAGE
-        end
+      response['data']['message'] = set_response_message(reason)
+      response['data']['title'] = set_response_title(reason)
+      response['data']['status'] = set_response_status(reason)
 
       log_not_confirmed(reason)
       response
@@ -91,6 +86,62 @@ module VeteranVerification
 
     def log_confirmed
       ::Rails.logger.info('Vet Verification Status Success: confirmed', { confirmed: true })
+    end
+
+    private
+
+    def set_response_message(reason)
+      if reason == 'ERROR'
+        error_message
+      elsif reason == 'NOT_TITLE_38'
+        not_eligible_message
+      else
+        not_found_message
+      end
+    end
+
+    def set_response_title(reason)
+      if reason == 'ERROR'
+        VeteranVerification::Constants::ERROR_MESSAGE_TITLE
+      elsif reason == 'NOT_TITLE_38'
+        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+      else
+        VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE
+      end
+    end
+
+    def set_response_status(reason)
+      if reason == 'ERROR'
+        VeteranVerification::Constants::ERROR_MESSAGE_STATUS
+      elsif reason == 'NOT_TITLE_38'
+        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
+      else
+        VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS
+      end
+    end
+
+    def error_message
+      if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+        VeteranVerification::Constants::ERROR_MESSAGE_UPDATED
+      else
+        VeteranVerification::Constants::ERROR_MESSAGE
+      end
+    end
+
+    def not_eligible_message
+      if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
+      else
+        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+      end
+    end
+
+    def not_found_message
+      if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+        VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED
+      else
+        VeteranVerification::Constants::NOT_FOUND_MESSAGE
+      end
     end
   end
 end

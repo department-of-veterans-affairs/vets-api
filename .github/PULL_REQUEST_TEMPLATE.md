@@ -1,5 +1,4 @@
-**Note**: Delete the description statements, complete each step. **None are optional**, but can be justified as to why they cannot be completed as written. Provide known gaps to testing that may raise the risk of merging to production.
-
+Keep your PR as a Draft until it's ready for Platform review. A PR is ready for Platform review when it has a teammate approval and tests, linting, and settings checks pass CI. See [these tips](https://depo-platform-documentation.scrollhelp.site/developer-docs/vets-api-pr-tips) on how to avoid common delays in getting your PR merged.
 
 ## Summary
 

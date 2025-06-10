@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
+require 'vets/collection'
 
 module MedicalRecords
   ##
@@ -106,43 +107,80 @@ module MedicalRecords
       fhir_read(FHIR::AllergyIntolerance, allergy_id)
     end
 
-    def list_vaccines
+    def list_vaccines(user_uuid, use_cache: true)
       return :patient_not_found unless patient_found?
 
-      bundle = fhir_search(FHIR::Immunization,
-                           search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :occurrenceDateTime, :desc)
+      # Only use cache if the feature flag is enabled
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+
+      cache_key = "#{user_uuid}-vaccines"
+      get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::Vaccine) do
+        bundle = fhir_search(FHIR::Immunization,
+                             search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
+
+        if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+          vaccines = bundle.entry.map { |e| MHV::MR::Vaccine.from_fhir(e.resource) }.compact
+          data = Vets::Collection.new(vaccines, MHV::MR::Vaccine)
+          MHV::MR::Vaccine.set_cached(cache_key, data.records)
+          data
+        else
+          sort_bundle(bundle, :occurrenceDateTime, :desc)
+        end
+      end
     end
 
     def get_vaccine(vaccine_id)
-      fhir_read(FHIR::Immunization, vaccine_id)
+      result = fhir_read(FHIR::Immunization, vaccine_id)
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+        MHV::MR::Vaccine.from_fhir(result)
+      else
+        result
+      end
     end
 
     # Function args are accepted and ignored for compatibility with MedicalRecords::LighthouseClient
     def list_vitals(*)
       return :patient_not_found unless patient_found?
 
-      # loinc_codes =
-      #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,
                            search: { parameters: { patient: patient_fhir_id, category: 'vital-signs',
                                                    'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
-    def list_conditions
+    def list_conditions(user_uuid, use_cache: true)
       return :patient_not_found unless patient_found?
 
-      bundle = fhir_search(FHIR::Condition,
-                           search: { parameters: { patient: patient_fhir_id,
-                                                   'verification-status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :recordedDate, :desc)
+      # Only use cache if the feature flag is enabled
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+
+      cache_key = "#{user_uuid}-conditions"
+      get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::HealthCondition) do
+        bundle = fhir_search(FHIR::Condition,
+                             search: { parameters: { patient: patient_fhir_id,
+                                                     'verification-status:not': 'entered-in-error' } })
+
+        if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+          conditions = bundle.entry.map { |e| MHV::MR::HealthCondition.from_fhir(e.resource) }.compact
+          data = Vets::Collection.new(conditions, MHV::MR::HealthCondition)
+          MHV::MR::HealthCondition.set_cached(cache_key, data.records)
+          data
+        else
+          sort_bundle(bundle, :recordedDate, :desc)
+        end
+      end
     end
 
     def get_condition(condition_id)
       return :patient_not_found unless patient_found?
 
-      fhir_read(FHIR::Condition, condition_id)
+      result = fhir_read(FHIR::Condition, condition_id)
+
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+        MHV::MR::HealthCondition.from_fhir(result)
+      else
+        result
+      end
     end
 
     def list_clinical_notes
@@ -405,8 +443,39 @@ module MedicalRecords
 
     private
 
+    def get_cached_or_fetch_data(use_cache, cache_key, model)
+      data = nil
+      data = model.get_cached(cache_key) if use_cache
+
+      if data
+        Rails.logger.info("medical records #{model} cache fetch", cache_key:)
+        statsd_cache_hit
+        Vets::Collection.new(data, model)
+      else
+        Rails.logger.info("medical records #{model} service fetch", cache_key:)
+        statsd_cache_miss
+        yield
+      end
+    end
+
     def patient_found?
       !patient_fhir_id.nil?
     end
+
+    ##
+    # @!group StatsD
+    ##
+    # Report stats of medical records events
+    #
+
+    def statsd_cache_hit
+      StatsD.increment('api.mr.cache.hit')
+    end
+
+    def statsd_cache_miss
+      StatsD.increment('api.mr.cache.miss')
+    end
+
+    # @!endgroup
   end
 end

@@ -3,6 +3,7 @@
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/forms/va214142'
+require 'pdf_fill/forms/va2141422024'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va210781v2'
@@ -54,6 +55,7 @@ module PdfFill
     # Registers form classes for various form IDs.
     {
       '21-4142' => PdfFill::Forms::Va214142,
+      '21-4142-2024' => PdfFill::Forms::Va2141422024,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
@@ -142,6 +144,7 @@ module PdfFill
     #
     # @return [String] The path to the filled PDF form.
     #
+    # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -156,8 +159,9 @@ module PdfFill
 
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-
-      (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+      unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
+                               EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
+      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
@@ -167,8 +171,11 @@ module PdfFill
       if fill_options.fetch(:extras_redesign, false) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
-      combine_extras(file_path, hash_converter.extras_generator)
+      output = combine_extras(file_path, hash_converter.extras_generator)
+      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
+      output
     end
+    # rubocop:enable Metrics/MethodLength
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
       extras_generator =
@@ -178,7 +185,8 @@ module PdfFill
             submit_date:,
             question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
-            sections: form_class::SECTIONS
+            sections: form_class::SECTIONS,
+            label_width: form_class::DEFAULT_LABEL_WIDTH
           )
         else
           ExtrasGenerator.new

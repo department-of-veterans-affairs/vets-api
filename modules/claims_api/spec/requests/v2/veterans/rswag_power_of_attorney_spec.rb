@@ -390,6 +390,16 @@ describe 'PowerOfAttorney',
         schema: body_schema, example: body_example
       )
 
+      parameter(
+        name: 'page[size]', in: :query, required: false,
+        example: '20', description: 'Number of results to return per page. Max value allowed is 100.'
+      )
+
+      parameter(
+        name: 'page[number]', in: :query, required: false,
+        example: '1', description: 'Number of pages of results to return. Max value allowed is 100.'
+      )
+
       describe 'Getting a 200 response' do
         response '200', 'Search results' do
           schema JSON.load_file(File.expand_path('rswag/index/200.json', __dir__))

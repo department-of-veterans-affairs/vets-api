@@ -18,7 +18,7 @@ describe RatingInfoSerializer, type: :serializer do
   end
 
   it 'includes :user_percent_of_disability' do
-    expect(attributes['user_percent_of_disability']).to eq rating_info_response[:user_percent_of_disability]
+    expect(attributes['user_percent_of_disability']).to eq rating_info_response.user_percent_of_disability
   end
 
   it 'includes :source_system' do

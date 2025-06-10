@@ -16,9 +16,6 @@ module Burials
       # generic job processing error
       class BurialsBenefitIntakeError < StandardError; end
 
-      # tracking id for datadog metrics
-      STATSD_KEY_PREFIX = 'worker.burials.benefits_intake.submit_claim_job'
-
       # retry for 2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       sidekiq_options retry: 16, queue: 'low'
@@ -54,17 +51,11 @@ module Burials
         upload_document
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-        if Flipper.enabled?(:burial_submitted_email_notification)
-          send_submitted_email
-        else
-          send_confirmation_email
-        end
+        Flipper.enabled?(:burial_submitted_email_notification) ? send_submitted_email : send_confirmation_email
 
         @intake_service.uuid
       rescue => e
-        call_location = e.backtrace.first
-
-        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e, call_location:)
+        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
         @form_submission_attempt&.fail!
         raise e
       ensure
@@ -135,7 +126,7 @@ module Burials
           timestamp: @claim.created_at,
           page_number: 5,
           size: 9,
-          template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{@claim.form_id}.pdf",
+          template: Burials::PDF_PATH,
           multistamp: true
         )
 

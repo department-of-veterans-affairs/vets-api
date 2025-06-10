@@ -86,8 +86,6 @@ module Lighthouse
         Lighthouse::FailureNotification.perform_async(icn, create_personalisation(msg))
 
         ::Rails.logger.info("#{name} exhaustion handler email queued")
-        StatsD.increment('silent_failure_avoided_no_confirmation',
-                         tags: ['service:claim-status', 'function: evidence upload to Lighthouse'])
       rescue => e
         ::Rails.logger.error("#{name} exhaustion handler email error",
                              { message: e.message })

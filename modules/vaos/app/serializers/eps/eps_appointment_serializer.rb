@@ -4,13 +4,12 @@ module Eps
   class EpsAppointmentSerializer
     include JSONAPI::Serializer
 
+    set_key_transform :camel_lower
     attribute :id, &:id
 
     attribute :status, &:status
 
     attribute :start, &:start
-
-    attribute :type_of_care, &:type_of_care
 
     attribute :is_latest, &:is_latest
 
@@ -24,7 +23,5 @@ module Eps
     end
 
     attribute :provider, &:provider_details
-
-    attribute :referring_facility, &:referring_facility_details
   end
 end

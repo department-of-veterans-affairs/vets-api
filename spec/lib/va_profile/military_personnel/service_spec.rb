@@ -8,6 +8,10 @@ describe VAProfile::MilitaryPersonnel::Service do
 
   let(:user) { build(:user, :loa3) }
 
+  before do
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+  end
+
   describe '#identity_path' do
     context 'when an edipi exists' do
       it 'returns a valid identity path' do
@@ -37,18 +41,49 @@ describe VAProfile::MilitaryPersonnel::Service do
         end
       end
 
-      it 'returns not eligible if character_of_discharge_codes are missing' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-          response = subject.get_service_history
-          message = [
-            'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you ' \
-            'must have received an honorable discharge for at least one period of service.',
-            'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
-            '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-          ]
+      context 'with vet_status_stage_1 enabled' do
+        before do
+          Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+        end
 
-          expect(response.vet_status_eligibility[:confirmed]).to be(false)
-          expect(response.vet_status_eligibility[:message]).to eq(message)
+        after do
+          Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+        end
+
+        it 'returns not eligible if character_of_discharge_codes are missing' do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+            response = subject.get_service_history
+
+            expect(response.vet_status_eligibility[:confirmed]).to be(false)
+            expect(response.vet_status_eligibility[:message]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
+            )
+            expect(response.vet_status_eligibility[:title]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+            )
+            expect(response.vet_status_eligibility[:status]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
+            )
+          end
+        end
+      end
+
+      context 'with vet_status_stage_1 disabled' do
+        it 'returns not eligible if character_of_discharge_codes are missing' do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+            response = subject.get_service_history
+
+            expect(response.vet_status_eligibility[:confirmed]).to be(false)
+            expect(response.vet_status_eligibility[:message]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+            )
+            expect(response.vet_status_eligibility[:title]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+            )
+            expect(response.vet_status_eligibility[:status]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
+            )
+          end
         end
       end
     end

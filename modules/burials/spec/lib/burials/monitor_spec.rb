@@ -11,6 +11,12 @@ RSpec.describe Burials::Monitor do
   let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
   let(:message_prefix) { "#{described_class} #{Burials::FORM_ID}" }
 
+  describe '#service_name' do
+    it 'returns expected name' do
+      expect(monitor.send(:service_name)).to eq('burial-application')
+    end
+  end
+
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }

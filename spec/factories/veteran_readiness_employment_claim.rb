@@ -51,4 +51,42 @@ FactoryBot.define do
       }.to_json
     }
   end
+
+  factory :new_veteran_readiness_employment_claim, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
+    form_id { '28-1900' }
+
+    form {
+      {
+        'mainPhone' => '2222222222',
+        'cellPhone' => '3333333333',
+        'internationalNumber' => '+4444444444',
+        'email' => 'email@test.com',
+        'newAddress' => {
+          'country' => 'USA',
+          'street' => '13 usa street',
+          'city' => 'New York',
+          'state' => 'NY',
+          'postalCode' => '10001'
+        },
+        'isMoving' => true,
+        'veteranAddress' => {
+          'country' => 'USA',
+          'street' => '12 usa street',
+          'city' => 'New York',
+          'state' => 'NY',
+          'postalCode' => '10001'
+        },
+        'yearsOfEducation' => '10',
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => 'First',
+            'middle' => 'Middle',
+            'last' => 'Last',
+            'suffix' => 'III'
+          },
+          'dob' => '1980-01-01'
+        }
+      }.to_json
+    }
+  end
 end

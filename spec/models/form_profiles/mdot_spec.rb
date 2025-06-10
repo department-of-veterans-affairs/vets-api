@@ -32,6 +32,20 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       VCR.eject_cassette
     end
 
+    it 'catches no-supplies 200' do
+      VCR.insert_cassette(
+        'mdot/get_supplies_200_no_supplies',
+        match_requests_on: %i[method uri]
+      )
+      form_data = FormProfile.for(form_id: 'MDOT', user:).prefill[:form_data]
+      errors = JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS['MDOT'], form_data)
+      schema_error = errors.any? do |error|
+        error.include?("did not contain a required property of 'supplies' in schema")
+      end
+      expect(schema_error).to be(true)
+      VCR.eject_cassette
+    end
+
     context 'with assistive devices' do
       it 'still prefills the MDOT form' do
         VCR.insert_cassette(
@@ -60,22 +74,87 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       end
     end
 
-    it 'handles 500 responses from system-of-record' do
+    context 'with errors' do
+      it 'handles 500 responses from system-of-record' do
+        VCR.insert_cassette(
+          'mdot/get_supplies_500',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        )
+        expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+
+      it 'handles 401 responses from system-of-record' do
+        VCR.insert_cassette(
+          'mdot/get_supplies_401',
+          match_requests_on: %i[method uri],
+          erb: { icn: user.icn }
+        )
+        expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+
+      it 'handles 406 responses from system-of-record' do
+        VCR.insert_cassette(
+          'mdot/simulated_get_supplies_406',
+          match_requests_on: %i[method uri],
+          erb: { icn: user.icn }
+        )
+        expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+
+      it 'handles 410 responses from system-of-record' do
+        VCR.insert_cassette(
+          'mdot/simulated_get_supplies_410',
+          match_requests_on: %i[method uri],
+          erb: { icn: user.icn }
+        )
+        expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+
+      it 'handles non-JSON responses from system-of-record' do
+        VCR.insert_cassette(
+          'mdot/simulated_get_supplies_200_not_json',
+          match_requests_on: %i[method uri],
+          erb: { icn: user.icn }
+        )
+        expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+    end
+
+    it 'handles 401 (missing header) responses from system-of-record' do
       VCR.insert_cassette(
-        'mdot/get_supplies_500',
-        match_requests_on: %i[method uri headers],
-        erb: { icn: user.icn }
+        'mdot/get_supplies_401_missing_header',
+        match_requests_on: %i[method uri]
       )
       expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
         .to raise_error(Common::Exceptions::BackendServiceException)
       VCR.eject_cassette
     end
 
-    it 'handles 401 responses from system-of-record' do
+    it 'handles 401 (patient not found) responses from system-of-record' do
       VCR.insert_cassette(
-        'mdot/get_supplies_401',
-        match_requests_on: %i[method uri headers],
-        erb: { icn: user.icn }
+        'mdot/get_supplies_401_patient_not_found.yml',
+        match_requests_on: %i[method uri]
+      )
+      expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+      VCR.eject_cassette
+    end
+
+    it 'handles 400 responses from system-of-record' do
+      VCR.insert_cassette(
+        'mdot/get_supplies_400.yml',
+        match_requests_on: %i[method uri]
       )
       expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
         .to raise_error(Common::Exceptions::BackendServiceException)

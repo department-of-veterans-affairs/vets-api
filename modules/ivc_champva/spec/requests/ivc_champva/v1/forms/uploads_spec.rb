@@ -636,6 +636,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
       end
     end
+
+    context 'when status codes are nil' do
+      it 'handles nil values and returns a 500 error' do
+        expect(controller.send(:build_json, nil, nil)).to eq({ json:
+        { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
+      end
+    end
   end
 
   describe '#handle_file_uploads' do
@@ -698,9 +705,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
-              # TODO: should this be nil, or 400/'Upload failed'?
-              expect(statuses).to be_nil
-              expect(error_message).to be_nil
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
             end
           end
 
@@ -826,9 +832,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
-              # TODO: should this be nil, or 400/'Upload failed'?
-              expect(statuses).to be_nil
-              expect(error_message).to be_nil
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
             end
           end
 
@@ -933,6 +938,87 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     it 'returns false when max attempts exceeded' do
       error_message = 'failed to generate file'
       expect(controller.send(:should_retry?, error_message.downcase, 4, 3)).to be false
+    end
+  end
+
+  describe '#handle_file_uploads_with_refactored_retry' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+    let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+    let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+
+    before do
+      allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
+      allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when the retry method fails outside the retry block' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_raise(StandardError.new('Catastrophic failure'))
+      end
+
+      it 'raises the error' do
+        expect do
+          controller.send(:handle_file_uploads_with_refactored_retry, form_id, parsed_form_data)
+        end.to raise_error(StandardError, 'Catastrophic failure')
+      end
+    end
+
+    context 'when the retry method executes successfully' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_yield
+        allow(file_uploader).to receive(:handle_uploads).and_return([[200, nil]])
+      end
+
+      it 'returns the values from handle_uploads' do
+        statuses, error_messages = controller.send(:handle_file_uploads_with_refactored_retry, form_id,
+                                                   parsed_form_data)
+        expect(statuses).to eq([200])
+        expect(error_messages).to eq([nil])
+      end
+    end
+  end
+
+  describe '#upload_form_with_refactored_retry' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+    let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+    let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+
+    before do
+      allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when the retry method fails outside the retry block' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_raise(StandardError.new('Catastrophic failure'))
+      end
+
+      it 'raises the error' do
+        expect do
+          controller.send(:upload_form_with_refactored_retry, form_id, file_paths, metadata)
+        end.to raise_error(StandardError, 'Catastrophic failure')
+      end
+    end
+
+    context 'when the retry method executes successfully' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_yield
+        allow(file_uploader).to receive(:handle_uploads).and_return([[200, nil]])
+      end
+
+      it 'returns the values from handle_uploads' do
+        statuses, error_messages = controller.send(:upload_form_with_refactored_retry, form_id, file_paths, metadata)
+        expect(statuses).to eq([200])
+        expect(error_messages).to eq([nil])
+      end
     end
   end
 end

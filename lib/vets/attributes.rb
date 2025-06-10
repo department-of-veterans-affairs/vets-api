@@ -61,11 +61,14 @@ module Vets
           return nil unless defined?(default)
 
           # if there's a default, assign the default value
-          if default.is_a?(Symbol) && respond_to?(default)
-            send(default)
-          else
-            default
-          end
+          value = if default.is_a?(Symbol) && respond_to?(default)
+                    send(default)
+                  else
+                    default.dup
+                  end
+
+          instance_variable_set("@#{name}", value)
+          value
         end
       end
 

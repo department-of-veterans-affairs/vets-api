@@ -12,6 +12,8 @@ module IncomeAndAssets
         'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
         # 11b-11c (only space for 2 on form)
         'discontinuedIncomes' => {
+          # Label for each discontinued income entry (e.g., 'Discontinued Income 1')
+          item_label: 'Discontinued Income',
           limit: 2,
           first_key: 'otherRecipientRelationshipType',
           # Q1
@@ -21,13 +23,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 11,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Recipient Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship11[#{ITERATOR}]",
             question_num: 11,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN (OTHER)"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN (OTHER)",
+            question_label: 'Other Relationship'
           },
           # Q2
           'recipientName' => {
@@ -35,21 +39,24 @@ module IncomeAndAssets
             question_num: 11,
             question_suffix: '(2)',
             question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Recipient Name'
           },
           # Q3
           'payer' => {
             key: "F[0].IncomePayer11[#{ITERATOR}]",
             question_num: 11,
             question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)',
+            question_label: 'Income Payer'
           },
           # Q4
           'incomeType' => {
             key: "F[0].TypeOfIncomeReceived11[#{ITERATOR}]",
             question_num: 11,
             question_suffix: '(4)',
-            question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)'
+            question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)',
+            question_label: 'Income Type'
           },
           # Q5
           'incomeFrequency' => {
@@ -58,7 +65,8 @@ module IncomeAndAssets
           'incomeFrequencyOverflow' => {
             question_num: 11,
             question_suffix: '(5)',
-            question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED'
+            question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED',
+            question_label: 'Income Frequency'
           },
           # Q6
           'incomeLastReceivedDate' => {
@@ -69,7 +77,8 @@ module IncomeAndAssets
           'incomeLastReceivedDateOverflow' => {
             question_num: 11,
             question_suffix: '(6)',
-            question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)'
+            question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)',
+            question_label: 'Date Income Last Paid'
           },
           # Q7
           'grossAnnualAmount' => {
@@ -84,9 +93,11 @@ module IncomeAndAssets
             }
           },
           'grossAnnualAmountOverflow' => {
+            dollar: true,
             question_num: 11,
             question_suffix: '(7)',
-            question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
+            question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?',
+            question_label: 'Gross Annual Amount'
           }
         }
       }.freeze

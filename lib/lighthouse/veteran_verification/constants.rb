@@ -21,5 +21,27 @@ module VeteranVerification
       'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
       '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
     ].freeze
+
+    ERROR_MESSAGE_UPDATED = [
+      'We’re sorry. Try to view your Veteran Status Card again later.'
+    ].freeze
+    NOT_FOUND_MESSAGE_UPDATED = [
+      'We’re sorry. To fix the problem with your records, call the Defense Manpower Data Center ' \
+      ' at 800-538-9552 (TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+    ].freeze
+    NOT_ELIGIBLE_MESSAGE_UPDATED = [
+      'To get a Veteran Status Card, you must have received an honorable discharge for at least one period ' \
+      ' of service.',
+      'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
+      '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+    ].freeze
+
+    ERROR_MESSAGE_TITLE = 'Something went wrong'
+    NOT_FOUND_MESSAGE_TITLE = 'There’s a problem with your discharge status records'
+    NOT_ELIGIBLE_MESSAGE_TITLE = 'You’re not eligible for a Veteran Status Card'
+
+    ERROR_MESSAGE_STATUS = 'error'
+    NOT_FOUND_MESSAGE_STATUS = 'warning'
+    NOT_ELIGIBLE_MESSAGE_STATUS = 'warning'
   end
 end

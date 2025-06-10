@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class CcdController < MrController
+      class CcdController < MRController
         include MyHealth::AALClientConcerns
 
         # Generates a CCD

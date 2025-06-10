@@ -130,7 +130,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: all_flows_payload_v2.to_json) }
+      subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -181,7 +181,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: form_674_only_v2.to_json) }
+      subject { described_class.new(form: form_674_only_v2.to_json, use_v2: true) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -217,7 +217,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: adopted_child_v2.to_json) }
+      subject { described_class.new(form: adopted_child_v2.to_json, use_v2: true) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -242,10 +242,23 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     end
 
     it 'has a form id of 686C-674-V2' do
       expect(subject.form_id).to eq('686C-674-V2')
+    end
+
+    context 'after create' do
+      it 'tracks pdf overflow' do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
+        allow(StatsD).to receive(:increment)
+        subject.save!
+
+        tags = ['form_id:686C-674-V2']
+        expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', { tags: })
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+      end
     end
   end
 end
