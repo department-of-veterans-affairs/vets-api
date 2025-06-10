@@ -11,7 +11,7 @@ jobs:
       pull-requests: read
       contents: read
     env:
-      GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Set up environment variables
         run: |
@@ -41,6 +41,8 @@ jobs:
           gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login' > members.txt
           echo "Backend team members:"
           cat members.txt
+        env:
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Check if any backend-review-group member approved the PR
         if: steps.check_backend_requested.outputs.team_requested == 'true'
