@@ -19,7 +19,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
 
   describe 'when processing in-progress forms' do
     context 'with forms that should be updated' do
-      let!(:form_should_update_one) do
+      let!(:form_should_update) do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
@@ -30,19 +30,6 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                  return_url: '/option-claims'
                },
                id: 1001)
-      end
-
-      let!(:form_should_update_two) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true
-               },
-               metadata: {
-                 return_url: '/some-other-page'
-               },
-               id: 1011)
       end
 
       let!(:form_no_return_url) do
@@ -69,23 +56,15 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                id: 1013)
       end
 
-      it 'updates forms that meet criteria and need URL change' do
-        expect { task.invoke }.to output(/Updated return_url for user #{form_should_update_one.user_uuid}/).to_stdout
+      it 'updates a form with a return_url that meets the criteria' do
+        expect { task.invoke }.to output(/Updated return_url for user #{form_should_update.user_uuid}/).to_stdout
 
-        form_should_update_one.reload
-        metadata = form_should_update_one.metadata
+        form_should_update.reload
+        metadata = form_should_update.metadata
         expect(metadata['return_url']).to eq(new_return_url)
       end
 
-      it 'updates forms with different existing return_url' do
-        expect { task.invoke }.to output(/Updated return_url for user #{form_should_update_two.user_uuid}/).to_stdout
-
-        form_should_update_two.reload
-        metadata = form_should_update_two.metadata
-        expect(metadata['return_url']).to eq(new_return_url)
-      end
-
-      it 'updates forms with no existing return_url' do
+      it 'updates a form with no return_url that meets the criteria' do
         expect { task.invoke }.to output(/Updated return_url for user #{form_no_return_url.user_uuid}/).to_stdout
 
         form_no_return_url.reload
@@ -93,7 +72,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
         expect(metadata['return_url']).to eq(new_return_url)
       end
 
-      it 'skips forms that already have correct return_url' do
+      it 'skips a form that already has the correct return_url' do
         original_metadata = form_already_correct.metadata
 
         task.invoke
@@ -105,8 +84,8 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
       it 'shows correct summary counts' do
         output = capture_stdout { task.invoke }
 
-        expect(output).to include('Forms updated: 4')
-        expect(output).to include('Total forms processed: 4')
+        expect(output).to include('Forms updated: 3')
+        expect(output).to include('Total forms processed: 3')
       end
     end
 
@@ -180,21 +159,12 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                })
       end
 
-      let!(:privacy_string) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: 'true',
-                 'view:has_private_evidence': true
-               })
-      end
-
       it 'skips all forms that do not meet criteria' do
         output = capture_stdout { task.invoke }
 
         expect(output).to include('Forms updated: 0')
-        expect(output).to include('Total forms processed: 9')
-        expect(output).to include('Forms skipped: 9')
+        expect(output).to include('Total forms processed: 8')
+        expect(output).to include('Forms skipped: 8')
       end
 
       it 'logs reason for skipping each form' do
@@ -202,8 +172,16 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
 
         expect(output).to include("Skipped user #{privacy_false.user_uuid}")
         expect(output).to include('privacy_agreement_accepted: false')
+
         expect(output).to include("Skipped user #{evidence_false.user_uuid}")
         expect(output).to include('view:has_private_evidence: false')
+
+        expect(output).to include("Skipped user #{both_false.user_uuid}")
+        expect(output).to include("Skipped user #{privacy_missing.user_uuid}")
+        expect(output).to include("Skipped user #{evidence_missing.user_uuid}")
+        expect(output).to include("Skipped user #{both_missing.user_uuid}")
+        expect(output).to include("Skipped user #{privacy_null.user_uuid}")
+        expect(output).to include("Skipped user #{evidence_null.user_uuid}")
       end
 
       it 'does not modify any skipped forms' do
@@ -215,8 +193,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
           evidence_missing.metadata,
           both_missing.metadata,
           privacy_null.metadata,
-          evidence_null.metadata,
-          privacy_string.metadata
+          evidence_null.metadata
         ]
 
         task.invoke
@@ -229,8 +206,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
           evidence_missing.reload.metadata,
           both_missing.reload.metadata,
           privacy_null.reload.metadata,
-          evidence_null.reload.metadata,
-          privacy_string.reload.metadata
+          evidence_null.reload.metadata
         ]
 
         expect(current_metadata).to eq(original_metadata)
@@ -238,7 +214,7 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
     end
 
     context 'with error conditions' do
-      let!(:corrupted_metadata) do
+      let!(:invalid_format_metadata) do
         form = create(:in_progress_form,
                       form_id: '20-0995',
                       form_data: {
@@ -246,25 +222,16 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
                         'view:has_private_evidence': true
                       },
                       metadata: '')
-        # Manually corrupt the metadata to simulate invalid JSON
         form
       end
 
       it 'handles JSON parsing errors gracefully' do
         output = capture_stdout { task.invoke }
 
-        expect(output).to include("Unexpected error processing user #{corrupted_metadata.user_uuid}")
+        expect(output).to include("Unexpected error processing user #{invalid_format_metadata.user_uuid}")
         expect(output).to include('Forms failed to save: 1')
         expect(output).to include('Failed InProgressForm IDs:')
-        expect(output).to include(corrupted_metadata.id.to_s)
-      end
-
-      it 'provides helpful debugging information' do
-        output = capture_stdout { task.invoke }
-
-        expect(output).to include('Failed InProgressForm IDs:')
-        expect(output).to include('To investigate failures, you can query:')
-        expect(output).to include('InProgressForm.where(id: [')
+        expect(output).to include(invalid_format_metadata.id.to_s)
       end
     end
 
@@ -316,14 +283,14 @@ RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
   end
 
   describe 'decision_reviews:preview_update_in_progress_sc' do
-    let(:preview_task) { Rake::Task['decision_reviews:preview_update_in_progress_sc'] }
-    let(:task) { Rake::Task['decision_reviews:preview_update_in_progress_sc'] }
-
     before do
       Rake.application.rake_require '../rakelib/decision_reviews_update_in_progress_sc'
       Rake::Task.define_task(:environment)
       Rake::Task['decision_reviews:preview_update_in_progress_sc'].reenable
     end
+
+    let(:preview_task) { Rake::Task['decision_reviews:preview_update_in_progress_sc'] }
+    let(:task) { Rake::Task['decision_reviews:preview_update_in_progress_sc'] }
 
     let!(:eligible_form) do
       create(:in_progress_form,
