@@ -83,7 +83,7 @@ RSpec.describe Representatives::Update do
     end
   end
 
-  describe '#perform' do
+  describe '#perform V3/AddressValidation' do
     let(:json_data) do
       [
         {
@@ -439,42 +439,7 @@ RSpec.describe Representatives::Update do
         }
       end
 
-      context 'when JSON parsing fails' do
-        let(:invalid_json_data) { 'invalid json' }
-
-        it 'logs an error' do
-          expect(Rails.logger).to receive(:error).with(
-            "Representatives::Update: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
-          )
-
-          subject.perform(invalid_json_data)
-        end
-      end
-
-      context 'when the representative cannot be found' do
-        let(:id) { 'not_found' }
-        let(:address_exists) { false }
-        let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
-
-        it 'logs an error' do
-          expect(Rails.logger).to receive(:error).with(
-            a_string_matching(/Representatives::Update:.*not_found.*Representative not found/)
-          )
-
-          subject.perform(json_data)
-        end
-      end
-
-      context 'when address_exists is true and address_changed is true' do
-        let(:id) { '123abc' }
-        let(:address_exists) { true }
-        let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
-        let!(:representative) { create_representative }
-
+      context 'when the first retry has non-zero coordinates' do
         before do
           allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response1_v3)
