@@ -8,6 +8,10 @@ describe UnifiedHealthData::Service, type: :service do
 
   let(:user) { build(:user, :loa3) }
   let(:service) { described_class.new(user) }
+  let(:labs_response) do
+    file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'labs_response.json')
+    JSON.parse(File.read(file_path))
+  end
   let(:sample_response) do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
@@ -31,47 +35,6 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     context 'with valid lab responses' do
-      let(:labs_response) do
-        {
-          'vista' => {
-            'entry' => [
-              {
-                'resource' => {
-                  'resourceType' => 'DiagnosticReport',
-                  'id' => '1',
-                  'code' => { 'text' => 'CBC' },
-                  'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
-                  'effectiveDateTime' => '2024-06-01T00:00:00Z',
-                  'contained' => [
-                    { 'resourceType' => 'Organization', 'name' => 'Test Lab' },
-                    { 'resourceType' => 'Practitioner', 'name' => [{ 'given' => ['John'], 'family' => 'Doe' }] }
-                  ],
-                  'presentedForm' => [{ 'data' => 'abc123' }]
-                }
-              }
-            ]
-          },
-          'oracle-health' => {
-            'entry' => [
-              {
-                'resource' => {
-                  'resourceType' => 'DiagnosticReport',
-                  'id' => '2',
-                  'code' => { 'text' => 'Urinalysis' },
-                  'category' => [{ 'coding' => [{ 'code' => 'SP' }] }],
-                  'effectiveDateTime' => '2024-06-02T00:00:00Z',
-                  'contained' => [
-                    { 'resourceType' => 'Organization', 'name' => 'Oracle Lab' },
-                    { 'resourceType' => 'Practitioner', 'name' => [{ 'given' => ['Jane'], 'family' => 'Smith' }] }
-                  ],
-                  'presentedForm' => [{ 'data' => 'def456' }]
-                }
-              }
-            ]
-          }
-        }
-      end
-
       before do
         allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: labs_response),
                                            parse_response_body: labs_response)
@@ -290,6 +253,111 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result.first.reference_range).to eq('8.5-10.5 mg/dL, Lab-specific: 9-11 mg/dL')
       end
 
+      it 'returns observations with low/high values in reference range' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'TSH' },
+                'valueQuantity' => { 'value' => 1.8, 'unit' => 'mIU/L' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 0.7,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 4.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Within normal limits' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L')
+      end
+
+      it 'returns observations with multiple low/high reference ranges joined' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Comprehensive Metabolic Panel' },
+                'valueQuantity' => { 'value' => 1.8, 'unit' => 'mIU/L' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 0.7,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 4.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  },
+                  {
+                    'low' => {
+                      'value' => 0.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 5.0,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'treatment',
+                          'display' => 'Treatment Range'
+                        }
+                      ],
+                      'text' => 'Treatment Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Multiple reference ranges' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq(
+          'Normal Range: 0.7 mIU/L - 4.5 mIU/L, ' \
+          'Treatment Range: 0.5 mIU/L - 5.0 mIU/L'
+        )
+      end
+
       it 'returns empty string for reference range if not present' do
         record = {
           'resource' => {
@@ -378,6 +446,45 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(result).to eq([])
       end
+    end
+  end
+
+  describe '#fetch_display' do
+    let(:service_instance) { described_class.new(user) }
+
+    it 'returns ServiceRequest code text if present' do
+      record = {
+        'resource' => {
+          'contained' => [
+            { 'resourceType' => 'ServiceRequest', 'code' => { 'text' => 'Blood Test' } }
+          ],
+          'code' => { 'text' => 'Fallback Test' }
+        }
+      }
+      expect(service_instance.send(:fetch_display, record)).to eq('Blood Test')
+    end
+
+    it 'returns code.text if ServiceRequest is not present' do
+      record = {
+        'resource' => {
+          'contained' => [
+            { 'resourceType' => 'OtherType' }
+          ],
+          'code' => { 'text' => 'Fallback Test' }
+        }
+      }
+      expect(service_instance.send(:fetch_display, record)).to eq('Fallback Test')
+    end
+
+    it 'returns empty string if neither ServiceRequest nor code.text is present' do
+      record = {
+        'resource' => {
+          'contained' => [
+            { 'resourceType' => 'OtherType' }
+          ]
+        }
+      }
+      expect(service_instance.send(:fetch_display, record)).to eq('')
     end
   end
 end
