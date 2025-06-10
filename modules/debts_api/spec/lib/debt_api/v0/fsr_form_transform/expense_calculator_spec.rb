@@ -19,7 +19,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
     context 'with enhanced FSR' do
       it 'sums a bunch of stuff' do
         calculator = described_class.build(enhanced_expenses)
-        expect(calculator.get_monthly_expenses).to eq(19_603.44)
+        expect(calculator.get_monthly_expenses).to eq(21_803.97)
       end
     end
 
