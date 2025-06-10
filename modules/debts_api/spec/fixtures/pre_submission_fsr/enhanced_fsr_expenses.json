@@ -5,6 +5,14 @@
     "monthlyHousingExpenses": "2200.53",
     "expense_records": [
       {
+        "name": "Rent",
+        "amount": "1200.53"
+      },
+      {
+        "name": "Mortgage payment",
+        "amount": "1000.00"
+      },
+      {
         "name": "something else",
         "amount": "100"
       }
