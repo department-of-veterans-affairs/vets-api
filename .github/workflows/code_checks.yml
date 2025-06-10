@@ -53,21 +53,6 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
-      # Always add the "lint-failure" label on failure and remove it on success
-      - name: Add Lint Failure label
-        if: ${{ failure() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: lint-failure
-
-      - name: Remove Lint Failure label
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: lint-failure
-
   tests:
     name: Test
     runs-on: ubuntu-32-cores-latest
@@ -192,19 +177,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Remove Test Failure label
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
-
-      - name: Add Test Failure label
-        if: ${{ failure() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
 
   publish_results:
     name: Publish Test Results and Coverage
