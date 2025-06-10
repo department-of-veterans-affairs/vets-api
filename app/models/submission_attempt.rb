@@ -23,7 +23,7 @@ class SubmissionAttempt < ApplicationRecord
       form_type: submission.form_id,
       from_state: previous_changes[:status]&.first,
       to_state: status,
-      benefits_intake_uuid:,
+      benefits_intake_uuid:
     }
   end
 end

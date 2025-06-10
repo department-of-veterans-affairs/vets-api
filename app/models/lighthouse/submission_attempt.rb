@@ -39,14 +39,14 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
     manually!
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt is being manually remediated'
-    Rails.logger.public_send(:warn, log_hash )
+    Rails.logger.public_send(:warn, log_hash)
   end
 
   def vbms!
     update(status: :vbms)
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt went to vbms'
-    Rails.logger.public_send(:info, log_hash )
+    Rails.logger.public_send(:info, log_hash)
   end
 
   def pending!

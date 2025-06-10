@@ -6,7 +6,12 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
   it { is_expected.to validate_presence_of :submission }
 
   describe 'associations' do
-    it { is_expected.to belong_to(:submission).class_name('Lighthouse::Submission').with_foreign_key(:lighthouse_submission_id).inverse_of(:submission_attempts) }
+    it {
+      expect(subject).to belong_to(:submission).class_name('Lighthouse::Submission')
+                                               .with_foreign_key(:lighthouse_submission_id)
+                                               .inverse_of(:submission_attempts)
+    }
+
     it { is_expected.to have_one(:saved_claim).through(:submission) }
   end
 
@@ -22,7 +27,7 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
 
   describe 'status transition methods' do
     let(:submission) { build_stubbed(:lighthouse_submission) }
-    let(:attempt) { described_class.new(submission: submission) }
+    let(:attempt) { described_class.new(submission:) }
 
     before do
       allow(attempt).to receive(:status_change_hash).and_return({ id: 123 })
@@ -39,7 +44,8 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
     describe '#manual!' do
       it 'sets status to manually and logs warning' do
         expect(attempt).to receive(:manually!)
-        expect(Rails.logger).to receive(:warn).with(hash_including(message: 'Lighthouse Submission Attempt is being manually remediated'))
+        expect(Rails.logger).to receive(:warn)
+          .with(hash_including(message: 'Lighthouse Submission Attempt is being manually remediated'))
         attempt.manual!
       end
     end
@@ -47,7 +53,8 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
     describe '#vbms!' do
       it 'updates status to vbms and logs info' do
         expect(attempt).to receive(:update).with(status: :vbms)
-        expect(Rails.logger).to receive(:info).with(hash_including(message: 'Lighthouse Submission Attempt went to vbms'))
+        expect(Rails.logger).to receive(:info)
+          .with(hash_including(message: 'Lighthouse Submission Attempt went to vbms'))
         attempt.vbms!
       end
     end
@@ -63,7 +70,8 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
     describe '#success!' do
       it 'sets status to submitted and logs info' do
         expect(attempt).to receive(:submitted!)
-        expect(Rails.logger).to receive(:info).with(hash_including(message: 'Lighthouse Submission Attempt is submitted'))
+        expect(Rails.logger).to receive(:info)
+          .with(hash_including(message: 'Lighthouse Submission Attempt is submitted'))
         attempt.success!
       end
     end
