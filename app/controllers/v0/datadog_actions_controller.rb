@@ -3,7 +3,7 @@
 module V0
   class DatadogActionsController < ApplicationController
     skip_before_action :authenticate_user!
-    protect_from_forgery with: :null_session
+    protect_from_forgery with: :exception
 
     def create
       metric = params[:metric]
