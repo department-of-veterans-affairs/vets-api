@@ -15,14 +15,6 @@ jobs:
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
     
-      - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
       - name: Get requested reviewer teams from PR payload
         id: requested_teams
         run: |
@@ -83,3 +75,5 @@ jobs:
             echo "❌ No approvals from backend-review-group. Failing job."
             exit 1
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
