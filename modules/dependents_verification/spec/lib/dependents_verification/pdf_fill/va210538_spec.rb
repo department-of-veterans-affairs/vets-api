@@ -24,8 +24,8 @@ describe DependentsVerification::PdfFill::Va210538 do
       SectionI5.VeteranAddress.Street SectionI5.VeteranAddress.City SectionI5.VeteranAddress.UnitNumber
       SectionI5.VeteranAddress.Country SectionI5.VeteranAddress.State SectionI5.VeteranAddress.PostalCode.First
       SectionI5.VeteranAddress.PostalCode.Second SectionI6.VeteranPhone.First SectionI6.VeteranPhone.Second
-      SectionI6.VeteranPhone.Third SectionI6.VeteranPhone.International SectionI7.VeteranEmail.Second 
-      SectionI7.VeteranEmail.First SectionI7.VeteranEmail.Agree SectionII8.StatusChange V14.SignatureField 
+      SectionI6.VeteranPhone.Third SectionI6.VeteranPhone.International SectionI7.VeteranEmail.Second
+      SectionI7.VeteranEmail.First SectionI7.VeteranEmail.Agree SectionII8.StatusChange V14.SignatureField
       V14.SignatureDate.Month V14.SignatureDate.Day V14.SignatureDate.Year VaDateStamp
     ]
   end
