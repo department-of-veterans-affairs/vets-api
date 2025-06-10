@@ -183,7 +183,7 @@ module PdfFill
           ExtrasGeneratorV2.new(
             form_name: form_id.sub(/V2\z/, ''),
             submit_date:,
-            question_key: form_class::QUESTION_KEY,
+            question_key: form_class.question_key(extras_redesign: true),
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
             label_width: form_class::DEFAULT_LABEL_WIDTH

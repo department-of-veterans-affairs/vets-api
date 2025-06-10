@@ -6,7 +6,18 @@ require 'pdf_fill/extras_generator_v2'
 describe PdfFill::ExtrasGeneratorV2 do
   subject { described_class.new(sections:) }
 
-  let(:sections) { nil }
+  let(:sections) do
+    [
+      {
+        label: 'Section I',
+        question_nums: %w[1 2 3 4 5 6 7]
+      },
+      {
+        label: 'Section II',
+        question_nums: %w[8 9]
+      }
+    ]
+  end
 
   describe PdfFill::ExtrasGeneratorV2::Question do
     subject do
@@ -18,14 +29,16 @@ describe PdfFill::ExtrasGeneratorV2 do
     describe '#numbered_label_markup' do
       context 'when show_suffix is true' do
         it 'appends suffix to question number when there is a single subquestion' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = [{ question_number: '5', display_suffix: 'a', question_text: 'Test Question' }]
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
           expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
         end
 
         it 'does not append suffix when there are multiple subquestions' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = [{ question_number: '5', question_text: 'Test Question' }]
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value1', { question_suffix: 'A' })
           question.add_text('Value2', { question_suffix: 'B' })
 
@@ -33,7 +46,8 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
 
         it 'handles nil suffix gracefully' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = [{ question_number: '5', question_text: 'Test Question' }]
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value', {})
 
           expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
@@ -42,7 +56,8 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when show_suffix is false' do
         it 'does not append suffix to question number' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: false })
+          config = [{ question_number: '5', question_text: 'Test Question' }]
+          question = described_class.new('Test Question', { question_num: '5', show_suffix: false }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
           expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
@@ -50,12 +65,48 @@ describe PdfFill::ExtrasGeneratorV2 do
       end
 
       context 'when number is not an integer' do
-        it 'does not include a prefix' do
-          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true })
+        it 'includes the prefix for non-integer question numbers' do
+          config = [{ question_number: '5.2', question_text: 'Test Question' }]
+          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
-          expect(question.numbered_label_markup).to eq('<h3>Test Question</h3>')
+          expect(question.numbered_label_markup).to eq('<h3>5.2. Test Question</h3>')
         end
+      end
+
+      it 'renders 10c. when question_number is 10.0 and display_suffix is c' do
+        config = [{ question_number: '10.0', display_suffix: 'c', question_text: 'Additional Behavioral Change(s)' }]
+        question = described_class.new('Additional Behavioral Change(s)', { question_num: '10.0' }, config)
+        question.add_text('Value', { question_suffix: 'C' })
+        expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+      end
+
+      it 'falls back to just question_number when display_suffix is missing' do
+        config = [{ question_number: '11.5', question_text: 'Police report location(s)' }]
+        question = described_class.new('Police report location(s)', { question_num: '11.5' }, config)
+        question.add_text('Value', {})
+        expect(question.numbered_label_markup).to eq('<h3>11.5. Police report location(s)</h3>')
+      end
+
+      it 'matches display_suffix case-insensitively' do
+        config = [{ question_number: '10.0', display_suffix: 'C', question_text: 'Additional Behavioral Change(s)' }]
+        question = described_class.new('Additional Behavioral Change(s)', { question_num: '10.0' }, config)
+        question.add_text('Value', { question_suffix: 'c' })
+        expect(question.numbered_label_markup).to eq('<h3>10C. Additional Behavioral Change(s)</h3>')
+      end
+
+      it 'matches numeric question_num to string question_number in config' do
+        config = [{ question_number: '10.0', display_suffix: 'c', question_text: 'Additional Behavioral Change(s)' }]
+        question = described_class.new('Additional Behavioral Change(s)', { question_num: 10.0 }, config)
+        question.add_text('Value', { question_suffix: 'C' })
+        expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+      end
+
+      it 'falls back to just number if no config match' do
+        config = [{ question_number: '99', question_text: 'Non-matching' }]
+        question = described_class.new('Test Question', { question_num: '100' }, config)
+        question.add_text('Value', {})
+        expect(question.numbered_label_markup).to eq('<h3>100. Test Question</h3>')
       end
     end
 
@@ -246,21 +297,8 @@ describe PdfFill::ExtrasGeneratorV2 do
   end
 
   describe '#populate_section_indices!' do
-    let(:sections) do
-      [
-        {
-          label: 'Section I',
-          question_nums: (1..7).to_a
-        },
-        {
-          label: 'Section II',
-          question_nums: [8, 9]
-        }
-      ]
-    end
-
     it 'populates section indices correctly' do
-      questions = [1, 9, 42, 7].index_with do |question_num|
+      questions = %w[1 9 42 7].index_with do |question_num|
         described_class::Question.new(nil, { question_num: })
       end
       subject.instance_variable_set(:@questions, questions)
