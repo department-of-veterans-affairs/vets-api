@@ -187,7 +187,7 @@ module MyHealth
       def set_filter_metadata(list, non_modified_collection)
         {
           filter_count: {
-            all_medications: group_prescriptions(non_modified_collection).length,
+            all_medications: count_grouped_prescriptions(non_modified_collection),
             active: count_active_medications(list),
             recently_requested: count_recently_requested_medications(list),
             renewal: list.select(&method(:renewable)).length,
