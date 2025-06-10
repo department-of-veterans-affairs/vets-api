@@ -35,6 +35,18 @@ jobs:
         if: steps.check_backend_requested.outputs.team_requested == 'false'
         run: echo "Skipping backend review check since backend-review-group is not requested"
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Get backend-review-group members
         if: steps.check_backend_requested.outputs.team_requested == 'true'
         run: |
@@ -42,7 +54,7 @@ jobs:
           echo "Backend team members:"
           cat members.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Check if any backend-review-group member approved the PR
         if: steps.check_backend_requested.outputs.team_requested == 'true'
