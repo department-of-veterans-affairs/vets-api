@@ -12,7 +12,7 @@ As part of the data submitted to BPDS by the Sidekiq job, we need logic to retri
 
 ## Decision
 
-We implemented logic to determine the appropriate user identifier (participant id or file number) and included this association with the request to BPDS. As we do not want PII identifiers to be exposed due to being used for Sidekiq job parameters, the identifiers are encrypted during processing.
+We implemented logic to determine the appropriate user identifier (participant id or file number) and included this association with the request to BPDS. As we do not want PII identifiers to be exposed due to being used as Sidekiq job parameters, the payload is encrypted during processing.
 
 The logic is as follows:
 1) If the user is LOA3, we use the user's ICN to look up the user in MPI and obtain their profile. The MPI profile contains `participant_id`. If there is a `participant_id`, we send it to BPDS.
