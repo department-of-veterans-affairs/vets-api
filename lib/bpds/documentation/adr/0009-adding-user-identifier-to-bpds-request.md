@@ -17,7 +17,7 @@ We implemented logic to determine the appropriate user identifier (participant i
 The logic is as follows:
 1) If the user is LOA3, we use the user's ICN to look up the user in MPI and obtain their profile. The MPI profile contains `participant_id`. If there is a `participant_id`, we send it to BPDS.
 
-2) If the user is LOA1, we use BGS to look up the user information.
+2) If the user is LOA1, we use BGS to look up the user.
   * If `participant_id` is present in the response, we send it to BPDS.
   * If `participant_id` is not present in the response, we check if `file_number` is present and include `file_number` in the request to BPDS instead.
 
