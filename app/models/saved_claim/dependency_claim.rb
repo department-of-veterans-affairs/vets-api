@@ -174,10 +174,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type:
+      doc_type: doc_type.to_s
     )
 
-    uploader.upload!
+    uploader.upload! unless Rails.env.development?
   end
 
   # temporarily commented out before v2 rolls out. will be updated before v2's release.

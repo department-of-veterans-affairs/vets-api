@@ -74,7 +74,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: a7d433e62ccc94f2d13a3d8704ff48806f515c42
+  revision: 082ba91bce2699d47cf2bf3f1522d8e1663d4f70
   branch: master
   specs:
     vets_json_schema (24.15.2)
@@ -103,6 +103,7 @@ PATH
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
+    dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
@@ -243,8 +244,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1110.0)
-    aws-sdk-core (3.225.0)
+    aws-partitions (1.1113.0)
+    aws-sdk-core (3.225.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -254,11 +255,11 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.101.0)
-      aws-sdk-core (~> 3, >= 3.216.0)
+    aws-sdk-kms (1.104.0)
+      aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.188.0)
-      aws-sdk-core (~> 3, >= 3.224.1)
+    aws-sdk-s3 (1.189.0)
+      aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sdk-sns (1.100.0)
@@ -274,8 +275,8 @@ GEM
     bcp47 (0.3.3)
       i18n
     benchmark (0.4.0)
-    bigdecimal (3.2.1)
-    bigdecimal (3.2.1-java)
+    bigdecimal (3.2.2)
+    bigdecimal (3.2.2-java)
     bindex (0.8.1)
     blind_index (2.7.0)
       activesupport (>= 7.1)
@@ -418,7 +419,7 @@ GEM
       dry-types (~> 1.8, >= 1.8.2)
       ice_nine (~> 0.11)
       zeitwerk (~> 2.6)
-    dry-types (1.8.2)
+    dry-types (1.8.3)
       bigdecimal (~> 3.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.0)
@@ -674,7 +675,7 @@ GEM
     libddwaf (1.22.0.0.2-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.8.6)
+    liquid (5.8.7)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -1111,8 +1112,8 @@ GEM
     stringio (3.1.2)
     strong_migrations (2.3.0)
       activerecord (>= 7)
-    strscan (3.1.3)
-    strscan (3.1.3-java)
+    strscan (3.1.5)
+    strscan (3.1.5-java)
     super_diff (0.15.0)
       attr_extras (>= 6.2.4)
       diff-lcs
@@ -1249,6 +1250,7 @@ DEPENDENCIES
   debts_api!
   debug
   decision_reviews!
+  dependents_verification!
   dhp_connected_devices!
   dogstatsd-ruby
   dry-struct

@@ -24,7 +24,7 @@ RSpec.describe VBMS::SubmitDependentsPdfV2Job do
       before do
         expect(SavedClaim::DependencyClaim)
           .to receive(:find).with(dependency_claim.id)
-          .and_return(dependency_claim)
+          .and_return(dependency_claim).at_least(:once)
       end
 
       context '686 form' do
@@ -79,11 +79,11 @@ RSpec.describe VBMS::SubmitDependentsPdfV2Job do
     it 'raises an error if there is nothing in the dependents_application is empty' do
       expect(SavedClaim::DependencyClaim)
         .to receive(:find).with(invalid_dependency_claim.id)
-        .and_return(invalid_dependency_claim)
+        .and_return(invalid_dependency_claim).at_least(:once)
 
       job = described_class.new
 
-      expect(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:error)
 
       vet_info['veteran_information'].delete('ssn')
       expect do
