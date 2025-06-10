@@ -121,6 +121,9 @@ module Mobile
           if appointment[:travelPayClaim]
             adapted_appointment[:travelPayClaim] =
               appointment[:travelPayClaim].deep_symbolize_keys
+            # Using the existence of the travelPayClaim key as a flag for if we should check for eligibility
+            # since that indicates that the include_claims flag is true and it's a Past appointment
+            adapted_appointment[:travel_pay_eligible] = travel_pay_eligible?
           end
 
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
@@ -443,6 +446,14 @@ module Mobile
 
         def time_to_datetime(time)
           time.is_a?(DateTime) ? time : DateTime.parse(time)
+        end
+
+        # checks for if the appointment type is eligible for travel pay
+        def travel_pay_eligible?
+          [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
+           APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
+            appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
+            appointment.start < Time.now.utc # verify it's a past appointment
         end
       end
     end
