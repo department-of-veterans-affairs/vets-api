@@ -10,15 +10,14 @@ jobs:
     permissions:
       pull-requests: read
       contents: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Set up env vars
         id: vars
         run: |
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-
-      - name: Install GitHub CLI
-        uses: cli/cli-action@v2
 
       - name: Get PR author
         id: author
