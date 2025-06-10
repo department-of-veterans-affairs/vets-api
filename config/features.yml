@@ -1205,13 +1205,53 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
     enable_in_development: true
-  mhv_medical_records_support_new_model_vaccine:
+  mhv_medical_records_support_backend_pagination_allergy:
     actor_type: user
-    description: Enables/disables the use of pre-transformed vaccine objects
+    description: Enables/disables backend caching/pagination for allergies
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_care_summary_note:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for care summaries & notes
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_health_condition:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for health conditions
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_lab_test:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for labs & tests
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_vaccine:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for vaccines
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_vital:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for vitals
+    enable_in_development: true
+  mhv_medical_records_support_new_model_allergy:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed allergy objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_care_summary_note:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed care summary/note objects
     enable_in_development: true
   mhv_medical_records_support_new_model_health_condition:
     actor_type: user
     description: Enables/disables the use of pre-transformed health condition objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_lab_test:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed lab/test objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vaccine:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vaccine objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vital:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
