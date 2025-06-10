@@ -30,26 +30,36 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
 
   def fail!
     failure!
-    Rails.logger.public_send(:error, message: 'Lighthouse Submission Attempt failed')
+    log_hash = status_change_hash
+    log_hash[:message] = 'Lighthouse Submission Attempt failed'
+    Rails.logger.public_send(:error, log_hash)
   end
 
   def manual!
     manually!
-    Rails.logger.public_send(:warn, message: 'Lighthouse Submission Attempt is being manually remediated')
+    log_hash = status_change_hash
+    log_hash[:message] = 'Lighthouse Submission Attempt is being manually remediated'
+    Rails.logger.public_send(:warn, log_hash )
   end
 
   def vbms!
-    super
-    Rails.logger.public_send(:info, message: 'Lighthouse Submission Attempt went to vbms')
+    update(status: :vbms)
+    log_hash = status_change_hash
+    log_hash[:message] = 'Lighthouse Submission Attempt went to vbms'
+    Rails.logger.public_send(:info, log_hash )
   end
 
   def pending!
-    super
-    Rails.logger.public_send(:info, message: 'Form Submission Attempt State change')
+    update(status: :pending)
+    log_hash = status_change_hash
+    log_hash[:message] = 'Lighthouse Submission Attempt is pending'
+    Rails.logger.public_send(:info, log_hash)
   end
 
   def success!
     submitted!
-    Rails.logger.public_send(:info, message: 'Form Submission Attempt State change')
+    log_hash = status_change_hash
+    log_hash[:message] = 'Lighthouse Submission Attempt is submitted'
+    Rails.logger.public_send(:info, log_hash)
   end
 end
