@@ -112,7 +112,7 @@ module CheckIn
     # @param logger_instance [Logger] Logger instance to use (defaults to Rails.logger)
     # @return [Boolean] Always returns false to prevent retries
     def self.log_failure_no_retry(message, opts, logger_instance = Rails.logger)
-      template_id = opts&.dig(:template_id) || (opts.is_a?(String) ? opts : nil)
+      template_id = opts&.dig(:template_id)
       facility_type = opts&.dig(:facility_type)
 
       if FAILED_CLAIM_TEMPLATE_IDS.include?(template_id) ||
