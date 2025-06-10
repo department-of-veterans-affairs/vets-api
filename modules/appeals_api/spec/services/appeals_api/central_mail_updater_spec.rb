@@ -79,7 +79,6 @@ describe AppealsApi::CentralMailUpdater do
       allow(faraday_response).to receive_messages(success?: false, body: 'error body', status: 'error status')
     end
 
-    # rubocop:disable RSpec/SubjectStub
     it 'raises an exception and logs to Rails log' do
       allow(Rails.logger).to receive(:warn)
 
@@ -89,7 +88,6 @@ describe AppealsApi::CentralMailUpdater do
       expect(Rails.logger).to have_received(:warn)
         .with("Error getting status from EMMS API. EMMS Status: 'error status', EMMMS Body: 'error body'")
     end
-    # rubocop:enable RSpec/SubjectStub
   end
 
   context 'when central mail response is successful' do
@@ -214,7 +212,6 @@ describe AppealsApi::CentralMailUpdater do
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
       end
 
-      # rubocop:disable RSpec/SubjectStub
       it 'raises an exception and logs to rails' do
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
         allow(Rails.logger).to receive(:warn)
@@ -224,7 +221,6 @@ describe AppealsApi::CentralMailUpdater do
         expect(Rails.logger).to have_received(:warn)
           .with('Unknown status value from EMMS API. EMMS Status: SOME_UNKNOWN_STATUS')
       end
-      # rubocop:enable RSpec/SubjectStub
     end
 
     context 'when appeal object contains an error message' do
