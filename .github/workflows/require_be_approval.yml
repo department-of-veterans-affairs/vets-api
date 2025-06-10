@@ -42,7 +42,7 @@ jobs:
           echo "Backend team members:"
           cat members.txt
         env:
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if any backend-review-group member approved the PR
         if: steps.check_backend_requested.outputs.team_requested == 'true'
