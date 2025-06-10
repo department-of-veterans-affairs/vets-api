@@ -6,5 +6,5 @@ require 'claims_evidence_api/engine'
 # https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html
 module ClaimsEvidenceApi
   # The module path
-  MODULE_PATH = 'modules/burials'
+  MODULE_PATH = 'modules/claims_evidence_api'
 end
