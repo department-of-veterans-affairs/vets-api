@@ -23,6 +23,14 @@ jobs:
         run: |
           echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.slug) }}' | jq -c '.')" >> "$GITHUB_OUTPUT"
 
+      - name: Dump pull_request event payload
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Requested teams:"
+          echo '${{ toJSON(github.event.pull_request.requested_teams) }}'
+          echo "Full payload snippet:"
+          echo '${{ toJSON(github.event.pull_request) }}' | jq .
+
       - name: Check if backend-review-group is requested
         id: check_backend_requested
         run: |
