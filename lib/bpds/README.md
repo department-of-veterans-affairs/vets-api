@@ -30,9 +30,11 @@ About 30% of the users on the pension form are not authenticated.  To ensure tha
 
 Our assumptions is that first we would use the SSN provided in form, as that is a required field.  If there are no results returned, we would then use the file number.  One of the things returned by `findVeteranByFileNumber()` is the participantId (PID). 
 
-Further conversations are needed to determine if POI needs an ICN or a PID
+06/10/2025
 
-The ICN or PID is then included in the payload that is posted to BPDS.  If no ICN or PID can be found, these submissions will not go to BDPS.
+We have determined that PID or file number will be used as the unique identifier for the POI system. See [0009-adding-user-identifier-to-bpds-request.md](documentation/adr/0009-adding-user-identifier-to-bpds-request.md) for details on the logic to retrieve the unique identifier.
+
+The PID or file number is then included in the payload that is posted to BPDS.  If no PID or file number is found, these submissions will not be sent to BDPS.
 
 #### Claim ID's and tracking status of submissions
 
