@@ -34,7 +34,7 @@ module CheckIn
       opts = { mobile_phone:, appointment_date:, template_id:, facility_type:, claim_number_last_four:, uuid: }
 
       # Early return here because there is no sense in retrying if the required fields are missing
-      return unless required_fields_valid?(opts)
+      return unless validate_and_log_missing_fields(opts)
       return unless (parsed_date = parse_appointment_date(opts))
 
       begin
@@ -162,7 +162,7 @@ module CheckIn
     #
     # @param opts [Hash] Options hash containing job parameters
     # @return [Boolean] true if all required fields are present, false otherwise
-    def required_fields_valid?(opts)
+    def validate_and_log_missing_fields(opts)
       missing_fields = missing_required_fields(opts)
 
       return true if missing_fields.empty?
