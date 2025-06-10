@@ -240,3 +240,40 @@ jobs:
       - name: Backend Approval Confirmed
         if: steps.verify_approval.outputs.approval_status == 'confirmed'
         run: exit 0
+
+
+
+        for WORKFLOW in "${WORKFLOWS[@]}"; do
+          IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headSha,event -q \
+            ".[] | select(.headSha == \"${LATEST_SHA}\" and .event == \"pull_request\") | .headSha" | head -n 1)
+
+          if [ -n "$IN_PROGRESS" ]; then
+            echo "$WORKFLOW is still in progress for latest commit $LATEST_SHA."
+            failures=true
+          else
+            SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headSha,event,conclusion -q \
+              ".[] | select(.headSha == \"${LATEST_SHA}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
+
+            if [ -z "$SUCCESSFUL" ]; then
+              echo "$WORKFLOW did not complete successfully for latest commit $LATEST_SHA."
+              failures=true
+            else
+              echo "$WORKFLOW completed successfully for latest commit $LATEST_SHA."
+            fi
+          fi
+        done
+
+        branch_json=$(gh api repos/${GITHUB_REPOSITORY}/branches/${pr_branch} 2>&1) || true
+echo "Raw branch_json:"
+echo "$branch_json" | cat -v  # Shows control chars visibly
+
+echo "$branch_json" | jq '.' > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "Error: branch_json is not valid JSON, cannot parse"
+  echo "Output was:"
+  echo "$branch_json"
+  exit 1
+fi
+
+LATEST_SHA=$(echo "$branch_json" | jq -r '.commit.sha // empty')
+echo "Latest commit SHA on branch ${pr_branch}: $LATEST_SHA"
