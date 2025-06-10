@@ -31,6 +31,9 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_self_service_auth:
+    actor_type: user
+    description: Enables the self-service authorization of the accredited representative portal
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -105,10 +108,6 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
-  benefits_education_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to retrieve GI Bill Statement of benefits
-    enable_in_development: true
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
@@ -121,6 +120,9 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
+  caregiver_carma_submitted_at:
+    actor_type: user
+    description: Enables sending CARMA the current time as a metadata submitted_at value
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
@@ -137,9 +139,6 @@ features:
   hca_disable_bgs_service:
     actor_type: user
     description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
-  hca_disable_sentry_logs:
-    actor_type: user
-    description: Use rails logging instead of Sentry for logging
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -414,6 +413,9 @@ features:
     actor_type: user
     description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
     enable_in_development: true
+  cst_filter_ep_codes:
+    actor_type: user
+    description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -1306,6 +1308,10 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+  pension_income_and_assets_overflow_pdf_redesign:
+    actor_type: user
+    description: >
+      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1328,6 +1334,9 @@ features:
   profile_ppiu_reject_requests:
     actor_type: user
     description: When enabled, requests to the PPIU controller will return a routing error.
+  profile_contact_info_page_ui_refresh:
+    actor_type: user
+    description: Display updated UI/UX for the profile Contact Information page.
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
@@ -1938,18 +1947,9 @@ features:
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications
-  virtual_agent_fetch_jwt_token:
-    actor_type: user
-    description: Enable the fetching of a JWT token to access MAP environment
-  virtual_agent_lighthouse_claims:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
-  virtual_agent_voice:
-    actor_type: user
-    description: Enable the voice feature of the VA Chatbot
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -1975,9 +1975,6 @@ features:
   sc_browser_monitoring_enabled:
     actor_type: user
     description: Supplemental Claim Datadog RUM monitoring
-  virtual_agent_component_testing:
-    actor_type: user
-    description: If enabled, allows for testing of the chatbot components
   terms_of_use:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
@@ -2046,9 +2043,6 @@ features:
   ecc_benefits_intake_submission:
     actor_type: user
     description: Enable education and career counseling claim submissions to use Benefits Intake API
-  virtual_agent_enable_param_error_detection:
-    actor_type: user
-    description: If enabled, Allows for the detection of errors in the chatbot params
   sob_updated_design:
     actor_type: user
     description: >-
@@ -2173,9 +2167,6 @@ features:
   benefits_intake_submission_status_job:
     actor_type: user
     description: Batch process FormSubmissionAttempts using ::BenefitsIntake::SubmissionStatusJob
-  virtual_agent_enable_datadog_logging:
-    actor_type: user
-    description: If enabled, allows for the use of Datadog logging for the chatbot
   kafka_producer:
     actor_type: cookie_id
     description: Enables the Kafka producer for the VA.gov platform
