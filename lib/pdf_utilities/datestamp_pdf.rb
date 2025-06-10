@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
 require 'common/file_helpers'
+require 'pdf_utilities/exception_handling'
 
 # Utility classes and functions for VA PDF
 module PDFUtilities
   # @see https://github.com/jkraemer/pdf-forms
   PDFTK = PdfForms.new(Settings.binaries.pdftk)
 
-  class DatestampPdfError < StandardError; end
-  class PdfMissingError < DatestampPdfError; end
-  class StampGenerationError < DatestampPdfError; end
-  class PdfStampingError < DatestampPdfError; end
-
   # add a watermark datestamp to an existing pdf
   class DatestampPdf
+    include PDFUtilities::ExceptionHandling
+
+    # metric stat key
+    STATS_KEY = 'api.datestamp_pdf.error'
+
     # prepare to datestamp an existing pdf document
     #
     # @param file_path [String] path to the PDF file
@@ -26,7 +27,7 @@ module PDFUtilities
 
       raise PdfMissingError, 'Original PDF is missing' unless File.exist?(file_path)
     rescue => e
-      log_and_raise_error('Failed to initialize DatestampPdf', e)
+      log_and_raise_error('Failed to initialize DatestampPdf', e, STATS_KEY)
     end
 
     # create a datestamped pdf copy of `file_path`
@@ -52,7 +53,7 @@ module PDFUtilities
       stamp_pdf
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      log_and_raise_error('Failed to generate datestamp file', e)
+      log_and_raise_error('Failed to generate datestamp file', e, STATS_KEY)
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path)
     end
@@ -93,7 +94,7 @@ module PDFUtilities
       @stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         if page_number.present? && template.present?
-          raise StampGenerationError, "Template PDF missing: #{template}" unless File.exist?(template)
+          raise PdfMissingError, "Template PDF missing: #{template}" unless File.exist?(template)
 
           reader = PDF::Reader.new(template)
           page_number.times { pdf.start_new_page }
@@ -107,7 +108,7 @@ module PDFUtilities
 
       stamp_path
     rescue => e
-      log_and_raise_error('Failed to generate stamp', e)
+      log_and_raise_error('Failed to generate stamp', e, STATS_KEY)
     end
 
     # create the stamp text to be used
@@ -130,8 +131,8 @@ module PDFUtilities
     def stamp_pdf
       Rails.logger.info("Stamping PDF: #{file_path} with stamp: #{stamp_path}")
 
-      raise DatestampPdfError, "Original PDF missing: #{file_path}" unless File.exist?(file_path)
-      raise DatestampPdfError, "Generated stamp missing: #{stamp_path}" unless File.exist?(stamp_path)
+      raise PdfMissingError, "Original PDF missing: #{file_path}" unless File.exist?(file_path)
+      raise PdfMissingError, "Generated stamp missing: #{stamp_path}" unless File.exist?(stamp_path)
 
       @stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
 
@@ -146,16 +147,7 @@ module PDFUtilities
       stamped_pdf
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      log_and_raise_error('PDF stamping failed', e)
-    end
-
-    def log_and_raise_error(message, e)
-      combined_message = "#{message}: #{e.message}"
-      monitor = Logging::Monitor.new('pdf_utilities')
-      monitor.track_request(:error, combined_message, 'api.datestamp_pdf.error', exception: e.message,
-                                                                                 backtrace: e.backtrace)
-
-      raise e.class, combined_message, e.backtrace
+      log_and_raise_error('PDF stamping failed', e, STATS_KEY)
     end
 
     # DatestampPdf class
