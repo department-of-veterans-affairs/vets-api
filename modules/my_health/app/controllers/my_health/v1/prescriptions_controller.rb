@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::PrescriptionHelper::Sorting
       include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
@@ -20,8 +21,8 @@ module MyHealth
 
         filter_count = set_filter_metadata(resource.data, raw_data)
         resource = apply_filters(resource) if params[:filter].present?
-        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
-        resource.records = sort_prescriptions_with_pd_at_top(resource.data)
+        resource = apply_sorting(resource, params[:sort])
+        resource.records = sort_prescriptions_with_pd_at_top(resource.records)
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
@@ -187,7 +188,7 @@ module MyHealth
       def set_filter_metadata(list, non_modified_collection)
         {
           filter_count: {
-            all_medications: group_prescriptions(non_modified_collection).length,
+            all_medications: count_grouped_prescriptions(non_modified_collection),
             active: count_active_medications(list),
             recently_requested: count_recently_requested_medications(list),
             renewal: list.select(&method(:renewable)).length,
@@ -221,15 +222,10 @@ module MyHealth
       end
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
-        prescriptions.sort do |a, b|
-          if a.prescription_source == 'PD' && b.prescription_source != 'PD'
-            -1
-          elsif a.prescription_source != 'PD' && b.prescription_source == 'PD'
-            1
-          else
-            0
-          end
-        end
+        pd_prescriptions = prescriptions.select { |med| med.prescription_source == 'PD' }
+        other_prescriptions = prescriptions.reject { |med| med.prescription_source == 'PD' }
+
+        pd_prescriptions + other_prescriptions
       end
     end
   end
