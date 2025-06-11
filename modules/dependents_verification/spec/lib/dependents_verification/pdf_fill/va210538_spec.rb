@@ -57,21 +57,22 @@ describe DependentsVerification::PdfFill::Va210538 do
     end
   end
 
-  it 'includes all expected keys in the PDF' do
-    pdf = PdfForms.new(Settings.binaries.pdftk)
-    fields_in_pdf = pdf.get_fields(path).map(&:name)
-    expect(fields_in_pdf).to include(*keys)
-  end
+  describe 'template pdf' do
+    let(:pdf_keys) do
+      pdf = PdfForms.new(Settings.binaries.pdftk)
+      pdf.get_fields(path).map(&:name)
+    end
 
-  it 'includes all expected fields in the PDF' do
-    pdf = PdfForms.new(Settings.binaries.pdftk)
-    fields_in_pdf = pdf.get_fields(path).map(&:name)
-    expect(fields_in_pdf).to include(*fields)
-  end
+    it 'includes all mapped keys' do
+      expect(pdf_keys).to include(*keys)
+    end
 
-  it 'does not have duplicate field names in the PDF' do
-    pdf = PdfForms.new(Settings.binaries.pdftk)
-    fields_in_pdf = pdf.get_fields(path).map(&:name)
-    expect(fields_in_pdf.uniq.size).to eq(fields_in_pdf.size)
+    it 'includes all documented fields' do
+      expect(pdf_keys).to include(*fields)
+    end
+
+    it 'does not have duplicate field names' do
+      expect(pdf_keys.uniq.size).to eq(pdf_keys.size)
+    end
   end
 end
