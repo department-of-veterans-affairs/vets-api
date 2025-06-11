@@ -146,7 +146,7 @@ class FormProfile
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
@@ -226,7 +226,7 @@ class FormProfile
   #
   def self.prepend_module(form_class, form_id)
     namespaces = {
-      '21P-527EZ' => 'Pensions'
+      # Insert form type i.e. '21P-0000' => 'Form' here
     }
 
     namespace = namespaces[form_id]
