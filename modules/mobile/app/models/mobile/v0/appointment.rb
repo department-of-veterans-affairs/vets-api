@@ -83,6 +83,7 @@ module Mobile
         end
         attribute? :claim, TravelPayClaimSummary.optional
       end
+      attribute? :travel_pay_eligible, Types::Bool
       attribute :show_schedule_link, Types::Bool.optional
 
       # On staging, some upstream services use different facility ids for the same facility.
