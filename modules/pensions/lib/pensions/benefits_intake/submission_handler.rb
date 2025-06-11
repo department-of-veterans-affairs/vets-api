@@ -8,6 +8,11 @@ module Pensions
   module BenefitsIntake
     # @see BenefitsIntake::SubmissionHandler::SavedClaim
     class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
+      def self.pending_attempts
+        Lighthouse::SubmissionAttempt.joins(:submission).where(status: 'pending',
+                                                               'lighthouse_submissions.form_id' => '21P-527EZ')
+      end
+
       private
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#claim_class
