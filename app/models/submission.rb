@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 class Submission < ApplicationRecord
   self.abstract_class = true
 
