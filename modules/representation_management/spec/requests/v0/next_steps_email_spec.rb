@@ -49,7 +49,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           },
-          { callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+          { callback_klass: 'EmailDeliveryStatusCallback',
             callback_metadata: {
               form_number: 'Form Number',
               statsd_tags: {

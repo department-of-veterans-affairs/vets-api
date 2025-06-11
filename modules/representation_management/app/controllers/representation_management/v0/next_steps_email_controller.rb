@@ -45,7 +45,7 @@ module RepresentationManagement
 
       def email_delivery_callback(data)
         {
-          callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+          callback_klass: 'EmailDeliveryStatusCallback',
           callback_metadata: {
             form_number: data.form_number,
             statsd_tags: {

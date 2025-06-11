@@ -72,7 +72,7 @@ module AccreditedRepresentativePortal
 
     def email_delivery_callback(type)
       {
-        callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+        callback_klass: 'EmailDeliveryStatusCallback',
         callback_metadata: {
           statsd_tags: {
             service: 'accredited-representative-portal',
