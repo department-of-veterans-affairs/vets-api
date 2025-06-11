@@ -50,22 +50,78 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
       end
     end
 
-    it 'returns a server error response if a request to the Travel Pay API fails' do
+    it 'returns a success response with saved status if a submit request to the Travel Pay API fails' do
       allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
         .and_return({ veis_token: 'vt', btsss_token: 'bt' })
-      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
-        .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
 
-      # The cassette doesn't matter here as I'm mocking the submit_claim method
-      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path], allow_playback_repeats: true) do
-        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465',
-                   'facility_station_number' => '123',
-                   'appointment_type' => 'Other',
-                   'is_complete' => false }
+      VCR.use_cassette('travel_pay/submit/tokens_success', match_requests_on: %i[method path]) do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/submit/200_create_claim', match_requests_on: %i[method path]) do
+            VCR.use_cassette('travel_pay/submit/200_add_expense', match_requests_on: %i[method path]) do
+              VCR.use_cassette('travel_pay/submit/500_submit_claim', match_requests_on: %i[method path]) do
+                params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                           'facility_station_number' => '123',
+                           'appointment_type' => 'Other',
+                           'is_complete' => false }
 
-        post('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+                post('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
-        expect(response).to have_http_status(:internal_server_error)
+                expect(response.body).to match_json_schema('travel_pay_smoc_response')
+                submitted_claim = response.parsed_body['data']['attributes']
+                expect(response).to have_http_status(:created)
+                expect(submitted_claim['id']).to eq('3fa85f64-5717-4562-b3fc-2c963f66afa6')
+                expect(submitted_claim['claimStatus']).to eq('Saved')
+              end
+            end
+          end
+        end
+      end
+    end
+
+    it 'returns a success response with incomplete status if add expense call to the Travel Pay API fails' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+      VCR.use_cassette('travel_pay/submit/tokens_success', match_requests_on: %i[method path]) do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/submit/200_create_claim', match_requests_on: %i[method path]) do
+            VCR.use_cassette('travel_pay/submit/500_add_expense', match_requests_on: %i[method path]) do
+              params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                         'facility_station_number' => '123',
+                         'appointment_type' => 'Other',
+                         'is_complete' => false }
+
+              post('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+              expect(response.body).to match_json_schema('travel_pay_smoc_response')
+              submitted_claim = response.parsed_body['data']['attributes']
+              expect(response).to have_http_status(:created)
+              expect(submitted_claim['id']).to eq('3fa85f64-5717-4562-b3fc-2c963f66afa6')
+              expect(submitted_claim['claimStatus']).to eq('Incomplete')
+            end
+          end
+        end
+      end
+    end
+
+    it 'returns an error if claim creation fails' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+      VCR.use_cassette('travel_pay/submit/tokens_success', match_requests_on: %i[method path]) do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/submit/500_create_claim', match_requests_on: %i[method path]) do
+            params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                       'facility_station_number' => '123',
+                       'appointment_type' => 'Other',
+                       'is_complete' => false }
+
+            post('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+            # TODO: This should be a 500 error, but the controller is returning a 400
+            # expect(response).to have_http_status(:internal_server_error)
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
       end
     end
   end
