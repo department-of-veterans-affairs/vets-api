@@ -1,34 +1,38 @@
 # frozen_string_literal: true
 
 namespace :pensions do
-  desc 'Migrate SavedClaim::Pension records to Pensions::SavedClaim'
+  desc 'Re-encrypt and migrate SavedClaim::Pension records to Pensions::SavedClaim'
   task migrate_saved_claim_pension_to_pensions_saved_claim: :environment do
-    batch_size = 1000
-    total = SavedClaim.where(type: 'SavedClaim::Pension').count
+    batch_size = 100
+    total = SavedClaim.unscoped.where(type: 'SavedClaim::Pension').count
     migrated = 0
+    failed = 0
 
-    puts "Starting migration of SavedClaim::Pension to Pensions::SavedClaim (#{total} records)..."
+    puts "Starting re-encryption and migration of SavedClaim::Pension to Pensions::SavedClaim (#{total} records)..."
 
-    loop do
-      # Use ActiveRecord to select IDs (no instantiation, just pluck)
-      ids = SavedClaim.unscoped.where(type: 'SavedClaim::Pension').limit(batch_size).pluck(:id)
-      break if ids.empty?
+    # Use unscoped to avoid STI instantiation issues
+    SavedClaim.unscoped.
+      where(type: 'SavedClaim::Pension').
+      find_in_batches(batch_size: batch_size) do |batch|
+        batch.each do |record|
+          begin
+            # Decrypt the form data using the old context
+            form_data = record.form
 
-      begin
-        # Update the type column directly in the database using raw SQL, so Rails does not
-        # instantiate the model and does not attempt decryption.
-        # Error without: KmsEncrypted::DecryptionError: Decryption failed
-        ActiveRecord::Base.connection.execute(
-          "UPDATE saved_claims SET type = 'Pensions::SavedClaim' WHERE id IN (#{ids.join(',')})"
-        )
-        migrated += ids.size
-        puts "Migrated batch of #{ids.size} (#{migrated}/#{total})"
-      rescue => e
-        Rails.logger.error("Failed to migrate SavedClaim IDs #{ids.inspect}: #{e.class}: #{e.message}")
-        puts "Error migrating SavedClaim IDs #{ids.inspect}: #{e.class}: #{e.message}"
+            # Update the type and re-encrypt by saving
+            record.type = 'Pensions::SavedClaim'
+            record.form = form_data # triggers re-encryption with new context
+            record.save
+            migrated += 1
+            puts "Migrated and re-encrypted SavedClaim ID #{record.id} (#{migrated}/#{total})"
+          rescue => e
+            failed += 1
+            Rails.logger.error("Failed to migrate/re-encrypt SavedClaim ID #{record.id}: #{e.class}: #{e.message}")
+            puts "Error migrating/re-encrypting SavedClaim ID #{record.id}: #{e.class}: #{e.message}"
+          end
+        end
       end
-    end
 
-    puts "Migration complete. Migrated #{migrated} records."
+    puts "Migration complete. Migrated #{migrated} records. Failed: #{failed}."
   end
 end

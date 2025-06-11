@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SavedClaim::Test < SavedClaim
-  FORM = 'Form23-42Fake'
+  FORM = '21P-527EZ'
 
   def email
     parsed_form['email']
