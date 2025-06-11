@@ -1577,6 +1577,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'Lighthouse Benefits Claims Data' do
+      it 'gets claim data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          expect(subject).to validate(
+            :get,
+            '/v0/benefits_claims/{id}',
+            200,
+            headers.merge('id' => '600383363')
+          )
+        end
+      end
+    end
+
     describe 'Event Bus Gateway' do
       include_context 'with service account authentication', 'eventbus', ['http://www.example.com/v0/event_bus_gateway/send_email'], { user_attributes: { participant_id: '1234' } }
 

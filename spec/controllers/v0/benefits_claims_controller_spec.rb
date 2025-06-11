@@ -184,6 +184,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
                                  'displayName')).to eq('RV1 - Reserve Records Request')
@@ -202,6 +203,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
                                  'displayName')).to eq('RV1 - Reserve Records Request')
@@ -220,6 +222,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(13)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
@@ -239,6 +242,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(14)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
@@ -259,6 +263,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
           can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
           expect(can_upload_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
@@ -283,6 +288,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
           can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
           expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, false, false,
@@ -349,6 +355,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
+          expect(response).to have_http_status(:ok)
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions')).to be_nil
         end
@@ -366,6 +373,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               get(:show, params: { id: claim_id })
             end
+            expect(response).to have_http_status(:ok)
             parsed_body = JSON.parse(response.body)
             expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions').size).to eq(1)
           end
@@ -384,6 +392,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               get(:show, params: { id: claim_id })
             end
+            expect(response).to have_http_status(:ok)
             parsed_body = JSON.parse(response.body)
             evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
             expect(evidence_submissions.size).to eq(1)

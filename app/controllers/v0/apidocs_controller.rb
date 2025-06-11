@@ -122,6 +122,7 @@ module V0
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::Banners,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::BenefitsClaims,
       Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimDocuments,
       Swagger::Requests::ClaimStatus,
