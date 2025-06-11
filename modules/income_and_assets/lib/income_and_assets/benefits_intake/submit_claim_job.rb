@@ -43,7 +43,7 @@ module IncomeAndAssets
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf)
+        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: extras_redesign_enabled? }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
@@ -173,6 +173,16 @@ module IncomeAndAssets
         @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       rescue => e
         monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+      end
+
+      # Check if the extras redesign feature flag is enabled for the current user
+      #
+      # @return [Boolean]
+      def extras_redesign_enabled?
+        return false if @user_account_uuid.nil?
+
+        user = OpenStruct.new({ flipper_id: @user_account_uuid })
+        Flipper.enabled?(:pension_income_and_assets_overflow_pdf_redesign, user)
       end
     end
   end
