@@ -123,10 +123,7 @@ module IncomeAndAssets
             question_text: 'CAN THIS ASSET BE SOLD?',
             question_label: 'Can Be Sold',
             format_options: {
-              humanize: {
-                'false' => 'No',
-                'true' => 'Yes'
-              }
+              humanize: true
             }
           },
           # Q7

@@ -101,10 +101,7 @@ module IncomeAndAssets
             question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUITY?',
             question_label: 'Receiving Income from Annuity',
             format_options: {
-              humanize: {
-                '0' => 'No',
-                '1' => 'Yes'
-              }
+              humanize: true
             }
           },
           # 9i
@@ -129,10 +126,7 @@ module IncomeAndAssets
             question_text: 'CAN THE ANNUITY BE LIQUIDATED?',
             question_label: 'Can Be Liquidated',
             format_options: {
-              humanize: {
-                '0' => 'No',
-                '1' => 'Yes'
-              }
+              humanize: true
             }
           },
           # 9k

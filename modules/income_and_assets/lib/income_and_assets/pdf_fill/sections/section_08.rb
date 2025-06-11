@@ -100,10 +100,7 @@ module IncomeAndAssets
             question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? ',
             question_label: 'Receiving Income from Trust',
             format_options: {
-              humanize: {
-                'false' => 'No',
-                'true' => 'Yes'
-              }
+              humanize: true
             }
           },
           # 8i
@@ -128,10 +125,7 @@ module IncomeAndAssets
                       'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?',
             question_label: 'Used for Medical Expenses',
             format_options: {
-              humanize: {
-                'false' => 'No',
-                'true' => 'Yes'
-              }
+              humanize: true
             }
           },
           # 8k
@@ -155,10 +149,7 @@ module IncomeAndAssets
             question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?', # rubocop:disable Layout/LineLength
             question_label: 'Trust Established for Veterans Child',
             format_options: {
-              humanize: {
-                'false' => 'No',
-                'true' => 'Yes'
-              }
+              humanize: true
             }
           },
           # 8m
@@ -169,10 +160,7 @@ module IncomeAndAssets
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?',
             question_label: 'Additional Authority or Control of Trust',
             format_options: {
-              humanize: {
-                'false' => 'No',
-                'true' => 'Yes'
-              }
+              humanize: true
             }
           }
         }
