@@ -29,7 +29,6 @@ module AccreditedRepresentativePortal
         validate(attachment)
       end
 
-
       private
 
       def create_form(form_type)
@@ -53,7 +52,6 @@ module AccreditedRepresentativePortal
         end
       end
 
-
       def validate_record!(attachment)
         attachment.validate!
       rescue ActiveRecord::RecordInvalid => e
@@ -63,16 +61,15 @@ module AccreditedRepresentativePortal
       end
 
       def validate_document(file_path)
-        begin
-          lighthouse_service.valid_document?(document: file_path)
-        rescue BenefitsIntake::Service::InvalidDocumentError => e
-          render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
-          :error
-        end
+        lighthouse_service.valid_document?(document: file_path)
+      rescue BenefitsIntake::Service::InvalidDocumentError => e
+        render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+        :error
       end
 
       def validate_attachment(attachment)
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+
         attachment.save
       end
 

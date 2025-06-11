@@ -195,7 +195,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       params = { form_id: form_number, file: }
       allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?).and_return(pdf_path)
 
-
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
       end.to change(PersistentAttachments::VAForm, :count).by(1)
@@ -256,17 +255,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
       expect(resp).to eq({
-                          'data' => {
-                            'id' => attachment.id.to_s,
-                            'type' => 'persistent_attachment_va_form',
-                            'attributes' => {
-                              'confirmationCode' => attachment.guid,
-                              'name' => 'doctors-note.gif',
-                              'size' => 83_403,
-                              'warnings' => []
-                            }
-                          }
-                        })
+                           'data' => {
+                             'id' => attachment.id.to_s,
+                             'type' => 'persistent_attachment_va_form',
+                             'attributes' => {
+                               'confirmationCode' => attachment.guid,
+                               'name' => 'doctors-note.gif',
+                               'size' => 83_403,
+                               'warnings' => []
+                             }
+                           }
+                         })
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAFormDocumentation)
     end
 
