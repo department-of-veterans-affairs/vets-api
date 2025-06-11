@@ -48,7 +48,7 @@ RSpec.describe LighthouseClaimLettersProvider do
     it 'retrieves and transforms claim letters from the Lighthouse API' do
       letters = provider.get_letters
 
-      expect(letters.length).to eq(1)  # Fixed: use .length instead of have(1).item
+      expect(letters.length).to eq(1) # Fixed: use .length instead of have(1).item
       expect(letters.first).to be_a(ClaimLetters::Responses::ClaimLetterResponse)
       expect(letters.first.subject).to eq('Test Subject')
       expect(letters.first.document_id).to eq('12345678-ABCD-0123-cdef-124345679ABC')
@@ -74,7 +74,7 @@ RSpec.describe LighthouseClaimLettersProvider do
     before do
       allow(mock_service).to receive(:claim_letter_download).and_return(download_response)
       allow(ClaimLetters::Utils::LetterTransformer).to receive(:filename_with_date)
-                                                         .and_return('test_filename.pdf')
+        .and_return('test_filename.pdf')
     end
 
     it 'downloads and yields the PDF content with correct metadata' do
@@ -96,7 +96,7 @@ RSpec.describe LighthouseClaimLettersProvider do
       provider.get_letter(document_uuid) { |*| }
 
       expect(mock_service).to have_received(:claim_letter_download).with(
-        document_uuid: document_uuid,
+        document_uuid:,
         file_number: nil,
         participant_id: current_user.participant_id
       )
