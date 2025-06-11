@@ -11,6 +11,7 @@ module Ccra
     def_delegators :settings, :redis_referral_expiry
 
     REFERRAL_CACHE_KEY = 'vaos_ccra_referral_'
+    BOOKING_START_TIME_CACHE_KEY = 'vaos_ccra_booking_start_time_'
     REFERRAL_CACHE_NAMESPACE = 'vaos-ccra-cache'
 
     # Initializes the RedisClient with settings.
@@ -33,6 +34,35 @@ module Ccra
         referral_data.to_json,
         namespace: REFERRAL_CACHE_NAMESPACE,
         expires_in: redis_referral_expiry
+      )
+    end
+
+    # Saves booking start time to the Redis cache using referral number as key.
+    #
+    # @param referral_number [String] The referral number to use as the cache key
+    # @param icn [String] The ICN of the patient
+    # @param booking_start_time [Float] The booking start time to be cached
+    # @return [Boolean] True if the cache operation was successful
+    def save_booking_start_time(referral_number:, icn:, booking_start_time:)
+      cache_key = generate_booking_start_time_cache_key(referral_number, icn)
+      Rails.cache.write(
+        cache_key,
+        booking_start_time,
+        namespace: REFERRAL_CACHE_NAMESPACE,
+        expires_in: redis_referral_expiry
+      )
+    end
+
+    # Retrieves booking start time from the Redis cache.
+    #
+    # @param referral_number [String] The referral number
+    # @param icn [String] The ICN of the patient
+    # @return [Float, nil] The cached booking start time if it exists, otherwise nil
+    def fetch_booking_start_time(referral_number:, icn:)
+      cache_key = generate_booking_start_time_cache_key(referral_number, icn)
+      Rails.cache.read(
+        cache_key,
+        namespace: REFERRAL_CACHE_NAMESPACE
       )
     end
 
@@ -72,6 +102,15 @@ module Ccra
     # @return [String] The generated cache key
     def generate_cache_key(id, icn)
       "#{REFERRAL_CACHE_KEY}#{icn}_#{id}"
+    end
+
+    # Generates a consistent cache key for a booking start time.
+    #
+    # @param referral_number [String] The referral number
+    # @param icn [String] The ICN of the patient
+    # @return [String] The generated cache key
+    def generate_booking_start_time_cache_key(referral_number, icn)
+      "#{BOOKING_START_TIME_CACHE_KEY}#{icn}_#{referral_number}"
     end
   end
 end
