@@ -365,7 +365,7 @@ module PdfFill
       set_markup_options(pdf)
     end
 
-    def add_text(value, metadata) # rubocop:disable Metrics/MethodLength
+    def add_text(value, metadata)
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
 
@@ -374,23 +374,25 @@ module PdfFill
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
         question_text = @question_key[question_num]
-
-        @questions[question_num] =
-          if metadata[:i].blank?
-            case metadata[:question_type]
-            when 'free_text'
-              FreeTextQuestion.new(question_text, metadata)
-            when 'checked_description'
-              CheckedDescriptionQuestion.new(question_text, metadata)
-            else
-              Question.new(question_text, metadata)
-            end
-          else
-            ListQuestion.new(question_text, metadata)
-          end
+        @questions[question_num] = get_question(question_text, metadata)
       end
 
       @questions[question_num].add_text(value, metadata)
+    end
+
+    def get_question(question_text, metadata)
+      if metadata[:i].blank?
+        case metadata[:question_type]
+        when 'free_text'
+          FreeTextQuestion.new(question_text, metadata)
+        when 'checked_description'
+          CheckedDescriptionQuestion.new(question_text, metadata)
+        else
+          Question.new(question_text, metadata)
+        end
+      else
+        ListQuestion.new(question_text, metadata)
+      end
     end
 
     def populate_section_indices!
