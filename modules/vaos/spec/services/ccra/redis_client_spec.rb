@@ -50,7 +50,6 @@ describe Ccra::RedisClient do
                booking_start_time:
       )).to be(true)
 
-      # Generate the cache key in the same way as the class
       cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{icn}_#{referral_number}"
       saved_time = Rails.cache.read(
         cache_key,
@@ -58,6 +57,32 @@ describe Ccra::RedisClient do
       )
 
       expect(saved_time).to eq(booking_start_time)
+    end
+
+    it 'updates existing cached booking start time' do
+      initial_time = Time.current.to_f
+      updated_time = initial_time + 60
+
+      subject.save_booking_start_time(
+        referral_number:,
+        icn:,
+        booking_start_time: initial_time
+      )
+
+      subject.save_booking_start_time(
+        referral_number:,
+        icn:,
+        booking_start_time: updated_time
+      )
+
+      cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{icn}_#{referral_number}"
+      saved_time = Rails.cache.read(
+        cache_key,
+        namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
+      )
+
+      expect(saved_time).to eq(updated_time)
+      expect(saved_time).not_to eq(initial_time)
     end
   end
 

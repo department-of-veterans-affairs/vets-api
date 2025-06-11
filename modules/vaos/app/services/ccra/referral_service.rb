@@ -52,7 +52,10 @@ module Ccra
     # @return [Float, nil] The booking start time as a float timestamp, or nil if not found
     def fetch_booking_start_time(id, icn)
       cached_data = referral_cache.fetch_referral_data(id:, icn:)
-      start_time = cached_data&.booking_start_time
+      referral_number = cached_data&.referral_number
+      return nil unless referral_number
+
+      start_time = referral_cache.fetch_booking_start_time(referral_number:, icn:)
       Rails.logger.warn('Referral booking start time not found.') unless start_time
       start_time
     end
@@ -70,8 +73,7 @@ module Ccra
       cached_referral = referral_cache.fetch_referral_data(id:, icn:)
       return unless cached_referral
 
-      cached_referral.booking_start_time = Time.current.to_f
-      referral_cache.save_referral_data(id:, icn:, referral_data: cached_referral)
+      update_booking_start_time(cached_referral.referral_number, icn)
       cached_referral
     end
 
@@ -94,22 +96,35 @@ module Ccra
     #
     # @param referral [ReferralDetail] The referral data object
     # @param id [String] The referral ID
-    # @param icn [String] The patient's ICN
+    # @param icn [String] The ICN of the patient
     # @return [Boolean] True if the cache operation was successful
     def cache_referral_data(referral, id, icn)
-      referral.booking_start_time = Time.current.to_f
-
       referral_cache.save_referral_data(
         id:,
         icn:,
         referral_data: referral
       )
+
+      update_booking_start_time(referral.referral_number, icn)
     end
 
     # Memoized CCRA Referral cache instance
     # @return [Ccra::RedisClient] the CCRA referral cache
     def referral_cache
       @referral_cache ||= Ccra::RedisClient.new
+    end
+
+    # Updates the booking start time for a referral in the cache
+    #
+    # @param referral_number [String] The referral number
+    # @param icn [String] The ICN of the patient
+    # @return [Boolean] True if the cache operation was successful
+    def update_booking_start_time(referral_number, icn)
+      referral_cache.save_booking_start_time(
+        referral_number:,
+        icn:,
+        booking_start_time: Time.current.to_f
+      )
     end
   end
 end
