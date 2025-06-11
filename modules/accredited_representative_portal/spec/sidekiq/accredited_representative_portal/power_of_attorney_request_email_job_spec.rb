@@ -17,7 +17,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   let(:client) { instance_double(VaNotify::Service) }
   let(:callback_options) do
     {
-      callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+      callback_klass: 'EmailDeliveryStatusCallback',
       callback_metadata: {
         statsd_tags: {
           service: 'accredited-representative-portal',
