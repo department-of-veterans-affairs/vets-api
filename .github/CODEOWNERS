@@ -23,7 +23,6 @@ app/controllers/concerns/traceable.rb @department-of-veterans-affairs/va-api-eng
 app/controllers/concerns/vet360 @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/flipper_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/gids_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/helpers/parameter_filter_helper.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/preneeds_controller.rb @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/sign_in @department-of-veterans-affairs/octo-identity
 app/controllers/sts @department-of-veterans-affairs/octo-identity
