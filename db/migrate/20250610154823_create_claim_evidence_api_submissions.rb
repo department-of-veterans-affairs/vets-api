@@ -1,4 +1,4 @@
-class CreateClaimEvidenceAPISubmissions < ActiveRecord::Migration[7.2]
+class CreateClaimEvidenceApiSubmissions < ActiveRecord::Migration[7.2]
   def change
     create_table :claims_evidence_api_submissions do |t|
       t.string :form_id, null: false, comment: 'form type of the submission'

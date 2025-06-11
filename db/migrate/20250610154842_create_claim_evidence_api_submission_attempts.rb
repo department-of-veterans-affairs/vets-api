@@ -1,4 +1,4 @@
-class CreateClaimEvidenceAPISubmissionAttempts < ActiveRecord::Migration[7.2]
+class CreateClaimEvidenceApiSubmissionAttempts < ActiveRecord::Migration[7.2]
   def change
     create_table :claims_evidence_api_submission_attempts do |t|
       t.references :claims_evidence_api_submissions, null: false, foreign_key: true
