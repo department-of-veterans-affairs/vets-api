@@ -8,7 +8,6 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   let!(:user) { sis_user }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
   end
 

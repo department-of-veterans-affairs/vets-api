@@ -76,7 +76,7 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
         end
 
         context 'when user does not have a home address' do
-          let!(:user) { sis_user(vet360_id: nil) }
+          let!(:user) { sis_user(vet360_id: nil, icn: nil) }
 
           it 'returns facility details sorted by closest to user\'s home' do
             VCR.use_cassette('mobile/appointments/get_multiple_mfs_facilities_200',
