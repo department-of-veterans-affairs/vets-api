@@ -162,7 +162,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
       end
     end
 
-    context 'when the error is a BackendServiceException and the message text includes Error calling external service' do
+    context 'when the error is a BackendServiceException and text includes Error calling external service' do
       let(:error) do
         Common::Exceptions::BackendServiceException.new(
           nil,
