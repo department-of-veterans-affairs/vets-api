@@ -5,11 +5,11 @@
             "fullName": {
                 "first": "Jane",
                 "middle": "Elizabeth",
-                "last": "Maximum"
+                "last": "Maximal"
             },
             "ssn": "333224445",
             "dateOfBirth": "2020-01-01",
-            "email": "maximum@example.com"
+            "email": "maximal@example.com"
         }
     }
 }
