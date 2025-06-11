@@ -39,6 +39,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
       context 'with mobile_filter_doc_27_decision_letters_out flag enabled' do
         it 'returns expected decision letters' do
           allow(Flipper).to receive(:enabled?).with(:mobile_filter_doc_27_decision_letters_out).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_claim_letters_use_lighthouse_api_provider).and_return(false)
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
           assert_schema_conform(200)
           decision_letters = response.parsed_body['data']
@@ -55,6 +56,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
       context 'with mobile_filter_doc_27_decision_letters_out flag disabled' do
         it 'returns expected decision letters' do
           allow(Flipper).to receive(:enabled?).with(:mobile_filter_doc_27_decision_letters_out).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_claim_letters_use_lighthouse_api_provider).and_return(false)
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
           assert_schema_conform(200)
