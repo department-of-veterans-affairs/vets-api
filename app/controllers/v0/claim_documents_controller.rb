@@ -18,7 +18,7 @@ module V0
     def create
       uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
-      @attachment = klass&.new(form_id:)
+      @attachment = klass&.new(form_id:, doctype:)
       # add the file after so that we have a form_id and guid for the uploader to use
       @attachment.file = unlock_file(params['file'], params['password'])
 
@@ -60,6 +60,10 @@ module V0
 
     def form_id
       params[:form_id].upcase
+    end
+
+    def doctype
+      params[:doctype] || 10 # Unknown
     end
 
     def unlock_file(file, file_password)
