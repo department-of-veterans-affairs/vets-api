@@ -16,18 +16,17 @@ describe DependentsVerification::PdfFill::Va210538 do
   end
 
   let(:path) { 'modules/dependents_verification/lib/dependents_verification/pdf_fill/pdfs/21-0538.pdf' }
-  let(:fields) do
-    %w[
-      SectionI1.VeteransName.First SectionI1.VeteransName.Last SectionI1.VeteransName.MI
-      SectionI2.VeteranSSN.First SectionI2.VeteranSSN.Middle SectionI2.VeteranSSN.Last
-      SectionI3.VeteranFileNumber SectionI4.VeteranDOB.Month SectionI4.VeteranDOB.Day SectionI4.VeteranDOB.Year
-      SectionI5.VeteranAddress.Street SectionI5.VeteranAddress.City SectionI5.VeteranAddress.UnitNumber
-      SectionI5.VeteranAddress.Country SectionI5.VeteranAddress.State SectionI5.VeteranAddress.PostalCode.First
-      SectionI5.VeteranAddress.PostalCode.Second SectionI6.VeteranPhone.First SectionI6.VeteranPhone.Second
-      SectionI6.VeteranPhone.Third SectionI6.VeteranPhone.International SectionI7.VeteranEmail.Second
-      SectionI7.VeteranEmail.First SectionI7.VeteranEmail.Agree SectionII8.StatusChange V14.SignatureField
-      V14.SignatureDate.Month V14.SignatureDate.Day V14.SignatureDate.Year VaDateStamp
-    ]
+  let :fields do
+    def get_keys(hash)
+      hash.map do |key, value|
+        if value.has_key?(:key)
+          value[:key]
+        elsif value.is_a?(Hash)
+          get_keys(value)
+        end
+      end
+    end
+    get_keys(described_class::KEY).flatten.compact
   end
 
   def class_form_data

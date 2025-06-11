@@ -3,7 +3,7 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
-require 'dependents_verification/pdf_fill/sections/section_i'
+require 'dependents_verification/pdf_fill/sections/section1'
 
 module DependentsVerification
   module PdfFill
@@ -21,7 +21,7 @@ module DependentsVerification
       TEMPLATE = "#{DependentsVerification::MODULE_PATH}/lib/dependents_verification/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze # rubocop:disable Layout/LineLength
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [SectionI].freeze
+      SECTION_CLASSES = [Section1].freeze
 
       key = {}
 
