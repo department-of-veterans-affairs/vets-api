@@ -31,7 +31,20 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
         form_data: {
           "veteranInformation" => { "fullName" => { "first" => "Abraham", "last" => "Lincoln", "suffix" => "Jr." },
           "ssn" => "796111863", "birthDate" => "1809-02-12" },
-          "veteranContactInformation" => { "phoneNumber" => "3035551234", "emailAddress" => "person101@example.com" } },
+          "veteranContactInformation" => {
+            "veteranAddress" => {
+              "street" => "140 Rock Creek Rd",
+              "city" => "Washington",
+              "state" => "DC",
+              "country" => "USA",
+              "postalCode" => "20011"
+            },
+            "mobilePhone" => "3035551234",
+            "homePhone" => "3035551234",
+            "usPhone" => "3035551234",
+            "emailAddress" => be_a(String)
+          }
+        },
         metadata: { version: 0, prefill: true, returnUrl: "/veteran-information" } })
     end
   end

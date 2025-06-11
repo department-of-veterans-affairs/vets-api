@@ -3,6 +3,8 @@ veteranInformation:
   ssn: [identity_information, ssn]
   birthDate: [identity_information, date_of_birth]
 veteranContactInformation:
-  veteranAddress: [form_address]
-  phoneNumber: [contact_information, us_phone]
+  veteranAddress: [contact_information, address]
+  mobilePhone: [contact_information, mobile_phone]
+  homePhone: [contact_information, home_phone]
+  usPhone: [contact_information, us_phone]
   emailAddress: [contact_information, email]
