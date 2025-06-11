@@ -8,6 +8,7 @@ module Mobile
       include AppointmentAuthorization
       before_action :authorize_with_facilities
       UPCOMING_DAYS_LIMIT = 30
+      TRAVEL_PAY_DAYS_LIMIT = 30
 
       after_action :clear_appointments_cache, only: %i[cancel create]
 
@@ -23,6 +24,14 @@ module Mobile
           upcoming_appointments_count: upcoming_appointments_count(appointments),
           upcoming_days_limit: UPCOMING_DAYS_LIMIT
         )
+
+        # Only attempt to count travel pay eligible appointments if include_claims flag is true
+        if include_claims?
+          page_meta_data[:meta].merge!(
+            travel_pay_eligible_count: travel_pay_eligible_count(appointments),
+            travel_pay_days_limit: TRAVEL_PAY_DAYS_LIMIT
+          )
+        end
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
@@ -127,6 +136,15 @@ module Mobile
         appointments.count do |appt|
           appt.is_pending == false && appt.status == 'BOOKED' && appt.start_date_utc > Time.now.utc &&
             appt.start_date_utc <= UPCOMING_DAYS_LIMIT.days.from_now.end_of_day.utc
+        end
+      end
+
+      # Checks how many appointments are eligible to file for travel pay
+      def travel_pay_eligible_count(appointments)
+        appointments.count do |appt|
+          appt.travel_pay_eligible == true && # verify the appointment type is travel pay eligible
+            appt.start_date_utc >= TRAVEL_PAY_DAYS_LIMIT.days.ago.utc && # verify it's within the last 30 days
+            appt[:travelPayClaim][:claim].nil? # verify the appointment doesn't already have a travelPayClaim
         end
       end
 
