@@ -20,6 +20,7 @@ require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
+require 'pdf_fill/forms/va2210215a'
 require 'utilities/date_parser'
 
 # rubocop:disable Metrics/ModuleLength
@@ -70,7 +71,8 @@ module PdfFill
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-10216' => PdfFill::Forms::Va2210216,
-      '22-10215' => PdfFill::Forms::Va2210215
+      '22-10215' => PdfFill::Forms::Va2210215,
+      '22-10215a' => PdfFill::Forms::Va2210215a
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -144,6 +146,11 @@ module PdfFill
     #
     # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
+      # Handle 22-10215 overflow with continuation sheets
+      if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
+        return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      end
+
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
@@ -172,6 +179,96 @@ module PdfFill
       output = combine_extras(file_path, hash_converter.extras_generator)
       Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    ##
+    # Processes 22-10215 forms with continuation sheets for overflow programs.
+    #
+    # @param form_id [String] The form ID (should be '22-10215').
+    # @param form_data [Hash] The data to fill in the form.
+    # @param form_class [Class] The class associated with the form ID.
+    # @param file_name_extension [String] The file name extension for the output PDF.
+    # @param fill_options [Hash] Options for filling the form.
+    #
+    # @return [String] The path to the combined PDF form.
+    #
+    # rubocop:disable Metrics/MethodLength
+    def process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options = {})
+      folder = 'tmp/pdfs'
+      FileUtils.mkdir_p(folder)
+      
+      programs = form_data['programs'] || []
+      total_programs = programs.length
+      total_pages = 1 + ((total_programs - 16).to_f / 16).ceil
+      pdf_files = []
+
+      begin
+        # Generate main form (first 16 programs)
+        main_form_options = fill_options.merge(is_main_form: true)
+        main_file_path = "#{folder}/#{form_id}_#{file_name_extension}_main.pdf"
+        
+        merged_form_data = form_class.new(form_data).merge_fields(main_form_options)
+        submit_date = Utilities::DateParser.parse(
+          merged_form_data['signatureDate'] || fill_options[:created_at] || Time.now.utc
+        )
+
+        hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
+        new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
+
+        template_path = "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+        PDF_FORMS.fill_form(template_path, main_file_path, new_hash, flatten: Rails.env.production?)
+        pdf_files << main_file_path
+
+        # Add intro page for continuation forms (no filling required, just copy the template)
+        intro_file_path = "#{folder}/22-10215a-Intro_#{file_name_extension}.pdf"
+        intro_template_path = "lib/pdf_fill/forms/pdfs/22-10215a-Intro.pdf"
+        FileUtils.cp(intro_template_path, intro_file_path)
+        pdf_files << intro_file_path
+
+        # Generate continuation sheets for remaining programs
+        continuation_form_class = FORM_CLASSES['22-10215a']
+        remaining_programs = programs[16..]
+        page_number = 1
+
+        remaining_programs.each_slice(16) do |program_batch|
+          page_number += 1
+          continuation_data = form_data.dup
+          continuation_data['programs'] = program_batch
+
+          continuation_options = fill_options.merge(
+            page_number: page_number,
+            total_pages: total_pages
+          )
+
+          continuation_file_path = "#{folder}/22-10215a_#{file_name_extension}_page#{page_number}.pdf"
+          
+          merged_continuation_data = continuation_form_class.new(continuation_data).merge_fields(continuation_options)
+          continuation_hash_converter = make_hash_converter('22-10215a', continuation_form_class, submit_date, fill_options)
+          continuation_new_hash = continuation_hash_converter.transform_data(
+            form_data: merged_continuation_data, 
+            pdftk_keys: continuation_form_class::KEY
+          )
+
+          continuation_template_path = "lib/pdf_fill/forms/pdfs/22-10215a.pdf"
+          PDF_FORMS.fill_form(continuation_template_path, continuation_file_path, continuation_new_hash, flatten: Rails.env.production?)
+          pdf_files << continuation_file_path
+        end
+
+        # Combine all PDFs into one
+        final_file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
+        PDF_FORMS.cat(*pdf_files, final_file_path)
+
+        Rails.logger.info('PdfFill done with continuation sheets', 
+          fill_options.merge(form_id:, file_name_extension:, total_pages:, total_programs:))
+
+        final_file_path
+      ensure
+        # Clean up temporary files
+        pdf_files.each do |file|
+          File.delete(file) if File.exist?(file)
+        end
+      end
     end
     # rubocop:enable Metrics/MethodLength
 

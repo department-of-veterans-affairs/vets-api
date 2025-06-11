@@ -2,7 +2,7 @@
 
 module PdfFill
   module Forms
-    class Va2210215 < FormBase
+    class Va2210215a < FormBase
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -120,26 +120,19 @@ module PdfFill
             question_text: 'PROGRAM DATE OF CALCULATION'
           }
         },
-        'statementOfTruthSignature' => {
-          key: 'signature',
-          limit: 50,
-          question_num: 8,
-          question_suffix: 'A',
-          question_text: 'STATEMENT OF TRUTH SIGNATURE'
-        },
-        'dateSigned' => {
-          key: 'signedDate',
-          limit: 10,
-          question_num: 9,
-          question_suffix: 'A',
-          question_text: 'DATE SIGNED'
-        },
-        'checkbox' => {
-          key: 'checkbox',
-          limit: 10,
+        'pageNumber' => {
+          key: 'pageNumber',
+          limit: 20,
           question_num: 10,
           question_suffix: 'A',
-          question_text: 'EXTENSIONS ATTACHED CHECKBOX'
+          question_text: 'PAGE NUMBER'
+        },
+        'totalPages' => {
+          key: 'totalPages',
+          limit: 10,
+          question_num: 11,
+          question_suffix: 'A',
+          question_text: 'TOTAL PAGES'
         }
       }.freeze
 
@@ -151,13 +144,6 @@ module PdfFill
         if form_data['certifyingOfficial']
           official = form_data['certifyingOfficial']
           official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
-        end
-
-        # For overflow scenarios, limit programs to first 16 only and set checkbox
-        if options[:is_main_form] && form_data['programs'] && form_data['programs'].length > 16
-          form_data['programs'] = form_data['programs'].first(16)
-          # Set checkbox to indicate extensions are attached
-          form_data['checkbox'] = 'X'
         end
 
         # Process programs array - add programDateOfCalculation for each valid row
@@ -175,8 +161,14 @@ module PdfFill
           end
         end
 
+        # Handle page numbering for continuation sheets
+        page_number = options[:page_number] || 1
+        total_pages = options[:total_pages] || 1
+        form_data['pageNumber'] = "Page #{page_number} of #{total_pages}"
+        form_data['totalPages'] = total_pages.to_s
+
         form_data
       end
     end
   end
-end
+end 
