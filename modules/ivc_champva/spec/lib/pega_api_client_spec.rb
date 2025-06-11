@@ -78,6 +78,21 @@ RSpec.describe IvcChampva::PegaApi::Client do
         result = subject.record_has_matching_report(forms[0])
         expect(result[0]['UUID']).to eq('9a0e9790-7e09-46ba-afcb-121a0e+')
       end
+
+      it 'calls get_report with date range one day before and after record.created_at' do
+        record = double('IvcChampvaForm', created_at: Time.zone.parse('2024-06-10'), form_uuid: 'abc-123')
+        client = described_class.new
+        allow(client).to receive(:get_report).and_return([{ 'some' => 'report' }])
+
+        client.record_has_matching_report(record)
+
+        expect(client).to have_received(:get_report).with(
+          '06/09/2024',
+          '06/11/2024',
+          '',
+          'abc-123'
+        )
+      end
     end
   end
 

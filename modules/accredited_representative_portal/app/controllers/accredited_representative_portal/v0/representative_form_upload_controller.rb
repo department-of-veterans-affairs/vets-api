@@ -8,11 +8,12 @@ module AccreditedRepresentativePortal
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
 
+      VALID_FORM_NUMBERS = %w[21-686c].freeze
+
       def submit
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
-        send_confirmation_email(params, confirmation_number) if status == 200
         render json: { status:, confirmation_number: }
       end
 
@@ -36,9 +37,22 @@ module AccreditedRepresentativePortal
         @lighthouse_service ||= BenefitsIntake::Service.new
       end
 
+      def form
+        @form ||= form_class.new(form_number: form_data[:formNumber])
+      end
+
+      def form_class
+        unless VALID_FORM_NUMBERS.include? form_data[:formNumber]
+          raise Common::Exceptions::BadRequest.new(detail: "Invalid form number #{form_data[:formNumber]}")
+        end
+
+        "SimpleFormsApi::VBA#{form_data[:formNumber].gsub(/-/, '').upcase}".constantize
+      end
+
       def upload_response
-        file_path = find_attachment_path(params[:confirmationCode])
+        file_path = find_attachment_path(form_params[:confirmationCode])
         stamper = SimpleFormsApi::PdfStamper.new(
+          form:,
           stamped_template_path: file_path,
           current_loa: @current_user.loa[:current],
           timestamp: Time.current
@@ -103,31 +117,7 @@ module AccreditedRepresentativePortal
         )
       end
 
-      def send_confirmation_email(_params, confirmation_number)
-        new_form_data = create_new_form_data
-        config = {
-          form_number: form_data[:formNumber],
-          form_data: new_form_data,
-          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
-          confirmation_number:
-        }
-
-        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
-        notification_email.send
-      end
-
       def get_icn
-        ##
-        # TODO: Remove. This is for temporary debugging into different behavior
-        # observed between localhost and staging.
-        #
-        if Settings.vsp_environment != 'eks-prod'
-          log_value = { ssn:, first_name:, last_name:, birth_date: }
-          Rails.logger.error(log_value.deep_transform_values do |v|
-            { class: v.class, size: v.try(:size) }
-          end)
-        end
-
         mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
 
         if mpi.profile&.icn
