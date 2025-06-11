@@ -172,45 +172,60 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
       context 'when fetching the same referral multiple times' do
         let(:initial_time) { Time.current.to_f }
-        let(:referral_with_time) do
-          build(:ccra_referral_detail, referral_number:, booking_start_time: initial_time)
-        end
+        let(:client) { Ccra::RedisClient.new }
+        let(:referral) { build(:ccra_referral_detail, referral_number:) }
 
         before do
           allow(service_double).to receive(:get_referral)
             .with(referral_number, icn)
-            .and_return(referral_with_time)
+            .and_return(referral)
+
+          # Set up initial booking start time in cache
+          client.save_booking_start_time(
+            referral_number:,
+            icn:,
+            booking_start_time: initial_time
+          )
         end
 
-        it 'preserves the original booking start time in the service' do
+        it 'preserves the original booking start time in the cache' do
           # First request
           get "/vaos/v2/referrals/#{encrypted_uuid}"
-          expect(referral_with_time.booking_start_time).to eq(initial_time)
+          cached_time = client.fetch_booking_start_time(referral_number:, icn:)
+          expect(cached_time).to eq(initial_time)
 
           # Second request
           get "/vaos/v2/referrals/#{encrypted_uuid}"
-          expect(referral_with_time.booking_start_time).to eq(initial_time)
+          cached_time = client.fetch_booking_start_time(referral_number:, icn:)
+          expect(cached_time).to eq(initial_time)
         end
       end
 
       context 'when fetching a referral for the first time' do
-        let(:referral_without_time) do
-          build(:ccra_referral_detail, referral_number:, booking_start_time: nil)
-        end
+        let(:client) { Ccra::RedisClient.new }
+        let(:referral) { build(:ccra_referral_detail, referral_number:) }
 
         before do
           Timecop.freeze
-          allow(service_double).to receive(:get_referral) do |_id, _user_icn|
-            referral_without_time.booking_start_time = Time.current.to_f
-            referral_without_time
+          allow(service_double).to receive(:get_referral) do |id, user_icn|
+            # Simulate the service's behavior of setting the booking start time
+            client.save_booking_start_time(
+              referral_number:,
+              icn: user_icn,
+              booking_start_time: Time.current.to_f
+            )
+            referral
           end
         end
 
         after { Timecop.return }
 
-        it 'sets the booking start time in the service' do
-          get "/vaos/v2/referrals/#{encrypted_uuid}"
-          expect(referral_without_time.booking_start_time).to eq(Time.current.to_f)
+        it 'sets the booking start time in the cache' do
+          expect {
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          }.to change {
+            client.fetch_booking_start_time(referral_number:, icn:)
+          }.from(nil).to(Time.current.to_f)
         end
       end
     end

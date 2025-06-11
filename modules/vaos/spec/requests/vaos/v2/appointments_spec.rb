@@ -1134,11 +1134,16 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 Rails.cache.clear
                 client = Ccra::RedisClient.new
 
-                referral.booking_start_time = Time.current.to_f
                 client.save_referral_data(
                   id: params[:referral_number],
                   icn: current_user.icn,
                   referral_data: referral
+                )
+
+                client.save_booking_start_time(
+                  referral_number: params[:referral_number],
+                  icn: current_user.icn,
+                  booking_start_time: Time.current.to_f
                 )
 
                 Timecop.travel(5.seconds.from_now)
