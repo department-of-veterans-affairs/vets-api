@@ -3,16 +3,16 @@
 require 'rails_helper'
 
 describe TestUserDashboard::UpdateUser do
-  let(:user) { create(:user) }
-  let(:tud_account) { create(:tud_account, account_uuid: user.account_uuid) }
+  let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+  let(:tud_account) { create(:tud_account, user_account_id: user.user_account_uuid) }
 
   before { allow(TestUserDashboard::TudAccount).to receive(:find_by).and_return(tud_account) }
 
   describe '#initialize' do
-    it 'instantiates the test account by account_uuid' do
+    it 'instantiates the test account by user_account_id' do
       TestUserDashboard::UpdateUser.new(user)
 
-      expect(tud_account.account_uuid).to eq(user.account_uuid)
+      expect(tud_account.user_account_id).to eq(user.user_account_uuid)
     end
   end
 
