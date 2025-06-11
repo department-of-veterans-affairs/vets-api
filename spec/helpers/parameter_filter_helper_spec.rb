@@ -6,9 +6,9 @@ require_relative '../../app/helpers/parameter_filter_helper'
 RSpec.describe ParameterFilterHelper do
   describe '.filter_params' do
     it 'filters sensitive values from a hash' do
-      params = { 'password' => 'secret', 'ssn' => '123-45-6789' }
+      params = { password: 'secret', 'ssn' => '123-45-6789' }
       filtered = described_class.filter_params(params)
-      expect(filtered['password']).to eq('[FILTERED]')
+      expect(filtered[:password]).to eq('[FILTERED]')
       expect(filtered['ssn']).to eq('[FILTERED]')
     end
 
