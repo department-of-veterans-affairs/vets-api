@@ -18,6 +18,10 @@ module AccreditedRepresentativePortal
         .select(&:accepts_digital_power_of_attorney_requests?)
     end
 
+    def power_of_attorney_holders_length
+      power_of_attorney_holders.length
+    end
+
     def get_registration_number(power_of_attorney_holder_type)
       registrations.each do |registration|
         next unless registration.power_of_attorney_holder_type == power_of_attorney_holder_type

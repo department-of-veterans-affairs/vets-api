@@ -19,58 +19,66 @@ module AccreditedRepresentativePortal
 
       def upload_scanned_form
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = create_form(PersistentAttachments::VAForm)
-        validate(attachment)
+        handle_file_upload(PersistentAttachments::VAForm)
       end
 
       def upload_supporting_documents
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = create_form(PersistentAttachments::VAFormDocumentation)
-        validate(attachment)
+        handle_file_upload(PersistentAttachments::VAFormDocumentation)
       end
 
       private
 
-      def create_form(form_type)
-        attachment = form_type.new(form_id: params[:form_id])
-        attachment.file = params['file']
-        attachment
+      def handle_file_upload(form_type)
+        attachment = create_form(form_type)
+        file_path = params['file'].tempfile.path
+        error = validate_attachment_upstream!(file_path)
+        return render_error("Document validation failed: #{error.message}") if error
+
+        error = validate_attachment!(attachment)
+        return render_error("Document validation failed: #{error.message}") if error
+
+        attachment.save
+        render json: serialized(attachment)
       end
 
-      def validate(attachment = nil)
-        file_path = params['file'].tempfile.path
-        return if validate_document(file_path) == :error
+      def create_form(form_type)
+        form_type.new(form_id: params[:form_id], file: params['file'])
+      end
 
-        validate_record!(attachment)
-        validate_attachment(attachment)
-        render json: serialized(attachment)
+      def validate_attachment!(attachment)
+        attachment.validate!
+        nil
+      rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.error({
+                             message: 'Attachment validation failed',
+                             error: e.message,
+                             form_id: attachment.form_id,
+                             user_id: @current_user.uuid
+                           })
+        e
+      end
+
+      def validate_attachment_upstream!(file_path)
+        lighthouse_service.valid_document?(document: file_path)
+        nil
+      rescue BenefitsIntake::Service::InvalidDocumentError => e
+        Rails.logger.error({
+                             message: 'Upstream document validation failed',
+                             error: e.message,
+                             user_id: @current_user.uuid
+                           })
+        e
+      end
+
+      def render_error(message)
+        render json: { error: message }, status: :unprocessable_entity
       end
 
       def serialized(attachment)
         PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
           key.camelize(:lower)
         end
-      end
-
-      def validate_record!(attachment)
-        attachment.validate!
-      rescue ActiveRecord::RecordInvalid => e
-        e.record.errors.details.keys == [:file] and
-          raise InvalidFileError
-        raise
-      end
-
-      def validate_document(file_path)
-        lighthouse_service.valid_document?(document: file_path)
-      rescue BenefitsIntake::Service::InvalidDocumentError => e
-        render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
-        :error
-      end
-
-      def validate_attachment(attachment)
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
-
-        attachment.save
       end
 
       def lighthouse_service

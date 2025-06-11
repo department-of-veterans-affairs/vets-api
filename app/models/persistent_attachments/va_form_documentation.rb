@@ -9,10 +9,6 @@ class PersistentAttachments::VAFormDocumentation < PersistentAttachment
     @warnings ||= []
   end
 
-  def as_json(options = {})
-    super(options).merge(warnings:)
-  end
-
   private
 
   def delete_file
