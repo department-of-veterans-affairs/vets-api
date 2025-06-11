@@ -2,28 +2,18 @@
 
 require 'common/client/base'
 require 'lighthouse/benefits_discovery/configuration'
+require 'lighthouse/benefits_discovery/params'
 
 module BenefitsDiscovery
   class Service < Common::Client::Base
     configuration BenefitsDiscovery::Configuration
 
     def get_eligible_benefits(params = {})
-      response = perform(:post, 'benefits-discovery-service/v0/recommendations', permitted_params(params), headers)
+      response = perform(:post, 'benefits-discovery-service/v0/recommendations', params.to_json, headers)
       response.body
     end
 
     private
-
-    def permitted_params(params)
-      {
-        dateOfBirth: params[:date_of_birth],
-        dischargeStatus: Array.wrap(params[:discharge_status]).compact,
-        branchOfService: Array.wrap(params[:branch_of_service]).compact,
-        disabilityRating: params[:disability_rating],
-        serviceDates: Array.wrap(params[:service_dates]).compact_blank,
-        purpleHeartRecipientDates: Array.wrap(params[:purple_heart_recipient_dates])
-      }.compact_blank.to_json
-    end
 
     def headers
       {

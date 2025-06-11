@@ -15,11 +15,11 @@ RSpec.describe BenefitsDiscovery::Params do
   describe '#prepared_params' do
     it 'returns the correct prepared parameters' do
       expected_params = {
-        date_of_birth: '1809-02-12',
-        discharge_status: ['B'], # is this ok? docs show whole words. need to test.
-        branch_of_service: ['Army'],
-        disability_rating: 100,
-        service_dates: [{ begin_date: '2002-02-02', end_date: '2008-12-01' }]
+        dateOfBirth: '1809-02-12',
+        dischargeStatus: ['B'], # is this ok? docs show whole words. need to test.
+        branchOfService: ['Army'],
+        disabilityRating: 100,
+        serviceDates: [{ beginDate: '2002-02-02', endDate: '2008-12-01' }]
       }
 
       VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do

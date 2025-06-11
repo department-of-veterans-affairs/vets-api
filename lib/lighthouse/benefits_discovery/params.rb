@@ -15,12 +15,13 @@ module BenefitsDiscovery
 
     def prepared_params
       {
-        date_of_birth: @user.birth_date,
-        discharge_status: service_history.collect(&:character_of_discharge_code),
-        branch_of_service: service_history.collect(&:branch_of_service),
-        disability_rating:,
-        service_dates: service_history.collect { |sh| { begin_date: sh.begin_date, end_date: sh.end_date } }
-      }
+        dateOfBirth: @user.birth_date,
+        dischargeStatus: service_history.collect(&:character_of_discharge_code),
+        branchOfService: service_history.collect(&:branch_of_service),
+        disabilityRating: disability_rating,
+        serviceDates: service_history.collect { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
+        # purpleHeartRecipientDates: Array.wrap(params[:purple_heart_recipient_dates])
+      }.compact_blank
     end
 
     private

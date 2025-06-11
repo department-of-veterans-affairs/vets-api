@@ -9,11 +9,11 @@ RSpec.describe BenefitsDiscovery::Service do
   context 'with params' do
     it 'returns recommendations' do
       params = {
-        date_of_birth: '2000-06-15',
-        discharge_status: 'HONORABLE_DISCHARGE',
-        branch_of_service: 'NAVY',
-        disability_rating: 60,
-        service_dates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }],
+        dateOfBirth: '2000-06-15',
+        dischargeStatus: ['HONORABLE_DISCHARGE'],
+        branchOfService: ['NAVY'],
+        disabilityRating: 60,
+        serviceDates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }],
         # purpleHeartRecipientDates: %w[2017-05-15 2020-01-01]
       }
 
@@ -40,36 +40,9 @@ RSpec.describe BenefitsDiscovery::Service do
   end
 
   context 'with empty values' do
-    it 'removes empty params' do
-      params = {
-        date_of_birth: nil,
-        discharge_status: nil,
-        branch_of_service: nil,
-        disability_rating: nil,
-        service_dates: nil,
-        purpleHeartRecipientDates: nil
-      }
-
-      expect_any_instance_of(Faraday::Connection).to receive(:post).with(
-        'benefits-discovery-service/v0/recommendations', '{}'
-      ).and_call_original
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params') do
-        subject.get_eligible_benefits(params)
-      end
-    end
-
     it 'returns recommendations' do
-      params = {
-        date_of_birth: nil,
-        discharge_status: nil,
-        branch_of_service: nil,
-        disability_rating: nil,
-        service_dates: nil,
-        purpleHeartRecipientDates: nil
-      }
-
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params') do
-        response = subject.get_eligible_benefits(params)
+      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params', match_requests_on: [:method, :uri, :body]) do
+        response = subject.get_eligible_benefits({})
         expect(response).to eq({
                                  'data' => {
                                    'undetermined' => [
@@ -91,9 +64,9 @@ RSpec.describe BenefitsDiscovery::Service do
 
   context 'with invalid param values' do
     it 'raises client error' do
-      VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params') do
+      VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params', match_requests_on: [:method, :uri, :body]) do
         expect do
-          subject.get_eligible_benefits({ branch_of_service: 'A-Team' })
+          subject.get_eligible_benefits({ branchOfService: 'A-Team' })
         end.to raise_error(Common::Client::Errors::ClientError)
       end
     end
