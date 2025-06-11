@@ -91,8 +91,8 @@ module VAOS
       # #get_all_appointments. If that response contains any failures, it returns an error hash
       # with the failure messages. If a VAOS appointment is found with a matching referral_id,
       # it returns { exists: true }. Otherwise, it checks the EPS appointments for a matching
-      # referral number and returns { exists: true } if found. If no matching appointment is found,
-      # it returns { exists: false }.
+      # referral number, excluding draft appointments, and returns { exists: true } if found.
+      # If no matching appointment is found, it returns { exists: false }.
       #
       # @param referral_id [String] the referral identifier to check.
       # @param pagination_params [Hash] (optional) pagination options (e.g. page and per_page).
@@ -109,7 +109,9 @@ module VAOS
         return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
 
         eps_appointments = eps_appointments_service.get_appointments[:data]
-        { exists: appointment_with_referral_exists?(eps_appointments, referral_id) }
+        # Filter out draft EPS appointments when checking referral usage
+        non_draft_eps_appointments = eps_appointments.reject { |appt| appt[:state] == 'draft' }
+        { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
       end
 
       # rubocop:enable Metrics/MethodLength

@@ -8,8 +8,7 @@ module V0
       if Flipper.enabled?(:event_bus_gateway_emails_enabled)
         EventBusGateway::LetterReadyEmailJob.perform_async(
           participant_id,
-          send_email_params[:template_id],
-          send_email_params[:personalisation]
+          send_email_params[:template_id]
         )
       end
       head :ok
@@ -22,7 +21,7 @@ module V0
     end
 
     def send_email_params
-      params.permit(:template_id, personalisation: {})
+      params.permit(:template_id)
     end
   end
 end

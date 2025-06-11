@@ -245,6 +245,23 @@ describe VAOS::V2::AppointmentsService do
         expect(result).to be(false)
       end
     end
+
+    context 'when appointments include draft states but they should be pre-filtered' do
+      let(:appointments) do
+        [
+          { id: 'appt-1', state: 'draft', referral: { referral_number: 'REF-99999' } },
+          { id: 'appt-2', state: 'draft', referral: { referral_number: referral_id } }
+        ]
+      end
+
+      it 'returns true when draft appointments match (demonstrating this method does not filter by state)' do
+        # This test demonstrates that the helper method itself doesn't filter by state,
+        # it only checks referral_number matches. The draft filtering happens in the
+        # calling method (referral_appointment_already_exists?) before this helper is called.
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(true) # Helper method finds match regardless of state
+      end
+    end
   end
 
   describe '#post_appointment' do
@@ -1137,7 +1154,7 @@ describe VAOS::V2::AppointmentsService do
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
-          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
         end
 
         it 'returns an appointment with a travel claim attached if claim exists' do

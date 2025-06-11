@@ -81,7 +81,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def add_claimant_info(user)
     if form.blank?
-      Rails.logger.info('VRE claim form is blank, skipping adding veteran info', { user_uuid: user.uuid })
+      Rails.logger.info('VRE claim form is blank, skipping adding veteran info', { user_uuid: user&.uuid })
       return
     end
 
@@ -132,12 +132,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       upload_to_vbms(user:)
     else
       Rails.logger.warn('Participant id is blank when submitting VRE claim, sending to Lighthouse',
-                        { user_uuid: user.uuid })
+                        { user_uuid: user&.uuid })
       send_to_lighthouse!(user)
     end
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-    Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user.uuid })
+    Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user&.uuid })
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
                                            @sent_to_lighthouse).deliver_later
 
@@ -170,7 +170,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_vbms_confirmation_email(user)
   rescue => e
-    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
+    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
   end
 
@@ -191,9 +191,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     unless form_copy['veteranSocialSecurityNumber']
       if user&.loa3?
-        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user.uuid })
+        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user&.uuid })
       else
-        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user.uuid })
+        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user&.uuid })
       end
     end
 
@@ -214,7 +214,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_res(user)
     Rails.logger.info('VRE claim sending to RES service',
                       {
-                        user_uuid: user.uuid,
+                        user_uuid: user&.uuid,
                         was_sent: @sent_to_lighthouse,
                         user_present: user.present?
                       })
@@ -262,7 +262,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_vbms_confirmation_email(user)
     if user.va_profile_email.blank?
-      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user.uuid })
+      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user&.uuid })
       return
     end
 
@@ -274,12 +274,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
+    Rails.logger.info('VRE Submit1900Job VBMS confirmation email sent.')
   end
 
   def send_lighthouse_confirmation_email(user)
     if user.va_profile_email.blank?
       Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
-                        { user_uuid: user.uuid })
+                        { user_uuid: user&.uuid })
       return
     end
 
@@ -291,6 +292,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
+    Rails.logger.info('VRE Submit1900Job successful, lighthouse confirmation email sent to user.')
   end
 
   def process_attachments!
@@ -298,7 +300,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    Rails.logger.info('VRE claim submitting to Benefits Intake API', { user_uuid: user.uuid })
+    Rails.logger.info('VRE claim submitting to Benefits Intake API')
     Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
@@ -321,6 +323,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           'confirmation_number' => confirmation_number
         }
       )
+      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     else
       Rails.logger.warn('VRE claim failure email not sent: email not present.')
     end
@@ -364,7 +367,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     response = BGS::People::Request.new.find_person_by_participant_id(user:)
     response.file_number
   rescue
-    Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user.uuid })
+    Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user&.uuid })
     nil
   end
 

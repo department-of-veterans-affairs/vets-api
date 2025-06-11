@@ -506,6 +506,8 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    icn:
+      url: http://localhost:5000/api/v2/accreditations/icn
     origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
@@ -587,7 +589,7 @@ ivc_champva:
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
-  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
 ivc_forms:
@@ -647,6 +649,10 @@ lighthouse:
       use_mocks: false
     host: https://sandbox-api.va.gov
     use_mocks: false
+  benefits_discovery:
+    host: 'https://sandbox.lighthouse.va.gov'
+    x_api_key: ~
+    x_app_id: ~
   benefits_documents:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -916,6 +922,7 @@ mhv:
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
@@ -1552,6 +1559,7 @@ vaos:
     api_url: https://veteran.apps.va.gov
     base_path: vaos/v1/patients
     mock: false
+    redis_referral_expiry: 3600
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1563,7 +1571,6 @@ vaos:
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
-    redis_token_expiry: 3500
     scopes: care-nav
   referral:
     encryption:
@@ -1767,15 +1774,7 @@ virtual_agent:
   cxdw_client_secret: fake_secret
   cxdw_dataverse_uri: fake_dataverse_uri
   cxdw_table_prefix: fake_table_prefix
-  lighthouse_api_key: fake_api_key
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
-  speech_token_subscription_key: fake_speech_token_subscription_key
-  webchat_pva2_secret: fake_secret
   webchat_root_bot_secret: fake_secret
-  webchat_secret: fake_secret
-  webchat_secret_msft: fake_secret
-  webchat_secret_nlu: fake_secret
 virtual_hosts:
   - 127.0.0.1
   - localhost

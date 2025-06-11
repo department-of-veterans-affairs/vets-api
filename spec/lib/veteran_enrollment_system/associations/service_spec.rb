@@ -4,25 +4,30 @@ require 'rails_helper'
 require 'veteran_enrollment_system/associations/service'
 
 RSpec.describe VeteranEnrollmentSystem::Associations::Service do
-  let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
-  let(:updated_veteran_contacts) do
+  let(:associations_maximum) do
+    get_fixture('veteran_enrollment_system/associations/associations_maximum')
+  end
+  let(:associations_maximum_incorrectly_ordered) do
+    get_fixture('veteran_enrollment_system/associations/associations_maximum_incorrectly_ordered')
+  end
+
+  let(:updated_associations) do
     [
       {
-        'fullName' => {
-          'first' => 'UpdatedFirstNoKA',
-          'middle' => 'UpdatedMiddleNoKA',
-          'last' => 'UpdatedLastNoKA',
-          'suffix' => 'Jr.'
+        'name' => {
+          'givenName' => 'UPDATEDFIRSTNOKA',
+          'middleName' => 'UPDATEDMIDDLENOKA',
+          'familyName' => 'UPDATEDLASTNOKA',
+          'suffix' => 'JR.'
         },
-        'contactType' => 'Primary Next of Kin',
-        'relationship' => 'NIECE/NEPHEW',
+        'role' => 'PRIMARY_NEXT_OF_KIN',
+        'relationType' => 'NIECE_NEPHEW',
         'address' => {
-          'street' => 'SW 54th St',
-          'street2' => 'Apt 1',
-          'street3' => 'Unit 4',
+          'line1' => 'SW 54th St',
+          'line2' => 'Apt 1',
+          'line3' => 'Unit 4',
           'city' => 'chihuahua',
           'country' => 'MEX',
-          'state' => 'chihuahua',
           'provinceCode' => 'chihuahua',
           'postalCode' => '54345'
         },
@@ -30,84 +35,77 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         'alternatePhone' => '6544551234'
       },
       {
-        'fullName' => {
-          'first' => 'UpdatedFirstNoKB',
-          'middle' => 'UpdatedMiddleNoKB',
-          'last' => 'UpdatedLastNoKB'
+        'name' => {
+          'givenName' => 'UPDATEDFIRSTNOKB',
+          'middleName' => 'UPDATEDMIDDLENOKB',
+          'familyName' => 'UPDATEDLASTNOKB'
         },
-        'contactType' => 'Other Next of Kin',
-        'relationship' => 'CHILD-IN-LAW',
+        'role' => 'OTHER_NEXT_OF_KIN',
+        'relationType' => 'CHILDINLAW',
         'address' => {
-          'street' => '845 Glendale Ave',
-          'street2' => 'Unit 43',
-          'street3' => '',
+          'line1' => '845 Glendale Ave',
+          'line2' => 'Unit 43',
           'city' => 'Clearwater',
           'country' => 'USA',
           'state' => 'FL',
-          'postalCode' => '33754-8753'
+          'zipCode' => '33754',
+          'zipPlus4' => '8753'
         },
         'primaryPhone' => '1238835546',
         'alternatePhone' => '2658350023'
       },
       {
-        'fullName' => {
-          'first' => 'UpdatedFirstECA',
-          'middle' => 'UpdatedMiddleECA',
-          'last' => 'UpdatedLastECA'
+        'name' => {
+          'givenName' => 'UPDATEDFIRSTECA',
+          'middleName' => 'UPDATEDMIDDLEECA',
+          'familyName' => 'UPDATEDLASTECA'
         },
-        'contactType' => 'Emergency Contact',
-        'relationship' => 'EXTENDED FAMILY MEMBER',
+        'role' => 'EMERGENCY_CONTACT',
+        'relationType' => 'EXTENDED_FAMILY_MEMBER',
         'address' => {
-          'street' => '28 Parker St',
-          'street2' => '',
-          'street3' => '',
+          'line1' => '28 Parker St',
           'city' => 'Los Angeles',
           'country' => 'USA',
           'state' => 'CA',
-          'postalCode' => '90038-1234'
+          'zipCode' => '90038',
+          'zipPlus4' => '1234'
         },
         'primaryPhone' => '3322743546',
         'alternatePhone' => '2694437134'
       },
       {
-        'fullName' => {
-          'first' => 'UpdatedFirstECB',
-          'middle' => 'UpdatedMiddleECB',
-          'last' => 'UpdatedLastECB'
+        'name' => {
+          'givenName' => 'UPDATEDFIRSTECB',
+          'middleName' => 'UPDATEDMIDDLEECB',
+          'familyName' => 'UPDATEDLASTECB'
         },
-        'contactType' => 'Other emergency contact',
-        'relationship' => 'GRANDCHILD',
+        'role' => 'OTHER_EMERGENCY_CONTACT',
+        'relationType' => 'GRANDCHILD',
         'address' => {
-          'street' => '875 West Blvd',
-          'street2' => 'Apt 3',
-          'street3' => 'Unit 6',
+          'line1' => '875 West Blvd',
+          'line2' => 'Apt 3',
+          'line3' => 'Unit 6',
           'city' => 'Wichita',
           'country' => 'USA',
           'state' => 'KS',
-          'postalCode' => '67203-1234'
+          'zipCode' => '67203',
+          'zipPlus4' => '1234'
         },
         'primaryPhone' => '9942738265',
         'alternatePhone' => '9563001117'
       }
     ]
   end
-  let(:update_associations_form) do
-    JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = updated_veteran_contacts
+  let(:delete_associations) do
+    JSON.parse(updated_associations.to_json).map do |association|
+      association.merge('deleteIndicator' => true)
     end
   end
-  let(:delete_associations_form) do
-    JSON.parse(update_associations_form.to_json).tap do |f|
-      f['veteranContacts'] = f['veteranContacts'].map do |contact|
-        contact.deep_dup.merge('deleteIndicator' => true)
-      end
-    end
-  end
-  let(:missing_required_fields_form) do
-    JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = updated_veteran_contacts.map do |contact|
-        contact.except('contactType', 'relationship')
-      end
+  let(:missing_required_fields) do
+    JSON.parse(updated_associations.to_json).map do |association|
+      association['relationType'] = ''
+      association['role'] = ''
+      association
     end
   end
   let(:current_user) do
@@ -124,6 +122,61 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       gender: 'F'
     )
   end
+  let(:current_user_with_invalid_icn) do
+    create(
+      :evss_user,
+      :loa3,
+      icn: '1012829228V42403'
+    )
+  end
+
+  describe '#get_associations' do
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when a 200 response status is returned' do
+      it 'returns an array of associations', run_at: 'Thu, 01 May 2025 17:03:17 GMT' do
+        VCR.use_cassette(
+          'veteran_enrollment_system/associations/get_associations_maximum',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          response = described_class.new(current_user).get_associations('10-10EZR')
+
+          expect(response).to be_a(Array)
+          expect(response).to eq(
+            get_fixture('veteran_enrollment_system/associations/associations_maximum')
+          )
+        end
+      end
+    end
+
+    context 'when any status other than 200 is returned' do
+      it 'increments StatsD, logs a failure message, and raises an exception',
+         run_at: 'Thu, 01 May 2025 17:06:05 GMT' do
+        VCR.use_cassette(
+          'veteran_enrollment_system/associations/get_associations_error',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          failure_message = 'No record found for a person with the specified ICN'
+
+          expect do
+            described_class.new(current_user_with_invalid_icn).get_associations('10-10EZR')
+          end.to raise_error(
+            an_instance_of(Common::Exceptions::ResourceNotFound)
+          )
+          expect(StatsD).to have_received(:increment).with(
+            'api.veteran_enrollment_system.associations.get_associations.failed'
+          )
+          expect(Rails.logger).to have_received(:error).with(
+            "10-10EZR retrieve associations failed: #{failure_message}"
+          )
+        end
+      end
+    end
+  end
 
   # In the VES Associations API, insert, update, and delete are all handled by the same endpoint
   describe '#update_associations' do
@@ -131,18 +184,36 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       allow(Rails.logger).to receive(:info)
       allow(Rails.logger).to receive(:error)
       allow(StatsD).to receive(:increment)
+      # Because the 'lastUpdateDate' timestamps differ between the cassette's request body and when
+      # they are set in the code, we'll ignore them when matching the request bodies.
+      VCR.configure do |config|
+        config.register_request_matcher :body_ignoring_last_update_date do |r1, r2|
+          body1 = JSON.parse(r1.body)
+          body2 = JSON.parse(r2.body)
+
+          # Strip lastUpdateDate from each association
+          associations1 = body1['associations'] || []
+          associations2 = body2['associations'] || []
+
+          associations1.each { |assoc| assoc.delete('lastUpdateDate') }
+          associations2.each { |assoc| assoc.delete('lastUpdateDate') }
+
+          associations1 == associations2
+        end
+      end
     end
 
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
     it 'creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
-      # Because the timestamps differ between the cassette's request body and when they are set in the code,
-      # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
         'veteran_enrollment_system/associations/create_associations_success',
-        { match_requests_on: %i[method uri], erb: true }
+        { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
-        response = described_class.new(current_user, form).update_associations('10-10EZR')
+        response = described_class.new(current_user).update_associations(
+          updated_associations,
+          '10-10EZR'
+        )
 
         expect_successful_response_output(response, '2025-04-24T18:22:00Z')
       end
@@ -151,13 +222,14 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
     it 'deletes associations', run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
-      # Because the timestamps differ between the cassette's request body and when they are set in the code,
-      # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
         'veteran_enrollment_system/associations/delete_associations_success',
-        { match_requests_on: %i[method uri], erb: true }
+        { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
-        response = described_class.new(current_user, form).update_associations('10-10EZR')
+        response = described_class.new(current_user).update_associations(
+          delete_associations,
+          '10-10EZR'
+        )
 
         expect_successful_response_output(response, '2025-04-24T17:08:31Z')
       end
@@ -167,13 +239,14 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       context "when the Associations API code returned is not 'partial_success'" do
         it 'increments StatsD, logs a success message, and returns a success response',
            run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/update_associations_success',
-            { match_requests_on: %i[method uri], erb: true }
+            { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
-            response = described_class.new(current_user, form).update_associations('10-10EZR')
+            response = described_class.new(current_user).update_associations(
+              associations_maximum_incorrectly_ordered,
+              '10-10EZR'
+            )
             expect_successful_response_output(response, '2025-04-24T17:08:31Z')
           end
         end
@@ -182,19 +255,20 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       context "when the Associations API code returned is a 'partial_success'" do
         before do
           allow_any_instance_of(described_class).to receive(:reorder_associations).and_return(
-            update_associations_form['veteranContacts']
+            delete_associations
           )
         end
 
         it 'increments StatsD, logs a partial success message, and returns a partial success response',
            run_at: 'Tue, 22 Apr 2025 22:03:48 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/update_associations_partial_success',
-            { match_requests_on: %i[method uri], erb: true }
+            { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
-            response = described_class.new(current_user, update_associations_form).update_associations('10-10EZR')
+            response = described_class.new(current_user).update_associations(
+              delete_associations,
+              '10-10EZR'
+            )
 
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.partial_success'
@@ -236,11 +310,9 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       context 'when any status other than 200 is returned' do
         it 'increments StatsD, logs a failure message, and raises an exception',
            run_at: 'Thu, 24 Apr 2025 19:44:12 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/bad_request',
-            { match_requests_on: %i[method uri], erb: true }
+            { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
             failure_message =
               'associations[0].relationType: Relation type is required, associations[1].role: Role is required, ' \
@@ -250,7 +322,10 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
               'type is required'
 
             expect do
-              described_class.new(current_user, delete_associations_form).update_associations('10-10EZR')
+              described_class.new(current_user).update_associations(
+                missing_required_fields,
+                '10-10EZR'
+              )
             end.to raise_error(
               an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
             )

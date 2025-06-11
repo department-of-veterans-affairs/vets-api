@@ -42,8 +42,6 @@ module IvcChampva
     end
 
     def add_applicant_properties
-      return {} unless Flipper.enabled?(:champva_pega_applicant_metadata_enabled, @current_user)
-
       applicants = @data['applicants']
       return {} if applicants.blank?
 
