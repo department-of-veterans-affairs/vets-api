@@ -13,8 +13,7 @@ RSpec.describe BenefitsDiscovery::Service do
         discharge_status: 'HONORABLE_DISCHARGE',
         branch_of_service: 'NAVY',
         disability_rating: 60,
-        service_start_date: '2018-01-01',
-        service_end_date: '2022-01-01',
+        service_dates: [{ start_date: '2018-01-01', end_date: '2022-01-01' }],
         purpleHeartRecipientDates: %w[2017-05-15 2020-01-01]
       }
 
@@ -47,8 +46,7 @@ RSpec.describe BenefitsDiscovery::Service do
         discharge_status: nil,
         branch_of_service: nil,
         disability_rating: nil,
-        service_start_date: nil,
-        service_end_date: nil,
+        service_dates: nil,
         purpleHeartRecipientDates: nil
       }
 
@@ -66,8 +64,7 @@ RSpec.describe BenefitsDiscovery::Service do
         discharge_status: nil,
         branch_of_service: nil,
         disability_rating: nil,
-        service_start_date: nil,
-        service_end_date: nil,
+        service_dates: nil,
         purpleHeartRecipientDates: nil
       }
 
