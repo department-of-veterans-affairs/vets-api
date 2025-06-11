@@ -42,7 +42,7 @@ module ClaimStatusTool
               document_id
       end
 
-      filename = LetterTransformer.filename_with_date(letter_details[:received_at])
+      filename = ClaimLetters::Utils::LetterTransformer.filename_with_date(letter_details[:received_at])
 
       if !Rails.env.development? && !Rails.env.test? && Settings.vsp_environment != 'development'
         req = VBMS::Requests::GetDocumentContent.new(document_id)
