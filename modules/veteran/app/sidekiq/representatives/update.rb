@@ -58,10 +58,10 @@ module Representatives
 
         update_rep_record(rep_data, address_validation_api_response)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Address validation failed for Rep id: #{rep_data}: #{e.message}")
+        log_error("Address validation failed for Rep address: #{rep_data['address']}: #{e.message}")
         return
       rescue => e
-        log_error("Update failed for Rep id: #{rep_data}: #{e.message}")
+        log_error("Update failed for Rep address: #{rep_data['address']}: #{e.message}")
         return
       end
 
