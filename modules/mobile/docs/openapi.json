@@ -9785,6 +9785,11 @@
                     }
                   }
                 }
+              },
+              "showScheduleLink": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
               }
             }
           }
