@@ -22,7 +22,7 @@ namespace :pensions do
             # Update the type and re-encrypt by saving
             record.type = 'Pensions::SavedClaim'
             record.form = form_data # triggers re-encryption with new context
-            record.save
+            record.save!(validate: false)
             migrated += 1
             puts "Migrated and re-encrypted SavedClaim ID #{record.id} (#{migrated}/#{total})"
           rescue => e
