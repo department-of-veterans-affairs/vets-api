@@ -64,7 +64,7 @@ RSpec.describe ParameterFilterHelper do
 
     it 'does not filter strings for allowlisted keys' do
       loggable_params = { controller: 'mycontroller' }
-      filtered = ParameterFilterHelper.filter_params(loggable_params.deep_dup)
+      filtered = Rails.application.config.filter_parameters.first.call(nil, loggable_params.deep_dup)
       Rails.logger.info('Parameters for document upload', filtered)
       expect(filtered[:controller]).to eq('mycontroller')
     end
