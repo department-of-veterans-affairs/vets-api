@@ -18,7 +18,7 @@ module DependentsVerification
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       # The path to the PDF template for the form
-      TEMPLATE = "#{DependentsVerification::MODULE_PATH}/lib/dependents_verification/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze # rubocop:disable Layout/LineLength
+      TEMPLATE = DependentsVerification::PDF_PATH
 
       # The list of section classes for form expansion and key building
       SECTION_CLASSES = [Section1].freeze
