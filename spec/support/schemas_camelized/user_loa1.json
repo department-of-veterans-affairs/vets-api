@@ -76,13 +76,13 @@
                 null
               ]
             },
-            "userAccount": {
+            "account": {
               "type": "object",
               "required": [
-                "id"
+                "accountUuid"
               ],
               "properties": {
-                "id": {
+                "accountUuid": {
                   "type": [
                     "string",
                     null
