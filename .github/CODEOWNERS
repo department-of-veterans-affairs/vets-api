@@ -955,7 +955,6 @@ lib/pdf_fill/forms/va686c674.rb @department-of-veterans-affairs/benefits-depende
 lib/pdf_info.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pdf_utilities @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pension_21p527ez @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
-lib/pension_burial @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/periodic_jobs.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/post911_sob @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
