@@ -341,7 +341,7 @@ Rails.application.routes.draw do
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 
     get 'banners', to: 'banners#by_path'
-    post 'datadog_actions', to: 'datadog_actions#create'
+    post 'datadog_action', to: 'datadog_action#create'
   end
   # end /v0
 
