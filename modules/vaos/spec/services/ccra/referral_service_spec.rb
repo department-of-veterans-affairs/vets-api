@@ -25,7 +25,9 @@ describe Ccra::ReferralService do
     allow(Ccra::RedisClient).to receive(:new).and_return(referral_cache)
     allow(referral_cache).to receive_messages(
       save_referral_data: true,
-      fetch_referral_data: nil
+      fetch_referral_data: nil,
+      save_booking_start_time: true,
+      fetch_booking_start_time: nil
     )
 
     Settings.vaos ||= OpenStruct.new
@@ -92,17 +94,16 @@ describe Ccra::ReferralService do
         allow(referral_cache).to receive(:fetch_referral_data).with(id:, icn:).and_return(referral_detail)
       end
 
-      it 'returns the cached referral detail with updated booking start time' do
+      it 'returns the cached referral detail and updates booking start time' do
         Timecop.freeze(Time.current) do
           expected_start_time = Time.current.to_f
-          allow(referral_detail).to receive(:booking_start_time=).with(expected_start_time)
-          expect(referral_cache).to receive(:save_referral_data)
-            .with(id:, icn:, referral_data: referral_detail)
+          allow(referral_detail).to receive(:referral_number).and_return('VA0000005681')
+          expect(referral_cache).to receive(:save_booking_start_time)
+            .with(referral_number: 'VA0000005681', icn:, booking_start_time: expected_start_time)
             .and_return(true)
 
           result = subject.get_referral(id, icn)
           expect(result).to eq(referral_detail)
-          expect(referral_detail).to have_received(:booking_start_time=).with(expected_start_time)
         end
       end
     end
@@ -119,7 +120,7 @@ describe Ccra::ReferralService do
         end
       end
 
-      it 'caches the referral data with the RedisClient' do
+      it 'caches the referral data and booking start time' do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
           Timecop.freeze(Time.current) do
             expected_start_time = Time.current.to_f
@@ -138,6 +139,12 @@ describe Ccra::ReferralService do
               expect(referral.booking_start_time).to eq(expected_start_time)
               true
             end
+
+            expect(referral_cache).to receive(:save_booking_start_time).with(
+              referral_number: 'VA0000005681',
+              icn:,
+              booking_start_time: expected_start_time
+            ).and_return(true)
 
             subject.get_referral(id, icn)
           end
@@ -169,48 +176,38 @@ describe Ccra::ReferralService do
   end
 
   describe '#fetch_booking_start_time' do
-    let(:referral_number) { 'VA0000005681' }
+    let(:id) { '984_646372' }
     let(:icn) { '1012845331V153043' }
+    let(:referral_number) { 'VA0000005681' }
     let(:booking_start_time) { Time.current.to_f }
-    let(:referral_data) { instance_double(Ccra::ReferralDetail, booking_start_time:) }
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      referral_number:)
+    end
 
-    context 'when referral data exists in cache' do
+    context 'when referral exists in cache' do
       before do
         allow(referral_cache).to receive(:fetch_referral_data)
-          .with(id: referral_number, icn:)
-          .and_return(referral_data)
+          .with(id:, icn:)
+          .and_return(referral_detail)
       end
 
-      it 'returns the booking start time from the cache' do
-        result = subject.fetch_booking_start_time(referral_number, icn)
+      it 'returns the booking start time when it exists' do
+        allow(referral_cache).to receive(:fetch_booking_start_time)
+          .with(referral_number:, icn:)
+          .and_return(booking_start_time)
+
+        result = subject.fetch_booking_start_time(id, icn)
         expect(result).to eq(booking_start_time)
       end
-    end
 
-    context 'when referral data does not exist in cache' do
-      before do
-        allow(referral_cache).to receive(:fetch_referral_data)
-          .with(id: referral_number, icn:)
+      it 'returns nil and logs warning when booking start time not found' do
+        allow(referral_cache).to receive(:fetch_booking_start_time)
+          .with(referral_number:, icn:)
           .and_return(nil)
-      end
 
-      it 'returns nil' do
-        result = subject.fetch_booking_start_time(referral_number, icn)
-        expect(result).to be_nil
-      end
-    end
-
-    context 'when referral data exists but has no booking start time' do
-      let(:referral_data) { instance_double(Ccra::ReferralDetail, booking_start_time: nil) }
-
-      before do
-        allow(referral_cache).to receive(:fetch_referral_data)
-          .with(id: referral_number, icn:)
-          .and_return(referral_data)
-      end
-
-      it 'returns nil' do
-        result = subject.fetch_booking_start_time(referral_number, icn)
+        expect(Rails.logger).to receive(:warn).with('Referral booking start time not found.')
+        result = subject.fetch_booking_start_time(id, icn)
         expect(result).to be_nil
       end
     end
