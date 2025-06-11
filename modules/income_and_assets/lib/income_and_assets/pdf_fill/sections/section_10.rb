@@ -47,6 +47,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
           'ownedPortionValueOverflow' => {
+            dollar: true,
             question_num: 10,
             question_suffix: '(3)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY',

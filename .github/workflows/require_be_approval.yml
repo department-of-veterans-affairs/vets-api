@@ -3,7 +3,9 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
-
+permissions:
+  id-token: write
+  contents: read
 jobs:
   get-pr-data:
     name: Get PR Data
@@ -17,8 +19,13 @@ jobs:
       pr_number: ${{ steps.approval_permissions.outputs.pr_number }}
       require_be_approval: ${{ steps.approval_permissions.outputs.require_be_approval }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
@@ -119,14 +126,18 @@ jobs:
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
 
       - name: Get bot token from Parameter Store

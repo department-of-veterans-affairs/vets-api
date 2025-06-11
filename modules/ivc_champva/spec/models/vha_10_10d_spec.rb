@@ -149,12 +149,6 @@ RSpec.describe IvcChampva::VHA1010d do
 
   describe '#add_applicant_properties' do
     context 'when applicants array is present' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(true)
-      end
-
       let(:applicant_data) do
         data.merge(
           'applicants' => [
@@ -187,12 +181,6 @@ RSpec.describe IvcChampva::VHA1010d do
     end
 
     context 'when applicants array is empty' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(true)
-      end
-
       let(:applicant_data) do
         data.merge(
           'applicants' => []
@@ -208,12 +196,6 @@ RSpec.describe IvcChampva::VHA1010d do
     end
 
     context 'when applicants have wrong properties' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(false)
-      end
-
       let(:applicant_data) do
         data.merge(
           'applicants' => [
@@ -232,29 +214,6 @@ RSpec.describe IvcChampva::VHA1010d do
 
       it 'does not interfere with metadata creation' do
         expect(vha1010d.metadata.keys.include?('veteranFirstName')).to be(true)
-      end
-    end
-
-    context 'when champva_pega_applicant_metadata_enabled flipper is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(true)
-      end
-
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => [
-            { 'malformed' => '123456789' }
-          ]
-        )
-      end
-
-      let(:vha1010d_applicants) { described_class.new(applicant_data) }
-
-      it 'returns an empty object' do
-        json_result = vha1010d.add_applicant_properties
-        expect(json_result.empty?).to be(true)
       end
     end
   end

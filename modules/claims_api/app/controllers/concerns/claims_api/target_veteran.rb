@@ -42,7 +42,7 @@ module ClaimsApi
           if Flipper.enabled?(:lighthouse_claims_api_add_person_proxy)
             claims_logging('add_person_proxy',
                            message: 'calling add_person_proxy in target veteran (Flipper on).')
-            add_person_proxy_response = target_veteran.recache_mpi_data.add_person_proxy
+            add_person_proxy_response = target_veteran.recache_mpi_data.add_person_proxy(as_agent: true)
             unless add_person_proxy_response.ok?
               claims_logging('unable_to_locate_participant_id',
                              message: 'unable_to_locate_participant_id on request in target veteran (Flipper on).' \

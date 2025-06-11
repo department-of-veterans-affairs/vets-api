@@ -41,15 +41,12 @@ module ClaimsApi
         error_status = get_error_status_code(e)
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
-        log_exception_to_sentry(e)
-
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
-        log_exception_to_sentry(e)
         if will_retry?(auto_claim, e)
           raise e
         else # form526.submit.noRetryError OR form526.InProcess error returned
@@ -60,7 +57,7 @@ module ClaimsApi
         set_evss_response(auto_claim, e) if auto_claim.evss_response.blank?
         log_job_progress(claim_id,
                          "Docker container job errored #{e.class}: #{e&.detailed_message}")
-        log_exception_to_sentry(e)
+        log_exception_to_rails e
 
         raise e
       end

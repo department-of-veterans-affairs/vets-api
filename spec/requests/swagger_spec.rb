@@ -468,8 +468,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         {
           '_headers' => {
             'Cookie' => sign_in(user, nil, true),
-            'accept' => 'application/json',
-            'content-type' => 'application/json'
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
           }
         }
       end
@@ -478,7 +478,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         {
           'use_veteran_address' => true,
           'use_temporary_address' => false,
-          'order' => [{ 'product_id' => 2499 }],
+          'order' => [{ 'product_id' => 6650 }, { 'product_id' => 8271 }],
           'permanent_address' => {
             'street' => '125 SOME RD',
             'street2' => 'APT 101',
@@ -502,7 +502,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       it 'supports creating a MDOT order' do
         expect(subject).to validate(:post, '/v0/mdot/supplies', 401)
 
-        VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('mdot/submit_order_multi_orders', VCR::MATCH_EVERYTHING) do
           set_mdot_token_for(user)
 
           expect(subject).to validate(
@@ -703,6 +703,17 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
               )
             end
           end
+        end
+      end
+
+      describe 'financial status report submissions' do
+        it 'supports getting financial status report submissions' do
+          expect(subject).to validate(
+            :get,
+            '/debts_api/v0/financial_status_reports/submissions',
+            200,
+            headers
+          )
         end
       end
     end
@@ -1561,6 +1572,32 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/v0/benefits_reference_data/{path}',
             200,
             headers.merge('path' => 'intake-sites')
+          )
+        end
+      end
+    end
+
+    describe 'Event Bus Gateway' do
+      include_context 'with service account authentication', 'eventbus', ['http://www.example.com/v0/event_bus_gateway/send_email'], { user_attributes: { participant_id: '1234' } }
+
+      context 'when sending emails' do
+        let(:params) do
+          {
+            template_id: '5678'
+          }
+        end
+
+        it 'documents an unauthenticated request' do
+          expect(subject).to validate(:post, '/v0/event_bus_gateway/send_email', 401)
+        end
+
+        it 'documents a success' do
+          expect(subject).to validate(
+            :post,
+            '/v0/event_bus_gateway/send_email',
+            200,
+            '_headers' => service_account_auth_header,
+            '_data' => params
           )
         end
       end
@@ -2953,16 +2990,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'virtual agent' do
-      describe 'POST v0/virtual_agent_token' do
-        it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token_success') do
-            expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
-          end
-        end
-      end
-    end
-
     describe 'dependents applications' do
       context 'when :va_dependents_v2 is disabled' do
         before do
@@ -3373,7 +3400,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     context 'create' do
-      let(:mhv_user) { build(:user, :loa3) }
+      let(:mhv_user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
       it 'returns unauthorized for unauthorized user' do
         expect(subject).to validate(:post, '/travel_pay/v0/claims', 401)
