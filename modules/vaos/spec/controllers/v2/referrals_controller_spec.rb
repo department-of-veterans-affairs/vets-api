@@ -227,9 +227,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             referral_detail
           end
 
-          expect {
+          expect do
             get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
-          }.to change {
+          end.to change {
             client.fetch_booking_start_time(referral_number:, icn:)
           }.from(nil).to(Time.current.to_f)
         end

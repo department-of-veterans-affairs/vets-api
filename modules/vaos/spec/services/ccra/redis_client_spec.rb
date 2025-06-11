@@ -14,7 +14,7 @@ describe Ccra::RedisClient do
 
   let(:referral_data) do
     Ccra::ReferralDetail.new(
-      referral_number: referral_number,
+      referral_number:,
       appointment_type_id: 'ov',
       referral_expiration_date: '2023-12-31',
       treating_provider_info: {
@@ -48,7 +48,7 @@ describe Ccra::RedisClient do
                referral_number:,
                icn:,
                booking_start_time:
-      )).to be(true)
+             )).to be(true)
 
       cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{icn}_#{referral_number}"
       saved_time = Rails.cache.read(

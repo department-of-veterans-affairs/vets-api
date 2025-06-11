@@ -207,7 +207,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         before do
           Timecop.freeze
-          allow(service_double).to receive(:get_referral) do |id, user_icn|
+          allow(service_double).to receive(:get_referral) do |_id, user_icn|
             # Simulate the service's behavior of setting the booking start time
             client.save_booking_start_time(
               referral_number:,
@@ -221,9 +221,9 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         after { Timecop.return }
 
         it 'sets the booking start time in the cache' do
-          expect {
+          expect do
             get "/vaos/v2/referrals/#{encrypted_uuid}"
-          }.to change {
+          end.to change {
             client.fetch_booking_start_time(referral_number:, icn:)
           }.from(nil).to(Time.current.to_f)
         end
