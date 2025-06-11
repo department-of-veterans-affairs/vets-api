@@ -65,10 +65,7 @@ module IncomeAndAssets
             question_num: 3,
             question_suffix: '(3)',
             question_text: 'SPECIFY THE TYPE OF INCOME',
-            question_label: 'Other Income Type',
-            format_options: {
-              humanize: true
-            }
+            question_label: 'Other Income Type'
           },
           # Q4
           'grossMonthlyIncome' => {

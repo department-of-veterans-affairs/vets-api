@@ -24,10 +24,7 @@ module IncomeAndAssets
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN",
             question_label: 'Asset Owner Relationship',
             format_options: {
-              humanize: {
-                '0' => 'No',
-                '1' => 'Yes'
-              }
+              humanize: true
             }
           },
           'otherRelationshipType' => {
@@ -43,10 +40,7 @@ module IncomeAndAssets
             question_num: 10,
             question_suffix: '(2)',
             question_text: 'SPECIFY TYPE OF ASSET (Cash, art, etc.)',
-            question_label: 'Asset Type',
-            format_options: {
-              humanize: true
-            }
+            question_label: 'Asset Type'
           },
           # Q3
           'ownedPortionValue' => {

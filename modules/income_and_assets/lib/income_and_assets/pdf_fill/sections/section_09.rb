@@ -90,10 +90,7 @@ module IncomeAndAssets
             question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?',
             question_label: 'Revocable or Irrevocable',
             format_options: {
-              humanize: {
-                '0' => 'No',
-                '1' => 'Yes'
-              }
+              humanize: true
             }
           },
           # 9h

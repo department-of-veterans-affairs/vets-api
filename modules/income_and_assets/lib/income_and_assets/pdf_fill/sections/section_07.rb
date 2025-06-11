@@ -89,10 +89,7 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(5)',
             question_text: 'RELATIONSHIP TO NEW OWNER',
-            question_label: 'Relationship to New Owner',
-            format_options: {
-              humanize: true
-            }
+            question_label: 'Relationship to New Owner'
           },
           # Q6
           'saleReportedToIrs' => {
@@ -100,13 +97,7 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(6)',
             question_text: 'WAS THE SALE REPORTED TO THE IRS?',
-            question_label: 'Sale Reported to IRS',
-            format_options: {
-              humanize: {
-                '0' => 'No',
-                '1' => 'Yes'
-              }
-            }
+            question_label: 'Sale Reported to IRS'
           },
           # Q7
           'transferDate' => {

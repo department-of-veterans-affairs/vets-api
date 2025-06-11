@@ -77,10 +77,7 @@ module IncomeAndAssets
             question_num: 5,
             question_suffix: '(4)',
             question_text: 'GROSS MONTHLY INCOME',
-            question_label: 'Gross Monthly Income',
-            format_options: {
-              humanize: true
-            }
+            question_label: 'Gross Monthly Income'
           },
           # Q5
           'ownedPortionValue' => {
