@@ -48,7 +48,7 @@ RSpec.describe LighthouseClaimLettersProvider do
     it 'retrieves and transforms claim letters from the Lighthouse API' do
       letters = provider.get_letters
 
-      expect(letters.length).to eq(1) # Fixed: use .length instead of have(1).item
+      expect(letters.length).to eq(1)
       expect(letters.first).to be_a(ClaimLetters::Responses::ClaimLetterResponse)
       expect(letters.first.subject).to eq('Test Subject')
       expect(letters.first.document_id).to eq('12345678-ABCD-0123-cdef-124345679ABC')
