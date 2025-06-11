@@ -62,7 +62,9 @@ module ClaimsApi
       return false if error_messages&.dig(:messages).nil?
 
       error_messages[:messages].any? do |msg|
-        msg[:text]&.include?('417') || msg[:text]&.include?('Error calling external service')
+        msg[:text]&.include?('417') || msg[:text]&.include?(
+          'Error calling external service to establish the claim during Submit'
+        )
       end
     end
 
