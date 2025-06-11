@@ -129,6 +129,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  decision_reviews_4142_banner:
+    actor_type: user
+    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -1126,6 +1129,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging policy check for VA patient
   mhv_secure_messaging_custom_folders_redesign:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Custom Folders Redesign
+    enable_in_development: true
+  mhv_secure_messaging_large_attachments:
     actor_type: user
     description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
