@@ -70,8 +70,10 @@ module ClaimStatusTool
                        .select { |d| ClaimLetters::Utils::LetterTransformer.allowed?(d, @allowed_doctypes) }
                        .select { |d| ClaimLetters::Utils::LetterTransformer.filter_boa(d) }
                        # Issue 96224, consolidating letters' display names upstream
-                       .each { |d| d[:type_description] = ClaimLetters::Utils::LetterTransformer
-                                                            .decorate_description(d[:doc_type]) }
+                       .each do |d|
+        d[:type_description] = ClaimLetters::Utils::LetterTransformer
+                               .decorate_description(d[:doc_type])
+      end
       # TODO: (rare) Handle nil received_at
       letters.sort_by { |d| d[:received_at] }.reverse
     end
