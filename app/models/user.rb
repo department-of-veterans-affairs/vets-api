@@ -453,7 +453,7 @@ class User < Common::RedisStore
   end
 
   def flipper_id
-    email&.downcase
+    email&.downcase || user_account_uuid
   end
 
   def relationships
