@@ -33,7 +33,7 @@ describe DependentsVerification::PdfFill::Va210538 do
 
   let(:fields) do
     %w[
-      Section0.0.VaDateStamp Section1.1.VeteransName.First Section1.1.VeteransName.Last Section1.1.VeteransName.MI
+      Section0.0.VaDateStamp Section1.1.VeteranName.First Section1.1.VeteranName.Last Section1.1.VeteranName.MI
       Section1.2.VeteranSSN.First Section1.2.VeteranSSN.Middle Section1.2.VeteranSSN.Last
       Section1.3.VeteranFileNumber Section1.4.VeteranDOB.Month Section1.4.VeteranDOB.Day Section1.4.VeteranDOB.Year
       Section1.5.VeteranAddress.Street Section1.5.VeteranAddress.City Section1.5.VeteranAddress.UnitNumber

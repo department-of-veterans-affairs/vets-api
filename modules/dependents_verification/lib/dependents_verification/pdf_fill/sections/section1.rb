@@ -11,19 +11,19 @@ module DependentsVerification
         # 1
         'veteranFullName' => {
           'first' => {
-            key: key_name('1', 'VeteransName', 'First'),
+            key: key_name('1', 'VeteranName', 'First'),
             limit: 12,
             question_num: 1,
             question_text: "VETERAN'S FIRST NAME"
           },
           'middleInitial' => {
-            key: key_name('1', 'VeteransName', 'MI'),
+            key: key_name('1', 'VeteranName', 'MI'),
             limit: 1,
             question_num: 1,
             question_text: "VETERAN'S MIDDLE INITIAL"
           },
           'last' => {
-            key: key_name('1', 'VeteransName', 'Last'),
+            key: key_name('1', 'VeteranName', 'Last'),
             limit: 18,
             question_num: 1,
             question_text: "VETERAN'S LAST NAME"
