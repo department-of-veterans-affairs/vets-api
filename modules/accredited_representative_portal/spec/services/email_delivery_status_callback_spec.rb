@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VANotify::EmailDeliveryStatusCallback do
+RSpec.describe EmailDeliveryStatusCallback do
   let(:base_metadata) do
     {
       'form_number' => 'Form Number',
