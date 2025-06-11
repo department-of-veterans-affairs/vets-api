@@ -2,7 +2,7 @@
 
 namespace :burials do
   desc 'Migrate SavedClaim::Burial records to Burials::SavedClaim'
-  task migrate_saved_claim_pension_to_pensions_saved_claim: :environment do
+  task migrate_saved_claim_burial_to_burials_saved_claim: :environment do
     batch_size = 1000
     total = SavedClaim.where(type: 'SavedClaim::Burial').count
     migrated = 0
