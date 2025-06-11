@@ -19,7 +19,9 @@ describe DependentsVerification::PdfFill::Va210538 do
   let :keys do
     def get_keys(hash)
       hash.map do |key, value|
-        if value.has_key?(:key)
+        if key == :key
+          value
+        elsif value.key?(:key)
           value[:key]
         elsif value.is_a?(Hash)
           get_keys(value)
@@ -29,19 +31,19 @@ describe DependentsVerification::PdfFill::Va210538 do
     get_keys(described_class::KEY).flatten.compact
   end
 
-    let(:fields) do
-      %w[
-        Section1.1.VeteransName.First Section1.1.VeteransName.Last Section1.1.VeteransName.MI
-        Section1.2.VeteranSSN.First Section1.2.VeteranSSN.Middle Section1.2.VeteranSSN.Last
-        Section1.3.VeteranFileNumber Section1.4.VeteranDOB.Month Section1.4.VeteranDOB.Day Section1.4.VeteranDOB.Year
-        Section1.5.VeteranAddress.Street Section1.5.VeteranAddress.City Section1.5.VeteranAddress.UnitNumber
-        Section1.5.VeteranAddress.Country Section1.5.VeteranAddress.State Section1.5.VeteranAddress.PostalCode.First
-        Section1.5.VeteranAddress.PostalCode.Second Section1.6.VeteranPhone.First Section1.6.VeteranPhone.Second
-        Section1.6.VeteranPhone.Third Section1.6.VeteranPhone.International Section1.7.VeteranEmail.Second
-        Section1.7.VeteranEmail.First Section1.7.VeteranEmail.Agree Section2.8.StatusChange Section5.14.SignatureField
-        Section5.14.SignatureDate.Month Section5.14.SignatureDate.Day Section5.14.SignatureDate.Year Section0.0.VaDateStamp
-      ]
-    end
+  let(:fields) do
+    %w[
+      Section0.0.VaDateStamp Section1.1.VeteransName.First Section1.1.VeteransName.Last Section1.1.VeteransName.MI
+      Section1.2.VeteranSSN.First Section1.2.VeteranSSN.Middle Section1.2.VeteranSSN.Last
+      Section1.3.VeteranFileNumber Section1.4.VeteranDOB.Month Section1.4.VeteranDOB.Day Section1.4.VeteranDOB.Year
+      Section1.5.VeteranAddress.Street Section1.5.VeteranAddress.City Section1.5.VeteranAddress.UnitNumber
+      Section1.5.VeteranAddress.Country Section1.5.VeteranAddress.State Section1.5.VeteranAddress.PostalCode.First
+      Section1.5.VeteranAddress.PostalCode.Second Section1.6.VeteranPhone.First Section1.6.VeteranPhone.Second
+      Section1.6.VeteranPhone.Third Section1.6.VeteranPhone.International Section1.7.VeteranEmail.Second
+      Section1.7.VeteranEmail.First Section1.7.VeteranEmail.Agree Section2.8.StatusChange Section5.14.SignatureField
+      Section5.14.SignatureDate.Month Section5.14.SignatureDate.Day Section5.14.SignatureDate.Year
+    ]
+  end
 
   def class_form_data
     new_form_class.instance_variable_get(:@form_data)
@@ -58,7 +60,7 @@ describe DependentsVerification::PdfFill::Va210538 do
   it 'includes all expected keys in the PDF' do
     pdf = PdfForms.new(Settings.binaries.pdftk)
     fields_in_pdf = pdf.get_fields(path).map(&:name)
-    expect(fields_in_pdf).to include(*fields)
+    expect(fields_in_pdf).to include(*keys)
   end
 
   it 'includes all expected fields in the PDF' do
