@@ -54,11 +54,6 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
-    resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
-    resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
-    resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
-
-    get 'virtual_agent/user', to: 'virtual_agent/users#show'
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
@@ -178,11 +173,6 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
-
-    namespace :virtual_agent do
-      get 'claims', to: 'virtual_agent_claim_status#index'
-      get 'claims/:id', to: 'virtual_agent_claim_status#show'
-    end
 
     namespace :chatbot do
       get 'claims', to: 'claim_status#index'
