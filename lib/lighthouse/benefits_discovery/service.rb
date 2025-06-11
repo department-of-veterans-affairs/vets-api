@@ -20,7 +20,7 @@ module BenefitsDiscovery
         dischargeStatus: Array.wrap(params[:discharge_status]).compact,
         branchOfService: Array.wrap(params[:branch_of_service]).compact,
         disabilityRating: params[:disability_rating],
-        serviceDates: Array.wrap(params[:service_dates]).compact,
+        serviceDates: Array.wrap(params[:service_dates]).compact_blank,
         purpleHeartRecipientDates: Array.wrap(params[:purple_heart_recipient_dates])
       }.compact_blank.to_json
     end

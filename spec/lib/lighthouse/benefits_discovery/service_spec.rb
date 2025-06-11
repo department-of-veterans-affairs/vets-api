@@ -13,11 +13,11 @@ RSpec.describe BenefitsDiscovery::Service do
         discharge_status: 'HONORABLE_DISCHARGE',
         branch_of_service: 'NAVY',
         disability_rating: 60,
-        service_dates: [{ start_date: '2018-01-01', end_date: '2022-01-01' }],
-        purpleHeartRecipientDates: %w[2017-05-15 2020-01-01]
+        service_dates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }],
+        # purpleHeartRecipientDates: %w[2017-05-15 2020-01-01]
       }
 
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params') do
+      VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params', match_requests_on: [:method, :uri, :body]) do
         response = subject.get_eligible_benefits(params)
         expect(response).to eq({
                                  'data' => {
