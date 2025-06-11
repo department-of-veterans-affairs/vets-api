@@ -41,7 +41,7 @@ describe TravelPay::ExpensesService do
 
         actual_new_expense_response = @service.add_expense(params)
 
-        expect(actual_new_expense_response['data']).to equal(add_expense_data['data'])
+        expect(actual_new_expense_response).to equal(add_expense_data['data'])
       end
 
       it 'succeeds and returns an expense ID when trip type is not specified' do
@@ -55,7 +55,7 @@ describe TravelPay::ExpensesService do
 
         actual_new_expense_response = @service.add_expense(params)
 
-        expect(actual_new_expense_response['data']).to equal(add_expense_data['data'])
+        expect(actual_new_expense_response).to equal(add_expense_data['data'])
       end
 
       it 'throws an ArgumentException if not passed the right params' do
