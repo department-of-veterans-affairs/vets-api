@@ -363,6 +363,51 @@ module SM
     end
 
     ##
+    # Create a presigned URL for an attachment
+    # # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
+    # @return [String] the MHV S3 presigned URL for the attachment
+    #
+    def create_presigned_url_for_attachment(file)
+      attachment_name = File.basename(file.original_filename, File.extname(file.original_filename))
+      file_extension = File.extname(file.original_filename).delete_prefix('.')
+
+      query_params = {
+        attachmentName: attachment_name,
+        fileExtension: file_extension
+      }
+
+      perform(:get, 'attachment/presigned-url', query_params, token_headers).body
+    end
+
+    ##
+    # Create a message with attachments
+    # Utilizes MHV S3 presigned URLs to upload large attachments
+    # bypassing the 10MB limit of the MHV API gateway limitation
+    #
+    # @param args [Hash] a hash of message arguments
+    # @return [Message]
+    # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+    #
+    def post_create_message_with_lg_attachments(args = {})
+      validate_create_context(args)
+
+      uploads = args.delete(:uploads)
+      lg_attachments = []
+
+      raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
+
+      uploads.each do |file|
+        lg_attachments << build_lg_attachment(file)
+      end
+
+      # Build multipart payload
+      payload = form_large_attachment_payload(args[:message], lg_attachments)
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
+      json = perform(:post, 'message/attach', payload, custom_headers).body
+      Message.new(json[:data].merge(json[:metadata]))
+    end
+
+    ##
     # Create a message reply with an attachment
     #
     # @param args [Hash] a hash of message arguments
@@ -595,6 +640,46 @@ module SM
         draft.errors.add(:base, 'attempted to use plain draft in send reply')
         raise Common::Exceptions::ValidationErrors, draft
       end
+    end
+
+    ##
+    # Upload an attachment to S3 using a presigned URL
+    # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
+    def upload_attachment_to_s3(file, presigned_url)
+      custom_headers = token_headers.merge('Content-Type' => file.content_type)
+      perform(:put, presigned_url, file.read, custom_headers)
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error("Failed to upload attachment to S3: #{e.message}")
+      raise Common::Exceptions::BackendServiceException.new('SM_UPLOAD_ATTACHMENT_ERROR', 500)
+    end
+
+    def extract_uploaded_file_name(url)
+      URI.parse(url).path.split('/').last
+    end
+
+    def build_lg_attachment(file)
+      url = create_presigned_url_for_attachment(file)[:data]
+      uploaded_file_name = extract_uploaded_file_name(url)
+      upload_attachment_to_s3(file, url)
+      {
+        'attachmentName' => file.original_filename,
+        'mimeType' => file.content_type,
+        'size' => file.size,
+        'lgAttachmentId' => uploaded_file_name
+      }
+    end
+
+    def form_large_attachment_payload(message, lg_attachments)
+      {
+        'message' => Faraday::Multipart::ParamPart.new(
+          message.to_json,
+          'application/json'
+        ),
+        'lgAttachments[]' => Faraday::Multipart::ParamPart.new(
+          lg_attachments.to_json,
+          'application/json'
+        )
+      }
     end
 
     ##
