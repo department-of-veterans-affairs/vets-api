@@ -7,7 +7,7 @@ module Swagger
 
       swagger_path '/debts_api/v0/digital_disputes' do
         operation :post do
-          key :summary, 'Submits digital dispute documents to the Debt Management Center'
+          key :summary, 'Submits digital dispute documents to the Debt Management Center and VBS'
           key :description, "Submits PDF documents for debt disputes to the Debt Management Center.
             Veterans can upload one or more PDF files containing documentation supporting
             their dispute of a debt."

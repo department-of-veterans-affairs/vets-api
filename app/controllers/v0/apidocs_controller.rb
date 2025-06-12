@@ -87,7 +87,7 @@ module V0
       end
       tag do
         key :name, 'digital_disputes'
-        key :description, 'Submit digital dispute PDFs to the Debt Management Center'
+        key :description, 'Submit digital dispute PDFs to the Debt Management Center and VBS'
       end
       key :host, Settings.hostname
       key :schemes, %w[https http]
