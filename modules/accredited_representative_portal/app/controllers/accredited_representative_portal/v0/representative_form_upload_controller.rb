@@ -19,20 +19,19 @@ module AccreditedRepresentativePortal
 
       def upload_scanned_form
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        handle_file_upload(PersistentAttachments::VAForm)
+        handle_attachment_upload(PersistentAttachments::VAForm)
       end
 
       def upload_supporting_documents
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        handle_file_upload(PersistentAttachments::VAFormDocumentation)
+        handle_attachment_upload(PersistentAttachments::VAFormDocumentation)
       end
 
       private
 
-      def handle_file_upload(form_type)
-        attachment = create_form(form_type)
-        file_path = params['file'].tempfile.path
-        error = validate_attachment_upstream!(file_path)
+      def handle_attachment_upload(attachment_type)
+        attachment = create_attachment(attachment_type)
+        error = validate_attachment_upstream!(attachment)
         return render_error("Document validation failed: #{error.message}") if error
 
         error = validate_attachment!(attachment)
@@ -42,8 +41,8 @@ module AccreditedRepresentativePortal
         render json: serialized(attachment)
       end
 
-      def create_form(form_type)
-        form_type.new(form_id: params[:form_id], file: params['file'])
+      def create_attachment(attachment_type)
+        attachment_type.new(form_id: params[:form_id], file: params['file'])
       end
 
       def validate_attachment!(attachment)
@@ -59,8 +58,8 @@ module AccreditedRepresentativePortal
         e
       end
 
-      def validate_attachment_upstream!(file_path)
-        lighthouse_service.valid_document?(document: file_path)
+      def validate_attachment_upstream!(attachment)
+        lighthouse_service.valid_document?(document: attachment.to_pdf)
         nil
       rescue BenefitsIntake::Service::InvalidDocumentError => e
         Rails.logger.error({
@@ -76,7 +75,7 @@ module AccreditedRepresentativePortal
       end
 
       def serialized(attachment)
-        PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
+        PersistentAttachmentSerializer.new(attachment).as_json.deep_transform_keys do |key|
           key.camelize(:lower)
         end
       end

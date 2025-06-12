@@ -205,12 +205,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect(resp).to eq({
                            'data' => {
                              'id' => attachment.id.to_s,
-                             'type' => 'persistent_attachment_va_form',
+                             'type' => 'persistent_attachment',
                              'attributes' => {
                                'confirmationCode' => attachment.guid,
                                'name' => 'doctors-note.gif',
-                               'size' => 83_403,
-                               'warnings' => ['wrong_form']
+                               'size' => 83_403
                              }
                            }
                          })
@@ -257,12 +256,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect(resp).to eq({
                            'data' => {
                              'id' => attachment.id.to_s,
-                             'type' => 'persistent_attachment_va_form',
+                             'type' => 'persistent_attachment',
                              'attributes' => {
                                'confirmationCode' => attachment.guid,
                                'name' => 'doctors-note.gif',
-                               'size' => 83_403,
-                               'warnings' => []
+                               'size' => 83_403
                              }
                            }
                          })

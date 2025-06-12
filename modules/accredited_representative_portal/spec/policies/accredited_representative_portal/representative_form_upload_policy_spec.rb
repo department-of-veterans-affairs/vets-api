@@ -50,42 +50,28 @@ module AccreditedRepresentativePortal
       end
     end
 
-    describe '#upload_scanned_form' do
-      context 'when user has no POA holders' do
-        it 'denies access' do
-          expect(policy.upload_scanned_form?).to be false
-        end
-      end
-
-      context 'when user has at least one POA holder' do
-        let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                     can_accept_digital_poa_requests: false)]
+    shared_examples 'scanned/supporting upload policy checks' do |method|
+      describe "##{method}" do
+        context 'when user has no POA holders' do
+          it 'denies access' do
+            expect(policy.public_send("#{method}?")).to be false
+          end
         end
 
-        it 'allows access' do
-          expect(policy.upload_scanned_form?).to be true
-        end
-      end
-    end
+        context 'when user has at least one POA holder' do
+          let(:power_of_attorney_holders) do
+            [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
+                                       can_accept_digital_poa_requests: false)]
+          end
 
-    describe '#upload_supporting_documents' do
-      context 'when user has no POA holders' do
-        it 'denies access' do
-          expect(policy.upload_scanned_form?).to be false
-        end
-      end
-
-      context 'when user has at least one POA holder' do
-        let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                    can_accept_digital_poa_requests: false)]
-        end
-
-        it 'allows access' do
-          expect(policy.upload_scanned_form?).to be true
+          it 'allows access' do
+            expect(policy.public_send("#{method}?")).to be true
+          end
         end
       end
     end
+
+    include_examples 'scanned/supporting upload policy checks', 'upload_scanned_form'
+    include_examples 'scanned/supporting upload policy checks', 'upload_supporting_documents'
   end
 end
