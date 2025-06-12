@@ -13,8 +13,8 @@ describe TestUserDashboard::TudAccountSerializer, type: :serializer do
     expect(data['id']).to eq tud_account.id.to_s
   end
 
-  it 'includes :account_uuid' do
-    expect(attributes['account_uuid']).to eq tud_account.account_uuid
+  it 'includes :user_account_id' do
+    expect(attributes['user_account_id']).to eq tud_account.user_account_id
   end
 
   it 'includes :first_name' do
