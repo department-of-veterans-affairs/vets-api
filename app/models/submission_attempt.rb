@@ -5,6 +5,8 @@ require 'json_marshal/marshaller'
 class SubmissionAttempt < ApplicationRecord
   self.abstract_class = true
 
+  validates :submission, presence: true
+
   serialize :metadata, coder: JsonMarshal::Marshaller
   serialize :error_message, coder: JsonMarshal::Marshaller
   serialize :response, coder: JsonMarshal::Marshaller
@@ -16,8 +18,6 @@ class SubmissionAttempt < ApplicationRecord
 
   after_create :update_submission_status
   before_update :update_submission_status
-
-  validates :submission, presence: true
 
   private
 
