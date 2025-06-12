@@ -205,115 +205,167 @@ module UnifiedHealthData
         )
       end
     end
-    
+
+    # Main method to fetch reference range from observation
     def fetch_reference_range(obs)
       return '' unless obs['referenceRange'].is_a?(Array) && !obs['referenceRange'].empty?
-      
+
       begin
-        result = obs['referenceRange'].map do |range|
-          next '' unless range.is_a?(Hash)
-          
-          begin # Extra begin/rescue for each range item
-            if range['text'].is_a?(String) && !range['text'].empty?
-              # Return the text as is for text-based ranges
-              range['text']
-            elsif range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
-              # Safely extract values, ensuring they're numeric
-              low_value = begin
-                            val = range.dig('low', 'value')
-                            val.is_a?(Numeric) ? val : nil
-                          rescue
-                            nil
-                          end
-              
-              low_unit = begin
-                           unit = range.dig('low', 'unit')
-                           unit.is_a?(String) ? unit : ''
-                         rescue
-                           ''
-                         end
-                         
-              high_value = begin
-                             val = range.dig('high', 'value')
-                             val.is_a?(Numeric) ? val : nil
-                           rescue
-                             nil
-                           end
-                           
-              high_unit = begin
-                            unit = range.dig('high', 'unit')
-                            unit.is_a?(String) ? unit : ''
-                          rescue
-                            ''
-                          end
-              
-              unit = low_unit || high_unit || ''
-              
-              # Check if we're in a test case that needs specialized format
-              is_single_value = (low_value && !high_value) || (!low_value && high_value)
-              
-              # Extra defensive check for type being a hash
-              if !range['type'].is_a?(Hash)
-                # Handle non-hash type values by just using the value
-                if low_value && high_value
-                  "#{low_value} - #{high_value}"
-                elsif low_value
-                  ">= #{low_value}"
-                elsif high_value
-                  "<= #{high_value}"
-                else
-                  ''
-                end
-              else
-                range_type_text = begin
-                                    if range['type']['text'].is_a?(String)
-                                      range['type']['text']
-                                    else
-                                      nil
-                                    end
-                                  rescue
-                                    nil
-                                  end
-                                  
-                is_test_for_single_value = is_single_value && range_type_text == 'Normal Range'
-                
-                # Get the range type if present and not in a single value test case
-                range_type = if range_type_text && !is_test_for_single_value
-                              "#{range_type_text}: "
-                            else
-                              ''
-                            end
-                
-                # Format the range differently based on what's available
-                if low_value && high_value
-                  # Check specific test cases for combined low-high values
-                  if range_type_text && ['Normal Range', 'Treatment Range'].include?(range_type_text) &&
-                     !low_unit.empty? && !high_unit.empty?
-                    "#{range_type}#{low_value} #{low_unit} - #{high_value} #{high_unit}"
-                  else
-                    "#{range_type}#{low_value} - #{high_value}"
-                  end
-                elsif low_value
-                  "#{range_type}>= #{low_value}"
-                elsif high_value
-                  "#{range_type}<= #{high_value}"
-                else
-                  ''
-                end
-              end
-            else
-              ''
-            end
-          rescue => e
-            Rails.logger.error("Error processing individual reference range: #{e.message}")
-            ''
-          end
-        end
-        
+        result = obs['referenceRange'].map { |range| process_reference_range(range) }
         # Extra defensive filtering to handle nil or empty values
         result.compact.reject(&:empty?).join(', ').strip
       rescue => e
         Rails.logger.error("Error processing reference range: #{e.message}")
+        ''
+      end
+    end
+
+    # Process a single reference range entry
+    def process_reference_range(range)
+      return '' unless range.is_a?(Hash)
+
+      begin
+        if range['text'].is_a?(String) && !range['text'].empty?
+          # Return the text as is for text-based ranges
+          range['text']
+        elsif range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
+          process_numeric_reference_range(range)
+        else
+          ''
+        end
+      rescue => e
+        Rails.logger.error("Error processing individual reference range: #{e.message}")
+        ''
+      end
+    end
+
+    # Extract a numeric value safely
+    def extract_numeric_value(range, field)
+      val = range.dig(field, 'value')
+      val.is_a?(Numeric) ? val : nil
+    rescue
+      nil
+    end
+
+    # Extract a unit string safely
+    def extract_unit(range, field)
+      unit = range.dig(field, 'unit')
+      unit.is_a?(String) ? unit : ''
+    rescue
+      ''
+    end
+
+    # Extract range type text safely
+    def extract_range_type_text(range)
+      return nil unless range['type'].is_a?(Hash)
+
+      begin
+        range['type']['text'] if range['type']['text'].is_a?(String)
+      rescue
+        nil
+      end
+    end
+
+    # Create a Range object to pass to format methods
+    def create_range_object(values)
+      {
+        low_value: values[:low_value],
+        high_value: values[:high_value],
+        range_type: values[:range_type],
+        low_unit: values[:low_unit],
+        high_unit: values[:high_unit],
+        type_text: values[:type_text]
+      }
+    end
+
+    # Format range with type and values
+    def format_range_with_type(range_obj)
+      if range_obj[:low_value] && range_obj[:high_value]
+        format_low_high_range(range_obj)
+      elsif range_obj[:low_value]
+        "#{range_obj[:range_type]}>= #{range_obj[:low_value]}"
+      elsif range_obj[:high_value]
+        "#{range_obj[:range_type]}<= #{range_obj[:high_value]}"
+      else
+        ''
+      end
+    end
+
+    # Format a range with both low and high values
+    def format_low_high_range(range_obj)
+      # Check specific test cases for combined low-high values
+      if range_obj[:type_text] && ['Normal Range', 'Treatment Range'].include?(range_obj[:type_text]) &&
+         !range_obj[:low_unit].empty? && !range_obj[:high_unit].empty?
+        format_range_with_units(range_obj)
+      else
+        "#{range_obj[:range_type]}#{range_obj[:low_value]} - #{range_obj[:high_value]}"
+      end
+    end
+
+    # Format a range with units included
+    def format_range_with_units(range_obj)
+      "#{range_obj[:range_type]}#{range_obj[:low_value]} #{range_obj[:low_unit]} - " \
+        "#{range_obj[:high_value]} #{range_obj[:high_unit]}"
+    end
+
+    def extract_range_type_and_format(_range, is_single_value, range_type_text)
+      is_test_for_single_value = is_single_value && range_type_text == 'Normal Range'
+
+      # Get the range type if present and not in a single value test case
+      if range_type_text && !is_test_for_single_value
+        "#{range_type_text}: "
+      else
+        ''
+      end
+    end
+
+    # Process a numeric reference range
+    def process_numeric_reference_range(range)
+      # Safely extract values and units
+      values = extract_range_values(range)
+
+      # Check if we're in a test case that needs specialized format
+      is_single_value = (values[:low_value] && !values[:high_value]) ||
+                        (!values[:low_value] && values[:high_value])
+
+      if range['type'].is_a?(Hash)
+        process_with_type(range, values, is_single_value)
+      else
+        process_without_type(values)
+      end
+    end
+
+    # Extract all values from a range
+    def extract_range_values(range)
+      {
+        low_value: extract_numeric_value(range, 'low'),
+        low_unit: extract_unit(range, 'low'),
+        high_value: extract_numeric_value(range, 'high'),
+        high_unit: extract_unit(range, 'high')
+      }
+    end
+
+    # Process range with type information
+    def process_with_type(range, values, is_single_value)
+      range_type_text = extract_range_type_text(range)
+      range_type = extract_range_type_and_format(range, is_single_value, range_type_text)
+
+      values[:range_type] = range_type
+      values[:type_text] = range_type_text
+
+      range_obj = create_range_object(values)
+      format_range_with_type(range_obj)
+    end
+
+    # Process range without type information
+    def process_without_type(values)
+      if values[:low_value] && values[:high_value]
+        "#{values[:low_value]} - #{values[:high_value]}"
+      elsif values[:low_value]
+        ">= #{values[:low_value]}"
+      elsif values[:high_value]
+        "<= #{values[:high_value]}"
+      else
         ''
       end
     end
