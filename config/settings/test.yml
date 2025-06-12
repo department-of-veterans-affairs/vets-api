@@ -1181,6 +1181,7 @@ saml:
   key_path: spec/support/certificates/ruby-saml.key
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: TESTKEY
