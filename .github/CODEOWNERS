@@ -1697,6 +1697,7 @@ spec/requests/v1/apidoc @department-of-veterans-affairs/backend-review-group
 spec/requests/v1/gi/lcpe/exams_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/requests/v1/gi/lcpe/lacs_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/requests/v1/post911_gi_bill_status_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/requests/v1/gi/version_public_exports_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/requests/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/routing/v0/map_services_routing_spec.rb @department-of-veterans-affairs/octo-identity
 spec/rswag_override.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
