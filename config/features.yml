@@ -2260,3 +2260,6 @@ features:
   accredited_representative_portal_form:
     actor_type: user
     description: Enables form with new options for rep
+  my_va_display_all_lighthouse_benefits_intake_forms:
+    actor_type: user
+    description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
