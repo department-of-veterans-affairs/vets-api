@@ -153,7 +153,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
             'error_class' => 'Faraday::BadRequestError'
           }
         end
-        let(:message) { "#{described_class} EvidenceSubmission updated" }
 
         it 'updates an evidence submission record to FAILED' do
           described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) do
@@ -164,8 +163,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
             expect(Rails.logger)
               .to receive(:info)
               .with('LH - Updated Evidence Submission Record to FAILED', any_args)
-            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation',
-                                                       tags: ['service:claim-status', "function: #{message}"])
           end
 
           failed_evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_created.id)
@@ -363,7 +360,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           expect(Rails.logger)
             .to receive(:info)
             .with(log_message)
-          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: statsd_tags)
         end
       end
     end

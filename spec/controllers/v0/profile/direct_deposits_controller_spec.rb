@@ -257,14 +257,10 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
     end
 
     context 'when user does not have an associated email address' do
-      before do
-        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-      end
-
-      it 'logs a message to Sentry' do
+      it 'logs a message with Rails Logger' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
-          expect(Sentry).to receive(:capture_message).once
+          expect(Rails.logger).to receive(:info)
 
           put(:update, params:)
           expect(response).to have_http_status(:ok)

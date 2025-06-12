@@ -6,6 +6,7 @@ require 'rx/configuration'
 require 'rx/client_session'
 require 'rx/rx_gateway_timeout'
 require 'active_support/core_ext/hash/slice'
+require 'vets/collection'
 
 module Rx
   ##
@@ -38,7 +39,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_active_rxs
-      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
+      Vets::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
         perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
@@ -49,7 +50,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_active_rxs_with_details
-      Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
+      Vets::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
         perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
@@ -60,7 +61,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_history_rxs
-      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
+      Vets::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
         perform(:get, get_path('gethistoryrx'), nil, get_headers(token_headers)).body
       end
     end
@@ -72,7 +73,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
-      Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
+      Vets::Collection.fetch(PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
         perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
     end
@@ -94,7 +95,7 @@ module Rx
     #
     def get_rx(id)
       collection = get_history_rxs
-      collection.find_first_by('prescription_id' => { 'eq' => id })
+      collection.find_by('prescription_id' => { 'eq' => id })
     end
 
     ##
@@ -105,7 +106,7 @@ module Rx
     #
     def get_rx_details(id)
       collection = get_all_rxs
-      collection.find_first_by('prescription_id' => { 'eq' => id })
+      collection.find_by('prescription_id' => { 'eq' => id })
     end
 
     ##
@@ -117,7 +118,7 @@ module Rx
     def get_tracking_rx(id)
       json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       data = json[:data].first.merge(prescription_id: id)
-      Tracking.new(json.merge(data:))
+      Tracking.new(data.merge(metadata: json[:metadata]))
     end
 
     ##
@@ -129,7 +130,8 @@ module Rx
     def get_tracking_history_rx(id)
       json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       tracking_history = json[:data].map { |t| t.to_h.merge(prescription_id: id) }
-      Common::Collection.new(::Tracking, **json.merge(data: tracking_history))
+      json = json.merge(data: tracking_history)
+      Vets::Collection.new(json[:data], Tracking, metadata: json[:metadata], errors: json[:errors])
     end
 
     ##
@@ -154,7 +156,7 @@ module Rx
     def post_refill_rx(id)
       if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
         keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
-        Common::Collection.bust(keys) unless keys.empty?
+        Vets::Collection.bust(keys) unless keys.empty?
         increment_refill
       end
       result
@@ -192,7 +194,7 @@ module Rx
 
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_session')
-      env = if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+      env = if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
               perform(:get, 'usermgmt/auth/session', nil, auth_headers)
             else
               perform(:get, 'session', nil, auth_headers)
@@ -215,7 +217,7 @@ module Rx
 
     def get_headers(headers)
       headers = headers.dup
-      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
         headers.merge('x-api-key' => config.x_api_key)
       else
         headers
@@ -223,12 +225,12 @@ module Rx
     end
 
     def get_path(endpoint)
-      base_path = Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api ? 'pharmacy/ess' : 'prescription'
+      base_path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'pharmacy/ess' : 'prescription'
       "#{base_path}/#{endpoint}"
     end
 
     def get_preferences_path(endpoint)
-      base_path = if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+      base_path = if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
                     'usermgmt/notification'
                   else
                     'preferences'

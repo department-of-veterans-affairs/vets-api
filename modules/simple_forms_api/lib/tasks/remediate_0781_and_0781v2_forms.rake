@@ -32,8 +32,51 @@ require_relative 'dev/remediation_stubs' if Rails.env.development?
 # For submissions on or after that date, both Form 0781 and Form 0781v2 are processed.
 #
 # Related: https://github.com/department-of-veterans-affairs/evidence-upload-remediation/issues/43
+
+# Context object to reduce parameter count
+ProcessingContext = Struct.new(:job, :results, :submission_id, :form_key, :form_id, :idx, :total_size,
+                               keyword_init: true)
+
 def validate_input!(ids)
   raise Common::Exceptions::ParameterMissing, 'submission_ids' unless ids&.any?
+end
+
+def log_processing_step(context, step)
+  templates = {
+    skipped: '[%<current>d/%<total>d] Skipped: %<id>s (%<form>s) - blank form content',
+    processing: '[%<current>d/%<total>d] Processing %<id>s with form %<form>s (%<form_id>s)',
+    success: '[%<current>d/%<total>d] Successfully processed: %<id>s (%<form>s)'
+  }
+
+  message = format(
+    templates[step],
+    current: context.idx + 1,
+    total: context.total_size,
+    id: context.submission_id,
+    form: context.form_key,
+    form_id: context.form_id
+  )
+  puts message
+end
+
+def handle_blank_form!(form_content, context)
+  return false if form_content.present?
+
+  context.results[:skipped] << { submission_id: context.submission_id, form_key: context.form_key,
+                                 reason: 'blank_form_content' }
+  log_processing_step(context, :skipped)
+  true
+end
+
+def process_form!(context)
+  log_processing_step(context, :processing)
+
+  config = SimpleFormsApi::FormRemediation::Configuration::Form0781Config.new(form_key: context.form_key)
+  context.job.perform(ids: [context.submission_id], config:, type: :remediation)
+  context.results[:processed] << { submission_id: context.submission_id, form_key: context.form_key,
+                                   form_id: context.form_id }
+
+  log_processing_step(context, :success)
 end
 
 def load_submission_ids(input)
@@ -43,17 +86,6 @@ def load_submission_ids(input)
     ids.compact_blank
   else
     input.to_s.split(/[,\s]+/).compact_blank
-  end
-end
-
-def get_form_keys(date)
-  if date < Date.new(2019, 6, 24)
-    { 'form0781' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781 }
-  else
-    {
-      'form0781' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781,
-      'form0781v2' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2
-    }
   end
 end
 
@@ -80,32 +112,53 @@ namespace :simple_forms_api do
     submission_ids.each_with_index do |submission_id, idx|
       submission = Form526Submission.find(submission_id)
       created_at = submission.created_at
-      form_json = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
 
-      # Process each form type based on the submission date
-      get_form_keys(created_at).each do |form_key, form_id|
-        form_content = form_json[form_key]
-        if form_content.blank?
-          results[:skipped] << {
+      if created_at < Date.new(2019, 6, 24)
+        # Pre-2019-06-24 submissions: form_key is implicitly 'form0781'
+        form_id = EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781
+        form_content = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+
+        context = ProcessingContext.new(
+          job:,
+          results:,
+          submission_id:,
+          form_key: 'form0781',
+          form_id:,
+          idx:,
+          total_size: submission_ids.size
+        )
+
+        next if handle_blank_form!(form_content, context)
+
+        process_form!(context)
+      else
+        # Post-2019-06-24 submissions: multiple form types
+        nested_json = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+        {
+          'form0781' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781,
+          'form0781v2' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2
+          # 'form0781a' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781A,
+          # Already processed in modules/simple_forms_api/lib/tasks/remediate_0781a_forms.rake
+        }.each do |form_key, form_id|
+          form_content = nested_json[form_key]
+
+          # Fallback for June 2019 cutover edge-cases: treat flat payloads (incidents at root) as form0781 content
+          form_content = nested_json if form_key == 'form0781' && form_content.blank? && nested_json.key?('incidents')
+
+          context = ProcessingContext.new(
+            job:,
+            results:,
             submission_id:,
             form_key:,
-            reason: 'blank_form_content'
-          }
-          puts "[#{idx + 1}/#{submission_ids.size}] Skipped: #{submission_id} (#{form_key}) - blank form content"
-          next
+            form_id:,
+            idx:,
+            total_size: submission_ids.size
+          )
+
+          next if handle_blank_form!(form_content, context)
+
+          process_form!(context)
         end
-
-        puts "[#{idx + 1}/#{submission_ids.size}] Processing #{submission_id} with form #{form_key} (#{form_id})"
-
-        config = SimpleFormsApi::FormRemediation::Configuration::Form0781Config.new(form_key:)
-        job.perform(ids: [submission_id], config:, type: :remediation)
-
-        results[:processed] << {
-          submission_id:,
-          form_key:,
-          form_id:
-        }
-        puts "[#{idx + 1}/#{submission_ids.size}] Successfully processed: #{submission_id} (#{form_key})"
       end
     rescue ActiveRecord::RecordNotFound
       results[:not_found] << submission_id

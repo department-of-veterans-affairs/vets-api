@@ -38,7 +38,7 @@ module Vets
 
     # Acts as ActiveRecord::Base#attributes which is needed for serialization
     def attributes
-      nested_attributes(attribute_values)
+      nested_attributes(attribute_values).with_indifferent_access
     end
 
     # Acts as Object#instance_values

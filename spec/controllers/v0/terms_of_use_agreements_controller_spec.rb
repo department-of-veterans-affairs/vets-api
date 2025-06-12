@@ -394,6 +394,11 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       after { Timecop.return }
 
+      it 'calls provisioner with the correct params' do
+        subject
+        expect(Identity::CernerProvisioner).to have_received(:new).with(icn: user.icn, source: :tou)
+      end
+
       context 'when the acceptance and provisioning is successful' do
         it_behaves_like 'successful acceptance and provisioning'
       end
@@ -429,6 +434,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       let(:expected_cookie_path) { '/' }
       let(:expected_cookie_expiration) { 2.minutes.from_now }
       let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning success' }
+      let(:expected_source) { 'tou' }
 
       before do
         allow(Rails.logger).to receive(:info)

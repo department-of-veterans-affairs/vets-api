@@ -75,7 +75,7 @@ module V0
     end
 
     def provisioner
-      Identity::CernerProvisioner.new(icn: @user_account.icn)
+      Identity::CernerProvisioner.new(icn: @user_account.icn, source: :tou)
     end
 
     def recache_user

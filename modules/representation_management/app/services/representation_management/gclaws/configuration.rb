@@ -53,8 +53,13 @@ module RepresentationManagement
 
       def headers
         {
-          'x-api-key' => api_key
+          'x-api-key' => api_key,
+          'Origin' => origin
         }
+      end
+
+      def origin
+        Settings.gclaws.accreditation.origin
       end
 
       def params

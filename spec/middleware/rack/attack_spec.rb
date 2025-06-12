@@ -202,14 +202,5 @@ RSpec.describe Rack::Attack do
         expect(last_response).to have_http_status(:too_many_requests)
       end
     end
-
-    context 'evss claims' do
-      let(:limit) { 12 }
-      let(:endpoint) { '/v0/evss_claims_async' }
-
-      it 'limits requests' do
-        expect(last_response).to have_http_status(:too_many_requests)
-      end
-    end
   end
 end

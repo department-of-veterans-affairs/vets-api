@@ -1,0 +1,95 @@
+{
+  "veteran": {
+    "full_name": { "first": "Joe", "last": "Johnson" },
+    "ssn_or_tin": "123123123",
+    "va_claim_number": "",
+    "date_of_birth": "01-01-1958",
+    "phone_number": "",
+    "address": {},
+    "sponsor_is_deceased": true,
+    "date_of_death": "01-01-2001",
+    "date_of_marriage": "",
+    "is_active_service_death": false
+  },
+  "applicants": [
+    {
+      "applicant_relationship_origin": { "relationship_to_veteran": "blood" },
+      "applicant_email_address": "johnny@alvin.gov",
+      "applicant_ssn": "333221111",
+      "applicant_gender": { "gender": "male" },
+      "applicant_relationship_to_sponsor": {
+        "relationship_to_veteran": "child"
+      },
+      "applicant_dependent_status": { "status": "enrolled" },
+      "applicant_enrolled_in_ohi": false,
+      "applicant_dob": "01-04-2003",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_medicare_part_d": { "enrollment": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
+      "secondary_additional_comments": "Secondary comment",
+      "secondary_medigap_plan": "D",
+      "applicant_secondary_insurance_type": "medigap",
+      "applicant_secondary_eob": true,
+      "applicant_secondary_has_prescription": true,
+      "applicant_secondary_through_employer": true,
+      "applicant_secondary_provider": "Secondary Provider Name",
+      "applicant_secondary_effective_date": "10-03-2020",
+      "applicant_secondary_expiration_date": "06-02-2023",
+      "applicant_has_secondary": true,
+      "primary_additional_comments": "Additional primary comment",
+      "primary_medigap_plan": "B",
+      "applicant_primary_insurance_type": "medigap",
+      "applicant_primary_eob": false,
+      "applicant_primary_has_prescription": true,
+      "applicant_primary_through_employer": true,
+      "applicant_primary_provider": "Primary Provider Name",
+      "applicant_primary_effective_date": "01-02-2001",
+      "applicant_primary_expiration_date": "03-03-2020",
+      "applicant_has_primary": true,
+      "applicant_phone": "5551112222",
+      "applicant_address": {
+        "country": "USA",
+        "street": "456 Street Avenue",
+        "city": "Cityland",
+        "state": "CA",
+        "postal_code": "43212",
+        "street_combined": "456 Street Avenue "
+      },
+      "applicant_new_address": "yes",
+      "applicant_name": {
+        "first": "Applicant1",
+        "last": "Jones",
+        "suffix": "Sr."
+      },
+      "consent_to_mail_missing_required_files": true,
+      "certifier_role": "other",
+      "certifier_email": "certifier@email.gov",
+      "signature": "Certifier Jones",
+      "ssn_or_tin": "345345345",
+      "vet_relationship": "child",
+      "applicant_supporting_documents": []
+    }
+  ],
+  "certification": {
+    "date": "05-06-2025",
+    "last_name": "Jones",
+    "middle_initial": "",
+    "first_name": "Certifier",
+    "phone_number": "1231231234",
+    "relationship": "spouse; child; thirdParty",
+    "street_address": "123 Certifier Street ",
+    "city": "Citytown",
+    "state": "AL",
+    "postal_code": "12312"
+  },
+  "supporting_docs": [],
+  "has_applicant_over65": false,
+  "certifier_role": "other",
+  "statement_of_truth_signature": "Certifier Jones",
+  "primary_contact_info": {
+    "name": { "first": "Certifier", "last": "Jones" },
+    "email": "certifier@email.gov",
+    "phone": "1231231234"
+  },
+  "form_number": "10-10D"
+}

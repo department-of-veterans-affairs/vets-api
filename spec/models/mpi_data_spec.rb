@@ -24,8 +24,9 @@ describe MPIData, :skip_mvi do
   end
 
   describe '#add_person_proxy' do
-    subject { mpi_data.add_person_proxy }
+    subject { mpi_data.add_person_proxy(as_agent:) }
 
+    let(:as_agent) { false }
     let(:mpi_data) { MPIData.for_user(user.identity) }
     let(:profile_response_error) { create(:find_profile_server_error_response) }
     let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
@@ -105,6 +106,28 @@ describe MPIData, :skip_mvi do
 
       it 'returns the successful response' do
         expect(subject.ok?).to be(true)
+      end
+
+      context 'with as_agent set to true' do
+        let(:as_agent) { true }
+
+        it 'returns the successful response' do
+          expect(subject.ok?).to be(true)
+        end
+
+        it 'calls add_person_proxy with as_agent set to true' do
+          expect_any_instance_of(MPI::Service).to receive(:add_person_proxy).with(
+            last_name: family_name,
+            ssn:,
+            birth_date:,
+            icn:,
+            edipi:,
+            search_token:,
+            first_name: given_names.first,
+            as_agent:
+          )
+          subject
+        end
       end
     end
 

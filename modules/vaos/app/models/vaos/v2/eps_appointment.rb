@@ -6,37 +6,33 @@ module VAOS
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
-                  :provider, :type_of_care, :referral_phone_number, :referring_facility_details
+                  :provider
 
-      def initialize(appointment_data = {}, referral = nil, provider = nil)
+      def initialize(appointment_data = {}, provider = nil)
         appointment_details = appointment_data[:appointment_details]
         referral_details = appointment_data[:referral]
 
         @id = appointment_data[:id]&.to_s
-        @status = determine_status(appointment_details[:status])
+        @status = determine_status(appointment_details&.dig(:status))
         @patient_icn = appointment_data[:patient_id]
-        @created = appointment_details[:last_retrieved]
+        @created = appointment_details&.dig(:last_retrieved)
         @location_id = appointment_data[:network_id]
         @clinic = appointment_data[:provider_service_id]
-        @start = appointment_data.dig(:appointment_details, :start)
-        @is_latest = appointment_data.dig(:appointment_details, :is_latest)
-        @last_retrieved = appointment_data.dig(:appointment_details, :last_retrieved)
+        @start = appointment_details&.dig(:start)
+        @is_latest = appointment_details&.dig(:is_latest)
+        @last_retrieved = appointment_details&.dig(:last_retrieved)
         @contact = appointment_data[:contact]
-        @referral_id = referral_details[:referral_number]
-        @referral = { referral_number: referral_details[:referral_number]&.to_s }
+        @referral_id = referral_details&.dig(:referral_number)
+        @referral = { referral_number: referral_details&.dig(:referral_number)&.to_s }
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
-
-        @type_of_care = referral&.category_of_care
-        @referral_phone_number = referral&.phone_number
-        @referring_facility_details = parse_referring_facility_details(referral)
         @provider = provider
       end
 
       def serializable_hash
         {
           id: @id,
-          status: determine_status(@status),
+          status: @status,
           patient_icn: @patient_icn,
           created: @created,
           location_id: @location_id,
@@ -53,22 +49,25 @@ module VAOS
       def provider_details
         return nil if provider.nil?
 
-        {
+        result = {
           id: provider.id,
-          name: provider.name,
-          is_active: provider.is_active,
-          organization: provider.provider_organization,
-          location: provider.location,
-          network_ids: provider.network_ids,
-          phone_number: referral_phone_number
-        }.compact
-      end
+          name: provider.provider_name,
+          practice: provider.practice_name,
+          location: provider.location
+        }
 
-      def parse_referring_facility_details(referral)
-        {
-          name: referral&.referring_facility_name,
-          phone_number: referral&.referring_facility_phone
-        }.compact
+        # Transform address fields if address exists
+        if provider.address.present?
+          result[:address] = {
+            street1: provider.address[:line1],
+            street2: provider.address[:line2],
+            city: provider.address[:city],
+            state: provider.address[:state],
+            zip: provider.address[:postal_code]
+          }.compact
+        end
+
+        result.compact
       end
 
       private

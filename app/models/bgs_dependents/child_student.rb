@@ -27,7 +27,7 @@ module BGSDependents
         real_estate_amt: student_networth_information&.dig('real_estate'),
         other_asset_amt: student_networth_information&.dig('other_assets'),
         rmks: @is_v2 ? student_information&.dig('remarks') : student_networth_information&.dig('remarks'),
-        marage_dt: format_date(@is_v2 ? student_information&.dig('marraige_date') : student_address_marriage_tuition&.dig('marriage_date')), # rubocop:disable Layout/LineLength
+        marage_dt: format_date(@is_v2 ? student_information&.dig('marriage_date') : student_address_marriage_tuition&.dig('marriage_date')), # rubocop:disable Layout/LineLength
         agency_paying_tuitn_nm: student_address_marriage_tuition&.dig('agency_name'),
         stock_bond_amt: student_networth_information&.dig('securities'),
         govt_paid_tuitn_ind: convert_boolean(@is_v2 ? student_information&.dig('tuition_is_paid_by_gov_agency') : student_address_marriage_tuition&.dig('tuition_is_paid_by_gov_agency')), # rubocop:disable Layout/LineLength

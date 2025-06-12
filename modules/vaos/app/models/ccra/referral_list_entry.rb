@@ -3,7 +3,7 @@
 module Ccra
   # ReferralListEntry represents the essential referral data from the CCRA ReferralList endpoint.
   class ReferralListEntry
-    attr_reader :category_of_care, :expiration_date
+    attr_reader :category_of_care, :expiration_date, :station_id
     attr_accessor :referral_number, :uuid, :referral_consult_id
 
     ##
@@ -31,7 +31,9 @@ module Ccra
     # @param referrals [Array<Hash>] Array of referral data from the CCRA service.
     # @return [Array<ReferralListEntry>] Array of ReferralListEntry objects.
     def self.build_collection(referrals)
-      Array(referrals).map { |referral_data| new(referral_data) }
+      return [] unless referrals.is_a?(Array)
+
+      referrals.map { |referral_data| new(referral_data) }
     end
 
     private

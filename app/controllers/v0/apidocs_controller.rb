@@ -58,10 +58,6 @@ module V0
         key :description, 'Prescription refill/tracking operations'
       end
       tag do
-        key :name, 'health_records'
-        key :description, 'Download electronic health records'
-      end
-      tag do
         key :name, 'secure_messaging'
         key :description, 'Send and receive secure messages to health providers'
       end
@@ -125,7 +121,6 @@ module V0
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::Banners,
-      Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimDocuments,
@@ -140,6 +135,7 @@ module V0
       Swagger::Requests::DisabilityCompensationInProgressForms,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Efolder,
+      Swagger::Requests::EventBusGateway,
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
       Swagger::Requests::Form1010cg::Attachments,
@@ -159,18 +155,12 @@ module V0
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::MDOT::Supplies,
       Swagger::Requests::MedicalCopays,
-      Swagger::Requests::Messages::Folders,
-      Swagger::Requests::Messages::Messages,
-      Swagger::Requests::Messages::MessageDrafts,
-      Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::MviUsers,
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::MyVA::SubmissionStatuses,
       Swagger::Requests::IncomeAndAssetsClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
-      Swagger::Requests::Prescriptions::Prescriptions,
-      Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,
       Swagger::Requests::Search,
       Swagger::Requests::SearchClickTracking,
@@ -182,7 +172,6 @@ module V0
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
-      Swagger::Requests::VirtualAgentToken,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,
@@ -194,7 +183,6 @@ module V0
       Swagger::Schemas::ContactUs::SuccessfulInquiryCreation,
       Swagger::Schemas::ContactUs::InquiriesList,
       Swagger::Schemas::AsyncTransaction::Vet360,
-      Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
       Swagger::Schemas::Contacts,
@@ -256,7 +244,6 @@ module V0
       Swagger::Schemas::Vet360::Countries,
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
-      Swagger::Schemas::VirtualAgentWebchatToken,
       FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze

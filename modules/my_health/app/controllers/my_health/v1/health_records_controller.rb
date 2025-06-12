@@ -3,6 +3,8 @@
 module MyHealth
   module V1
     class HealthRecordsController < BBController
+      include MyHealth::AALClientConcerns
+
       def refresh
         resource = client.get_extract_status
 
@@ -22,16 +24,24 @@ module MyHealth
       end
 
       def optin
-        client.post_opt_in
+        handle_aal('VA Health Record', 'Opt back into electronic sharing with community providers') do
+          client.post_opt_in
+        end
       end
 
       def optout
-        client.post_opt_out
+        handle_aal('VA Health Record', 'Opt out of electronic sharing with community providers') do
+          client.post_opt_out
+        end
       end
 
       def status
         resource = client.get_status
         render json: resource
+      end
+
+      def product
+        :mr
       end
     end
   end

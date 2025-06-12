@@ -3,12 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe HCA::LogEmailDiffJob, type: :job do
-  let!(:in_progress_form) { create(:in_progress_1010ez_form_with_email) }
-  let!(:user) { create(:user, :loa3) }
+  let!(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+  let!(:in_progress_form) do
+    create(:in_progress_1010ez_form_with_email, user_uuid: user.uuid, user_account_id: user.user_account_uuid)
+  end
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-    in_progress_form.update!(user_uuid: user.uuid)
     allow(User).to receive(:find).with(user.uuid).and_return(user)
   end
 
@@ -18,8 +19,8 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
       subject
 
-      expect(FormEmailMatchesProfileLog).not_to receive(:create).with(
-        user_uuid: user.uuid, in_progress_form_id: in_progress_form.id
+      expect(FormEmailMatchesProfileLog).not_to receive(:find_or_create_by).with(
+        user_uuid: user.uuid, in_progress_form_id: in_progress_form.id, user_account_id: user.user_account_uuid
       )
     end
   end
@@ -30,12 +31,13 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
         subject
       end.to trigger_statsd_increment("api.1010ez.in_progress_form_email.#{tag}")
 
-      expect(InProgressForm.where(user_uuid: user.uuid, id: in_progress_form.id)).to exist
+      expect(InProgressForm.where(user_uuid: user.uuid, user_account_id: user.user_account_uuid,
+                                  id: in_progress_form.id)).to exist
     end
   end
 
   describe '#perform' do
-    subject { described_class.new.perform(in_progress_form.id, user.uuid) }
+    subject { described_class.new.perform(in_progress_form.id, user.uuid, user.user_account_uuid) }
 
     context 'when the form has been deleted' do
       before do
@@ -59,10 +61,28 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
         context 'when FormEmailMatchesProfileLog already exists' do
           before do
-            FormEmailMatchesProfileLog.create(user_uuid: user.uuid, in_progress_form_id: in_progress_form.id)
+            FormEmailMatchesProfileLog.create(user_uuid: user.uuid, in_progress_form_id: in_progress_form.id,
+                                              user_account_id: user.user_account_uuid)
           end
 
           expect_does_nothing
+        end
+
+        context 'when FormEmailMatchesProfileLog find_or_create_by returns model' do
+          before do
+            form_email_matches_profile_log = FormEmailMatchesProfileLog.new(
+              user_uuid: user.uuid,
+              in_progress_form_id: in_progress_form.id,
+              user_account_id: user.user_account_uuid
+            )
+            allow(FormEmailMatchesProfileLog).to receive(:find_or_create_by).and_return(form_email_matches_profile_log)
+          end
+
+          it 'does not increment statsd' do
+            expect(StatsD).not_to receive(:increment)
+
+            subject
+          end
         end
       end
 

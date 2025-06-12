@@ -15,14 +15,19 @@ module BPDS
         bpds_submission.submission_attempts.create(status: 'failure', error_message: error&.message)
       end
 
-      def perform(saved_claim_id)
+      def perform(saved_claim_id, encrypted_payload)
         return nil unless Flipper.enabled?(:bpds_service_enabled)
 
         init(saved_claim_id)
 
+        if @bpds_submission.latest_status == 'submitted'
+          Rails.logger.info("Saved Claim #:#{saved_claim_id} has already been submitted to BPDS")
+        end
+
         begin
           # Submit the BPDS submission to the BPDS service
-          response = BPDS::Service.new.submit_json(@saved_claim)
+          payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_payload))
+          response = BPDS::Service.new.submit_json(@saved_claim, payload['participant_id'], payload['file_number'])
           @bpds_submission.submission_attempts.create(status: 'submitted', response: response.to_json,
                                                       bpds_id: response['uuid'])
           @monitor.track_submit_success(saved_claim_id)
@@ -40,7 +45,7 @@ module BPDS
         @bpds_submission = BPDS::Submission.find_or_create_by(
           saved_claim: @saved_claim,
           form_id: @saved_claim.form_id,
-          reference_data: @saved_claim.form
+          reference_data_ciphertext: @saved_claim.form
         )
         @monitor = BPDS::Monitor.new
       end

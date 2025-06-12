@@ -1,0 +1,101 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/v1/bluebutton/healthsummary/2025-05-06T09:26:08.000-0400/fileFormat/XML/ccdType/XML"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/xml
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        X-Api-Key:
+          - "<MHV_MR_X_API_KEY>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Tue, 06 May 2025 14:00:31 GMT
+        Content-Type:
+          - text/xml
+        Content-Length:
+          - "95723"
+        X-Amzn-Requestid:
+          - b32488b8-3afd-4366-a631-0af26ffea1c9
+        Content-Disposition:
+          - attachment; filename=mhv_VA_CCD_IPOACEVEDA_20250506_0926.xml
+        X-Amzn-Remapped-Content-Length:
+          - "95723"
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - KJhf9FITvHMFT4w=
+        Cache-Control:
+          - no-cache
+        Expires:
+          - "-1"
+        X-Amzn-Remapped-Date:
+          - Tue, 06 May 2025 14:00:31 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string:
+          "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n<?xml-stylesheet
+          type=\"text/xsl\" href=\"cda.xsl\"?>\n"
+    recorded_at: Tue, 06 May 2025 14:00:31 GMT
+  - request:
+      method: post
+      uri: "<MHV_MR_HOST>/v1/usermgmt/activity"
+      body:
+        encoding: UTF-8
+        string:
+          '{"userProfileId":11375034,"activityType":"Download","action":"Download
+          My VA Health Summary","completionTime":"Tue, 06 May 2025 14:00:31 GMT","performerType":"Self","detailValue":null,"status":1}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        X-Api-Key:
+          - "<MHV_MR_X_API_KEY>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 204
+        message: No Content
+      headers:
+        Date:
+          - Tue, 06 May 2025 14:00:32 GMT
+        Content-Type:
+          - application/json
+        X-Amzn-Requestid:
+          - e0ac4072-c80b-4c61-a1b9-3491274614e1
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - KJhgDEF8PHMFoXA=
+        X-Amzn-Remapped-Date:
+          - Tue, 06 May 2025 14:00:32 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+        Connection:
+          - close
+      body:
+        encoding: UTF-8
+        string: ""
+    recorded_at: Tue, 06 May 2025 14:00:32 GMT
+recorded_with: VCR 6.3.1

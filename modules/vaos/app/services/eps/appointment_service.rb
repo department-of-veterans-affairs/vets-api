@@ -13,8 +13,9 @@ module Eps
     def get_appointment(appointment_id:, retrieve_latest_details: false)
       query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
-      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {}, headers)
-      log_response(response, 'EPS Get Appointment')
+      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
+                         request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -25,8 +26,8 @@ module Eps
     #
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
-                         {}, headers)
-      log_response(response, 'EPS Get Appointments')
+                         {}, request_headers)
+
       appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
       OpenStruct.new(data: merged_appointments)
@@ -39,8 +40,8 @@ module Eps
     #
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referralId: referral_id }, headers)
-      log_response(response, 'EPS Create Draft Appointment')
+                         { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -69,24 +70,12 @@ module Eps
       payload = build_submit_payload(params)
 
       EpsAppointmentWorker.perform_async(appointment_id, user)
-      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, headers)
-      log_response(response, 'EPS Submit Appointment')
+      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
+
       OpenStruct.new(response.body)
     end
 
     private
-
-    ##
-    # Log API response details for debugging
-    #
-    # @param response [Faraday::Response] The API response
-    # @param description [String] Description of the API call
-    # @return [void]
-    def log_response(response, description)
-      response_body = response.body.is_a?(String) ? response.body : response.body.inspect
-      Rails.logger.info("#{description} - Content-Type: #{response.response_headers['Content-Type']}, " \
-                        "Body Class: #{response.body.class}, Body: #{response_body}...")
-    end
 
     ##
     # Merge provider data with appointment data

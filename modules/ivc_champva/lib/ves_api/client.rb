@@ -27,7 +27,7 @@ module IvcChampva
       # @param acting_user [string, nil] the acting user for the application
       # @param ves_request_data [IvcChampva::VesRequest] preformatted request data
       def submit_1010d(transaction_uuid, acting_user, ves_request_data)
-        resp = connection.post("#{config.base_path}/champva-applications") do |req|
+        resp = connection.post("#{config.base_path}/ves-vfmp-app-svc/champva-applications") do |req|
           req.headers = headers(transaction_uuid, acting_user)
           req.body = ves_request_data.to_json
         end
@@ -35,6 +35,8 @@ module IvcChampva
         monitor.track_ves_response(transaction_uuid, resp.status, resp.body)
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
+
+        resp
       rescue => e
         raise VesApiError, e.message.to_s
       end

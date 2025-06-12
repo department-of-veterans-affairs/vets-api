@@ -61,11 +61,10 @@ module AppealsApi
             @supplemental_claim = supplemental_claim
           end
 
-          delegate :veteran_dob_month, :veteran_dob_day, :veteran_dob_year, :signing_appellant_zip_code,
+          delegate :veteran_dob_month, :veteran_dob_day, :veteran_dob_year,
                    :date_signed, :signing_appellant, :appellant_local_time, :contestable_issues,
-                   :new_evidence_locations, :new_evidence_dates, :claimant, :veteran,
-                   :alternate_signer_full_name, :homeless_other_reason,
-                   :treatment_location_other_details, :homeless,
+                   :claimant, :veteran, :alternate_signer_full_name, :homeless_other_reason,
+                   :treatment_location_other_details,
                    to: :supplemental_claim
 
           delegate :first_name, :last_name, :middle_initial, :file_number, :service_number, :email,

@@ -312,7 +312,6 @@ RSpec/MultipleDescribes:
     - 'spec/sidekiq/evss/document_upload_spec.rb'
     - 'spec/sidekiq/evss/request_decision_spec.rb'
     - 'spec/requests/swagger_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/existing_github_file_spec.rb'
 
 # These instances seem to be false positives
 RSpec/RepeatedExample:
@@ -337,7 +336,6 @@ RSpec/ScatteredLet:
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
     - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/requests/health_care_applications_request_spec.rb'
-    - 'spec/requests/health_records_request_spec.rb'
     - 'spec/requests/http_method_not_allowed_spec.rb'
     - 'spec/requests/swagger_spec.rb'
 

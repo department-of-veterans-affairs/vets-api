@@ -49,9 +49,21 @@ FactoryBot.define do
 
     trait :with_form_submission do
       after(:build) do |poa_request, _evaluator|
-        poa_request.power_of_attorney_form_submission = build(:power_of_attorney_form_submission,
-                                                              status: :succeeded,
-                                                              power_of_attorney_request: poa_request)
+        poa_request.power_of_attorney_form_submission = build(
+          :power_of_attorney_form_submission,
+          status: :succeeded,
+          power_of_attorney_request: poa_request
+        )
+      end
+    end
+
+    trait :with_pending_form_submission do
+      after(:build) do |poa_request, _evaluator|
+        poa_request.power_of_attorney_form_submission = build(
+          :power_of_attorney_form_submission,
+          status: nil,
+          power_of_attorney_request: poa_request
+        )
       end
     end
 
@@ -67,11 +79,17 @@ FactoryBot.define do
 
     trait :with_declination do
       after(:build) do |poa_request, evaluator|
+        decision = build(
+          :power_of_attorney_request_decision,
+          type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION,
+          declination_reason: :NOT_ACCEPTING_CLIENTS
+        )
+
         poa_request.resolution = build(
           :power_of_attorney_request_resolution,
-          :declination,
           power_of_attorney_request: poa_request,
-          resolution_created_at: evaluator.resolution_created_at
+          resolving: decision,
+          created_at: evaluator.resolution_created_at
         )
       end
     end
@@ -104,6 +122,15 @@ FactoryBot.define do
 
     trait :with_dependent_claimant do
       association :power_of_attorney_form, :with_dependent_claimant, strategy: :build
+    end
+
+    trait :fully_redacted do
+      redacted_at { 1.hour.ago }
+
+      after(:create) do |request, _evaluator|
+        request.power_of_attorney_form&.delete
+        request.reload
+      end
     end
   end
 end

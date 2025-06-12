@@ -43,11 +43,6 @@ module V0
       render json: SavedClaimSerializer.new(claim)
     end
 
-    def disability_rating
-      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
-      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
-    end
-
     private
 
     def dependent_params
@@ -69,7 +64,11 @@ module V0
     end
 
     def dependent_service
-      @dependent_service ||= BGS::DependentService.new(current_user)
+      @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
+                               BGS::DependentV2Service.new(current_user)
+                             else
+                               BGS::DependentService.new(current_user)
+                             end
     end
 
     def dependency_verification_service

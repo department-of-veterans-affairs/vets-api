@@ -11,11 +11,11 @@ user_account = UserAccount.find_or_create_by!(icn: test_icn)
 Form526Submission.where(id: 1..6).destroy_all
 Rails.logger.debug '[Seeds] Cleared existing remediation test records (1..6)'
 
-# Create the proper form structure
-# This matches the structure expected by Form526Submission#form_to_json
-# form_json should contain a single key Form526Submission::FORM_0781 (likely 'form526')
-# that contains the nested form structure
-form_structure = {
+# Flat structure for pre-2019 submissions
+flat_pre_structure = { 'form0781' => { 'incidents' => [] } }
+
+# Nested structure for post-2019 submissions
+nested_structure = {
   'form0781' => {
     'form0781' => { 'incidents' => [] },
     'form0781v2' => { 'incidents' => [] }
@@ -24,9 +24,9 @@ form_structure = {
 
 test_cases = []
 
-# Case 1: pre-2019 only v1
-case1 = Marshal.load(Marshal.dump(form_structure))
-case1['form0781']['form0781']['incidents'] = [
+# Case 1: Pre-2019-06-24
+case1 = Marshal.load(Marshal.dump(flat_pre_structure))
+case1['form0781']['incidents'] = [
   {
     'incidentDate' => '2018-01-01',
     'incidentDescription' => 'Pre-threshold case - only 0781',
@@ -36,8 +36,8 @@ case1['form0781']['form0781']['incidents'] = [
 ]
 test_cases << { id: 1, date: Date.new(2018, 1, 1), form_json: case1 }
 
-# Case 2: post-2019 both
-case2 = Marshal.load(Marshal.dump(form_structure))
+# Case 2: Post-2019-06-24
+case2 = Marshal.load(Marshal.dump(nested_structure))
 case2['form0781']['form0781']['incidents'] = [
   {
     'incidentDate' => '2020-01-01',
@@ -56,8 +56,9 @@ case2['form0781']['form0781v2']['incidents'] = [
 ]
 test_cases << { id: 2, date: Date.new(2020, 1, 1), form_json: case2 }
 
-# Case 3: post-2019 only v2
-case3 = Marshal.load(Marshal.dump(form_structure))
+# Case 3: Post-2019-06-24 only v2
+# For only v2, start from nested structure and leave v1 blank
+case3 = Marshal.load(Marshal.dump(nested_structure))
 # v1 blank, v2 has
 case3['form0781']['form0781v2']['incidents'] = [
   {
@@ -71,7 +72,7 @@ test_cases << { id: 3, date: Date.new(2021, 2, 2), form_json: case3 }
 
 # Cases 4–6: blank (skip)
 (4..6).each do |i|
-  blank = Marshal.load(Marshal.dump(form_structure))
+  blank = Marshal.load(Marshal.dump(nested_structure))
   test_cases << { id: i, date: Time.zone.today, form_json: blank }
 end
 
@@ -98,10 +99,20 @@ test_cases.each do |tc|
   )
 
   # Log what's in each form for debugging
-  form0781_incidents = tc[:form_json]['form0781']['form0781']['incidents']&.size || 0
-  form0781v2_incidents = tc[:form_json]['form0781']['form0781v2']['incidents']&.size || 0
+  if tc[:date] < Date.new(2019, 6, 24)
+    # Flat Pre-2019-06-24 structure
+    form0781_incidents = tc[:form_json]['form0781']['incidents']&.size || 0
+    form0781v2_incidents = 0
+  else
+    # Nested Post-2019-06-24 structure
+    nested = tc[:form_json]['form0781']
+    form0781_incidents = nested['form0781']['incidents']&.size || 0
+    form0781v2_incidents = nested['form0781v2']['incidents']&.size || 0
+  end
 
   Rails.logger.debug { "[Seeds] Created Form526Submission id=#{submission.id} date=#{tc[:date]}" }
   Rails.logger.debug { "  - form0781: #{form0781_incidents} incidents" }
   Rails.logger.debug { "  - form0781v2: #{form0781v2_incidents} incidents" }
 end
+
+Rails.logger.debug '[Seeds] Remediation seeds loaded.'

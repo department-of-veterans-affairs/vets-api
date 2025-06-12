@@ -3,12 +3,13 @@
 module AskVAApi
   module Correspondences
     class Retriever
-      attr_reader :inquiry_id, :entity_class, :user_mock_data
+      attr_reader :inquiry_id, :entity_class, :user_mock_data, :icn
 
-      def initialize(inquiry_id:, user_mock_data:, entity_class:)
+      def initialize(icn:, inquiry_id:, user_mock_data:, entity_class:)
         @user_mock_data = user_mock_data
         @entity_class = entity_class
         @inquiry_id = inquiry_id
+        @icn = icn
       end
 
       def call
@@ -32,7 +33,7 @@ module AskVAApi
         else
           endpoint = "inquiry/#{inquiry_id}/replies"
 
-          response = Crm::Service.new(icn: nil).call(endpoint:)
+          response = Crm::Service.new(icn:).call(endpoint:)
           handle_response_data(response)
         end
       end

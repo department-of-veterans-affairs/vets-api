@@ -19,7 +19,8 @@ module AccreditedRepresentativePortal
             verified: @current_user.user_account.verified?,
             signIn: {
               serviceName: @current_user.sign_in[:service_name]
-            }
+            },
+            loa: @current_user.loa
           },
           prefillsAvailable: [],
           inProgressForms: in_progress_forms

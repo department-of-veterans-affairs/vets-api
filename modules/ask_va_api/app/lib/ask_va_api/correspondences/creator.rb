@@ -5,16 +5,18 @@ module AskVAApi
     class CorrespondencesCreatorError < StandardError; end
 
     class Creator
-      attr_reader :params, :inquiry_id, :service
+      attr_reader :params, :inquiry_id, :service, :icn
 
-      def initialize(params:, inquiry_id:, service:)
+      def initialize(icn:, params:, inquiry_id:, service:)
         @params = params
+        @icn = icn
         @inquiry_id = inquiry_id
         @service = service || default_service
       end
 
       def call
         payload = {
+          icn:,
           Reply: params[:reply],
           ListOfAttachments: list_of_attachments
         }
@@ -27,7 +29,7 @@ module AskVAApi
       private
 
       def default_service
-        Crm::Service.new(icn: nil)
+        Crm::Service.new(icn:)
       end
 
       def post_data(payload: {})

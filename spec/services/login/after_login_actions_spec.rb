@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Login::AfterLoginActions do
+  subject(:after_login_actions) { described_class.new(user, skip_mhv_account_creation) }
+
   describe '#perform' do
     let(:skip_mhv_account_creation) { false }
 
@@ -13,7 +15,7 @@ RSpec.describe Login::AfterLoginActions do
       let(:email) { 'some-email' }
 
       it 'creates a user credential email with expected attributes' do
-        expect { described_class.new(user, skip_mhv_account_creation).perform }.to change(UserCredentialEmail, :count)
+        expect { after_login_actions.perform }.to change(UserCredentialEmail, :count)
         user_credential_email = user.user_verification.user_credential_email
         expect(user_credential_email.credential_email).to eq(email)
       end
@@ -31,7 +33,7 @@ RSpec.describe Login::AfterLoginActions do
 
       it 'creates a user acceptable verified credential with expected attributes' do
         expect do
-          described_class.new(user, skip_mhv_account_creation).perform
+          after_login_actions.perform
         end.to change(UserAcceptableVerifiedCredential, :count)
         user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
         expect(user_avc.idme_verified_credential_at).to eq(expected_avc_at)
@@ -49,7 +51,7 @@ RSpec.describe Login::AfterLoginActions do
 
       it 'does not call TUD account checkout' do
         expect_any_instance_of(TestUserDashboard::UpdateUser).not_to receive(:call)
-        described_class.new(user, skip_mhv_account_creation).perform
+        after_login_actions.perform
       end
     end
 
@@ -64,92 +66,7 @@ RSpec.describe Login::AfterLoginActions do
 
       it 'calls TUD account checkout' do
         expect_any_instance_of(TestUserDashboard::UpdateUser).to receive(:call)
-        described_class.new(user, skip_mhv_account_creation).perform
-      end
-    end
-
-    context 'saving account_login_stats' do
-      let(:user) { create(:user) }
-      let(:login_type) { SAML::User::MHV_ORIGINAL_CSID }
-      let(:login_type_stat) { SAML::User::MHV_MAPPED_CSID }
-
-      before { allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type) }
-
-      context 'with non-existent login stats record' do
-        it 'creates an account_login_stats record' do
-          expect { described_class.new(user, skip_mhv_account_creation).perform }.to \
-            change(AccountLoginStat, :count).by(1)
-        end
-
-        it 'updates the correct login stats column' do
-          described_class.new(user, skip_mhv_account_creation).perform
-          expect(AccountLoginStat.last.send("#{login_type_stat}_at")).not_to be_nil
-        end
-
-        it 'updates the current_verification column' do
-          described_class.new(user, skip_mhv_account_creation).perform
-          expect(AccountLoginStat.last.current_verification).to eq('loa1')
-        end
-
-        it 'does not create a record if login_type is not valid' do
-          login_type = 'something_invalid'
-          allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
-
-          expect { described_class.new(user, skip_mhv_account_creation).perform }.not_to \
-            change(AccountLoginStat, :count)
-        end
-      end
-
-      context 'with existing login stats record' do
-        let(:account) { create(:account) }
-
-        before do
-          allow_any_instance_of(User).to receive(:account) { account }
-          AccountLoginStat.create(account_id: account.id, myhealthevet_at: 1.minute.ago)
-        end
-
-        it 'does not create another record' do
-          expect { described_class.new(user, skip_mhv_account_creation).perform }.not_to \
-            change(AccountLoginStat, :count)
-        end
-
-        it 'overwrites existing value if login type was seen previously' do
-          stat = AccountLoginStat.last
-
-          expect do
-            described_class.new(user, skip_mhv_account_creation).perform
-            stat.reload
-          end.to change(stat, :myhealthevet_at)
-        end
-
-        it 'sets new value in blank login column' do
-          login_type = SAML::User::IDME_CSID
-          allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
-          stat = AccountLoginStat.last
-
-          expect do
-            described_class.new(user, skip_mhv_account_creation).perform
-            stat.reload
-          end.not_to change(stat, :myhealthevet_at)
-
-          expect(stat.idme_at).not_to be_blank
-        end
-
-        it 'triggers sentry error if update fails' do
-          allow_any_instance_of(AccountLoginStat).to receive(:update!).and_raise('Failure!')
-          expect_any_instance_of(described_class).to receive(:log_error)
-          described_class.new(user, skip_mhv_account_creation).perform
-        end
-      end
-
-      context 'with a non-existant account' do
-        before { allow_any_instance_of(User).to receive(:account).and_return(nil) }
-
-        it 'triggers sentry error message' do
-          expect_any_instance_of(described_class).to receive(:no_account_log_message)
-          expect { described_class.new(user, skip_mhv_account_creation).perform }.not_to \
-            change(AccountLoginStat, :count)
-        end
+        after_login_actions.perform
       end
     end
 
@@ -224,7 +141,7 @@ RSpec.describe Login::AfterLoginActions do
         let(:skip_mhv_account_creation) { false }
 
         it 'calls create_mhv_account_async' do
-          described_class.new(user, skip_mhv_account_creation).perform
+          after_login_actions.perform
           expect(user).to have_received(:create_mhv_account_async)
         end
       end
@@ -233,9 +150,23 @@ RSpec.describe Login::AfterLoginActions do
         let(:skip_mhv_account_creation) { true }
 
         it 'does not call create_mhv_account_async' do
-          described_class.new(user, skip_mhv_account_creation).perform
+          after_login_actions.perform
           expect(user).not_to have_received(:create_mhv_account_async)
         end
+      end
+    end
+
+    context 'when the user can provision cerner' do
+      let(:user) { create(:user, :loa3, cerner_id:) }
+      let(:cerner_id) { 'some-cerner-id' }
+
+      before do
+        allow(Identity::CernerProvisionerJob).to receive(:perform_async)
+      end
+
+      it 'enqueues a Cerner::ProvisionerJob' do
+        after_login_actions.perform
+        expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user.icn, :ssoe)
       end
     end
   end

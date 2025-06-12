@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "95beb691-a186-4366-bc8a-7aa5f008cee5",
+                        "id": "1c2b81e3-d85d-4a3b-8e47-8e3d96d4dbc4",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +520,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-02-28"
+                              "anticipatedSeparationDate": "2025-03-19"
                             },
                             "confinements": [
                               {
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "d643d87d-9704-409b-acc7-b95fff785084",
+                        "id": "634f78d7-5b53-43d4-9a3c-d4ce7b2af4b6",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +730,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-02-28",
+                                "activeDutyEndDate": "2025-03-19",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +751,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-02-28"
+                              "anticipatedSeparationDate": "2025-03-19"
                             },
                             "confinements": [
                               {
@@ -3994,7 +3994,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-02-28",
+                              "activeDutyEndDate": "2025-03-19",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4015,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-02-28"
+                            "anticipatedSeparationDate": "2025-03-19"
                           },
                           "confinements": [
                             {
@@ -8537,8 +8537,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-02-26",
-                      "expirationDate": "2026-02-26",
+                      "creationDate": "2025-03-17",
+                      "expirationDate": "2026-03-17",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9428,7 +9428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3e5a810d-3786-45f2-a5c3-beb30fd60e62",
+                    "id": "81b0cbbb-d517-4aa7-9262-e7917a4c7a9f",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -10300,7 +10300,22 @@
           }
         ],
         "description": "Search for power of attorney requests by specified POA codes. Optional filters include searching by status, city, state, and country.",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "page[size]",
+            "in": "query",
+            "required": false,
+            "example": "20",
+            "description": "Number of results to return per page. Max value allowed is 100."
+          },
+          {
+            "name": "page[number]",
+            "in": "query",
+            "required": false,
+            "example": "1",
+            "description": "Number of pages of results to return. Max value allowed is 100."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Search results",
@@ -10737,8 +10752,6 @@
                         "003",
                         "083"
                       ],
-                      "pageSize": "3",
-                      "pageIndex": "1",
                       "filter": {
                         "status": [
                           "NEW",
@@ -12274,7 +12287,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f4cc6fa4-32d8-4eba-90fb-85f1b20a61ce",
+                    "id": "1193e061-c546-4912-89b4-bbcccc605458",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13771,7 +13784,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a83cc678-5cb9-431d-81fc-91225dab911b",
+                    "id": "b4a902ca-4b60-4e98-9429-74c7cdb73c28",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14619,10 +14632,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d6166445-37ef-477b-9a86-562569364d21",
+                    "id": "af52565c-8216-4a36-95bf-c97efcc0761f",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-02-26 22:07:51 UTC",
+                      "createdAt": "2025-03-17 21:42:13 UTC",
                       "representative": {
                         "poaCode": "074"
                       },

@@ -24,7 +24,9 @@ RSpec.describe Kafka do
       let(:expected) { { 'icn' => '[REDACTED]', 'name' => 'test' } }
 
       it 'redacts the ICN value' do
-        expect(Kafka.redact_icn(input)).to eq(expected)
+        with_settings(Settings, vsp_environment: 'production') do
+          expect(Kafka.redact_icn(input)).to eq(expected)
+        end
       end
     end
 
@@ -51,7 +53,9 @@ RSpec.describe Kafka do
       end
 
       it 'redacts the nested ICN value' do
-        expect(Kafka.redact_icn(input)).to eq(expected)
+        with_settings(Settings, vsp_environment: 'production') do
+          expect(Kafka.redact_icn(input)).to eq(expected)
+        end
       end
     end
 
@@ -74,7 +78,9 @@ RSpec.describe Kafka do
       end
 
       it 'redacts ICN values in the array' do
-        expect(Kafka.redact_icn(input)).to eq(expected)
+        with_settings(Settings, vsp_environment: 'production') do
+          expect(Kafka.redact_icn(input)).to eq(expected)
+        end
       end
     end
 
@@ -82,7 +88,9 @@ RSpec.describe Kafka do
       let(:input) { { 'name' => 'test', 'data' => { 'value' => 123 } } }
 
       it 'returns the hash unchanged' do
-        expect(Kafka.redact_icn(input)).to eq(input)
+        with_settings(Settings, vsp_environment: 'production') do
+          expect(Kafka.redact_icn(input)).to eq(input)
+        end
       end
     end
 
@@ -90,7 +98,19 @@ RSpec.describe Kafka do
       let(:input) { 'not a hash' }
 
       it 'returns the input unchanged' do
-        expect(Kafka.redact_icn(input)).to eq(input)
+        with_settings(Settings, vsp_environment: 'production') do
+          expect(Kafka.redact_icn(input)).to eq(input)
+        end
+      end
+    end
+
+    context 'in a non-production vsp environment' do
+      let(:input) { { 'icn' => '12345', 'name' => 'test' } }
+
+      it 'returns the input unchanged' do
+        with_settings(Settings, vsp_environment: 'staging') do
+          expect(Kafka.redact_icn(input)).to eq(input)
+        end
       end
     end
   end

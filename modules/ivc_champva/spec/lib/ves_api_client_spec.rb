@@ -36,6 +36,10 @@ RSpec.describe IvcChampva::VesApi::Client do
 
         client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
       end
+
+      it 'does not return nil on success' do
+        expect(client.submit_1010d(transaction_uuid, acting_user, ves_request_data).nil?).to be(false)
+      end
     end
 
     context '400 response from VES' do

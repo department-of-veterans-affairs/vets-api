@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'pensions/benefits_intake/submission_handler'
-require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'pensions/benefits_intake/submit_claim_job'
 require 'pensions/monitor'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 require 'kafka/sidekiq/event_bus_submission_job'
@@ -31,7 +31,7 @@ RSpec.describe 'Pensions End to End', type: :request do
     expect(monitor).to receive(:track_create_attempt).and_call_original
     expect(SavedClaimSerializer).to receive(:new).and_call_original
     expect(PersistentAttachment).to receive(:where).with(guid: anything).and_call_original
-    expect(Pensions::PensionBenefitIntakeJob).to receive(:perform_async)
+    expect(Pensions::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
     expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).twice.and_call_original
     expect(monitor).to receive(:track_create_success).and_call_original
 
@@ -73,7 +73,7 @@ RSpec.describe 'Pensions End to End', type: :request do
     expect(monitor).to receive(:track_submission_success).and_call_original
     expect(Common::FileHelpers).to receive(:delete_file_if_exists).at_least(1).and_call_original
 
-    lh_bi_uuid = Pensions::PensionBenefitIntakeJob.new.perform(saved_claim_id)
+    lh_bi_uuid = Pensions::BenefitsIntake::SubmitClaimJob.new.perform(saved_claim_id)
 
     # verify upload artifacts - form_submission and claim_va_notification
     submission = FormSubmission.find_by(saved_claim_id:)

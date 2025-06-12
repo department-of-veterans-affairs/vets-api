@@ -133,9 +133,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Send the daily 10203 report to the call center about spool file submissions
   mgr.register('35 4 * * 1-5', 'EducationForm::Create10203SpoolSubmissionsReport')
 
-  # Gather account login statistics for statsd
-  mgr.register('0 6 * * *', 'AccountLoginStatisticsJob')
-
   # TODO: Document this job
   mgr.register('0 6-18/6 * * *', 'EducationForm::Process10203Submissions')
 
@@ -144,9 +141,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Log when a client or service account config contains an expired, expiring, or self-signed certificate
   mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
-
-  # Updates Cypress files in vets-website with data from Google Analytics.
-  mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
 
   # Weekly logs of maintenance windows
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
@@ -238,6 +232,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Every hour job that retries failed VES submissions
   mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
+
+  # Daily job to clean up IvcChampvaForm records older than 60 days
+  mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')

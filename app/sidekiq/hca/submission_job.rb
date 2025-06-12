@@ -45,7 +45,7 @@ module HCA
       result = submit(user_identifier, form, google_analytics_client_id)
       return unless result
 
-      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+      Rails.logger.info "[10-10EZ] - SubmissionID=#{result[:formSubmissionId]}"
       @health_care_application.form = form.to_json
       @health_care_application.set_result_on_success!(result)
     rescue

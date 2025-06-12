@@ -47,6 +47,7 @@ module SignIn
     class InvalidTokenError < StandardError; end
     class InvalidTokenTypeError < StandardError; end
     class InvalidTypeError < StandardError; end
+    class LogingovRiscEventHandlerError < StandardError; end
     class LogoutAuthorizationError < StandardError; end
     class MalformedParamsError < StandardError; end
     class MHVMissingMPIRecordError < StandardError; end

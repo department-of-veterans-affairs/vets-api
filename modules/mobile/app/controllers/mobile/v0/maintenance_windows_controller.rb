@@ -21,7 +21,7 @@ module Mobile
         %i[vbms efolder],
         %i[lighthouse claims],
         %i[lighthouse_direct_deposit direct_deposit_benefits],
-        %i[evss disability_rating],
+        %i[lighthouse disability_rating],
         %i[evss letters_and_documents],
         %i[lighthouse immunizations],
         %i[mhv_platform mhv_sm],
@@ -31,7 +31,8 @@ module Mobile
         %i[vaos appointments],
         %i[vapro_personal_info user_demographics],
         %i[vapro_contact_info user_contact_update],
-        %i[eoas preneed_burial]
+        %i[eoas preneed_burial],
+        %i[travel_pay travel_pay_features]
       )
 
       def index

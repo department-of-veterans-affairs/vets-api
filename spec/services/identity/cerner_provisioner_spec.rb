@@ -3,11 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe Identity::CernerProvisioner do
-  subject(:provisioner) { described_class.new(icn:) }
+  subject(:provisioner) { described_class.new(icn:, source:) }
 
   let(:icn) { '123456789' }
   let(:first_name) { 'John' }
   let(:last_name) { 'Doe' }
+  let(:source) { nil }
+
+  before do
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+  end
 
   describe 'validations' do
     context 'when all attributes are present' do
@@ -54,19 +60,24 @@ RSpec.describe Identity::CernerProvisioner do
         let(:expected_log) { '[Identity] [CernerProvisioner] update_provisioning error' }
         let(:service_response) { { agreement_signed:, cerner_provisioned: } }
 
-        before { allow(Rails.logger).to receive(:error) }
-
         it 'raises and logs an error' do
           expect { provisioner.perform }.to raise_error(Identity::Errors::CernerProvisionerError)
-          expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response })
+          expect(Rails.logger).to have_received(:error).with(expected_log,
+                                                             { icn:, response: service_response, source: })
         end
       end
 
       context 'and account is cerner provisionable' do
         let(:cerner_provisioned) { true }
+        let(:expected_log) { '[Identity] [CernerProvisioner] update_provisioning success' }
 
         it 'does not return error' do
           expect { provisioner.perform }.not_to raise_error
+        end
+
+        it 'logs success message' do
+          provisioner.perform
+          expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, source: })
         end
       end
     end
@@ -76,13 +87,12 @@ RSpec.describe Identity::CernerProvisioner do
       let(:service_response) { { agreement_signed: false } }
 
       before do
-        allow(Rails.logger).to receive(:error)
         allow(service).to receive(:update_provisioning).and_return(service_response)
       end
 
       it 'raises and logs an error' do
         expect { provisioner.perform }.to raise_error(Identity::Errors::CernerProvisionerError)
-        expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response })
+        expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response, source: })
       end
     end
 
@@ -96,7 +106,7 @@ RSpec.describe Identity::CernerProvisioner do
       end
 
       it 'logs the error and raises a ProvisionerError' do
-        expect(Rails.logger).to receive(:error).with(expected_log, { icn: })
+        expect(Rails.logger).to receive(:error).with(expected_log, { icn:, source: })
         expect { provisioner.perform }.to raise_error(Identity::Errors::CernerProvisionerError)
       end
     end
