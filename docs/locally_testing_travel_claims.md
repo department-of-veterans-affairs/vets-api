@@ -1,4 +1,20 @@
-# Testing Low-Auth and Travel Claims Endpoints
+# Testing Travel Claims Endpoints
+
+> **Important Note About Local Setup**:
+> While this guide attempts to be comprehensive, setting up the full travel claims process locally is a nuanced and complex task that may require debugging and experimentation. You will likely need to:
+> - Read and understand the betamocks documentation in detail (`modules/check_in/README.md` and related docs)
+> - Experiment with different configuration settings
+> - Debug various parts of the process as you set them up
+> - Iterate on the setup as you encounter specific issues
+>
+> The configurations and steps provided here are a starting point, but due to the interconnected nature of the services and the complexity of the mocking system, you may need to adjust them based on your specific situation and any recent changes to the codebase.
+
+> **Important Note About Configurations**:
+> The configuration settings outlined in this guide may or may not be merged into the master branch at the time you're reading this. These settings affect multiple teams and services, so their integration into the main codebase is subject to review and approval processes. You may need to:
+> - Check if these settings exist in your current branch
+> - Add missing configurations locally if needed
+> - Consult with your team lead about the status of these configurations
+> - Be prepared to maintain these settings locally until they are merged
 
 ## Testing Prerequisites
 
@@ -30,13 +46,6 @@ Before beginning the testing process, you'll need to have several services runni
 Keep all these terminal windows open and visible to monitor the request processing and async job execution.
 
 ### Configuration Setup
-
-> **Important Note About Configurations**:
-> The configuration settings outlined in this guide may or may not be merged into the master branch at the time you're reading this. These settings affect multiple teams and services, so their integration into the main codebase is subject to review and approval processes. You may need to:
-> - Check if these settings exist in your current branch
-> - Add missing configurations locally if needed
-> - Consult with your team lead about the status of these configurations
-> - Be prepared to maintain these settings locally until they are merged
 
 1. **Betamocks Configuration**
 In `config/settings/development.yml`, ensure these settings:
@@ -89,6 +98,27 @@ Ensure these mock response files exist in your `vets-api-mockdata` directory:
 /travel_claim/submitclaim/  # BTSSS claim submission responses
 /travel_claim/claimstatus/  # BTSSS status check responses
 ```
+
+### Required SSL Key File
+
+The LoROTA service configuration references a key file at `tmp/fake_api_path`. You need to create this file with a valid SSL private key:
+
+1. Create the directory if it doesn't exist:
+   ```bash
+   mkdir -p tmp
+   ```
+
+2. Generate a fake SSL key:
+   ```bash
+   openssl genrsa -out tmp/fake_api_path 2048
+   ```
+
+3. Verify the key was created:
+   ```bash
+   ls -la tmp/fake_api_path
+   ```
+
+This file is required even when using mock services, as the code path still attempts to load the key file.
 
 ## Terminal Window Output Guide
 
