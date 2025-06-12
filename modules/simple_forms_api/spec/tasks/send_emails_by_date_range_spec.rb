@@ -11,10 +11,12 @@ RSpec.describe 'simple_forms_api:send_emails_by_date_range', type: :task do
   let(:notification_email) { double(send: nil) }
 
   before do
-    Rake::Task.define_task(:environment)
+    Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
   end
 
-  after { task.reenable }
+  after do
+    task.reenable
+  end
 
   context 'when valid dates are provided' do
     let(:start_date) { '1 January 2025' }
