@@ -669,10 +669,17 @@ module SM
       }
     end
 
+    def camelize_keys(hash)
+      hash.deep_transform_keys do |key|
+        key.to_s.gsub(/_([a-z])/) { $1.upcase }
+      end
+    end
+
     def form_large_attachment_payload(message, lg_attachments)
+      camelized_message = camelize_keys(message)
       {
         'message' => Faraday::Multipart::ParamPart.new(
-          message.to_json,
+          camelized_message.to_json(camelize: true),
           'application/json'
         ),
         'lgAttachments[]' => Faraday::Multipart::ParamPart.new(
