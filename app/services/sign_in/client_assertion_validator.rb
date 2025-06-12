@@ -58,9 +58,11 @@ module SignIn
     end
 
     def jwt_decode(with_validation: true)
+      assertion_public_keys = with_validation ? client_config.certs.map(&:public_key) : nil
+
       decoded_jwt = JWT.decode(
         client_assertion,
-        client_config.assertion_public_keys,
+        assertion_public_keys,
         with_validation,
         {
           verify_expiration: with_validation,

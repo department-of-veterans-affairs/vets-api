@@ -12,7 +12,7 @@ module EventBusGateway
     HOSTNAME_MAPPING = {
       'dev-api.va.gov' => 'dev.va.gov',
       'staging-api.va.gov' => 'staging.va.gov',
-      'api.va.gov' => 'va.gov'
+      'api.va.gov' => 'www.va.gov'
     }.freeze
 
     def perform(participant_id, template_id)
