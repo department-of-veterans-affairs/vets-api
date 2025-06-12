@@ -26,30 +26,32 @@ module PdfFill
       end
 
       def numbered_label_markup
-        config = nil
-        if defined?(@question_key) && @question_key
-          # Try direct match first
-          config = @question_key.find { |q| q[:question_number].to_s.downcase == @number.to_s.downcase }
-          # If not found, try combining number and suffix
-          if !config && @number && @subquestions.first&.dig(:metadata, :question_suffix)
-            combined = "#{@number}#{@subquestions.first[:metadata][:question_suffix]}".downcase
-            config = @question_key.find { |q| q[:question_number].to_s.downcase == combined }
-          end
-        end
+        config = find_config_for_number
         hide_number = config && config[:hide_question_num]
-        display_suffix = config && config[:display_suffix]
+        show_suffix = @subquestions.first&.dig(:metadata, :show_suffix)
+        suffix = @subquestions.first&.dig(:metadata, :question_suffix)
 
         prefix = if @number.present? && !hide_number
-                   if display_suffix.present?
-                     "#{@number.to_s.sub(/\.0$/, '')}#{display_suffix}. "
+                   if show_suffix && suffix.present?
+                     "#{@number.to_s.sub(/\.0$/, '')}#{suffix.downcase}. "
                    else
                      "#{@number}. "
                    end
                  else
                    ''
                  end
-
         "<h3>#{prefix}#{@text}</h3>"
+      end
+
+      def find_config_for_number
+        return nil unless defined?(@question_key) && @question_key
+
+        config = @question_key.find { |q| q[:question_number].to_s.downcase == @number.to_s.downcase }
+        if !config && @number && @subquestions.first&.dig(:metadata, :question_suffix)
+          combined = "#{@number}#{@subquestions.first[:metadata][:question_suffix]}".downcase
+          config = @question_key.find { |q| q[:question_number].to_s.downcase == combined }
+        end
+        config
       end
 
       def add_text(value, metadata)
@@ -402,7 +404,6 @@ module PdfFill
     def get_question(metadata)
       config = get_question_by_number(metadata[:question_num])
       question_text = config&.dig(:question_text)
-      metadata[:show_suffix] = config[:display_suffix] if config&.key?(:display_suffix)
 
       if metadata[:i].blank?
         case metadata[:question_type]

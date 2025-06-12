@@ -29,10 +29,9 @@ describe PdfFill::ExtrasGeneratorV2 do
     describe '#numbered_label_markup' do
       context 'when show_suffix is true' do
         it 'appends suffix to question number when there is a single subquestion' do
-          config = [{ question_number: '5', display_suffix: 'a', question_text: 'Test Question' }]
-          question = described_class.new('Test Question', { question_num: '5' }, config)
-          question.add_text('Value', { question_suffix: 'A' })
-
+          config = [{ question_number: '5a', question_text: 'Test Question' }]
+          question = described_class.new('Test Question', { question_num: '5a' }, config)
+          question.add_text('Value', {})
           expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
         end
 
@@ -74,11 +73,22 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
       end
 
-      it 'renders 10c. when question_number is 10.0 and display_suffix is c' do
-        config = [{ question_number: '10.0', display_suffix: 'c', question_text: 'Additional Behavioral Change(s)' }]
-        question = described_class.new('Additional Behavioral Change(s)', { question_num: '10.0' }, config)
-        question.add_text('Value', { question_suffix: 'C' })
-        expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+      context 'when question_number and question_num are both string "10c"' do
+        it 'renders 10c. for string match' do
+          config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)' }]
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+        end
+      end
+
+      context 'when question_num is numeric 10.0 and question_number is string "10c"' do
+        it 'renders 10c. for numeric/string match' do
+          config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)' }]
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+        end
       end
 
       it 'falls back to just question_number when display_suffix is missing' do
@@ -88,17 +98,10 @@ describe PdfFill::ExtrasGeneratorV2 do
         expect(question.numbered_label_markup).to eq('<h3>11.5. Police report location(s)</h3>')
       end
 
-      it 'matches display_suffix case-insensitively' do
-        config = [{ question_number: '10.0', display_suffix: 'C', question_text: 'Additional Behavioral Change(s)' }]
-        question = described_class.new('Additional Behavioral Change(s)', { question_num: '10.0' }, config)
-        question.add_text('Value', { question_suffix: 'c' })
-        expect(question.numbered_label_markup).to eq('<h3>10C. Additional Behavioral Change(s)</h3>')
-      end
-
       it 'matches numeric question_num to string question_number in config' do
-        config = [{ question_number: '10.0', display_suffix: 'c', question_text: 'Additional Behavioral Change(s)' }]
-        question = described_class.new('Additional Behavioral Change(s)', { question_num: 10.0 }, config)
-        question.add_text('Value', { question_suffix: 'C' })
+        config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)' }]
+        question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+        question.add_text('Value', {})
         expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
       end
 
@@ -107,6 +110,16 @@ describe PdfFill::ExtrasGeneratorV2 do
         question = described_class.new('Test Question', { question_num: '100' }, config)
         question.add_text('Value', {})
         expect(question.numbered_label_markup).to eq('<h3>100. Test Question</h3>')
+      end
+
+      context 'when hide_question_num is true in config' do
+        it 'does not display the question number in the label' do
+          config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)',
+                      hide_question_num: true }]
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>Additional Behavioral Change(s)</h3>')
+        end
       end
     end
 
