@@ -233,3 +233,17 @@ The system supports two facility types with different SMS configurations:
 - **Failure**: Sent when claim is denied or rejected by BTSSS
 - **Error**: Sent when BTSSS API errors occur or system failures happen
 - **Timeout**: Sent when BTSSS API times out and status check also fails
+
+## Local Testing
+
+For detailed instructions on testing the travel claim async flow locally, including setup, configuration, and step-by-step testing procedures, please refer to:
+
+`docs/locally_testing_travel_claims.md`
+
+This guide provides comprehensive documentation for:
+- Setting up required local services
+- Configuring mock services and responses
+- Running the test flow
+- Monitoring job execution
+- Troubleshooting common issues
+- Testing different scenarios
