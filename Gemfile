@@ -25,6 +25,7 @@ path 'modules' do
   gem 'income_limits'
   gem 'ivc_champva'
   gem 'meb_api'
+  gem 'medical_expense_reports'
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'

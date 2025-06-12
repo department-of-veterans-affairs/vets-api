@@ -110,6 +110,7 @@ PATH
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
+    medical_expense_reports (0.1.0)
     mobile (0.1.0)
       dry-validation
     mocked_authentication (0.1.0)
@@ -1307,6 +1308,7 @@ DEPENDENCIES
   lockbox
   mail
   meb_api!
+  medical_expense_reports!
   memoist
   mimemagic
   mini_magick
