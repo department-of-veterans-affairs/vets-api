@@ -35,6 +35,7 @@ module Mobile
         # separate rollouts and testing.
         def get_claim(id)
           claim = claims_service.get_claim(id)
+          validate_response_schema(claim, 'claims_and_appeals_get_claim')
           claim = override_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_mobile)
           # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
           # This should be removed when the items are removed by BGS
@@ -79,6 +80,12 @@ module Mobile
 
           tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
           claim
+        end
+
+        def validate_response_schema(response, contract_name)
+          return unless response.success? && response.body[:data].present?
+
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
         end
       end
     end
