@@ -141,6 +141,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
       end
@@ -153,11 +154,11 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                headers:)
           expect do
             DecisionReviews::Form4142Submit.drain
-          end.to raise_error(DecisionReviewV1::Processor::Form4142ValidationError, anything)
+          end.to raise_error(Processors::Form4142ValidationError, anything)
           expect(Rails.logger).to have_received(:error).with('Form 4142 failed validation', anything)
           expect(StatsD).to have_received(:increment)
             .with('api.decision_review.process_form4142_submission.fail',
-                  tags: ['error:DecisionReviewV1ProcessorForm4142ValidationError'])
+                  tags: ['error:ProcessorsForm4142ValidationError'])
           expect(StatsD).to have_received(:increment).with('worker.decision_review.form4142_submit.error')
         end
       end
@@ -174,6 +175,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
       end
 
       it 'creates a supplemental claim and queues and saves a 4142 form when 4142 info is provided' do
@@ -232,6 +234,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
       end
 
       it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do

@@ -25,7 +25,6 @@ unless ENV['NOCOVERAGE']
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
 
-    add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
@@ -69,6 +68,7 @@ unless ENV['NOCOVERAGE']
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'IncomeAndAssets', 'modules/income_and_assets/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
+    add_group 'MedicalExpenseReports', 'modules/medical_expense_reports/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'IncomeLimits', 'modules/income_limits/'

@@ -129,6 +129,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  decision_reviews_4142_banner:
+    actor_type: user
+    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -560,6 +563,13 @@ features:
   decision_review_notification_secondary_form_callbacks:
     actor_type: user
     description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
+  decision_review_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in decision review applications
+  decision_review_form4142_validate_schema:
+    actor_type: user
+    description: Enables the use of schema validation for form 4142 in decision review applications
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -668,6 +678,12 @@ features:
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
+  disability_526_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in disability 526 applications
+  disability_526_form4142_validate_schema:
+    actor_type: user
+    description: Enables the use of schema validation for form 4142 in disability 526 applications
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -772,9 +788,6 @@ features:
     actor_type: user
     description: Enables declination reason feature for frontend and backend
     enable_in_development: true
-  form4142_validate_schema:
-    actor_type: user
-    description: Enable validation of form 4142 in Form4142Processor
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -1129,6 +1142,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
+  mhv_secure_messaging_large_attachments:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Custom Folders Redesign
+    enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -1205,13 +1222,53 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
     enable_in_development: true
-  mhv_medical_records_support_new_model_vaccine:
+  mhv_medical_records_support_backend_pagination_allergy:
     actor_type: user
-    description: Enables/disables the use of pre-transformed vaccine objects
+    description: Enables/disables backend caching/pagination for allergies
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_care_summary_note:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for care summaries & notes
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_health_condition:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for health conditions
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_lab_test:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for labs & tests
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_vaccine:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for vaccines
+    enable_in_development: true
+  mhv_medical_records_support_backend_pagination_vital:
+    actor_type: user
+    description: Enables/disables backend caching/pagination for vitals
+    enable_in_development: true
+  mhv_medical_records_support_new_model_allergy:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed allergy objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_care_summary_note:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed care summary/note objects
     enable_in_development: true
   mhv_medical_records_support_new_model_health_condition:
     actor_type: user
     description: Enables/disables the use of pre-transformed health condition objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_lab_test:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed lab/test objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vaccine:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vaccine objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vital:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -2200,3 +2257,6 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
+  accredited_representative_portal_form:
+    actor_type: user
+    description: Enables form with new options for rep
