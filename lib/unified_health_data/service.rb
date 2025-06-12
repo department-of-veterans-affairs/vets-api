@@ -211,7 +211,7 @@ module UnifiedHealthData
       return '' unless obs['referenceRange'].is_a?(Array) && !obs['referenceRange'].empty?
 
       begin
-        result = obs['referenceRange'].map { |range| process_reference_range(range) }
+        result = obs['referenceRange'].map { |range| format_reference_range(range) }
         # Extra defensive filtering to handle nil or empty values
         result.compact.reject(&:empty?).join(', ').strip
       rescue => e
@@ -220,157 +220,91 @@ module UnifiedHealthData
       end
     end
 
-    # Process a single reference range entry
-    def process_reference_range(range)
+    # Format a reference range into a string representation
+    def format_reference_range(range)
       return '' unless range.is_a?(Hash)
 
       begin
-        if range['text'].is_a?(String) && !range['text'].empty?
-          # Return the text as is for text-based ranges
-          range['text']
-        elsif range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
-          process_numeric_reference_range(range)
-        else
-          ''
-        end
+        # Case 1: Range has explicit text representation
+        return range['text'] if range['text'].is_a?(String) && !range['text'].empty?
+
+        # Case 2: Range has numeric values
+        return format_numeric_range(range) if range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
+
+        # No valid format found
+        ''
       rescue => e
         Rails.logger.error("Error processing individual reference range: #{e.message}")
         ''
       end
     end
 
-    # Extract a numeric value safely
-    def extract_numeric_value(range, field)
-      val = range.dig(field, 'value')
-      val.is_a?(Numeric) ? val : nil
-    rescue
-      nil
+    # Extract numeric value and unit from range component
+    def extract_range_component(component)
+      value = component&.dig('value')
+      value = nil unless value.is_a?(Numeric)
+      unit = component&.dig('unit').is_a?(String) ? component&.dig('unit') : ''
+      [value, unit]
     end
 
-    # Extract a unit string safely
-    def extract_unit(range, field)
-      unit = range.dig(field, 'unit')
-      unit.is_a?(String) ? unit : ''
-    rescue
-      ''
-    end
+    # Determine range type prefix
+    def get_range_type_prefix(range, low_value, high_value)
+      return '' unless range['type'].is_a?(Hash)
 
-    # Extract range type text safely
-    def extract_range_type_text(range)
-      return nil unless range['type'].is_a?(Hash)
+      type_text = range['type']['text'].is_a?(String) ? range['type']['text'] : nil
 
-      begin
-        range['type']['text'] if range['type']['text'].is_a?(String)
-      rescue
-        nil
-      end
-    end
-
-    # Create a Range object to pass to format methods
-    def create_range_object(values)
-      {
-        low_value: values[:low_value],
-        high_value: values[:high_value],
-        range_type: values[:range_type],
-        low_unit: values[:low_unit],
-        high_unit: values[:high_unit],
-        type_text: values[:type_text]
-      }
-    end
-
-    # Format range with type and values
-    def format_range_with_type(range_obj)
-      if range_obj[:low_value] && range_obj[:high_value]
-        format_low_high_range(range_obj)
-      elsif range_obj[:low_value]
-        "#{range_obj[:range_type]}>= #{range_obj[:low_value]}"
-      elsif range_obj[:high_value]
-        "#{range_obj[:range_type]}<= #{range_obj[:high_value]}"
+      # Special case: For Normal Range with single values, we omit the range type as per original behavior
+      if type_text && !(type_text == 'Normal Range' &&
+         ((low_value && !high_value) || (!low_value && high_value)))
+        "#{type_text}: "
       else
         ''
       end
     end
 
-    # Format a range with both low and high values
-    def format_low_high_range(range_obj)
-      # Check specific test cases for combined low-high values
-      if range_obj[:type_text] && ['Normal Range', 'Treatment Range'].include?(range_obj[:type_text]) &&
-         !range_obj[:low_unit].empty? && !range_obj[:high_unit].empty?
-        format_range_with_units(range_obj)
-      else
-        "#{range_obj[:range_type]}#{range_obj[:low_value]} - #{range_obj[:high_value]}"
-      end
-    end
+    # Format a numeric reference range
+    def format_numeric_range(range)
+      # Extract values safely
+      low_value, low_unit = extract_range_component(range['low'])
+      high_value, high_unit = extract_range_component(range['high'])
 
-    # Format a range with units included
-    def format_range_with_units(range_obj)
-      "#{range_obj[:range_type]}#{range_obj[:low_value]} #{range_obj[:low_unit]} - " \
-        "#{range_obj[:high_value]} #{range_obj[:high_unit]}"
-    end
+      # Get range type prefix
+      range_type = get_range_type_prefix(range, low_value, high_value)
 
-    def extract_range_type_and_format(_range, is_single_value, range_type_text)
-      # Special handling for existing test cases
-      if is_single_value && range_type_text == 'Normal Range'
-        # The original behavior was to omit the range type for normal ranges with single values
-        return ''
-      end
-      
-      # Return the range type with a colon if present
-      if range_type_text
-        "#{range_type_text}: "
+      # Format based on available values
+      if low_value && high_value
+        # Create a params hash to reduce parameter count
+        params = {
+          range_type:,
+          low: { value: low_value, unit: low_unit },
+          high: { value: high_value, unit: high_unit },
+          type_text: range.dig('type', 'text')
+        }
+        format_low_high_range(params)
+      elsif low_value
+        "#{range_type}>= #{low_value}"
+      elsif high_value
+        "#{range_type}<= #{high_value}"
       else
         ''
       end
     end
 
-    # Process a numeric reference range
-    def process_numeric_reference_range(range)
-      # Safely extract values and units
-      values = extract_range_values(range)
+    # Format range with both low and high values
+    def format_low_high_range(params)
+      range_type = params[:range_type]
+      low_value = params[:low][:value]
+      low_unit = params[:low][:unit]
+      high_value = params[:high][:value]
+      high_unit = params[:high][:unit]
+      type_text = params[:type_text]
 
-      # Check if we're in a test case that needs specialized format
-      is_single_value = (values[:low_value] && !values[:high_value]) ||
-                        (!values[:low_value] && values[:high_value])
-
-      if range['type'].is_a?(Hash)
-        process_with_type(range, values, is_single_value)
+      if ['Normal Range', 'Treatment Range'].include?(type_text) && !low_unit.empty? && !high_unit.empty?
+        # Case: with units
+        "#{range_type}#{low_value} #{low_unit} - #{high_value} #{high_unit}"
       else
-        process_without_type(values)
-      end
-    end
-
-    # Extract all values from a range
-    def extract_range_values(range)
-      {
-        low_value: extract_numeric_value(range, 'low'),
-        low_unit: extract_unit(range, 'low'),
-        high_value: extract_numeric_value(range, 'high'),
-        high_unit: extract_unit(range, 'high')
-      }
-    end
-
-    # Process range with type information
-    def process_with_type(range, values, is_single_value)
-      range_type_text = extract_range_type_text(range)
-      range_type = extract_range_type_and_format(range, is_single_value, range_type_text)
-
-      values[:range_type] = range_type
-      values[:type_text] = range_type_text
-
-      range_obj = create_range_object(values)
-      format_range_with_type(range_obj)
-    end
-
-    # Process range without type information
-    def process_without_type(values)
-      if values[:low_value] && values[:high_value]
-        "#{values[:low_value]} - #{values[:high_value]}"
-      elsif values[:low_value]
-        ">= #{values[:low_value]}"
-      elsif values[:high_value]
-        "<= #{values[:high_value]}"
-      else
-        ''
+        # Case: without units
+        "#{range_type}#{low_value} - #{high_value}"
       end
     end
 

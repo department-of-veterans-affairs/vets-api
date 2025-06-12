@@ -548,10 +548,11 @@ describe UnifiedHealthData::Service, type: :service do
                 'text' => 'Critical Range'
               }
             }
-          ]      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('<= 20, Critical Range: <= 2000')
-    end
+          ]
+        }
+        result = service.send(:fetch_reference_range, obs)
+        expect(result).to eq('<= 20, Critical Range: <= 2000')
+      end
     end
   end
 
