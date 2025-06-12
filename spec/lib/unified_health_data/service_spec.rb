@@ -481,6 +481,77 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('Text-only range, 1 - 10, >= 2, <= 8')
       end
+
+      it 'handles multiple reference ranges with different types' do
+        obs = {
+          'referenceRange' => [
+            {
+              'low' => { 'value' => 14 },
+              'high' => { 'value' => 20 },
+              'type' => {
+                'coding' => [
+                  {
+                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                    'code' => 'normal',
+                    'display' => 'Normal Range'
+                  }
+                ],
+                'text' => 'Normal Range'
+              }
+            },
+            {
+              'low' => { 'value' => 1000 },
+              'high' => { 'value' => 2000 },
+              'type' => {
+                'coding' => [
+                  {
+                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                    'code' => 'critical',
+                    'display' => 'Critical Range'
+                  }
+                ],
+                'text' => 'Critical Range'
+              }
+            }
+          ]
+        }
+        result = service.send(:fetch_reference_range, obs)
+        expect(result).to eq('Normal Range: 14 - 20, Critical Range: 1000 - 2000')
+      end
+
+      it 'handles multiple high-only reference ranges with different types' do
+        obs = {
+          'referenceRange' => [
+            {
+              'high' => { 'value' => 20 },
+              'type' => {
+                'coding' => [
+                  {
+                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                    'code' => 'normal',
+                    'display' => 'Normal Range'
+                  }
+                ],
+                'text' => 'Normal Range'
+              }
+            },
+            {
+              'high' => { 'value' => 2000 },
+              'type' => {
+                'coding' => [
+                  {
+                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                    'code' => 'critical',
+                    'display' => 'Critical Range'
+                  }
+                ],
+                'text' => 'Critical Range'
+              }
+            }
+          ]      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('<= 20, Critical Range: <= 2000')
+    end
     end
   end
 

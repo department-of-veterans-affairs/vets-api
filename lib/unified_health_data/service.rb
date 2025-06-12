@@ -309,10 +309,14 @@ module UnifiedHealthData
     end
 
     def extract_range_type_and_format(_range, is_single_value, range_type_text)
-      is_test_for_single_value = is_single_value && range_type_text == 'Normal Range'
-
-      # Get the range type if present and not in a single value test case
-      if range_type_text && !is_test_for_single_value
+      # Special handling for existing test cases
+      if is_single_value && range_type_text == 'Normal Range'
+        # The original behavior was to omit the range type for normal ranges with single values
+        return ''
+      end
+      
+      # Return the range type with a colon if present
+      if range_type_text
         "#{range_type_text}: "
       else
         ''
