@@ -27,7 +27,8 @@ module EVSS
                                "This applicant has indicated that they're terminally ill.\n"
       FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
-      FORM0781_OVERFLOW_TEXT = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+      FORM0781_OVERFLOW_TEXT = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder\n"
+      FORM0781A_OVERFLOW_TEXT = "VA Form 0781a has been completed by the applicant and sent to the VBMS eFolder\n"
 
       OVERFLOW_TEXT_THRESHOLD = 4000
 
@@ -95,7 +96,8 @@ module EVSS
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
 
         if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
-          overflow += FORM0781_OVERFLOW_TEXT if input_form['form0781'].present?
+          overflow += FORM0781_OVERFLOW_TEXT if input_form['form0781'].present? || input_form['form0781v2'].present?
+          overflow += FORM0781A_OVERFLOW_TEXT if input_form['form0781a'].present?
 
           if input_form['attachments'].present?
             file_guids = input_form['attachments'].pluck('confirmationCode')
