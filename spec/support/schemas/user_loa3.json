@@ -94,6 +94,20 @@
                 }
               }
             },
+            "account": {
+              "type": "object",
+              "required": [
+                "account_uuid"
+              ],
+              "properties": {
+                "account_uuid": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                }
+              }
+            },
             "profile": {
               "type": "object",
               "required": [
