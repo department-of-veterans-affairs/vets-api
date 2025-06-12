@@ -2,7 +2,6 @@
 
 module AccreditedRepresentativePortal
   class RepresentativeUserAccount < UserAccount
-
     def set_email(email)
       @email.blank? or
         raise ArgumentError, 'Must not reset user email'
