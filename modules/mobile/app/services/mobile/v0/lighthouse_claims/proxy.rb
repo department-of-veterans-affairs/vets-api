@@ -83,7 +83,7 @@ module Mobile
         end
 
         def validate_response_schema(user, body, contract_name)
-          return unless body['data'].present?
+          return if body['data'].blank?
 
           SchemaContract::ValidationInitiator.call_with_body(user:, body:, contract_name:)
         end
