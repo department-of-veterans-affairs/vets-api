@@ -607,26 +607,6 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
-      LEGACY_QUESTION_KEY = {
-        1 => 'Veteran/Service member\'s name',
-        2 => 'Social security number',
-        3 => 'VA file number',
-        4 => 'Date of birth',
-        5 => 'Veteran\'s service number',
-        6 => 'Telephone number',
-        7 => 'Email address',
-        8 => 'Type of in-service traumatic event(s)',
-        9 => 'Traumatic event(s) information',
-        10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-        10.0 => 'Additional Behavioral Change(s)',
-        11 => 'Was an official report filed?',
-        11.5 => 'Police report location(s)',
-        12 => 'Possible sources of evidence following the traumatic event(s)',
-        13 => 'Treatment information',
-        14 => 'Remarks',
-        16 => 'Veteran/service member\'s signature'
-      }.freeze
-
       QUESTION_KEY = [
         { question_number: '1', question_text: "Veteran/Service member's name" },
         { question_number: '2', question_text: 'Social security number' },
@@ -673,11 +653,6 @@ module PdfFill
           question_nums: %w[16]
         }
       ].freeze
-
-      # Selects the correct question key mapping for legacy or V2 overflow generator.
-      def self.question_key(extras_redesign: false)
-        extras_redesign ? QUESTION_KEY : LEGACY_QUESTION_KEY
-      end
 
       def merge_fields(options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')

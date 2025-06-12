@@ -38,22 +38,6 @@ module IncomeAndAssets
       # Starting page number for overflow pages
       START_PAGE = 11
 
-      # Legacy question key mapping for backward compatibility with the legacy overflow generator
-      LEGACY_QUESTION_KEY = {
-        1 => 'Veteran\'s Identification Information',
-        2 => 'Claimant\'s Identification Information',
-        3 => 'Recurring Income Not Associated with Accounts or Assets',
-        4 => 'Associated Incomes',
-        5 => 'Income and Net Worth Associated with Owned Assets',
-        6 => 'Income and Net Worth Associated with Royalties and Other Properties',
-        7 => 'Asset Transfers',
-        8 => 'Trusts',
-        9 => 'Annuities',
-        10 => 'Assets Previously Not Reported',
-        11 => 'Discontinued or Irregular Income',
-        12 => 'Waiver of Receipt of Income'
-      }.freeze
-
       # Map question numbers to descriptive titles for overflow attachments
       QUESTION_KEY = [
         { question_number: '1', question_text: "Veteran's Identification Information" },
@@ -102,11 +86,6 @@ module IncomeAndAssets
 
       # Default label column width (points) for redesigned extras in this form
       DEFAULT_LABEL_WIDTH = 130
-
-      # Selects the correct question key mapping for legacy or V2 overflow generator.
-      def self.question_key(extras_redesign: false)
-        extras_redesign ? QUESTION_KEY : LEGACY_QUESTION_KEY
-      end
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.

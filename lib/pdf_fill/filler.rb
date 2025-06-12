@@ -178,19 +178,19 @@ module PdfFill
     # rubocop:enable Metrics/MethodLength
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
-      if fill_options.fetch(:extras_redesign, false) && form_class.respond_to?(:question_key)
-        question_key = form_class.question_key(extras_redesign: true)
-        extras_generator = ExtrasGeneratorV2.new(
-          form_name: form_id.sub(/V2\z/, ''),
-          submit_date:,
-          question_key:,
-          start_page: form_class::START_PAGE,
-          sections: form_class::SECTIONS,
-          label_width: form_class::DEFAULT_LABEL_WIDTH
-        )
-      else
-        extras_generator = ExtrasGenerator.new
-      end
+      extras_generator =
+        if fill_options.fetch(:extras_redesign, false)
+          ExtrasGeneratorV2.new(
+            form_name: form_id.sub(/V2\z/, ''),
+            submit_date:,
+            question_key: form_class::QUESTION_KEY,
+            start_page: form_class::START_PAGE,
+            sections: form_class::SECTIONS,
+            label_width: form_class::DEFAULT_LABEL_WIDTH
+          )
+        else
+          ExtrasGenerator.new
+        end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end
 
