@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 082ba91bce2699d47cf2bf3f1522d8e1663d4f70
+  revision: 83345d72fc384a1ab02efbe4e0679d779a86f5e1
   branch: master
   specs:
-    vets_json_schema (24.15.2)
+    vets_json_schema (24.16.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -110,6 +110,7 @@ PATH
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
+    medical_expense_reports (0.1.0)
     mobile (0.1.0)
       dry-validation
     mocked_authentication (0.1.0)
@@ -244,8 +245,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1113.0)
-    aws-sdk-core (3.225.1)
+    aws-partitions (1.1115.0)
+    aws-sdk-core (3.225.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -258,14 +259,14 @@ GEM
     aws-sdk-kms (1.104.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.189.0)
+    aws-sdk-s3 (1.189.1)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sdk-sns (1.100.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sigv4 (1.12.0)
+    aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -1304,6 +1305,7 @@ DEPENDENCIES
   lockbox
   mail
   meb_api!
+  medical_expense_reports!
   memoist
   mimemagic
   mini_magick
