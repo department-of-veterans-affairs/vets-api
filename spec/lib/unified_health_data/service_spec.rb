@@ -376,6 +376,249 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('')
       end
+
+      it 'returns observations with only low value in reference range' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Oxygen Saturation' },
+                'valueQuantity' => { 'value' => 96, 'unit' => '%' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 94,
+                      'unit' => '%'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Above minimum threshold' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('>= 94')
+      end
+
+      it 'returns observations with only high value in reference range' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Blood Glucose' },
+                'valueQuantity' => { 'value' => 105, 'unit' => 'mg/dL' },
+                'referenceRange' => [
+                  {
+                    'high' => {
+                      'value' => 120,
+                      'unit' => 'mg/dL'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Below maximum threshold' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('<= 120')
+      end
+
+      it 'handles mixed reference range formats correctly' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Mixed Format Test' },
+                'valueQuantity' => { 'value' => 5, 'unit' => 'units' },
+                'referenceRange' => [
+                  { 'text' => 'Text-only range' },
+                  {
+                    'low' => { 'value' => 1 },
+                    'high' => { 'value' => 10 }
+                  },
+                  {
+                    'low' => { 'value' => 2 }
+                  },
+                  {
+                    'high' => { 'value' => 8 }
+                  }
+                ],
+                'status' => 'final'
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('Text-only range, 1 - 10, >= 2, <= 8')
+      end
+    end
+  end
+
+  describe '#fetch_reference_range' do
+    it 'returns empty string when referenceRange is nil' do
+      obs = {}
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('')
+    end
+
+    it 'returns text directly when available' do
+      obs = {
+        'referenceRange' => [
+          { 'text' => '70-110 mg/dL' },
+          { 'text' => '<=3' }
+        ]
+      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('70-110 mg/dL, <=3')
+    end
+
+    it 'formats low-high values correctly' do
+      obs = {
+        'referenceRange' => [
+          {
+            'low' => { 'value' => 13.5, 'unit' => 'g/dL' },
+            'high' => { 'value' => 18.0, 'unit' => 'g/dL' }
+          }
+        ]
+      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('13.5 - 18.0')
+    end
+
+    it 'formats low-only values correctly' do
+      obs = {
+        'referenceRange' => [
+          {
+            'low' => { 'value' => 94 }
+          }
+        ]
+      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('>= 94')
+    end
+
+    it 'formats high-only values correctly' do
+      obs = {
+        'referenceRange' => [
+          {
+            'high' => { 'value' => 44 }
+          }
+        ]
+      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('<= 44')
+    end
+
+    it 'handles empty low/high values gracefully' do
+      obs = {
+        'referenceRange' => [
+          {
+            'low' => {},
+            'high' => {}
+          }
+        ]
+      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('')
+    end
+
+    it 'handles mixed formats correctly' do
+      obs = {
+        'referenceRange' => [
+          { 'text' => 'Normal: <100 mg/dL' },
+          {
+            'low' => { 'value' => 5.0 },
+            'high' => { 'value' => 7.5 }
+          },
+          {
+            'low' => { 'value' => 4.0 }
+          }
+        ]
+      }
+      result = service.send(:fetch_reference_range, obs)
+      expect(result).to eq('Normal: <100 mg/dL, 5.0 - 7.5, >= 4.0')
+    end
+    
+    it 'gracefully handles malformed reference range data' do
+      # Test with various types of malformed data
+      test_cases = [
+        # Nil reference range
+        { 'referenceRange' => nil },
+        
+        # Empty array
+        { 'referenceRange' => [] },
+        
+        # Non-array reference range
+        { 'referenceRange' => 'not an array' },
+        
+        # Array with non-hash elements
+        { 'referenceRange' => ['string', 123, nil] }
+      ]
+      
+      test_cases.each do |test_case|
+        result = service.send(:fetch_reference_range, test_case)
+        expect(result).to eq(''), "Failed for test case: #{test_case.inspect}"
+      end
+    end
+    
+    it 'handles type field that is not a hash' do
+      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 10 }, 'type' => 'not a hash' }] }
+      result = service.send(:fetch_reference_range, test_case)
+      expect(result).to eq('>= 10')
+    end
+    
+    it 'handles missing low and high fields' do
+      test_case = { 'referenceRange' => [{ 'other_field' => 'some value' }] }
+      result = service.send(:fetch_reference_range, test_case)
+      expect(result).to eq('')
+    end
+    
+    it 'handles non-numeric values in low/high' do
+      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 'not a number' }, 'high' => { 'value' => 'also not a number' } }] }
+      result = service.send(:fetch_reference_range, test_case)
+      expect(result).to eq('')
+    end
+    
+    it 'handles malformed nested structures' do
+      test_case = { 'referenceRange' => [{ 'low' => 'not a hash', 'high' => 123 }] }
+      result = service.send(:fetch_reference_range, test_case)
+      expect(result).to eq('')
+    end
+    
+    it 'handles low value with no unit and type with no text' do
+      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 5 }, 'type' => { 'coding' => [{}] } }] }
+      result = service.send(:fetch_reference_range, test_case)
+      expect(result).to eq('>= 5')
     end
   end
 
