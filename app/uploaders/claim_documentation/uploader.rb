@@ -2,7 +2,7 @@
 
 require 'shrine/plugins/validate_unlocked_pdf'
 
-# Shrine logic for claim evidence uploads, optimistically named so
+# Shrine logic for Pension/Burial uploads, optimistically named so
 # that they cover any sort of claim documentation in a sane way.
 
 class ClaimDocumentation::Uploader < VetsShrine
