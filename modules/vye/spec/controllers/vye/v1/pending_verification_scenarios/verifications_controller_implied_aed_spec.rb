@@ -66,6 +66,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       end
     end
 
+    # rubocop:disable Naming/VariableNumber
     describe 'implied award end date in current month with award begin in previous month' do
       let(:award_begin_date) { Date.new(2025, 3, 15) } # Previous month (March)
       let(:award_end_date) { nil } # would be implied to 4/10, in current month
@@ -90,24 +91,18 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
           # Let UserInfo process its awards
           verifications = user_info.pending_verifications
 
-          # Debug: Let's see what verifications were created
-          puts "Debug: Total verifications created: #{verifications.count}"
-          verifications.each_with_index do |v, i|
-            puts "  Verification #{i + 1}: award_id=#{v.award_id}, act_begin=#{v.act_begin}, act_end=#{v.act_end}, trace=#{v.trace}"
-          end
-
           # Check that a verification WAS created for the first award
           first_award_verification = verifications.find { |v| v.award_id == award1.id }
           expect(first_award_verification).to be_present
 
           # The verification should use the last day of previous month as cert through date (March 31st)
           expect(first_award_verification.act_end).to eq(Date.new(2025, 3, 31))
-
-          puts "Debug: First award verification act_end: #{first_award_verification.act_end}"
         end
       end
     end
+    # rubocop:enable Naming/VariableNumber
 
+    # rubocop:disable Naming/VariableNumber
     describe 'implied award end date in current month with award begin in current month' do
       let(:award_begin_date) { Date.new(2025, 4, 5) } # Current month (April)
       let(:award_end_date) { nil } # would be implied to 4/10, in current month
@@ -161,7 +156,9 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         end
       end
     end
+    # rubocop:enable Naming/VariableNumber
 
+    # rubocop:disable Naming/VariableNumber
     describe 'implied award end date in future month with award begin in previous month' do
       let(:award_begin_date) { Date.new(2025, 3, 15) } # Previous month (March)
       let(:award_end_date) { nil } # would be implied to 5/14, in future month
@@ -186,24 +183,18 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
           # Let UserInfo process its awards
           verifications = user_info.pending_verifications
 
-          # Debug: Let's see what verifications were created
-          puts "Debug: Total verifications created: #{verifications.count}"
-          verifications.each_with_index do |v, i|
-            puts "  Verification #{i + 1}: award_id=#{v.award_id}, act_begin=#{v.act_begin}, act_end=#{v.act_end}, trace=#{v.trace}"
-          end
-
           # Check that a verification WAS created for the first award
           first_award_verification = verifications.find { |v| v.award_id == award1.id }
           expect(first_award_verification).to be_present
 
           # The verification should use the last day of previous month as cert through date (March 31st)
           expect(first_award_verification.act_end).to eq(Date.new(2025, 3, 31))
-
-          puts "Debug: First award verification act_end: #{first_award_verification.act_end}"
         end
       end
     end
+    # rubocop:enable Naming/VariableNumber
 
+    # rubocop:disable Naming/VariableNumber
     describe 'implied award end date in future month with award begin in current month' do
       let(:award_begin_date) { Date.new(2025, 4, 5) } # Current month (April)
       let(:award_end_date) { nil } # would be implied to 5/14, in future month
@@ -234,5 +225,6 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         end
       end
     end
+    # rubocop:enable Naming/VariableNumber
   end
 end
