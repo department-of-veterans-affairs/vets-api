@@ -375,3 +375,8 @@ Layout/EmptyLineBetweenDefs:
 
 Cops/AmsSerializer:
   Enabled: true
+
+Rails/Exit:
+  Exclude:
+    - bin/**/*.rb
+    - modules/mobile/lib/scripts/parse_rspec_xml.rb
