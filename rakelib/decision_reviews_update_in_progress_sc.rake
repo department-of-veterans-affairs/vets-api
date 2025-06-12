@@ -1,141 +1,298 @@
 # frozen_string_literal: true
 
 namespace :decision_reviews do
-  desc 'Update return_url for in-progress Supplemental Claims forms requiring 4142 re-authorization'
-  task update_in_progress_sc: :environment do
-    puts 'Starting update of return_url for Supplemental Claims forms...'
+  desc 'Dry run to identify supplemental claims forms that need return URL updates'
+  task dry_run_supplemental_claims_update: :environment do
+    puts '=' * 80
+    puts 'DRY RUN: Identifying supplemental claims forms needing return URL updates'
+    puts "Started at: #{Time.current}"
+    puts '=' * 80
 
-    # Define the new return URL for 4142 legalese page
     new_return_url = '/supporting-evidence/private-medical-records-authorization'
 
-    # Counter for tracking updates
-    updated_count = 0
-    total_processed = 0
-    failed_ids = []
+    # Counters for reporting
+    total_forms = 0
+    eligible_forms = 0
+    already_correct = 0
+    needs_update_data = [] # Store {id, original_return_url} for rollback capability
 
-    # Find all in-progress saved forms for Supplemental Claims
-    in_progress_forms = InProgressForm.where(form_id: '20-0995')
+    # Track performance
+    start_time = Time.current
 
-    puts "Found #{in_progress_forms.count} in-progress Supplemental Claims forms to process."
+    # Process in batches to manage memory
+    InProgressForm.where(form_id: '20-0995').find_in_batches(batch_size: 1000) do |batch|
+      batch_start_time = Time.current
+      batch_eligible = 0
+      batch_needs_update = 0
+      batch_update_data = []
 
-    in_progress_forms.find_in_batches(batch_size: 500) do |batch|
-      puts "Processing batch of #{batch.size} forms..."
+      batch.each do |form|
+        total_forms += 1
 
-      batch.each do |in_progress_form|
-        total_processed += 1
+        form_data = form.data_and_metadata[:formData] || {}
+        has_privacy = form_data['privacy_agreement_accepted'] == true
+        has_evidence = form_data['view:has_private_evidence'] == true
 
-        begin
-          form_data = in_progress_form.data_and_metadata[:formData] || {}
+        if has_privacy && has_evidence
+          eligible_forms += 1
+          batch_eligible += 1
 
-          # Check if conditions are met - both keys must be present and true
-          has_privacy_agreement_accepted = form_data['privacy_agreement_accepted'] == true
-          has_private_evidence = form_data['view:has_private_evidence'] == true
+          metadata = form.metadata || {}
+          current_return_url = metadata['return_url']
 
-          if has_privacy_agreement_accepted && has_private_evidence
-            metadata = in_progress_form.metadata || {}
-            old_return_url = metadata['return_url']
-
-            # Update the return_url
-            metadata['return_url'] = new_return_url unless metadata['return_url'] == new_return_url
-            in_progress_form.metadata = metadata
-
-            if in_progress_form.save
-              updated_count += 1
-              puts "✓ Updated return_url for user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id})"
-              puts "  Old return_url: #{old_return_url || 'none'}"
-              puts "  New return_url: #{new_return_url}"
-            else
-              failed_ids << in_progress_form.id
-              puts "✗ Failed to save changes for user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id})"
-              puts "  Errors: #{in_progress_form.errors.full_messages.join(', ')}"
-            end
+          if current_return_url == new_return_url
+            already_correct += 1
           else
-            puts "- Skipped user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id}) - conditions not met"
-            puts "
-              privacy_agreement_accepted: #{form_data['privacy_agreement_accepted']},
-              view:has_private_evidence: #{form_data['view:has_private_evidence']}
-            "
+            # Store both ID and original value for rollback capability
+            batch_update_data << {
+              id: form.id,
+              original_return_url: current_return_url
+            }
+            batch_needs_update += 1
           end
-        rescue => e
-          failed_ids << in_progress_form.id
-          puts "
-            ✗ Unexpected error processing user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id}): #{e.message}
-          "
         end
       end
 
-      # Progress indicator after each batch
-      puts "Progress: #{total_processed}/#{in_progress_forms.count} processed, #{updated_count} updated\n"
+      # Add batch data to main collection
+      needs_update_data.concat(batch_update_data)
+
+      # Batch progress report
+      batch_time = Time.current - batch_start_time
+      puts "Batch completed: #{batch_eligible} eligible, #{batch_needs_update} need updates (#{batch_time.round(2)}s)"
     end
 
-    puts "\n#{'=' * 50}"
-    puts 'Task completed!'
-    puts "Total forms processed: #{total_processed}"
-    puts "Forms updated: #{updated_count}"
-    puts "Forms skipped: #{total_processed - updated_count - failed_ids.length}"
-    puts "Forms failed to save: #{failed_ids.length}"
+    total_time = Time.current - start_time
 
-    if failed_ids.any?
-      puts "\nFailed InProgressForm IDs:"
-      puts failed_ids.join(', ')
-      puts "\nTo investigate failures, you can query:"
-      puts "InProgressForm.where(id: [#{failed_ids.join(', ')}])"
+    puts '=' * 80
+    puts 'DRY RUN SUMMARY'
+    puts '=' * 80
+    puts "Total forms analyzed: #{total_forms}"
+    puts "Eligible forms (privacy=true AND evidence=true): #{eligible_forms}"
+    puts "Already have correct return_url: #{already_correct}"
+    puts "Need return_url update: #{needs_update_data.size}"
+    puts "Processing time: #{total_time.round(2)} seconds (#{(total_forms / total_time).round(1)} forms/sec)"
+    puts
+
+    if needs_update_data.any?
+      # Cache the data for both update and potential rollback
+      cache_file = Rails.root.join('tmp', 'supplemental_claims_update_data.json')
+      cache_data = {
+        generated_at: Time.current.iso8601,
+        new_return_url:,
+        total_forms_scanned: total_forms,
+        updates_needed: needs_update_data
+      }
+      File.write(cache_file, JSON.pretty_generate(cache_data))
+
+      puts "Cached #{needs_update_data.size} form update data in:"
+      puts "  #{cache_file}"
+      puts '  (includes original return_url values for rollback capability)'
+      puts
+      puts 'Next steps:'
+      puts '1. Review the summary above'
+      puts '2. If satisfied, run: rake decision_reviews:update_in_progress_sc_from_cache'
+      puts "3. The actual update will only process #{needs_update_data.size} forms instead of #{total_forms}"
+      puts "   (#{((needs_update_data.size.to_f / total_forms) * 100).round(1)}% efficiency gain!)"
+      puts '4. If rollback needed: rake decision_reviews:rollback_in_progress_sc_update'
+    else
+      puts 'All eligible forms already have the correct return_url! No updates needed.'
     end
-    puts '=' * 50
+
+    puts '=' * 80
   end
 
-  desc 'Dry run: Preview which Supplemental Claims forms would be updated'
-  task preview_update_in_progress_sc: :environment do
-    puts 'DRY RUN: Previewing Supplemental Claims forms that would be updated...'
+  desc 'Update supplemental claims return URLs using cached data from dry run'
+  task update_in_progress_sc_from_cache: :environment do
+    cache_file = Rails.root.join('tmp', 'supplemental_claims_update_data.json')
 
-    new_return_url = '/supporting-evidence/private-medical-records-authorization'
-    eligible_count = 0
-    total_count = 0
-
-    in_progress_forms = InProgressForm.where(form_id: '20-0995')
-    puts "Found #{in_progress_forms.count} in-progress Supplemental Claims forms\n"
-
-    in_progress_forms.find_in_batches(batch_size: 500) do |batch|
-      puts "Processing batch of #{batch.size} forms..."
-
-      batch.each do |in_progress_form|
-        total_count += 1
-
-        begin
-          # Use data_and_metadata method to access form data
-          form_data = in_progress_form.data_and_metadata[:formData] || {}
-
-          # Check conditions - both keys must be present and true
-          has_privacy_agreement_accepted = form_data['privacy_agreement_accepted'] == true
-          has_private_evidence = form_data['view:has_private_evidence'] == true
-
-          if has_privacy_agreement_accepted && has_private_evidence
-            eligible_count += 1
-            metadata = in_progress_form.metadata || {}
-            current_return_url = metadata['return_url']
-
-            puts "Would update user #{in_progress_form.user_uuid} (ID: #{in_progress_form.id})"
-            puts "  Current return_url: #{current_return_url || 'none'}"
-            puts "  New return_url: #{new_return_url}"
-            puts "  Last updated: #{in_progress_form.updated_at}"
-            puts ''
-          end
-        rescue => e
-          puts "Error processing user #{in_progress_form.user_uuid}: #{e.message}"
-        end
-      end
-
-      # Progress after each batch
-      puts "Batch completed: #{total_count} processed so far, #{eligible_count} eligible\n"
+    unless File.exist?(cache_file)
+      puts "ERROR: No cached data found at #{cache_file}"
+      puts 'Please run the dry run first: rake decision_reviews:dry_run_supplemental_claims_update'
+      exit 1
     end
 
-    puts '=' * 50
-    puts 'DRY RUN SUMMARY:'
-    puts "Total forms: #{total_count}"
-    puts "Eligible for update: #{eligible_count}"
-    puts "Would skip: #{total_count - eligible_count}"
-    puts '=' * 50
-    puts "\nTo execute the actual updates, run:"
-    puts 'rails decision_reviews:update_return_url_for_4142'
+    # Read cached data
+    cache_data = JSON.parse(File.read(cache_file))
+    new_return_url = cache_data['new_return_url']
+    updates_needed = cache_data['updates_needed']
+
+    puts '=' * 80
+    puts 'UPDATING SUPPLEMENTAL CLAIMS RETURN URLs'
+    puts "Started at: #{Time.current}"
+    puts "Cache generated: #{cache_data['generated_at']}"
+    puts "Processing #{updates_needed.size} pre-identified forms"
+    puts "New return_url: #{new_return_url}"
+    puts '=' * 80
+
+    updated_count = 0
+    error_count = 0
+    start_time = Time.current
+
+    # Process the specific forms that need updates
+    updates_needed.each_slice(1000) do |batch_data|
+      batch_start_time = Time.current
+      batch_updated = 0
+      batch_errors = 0
+
+      batch_ids = batch_data.map { |item| item['id'] }
+      InProgressForm.where(id: batch_ids).find_each do |form|
+        # Double-check eligibility (defensive programming)
+        form_data = form.data_and_metadata[:formData] || {}
+        has_privacy = form_data['privacy_agreement_accepted'] == true
+        has_evidence = form_data['view:has_private_evidence'] == true
+
+        if has_privacy && has_evidence
+          metadata = form.metadata || {}
+          metadata['return_url'] = new_return_url
+          form.metadata = metadata
+
+          if form.save
+            updated_count += 1
+            batch_updated += 1
+          else
+            error_count += 1
+            batch_errors += 1
+            puts "  Failed to save form ID #{form.id}: #{form.errors.full_messages.join(', ')}"
+          end
+        else
+          puts "  Form ID #{form.id} no longer eligible (data may have changed since dry run)"
+          error_count += 1
+          batch_errors += 1
+        end
+      rescue => e
+        error_count += 1
+        batch_errors += 1
+        puts "  Error updating form ID #{form.id}: #{e.message}"
+      end
+
+      batch_time = Time.current - batch_start_time
+      puts "Batch completed: #{batch_updated} updated, #{batch_errors} errors (#{batch_time.round(2)}s)"
+    end
+
+    total_time = Time.current - start_time
+
+    puts
+    puts '=' * 80
+    puts 'UPDATE SUMMARY'
+    puts '=' * 80
+    puts "Forms processed: #{updates_needed.size}"
+    puts "Successfully updated: #{updated_count}"
+    puts "Errors: #{error_count}"
+    puts "Processing time: #{total_time.round(2)} seconds (#{(updates_needed.size / total_time).round(1)} forms/sec)"
+    puts
+
+    if updated_count.positive?
+      puts "SUCCESS: Updated return_url to '#{new_return_url}' for #{updated_count} forms"
+      puts 'Rollback data preserved in cache file for safety'
+    end
+
+    if error_count.positive?
+      puts "#{error_count} forms had errors - please review the output above"
+      puts 'Cache file preserved for debugging and potential rollback'
+    else
+      puts 'All updates successful!'
+      puts "Cache file preserved for potential rollback: #{cache_file}"
+    end
+
+    puts "Completed at: #{Time.current}"
+    puts '=' * 80
+  end
+
+  desc 'Rollback supplemental claims return URL changes using cached original values'
+  task rollback_in_progress_sc_update: :environment do
+    cache_file = Rails.root.join('tmp', 'supplemental_claims_update_data.json')
+
+    unless File.exist?(cache_file)
+      puts "ERROR: No rollback data found at #{cache_file}"
+      puts 'Rollback is only possible if you have the cache file from the dry run.'
+      exit 1
+    end
+
+    cache_data = JSON.parse(File.read(cache_file))
+    updates_needed = cache_data['updates_needed']
+    new_return_url = cache_data['new_return_url']
+
+    puts '=' * 80
+    puts 'ROLLING BACK SUPPLEMENTAL CLAIMS RETURN URL CHANGES'
+    puts "Started at: #{Time.current}"
+    puts "Cache from: #{cache_data['generated_at']}"
+    puts "Rolling back #{updates_needed.size} forms"
+    puts 'Will restore original return_url values'
+    puts '=' * 80
+
+    print 'Are you sure you want to rollback these changes? (y/N): '
+    confirmation = $stdin.gets.chomp.downcase
+
+    unless confirmation == 'y'
+      puts 'Rollback cancelled.'
+      exit 0
+    end
+
+    rolled_back_count = 0
+    error_count = 0
+    start_time = Time.current
+
+    updates_needed.each_slice(1000) do |batch_data|
+      batch_start_time = Time.current
+      batch_rolled_back = 0
+      batch_errors = 0
+
+      batch_ids = batch_data.map { |item| item['id'] }
+      InProgressForm.where(id: batch_ids).find_each do |form|
+        cached_item = batch_data.find { |item| item['id'] == form.id }
+        original_return_url = cached_item['original_return_url']
+
+        # Check if this form currently has the new return_url (safety check)
+        metadata = form.metadata || {}
+        current_return_url = metadata['return_url']
+
+        if current_return_url == new_return_url
+          # Restore original value
+          metadata['return_url'] = original_return_url
+          form.metadata = metadata
+
+          if form.save
+            rolled_back_count += 1
+            batch_rolled_back += 1
+          else
+            error_count += 1
+            batch_errors += 1
+            puts "  Failed to rollback form ID #{form.id}: #{form.errors.full_messages.join(', ')}"
+          end
+        else
+          puts "  Form ID #{form.id} return_url is '#{current_return_url}', expected '#{new_return_url}'"
+          error_count += 1
+          batch_errors += 1
+        end
+      rescue => e
+        error_count += 1
+        batch_errors += 1
+        puts "  Error rolling back form ID #{form.id}: #{e.message}"
+      end
+
+      batch_time = Time.current - batch_start_time
+      puts "Batch completed: #{batch_rolled_back} rolled back, #{batch_errors} errors (#{batch_time.round(2)}s)"
+    end
+
+    total_time = Time.current - start_time
+
+    puts
+    puts '=' * 80
+    puts 'ROLLBACK SUMMARY'
+    puts '=' * 80
+    puts "Forms processed: #{updates_needed.size}"
+    puts "Successfully rolled back: #{rolled_back_count}"
+    puts "Errors: #{error_count}"
+    puts "Processing time: #{total_time.round(2)} seconds"
+    puts
+
+    if rolled_back_count.positive?
+      puts "SUCCESS: Rolled back #{rolled_back_count} forms to their original return_url values"
+    end
+
+    puts "#{error_count} forms had errors during rollback" if error_count.positive?
+
+    puts "Completed at: #{Time.current}"
+    puts '=' * 80
   end
 end

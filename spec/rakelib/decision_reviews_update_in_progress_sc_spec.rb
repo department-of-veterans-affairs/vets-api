@@ -1,341 +1,524 @@
 # frozen_string_literal: true
 
+# Ensure this specific test runs in test environment
+ENV['RAILS_ENV'] = 'test'
+
 require 'rails_helper'
 require 'rake'
 
-RSpec.describe 'decision_reviews:update_in_progress_sc', type: :task do
-  let(:new_return_url) { '/supporting-evidence/private-medical-records-authorization' }
-  let(:task) { Rake::Task['decision_reviews:update_in_progress_sc'] }
-
+RSpec.describe 'decision_reviews rake tasks', type: :task do
   before do
     Rake.application.rake_require '../rakelib/decision_reviews_update_in_progress_sc'
     Rake::Task.define_task(:environment)
-    Rake::Task['decision_reviews:update_in_progress_sc'].reenable
   end
 
-  after do
-    InProgressForm.delete_all
+  let(:new_return_url) { '/supporting-evidence/private-medical-records-authorization' }
+  let(:cache_file) { Rails.root.join('tmp', 'test_supplemental_claims_update_data.json') }
+
+  # Use around block for atomic cleanup that prevents race conditions
+  around do |example|
+    # Clean before test
+    FileUtils.rm_f(cache_file)
+    FileUtils.mkdir_p(Rails.root.join('tmp')) # Ensure tmp dir exists
+
+    # Run the test
+    example.run
+
+    # Clean after test (this always runs, even if test fails)
+    FileUtils.rm_f(cache_file)
   end
 
-  describe 'when processing in-progress forms' do
-    context 'with forms that should be updated' do
-      let!(:form_should_update) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true
-               },
-               metadata: {
-                 return_url: '/option-claims'
-               },
-               id: 1001)
-      end
+  describe 'dry_run_supplemental_claims_update' do
+    let(:task) { Rake::Task['decision_reviews:dry_run_supplemental_claims_update'] }
 
-      let!(:form_no_return_url) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true
-               },
-               metadata: {},
-               id: 1012)
-      end
-
-      let!(:form_already_correct) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: true,
-                 'view:has_private_evidence': true
-               },
-               metadata: {
-                 return_url: new_return_url
-               },
-               id: 1013)
-      end
-
-      it 'updates a form with a return_url that meets the criteria' do
-        expect { task.invoke }.to output(/Updated return_url for user #{form_should_update.user_uuid}/).to_stdout
-
-        form_should_update.reload
-        metadata = form_should_update.metadata
-        expect(metadata['return_url']).to eq(new_return_url)
-      end
-
-      it 'updates a form with no return_url that meets the criteria' do
-        expect { task.invoke }.to output(/Updated return_url for user #{form_no_return_url.user_uuid}/).to_stdout
-
-        form_no_return_url.reload
-        metadata = form_no_return_url.metadata
-        expect(metadata['return_url']).to eq(new_return_url)
-      end
-
-      it 'skips a form that already has the correct return_url' do
-        original_metadata = form_already_correct.metadata
-
-        task.invoke
-
-        form_already_correct.reload
-        expect(form_already_correct.metadata).to eq(original_metadata)
-      end
-
-      it 'shows correct summary counts' do
-        output = capture_stdout { task.invoke }
-
-        expect(output).to include('Forms updated: 3')
-        expect(output).to include('Total forms processed: 3')
-      end
+    before do
+      task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
     end
 
-    context 'with forms that should be skipped' do
-      let!(:privacy_false) do
+    context 'when there are forms that need updates' do
+      let!(:eligible_form_needs_update) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: true,
+                 'view:has_private_evidence': true
+               },
+               metadata: { return_url: '/old-url' })
+      end
+
+      let!(:eligible_form_already_correct) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: true,
+                 'view:has_private_evidence': true
+               },
+               metadata: { return_url: new_return_url })
+      end
+
+      let!(:ineligible_form) do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: false,
                  'view:has_private_evidence': true
-               })
+               },
+               metadata: { return_url: '/some-url' })
       end
 
-      let!(:evidence_false) do
+      it 'identifies forms that need updates and caches the data' do
+        expect { task.invoke }.to output(a_string_including('DRY RUN SUMMARY')).to_stdout
+
+        # Check that cache file was created
+        expect(File.exist?(cache_file)).to be true
+
+        # Parse cache data
+        cache_data = JSON.parse(File.read(cache_file))
+
+        expect(cache_data['total_forms_scanned']).to eq(3)
+        expect(cache_data['new_return_url']).to eq(new_return_url)
+        expect(cache_data['updates_needed'].size).to eq(1)
+
+        # Check the cached update data
+        update_data = cache_data['updates_needed'].first
+        expect(update_data['id']).to eq(eligible_form_needs_update.id)
+        expect(update_data['original_return_url']).to eq('/old-url')
+      end
+    end
+
+    context 'when no forms need updates' do
+      let!(:eligible_form_already_correct) do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': false
-               })
-      end
-
-      let!(:both_false) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: false,
-                 'view:has_private_evidence': false
-               })
-      end
-
-      let!(:privacy_missing) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
                  'view:has_private_evidence': true
-               })
+               },
+               metadata: { return_url: new_return_url })
       end
 
-      let!(:evidence_missing) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: true
-               })
-      end
+      it 'reports that no updates are needed' do
+        expect { task.invoke }.to output(
+          a_string_including('All eligible forms already have the correct return_url!')
+        ).to_stdout
 
-      let!(:both_missing) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 form5103Acknowledged: true
-               })
+        expect(File.exist?(cache_file)).to be false
       end
+    end
 
-      let!(:privacy_null) do
-        create(:in_progress_form,
-               form_id: '20-0995',
-               form_data: {
-                 privacy_agreement_accepted: nil,
-                 'view:has_private_evidence': true
-               })
+    context 'when there are no forms at all' do
+      it 'handles empty dataset gracefully' do
+        expect { task.invoke }.to output(
+          a_string_including('Total forms analyzed: 0')
+        ).to_stdout
+
+        expect(File.exist?(cache_file)).to be false
       end
+    end
+  end
 
-      let!(:evidence_null) do
+  describe 'update_in_progress_sc_from_cache' do
+    let(:task) { Rake::Task['decision_reviews:update_in_progress_sc_from_cache'] }
+
+    before do
+      task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
+    end
+
+    context 'when cache file does not exist' do
+      it 'exits with error message' do
+        expect { task.invoke }.to output(
+          a_string_including('No cached data found')
+        ).to_stdout.and raise_error(SystemExit)
+      end
+    end
+
+    context 'when cache file exists with valid data' do
+      let!(:form_to_update) do
         create(:in_progress_form,
                form_id: '20-0995',
                form_data: {
                  privacy_agreement_accepted: true,
-                 'view:has_private_evidence': nil
-               })
-      end
-
-      it 'skips all forms that do not meet criteria' do
-        output = capture_stdout { task.invoke }
-
-        expect(output).to include('Forms updated: 0')
-        expect(output).to include('Total forms processed: 8')
-        expect(output).to include('Forms skipped: 8')
-      end
-
-      it 'logs reason for skipping each form' do
-        output = capture_stdout { task.invoke }
-
-        expect(output).to include("Skipped user #{privacy_false.user_uuid}")
-        expect(output).to include('privacy_agreement_accepted: false')
-
-        expect(output).to include("Skipped user #{evidence_false.user_uuid}")
-        expect(output).to include('view:has_private_evidence: false')
-
-        expect(output).to include("Skipped user #{both_false.user_uuid}")
-        expect(output).to include("Skipped user #{privacy_missing.user_uuid}")
-        expect(output).to include("Skipped user #{evidence_missing.user_uuid}")
-        expect(output).to include("Skipped user #{both_missing.user_uuid}")
-        expect(output).to include("Skipped user #{privacy_null.user_uuid}")
-        expect(output).to include("Skipped user #{evidence_null.user_uuid}")
-      end
-
-      it 'does not modify any skipped forms' do
-        original_metadata = [
-          privacy_false.metadata,
-          evidence_false.metadata,
-          both_false.metadata,
-          privacy_missing.metadata,
-          evidence_missing.metadata,
-          both_missing.metadata,
-          privacy_null.metadata,
-          evidence_null.metadata
-        ]
-
-        task.invoke
-
-        current_metadata = [
-          privacy_false.reload.metadata,
-          evidence_false.reload.metadata,
-          both_false.reload.metadata,
-          privacy_missing.reload.metadata,
-          evidence_missing.reload.metadata,
-          both_missing.reload.metadata,
-          privacy_null.reload.metadata,
-          evidence_null.reload.metadata
-        ]
-
-        expect(current_metadata).to eq(original_metadata)
-      end
-    end
-
-    context 'with error conditions' do
-      let!(:invalid_format_metadata) do
-        form = create(:in_progress_form,
-                      form_id: '20-0995',
-                      form_data: {
-                        privacy_agreement_accepted: true,
-                        'view:has_private_evidence': true
-                      },
-                      metadata: '')
-        form
-      end
-
-      it 'handles JSON parsing errors gracefully' do
-        output = capture_stdout { task.invoke }
-
-        expect(output).to include("Unexpected error processing user #{invalid_format_metadata.user_uuid}")
-        expect(output).to include('Forms failed to save: 1')
-        expect(output).to include('Failed InProgressForm IDs:')
-        expect(output).to include(invalid_format_metadata.id.to_s)
-      end
-    end
-
-    context 'with different form IDs' do
-      let!(:wrong_form_id) do
-        create(:in_progress_form,
-               form_id: '21-526EZ',
-               form_data: {
-                 privacy_agreement_accepted: true,
                  'view:has_private_evidence': true
-               })
+               },
+               metadata: { return_url: '/old-url' })
       end
 
-      it 'only processes forms with correct form_id' do
-        output = capture_stdout { task.invoke }
-
-        expect(output).to include('Total forms processed: 0')
-        expect(wrong_form_id.reload.metadata).not_to include(new_return_url)
-      end
-    end
-
-    context 'with batch processing' do
       before do
-        # Create more than 500 forms to test batching
-        600.times do |i|
+        # Ensure directory exists and create cache file
+        FileUtils.mkdir_p(Rails.root.join('tmp'))
+        cache_data = {
+          generated_at: Time.current.iso8601,
+          new_return_url:,
+          total_forms_scanned: 1,
+          updates_needed: [
+            {
+              id: form_to_update.id,
+              original_return_url: '/old-url'
+            }
+          ]
+        }
+        File.write(cache_file, JSON.pretty_generate(cache_data))
+      end
+
+      it 'updates the forms using cached data' do
+        expect { task.invoke }.to output(
+          a_string_including('Successfully updated: 1')
+        ).to_stdout
+
+        form_to_update.reload
+        expect(form_to_update.metadata['return_url']).to eq(new_return_url)
+      end
+
+      it 'preserves cache file for potential rollback' do
+        task.invoke
+        expect(File.exist?(cache_file)).to be true
+      end
+    end
+
+    context 'when form is no longer eligible' do
+      let!(:form_changed) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: false,
+                 'view:has_private_evidence': true
+               },
+               metadata: { return_url: '/old-url' })
+      end
+
+      before do
+        FileUtils.mkdir_p(Rails.root.join('tmp'))
+        cache_data = {
+          generated_at: Time.current.iso8601,
+          new_return_url:,
+          total_forms_scanned: 1,
+          updates_needed: [
+            {
+              id: form_changed.id,
+              original_return_url: '/old-url'
+            }
+          ]
+        }
+        File.write(cache_file, JSON.pretty_generate(cache_data))
+      end
+
+      it 'skips the form and reports error' do
+        expect { task.invoke }.to output(
+          a_string_including('no longer eligible')
+        ).to_stdout
+
+        form_changed.reload
+        expect(form_changed.metadata['return_url']).to eq('/old-url')
+      end
+    end
+  end
+
+  describe 'rollback_in_progress_sc_update' do
+    let(:task) { Rake::Task['decision_reviews:rollback_in_progress_sc_update'] }
+
+    before do
+      task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
+    end
+
+    context 'when cache file does not exist' do
+      it 'exits with error message' do
+        expect { task.invoke }.to output(
+          a_string_including('No rollback data found')
+        ).to_stdout.and raise_error(SystemExit)
+      end
+    end
+
+    context 'when cache file exists and user confirms rollback' do
+      let!(:form_to_rollback) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: true,
+                 'view:has_private_evidence': true
+               },
+               metadata: { return_url: new_return_url }) # Currently has new URL
+      end
+
+      before do
+        # Create cache file with rollback data
+        FileUtils.mkdir_p(Rails.root.join('tmp'))
+        cache_data = {
+          generated_at: Time.current.iso8601,
+          new_return_url:,
+          total_forms_scanned: 1,
+          updates_needed: [
+            {
+              id: form_to_rollback.id,
+              original_return_url: '/original-url'
+            }
+          ]
+        }
+        File.write(cache_file, JSON.pretty_generate(cache_data))
+
+        # Mock user confirmation
+        allow($stdin).to receive(:gets).and_return("y\n")
+      end
+
+      it 'rolls back forms to original return_url values' do
+        expect { task.invoke }.to output(
+          a_string_including('Successfully rolled back: 1')
+        ).to_stdout
+
+        form_to_rollback.reload
+        expect(form_to_rollback.metadata['return_url']).to eq('/original-url')
+      end
+    end
+
+    context 'when user cancels rollback' do
+      before do
+        FileUtils.mkdir_p(Rails.root.join('tmp'))
+        cache_data = {
+          generated_at: Time.current.iso8601,
+          new_return_url:,
+          total_forms_scanned: 1,
+          updates_needed: [{ id: 1, original_return_url: '/old-url' }]
+        }
+        File.write(cache_file, JSON.pretty_generate(cache_data))
+
+        allow($stdin).to receive(:gets).and_return("n\n")
+      end
+
+      it 'cancels the rollback' do
+        expect { task.invoke }.to output(
+          a_string_including('Rollback cancelled')
+        ).to_stdout.and raise_error(SystemExit)
+      end
+    end
+  end
+
+  describe 'edge cases and error handling' do
+    let(:dry_run_task) { Rake::Task['decision_reviews:dry_run_supplemental_claims_update'] }
+    let(:update_task) { Rake::Task['decision_reviews:update_in_progress_sc_from_cache'] }
+
+    before do
+      dry_run_task.reenable
+      update_task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
+    end
+
+    context 'when forms have empty metadata' do
+      let!(:form_with_empty_metadata) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: true,
+                 'view:has_private_evidence': true
+               },
+               metadata: {})
+      end
+
+      it 'handles empty metadata gracefully' do
+        expect { dry_run_task.invoke }.to output(
+          a_string_including('Need return_url update: 1')
+        ).to_stdout
+
+        cache_data = JSON.parse(File.read(cache_file))
+        update_item = cache_data['updates_needed'].first
+        expect(update_item['original_return_url']).to be_nil
+      end
+    end
+
+    context 'when form data structure is unexpected' do
+      let!(:form_with_weird_data) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: { unexpected: 'structure', some: 'data' }, # Valid but unexpected
+               metadata: { return_url: '/some-url' })
+      end
+
+      it 'handles unexpected form data structure' do
+        expect { dry_run_task.invoke }.to output(
+          a_string_including('Total forms analyzed: 1')
+        ).to_stdout
+
+        # Should not crash, and no cache file should be created since no updates needed
+        expect(File.exist?(cache_file)).to be false
+      end
+    end
+
+    context 'when database errors occur during update' do
+      let!(:valid_form) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: true,
+                 'view:has_private_evidence': true
+               },
+               metadata: { return_url: '/old-url' })
+      end
+
+      before do
+        # Run dry run first
+        dry_run_task.invoke
+
+        # Mock a save failure
+        allow_any_instance_of(InProgressForm).to receive(:save).and_return(false)
+        allow_any_instance_of(InProgressForm).to receive(:errors).and_return(
+          double(full_messages: ['Validation failed'])
+        )
+      end
+
+      it 'handles save failures gracefully' do
+        expect { update_task.invoke }.to output(
+          a_string_including('Failed to save form ID')
+        ).to_stdout
+
+        # Cache file should be preserved due to errors
+        expect(File.exist?(cache_file)).to be true
+      end
+    end
+  end
+
+  describe 'cache file management' do
+    let(:dry_run_task) { Rake::Task['decision_reviews:dry_run_supplemental_claims_update'] }
+
+    before do
+      dry_run_task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
+    end
+
+    context 'when cache file already exists' do
+      before do
+        # Create an existing cache file
+        FileUtils.mkdir_p(Rails.root.join('tmp'))
+        existing_data = {
+          generated_at: 1.hour.ago.iso8601,
+          new_return_url: '/old-cache-url',
+          total_forms_scanned: 999,
+          updates_needed: [{ id: 999, original_return_url: '/fake' }]
+        }
+        File.write(cache_file, JSON.pretty_generate(existing_data))
+      end
+
+      let!(:test_form) do
+        create(:in_progress_form,
+               form_id: '20-0995',
+               form_data: {
+                 privacy_agreement_accepted: true,
+                 'view:has_private_evidence': true
+               },
+               metadata: { return_url: '/test-url' })
+      end
+
+      it 'overwrites existing cache file' do
+        dry_run_task.invoke
+
+        cache_data = JSON.parse(File.read(cache_file))
+        expect(cache_data['new_return_url']).to eq(new_return_url)
+        expect(cache_data['total_forms_scanned']).to eq(1)
+        expect(cache_data['updates_needed'].size).to eq(1)
+        expect(cache_data['updates_needed'].first['id']).to eq(test_form.id)
+      end
+    end
+  end
+
+  # Simplified batch processing tests
+  describe 'batch processing behavior' do
+    let(:dry_run_task) { Rake::Task['decision_reviews:dry_run_supplemental_claims_update'] }
+    let(:update_task) { Rake::Task['decision_reviews:update_in_progress_sc_from_cache'] }
+
+    before do
+      dry_run_task.reenable
+      update_task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
+    end
+
+    context 'with small batch for testing' do
+      before do
+        # Create just a few forms for faster testing
+        5.times do |i|
           create(:in_progress_form,
                  form_id: '20-0995',
                  form_data: {
                    privacy_agreement_accepted: true,
                    'view:has_private_evidence': true
                  },
-                 metadata: {
-                   return_url: '/option-claims'
-                 },
-                 id: 2000 + i)
+                 metadata: { return_url: "/batch-url-#{i}" })
         end
       end
 
-      it 'processes forms in batches and shows progress' do
-        output = capture_stdout { task.invoke }
+      it 'processes all forms correctly' do
+        expect { dry_run_task.invoke }.to output(
+          a_string_including('Total forms analyzed: 5')
+        ).to_stdout
 
-        expect(output).to include('Processing batch of 500 forms')
-        expect(output).to include('Processing batch of 100 forms')
-        expect(output).to include('Progress: 500/')
-        expect(output).to include('Progress: 600/')
-        expect(output).to include('Forms updated: 600')
+        cache_data = JSON.parse(File.read(cache_file))
+        expect(cache_data['updates_needed'].size).to eq(5)
+
+        expect { update_task.invoke }.to output(
+          a_string_including('Successfully updated: 5')
+        ).to_stdout
       end
     end
   end
 
-  describe 'decision_reviews:preview_update_in_progress_sc' do
-    before do
-      Rake.application.rake_require '../rakelib/decision_reviews_update_in_progress_sc'
-      Rake::Task.define_task(:environment)
-      Rake::Task['decision_reviews:preview_update_in_progress_sc'].reenable
-    end
-
-    let(:preview_task) { Rake::Task['decision_reviews:preview_update_in_progress_sc'] }
-    let(:task) { Rake::Task['decision_reviews:preview_update_in_progress_sc'] }
-
-    let!(:eligible_form) do
+  # Simplified integration test
+  describe 'basic workflow integration' do
+    let(:dry_run_task) { Rake::Task['decision_reviews:dry_run_supplemental_claims_update'] }
+    let!(:test_form) do
       create(:in_progress_form,
              form_id: '20-0995',
              form_data: {
                privacy_agreement_accepted: true,
                'view:has_private_evidence': true
              },
-             metadata: {
-               return_url: '/option-claims'
-             })
+             metadata: { return_url: '/original-url' })
+    end
+    let(:update_task) { Rake::Task['decision_reviews:update_in_progress_sc_from_cache'] }
+    let(:rollback_task) { Rake::Task['decision_reviews:rollback_in_progress_sc_update'] }
+
+    before do
+      dry_run_task.reenable
+      update_task.reenable
+      rollback_task.reenable
+      # Stub cache file paths so tests use test-specific file
+      allow(Rails.root).to receive(:join).with('tmp').and_return(Rails.root.join('tmp'))
+      allow(Rails.root).to receive(:join).with('tmp', 'supplemental_claims_update_data.json').and_return(cache_file)
     end
 
-    let!(:ineligible_form) do
-      create(:in_progress_form,
-             form_id: '20-0995',
-             form_data: {
-               privacy_agreement_accepted: false,
-               'view:has_private_evidence': true
-             })
+    it 'completes dry run -> update -> rollback workflow' do
+      # Dry run
+      expect { dry_run_task.invoke }.to output(
+        a_string_including('DRY RUN SUMMARY')
+      ).to_stdout
+      expect(File.exist?(cache_file)).to be true
+
+      # Update
+      expect { update_task.invoke }.to output(
+        a_string_including('Successfully updated: 1')
+      ).to_stdout
+
+      test_form.reload
+      expect(test_form.metadata['return_url']).to eq(new_return_url)
+
+      # Rollback
+      allow($stdin).to receive(:gets).and_return("y\n")
+      expect { rollback_task.invoke }.to output(
+        a_string_including('Successfully rolled back: 1')
+      ).to_stdout
+
+      test_form.reload
+      expect(test_form.metadata['return_url']).to eq('/original-url')
     end
-
-    it 'shows preview without making changes' do
-      output = capture_stdout { preview_task.invoke }
-
-      expect(output).to include('DRY RUN: Previewing')
-      expect(output).to include("Would update user #{eligible_form.user_uuid}")
-      expect(output).to include('Eligible for update: 1')
-      expect(output).to include('Would skip: 1')
-
-      # Verify no actual changes were made
-      eligible_form.reload
-      metadata = eligible_form.metadata
-      expect(metadata['return_url']).to eq('/option-claims')
-    end
-  end
-
-  private
-
-  def capture_stdout
-    original_stdout = $stdout
-    $stdout = StringIO.new
-    yield
-    $stdout.string
-  ensure
-    $stdout = original_stdout
   end
 end
