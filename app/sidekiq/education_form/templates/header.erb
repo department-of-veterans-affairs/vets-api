@@ -2,7 +2,7 @@
 <%= applicant_name&.first&.upcase&.strip %>
 <%= applicant_name&.middle&.upcase&.strip %>
 <%= applicant_name&.last&.upcase&.strip %>
-<% if %w[VE1990 V0994 OPTOUT].include?(header_form_type) -%>
+<% if %w[VE1990 V0994 OPTOUT V10297].include?(header_form_type) -%>
 <%= applicant_ssn&.gsub(/[^\d]/, '') %>
 <% else -%>
 <%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/, '') %>

@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require 'evss/ppiu/service'
-require 'disability_compensation/factories/api_provider_factory'
 require 'vets/model'
 
-module VA0994
-  FORM_ID = '22-0994'
+module VA10297
+  FORM_ID = '22-10297'
 
   class FormPaymentAccountInformation
     include Vets::Model
@@ -17,8 +16,8 @@ module VA0994
   end
 end
 
-class FormProfiles::VA0994 < FormProfile
-  attribute :payment_information, VA0994::FormPaymentAccountInformation
+class FormProfiles::VA10297 < FormProfile
+  attribute :payment_information, VA10297::FormPaymentAccountInformation
 
   def prefill
     @payment_information = initialize_payment_information
@@ -36,14 +35,17 @@ class FormProfiles::VA0994 < FormProfile
   private
 
   def initialize_payment_information
-    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+    return {} unless user.authorize(:lighthouse, :direct_deposit_access?) && user.authorize(:evss, :access?)
 
-    service = EVSS::PPIU::Service.new(user)
-    response = service.get_payment_information
+    provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
+                                       provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
+                                       current_user: user,
+                                       feature_toggle: nil)
+    response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
     if raw_account
-      VA10297::FormPaymentAccountInformation.new(
+      VA0994::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
         account_number: mask(raw_account&.account_number),
         routing_number: mask(raw_account&.financial_institution_routing_number),
@@ -53,7 +55,7 @@ class FormProfiles::VA0994 < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
+    Rails.logger.error "FormProfiles::VA0994 Failed to retrieve PPIU data: #{e.message}"
     {}
   end
 
