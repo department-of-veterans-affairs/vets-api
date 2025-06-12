@@ -84,7 +84,7 @@ RSpec.describe Vets::Attributes do
       expect(DummyModel.attributes.except(:uuid)).to eq(expected_attributes)
       # Need to check procs & lambda separately
       expect(DummyModel.attributes).to match(
-          a_hash_including(
+        a_hash_including(
           uuid: a_hash_including(
             type: String,
             array: false,
@@ -93,7 +93,6 @@ RSpec.describe Vets::Attributes do
           )
         )
       )
-
     end
   end
 
