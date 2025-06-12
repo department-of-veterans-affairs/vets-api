@@ -563,6 +563,13 @@ features:
   decision_review_notification_secondary_form_callbacks:
     actor_type: user
     description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
+  decision_review_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in decision review applications
+  decision_review_form4142_validate_schema:
+    actor_type: user
+    description: Enables the use of schema validation for form 4142 in decision review applications
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -671,6 +678,12 @@ features:
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
+  disability_526_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in disability 526 applications
+  disability_526_form4142_validate_schema:
+    actor_type: user
+    description: Enables the use of schema validation for form 4142 in disability 526 applications
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -775,9 +788,6 @@ features:
     actor_type: user
     description: Enables declination reason feature for frontend and backend
     enable_in_development: true
-  form4142_validate_schema:
-    actor_type: user
-    description: Enable validation of form 4142 in Form4142Processor
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
