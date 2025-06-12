@@ -23,7 +23,7 @@ module Swagger
             schema do
               key :required, %i[file form_id]
               property :file, type: :object
-              property :form_id, type: :string, example: '21P-0000'
+              property :form_id, type: :string, example: '21P-530EZ'
             end
           end
         end

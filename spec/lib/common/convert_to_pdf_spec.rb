@@ -6,7 +6,7 @@ require 'common/convert_to_pdf'
 describe Common::ConvertToPdf, :uploader_helpers do
   stub_virus_scan
 
-  let(:file) { create(:claim_evidence).file }
+  let(:file) { create(:pension_burial).file }
 
   let(:instance) do
     described_class.new(file)
@@ -35,7 +35,7 @@ describe Common::ConvertToPdf, :uploader_helpers do
     end
 
     context 'with a pdf file' do
-      let(:file) { create(:claim_evidence, file_path: 'spec/fixtures/pdf_fill/extras.pdf').file }
+      let(:file) { create(:pension_burial, file_path: 'spec/fixtures/pdf_fill/extras.pdf').file }
 
       it 'stills be pdf and not run convert' do
         expect(MiniMagick::Tool::Convert).not_to receive(:new)
