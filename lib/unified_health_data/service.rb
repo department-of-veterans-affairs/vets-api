@@ -197,7 +197,7 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: obs['referenceRange'] ? fetch_reference_range(obs['referenceRange']) : '',
+          reference_range: fetch_reference_range(obs),
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
@@ -205,18 +205,26 @@ module UnifiedHealthData
         )
       end
     end
-
-    def fetch_reference_range(reference_range)
-      reference_range.map do |range|
+    
+    def fetch_reference_range(obs)
+      return '' unless obs['referenceRange']
+      
+      obs['referenceRange'].map do |range|
         if range['text']
           range['text']
-        elsif range['low'] && range['high'] && range['type']
-          type_text = range['type']['text'] || range.dig('type', 'coding', 0, 'display') || ''
-          low_value = "#{range['low']['value']} #{range['low']['unit']}"
-          high_value = "#{range['high']['value']} #{range['high']['unit']}"
-          "#{type_text}: #{low_value} - #{high_value}".strip
-        elsif range['low'] && range['high']
-          "#{range['low']['value']} #{range['low']['unit']} - #{range['high']['value']} #{range['high']['unit']}"
+        elsif range['low'] || range['high']
+          low_value = range.dig('low', 'value')
+          high_value = range.dig('high', 'value')
+          
+          if low_value && high_value
+            "#{low_value} - #{high_value}"
+          elsif low_value
+            ">= #{low_value}"
+          elsif high_value
+            "<= #{high_value}"
+          else
+            ''
+          end
         else
           ''
         end
