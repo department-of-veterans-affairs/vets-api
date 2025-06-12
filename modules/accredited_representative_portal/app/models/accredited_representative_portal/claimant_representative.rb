@@ -40,9 +40,10 @@ module AccreditedRepresentativePortal
           return build(h)
         end
 
-        nil
-      rescue
-        raise Error
+        raise Common::Exceptions::Forbidden
+      rescue => e
+        Rails.logger.error({ message: e.detailed_message })
+        raise e
       end
 
       def for_claimant(...)

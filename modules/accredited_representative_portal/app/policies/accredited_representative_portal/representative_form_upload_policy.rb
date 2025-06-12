@@ -7,7 +7,7 @@ module AccreditedRepresentativePortal
     include ValidatePowerOfAttorney
 
     def submit?
-      authorize_poa
+      validate_claimant_representative
     end
 
     def upload_scanned_form?

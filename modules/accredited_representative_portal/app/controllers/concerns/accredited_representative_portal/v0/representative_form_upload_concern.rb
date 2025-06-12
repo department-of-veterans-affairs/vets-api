@@ -34,6 +34,28 @@ module AccreditedRepresentativePortal
         @form_params ||= get_form_params
       end
 
+      def get_metadata
+        {
+          veteran: {
+            ssn: veteran_ssn,
+            dateOfBirth: veteran_birth_date,
+            postalCode: form_data['postalCode'],
+            name: {
+              first: veteran_first_name,
+              last: veteran_last_name
+            }
+          },
+          dependent: {
+            ssn: claimant_ssn,
+            dateOfBirth: claimant_birth_date,
+            name: {
+              first: claimant_first_name,
+              last: claimant_last_name
+            }
+          }
+        }
+      end
+
       def get_form_params # rubocop:disable Metrics/MethodLength
         unwrapped_params =
           params.require(:representative_form_upload)

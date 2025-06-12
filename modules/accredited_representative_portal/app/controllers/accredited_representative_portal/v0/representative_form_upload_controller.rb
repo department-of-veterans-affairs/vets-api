@@ -11,10 +11,10 @@ module AccreditedRepresentativePortal
       VALID_FORM_NUMBERS = %w[21-686c].freeze
 
       def submit
-        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
+        authorize(claimant_representative, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
-        status, confirmation_number = upload_response
-        render json: { status:, confirmation_number: }
+        serialized = SavedClaimSerializer.new(saved_claim)
+        render json: serialized.as_json.to_h.deep_transform_keys { |key| key.camelize(:lower) }
       end
 
       def upload_scanned_form
@@ -28,6 +28,19 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      def claimant_id
+        @claimant_id ||= get_icn
+      end
+
+      def saved_claim
+        AccreditedRepresentativePortal::SavedClaimService::Create.perform(
+          type: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim,
+          attachment_guids: [params[:confirmationCode]], # TODO: multi form upload
+          metadata: get_metadata,
+          claimant_representative:
+        )
+      end
 
       def handle_attachment_upload(attachment_type)
         attachment = create_attachment(attachment_type)
@@ -96,72 +109,18 @@ module AccreditedRepresentativePortal
         "SimpleFormsApi::VBA#{form_data[:formNumber].gsub(/-/, '').upcase}".constantize
       end
 
-      def upload_response
-        file_path = find_attachment_path(form_params[:confirmationCode])
-        stamper = SimpleFormsApi::PdfStamper.new(
-          form:,
-          stamped_template_path: file_path,
-          current_loa: @current_user.loa[:current],
-          timestamp: Time.current
-        )
-        stamper.stamp_pdf
-        raw_metadata = validated_metadata
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
-        status, confirmation_number = upload_pdf(file_path, metadata)
-        file_size = File.size(file_path).to_f / (2**20)
+      def claimant_representative
+        @claimant_representative ||= ClaimantRepresentative.find do |finder|
+          finder.for_claimant(
+            icn: claimant_id
+          )
 
-        Rails.logger.info(
-          'Accredited Rep Form Upload - scanned form uploaded',
-          { form_number: form_data[:formNumber], status:, confirmation_number:, file_size: }
-        )
-        [status, confirmation_number]
-      end
-
-      def find_attachment_path(confirmation_code)
-        PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
-      end
-
-      def upload_pdf(file_path, metadata)
-        location, uuid = prepare_for_upload
-        log_upload_details(location, uuid)
-        response = perform_pdf_upload(location, file_path, metadata)
-        [response.status, uuid]
-      end
-
-      def prepare_for_upload
-        location, uuid = lighthouse_service.request_upload
-        create_form_submission_attempt(uuid)
-
-        [location, uuid]
-      end
-
-      def create_form_submission_attempt(uuid)
-        FormSubmissionAttempt.transaction do
-          form_submission = create_form_submission
-          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+          finder.for_representative(
+            icn: current_user.icn,
+            email: current_user.email,
+            all_emails: [current_user.email]
+          )
         end
-      end
-
-      def create_form_submission
-        FormSubmission.create(
-          form_type: form_data[:formNumber],
-          form_data: form_data.to_json,
-          user_account: @current_user&.user_account
-        )
-      end
-
-      def log_upload_details(location, uuid)
-        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Accredited Rep Form Upload - preparing to upload scanned PDF to benefits intake',
-                          { location:, uuid: })
-      end
-
-      def perform_pdf_upload(location, file_path, metadata)
-        lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: file_path,
-          upload_url: location
-        )
       end
 
       def get_icn
