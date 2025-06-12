@@ -2,14 +2,7 @@
 
 module BenefitsDiscovery
   class Params
-    # dateOfBirth	user.birth_date
-    # dischargeStatus	character_of_discharge_code?
-    # branchOfService	branch_of_service
-    # disabilityRating	[...]
-    # serviceDates	begin_date && end_date
-    # purpleHeartRecipientDates	[...]
     def initialize(user_uuid)
-      # this is probably not correct
       @user = User.find(user_uuid)
     end
 
@@ -20,6 +13,7 @@ module BenefitsDiscovery
         branchOfService: service_history.collect(&:branch_of_service),
         disabilityRating: disability_rating,
         serviceDates: service_history.collect { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
+        # serviceHistory
         # purpleHeartRecipientDates: Array.wrap(params[:purple_heart_recipient_dates])
       }.compact_blank
     end
