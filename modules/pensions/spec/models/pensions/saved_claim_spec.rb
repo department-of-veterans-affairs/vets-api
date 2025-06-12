@@ -14,8 +14,8 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
   context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    let!(:attachment1) { create(:claim_evidence) }
-    let!(:attachment2) { create(:claim_evidence) }
+    let!(:attachment1) { create(:pension_burial) }
+    let!(:attachment2) { create(:pension_burial) }
 
     let(:claim) do
       create(
