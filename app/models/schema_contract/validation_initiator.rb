@@ -21,6 +21,8 @@ module SchemaContract
       Rails.logger.error('Error creating schema contract job with body', message)
     end
 
+    private
+
     def self.initiate_validation(user:, body:, contract_name:)
       if Flipper.enabled?("schema_contract_#{contract_name}")
         return if SchemaContract::Validation.where(contract_name:, created_at: Time.zone.today.all_day).any?
