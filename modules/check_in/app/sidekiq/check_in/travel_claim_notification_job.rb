@@ -17,7 +17,7 @@ module CheckIn
   #     '1234'                                # Required - Last four digits of claim number
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
-    sidekiq_options retry: 12
+    sidekiq_options retry: 1
     REQUIRED_FIELDS = %i[mobile_phone template_id appointment_date].freeze
 
     ##
