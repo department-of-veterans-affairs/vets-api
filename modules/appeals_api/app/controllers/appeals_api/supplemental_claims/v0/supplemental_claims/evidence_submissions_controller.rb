@@ -45,8 +45,9 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
 
       unless status == :ok
         req_validator_error = EvidenceSubmissionRequestValidatorError.new(error)
-        Rails.logger.warn("#{req_validator_error.message}.")
-        Rails.logger.warn(req_validator_error.backtrace.join("\n")) unless req_validator_error.backtrace.nil?
+        error_details = { error_message: req_validator_error.message }
+        error_details[:back_trace] = req_validator_error.backtrace.join('\n') unless req_validator_error.backtrace.nil?
+        Rails.logger.warn('Supplemental Claim Evidence Submission Validation Error', error_details)
 
         return render json: { errors: [error] }, status: error[:title].to_sym
       end

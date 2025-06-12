@@ -64,9 +64,8 @@ module AppealsApi
 
       central_mail_response = CentralMail::Service.new.status(appeals.pluck(:id))
       unless central_mail_response.success?
-        Rails.logger.warn('Error getting status from EMMS API.' \
-                          " EMMS Status: '#{central_mail_response.status}'," \
-                          " EMMMS Body: '#{central_mail_response.body}'")
+        Rails.logger.warn('Error getting status from EMMS API.',
+                          { emms_status: central_mail_response.status, emms_body: central_mail_response.body })
         raise Common::Exceptions::BadGateway
       end
 
@@ -117,9 +116,9 @@ module AppealsApi
         appeal_status: appeal.status,
         attempted_status: status
       }
-
-      Rails.logger.error("#{e.message} Details: #{details}")
-      Rails.logger.error(e.backtrace.join("\n")) unless e.backtrace.nil?
+      error_details = { details: e.message }
+      error_details[:back_trace] = e.backtrace.join("\n") unless e.backtrace.nil?
+      Rails.logger.warn('Error updating appeal status', error_details)
 
       slack_details = {
         exception: e.class.to_s,

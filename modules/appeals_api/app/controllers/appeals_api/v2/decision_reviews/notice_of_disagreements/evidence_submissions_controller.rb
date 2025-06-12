@@ -81,8 +81,11 @@ module AppealsApi::V2
 
         def log_error(error_detail)
           req_validator_error = EvidenceSubmissionRequestValidatorError.new(error_detail)
-          Rails.logger.warn("#{req_validator_error.message}.")
-          Rails.logger.warn(req_validator_error.backtrace.join("\n")) unless req_validator_error.backtrace.nil?
+          error_details = { error_message: req_validator_error.message }
+          unless req_validator_error.backtrace.nil?
+            error_details[:back_trace] = req_validator_error.backtrace.join('\n')
+          end
+          Rails.logger.warn('NOD Evidence Submission Validation Error', error_details)
 
           error_detail
         end
