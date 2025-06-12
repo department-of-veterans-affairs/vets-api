@@ -22,6 +22,8 @@ class SubmissionAttempt < ApplicationRecord
 
   validates :submission, presence: true
 
+  belongs_to :submission, inverse_of: :submission_attempts
+
   after_create :update_submission_status
   before_update :update_submission_status
 
