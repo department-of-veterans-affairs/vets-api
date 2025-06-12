@@ -5,6 +5,9 @@ require 'sentry_logging'
 module RepresentationManagement
   class AccreditationApiEntityCount < ApplicationRecord
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
+    # The total number of representatives and organizations parsed from the GCLAWS API
+    # must not decrease by more than this percentage from the previous count
+    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
     def save_api_counts
       TYPES.each do |type|
@@ -76,6 +79,10 @@ module RepresentationManagement
       AccreditedIndividual.where(individual_type: type).count
     end
 
+    def log_error(message)
+      Rails.logger.error("RepresentationManagement::AccreditationApiEntityCount error: #{message}")
+    end
+
     def log_to_slack_threshold_channel(message)
       slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
                                              channel: '#benefits-representation-management-notifications',
@@ -92,6 +99,7 @@ module RepresentationManagement
                 'Action: Update skipped, manual review required'
 
       log_to_slack_threshold_channel(message)
+      # TODO Change the following to datadog
       log_message_to_sentry("AccreditationApiEntityCount threshold exceeded for #{rep_type}", :warn,
                             previous_count:,
                             new_count:,

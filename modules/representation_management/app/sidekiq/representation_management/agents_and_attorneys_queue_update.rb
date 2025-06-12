@@ -6,9 +6,7 @@ module RepresentationManagement
   class AgentsAndAttorneysQueueUpdate
     include Sidekiq::Job
 
-    # The total number of representatives and organizations parsed from the GCLAWS API
-    # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
+    
     SLICE_SIZE = 30
 
     def perform(force_update_types = [])
@@ -116,6 +114,8 @@ module RepresentationManagement
         }
       }
     end
+
+
 
     def process_agents
       if @entity_counts.valid_count?(:agents) || @force_update_types.include?('claims_agent')

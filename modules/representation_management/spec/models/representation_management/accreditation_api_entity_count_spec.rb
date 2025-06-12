@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :model do
-  let(:model) { described_class.new }
+  let(:model) { create(:accreditation_api_entity_count) }
   # Using a constant we know exists in the code
   let(:allowed_types) { [:agents, :attorneys, :representatives, :veteran_service_organizations] }
   let(:decrease_threshold) { 0.20 } # Assuming this is the threshold value
@@ -15,46 +15,43 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     
     # Mock log_error method to prevent actual logging during tests
     allow(model).to receive(:log_error)
-    # Mock Sentry logging
-    allow(model).to receive(:log_message_to_sentry)
     # Mock Slack notification
     allow(model).to receive(:log_to_slack_threshold_channel)
   end
 
   describe '#save_api_counts' do
     before do
-      allow(model).to receive(:valid_count?).and_return(true)
       allow(model).to receive(:current_api_counts).and_return({
         agents: 100,
         attorneys: 200,
         representatives: 300,
         veteran_service_organizations: 50
       })
-      allow(model).to receive(:save!)
     end
 
     it 'assigns values from api counts for each type' do
+    expect {
       model.save_api_counts
-      
-      expect(model.agents).to eq(100)
-      expect(model.attorneys).to eq(200)
-      expect(model.representatives).to eq(300)
-      expect(model.veteran_service_organizations).to eq(50)
-    end
+    }.to change { model.reload.agents }.to(100)
+      .and change { model.reload.attorneys }.to(200)
+      .and change { model.reload.representatives }.to(300)
+      .and change { model.reload.veteran_service_organizations }.to(50)
+  end
 
     it 'only assigns values for valid counts' do
-      allow(model).to receive(:valid_count?).with(:agents, notify: false).and_return(false)
-      allow(model).to receive(:valid_count?).with(:attorneys, notify: false).and_return(true)
-      allow(model).to receive(:valid_count?).with(:representatives, notify: false).and_return(true)
-      allow(model).to receive(:valid_count?).with(:veteran_service_organizations, notify: false).and_return(false)
-      
-      model.save_api_counts
-      
-      expect(model).not_to have_received(:agents=)
-      expect(model).to have_received(:attorneys=).with(200)
-      expect(model).to have_received(:representatives=).with(300)
-      expect(model).not_to have_received(:veteran_service_organizations=)
-    end
+    allow(model).to receive(:valid_count?).with(:agents, notify: false).and_return(false)
+    allow(model).to receive(:valid_count?).with(:attorneys, notify: false).and_return(true)
+    allow(model).to receive(:valid_count?).with(:representatives, notify: false).and_return(true)
+    allow(model).to receive(:valid_count?).with(:veteran_service_organizations, notify: false).and_return(false)
+    
+    model.save_api_counts
+    model.reload
+    
+    expect(model.agents).not_to eq(100)
+    expect(model.attorneys).to eq(200)
+    expect(model.representatives).to eq(300)
+    expect(model.veteran_service_organizations).not_to eq(50)
+  end
 
     it 'calls save! to persist the record' do
       model.save_api_counts
