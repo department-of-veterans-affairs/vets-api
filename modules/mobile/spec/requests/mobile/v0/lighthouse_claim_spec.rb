@@ -141,7 +141,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
             get '/mobile/v0/claim/600117255', headers: sis_headers
           end
           SchemaContract::ValidationJob.drain
-          status = SchemaContract::Validation.last.status
           expect(SchemaContract::Validation.last.status).to eq('success')
         end
       end
