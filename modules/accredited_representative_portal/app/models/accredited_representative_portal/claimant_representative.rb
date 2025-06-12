@@ -26,7 +26,9 @@ module AccreditedRepresentativePortal
           MSG
         end
 
+        debugger
         poa_holder = @claimant.power_of_attorney_holder
+        debugger
         poa_holders = @representative.power_of_attorney_holders
 
         poa_holders.each do |h|
@@ -40,9 +42,10 @@ module AccreditedRepresentativePortal
           return build(h)
         end
 
-        nil
-      rescue
-        raise Error
+        raise Common::Exceptions::Forbidden
+      rescue => e
+        Rails.logger.error({ message: e.detailed_message })
+        raise e
       end
 
       def for_claimant(...)
@@ -86,6 +89,7 @@ module AccreditedRepresentativePortal
       def power_of_attorney_holder
         @power_of_attorney_holder ||= begin
           service = BenefitsClaims::Service.new(identifier.icn)
+          debugger
           response = service.get_power_of_attorney['data']
 
           ##

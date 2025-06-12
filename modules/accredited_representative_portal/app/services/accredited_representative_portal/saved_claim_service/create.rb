@@ -16,6 +16,7 @@ module AccreditedRepresentativePortal
           #
           type.new.tap do |saved_claim|
             saved_claim.form = metadata.to_json
+            debugger
 
             ##
             # TODO: More robust (DB) constraints of the invariants expressed in
@@ -24,7 +25,7 @@ module AccreditedRepresentativePortal
             # persisting.
             #
             attachments = organize_attachments!(attachment_guids)
-
+            debugger
             ##
             # Figuring out when to set `form_id` for claim and attachment
             # records, or what they're even used for, is complicated. It might
@@ -33,12 +34,11 @@ module AccreditedRepresentativePortal
             # agree over time, rather than being set at only one final moment.
             #
             saved_claim.form_attachment = attachments[:form]
-            saved_claim.form_attachment.form_id = saved_claim.form_id
-
+            debugger
             attachments[:documentations].each do |attachment|
               saved_claim.persistent_attachments << attachment
             end
-
+            debugger
             SavedClaimClaimantRepresentative.create!(
               saved_claim:, **claimant_representative.to_h
             )

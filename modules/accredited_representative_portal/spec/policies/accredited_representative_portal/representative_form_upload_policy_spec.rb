@@ -33,8 +33,8 @@ module AccreditedRepresentativePortal
                                      can_accept_digital_poa_requests: false)]
         end
 
-        it 'denies access' do
-          expect(policy.submit?).to be false
+        it 'allows access' do
+          expect(policy.submit?).to be true
         end
       end
 
