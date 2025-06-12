@@ -74,8 +74,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 749f4f4ef04f352b98897801612831b25bfeec97
-  branch: fixed_benefits_intake_schema
+  revision: a213fe56d5068b75c93bce73e859d29a5c970db3
+  branch: master
   specs:
     vets_json_schema (24.15.3)
       multi_json (~> 1.0)
