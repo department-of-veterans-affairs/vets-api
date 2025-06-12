@@ -11,35 +11,64 @@ module AccreditedRepresentativePortal
       VALID_FORM_NUMBERS = %w[21-686c].freeze
 
       def submit
-        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
-        Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
-        status, confirmation_number = upload_response
-        render json: { status:, confirmation_number: }
+        ar_monitoring.trace('ar.claims.form_upload.submit') do |span|
+          authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
+          span.set_tag('form_id', form_data[:formNumber])
+
+          status, confirmation_number = upload_response
+
+          span.set_tag('form_submission.status', status)
+          span.set_tag('form_submission.confirmation_number', confirmation_number)
+
+          render json: { status:, confirmation_number: }
+        end
       end
 
       def upload_scanned_form
-        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        handle_attachment_upload(PersistentAttachments::VAForm)
+        ar_monitoring.trace('ar.claims.form_upload.upload_scanned_form') do |_span|
+          authorize(nil, policy_class: RepresentativeFormUploadPolicy)
+          handle_attachment_upload(PersistentAttachments::VAForm)
+        end
       end
 
       def upload_supporting_documents
-        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        handle_attachment_upload(PersistentAttachments::VAFormDocumentation)
+        ar_monitoring.trace('ar.claims.form_upload.upload_supporting_documents') do |_span|
+          authorize(nil, policy_class: RepresentativeFormUploadPolicy)
+          handle_attachment_upload(PersistentAttachments::VAFormDocumentation)
+        end
       end
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def handle_attachment_upload(attachment_type)
-        attachment = create_attachment(attachment_type)
-        error = validate_attachment_upstream!(attachment)
-        return render_error("Document validation failed: #{error.message}") if error
+        ar_monitoring.trace('ar.claims.form_upload.handle_attachment_upload') do |span|
+          attachment = create_attachment(attachment_type)
+          span.set_tag('form_upload.form_id', attachment.form_id)
+          if params['file'].respond_to?(:original_filename)
+            span.set_tag('form_upload.file_name', params['file'].original_filename)
+          end
+          span.set_tag('form_upload.file_size', params['file'].size) if params['file'].respond_to?(:size)
+          span.set_tag('form_upload.attachment_type', attachment_type.name)
 
-        error = validate_attachment!(attachment)
-        return render_error("Document validation failed: #{error.message}") if error
+          error = validate_attachment_upstream!(attachment)
+          if error
+            span.set_tag('error.specific_reason', 'Upstream document validation failed')
+            return render_error("Document validation failed: #{error.message}")
+          end
 
-        attachment.save
-        render json: serialized(attachment)
+          error = validate_attachment!(attachment)
+          if error
+            span.set_tag('error.specific_reason', 'Attachment validation failed')
+            return render_error("Document validation failed: #{error.message}")
+          end
+
+          attachment.save
+          render json: serialized(attachment)
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def create_attachment(attachment_type)
         attachment_type.new(form_id: params[:form_id], file: params['file'])
@@ -96,58 +125,79 @@ module AccreditedRepresentativePortal
         "SimpleFormsApi::VBA#{form_data[:formNumber].gsub(/-/, '').upcase}".constantize
       end
 
+      # rubocop:disable Metrics/MethodLength
       def upload_response
-        file_path = find_attachment_path(form_params[:confirmationCode])
-        stamper = SimpleFormsApi::PdfStamper.new(
-          form:,
-          stamped_template_path: file_path,
-          current_loa: @current_user.loa[:current],
-          timestamp: Time.current
-        )
-        stamper.stamp_pdf
-        raw_metadata = validated_metadata
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
-        status, confirmation_number = upload_pdf(file_path, metadata)
-        file_size = File.size(file_path).to_f / (2**20)
+        ar_monitoring.trace('ar.claims.form_upload.upload_response') do |span|
+          file_path = find_attachment_path(form_params[:confirmationCode])
+          stamper = SimpleFormsApi::PdfStamper.new(
+            form:,
+            stamped_template_path: file_path,
+            current_loa: @current_user.loa[:current],
+            timestamp: Time.current
+          )
+          stamper.stamp_pdf
+          raw_metadata = validated_metadata
+          metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
+          status, confirmation_number = upload_pdf(file_path, metadata)
+          file_size = File.size(file_path).to_f / (2**20)
 
-        Rails.logger.info(
-          'Accredited Rep Form Upload - scanned form uploaded',
-          { form_number: form_data[:formNumber], status:, confirmation_number:, file_size: }
-        )
-        [status, confirmation_number]
+          Rails.logger.info(
+            'Accredited Rep Form Upload - scanned form uploaded',
+            { form_number: form_data[:formNumber], status:, confirmation_number:, file_size: }
+          )
+
+          span.set_tag('upload_response.status', status)
+          span.set_tag('upload_response.confirmation_number', confirmation_number)
+          span.set_tag('upload_response.file_size_mb', file_size)
+
+          [status, confirmation_number]
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def find_attachment_path(confirmation_code)
         PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
       end
 
       def upload_pdf(file_path, metadata)
-        location, uuid = prepare_for_upload
-        log_upload_details(location, uuid)
-        response = perform_pdf_upload(location, file_path, metadata)
-        [response.status, uuid]
+        ar_monitoring.trace('ar.claims.form_upload.upload_pdf_to_benefits_intake') do |span|
+          location, uuid = prepare_for_upload
+          log_upload_details(location, uuid)
+          response = perform_pdf_upload(location, file_path, metadata)
+
+          span.set_tag('benefits_intake.status', response.status)
+          span.set_tag('benefits_intake.uuid', uuid)
+
+          [response.status, uuid]
+        end
       end
 
       def prepare_for_upload
-        location, uuid = lighthouse_service.request_upload
-        create_form_submission_attempt(uuid)
-
-        [location, uuid]
+        ar_monitoring.trace('ar.claims.form_upload.prepare_for_upload_request') do |span|
+          location, uuid = lighthouse_service.request_upload
+          create_form_submission_attempt(uuid)
+          span.set_tag('benefits_intake.upload_location_present', !location.nil?)
+          [location, uuid]
+        end
       end
 
       def create_form_submission_attempt(uuid)
-        FormSubmissionAttempt.transaction do
-          form_submission = create_form_submission
-          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        ar_monitoring.trace('ar.claims.form_upload.create_form_submission_attempt_db') do |_span|
+          FormSubmissionAttempt.transaction do
+            form_submission = create_form_submission
+            FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+          end
         end
       end
 
       def create_form_submission
-        FormSubmission.create(
-          form_type: form_data[:formNumber],
-          form_data: form_data.to_json,
-          user_account: @current_user&.user_account
-        )
+        ar_monitoring.trace('ar.claims.form_upload.create_form_submission_db') do |_span|
+          FormSubmission.create(
+            form_type: form_data[:formNumber],
+            form_data: form_data.to_json,
+            user_account: @current_user&.user_account
+          )
+        end
       end
 
       def log_upload_details(location, uuid)
@@ -157,21 +207,33 @@ module AccreditedRepresentativePortal
       end
 
       def perform_pdf_upload(location, file_path, metadata)
-        lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: file_path,
-          upload_url: location
-        )
+        ar_monitoring.trace('ar.claims.form_upload.perform_pdf_upload_api_call') do |_span|
+          lighthouse_service.perform_upload(
+            metadata: metadata.to_json,
+            document: file_path,
+            upload_url: location
+          )
+        end
       end
 
       def get_icn
-        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+        ar_monitoring.trace('ar.claims.form_upload.get_icn_from_mpi') do |span|
+          mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
 
-        if mpi.profile&.icn
-          mpi.profile.icn
-        else
-          raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
+          if mpi.profile&.icn
+            mpi.profile.icn
+          else
+            span.set_tag('error.specific_reason', 'Could not lookup claimant with given information.')
+            raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
+          end
         end
+      end
+
+      def ar_monitoring
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: ["controller:#{controller_name}", "action:#{action_name}"]
+        )
       end
     end
   end
