@@ -24,7 +24,7 @@ module CARMA
           metadata: metadata.merge(
             claim_id: claim.id,
             claim_guid: claim.guid,
-            submitted_at: claim.created_at&.iso8601
+            submitted_at: Time.now.utc.iso8601
           )
         )
       end

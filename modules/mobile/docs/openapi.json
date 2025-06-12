@@ -9680,6 +9680,12 @@
                 "nullable": true,
                 "example": "COMPENSATION & PENSION"
               },
+              "travelPayEligible": {
+                "type": "boolean",
+                "nullable": true,
+                "description": "Whether or not the appointment is eligible to file for travel pay reimbursement.",
+                "example": true
+              },
               "travelPayClaim": {
                 "type": "object",
                 "nullable": true,
@@ -9785,6 +9791,11 @@
                     }
                   }
                 }
+              },
+              "showScheduleLink": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
               }
             }
           }
