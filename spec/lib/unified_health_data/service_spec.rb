@@ -568,53 +568,54 @@ describe UnifiedHealthData::Service, type: :service do
       result = service.send(:fetch_reference_range, obs)
       expect(result).to eq('Normal: <100 mg/dL, 5.0 - 7.5, >= 4.0')
     end
-    
+
     it 'gracefully handles malformed reference range data' do
       # Test with various types of malformed data
       test_cases = [
         # Nil reference range
         { 'referenceRange' => nil },
-        
+
         # Empty array
         { 'referenceRange' => [] },
-        
+
         # Non-array reference range
         { 'referenceRange' => 'not an array' },
-        
+
         # Array with non-hash elements
         { 'referenceRange' => ['string', 123, nil] }
       ]
-      
+
       test_cases.each do |test_case|
         result = service.send(:fetch_reference_range, test_case)
         expect(result).to eq(''), "Failed for test case: #{test_case.inspect}"
       end
     end
-    
+
     it 'handles type field that is not a hash' do
       test_case = { 'referenceRange' => [{ 'low' => { 'value' => 10 }, 'type' => 'not a hash' }] }
       result = service.send(:fetch_reference_range, test_case)
       expect(result).to eq('>= 10')
     end
-    
+
     it 'handles missing low and high fields' do
       test_case = { 'referenceRange' => [{ 'other_field' => 'some value' }] }
       result = service.send(:fetch_reference_range, test_case)
       expect(result).to eq('')
     end
-    
+
     it 'handles non-numeric values in low/high' do
-      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 'not a number' }, 'high' => { 'value' => 'also not a number' } }] }
+      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 'not a number' },
+                                           'high' => { 'value' => 'also not a number' } }] }
       result = service.send(:fetch_reference_range, test_case)
       expect(result).to eq('')
     end
-    
+
     it 'handles malformed nested structures' do
       test_case = { 'referenceRange' => [{ 'low' => 'not a hash', 'high' => 123 }] }
       result = service.send(:fetch_reference_range, test_case)
       expect(result).to eq('')
     end
-    
+
     it 'handles low value with no unit and type with no text' do
       test_case = { 'referenceRange' => [{ 'low' => { 'value' => 5 }, 'type' => { 'coding' => [{}] } }] }
       result = service.send(:fetch_reference_range, test_case)
