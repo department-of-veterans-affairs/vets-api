@@ -35,7 +35,8 @@ require 'vets/model'
 #   @return [Array[Attachment]] an array of Attachments
 #
 class Message
-  MAX_TOTAL_FILE_SIZE_MB = 10.0
+  MAX_TOTAL_FILE_COUNT = Flipper.enabled?(:mhv_secure_messaging_large_attachments) ? 10.0 : 4.0
+  MAX_TOTAL_FILE_SIZE_MB = Flipper.enabled?(:mhv_secure_messaging_large_attachments) ? 25.0 : 10.0
   MAX_SINGLE_FILE_SIZE_MB = 6.0
 
   include Vets::Model
@@ -48,9 +49,9 @@ class Message
 
   # Always require body to be present: new message, drafts, and replies
   validates :body, presence: true
-  validates :uploads, length: { maximum: 4, message: 'has too many files (maximum is 4 files)' }
 
   # Only validate upload sizes if uploads are present.
+  validate :total_file_count_validation, if: proc { uploads.present? }
   validate :each_upload_size_validation, if: proc { uploads.present? }
   validate :total_upload_size_validation, if: proc { uploads.present? }
 
@@ -132,5 +133,10 @@ class Message
 
       errors.add(:base, "The #{upload.original_filename} exceeds file size limit of #{MAX_SINGLE_FILE_SIZE_MB} MB")
     end
+  end
+
+  def total_file_count_validation
+      return unless uploads.length > MAX_TOTAL_FILE_COUNT
+      errors.add(:base, "Total file count exceeds #{MAX_TOTAL_FILE_COUNT} files)")
   end
 end
