@@ -11,22 +11,23 @@ class ClaimsEvidenceApi::Submission < Submission
 
   alias_attribute :file_uuid, :va_claim_id
 
+  def x_folder_uri?
+    reference_data['x_folder_uri']
+  end
+
   # the Folder identifier that the file will be associated to
   # Header Format: folder-type:identifier-type:ID
   # Valid Folder-Types:
   # * VETERAN - Allows: FILENUMBER, SSN, PARTICIPANT_ID, SEARCH, ICN and EDIPI
   # * PERSON - Allows: PARTICIPANT_ID, SEARCH
-  def x_folder_uri?
-    reference[:x_folder_uri]
-  end
-
   # eg. VETERAN:FILENUMBER:987267855
   def x_folder_uri(type, identifier, id)
-    # todo: validate arguments
-    data = reference
-    data[:x_folder_uri] = "#{type}:#{identifier}:#{id}"
+    # TODO: validate arguments
 
-    self.reference = data
+    data = reference_data || {}
+    data['x_folder_uri'] = "#{type}:#{identifier}:#{id}"
+
+    self.reference_data = data
 
     x_folder_uri?
   end

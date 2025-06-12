@@ -10,14 +10,6 @@ module SubmissionEncryption
 
     has_kms_key
     has_encrypted :reference_data, key: :kms_key, **lockbox_options
-
-    def reference
-      JSON.parse(reference_data || {}.to_json, symbolize_names: true)
-    end
-
-    def reference=(data)
-      self.reference_data = JSON.generate(data)
-    end
   end
 end
 
@@ -25,4 +17,10 @@ class Submission < ApplicationRecord
   self.abstract_class = true
 
   validates :form_id, presence: true
+
+  has_many :submission_attempts, dependent: :destroy
+
+  def latest_attempt
+    submission_attempts&.order(created_at: :asc).last
+  end
 end

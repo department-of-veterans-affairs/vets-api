@@ -2,19 +2,25 @@
 
 require 'json_marshal/marshaller'
 
+module SubmissionAttemptEncryption
+  extend ActiveSupport::Concern
+
+  included do
+    serialize :metadata, coder: JsonMarshal::Marshaller
+    serialize :error_message, coder: JsonMarshal::Marshaller
+    serialize :response, coder: JsonMarshal::Marshaller
+
+    has_kms_key
+    has_encrypted :metadata, key: :kms_key, **lockbox_options
+    has_encrypted :error_message, key: :kms_key, **lockbox_options
+    has_encrypted :response, key: :kms_key, **lockbox_options
+  end
+end
+
 class SubmissionAttempt < ApplicationRecord
   self.abstract_class = true
 
   validates :submission, presence: true
-
-  serialize :metadata, coder: JsonMarshal::Marshaller
-  serialize :error_message, coder: JsonMarshal::Marshaller
-  serialize :response, coder: JsonMarshal::Marshaller
-
-  has_kms_key
-  has_encrypted :metadata, key: :kms_key, **lockbox_options
-  has_encrypted :error_message, key: :kms_key, **lockbox_options
-  has_encrypted :response, key: :kms_key, **lockbox_options
 
   after_create :update_submission_status
   before_update :update_submission_status
