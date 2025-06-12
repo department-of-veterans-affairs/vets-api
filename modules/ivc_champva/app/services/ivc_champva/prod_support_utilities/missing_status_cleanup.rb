@@ -75,7 +75,9 @@ module IvcChampva
         form = batch[0] # Grab a representative form
         fraction = "#{nil_in_batch.length}/#{batch.length}"
         Rails.logger.debug '---'
-        Rails.logger.debug { "#{form.first_name} #{form.last_name} missing PEGA status on #{fraction} attachments - #{form.email}\n" }
+        Rails.logger.debug do
+          "#{form.first_name} #{form.last_name} missing PEGA status on #{fraction} attachments - #{form.email}\n"
+        end
         Rails.logger.debug { "Form UUID:   #{form.form_uuid}" }
         Rails.logger.debug { "Form:   #{form.form_number}" }
         Rails.logger.debug { "Uploaded at: #{form.created_at}" }
