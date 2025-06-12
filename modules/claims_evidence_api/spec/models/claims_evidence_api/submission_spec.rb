@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'models/_shared_examples/submission'
 
 RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
-  it_behaves_like 'a Submission model'
-
   let(:submission) { described_class.new }
+
+  it_behaves_like 'a Submission model'
 
   it 'sets and retrieves x_folder_uri' do
     expect(submission.reference_data).to be_nil

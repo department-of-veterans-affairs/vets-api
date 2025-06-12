@@ -2,6 +2,7 @@
 
 require 'json_marshal/marshaller'
 
+# Concern to add encryption columns to SubmissionAttempt class
 module SubmissionAttemptEncryption
   extend ActiveSupport::Concern
 
@@ -17,12 +18,11 @@ module SubmissionAttemptEncryption
   end
 end
 
+# Representation of an abstract SubmissionAttempt to a service
 class SubmissionAttempt < ApplicationRecord
   self.abstract_class = true
 
   validates :submission, presence: true
-
-  belongs_to :submission, inverse_of: :submission_attempts
 
   after_create :update_submission_status
   before_update :update_submission_status

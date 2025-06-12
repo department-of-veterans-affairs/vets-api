@@ -2,6 +2,7 @@
 
 require 'json_marshal/marshaller'
 
+# Concern to add encryption columns to Submission class
 module SubmissionEncryption
   extend ActiveSupport::Concern
 
@@ -13,6 +14,7 @@ module SubmissionEncryption
   end
 end
 
+# Representation of an abstract Submission to a service
 class Submission < ApplicationRecord
   self.abstract_class = true
 
@@ -21,6 +23,6 @@ class Submission < ApplicationRecord
   has_many :submission_attempts, dependent: :destroy
 
   def latest_attempt
-    submission_attempts&.order(created_at: :asc).last
+    submission_attempts&.order(created_at: :asc)&.last
   end
 end
