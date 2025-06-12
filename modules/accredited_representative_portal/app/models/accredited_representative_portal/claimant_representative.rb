@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+##
+# TODO: Remove. This is a temporary workaround for a maintenance period for
+# Lighthouse Benefits Claims API in Sandbox.
+#
+require AccreditedRepresentativePortal::Engine.root.join(
+  'lib/accredited_representative_portal/get_power_of_attorney_workaround'
+)
+
 module AccreditedRepresentativePortal
   class ClaimantRepresentative <
     Data.define(
@@ -69,6 +77,12 @@ module AccreditedRepresentativePortal
     end
 
     class Claimant
+      ##
+      # TODO: Remove. This is a temporary workaround for a maintenance period for
+      # Lighthouse Benefits Claims API in Sandbox.
+      #
+      using GetPowerOfAttorneyWorkaround
+
       def initialize(id: nil, icn: nil)
         unless [id, icn].one?(&:present?)
           raise ArgumentError, <<~MSG.squish
