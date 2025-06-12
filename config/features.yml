@@ -1878,14 +1878,6 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
-  payment_history_exclude_third_party_disbursements:
-    actor_type: user
-    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
-    enable_in_development: false
-  payment_history_recategorize_hardship:
-    actor_type: user
-    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
-    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
