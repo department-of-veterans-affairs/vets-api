@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dependents_verification/monitor'
+
 module DependentsVerification
   class DependentInformation
     include Vets::Model
@@ -11,14 +13,6 @@ module DependentsVerification
     attribute :relationship_to_veteran, String
     attribute :removal_date, Date
     attribute :enrollment_type, String
-
-    def hyphenated_ssn
-      StringHelpers.hyphenated_ssn(ssn)
-    end
-
-    def ssn_last_four
-      ssn.last(4)
-    end
   end
 
   # extends app/models/form_profile.rb, which handles form prefill
@@ -44,21 +38,40 @@ module DependentsVerification
     #
     # @return [Hash]
     def prefill
-      @identity_information = initialize_identity_information
-      @contact_information = initialize_contact_information
-      @dependents_information = initialize_dependents_information
+      monitor = DependentsVerification::Monitor.new
+      begin
+        @identity_information = initialize_identity_information
+      rescue => e
+        monitor.track_prefill_error('identity_information', e)
+      end
+
+      begin
+        @contact_information = initialize_contact_information
+      rescue => e
+        monitor.track_prefill_error('contact_information', e)
+      end
+
+      begin
+        @dependents_information = initialize_dependents_information
+      rescue => e
+        monitor.track_prefill_error('dependents_information', e)
+      end
 
       mappings = self.class.mappings_for_form(form_id)
 
       form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form_id)
-      puts form_data
       { form_data:, metadata: }
     end
 
     def initialize_dependents_information
       dependents = dependent_service.get_dependents
-      dependents[:diaries] = dependency_verification_service.read_diaries
-      dependents[:persons].map do |person|
+
+      return [] if dependents.nil? || dependents[:persons].blank?
+
+      dependents[:persons].filter_map do |person|
+        # Skip if the dependent is not active for benefits
+        return nil if person[:award_indicator] == 'N'
+
         DependentInformation.new(
           full_name: FormFullName.new({
                                         first: person[:first_name],
@@ -77,16 +90,7 @@ module DependentsVerification
     end
 
     def dependent_service
-      puts user
-      @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, user)
-                               BGS::DependentV2Service.new(user)
-                             else
-                               BGS::DependentService.new(user)
-                             end
-    end
-
-    def dependency_verification_service
-      @dependency_verification_service ||= BGS::DependencyVerificationService.new(user)
+      @dependent_service ||= BGS::DependentService.new(user)
     end
 
     ##

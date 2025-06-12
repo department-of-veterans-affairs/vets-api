@@ -25,6 +25,16 @@ module DependentsVerification
       @tags = ["form_id:#{form_id}"]
     end
 
+    ##
+    # Tracks a failure in prefill
+    #
+    # @param category [String] The category of the prefill that failed
+    # @param error [StandardError] The error that occurred during prefill
+    # @return [void]
+    def track_prefill_error(category, error)
+      submit_event('info', "Form21-0538 #{category} prefill failed. #{error.message}", claim_stats_key, { form_id: })
+    end
+
     private
 
     ##
