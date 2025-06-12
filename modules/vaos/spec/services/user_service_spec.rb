@@ -88,7 +88,7 @@ describe VAOS::UserService do
 
       it 'saves the session token in the cache' do
         subject.session(user)
-        token = Oj.load($redis.get("va-mobile-session:#{user.account_uuid}"))[:token]
+        token = Oj.load($redis.get("va-mobile-session:#{user.user_account_uuid}"))[:token]
 
         expect(token).to eq(expected_sts_token[:access_token])
       end
