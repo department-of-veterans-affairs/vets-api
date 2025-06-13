@@ -85,7 +85,7 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
             'providerFacility' => [
               {
                 'providerFacilityName' => 'Test Provider',
-                'conditionsTreated' => 'Hypertension,Diabetes,PTSD'
+                'conditionsTreated' => 'Hypertension, Diabetes, PTSD'
               },
               {
                 'providerFacilityName' => 'First Provider',
