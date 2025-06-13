@@ -15,9 +15,20 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   let(:api_key) { 'test-api-key' }
   let(:response) { Struct.new(:id).new(Faker::Internet.uuid) }
   let(:client) { instance_double(VaNotify::Service) }
+  let(:callback_options) do
+    {
+      callback_klass: 'EmailDeliveryStatusCallback',
+      callback_metadata: {
+        statsd_tags: {
+          service: 'accredited-representative-portal',
+          function: "poa_request_#{type}_email"
+        }
+      }
+    }
+  end
 
   before do
-    allow(VaNotify::Service).to receive(:new).with(api_key, {}).and_return(client)
+    allow(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
     allow(client).to receive(:send_email).and_return(response)
   end
 
@@ -35,6 +46,16 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
 
       power_of_attorney_request_notification.reload
       expect(power_of_attorney_request_notification.notification_id).to eq(response.id)
+    end
+
+    context 'when building callback options based on notification type' do
+      let(:type) { 'requested' }
+
+      it 'passes callback options with the correct function tag to VaNotify::Service' do
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+
+        described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
+      end
     end
 
     it 'handles VANotify::Error with status code 400 and does not update the poa_request_notification record' do
