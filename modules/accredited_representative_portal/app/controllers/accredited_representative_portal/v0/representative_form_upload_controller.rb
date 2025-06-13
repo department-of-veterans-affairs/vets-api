@@ -10,6 +10,11 @@ module AccreditedRepresentativePortal
 
       VALID_FORM_NUMBERS = %w[21-686c].freeze
 
+      before_action :authorize_attachment_upload, only: %i[
+        upload_scanned_form
+        upload_supporting_documents
+      ]
+
       def submit
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
@@ -18,66 +23,51 @@ module AccreditedRepresentativePortal
       end
 
       def upload_scanned_form
-        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        handle_attachment_upload(PersistentAttachments::VAForm)
+        handle_attachment_upload(
+          PersistentAttachments::VAForm,
+          PersistentAttachmentVAFormSerializer
+        )
       end
 
       def upload_supporting_documents
-        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        handle_attachment_upload(PersistentAttachments::VAFormDocumentation)
+        handle_attachment_upload(
+          PersistentAttachments::VAFormDocumentation,
+          PersistentAttachmentSerializer
+        )
       end
 
       private
 
-      def handle_attachment_upload(attachment_type)
-        attachment = create_attachment(attachment_type)
-        error = validate_attachment_upstream!(attachment)
-        return render_error("Document validation failed: #{error.message}") if error
-
-        error = validate_attachment!(attachment)
-        return render_error("Document validation failed: #{error.message}") if error
-
-        attachment.save
-        render json: serialized(attachment)
+      def authorize_attachment_upload
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
       end
 
-      def create_attachment(attachment_type)
-        attachment_type.new(form_id: params[:form_id], file: params['file'])
-      end
+      def handle_attachment_upload(model_klass, serializer_klass)
+        attachment =
+          SavedClaimService::Attach.perform(
+            model_klass, **params.permit(:file, :form_id)
+          )
 
-      def validate_attachment!(attachment)
-        attachment.validate!
-        nil
-      rescue ActiveRecord::RecordInvalid => e
-        Rails.logger.error({
-                             message: 'Attachment validation failed',
-                             error: e.message,
-                             form_id: attachment.form_id,
-                             user_id: @current_user.uuid
-                           })
-        e
-      end
-
-      def validate_attachment_upstream!(attachment)
-        lighthouse_service.valid_document?(document: attachment.to_pdf)
-        nil
-      rescue BenefitsIntake::Service::InvalidDocumentError => e
-        Rails.logger.error({
-                             message: 'Upstream document validation failed',
-                             error: e.message,
-                             user_id: @current_user.uuid
-                           })
-        e
-      end
-
-      def render_error(message)
-        render json: { error: message }, status: :unprocessable_entity
-      end
-
-      def serialized(attachment)
-        PersistentAttachmentSerializer.new(attachment).as_json.deep_transform_keys do |key|
+        json = serializer_klass.new(attachment).as_json
+        json = json.deep_transform_keys do |key|
           key.camelize(:lower)
         end
+
+        render json:
+      rescue SavedClaimService::Attach::RecordInvalidError => e
+        raise Common::Exceptions::ValidationErrors, e.record
+      rescue SavedClaimService::Attach::UpstreamInvalidError => e
+        raise Common::Exceptions::UpstreamUnprocessableEntity,
+              detail: e.message
+
+      ##
+      # Once we have a uniform strategy for handling errors in our controllers,
+      # we may be comfortable allowing parent code to handle these generic
+      # errors for us implicitly.
+      #
+      rescue SavedClaimService::Attach::UnknownError => e
+        # Is there any particular reason to prefer `e.cause` over `e`?
+        raise Common::Exceptions::InternalServerError, e.cause
       end
 
       def lighthouse_service
