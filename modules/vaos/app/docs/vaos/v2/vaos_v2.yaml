@@ -941,6 +941,7 @@ paths:
           schema:
             type: string
             format: date-time
+            example: '2026-05-13T17:42:00Z'
       responses:
         "200":
           description: Retrieves all matching relationships for the patient
