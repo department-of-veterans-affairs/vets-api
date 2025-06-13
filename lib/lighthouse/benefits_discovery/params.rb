@@ -9,12 +9,10 @@ module BenefitsDiscovery
     def prepared_params
       {
         dateOfBirth: @user.birth_date,
-        dischargeStatus: service_history.collect(&:character_of_discharge_code),
-        branchOfService: service_history.collect(&:branch_of_service),
+        dischargeStatus: discharge_status,
+        branchOfService: service_history.collect { |sh| sh.branch_of_service&.upcase },
         disabilityRating: disability_rating,
         serviceDates: service_history.collect { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
-        # serviceHistory
-        # purpleHeartRecipientDates: Array.wrap(params[:purple_heart_recipient_dates])
       }.compact_blank
     end
 
@@ -32,6 +30,13 @@ module BenefitsDiscovery
         response = service.get_service_history
         response.episodes
       end
+    end
+
+    def discharge_status
+      discharge_codes = service_history.collect(&:character_of_discharge_code)
+      # log error if no match
+      discharges = discharge_codes.map { |b| VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[b] }
+      discharges.map { |d| "#{d.upcase.gsub('-', '_')}_DISCHARGE" }
     end
   end
 end

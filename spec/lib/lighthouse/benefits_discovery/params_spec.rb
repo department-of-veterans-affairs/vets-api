@@ -16,8 +16,8 @@ RSpec.describe BenefitsDiscovery::Params do
     it 'returns the correct prepared parameters' do
       expected_params = {
         dateOfBirth: '1809-02-12',
-        dischargeStatus: ['B'], # is this ok? docs show whole words. need to test.
-        branchOfService: ['Army'],
+        dischargeStatus: ['GENERAL_DISCHARGE'],
+        branchOfService: ['ARMY'],
         disabilityRating: 100,
         serviceDates: [{ beginDate: '2002-02-02', endDate: '2008-12-01' }]
       }
