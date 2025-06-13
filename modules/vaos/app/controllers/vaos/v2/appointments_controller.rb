@@ -791,7 +791,7 @@ module VAOS
       # @param referral_number [String] The referral number to lookup the start time for
       # @return [void]
       def log_referral_booking_duration(referral_number)
-        start_time = ccra_referral_service.fetch_booking_start_time(
+        start_time = ccra_referral_service.get_booking_start_time(
           referral_number,
           current_user.icn
         )
