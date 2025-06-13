@@ -10,9 +10,10 @@ module Lighthouse
 
         attribute :cvx_code, Integer
         attribute :date, DateTime
-        attribute :dose_number, Integer
-        attribute :dose_series, Integer
+        attribute :dose_number, String
+        attribute :dose_series, String
         attribute :group_name, String
+        attribute :location_id, String
         attribute :manufacturer, String
         attribute :note, String
         attribute :reaction, String
