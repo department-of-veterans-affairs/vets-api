@@ -282,9 +282,11 @@ module UnifiedHealthData
         }
         format_low_high_range(params)
       elsif low_value
-        "#{range_type}>= #{low_value}"
+        low_unit_str = low_unit.empty? ? '' : " #{low_unit}"
+        "#{range_type}>= #{low_value}#{low_unit_str}"
       elsif high_value
-        "#{range_type}<= #{high_value}"
+        high_unit_str = high_unit.empty? ? '' : " #{high_unit}"
+        "#{range_type}<= #{high_value}#{high_unit_str}"
       else
         ''
       end

@@ -411,7 +411,7 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('>= 94')
+        expect(result.first.reference_range).to eq('>= 94 %')
       end
 
       it 'returns observations with only high value in reference range' do
@@ -448,7 +448,7 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('<= 120')
+        expect(result.first.reference_range).to eq('<= 120 mg/dL')
       end
 
       it 'handles mixed reference range formats correctly' do
