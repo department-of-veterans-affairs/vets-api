@@ -11,6 +11,13 @@ module PdfFill
     MEAN_CHAR_WIDTH = 4.5
     HEADER_BODY_GAP = 25
     BODY_FOOTER_GAP = 27
+    # Constants for the back to section link text boxes
+    BOUNDING_BOX_X_OFFSET = 300
+    BOUNDING_BOX_Y_OFFSET = 5
+    BOUNDING_BOX_HEIGHT = 15
+    FORMATTED_TEXT_BOX_X = 0
+    FORMATTED_TEXT_BOX_Y = 7
+    TEXT_SIZE = 10.5
 
     class Question
       attr_accessor :section_index, :overflow
@@ -546,10 +553,71 @@ module PdfFill
            end
     end
 
+    def calculate_text_box_position(pdf, section_label, start_y)
+      {
+        width: pdf.width_of("Back to #{section_label}"),
+        x: section_label == 'Section III' ? pdf.bounds.left : pdf.bounds.left + BOUNDING_BOX_X_OFFSET,
+        y: section_label == 'Section III' ? start_y + 10 : start_y - BOUNDING_BOX_Y_OFFSET
+      }
+    end
+
+    def create_formatted_text_options(return_text)
+      [{
+        text: return_text,
+        color: '0000FF',
+        size: TEXT_SIZE,
+        styles: [:underline]
+      }]
+    end
+
+    def render_back_to_section_text(pdf, section_index, start_y)
+      return_section_label = @sections[section_index][:label].split(':')[0]
+
+      return_text = "Back to #{return_section_label}"
+      box_position = calculate_text_box_position(pdf, return_section_label, start_y)
+
+      pdf.bounding_box(
+        [box_position[:x], box_position[:y]],
+        width: box_position[:width],
+        height: BOUNDING_BOX_HEIGHT
+      ) do
+        pdf.formatted_text_box(
+          create_formatted_text_options(return_text),
+          at: [FORMATTED_TEXT_BOX_X, FORMATTED_TEXT_BOX_Y],
+          width: box_position[:width],
+          height: BOUNDING_BOX_HEIGHT,
+          align: :right
+        )
+      end
+
+      store_section_coordinates(pdf, section_index, box_position)
+    end
+
+    def store_section_coordinates(pdf, section_index, box_position)
+      (@section_coordinates ||= []) << {
+        section: section_index,
+        page: pdf.page_count,
+        x: box_position[:x] + 35,
+        y: box_position[:y] + 35,
+        width: box_position[:width],
+        height: 20,
+        dest: @sections[section_index][:dest_name]
+      }
+    end
+
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
+      start_y = pdf.cursor # gets the starting position to align the return text with the section header
       pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
+      start_y = pdf.cursor if section_index == 2
+
+      render_back_to_section_text(pdf, section_index, start_y)
+    end
+
+    # Add a method to access the coordinates
+    def section_coordinates
+      @section_coordinates || []
     end
 
     def set_header(pdf)
