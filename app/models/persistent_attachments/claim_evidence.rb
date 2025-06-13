@@ -17,6 +17,9 @@ class PersistentAttachments::ClaimEvidence < PersistentAttachment
 
   ##
   # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+  # ***********************************************************************************
+  # Note: This CAN NOT be removed as long as there are existing records of this type. *
+  # ***********************************************************************************
   #
   def kms_encryption_context
     {
