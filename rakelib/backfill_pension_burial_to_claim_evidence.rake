@@ -15,7 +15,10 @@ namespace :persistent_attachments do
       .where(type: 'PersistentAttachments::PensionBurial')
       .find_in_batches(batch_size:) do |batch|
         batch.each do |record|
+          file_data = record.file_data
+
           record.type = 'PersistentAttachments::ClaimEvidence'
+          record.file_data = file_data # triggers re-encryption with new context
           record.save!(validate: false)
           migrated += 1
         rescue => e
