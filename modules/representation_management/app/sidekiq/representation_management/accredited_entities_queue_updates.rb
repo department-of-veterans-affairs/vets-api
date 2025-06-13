@@ -3,7 +3,7 @@
 require 'sidekiq'
 
 module RepresentationManagement
-  class AgentsAndAttorneysQueueUpdate
+  class AccreditedEntitiesQueueUpdates
     include Sidekiq::Job
 
     
