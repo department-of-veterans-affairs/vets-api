@@ -148,6 +148,31 @@ module AccreditedRepresentativePortal
         allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(true)
       end
 
+      context 'when OGC client returns a conflict during registration' do
+        let!(:representative) do
+          create(:representative,
+                 user_types: ['veteran_service_officer'],
+                 representative_id: 'REG123456',
+                 email: user_email)
+        end
+
+        before do
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(nil)
+
+          # Mock the conflict response from OGC client
+          allow(ogc_client).to receive(:post_icn_and_registration_combination)
+            .with(icn, 'REG123456')
+            .and_return(:conflict)
+        end
+
+        it 'raises a Forbidden error with appropriate message' do
+          expect { user_account.send(:registration_numbers) }
+            .to raise_error(Common::Exceptions::Forbidden, /Forbidden/)
+        end
+      end
+
       context 'when OGC returns registration numbers' do
         let!(:representative1) do
           create(:representative,

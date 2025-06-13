@@ -32,6 +32,11 @@ module AccreditedRepresentativePortal
       begin
         response = make_icn_reg_post_request(icn, registration_number)
 
+        if response.status == 409
+          Rails.logger.info('Conflict detected when registering ICN and registration number combination')
+          return :conflict
+        end
+
         return true if response.status == 200 && response.body.present?
 
         false
