@@ -24,10 +24,10 @@ This plan details the steps to add a `/mobile/feature_toggles` endpoint with ide
 - [x] Maintain existing interface and response format
 
 ### 3. Create Mobile Controller
-- [ ] Create `app/controllers/mobile/feature_toggles_controller.rb`
-- [ ] Use `FeatureTogglesService` for all logic
-- [ ] Set appropriate `service_tag` and authentication handling
-- [ ] Ensure response format matches web endpoint
+- [x] Create `modules/mobile/app/controllers/mobile/v0/feature_toggles_controller.rb`
+- [x] Use `FeatureTogglesService` for all logic
+- [x] Set appropriate `service_tag` and authentication handling
+- [x] Ensure response format matches web endpoint
 
 ### 4. Update Routes
 - [ ] Add route for `/mobile/feature_toggles` in `config/routes.rb`
