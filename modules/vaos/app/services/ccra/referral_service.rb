@@ -46,9 +46,9 @@ module Ccra
           response = perform(:get, "/#{config.base_path}/#{icn}/referrals/#{id}", {}, request_headers)
           referral = ReferralDetail.new(response.body)
         end
+        cache_referral_data(referral, id, icn)
       end
 
-      cache_referral_data(referral, id, icn)
       cache_booking_start_time(referral.referral_number)
       referral
     end
