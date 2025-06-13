@@ -2,9 +2,9 @@
 
 FactoryBot.define do
   factory :accreditation_api_entity_count, class: 'RepresentationManagement::AccreditationApiEntityCount' do
-    agents { 100 }
-    attorneys { 200 }
-    representatives { 300 }
-    veteran_service_organizations { 50 }
+    agents { 10 }
+    attorneys { 10 }
+    representatives { 10 }
+    veteran_service_organizations { 10 }
   end
 end

@@ -41,7 +41,6 @@ module RepresentationManagement
       end
     end
 
-    private
 
     def client
       RepresentationManagement::GCLAWS::Client
@@ -100,10 +99,9 @@ module RepresentationManagement
 
       log_to_slack_threshold_channel(message)
       # TODO Change the following to datadog
-      log_message_to_sentry("AccreditationApiEntityCount threshold exceeded for #{rep_type}", :warn,
-                            previous_count:,
-                            new_count:,
-                            decrease_percentage:)
+      log_error("AccreditationApiEntityCount threshold exceeded for #{rep_type}, previous: #{previous_count}, " \
+                "new: #{new_count}, decrease: #{(decrease_percentage * 100).round(2)}%")
+
     end
   end
 end
