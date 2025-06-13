@@ -96,21 +96,6 @@ module AccreditedRepresentativePortal
         # Is there any particular reason to prefer `e.cause` over `e`?
         raise Common::Exceptions::InternalServerError, e.cause
       end
-
-      def claimant_representative
-        @claimant_representative ||=
-          ClaimantRepresentative.find do |finder|
-            finder.for_claimant(
-              icn: claimant_icn
-            )
-
-            finder.for_representative(
-              icn: current_user.icn,
-              email: current_user.email,
-              all_emails: current_user.all_emails
-            )
-          end
-      end
     end
   end
 end
