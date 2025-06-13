@@ -206,7 +206,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         before do
           Timecop.freeze
-          allow(service_double).to receive(:get_referral) do |_id, user_icn|
+          allow(service_double).to receive(:get_referral) do |_id, _user_icn|
             # Simulate the service's behavior of setting the booking start time
             client.save_booking_start_time(
               referral_number:,
