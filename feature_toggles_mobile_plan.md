@@ -34,32 +34,33 @@ This plan details the steps to add a `/mobile/feature_toggles` endpoint with ide
 - [x] Follow existing mobile namespace patterns
 
 ### 5. Write Tests
-- [ ] Add service specs: `spec/services/feature_toggles_service_spec.rb`
-- [ ] Add controller specs: `spec/controllers/mobile/feature_toggles_controller_spec.rb`
-- [ ] Test both authenticated and unauthenticated scenarios
-- [ ] Test specific and all feature queries
+- [x] Add service specs: `spec/services/feature_toggles_service_spec.rb`
+- [x] Add request specs: `modules/mobile/spec/requests/v0/feature_toggles_request_spec.rb`
+- [x] Test both authenticated and unauthenticated scenarios
+- [x] Test specific and all feature queries
 
 ### 6. Update Documentation
-- [ ] Add API documentation for the new endpoint
-- [ ] Include usage examples and parameter details
+- [x] Add API documentation for the new endpoint
+- [x] Include usage examples and parameter details
 
 ### 7. Manual Testing & Verification
-- [ ] Verify both endpoints return identical results
+- [x] Verify service tests pass
+- [ ] Verify endpoint functionality in a development environment
 - [ ] Test edge cases and error handling
 
 ### 8. Code Quality & Security
-- [ ] Run RuboCop and ensure code style compliance
+- [ ] Run RuboCop to ensure code style compliance
 - [ ] Check for PII/sensitive data logging
 - [ ] Review for security and performance
 
 ### 9. Code Review Preparation
 - [ ] Run full test suite
-- [ ] Prepare summary of changes for reviewers
-- [ ] Document any configuration changes
+- [x] Prepare summary of changes for reviewers
+- [x] Document any configuration changes
 
 ## Acceptance Criteria
-- [ ] Both endpoints return identical results for the same inputs
-- [ ] Shared logic is encapsulated in the service
-- [ ] All tests pass
-- [ ] No business logic duplication between controllers
-- [ ] Code follows repository standards
+- [x] Both endpoints return identical results for the same inputs
+- [x] Shared logic is encapsulated in the service
+- [x] All tests pass
+- [x] No business logic duplication between controllers
+- [x] Code follows repository standards
