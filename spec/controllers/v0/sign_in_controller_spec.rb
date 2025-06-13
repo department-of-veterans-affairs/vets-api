@@ -1492,12 +1492,10 @@ RSpec.describe V0::SignInController, type: :controller do
              authentication:,
              anti_csrf:,
              pkce:,
-             certificates: [client_assertion_certificate],
              enforced_terms:,
              shared_sessions:)
     end
     let(:enforced_terms) { nil }
-    let(:client_assertion_certificate) { nil }
     let(:pkce) { true }
     let(:anti_csrf) { false }
     let(:loa) { nil }
@@ -1584,10 +1582,11 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expiration_time) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.since.to_i }
         let(:created_time) { Time.zone.now.to_i }
         let(:uuid) { 'some-uuid' }
-        let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
         let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
-        let(:assertion_certificate) { File.read(certificate_path) }
-        let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
+        let(:assertion_certificate) do
+          create(:sign_in_certificate, pem: File.read('spec/fixtures/sign_in/sts_client.crt'))
+        end
+        let(:service_account_config) { create(:service_account_config, certs: [assertion_certificate]) }
         let(:assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
         let(:assertion_value) do
           JWT.encode(assertion_payload, private_key, assertion_encode_algorithm)
@@ -1839,6 +1838,16 @@ RSpec.describe V0::SignInController, type: :controller do
               end
 
               context 'and client_assertion is a valid jwt' do
+                let!(:client_config) do
+                  create(:client_config,
+                         authentication:,
+                         anti_csrf:,
+                         pkce:,
+                         enforced_terms:,
+                         shared_sessions:,
+                         certs:)
+                end
+
                 let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
                 let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
                 let(:client_assertion_payload) do
@@ -1859,8 +1868,9 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:client_assertion_value) do
                   JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
                 end
-                let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
-                let(:client_assertion_certificate) { File.read(certificate_path) }
+                let(:certs) do
+                  [create(:sign_in_certificate, pem: File.read('spec/fixtures/sign_in/sample_client.crt'))]
+                end
                 let(:user_verification_id) { user_verification.id }
                 let(:user_verification) { create(:user_verification) }
                 let(:expected_log) { '[SignInService] [V0::SignInController] token' }
