@@ -21,6 +21,11 @@ ask_va_api:
     client_id: client_id
     client_secret: secret
     e_subscription_key: e_subscription_key
+    environments:
+      development: 'iris-dev'
+      production: 'veft'
+      staging: 'veft-preprod'
+      test: 'iris-dev'
     ocp_apim_subscription_key: subscription_key
     resource: resource
     s_subscription_key: s_subscription_key
