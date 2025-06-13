@@ -57,21 +57,29 @@ module AccreditedRepresentativePortal
         end
       end
 
-      context 'when user has at least one POA holder but does not accept digital POAs' do
+      context 'when user has at least one POA holder' do
         let(:power_of_attorney_holders) do
           [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
                                      can_accept_digital_poa_requests: false)]
         end
 
+        it 'allows access' do
+          expect(policy.upload_scanned_form?).to be true
+        end
+      end
+    end
+
+    describe '#upload_supporting_documents' do
+      context 'when user has no POA holders' do
         it 'denies access' do
           expect(policy.upload_scanned_form?).to be false
         end
       end
 
-      context 'when user has at least one POA holder that accepts digital POAs' do
+      context 'when user has at least one POA holder' do
         let(:power_of_attorney_holders) do
           [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                     can_accept_digital_poa_requests: true)]
+                                    can_accept_digital_poa_requests: false)]
         end
 
         it 'allows access' do
