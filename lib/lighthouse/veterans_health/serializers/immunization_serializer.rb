@@ -37,15 +37,22 @@ module Lighthouse
         # @return [Lighthouse::VeteransHealth::Models::ImmunizationAttributes] the populated attributes
         def self.build_immunization_attributes(resource)
           attrs = Lighthouse::VeteransHealth::Models::ImmunizationAttributes.new
-          attrs.cvx_code = extract_cvx_code(resource.dig('vaccineCode', 'coding'))
-          attrs.date = parse_datetime(resource['occurrenceDateTime'])
-          attrs.dose_number = extract_dose_number(resource['protocolApplied'])
-          attrs.dose_series = extract_dose_series(resource['protocolApplied'])
-          attrs.group_name = extract_group_name(resource.dig('vaccineCode', 'text'))
-          attrs.manufacturer = resource.dig('manufacturer', 'display')
-          attrs.note = parse_notes(resource['note'])
-          attrs.reaction = parse_reaction(resource['reaction'])
-          attrs.short_description = resource.dig('vaccineCode', 'text')
+
+          vaccine_code = resource['vaccineCode'] || {}
+          protocol_applied = resource['protocolApplied'] || []
+          group_name = extract_group_name(vaccine_code)
+
+          attrs.cvx_code = extract_cvx_code(vaccine_code)
+          attrs.date = resource['occurrenceDateTime']
+          attrs.dose_number = extract_dose_number(protocol_applied)
+          attrs.dose_series = extract_dose_series(protocol_applied)
+          attrs.group_name = group_name
+          attrs.location_id = extract_location_id(resource['location'])
+          attrs.manufacturer = extract_manufacturer(resource, group_name)
+          attrs.note = extract_note(resource['note'])
+          attrs.reaction = extract_reaction(resource['reaction'])
+          attrs.short_description = vaccine_code['text']
+
           attrs
         end
 
@@ -91,68 +98,71 @@ module Lighthouse
           end
         end
 
-        def self.extract_cvx_code(codings)
-          return nil if codings.blank?
+        # --- Extraction methods matching the adapter logic ---
 
-          cvx_coding = codings.find { |coding| coding['system'] == 'http://hl7.org/fhir/sid/cvx' }
-          cvx_coding&.dig('code')&.to_i
+        def self.extract_cvx_code(vaccine_code)
+          coding = vaccine_code['coding']&.first
+          code = coding && coding['code']
+          code.present? ? code.to_i : nil
         end
 
         def self.extract_dose_number(protocol_applied)
-          return nil if protocol_applied.blank? || protocol_applied.empty?
+          return nil if protocol_applied.blank?
 
-          dose_string = protocol_applied.first&.dig('doseNumberString')
-          return nil unless dose_string
-
-          match = dose_string.match(/(\d+)/)
-          match ? match[1].to_i : nil
+          series = protocol_applied.first || {}
+          series['doseNumberPositiveInt'] || series['doseNumberString']
         end
 
         def self.extract_dose_series(protocol_applied)
           return nil if protocol_applied.blank?
 
-          dose_string = protocol_applied.first&.dig('doseNumberString')
-          return nil unless dose_string
-
-          match = dose_string.match(/Series (\d+)/)
-          match ? match[1].to_i : nil
+          series = protocol_applied.first || {}
+          series['seriesDosesPositiveInt'] || series['seriesDosesString'] || series['doseNumberString']
         end
 
-        def self.extract_group_name(immunization_text)
-          return nil if immunization_text.nil?
+        def self.extract_group_name(vaccine_code)
+          coding = vaccine_code['coding'] || []
+          filtered = coding.select { |v| v['display']&.include?('VACCINE GROUP: ') }
 
-          # Common immunization group names
-          if immunization_text.include?('COVID')
-            'COVID-19'
-          elsif immunization_text.include?('Influenza') || immunization_text.include?('Flu')
-            'Influenza'
-          elsif immunization_text.include?('Tetanus') || immunization_text.include?('DTaP')
-            'Tetanus'
-          elsif immunization_text.include?('Hepatitis')
-            'Hepatitis'
+          if filtered.empty?
+            group_name = vaccine_code.dig('coding', 1, 'display') || vaccine_code.dig('coding', 0, 'display')
           else
-            'Other'
+            group_name = filtered.dig(0, 'display')
+            group_name&.slice!('VACCINE GROUP: ')
           end
+          group_name.presence
         end
 
-        def self.parse_reaction(reactions)
-          return nil if reactions.blank?
-
-          reactions.map do |reaction|
-            reaction.dig('detail', 'display')
-          end.compact.first
+        def self.extract_manufacturer(resource, group_name)
+          # Only return manufacturer if group_name is COVID-19 and manufacturer is present
+          if group_name == 'COVID-19'
+            manufacturer = resource.dig('manufacturer', 'display')
+            return manufacturer.presence
+          end
+          manufacturer.presence
         end
 
-        def self.parse_notes(notes)
+        def self.extract_note(notes)
           return nil if notes.blank?
 
-          notes.pluck('text').compact.join('. ')
+          note = notes.first
+          note && note['text'].present? ? note['text'] : nil
+        end
+
+        def self.extract_reaction(reactions)
+          return nil if reactions.blank?
+
+          reactions.map { |r| r.dig('detail', 'display') }.compact.join(',')
         end
 
         def self.extract_location_id(location)
           return nil if location.nil?
 
-          location['reference'].split('/').last if location.is_a?(Hash) && location['reference']
+          if location.is_a?(Hash) && location['reference']
+            location['reference'].split('/').last
+          else
+            nil
+          end
         end
       end
     end
