@@ -127,9 +127,7 @@ module AccreditedRepresentativePortal
         to: :representative_user_account
       )
 
-      def power_of_attorney_holders
-        representative_user_account.power_of_attorney_holders
-      end
+      delegate :power_of_attorney_holders, to: :representative_user_account
 
       private
 
