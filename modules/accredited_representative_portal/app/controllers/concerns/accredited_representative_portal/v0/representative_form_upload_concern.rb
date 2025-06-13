@@ -2,7 +2,7 @@
 
 module AccreditedRepresentativePortal
   module V0
-    module RepresentativeFormUploadConcern
+    module RepresentativeFormUploadConcern # rubocop:disable Metrics/ModuleLength
       extend ActiveSupport::Concern
 
       private
@@ -13,6 +13,21 @@ module AccreditedRepresentativePortal
       #
       def attachment_guids
         [submit_params[:confirmationCode]]
+      end
+
+      def claimant_representative
+        @claimant_representative ||=
+          ClaimantRepresentative.find do |finder|
+            finder.for_claimant(
+              icn: claimant_icn
+            )
+
+            finder.for_representative(
+              icn: current_user.icn,
+              email: current_user.email,
+              all_emails: current_user.all_emails
+            )
+          end
       end
 
       def claimant_icn
@@ -59,14 +74,16 @@ module AccreditedRepresentativePortal
               # Note that "claimant" is not as correct a name as "dependent" here.
               # The claimant is either a dependent or the Veteran.
               #
-              form_data[:claimantSsn].presence && {
-                ssn: form_data[:claimantSsn],
-                dateOfBirth: form_data[:claimantDateOfBirth],
-                name: {
-                  first: form_data[:claimantFullName][:first],
-                  last: form_data[:claimantFullName][:last]
+              if form_data[:claimantSsn].present?
+                {
+                  ssn: form_data[:claimantSsn],
+                  dateOfBirth: form_data[:claimantDateOfBirth],
+                  name: {
+                    first: form_data[:claimantFullName][:first],
+                    last: form_data[:claimantFullName][:last]
+                  }
                 }
-              }
+              end
           end
       end
 
