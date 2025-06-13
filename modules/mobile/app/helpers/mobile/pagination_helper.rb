@@ -34,7 +34,8 @@ module Mobile
 
       def enforce_params_requirements(params)
         unless params.is_a?(Dry::Validation::Result)
-          raise InvalidParams, 'Params must be a contract result. Use Mobile::V0::Contracts::PaginationBase or subclass.'
+          raise InvalidParams,
+                'Params must be a contract result. Use Mobile::V0::Contracts::PaginationBase or subclass.'
         end
       end
     end
