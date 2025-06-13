@@ -5,7 +5,6 @@ module AppealsApi::V2
     module NoticeOfDisagreements
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         include AppealsApi::StatusSimulation
-        include SentryLogging
         include AppealsApi::CharacterUtilities
         include AppealsApi::Schemas
         include AppealsApi::GatewayOriginCheck
@@ -81,7 +80,13 @@ module AppealsApi::V2
         end
 
         def log_error(error_detail)
-          log_exception_to_sentry(EvidenceSubmissionRequestValidatorError.new(error_detail), {}, {}, :warn)
+          req_validator_error = EvidenceSubmissionRequestValidatorError.new(error_detail)
+          error_details = { error_message: req_validator_error.message }
+          unless req_validator_error.backtrace.nil?
+            error_details[:back_trace] = req_validator_error.backtrace.join('\n')
+          end
+          Rails.logger.warn('NOD Evidence Submission Validation Error', error_details)
+
           error_detail
         end
       end

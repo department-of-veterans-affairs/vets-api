@@ -7,6 +7,7 @@ module AppealsApi
     skip_after_action :set_csrf_header
     before_action :deactivate_endpoint
     before_action :set_default_headers
+    before_action :set_extra_context
 
     def render_response(response)
       render json: response.body, status: response.status
@@ -39,9 +40,8 @@ module AppealsApi
       DEFAULT_HEADERS.each { |k, v| response.headers[k] = v }
     end
 
-    def set_sentry_tags_and_extra_context
+    def set_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'appeals_api' }
-      Sentry.set_tags(source: 'appeals_api')
     end
 
     def model_errors_to_json_api(model)
