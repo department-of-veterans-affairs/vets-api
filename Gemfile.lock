@@ -110,6 +110,7 @@ PATH
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
+    medical_expense_reports (0.1.0)
     mobile (0.1.0)
       dry-validation
     mocked_authentication (0.1.0)
@@ -274,7 +275,7 @@ GEM
     base64 (0.3.0)
     bcp47 (0.3.3)
       i18n
-    benchmark (0.4.0)
+    benchmark (0.4.1)
     bigdecimal (3.2.2)
     bigdecimal (3.2.2-java)
     bindex (0.8.1)
@@ -998,7 +999,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.75.6)
+    rubocop (1.76.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1006,10 +1007,10 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.44.0, < 2.0)
+      rubocop-ast (>= 1.45.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.44.1)
+    rubocop-ast (1.45.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     rubocop-capybara (2.22.1)
@@ -1019,12 +1020,12 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.31.0)
+    rubocop-rails (2.32.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
     rubocop-rspec (3.6.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -1304,6 +1305,7 @@ DEPENDENCIES
   lockbox
   mail
   meb_api!
+  medical_expense_reports!
   memoist
   mimemagic
   mini_magick
