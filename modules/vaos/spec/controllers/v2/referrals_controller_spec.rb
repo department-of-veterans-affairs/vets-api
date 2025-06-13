@@ -207,6 +207,15 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
+        # Verify booking_start_time is not exposed in the API
+        expect(response_data['data']['attributes']).not_to have_key('bookingStartTime')
+      end
+
+      it 'increments the referral detail page access metric' do
+        expect(StatsD).to receive(:increment).with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC)
+        expect(StatsD).to receive(:increment).with('api.rack.request', any_args)
+
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
       end
     end
   end
