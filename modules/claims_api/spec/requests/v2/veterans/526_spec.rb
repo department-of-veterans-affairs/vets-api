@@ -4409,5 +4409,26 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
     end
+
+    context 'when Form526 processing times out' do
+      it 'returns a 504 gateway timeout' do
+        with_settings(Settings.claims_api.benefits_documents, use_mocks: false) do
+          # Disable claims load testing to ensure our code path executes
+          allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return(false)
+          allow_any_instance_of(ClaimsApi::DisabilityCompensation::DockerContainerService)
+            .to receive(:upload).and_raise(Faraday::TimeoutError.new('Form526 submission timed out'))
+
+          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+            VCR.use_cassette('claims_api/disability_comp') do
+              post synchronous_path, params: data, headers: auth_header
+
+              expect(response).to have_http_status(:gateway_timeout)
+              parsed_response = JSON.parse(response.body)
+              expect(parsed_response['errors'][0]['status']).to eq('504')
+            end
+          end
+        end
+      end
+    end
   end
 end
