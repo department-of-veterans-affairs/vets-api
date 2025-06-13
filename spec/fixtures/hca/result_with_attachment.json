@@ -99,15 +99,9 @@
         "eeSummary:maritalStatus": "M",
         "eeSummary:preferredFacility": "608",
         "eeSummary:races": {
-          "eeSummary:race": [
-            "1002-5",
-            "2028-9",
-            "2054-5",
-            "2076-8",
-            "2106-3"
-          ]
+          "eeSummary:race": ["1002-5", "2028-9", "2054-5", "2076-8", "2106-3"]
         },
-        "eeSummary:acaIndicator": "true"
+        "eeSummary:acaIndicator": "false"
       },
       "eeSummary:enrollmentDeterminationInfo": {
         "eeSummary:eligibleForMedicaid": "true",

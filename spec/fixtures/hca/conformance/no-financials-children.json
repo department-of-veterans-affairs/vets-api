@@ -15,7 +15,7 @@
   "isVaServiceConnected": false,
   "compensableVaServiceConnected": false,
   "receivesVaPension": true,
-  "isEssentialAcaCoverage": true,
+  "isEssentialAcaCoverage": false,
   "facilityState": "CT",
   "vaMedicalFacility": "608",
   "wantsInitialVaContact": true,
