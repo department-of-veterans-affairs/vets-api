@@ -10,9 +10,9 @@ module BenefitsDiscovery
       {
         dateOfBirth: @user.birth_date,
         dischargeStatus: discharge_status,
-        branchOfService: service_history.collect { |sh| sh.branch_of_service&.upcase },
+        branchOfService: service_history.map { |sh| sh.branch_of_service&.upcase },
         disabilityRating: disability_rating,
-        serviceDates: service_history.collect { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
+        serviceDates: service_history.map { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
       }.compact_blank
     end
 
@@ -33,10 +33,17 @@ module BenefitsDiscovery
     end
 
     def discharge_status
-      discharge_codes = service_history.collect(&:character_of_discharge_code)
-      # log error if no match
-      discharges = discharge_codes.map { |b| VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[b] }
-      discharges.map { |d| "#{d.upcase.gsub('-', '_')}_DISCHARGE" }
+      discharge_codes = service_history.map(&:character_of_discharge_code)
+      discharge_types = []
+      discharge_codes.map do |dc|
+        discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[dc]
+        if discharge_type.nil?
+          Rails.logger.error("No matching discharge code for: #{discharge_type}")
+        else
+          discharge_types << "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE"
+        end
+      end
+      discharge_types
     end
   end
 end
