@@ -6,17 +6,17 @@ This plan details the steps to add a `/mobile/feature_toggles` endpoint with ide
 ## Tasks
 
 ### 1. Create Feature Toggles Service
-- [ ] Create `app/services/feature_toggles_service.rb`
-- [ ] Move logic from the controller to the service:
-  - [ ] `get_features`
-  - [ ] `get_all_features`
-  - [ ] `fetch_features_with_gate_keys`
-  - [ ] `add_feature_gate_values`
-  - [ ] `format_features`
-  - [ ] `resolve_actor`
-  - [ ] `feature_gates`
-- [ ] Add documentation and method comments
-- [ ] Ensure service supports both authenticated and unauthenticated users
+- [x] Create `app/services/feature_toggles_service.rb`
+- [x] Move logic from the controller to the service:
+  - [x] `get_features`
+  - [x] `get_all_features`
+  - [x] `fetch_features_with_gate_keys`
+  - [x] `add_feature_gate_values`
+  - [x] `format_features`
+  - [x] `resolve_actor`
+  - [x] `feature_gates`
+- [x] Add documentation and method comments
+- [x] Ensure service supports both authenticated and unauthenticated users
 
 ### 2. Refactor Existing Controller
 - [ ] Update `V0::FeatureTogglesController` to use the new service
