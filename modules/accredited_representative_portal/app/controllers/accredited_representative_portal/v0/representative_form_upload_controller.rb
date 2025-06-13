@@ -45,7 +45,8 @@ module AccreditedRepresentativePortal
       def handle_attachment_upload(model_klass, serializer_klass)
         attachment =
           SavedClaimService::Attach.perform(
-            model_klass, **params.permit(:file, :form_id)
+            model_klass, file: params[:file], form_id:
+              SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID
           )
 
         json = serializer_klass.new(attachment).as_json
