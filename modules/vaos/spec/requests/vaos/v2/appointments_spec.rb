@@ -1142,7 +1142,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                 client.save_booking_start_time(
                   referral_number: params[:referral_number],
-                  icn: current_user.icn,
                   booking_start_time: Time.current.to_f
                 )
 

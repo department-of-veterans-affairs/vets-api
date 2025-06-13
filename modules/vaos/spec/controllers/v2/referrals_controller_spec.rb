@@ -221,7 +221,6 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             # Simulate the service saving the booking start time
             client.save_booking_start_time(
               referral_number:,
-              icn: user_icn,
               booking_start_time: Time.current.to_f
             )
             referral_detail
@@ -230,7 +229,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           expect do
             get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
           end.to change {
-            client.fetch_booking_start_time(referral_number:, icn:)
+            client.fetch_booking_start_time(referral_number:)
           }.from(nil).to(Time.current.to_f)
         end
       end

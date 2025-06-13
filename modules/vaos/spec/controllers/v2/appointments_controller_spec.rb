@@ -108,7 +108,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       it 'renders created status with appointment id and logs duration' do
         Timecop.freeze(Time.current) do
           booking_start_time = Time.current.to_f - 5
-          allow(ccra_referral_service).to receive(:fetch_booking_start_time)
+          allow(ccra_referral_service).to receive(:get_booking_start_time)
             .with(submit_params[:referral_number], current_user.icn)
             .and_return(booking_start_time)
 

@@ -183,7 +183,6 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           # Set up initial booking start time in cache
           client.save_booking_start_time(
             referral_number:,
-            icn:,
             booking_start_time: initial_time
           )
         end
@@ -191,12 +190,12 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         it 'preserves the original booking start time in the cache' do
           # First request
           get "/vaos/v2/referrals/#{encrypted_uuid}"
-          cached_time = client.fetch_booking_start_time(referral_number:, icn:)
+          cached_time = client.fetch_booking_start_time(referral_number:)
           expect(cached_time).to eq(initial_time)
 
           # Second request
           get "/vaos/v2/referrals/#{encrypted_uuid}"
-          cached_time = client.fetch_booking_start_time(referral_number:, icn:)
+          cached_time = client.fetch_booking_start_time(referral_number:)
           expect(cached_time).to eq(initial_time)
         end
       end
@@ -211,7 +210,6 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
             # Simulate the service's behavior of setting the booking start time
             client.save_booking_start_time(
               referral_number:,
-              icn: user_icn,
               booking_start_time: Time.current.to_f
             )
             referral
@@ -224,7 +222,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           expect do
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end.to change {
-            client.fetch_booking_start_time(referral_number:, icn:)
+            client.fetch_booking_start_time(referral_number:)
           }.from(nil).to(Time.current.to_f)
         end
       end
