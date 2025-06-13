@@ -110,7 +110,7 @@ module UnifiedHealthData
       ordered_by = fetch_ordered_by(record)
 
       UnifiedHealthData::Attributes.new(
-        display: record['resource']['code'] ? record['resource']['code']['text'] : '',
+        display: fetch_display(record),
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
         sample_tested:,
@@ -197,13 +197,7 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: if obs['referenceRange']
-                             obs['referenceRange'].map do |range|
-                               range['text']
-                             end.join(', ').strip
-                           else
-                             ''
-                           end,
+          reference_range: obs['referenceRange'] ? fetch_reference_range(obs['referenceRange']) : '',
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
@@ -212,9 +206,26 @@ module UnifiedHealthData
       end
     end
 
+    def fetch_reference_range(reference_range)
+      reference_range.map do |range|
+        if range['text']
+          range['text']
+        elsif range['low'] && range['high'] && range['type']
+          type_text = range['type']['text'] || range.dig('type', 'coding', 0, 'display') || ''
+          low_value = "#{range['low']['value']} #{range['low']['unit']}"
+          high_value = "#{range['high']['value']} #{range['high']['unit']}"
+          "#{type_text}: #{low_value} - #{high_value}".strip
+        elsif range['low'] && range['high']
+          "#{range['low']['value']} #{range['low']['unit']} - #{range['high']['value']} #{range['high']['unit']}"
+        else
+          ''
+        end
+      end.reject(&:empty?).join(', ').strip
+    end
+
     def fetch_observation_value(obs)
       type, text = if obs['valueQuantity']
-                     ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
+                     ['quantity', format_quantity_value(obs['valueQuantity'])]
                    elsif obs['valueCodeableConcept']
                      ['codeable-concept', obs['valueCodeableConcept']['text']]
                    elsif obs['valueString']
@@ -232,6 +243,19 @@ module UnifiedHealthData
       { text:, type: }
     end
 
+    def format_quantity_value(value_quantity)
+      value = value_quantity['value']
+      unit = value_quantity['unit']
+      comparator = value_quantity['comparator']
+
+      result_text = ''
+      result_text += comparator.to_s if comparator.present?
+      result_text += value.to_s
+      result_text += " #{unit}" if unit.present?
+
+      result_text
+    end
+
     def fetch_ordered_by(record)
       if record['resource']['contained']
         practitioner_object = record['resource']['contained'].find do |resource|
@@ -246,6 +270,18 @@ module UnifiedHealthData
 
     def extract_reference_id(reference)
       reference.split('/').last
+    end
+
+    def fetch_display(record)
+      contained = record['resource']['contained']
+      if contained&.any? { |r| r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present? }
+        service_request = contained.find do |r|
+          r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present?
+        end
+        service_request['code']['text']
+      else
+        record['resource']['code'] ? record['resource']['code']['text'] : ''
+      end
     end
   end
 end

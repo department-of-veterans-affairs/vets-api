@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe TravelPay::AuthManager do
   context 'get_tokens' do
-    let(:user) { build(:user) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:tokens) do
       {
         veis_token: 'fake_veis_token',
@@ -13,7 +13,7 @@ describe TravelPay::AuthManager do
     end
     let(:cached_tokens) do
       {
-        account_uuid: user.account_uuid,
+        user_account_id: user.user_account_uuid,
         veis_token: 'cached_veis_token',
         btsss_token: 'cached_btsss_token'
       }
@@ -40,8 +40,8 @@ describe TravelPay::AuthManager do
         response = service.authorize
         expect(response).to eq(tokens)
         # Verify that the tokens were stored
-        expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3300)
-        saved_tokens = $redis.get("travel-pay-store:#{user.account_uuid}")
+        expect($redis.ttl("travel-pay-store:#{user.user_account_uuid}")).to eq(3300)
+        saved_tokens = $redis.get("travel-pay-store:#{user.user_account_uuid}")
         # The Oj.load method is normally handled by the RedisStore
         Oj.load(saved_tokens) => { veis_token:, btsss_token: }
         destructured_tokens = { veis_token:, btsss_token: }
@@ -51,7 +51,7 @@ describe TravelPay::AuthManager do
 
     context 'uses cached tokens' do
       before do
-        $redis.set("travel-pay-store:#{user.account_uuid}", Oj.dump(cached_tokens))
+        $redis.set("travel-pay-store:#{user.user_account_uuid}", Oj.dump(cached_tokens))
       end
 
       it 'returns a cached veis_token and btsss_token' do

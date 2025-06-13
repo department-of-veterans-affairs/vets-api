@@ -13,6 +13,7 @@ describe VAOS::BaseService do
 
     context 'when does not end in .gov' do
       it 'returns https://review-instance.va.gov' do
+        allow(Settings).to receive(:hostname).and_return('id.review.vetsgov-internal')
         expect(subject.send(:referrer)).to eq('https://review-instance.va.gov')
       end
     end
