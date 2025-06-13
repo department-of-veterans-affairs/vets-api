@@ -31,7 +31,7 @@ module TravelPay
     # @returns
     # appointments: [VAOS::Appointment + travelPayClaim]
 
-    def associate_appointments_to_claims(params = {})
+    def associate_appointments_to_claims(params = {}) # rubocop:disable Metrics/MethodLength
       date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
       date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
 
