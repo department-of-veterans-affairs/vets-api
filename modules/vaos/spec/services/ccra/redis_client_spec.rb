@@ -46,11 +46,10 @@ describe Ccra::RedisClient do
     it 'saves the booking start time to cache and returns true' do
       expect(subject.save_booking_start_time(
                referral_number:,
-               icn:,
                booking_start_time:
              )).to be(true)
 
-      cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{icn}_#{referral_number}"
+      cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{referral_number}"
       saved_time = Rails.cache.read(
         cache_key,
         namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
@@ -65,17 +64,15 @@ describe Ccra::RedisClient do
 
       subject.save_booking_start_time(
         referral_number:,
-        icn:,
         booking_start_time: initial_time
       )
 
       subject.save_booking_start_time(
         referral_number:,
-        icn:,
         booking_start_time: updated_time
       )
 
-      cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{icn}_#{referral_number}"
+      cache_key = "#{Ccra::RedisClient::BOOKING_START_TIME_CACHE_KEY}#{referral_number}"
       saved_time = Rails.cache.read(
         cache_key,
         namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
@@ -89,23 +86,26 @@ describe Ccra::RedisClient do
   describe '#fetch_booking_start_time' do
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(subject.fetch_booking_start_time(referral_number:, icn:)).to be_nil
+        expect(subject.fetch_booking_start_time(referral_number:)).to be_nil
       end
     end
 
     context 'when cache exists' do
       before do
-        subject.save_booking_start_time(referral_number:, icn:, booking_start_time:)
+        subject.save_booking_start_time(
+          referral_number:,
+          booking_start_time:
+        )
       end
 
       it 'returns the cached booking start time' do
-        result = subject.fetch_booking_start_time(referral_number:, icn:)
+        result = subject.fetch_booking_start_time(referral_number:)
         expect(result).to eq(booking_start_time)
       end
 
       it 'returns nil when expired' do
         Timecop.travel(redis_referral_expiry.from_now + 1.second) do
-          expect(subject.fetch_booking_start_time(referral_number:, icn:)).to be_nil
+          expect(subject.fetch_booking_start_time(referral_number:)).to be_nil
         end
       end
     end
