@@ -80,53 +80,69 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
         end
 
         context '`BenefitsClaims::Service` does not raise' do
-          before do
-            allow_any_instance_of(BenefitsClaims::Service).to(
-              receive(:get_power_of_attorney).and_return(
-                JSON.parse(
-                  <<~JSON
-                    {
-                      "data": {
-                        "type": "organization",
-                        "attributes": {
-                          "code": "#{claimant_poa_code}"
-                        }
-                      }
-                    }
-                  JSON
+          context 'and does not return poa data' do
+            before do
+              allow_any_instance_of(BenefitsClaims::Service).to(
+                receive(:get_power_of_attorney).and_return(
+                  JSON.parse(%({"data": {}}))
                 )
               )
-            )
-          end
-
-          context 'and a claimant that has poa with one of them' do
-            let(:claimant_poa_code) { poa_code_a }
-
-            it 'returns a `ClaimantRepresentative`' do
-              expect(subject).to have_attributes(
-                claimant_id: be_a(String),
-                accredited_individual_registration_number: be_a(String),
-                power_of_attorney_holder_poa_code: claimant_poa_code,
-                power_of_attorney_holder_type:
-                  AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::
-                    VETERAN_SERVICE_ORGANIZATION
-              )
-            end
-          end
-
-          context 'and a claimant that does not have poa with one of them' do
-            alphabet = ('a'..'z').to_a
-            let(:claimant_poa_code) do
-              ##
-              # This avoids the other POA codes.
-              #
-              poa_code_a.chars.zip(poa_code_b.chars).map do |chars|
-                alphabet.find { |c| !c.in?(chars) }
-              end.join
             end
 
             it 'returns nil' do
               expect(subject).to be_nil
+            end
+          end
+
+          context 'and returns some poa data' do
+            before do
+              allow_any_instance_of(BenefitsClaims::Service).to(
+                receive(:get_power_of_attorney).and_return(
+                  JSON.parse(
+                    <<~JSON
+                      {
+                        "data": {
+                          "type": "organization",
+                          "attributes": {
+                            "code": "#{claimant_poa_code}"
+                          }
+                        }
+                      }
+                    JSON
+                  )
+                )
+              )
+            end
+
+            context 'and a claimant that has poa with one of them' do
+              let(:claimant_poa_code) { poa_code_a }
+
+              it 'returns a `ClaimantRepresentative`' do
+                expect(subject).to have_attributes(
+                  claimant_id: be_a(String),
+                  accredited_individual_registration_number: be_a(String),
+                  power_of_attorney_holder_poa_code: claimant_poa_code,
+                  power_of_attorney_holder_type:
+                    AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::
+                      VETERAN_SERVICE_ORGANIZATION
+                )
+              end
+            end
+
+            context 'and a claimant that does not have poa with one of them' do
+              alphabet = ('a'..'z').to_a
+              let(:claimant_poa_code) do
+                ##
+                # This avoids the other POA codes.
+                #
+                poa_code_a.chars.zip(poa_code_b.chars).map do |chars|
+                  alphabet.find { |c| !c.in?(chars) }
+                end.join
+              end
+
+              it 'returns nil' do
+                expect(subject).to be_nil
+              end
             end
           end
         end
