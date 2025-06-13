@@ -13,8 +13,7 @@ module Lighthouse
       def perform(user_uuid)
         start_time = Time.current
         params = ::BenefitsDiscovery::Params.new(user_uuid).prepared_params
-        service = ::BenefitsDiscovery::Service.new
-        eligible_benefits = service.get_eligible_benefits(params)
+        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(params)
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
 
@@ -33,14 +32,13 @@ module Lighthouse
         case obj
         when Hash
           # Sort hash by keys and apply recursively to values
-          obj.keys.sort.each_with_object({}) do |key, result|
-            result[key] = deep_sort_hash(obj[key])
+          obj.keys.sort.index_with do |key|
+            deep_sort_hash(obj[key])
           end
         when Array
           # If array contains hashes, sort them by their string representation
           if obj.all? { |item| item.is_a?(Hash) }
-            obj.map { |item| deep_sort_hash(item) }
-               .sort_by { |item| item.to_s }
+            obj.map { |item| deep_sort_hash(item) }.sort_by(&:to_s)
           else
             obj.map { |item| deep_sort_hash(item) }
           end
