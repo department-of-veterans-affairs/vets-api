@@ -1274,6 +1274,7 @@ va_mobile:
   key_path: "/fake/client/key/path"
   mock: false
   patients_path: /vaos/v1/patients
+  claims_path: /services/claims/v2/veterans
   ppms_base_url: https://staff.apps.va.gov
   timeout: 25
   url: https://veteran.apps.va.gov
