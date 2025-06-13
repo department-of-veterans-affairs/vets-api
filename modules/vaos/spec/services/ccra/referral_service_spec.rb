@@ -99,7 +99,7 @@ describe Ccra::ReferralService do
           expected_start_time = Time.current.to_f
           allow(referral_detail).to receive(:referral_number).and_return('VA0000005681')
           expect(referral_cache).to receive(:save_booking_start_time)
-            .with(referral_number: 'VA0000005681', icn:, booking_start_time: expected_start_time)
+            .with(referral_number: 'VA0000005681', booking_start_time: expected_start_time)
             .and_return(true)
 
           result = subject.get_referral(id, icn)
@@ -142,7 +142,6 @@ describe Ccra::ReferralService do
 
             expect(referral_cache).to receive(:save_booking_start_time).with(
               referral_number: 'VA0000005681',
-              icn:,
               booking_start_time: expected_start_time
             ).and_return(true)
 
@@ -175,7 +174,7 @@ describe Ccra::ReferralService do
     end
   end
 
-  describe '#fetch_booking_start_time' do
+  describe '#get_booking_start_time' do
     let(:id) { '984_646372' }
     let(:icn) { '1012845331V153043' }
     let(:referral_number) { 'VA0000005681' }
@@ -194,20 +193,20 @@ describe Ccra::ReferralService do
 
       it 'returns the booking start time when it exists' do
         allow(referral_cache).to receive(:fetch_booking_start_time)
-          .with(referral_number:, icn:)
+          .with(referral_number:)
           .and_return(booking_start_time)
 
-        result = subject.fetch_booking_start_time(id, icn)
+        result = subject.get_booking_start_time(id, icn)
         expect(result).to eq(booking_start_time)
       end
 
       it 'returns nil and logs warning when booking start time not found' do
         allow(referral_cache).to receive(:fetch_booking_start_time)
-          .with(referral_number:, icn:)
+          .with(referral_number:)
           .and_return(nil)
 
         expect(Rails.logger).to receive(:warn).with('Referral booking start time not found.')
-        result = subject.fetch_booking_start_time(id, icn)
+        result = subject.get_booking_start_time(id, icn)
         expect(result).to be_nil
       end
     end
