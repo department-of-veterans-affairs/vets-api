@@ -56,7 +56,7 @@ module DecisionReviews
             # as expected by the backend schema
             facility['conditionsTreated'] = facility.delete('issues') if facility.is_a?(Hash) && facility.key?('issues')
             if facility['conditionsTreated'].is_a?(Array)
-              facility['conditionsTreated'] = facility['conditionsTreated'].join(',')
+              facility['conditionsTreated'] = facility['conditionsTreated'].join(', ')
             end
           end
         end
