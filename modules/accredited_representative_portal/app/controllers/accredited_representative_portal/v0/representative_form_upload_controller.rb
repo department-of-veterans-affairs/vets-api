@@ -19,19 +19,62 @@ module AccreditedRepresentativePortal
 
       def upload_scanned_form
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = PersistentAttachments::VAForm.new
-        attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
-
-        attachment.save
-        serialized = PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
-          key.camelize(:lower)
-        end
-        render json: serialized
+        attachment = create_form(PersistentAttachments::VAForm)
+        validate(attachment)
       end
 
+      def upload_supporting_documents
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
+        attachment = create_form(PersistentAttachments::VAFormDocumentation)
+        validate(attachment)
+      end
+
+
       private
+
+      def create_form(form_type)
+        attachment = form_type.new(form_id: params[:form_id])
+        attachment.file = params['file']
+        attachment
+      end
+
+      def validate(attachment = nil)
+        file_path = params['file'].tempfile.path
+        return if validate_document(file_path) == :error
+
+        validate_record!(attachment)
+        validate_attachment(attachment)
+        render json: serialized(attachment)
+      end
+
+      def serialized(attachment)
+        PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
+          key.camelize(:lower)
+        end
+      end
+
+
+      def validate_record!(attachment)
+        attachment.validate!
+      rescue ActiveRecord::RecordInvalid => e
+        e.record.errors.details.keys == [:file] and
+          raise InvalidFileError
+        raise
+      end
+
+      def validate_document(file_path)
+        begin
+          lighthouse_service.valid_document?(document: file_path)
+        rescue BenefitsIntake::Service::InvalidDocumentError => e
+          render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+          :error
+        end
+      end
+
+      def validate_attachment(attachment)
+        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        attachment.save
+      end
 
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new
