@@ -49,15 +49,84 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
       it 'processes benefits discovery successfully' do
         expect(StatsD).to receive(:measure).with(described_class.name, be_a(Float))
         expect(StatsD).to receive(:increment).with(
-          {
-            not_recommended: [],
-            recommended: [
-              { benefit_name: 'Health', benefit_url: 'https://www.va.gov/health-care/' },
-              { benefit_name: 'Life Insurance (VALife)', benefit_url: 'https://www.va.gov/life-insurance/' }
-            ],
-            undetermined: []
-          }.to_json
+          '[["not_recommended", []], ["recommended", ["Health", "Life Insurance (VALife)"]], ["undetermined", []]]'
         )
+        described_class.new.perform(user.uuid)
+      end
+
+      it 'always logs items in the same order' do
+        benefits = {
+          'undetermined' => [
+            {
+              'benefit_name' => 'Job Assistance',
+              'benefit_url' => 'https://www.va.gov/job-assistance/'
+            },
+            {
+              'benefit_name' => 'Wealth',
+              'benefit_url' => 'https://www.va.gov/wealth/'
+            }
+          ],
+          'not_recommended' => [
+            {
+              'benefit_name' => 'Life Insurance (VALife)',
+              'benefit_url' => 'https://www.va.gov/life-insurance/'
+            },
+            {
+              'benefit_name' => 'Health',
+              'benefit_url' => 'https://www.va.gov/health-care/'
+            }
+          ],
+          'recommended' => [
+            {
+              'benefit_name' => 'Education',
+              'benefit_url' => 'https://www.va.gov/education/'
+            },
+            {
+              'benefit_name' => 'Childcare',
+              'benefit_url' => 'https://www.va.gov/childcare/'
+            }
+          ]
+        }
+        reordered_benefits = {
+          'recommended' => [
+            {
+              'benefit_name' => 'Childcare',
+              'benefit_url' => 'https://www.va.gov/childcare/'
+            },
+            {
+              'benefit_name' => 'Education',
+              'benefit_url' => 'https://www.va.gov/education/'
+            }
+          ],
+          'not_recommended' => [
+            {
+              'benefit_name' => 'Health',
+              'benefit_url' => 'https://www.va.gov/health-care/'
+            },
+            {
+              'benefit_name' => 'Life Insurance (VALife)',
+              'benefit_url' => 'https://www.va.gov/life-insurance/'
+            }
+          ],
+          'undetermined' => [
+            {
+              'benefit_name' => 'Wealth',
+              'benefit_url' => 'https://www.va.gov/wealth/'
+            },
+            {
+              'benefit_name' => 'Job Assistance',
+              'benefit_url' => 'https://www.va.gov/job-assistance/'
+            }
+          ]
+        }
+        expected_logged_error = '[["not_recommended", ["Health", "Life Insurance (VALife)"]], ["recommended", ' \
+                                '["Childcare", "Education"]], ["undetermined", ["Job Assistance", "Wealth"]]]'
+        allow(service_instance).to receive(:get_eligible_benefits).with(prepared_params).and_return(benefits)
+        expect(StatsD).to receive(:increment).with(expected_logged_error)
+        described_class.new.perform(user.uuid)
+
+        allow(service_instance).to receive(:get_eligible_benefits).with(prepared_params).and_return(reordered_benefits)
+        expect(StatsD).to receive(:increment).with(expected_logged_error)
         described_class.new.perform(user.uuid)
       end
     end
