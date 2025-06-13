@@ -19,9 +19,9 @@ This plan details the steps to add a `/mobile/feature_toggles` endpoint with ide
 - [x] Ensure service supports both authenticated and unauthenticated users
 
 ### 2. Refactor Existing Controller
-- [ ] Update `V0::FeatureTogglesController` to use the new service
-- [ ] Remove private methods moved to the service
-- [ ] Maintain existing interface and response format
+- [x] Update `V0::FeatureTogglesController` to use the new service
+- [x] Remove private methods moved to the service
+- [x] Maintain existing interface and response format
 
 ### 3. Create Mobile Controller
 - [ ] Create `app/controllers/mobile/feature_toggles_controller.rb`
