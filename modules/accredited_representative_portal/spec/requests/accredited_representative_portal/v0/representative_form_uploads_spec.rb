@@ -3,13 +3,14 @@
 require_relative '../../../rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
+require 'benefits_intake_service/service'
 
 RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadController, type: :request do
   let!(:poa_code) { '067' }
   let(:representative_user) do
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
-  let(:service) { BenefitsIntake::Service.new }
+  let(:service) { BenefitsIntakeService::Service.new }
   let(:pdf_path) { 'random/path/to/pdf' }
   let!(:accredited_individual) do
     create(:user_account_accredited_individual,
@@ -193,7 +194,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       file = fixture_file_upload('doctors-note.gif')
 
       params = { form_id: form_number, file: }
-      allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?).and_return(pdf_path)
+      allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
 
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
@@ -201,18 +202,18 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       attachment = PersistentAttachment.last
 
       expect(response).to have_http_status(:ok)
-      resp = JSON.parse(response.body)
-      expect(resp).to eq({
-                           'data' => {
-                             'id' => attachment.id.to_s,
-                             'type' => 'persistent_attachment',
-                             'attributes' => {
-                               'confirmationCode' => attachment.guid,
-                               'name' => 'doctors-note.gif',
-                               'size' => 83_403
-                             }
-                           }
-                         })
+      expect(parsed_response).to eq({
+                                      'data' => {
+                                        'id' => attachment.id.to_s,
+                                        'type' => 'persistent_attachment_va_form',
+                                        'attributes' => {
+                                          'confirmationCode' => attachment.guid,
+                                          'name' => 'doctors-note.gif',
+                                          'size' => 83_403,
+                                          'warnings' => []
+                                        }
+                                      }
+                                    })
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
     end
 
@@ -223,16 +224,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       params = { form_id: form_number, file: }
 
-      allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?)
-        .and_raise(BenefitsIntake::Service::InvalidDocumentError.new('Invalid form'))
+      allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?)
+        .and_raise(BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid form'))
 
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
       end.not_to change(PersistentAttachments::VAForm, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      resp = JSON.parse(response.body)
-      expect(resp['error']).to eq('Document validation failed: Invalid form')
+      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
+                                                     'code' => '422', 'status' => '422' }] })
     end
   end
 
@@ -244,7 +245,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       params = { form_id: form_number, file: }
 
-      allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?).and_return(pdf_path)
+      allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
 
       expect do
         post '/accredited_representative_portal/v0/upload_supporting_documents', params:
@@ -252,18 +253,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       attachment = PersistentAttachment.last
 
       expect(response).to have_http_status(:ok)
-      resp = JSON.parse(response.body)
-      expect(resp).to eq({
-                           'data' => {
-                             'id' => attachment.id.to_s,
-                             'type' => 'persistent_attachment',
-                             'attributes' => {
-                               'confirmationCode' => attachment.guid,
-                               'name' => 'doctors-note.gif',
-                               'size' => 83_403
-                             }
-                           }
-                         })
+      expect(parsed_response).to eq({
+                                      'data' => {
+                                        'id' => attachment.id.to_s,
+                                        'type' => 'persistent_attachment',
+                                        'attributes' => {
+                                          'confirmationCode' => attachment.guid,
+                                          'name' => 'doctors-note.gif',
+                                          'size' => 83_403
+                                        }
+                                      }
+                                    })
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAFormDocumentation)
     end
 
@@ -274,16 +274,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       params = { form_id: form_number, file: }
 
-      allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?)
-        .and_raise(BenefitsIntake::Service::InvalidDocumentError.new('Invalid form'))
+      allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?)
+        .and_raise(BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid form'))
 
       expect do
         post '/accredited_representative_portal/v0/upload_supporting_documents', params:
       end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      resp = JSON.parse(response.body)
-      expect(resp['error']).to eq('Document validation failed: Invalid form')
+      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
+                                                     'code' => '422', 'status' => '422' }] })
     end
   end
 end
