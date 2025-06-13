@@ -197,7 +197,7 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: obs['referenceRange'] ? fetch_reference_range(obs['referenceRange']) : '',
+          reference_range: fetch_reference_range(obs),
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
@@ -206,21 +206,108 @@ module UnifiedHealthData
       end
     end
 
-    def fetch_reference_range(reference_range)
-      reference_range.map do |range|
-        if range['text']
-          range['text']
-        elsif range['low'] && range['high'] && range['type']
-          type_text = range['type']['text'] || range.dig('type', 'coding', 0, 'display') || ''
-          low_value = "#{range['low']['value']} #{range['low']['unit']}"
-          high_value = "#{range['high']['value']} #{range['high']['unit']}"
-          "#{type_text}: #{low_value} - #{high_value}".strip
-        elsif range['low'] && range['high']
-          "#{range['low']['value']} #{range['low']['unit']} - #{range['high']['value']} #{range['high']['unit']}"
-        else
-          ''
-        end
-      end.reject(&:empty?).join(', ').strip
+    # Main method to fetch reference range from observation
+    def fetch_reference_range(obs)
+      return '' unless obs['referenceRange'].is_a?(Array) && !obs['referenceRange'].empty?
+
+      begin
+        result = obs['referenceRange'].map { |range| format_reference_range(range) }
+        # Extra defensive filtering to handle nil or empty values
+        result.compact.reject(&:empty?).join(', ').strip
+      rescue => e
+        Rails.logger.error("Error processing reference range: #{e.message}")
+        ''
+      end
+    end
+
+    # Format a reference range into a string representation
+    def format_reference_range(range)
+      return '' unless range.is_a?(Hash)
+
+      begin
+        # Case 1: Range has explicit text representation
+        return range['text'] if range['text'].is_a?(String) && !range['text'].empty?
+
+        # Case 2: Range has numeric values
+        return format_numeric_range(range) if range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
+
+        # No valid format found
+        ''
+      rescue => e
+        Rails.logger.error("Error processing individual reference range: #{e.message}")
+        ''
+      end
+    end
+
+    # Extract numeric value and unit from range component
+    def extract_range_component(component)
+      value = component&.dig('value')
+      value = nil unless value.is_a?(Numeric)
+      unit = component&.dig('unit').is_a?(String) ? component&.dig('unit') : ''
+      [value, unit]
+    end
+
+    # Determine range type prefix
+    def get_range_type_prefix(range, low_value, high_value)
+      return '' unless range['type'].is_a?(Hash)
+
+      type_text = range['type']['text'].is_a?(String) ? range['type']['text'] : nil
+
+      # Special case: For Normal Range with single values, we omit the range type as per original behavior
+      if type_text && !(type_text == 'Normal Range' &&
+         ((low_value && !high_value) || (!low_value && high_value)))
+        "#{type_text}: "
+      else
+        ''
+      end
+    end
+
+    # Format a numeric reference range
+    def format_numeric_range(range)
+      # Extract values safely
+      low_value, low_unit = extract_range_component(range['low'])
+      high_value, high_unit = extract_range_component(range['high'])
+
+      # Get range type prefix
+      range_type = get_range_type_prefix(range, low_value, high_value)
+
+      # Format based on available values
+      if low_value && high_value
+        # Create a params hash to reduce parameter count
+        params = {
+          range_type:,
+          low: { value: low_value, unit: low_unit },
+          high: { value: high_value, unit: high_unit },
+          type_text: range.dig('type', 'text')
+        }
+        format_low_high_range(params)
+      elsif low_value
+        low_unit_str = low_unit.empty? ? '' : " #{low_unit}"
+        "#{range_type}>= #{low_value}#{low_unit_str}"
+      elsif high_value
+        high_unit_str = high_unit.empty? ? '' : " #{high_unit}"
+        "#{range_type}<= #{high_value}#{high_unit_str}"
+      else
+        ''
+      end
+    end
+
+    # Format range with both low and high values
+    def format_low_high_range(params)
+      range_type = params[:range_type]
+      low_value = params[:low][:value]
+      low_unit = params[:low][:unit]
+      high_value = params[:high][:value]
+      high_unit = params[:high][:unit]
+      type_text = params[:type_text]
+
+      if ['Normal Range', 'Treatment Range'].include?(type_text) && !low_unit.empty? && !high_unit.empty?
+        # Case: with units
+        "#{range_type}#{low_value} #{low_unit} - #{high_value} #{high_unit}"
+      else
+        # Case: without units
+        "#{range_type}#{low_value} - #{high_value}"
+      end
     end
 
     def fetch_observation_value(obs)
