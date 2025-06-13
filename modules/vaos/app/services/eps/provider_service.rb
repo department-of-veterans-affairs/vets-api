@@ -125,7 +125,7 @@ module Eps
       return false if provider[:specialties].blank? || specialty.blank?
 
       provider[:specialties].any? do |provider_specialty|
-        provider_specialty.to_s.casecmp?(specialty.to_s)
+        provider_specialty[:name].to_s.casecmp?(specialty.to_s)
       end
     end
 
@@ -192,7 +192,8 @@ module Eps
       referral_address_string = address_parts.join(' ').gsub(',', ' ')
       normalized_referral = normalize_address_text(referral_address_string)
 
-      normalized_provider == normalized_referral
+      # Check if provider address starts with referral address (handles extra country info)
+      normalized_provider.start_with?(normalized_referral)
     end
 
     ##

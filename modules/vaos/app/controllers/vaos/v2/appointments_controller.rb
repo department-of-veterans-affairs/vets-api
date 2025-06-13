@@ -466,12 +466,13 @@ module VAOS
       ##
       # Searches for a provider using the NPI from the referral data.
       #
-      # @param referral_data [Hash] The referral data containing provider information
-      # @option referral_data [String] :npi The National Provider Identifier (NPI) to search for
+      # @param npi [String] The National Provider Identifier (NPI) to search for
+      # @param specialty [String] The specialty to search for
+      # @param address [Hash] The address to search for
       # @return [Object, nil] The provider service object if found, nil otherwise
       #
-      def find_provider(npi:)
-        eps_provider_service.search_provider_services(npi:)
+      def find_provider(npi:, specialty:, address:)
+        eps_provider_service.search_provider_services(npi:, specialty:, address:)
       end
 
       ##

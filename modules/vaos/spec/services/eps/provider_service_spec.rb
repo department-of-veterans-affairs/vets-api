@@ -301,7 +301,10 @@ describe Eps::ProviderService do
                 id: '53mL4LAZ',
                 name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
                 is_active: true,
-                specialties: ['Cardiology', 'Internal Medicine'],
+                specialties: [
+                  { name: 'Cardiology' },
+                  { name: 'Internal Medicine' }
+                ],
                 location: {
                   address: '1105 Palmetto Ave, Melbourne, FL, 32901'
                 },
@@ -341,7 +344,7 @@ describe Eps::ProviderService do
             provider_services: [
               {
                 id: '53mL4LAZ',
-                specialties: ['CARDIOLOGY'],
+                specialties: [{ name: 'CARDIOLOGY' }],
                 location: {
                   address: '1105 Palmetto Ave, Melbourne, FL, 32901'
                 }
@@ -373,7 +376,7 @@ describe Eps::ProviderService do
             provider_services: [
               {
                 id: '53mL4LAZ',
-                specialties: ['Dermatology'],
+                specialties: [{ name: 'Dermatology' }],
                 location: {
                   address: '1105 Palmetto Ave, Melbourne, FL, 32901'
                 }
@@ -404,7 +407,7 @@ describe Eps::ProviderService do
             provider_services: [
               {
                 id: '53mL4LAZ',
-                specialties: ['Cardiology'],
+                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '2200 Oak Street, Orlando, FL, 32801'
                 }
@@ -435,9 +438,9 @@ describe Eps::ProviderService do
             provider_services: [
               {
                 id: '53mL4LAZ',
-                specialties: ['Cardiology'],
+                specialties: [{ name: 'Cardiology' }],
                 location: {
-                  address: '1105 Palmetto Ave, Melbourne, FL, 32901, US'
+                  address: '1105 Palmetto Ave, Orlando, FL, 32801'
                 }
               }
             ]
@@ -479,7 +482,7 @@ describe Eps::ProviderService do
             provider_services: [
               {
                 id: '53mL4LAZ',
-                specialties: ['Cardiology'],
+                specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1105 Main St, Suite A, Melbourne, FL, 32901'
                 }
@@ -565,7 +568,7 @@ describe Eps::ProviderService do
             provider_services: [
               {
                 id: '53mL4LAZ',
-                specialties: ['Cardiology'],
+                specialties: [{ name: 'Cardiology' }],
                 location: {}
               }
             ]
