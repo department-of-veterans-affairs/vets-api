@@ -30,14 +30,14 @@ module SignIn
       end
 
       def render_auth(state: SecureRandom.hex,
-                      acr: Constants::Auth::LOGIN_GOV_IAL1,
+                      acr: { acr: Constants::Auth::LOGIN_GOV_IAL1 },
                       operation: Constants::Auth::AUTHORIZE)
         Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
-                          "state: #{state}, acr: #{acr}, operation: #{operation}, " \
+                          "state: #{state}, acr: #{acr[:acr]}, operation: #{operation}, " \
                           "optional_scopes: #{optional_scopes}")
 
         scope = (DEFAULT_SCOPES + optional_scopes).join(' ')
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, scope)).perform
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr[:acr], state, scope)).perform
       end
 
       def render_logout(client_logout_redirect_uri)
