@@ -7,10 +7,10 @@ module Crm
     attr_reader :icn, :logger, :settings, :token
 
     CRM_ENV = {
-      'test' => 'iris-dev',
-      'development' => 'iris-dev',
-      'staging' => 'veft-preprod',
-      'production' => 'veft'
+      'test' => Settings.ask_va_api.crm_api.environments.test,
+      'development' => Settings.ask_va_api.crm_api.environments.development,
+      'staging' => Settings.ask_va_api.crm_api.environments.staging,
+      'production' => Settings.ask_va_api.crm_api.environments.production
     }.freeze
 
     def_delegators :settings,
