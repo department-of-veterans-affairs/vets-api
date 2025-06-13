@@ -18,8 +18,8 @@ module AccreditedRepresentativePortal
         .select(&:accepts_digital_power_of_attorney_requests?)
     end
 
-    def power_of_attorney_holders_length
-      power_of_attorney_holders.length
+    def power_of_attorney_holders_size
+      power_of_attorney_holders.size
     end
 
     def get_registration_number(power_of_attorney_holder_type)

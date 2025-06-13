@@ -11,11 +11,11 @@ module AccreditedRepresentativePortal
     end
 
     def upload_scanned_form?
-      @user.user_account.power_of_attorney_holders_length.positive?
+      @user.user_account.power_of_attorney_holders_size.positive?
     end
 
     def upload_supporting_documents?
-      @user.user_account.power_of_attorney_holders_length.positive?
+      @user.user_account.power_of_attorney_holders_size.positive?
     end
   end
 end
