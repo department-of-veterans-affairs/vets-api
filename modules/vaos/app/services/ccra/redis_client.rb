@@ -3,6 +3,7 @@
 module Ccra
   # Ccra::RedisClient provides a caching mechanism for CCRA referral data.
   # It stores and retrieves referral data from Redis, using a configurable expiration time.
+  # All cached data is stored with the REFERRAL_CACHE_NAMESPACE and expires based on redis_referral_expiry setting.
   class RedisClient
     extend Forwardable
 
@@ -15,6 +16,7 @@ module Ccra
     REFERRAL_CACHE_NAMESPACE = 'vaos-ccra-cache'
 
     # Initializes the RedisClient with settings.
+    # Settings are loaded from Settings.vaos.ccra configuration.
     #
     # @return [Ccra::RedisClient] A new instance of RedisClient
     def initialize
@@ -22,11 +24,12 @@ module Ccra
     end
 
     # Saves referral data to the Redis cache.
+    # The data is stored as JSON with a compound key combining ICN and referral ID.
     #
-    # @param id [String] The referral ID to use as the cache key
-    # @param icn [String] The ICN of the patient
-    # @param referral_data [Object] The referral data to be cached
-    # @return [Boolean] True if the cache operation was successful
+    # @param id [String] The referral ID to use as part of the cache key
+    # @param icn [String] The ICN of the patient to use as part of the cache key
+    # @param referral_data [Object] The referral data to be cached (must respond to to_json)
+    # @return [Boolean] true if the cache operation was successful
     def save_referral_data(id:, icn:, referral_data:)
       cache_key = generate_cache_key(id, icn)
       Rails.cache.write(
@@ -66,10 +69,11 @@ module Ccra
     end
 
     # Retrieves referral data from the Redis cache.
+    # If found, the cached JSON data is deserialized into a ReferralDetail object.
     #
     # @param id [String] The referral ID
     # @param icn [String] The ICN of the patient
-    # @return [Object, nil] The cached referral data if it exists, otherwise nil
+    # @return [ReferralDetail, nil] A ReferralDetail object if found in cache, nil otherwise
     def fetch_referral_data(id:, icn:)
       cache_key = generate_cache_key(id, icn)
       json_data = Rails.cache.read(
@@ -83,7 +87,7 @@ module Ccra
     #
     # @param id [String] The referral ID to clear
     # @param icn [String] The ICN of the patient
-    # @return [Boolean] True if the key was found and deleted, false otherwise
+    # @return [Boolean] true if the key was found and deleted, false otherwise
     def clear_referral_data(id:, icn:)
       cache_key = generate_cache_key(id, icn)
       Rails.cache.delete(
@@ -95,6 +99,7 @@ module Ccra
     private
 
     # Generates a consistent cache key for a referral.
+    # The key format is "#{REFERRAL_CACHE_KEY}#{icn}_#{id}"
     #
     # @param id [String] The referral ID
     # @param icn [String] The ICN of the patient
