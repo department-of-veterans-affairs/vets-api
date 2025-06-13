@@ -21,17 +21,17 @@ ask_va_api:
     client_id: client_id
     client_secret: secret
     e_subscription_key: e_subscription_key
+    environments:
+      development: 'iris-dev'
+      production: 'veft'
+      staging: 'veft-preprod'
+      test: 'iris-dev'
     ocp_apim_subscription_key: subscription_key
     resource: resource
     s_subscription_key: s_subscription_key
     service_name: VEIS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
-    environments:
-      development: 'iris-dev'
-      production: 'veft'
-      staging: 'veft-preprod'
-      test: 'iris-dev'
   prefill: true
 authorization_server_scopes_api:
   auth_server:

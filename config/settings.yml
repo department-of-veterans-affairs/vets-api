@@ -22,17 +22,17 @@ ask_va_api:
     client_id: <%= ENV['ask_va_api__crm_api__client_id'] %>
     client_secret: <%= ENV['ask_va_api__crm_api__client_secret'] %>
     e_subscription_key: <%= ENV['ask_va_api__crm_api__e_subscription_key'] %>
+    environments:
+      development: <%= ENV['ask_va_api__crm_api__environments__development'] %>
+      production: <%= ENV['ask_va_api__crm_api__environments__production'] %>
+      staging: <%= ENV['ask_va_api__crm_api__environments__staging'] %>
+      test: <%= ENV['ask_va_api__crm_api__environments__test'] %>
     ocp_apim_subscription_key: <%= ENV['ask_va_api__crm_api__ocp_apim_subscription_key'] %>
     resource: <%= ENV['ask_va_api__crm_api__resource'] %>
     s_subscription_key: <%= ENV['ask_va_api__crm_api__s_subscription_key'] %>
     service_name: VEIS-API
     tenant_id: <%= ENV['ask_va_api__crm_api__tenant_id'] %>
     veis_api_path: eis/vagov.lob.ava/api
-    environments:
-      development: <%= ENV['ask_va_api__crm_api__environments__development'] %>
-      production: <%= ENV['ask_va_api__crm_api__environments__production'] %>
-      staging: <%= ENV['ask_va_api__crm_api__environments__staging'] %>
-      test: <%= ENV['ask_va_api__crm_api__environments__test'] %>
   prefill: true
 authorization_server_scopes_api:
   auth_server:
