@@ -15,11 +15,11 @@ module AccreditedRepresentativePortal
     end
 
     attribute :first_name do |object|
-      object.claimant_info.dig('name', 'first')
+      object.saved_claim.parsed_form[object.claimant_type].dig('name', 'first')
     end
 
     attribute :last_name do |object|
-      object.claimant_info.dig('name', 'last')
+      object.saved_claim.parsed_form[object.claimant_type].dig('name', 'last')
     end
 
     attribute :form_type, &:form_id
@@ -31,12 +31,12 @@ module AccreditedRepresentativePortal
     attribute :confirmation_number, &:guid
 
     attribute :vbms_status do |object|
-      STATUSES[object.latest_lighthouse_submission&.latest_status]
+      STATUSES[object.latest_submission_attempt&.aasm_state]
     end
 
     attribute :vbms_received_date do |object|
-      if STATUSES[object.latest_lighthouse_submission&.latest_status] == 'received'
-        latest_lighthouse_submission(object).updated_at.to_date.iso8601
+      if STATUSES[object.latest_submission_attempt&.aasm_state] == 'received'
+        object.latest_submission_attempt.lighthouse_updated_at&.to_date&.iso8601
       end
     end
   end

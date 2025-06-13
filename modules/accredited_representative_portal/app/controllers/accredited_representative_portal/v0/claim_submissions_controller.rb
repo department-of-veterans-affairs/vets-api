@@ -2,15 +2,13 @@
 
 module AccreditedRepresentativePortal
   module V0
-    class SubmissionsController < ApplicationController
-      skip_after_action :verify_pundit_authorization, only: :index
-
+    class ClaimSubmissionsController < ApplicationController
       def index
         authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy
-        serializer = SavedClaimClaimantRepresentativeSerializer.new(form_submissions)
+        serializer = SavedClaimClaimantRepresentativeSerializer.new(claim_submissions)
         render json: {
           data: serializer.serializable_hash,
-          meta: pagination_meta(form_submissions)
+          meta: pagination_meta(claim_submissions)
         }, status: :ok
       end
 
@@ -47,19 +45,7 @@ module AccreditedRepresentativePortal
         validated_params.dig(:page, :size)
       end
 
-      def sort(data)
-        if sort_params[:by] == 'submittedDate'
-          if sort_params[:order] == 'asc'
-            data.sort { |a, b| Date.strptime(a[:submittedDate]) <=> Date.strptime(b[:submittedDate]) }
-          elsif sort_params[:order] == 'desc'
-            data.sort { |a, b| Date.strptime(b[:submittedDate]) <=> Date.strptime(a[:submittedDate]) }
-          end
-        else
-          data
-        end
-      end
-
-      def form_submissions
+      def claim_submissions
         policy_scope(SavedClaimClaimantRepresentative)
           .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
           .preload(scope_includes)

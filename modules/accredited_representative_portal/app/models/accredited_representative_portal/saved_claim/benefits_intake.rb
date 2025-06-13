@@ -60,16 +60,8 @@ module AccreditedRepresentativePortal
 
       delegate :to_pdf, to: :form_attachment
 
-      def parsed_form
-        JSON.parse(form)
-      end
-
-      def claimant_info
-        parsed_form.key?('dependent') ? parsed_form['dependent'] : parsed_form['veteran']
-      end
-
-      def latest_lighthouse_submission
-        lighthouse_submissions.order(created_at: :desc).first
+      def latest_submission_attempt
+        form_submissions.order(created_at: :desc).first&.latest_attempt
       end
     end
   end
