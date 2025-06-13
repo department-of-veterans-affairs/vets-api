@@ -771,7 +771,9 @@ module VAOS
         usage = check_referral_usage(referral_id)
         return usage unless usage[:success]
 
-        provider = find_provider(npi: referral.provider_npi)
+        provider = find_provider(npi: referral.provider_npi,
+                                 specialty: referral.category_of_care,
+                                 address: referral.treating_facility_address)
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
         slots = fetch_provider_slots(referral, provider.id)
