@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   class RepresentativeUserAccount < UserAccount
+    delegate :size, to: :power_of_attorney_holders, prefix: true
+
     def set_email(email)
       @email.blank? or
         raise ArgumentError, 'Must not reset user email'
@@ -16,10 +18,6 @@ module AccreditedRepresentativePortal
     def active_power_of_attorney_holders
       power_of_attorney_holders
         .select(&:accepts_digital_power_of_attorney_requests?)
-    end
-
-    def power_of_attorney_holders_size
-      power_of_attorney_holders.size
     end
 
     def get_registration_number(power_of_attorney_holder_type)
