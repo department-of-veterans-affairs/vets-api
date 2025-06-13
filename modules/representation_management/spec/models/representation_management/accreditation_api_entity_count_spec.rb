@@ -22,20 +22,20 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   describe '#save_api_counts' do
     before do
       allow(model).to receive(:current_api_counts).and_return({
-        agents: 100,
-        attorneys: 200,
-        representatives: 300,
-        veteran_service_organizations: 50
+        agents: 1000,
+        attorneys: 1000,
+        representatives: 1000,
+        veteran_service_organizations: 1000
       })
     end
 
     it 'assigns values from api counts for each type' do
     expect {
       model.save_api_counts
-    }.to change { model.reload.agents }.to(100)
-      .and change { model.reload.attorneys }.to(200)
-      .and change { model.reload.representatives }.to(300)
-      .and change { model.reload.veteran_service_organizations }.to(50)
+    }.to change { model.reload.agents }.to(1000)
+      .and change { model.reload.attorneys }.to(1000)
+      .and change { model.reload.representatives }.to(1000)
+      .and change { model.reload.veteran_service_organizations }.to(1000)
   end
 
     it 'only assigns values for valid counts' do
