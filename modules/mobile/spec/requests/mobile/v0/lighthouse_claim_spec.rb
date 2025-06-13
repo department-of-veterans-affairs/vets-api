@@ -16,10 +16,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     before do
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-      Flipper.enable_actor(:mobile_lighthouse_claims, user)
     end
-
-    after { Flipper.disable(:mobile_lighthouse_claims) }
 
     context 'when the claim is found' do
       before do
