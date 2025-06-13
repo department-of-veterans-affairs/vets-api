@@ -1,0 +1,115 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 05 Jun 2025 21:31:46 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Envoy-Upstream-Service-Time:
+      - '19'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="1537444589"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"associations":[]},"messages":[]}'
+  recorded_at: Thu, 05 Jun 2025 21:31:46 GMT
+- request:
+    method: put
+    uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
+    body:
+      encoding: UTF-8
+      string: '{"associations":[{"address":{"city":"guanajuato","country":"MEX","line1":"NE
+        54th St","line2":"Apt 7","line3":"Unit 1222","provinceCode":"guanajuato","postalCode":"84754"},"name":{"givenName":"UPDATEDFIRSTNOKA","middleName":"UPDATEDMIDDLENOKA","familyName":"UPDATEDLASTNOKA","suffix":"JR."},"alternatePhone":"6544551234","primaryPhone":"4449131234","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"},{"address":{"city":"Tampa","country":"USA","line1":"875
+        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"UPDATEDFIRSTNOKB","middleName":"UPDATEDMIDDLENOKB","familyName":"UPDATEDLASTNOKB"},"alternatePhone":"2658350023","primaryPhone":"1238835546","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"},{"address":{"city":"Los
+        Angeles","country":"USA","line1":"28 Parker St","state":"CA","zipCode":"90038","zipPlus4":"1234"},"name":{"givenName":"UPDATEDFIRSTECA","middleName":"UPDATEDMIDDLEECA","familyName":"UPDATEDLASTECA"},"alternatePhone":"1123321232","primaryPhone":"7563627422","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"},{"address":{"city":"Wichita","country":"USA","line1":"875
+        West Blvd","line2":"Apt 3","line3":"Unit 6","state":"KS","zipCode":"67203","zipPlus4":"1234"},"name":{"givenName":"UPDATEDFIRSTECB","middleName":"UPDATEDMIDDLEECB","familyName":"UPDATEDLASTECB"},"alternatePhone":"9563001117","primaryPhone":"6437432434","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Thu, 05 Jun 2025 21:31:49 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Envoy-Upstream-Service-Time:
+      - '26'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="1866326672"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"description":"associations[0].relationType: Relation
+        type is required","code":"VES_109"},{"description":"associations[1].relationType:
+        Relation type is required","code":"VES_109"},{"description":"associations[3].role:
+        Role is required","code":"VES_109"},{"description":"associations[3].relationType:
+        Relation type is required","code":"VES_109"},{"description":"associations[1].role:
+        Role is required","code":"VES_109"},{"description":"associations[0].role:
+        Role is required","code":"VES_109"},{"description":"associations[2].role:
+        Role is required","code":"VES_109"},{"description":"associations[2].relationType:
+        Relation type is required","code":"VES_109"}],"retryable":false}'
+  recorded_at: Thu, 05 Jun 2025 21:31:49 GMT
+recorded_with: VCR 6.3.1
