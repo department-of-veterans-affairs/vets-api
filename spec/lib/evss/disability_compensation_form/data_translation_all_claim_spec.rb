@@ -111,36 +111,111 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
         end
 
-        context 'when a form 0781/a is included with Form 526' do
-          let(:form_content) do
-            {
-              'form526' => {
-                'form0781' => {
-                  'incidents' => []
+        context 'when the form is submitted using the old v1 flow' do
+          context 'when only form 0781 is included with Form 526' do
+            let(:form_content) do
+              {
+                'form526' => {
+                  'form0781' => {
+                    'incidents' => []
+                  }
                 }
               }
-            }
+            end
+
+            it 'includes the 0781 note in the overflow text' do
+              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder\n"
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+            end
           end
 
-          it 'includes a note in the overflow text' do
-            expected_note = "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
-            expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+          context 'when only form 0781a is included with Form 526' do
+            let(:form_content) do
+              {
+                'form526' => {
+                  'form0781a' => {
+                    'incidents' => []
+                  }
+                }
+              }
+            end
+
+            it 'includes the 0781a note in the overflow text' do
+              expected_note = "VA Form 0781a has been completed by the applicant and sent to the VBMS eFolder\n"
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+            end
+          end
+
+          context 'when both form 0781 and 0781a are included with Form 526' do
+            let(:form_content) do
+              {
+                'form526' => {
+                  'form0781' => {
+                    'incidents' => []
+                  },
+                  'form0781a' => {
+                    'incidents' => []
+                  }
+                }
+              }
+            end
+
+            it 'includes both notes in the overflow text' do
+              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder\n" \
+                              "VA Form 0781a has been completed by the applicant and sent to the VBMS eFolder\n"
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+            end
+          end
+
+          context 'when a form 0781/a is not included with Form 526' do
+            before do
+              Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+            end
+
+            let(:form_content) do
+              {
+                'form526' => {}
+              }
+            end
+
+            it 'does not include a note in the overflow text' do
+              expect(subject.send(:overflow_text)).to eq('')
+            end
           end
         end
 
-        context 'when a form 0781/a is not included with Form 526' do
-          before do
-            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+        context 'when the form is submitted using the new v2 flow' do
+          context 'when form 0781 is included with Form 526' do
+            let(:form_content) do
+              {
+                'form526' => {
+                  'form0781v2' => {
+                    'incidents' => []
+                  }
+                }
+              }
+            end
+
+            it 'includes the 0781 note in the overflow text' do
+              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder\n"
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+            end
           end
 
-          let(:form_content) do
-            {
-              'form526' => {}
-            }
-          end
+          context 'when a form 0781 is not included with Form 526' do
+            before do
+              Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+            end
 
-          it 'does not include a note in the overflow text' do
-            expect(subject.send(:overflow_text)).to eq('')
+            let(:form_content) do
+              {
+                'form526' => {}
+              }
+            end
+
+            it 'does not include a note in the overflow text' do
+              expect(subject.send(:overflow_text)).to eq('')
+            end
           end
         end
       end
@@ -201,7 +276,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         let(:form_0781_note) do
-          "VA Form 0781/a has been completed by the applicant and sent to the VBMS eFolder\n"
+          "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder\n"
         end
 
         context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
