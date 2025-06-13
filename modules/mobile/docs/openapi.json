@@ -22189,6 +22189,7 @@
                     "triageTeamId",
                     "name",
                     "stationNumber",
+                    "preferredName",
                     "relationType",
                     "locationName",
                     "suggestedNameDisplay",
