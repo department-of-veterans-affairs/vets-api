@@ -131,6 +131,17 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
     end
   end
 
+  describe '#unique_file_name (with a custom date)' do
+    subject(:unique_file_name_with_date) { dummy_class.unique_file_name(form_number, id, 2.days.ago) }
+
+    let(:form_number) { '20-10207' }
+    let(:id) { 'unique-form-id' }
+
+    it 'builds a unique file path being respectful of the date parameter' do
+      expect(unique_file_name_with_date).to eq("#{2.days.ago.strftime('%-m.%d.%y')}_form_20-10207_vagov_#{id}")
+    end
+  end
+
   describe '#dated_directory_name' do
     subject(:dated_directory_name) { dummy_class.dated_directory_name(form_number) }
 
