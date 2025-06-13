@@ -6,7 +6,6 @@ module RepresentationManagement
   class AccreditedEntitiesQueueUpdates
     include Sidekiq::Job
 
-    
     SLICE_SIZE = 30
 
     def perform(force_update_types = [])
@@ -114,8 +113,6 @@ module RepresentationManagement
         }
       }
     end
-
-
 
     def process_agents
       if @entity_counts.valid_count?(:agents) || @force_update_types.include?('claims_agent')

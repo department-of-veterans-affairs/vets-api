@@ -41,7 +41,6 @@ module RepresentationManagement
       end
     end
 
-
     def client
       RepresentationManagement::GCLAWS::Client
     end
@@ -98,10 +97,8 @@ module RepresentationManagement
                 'Action: Update skipped, manual review required'
 
       log_to_slack_threshold_channel(message)
-      # TODO Change the following to datadog
       log_error("AccreditationApiEntityCount threshold exceeded for #{rep_type}, previous: #{previous_count}, " \
                 "new: #{new_count}, decrease: #{(decrease_percentage * 100).round(2)}%")
-
     end
   end
 end
