@@ -56,7 +56,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
           # But of one of the expected types.
           #
           :persistent_attachment_va_form_documentation,
-          saved_claim: build(:burial_claim)
+          saved_claim: build(:fake_saved_claim)
         )
       end
 
