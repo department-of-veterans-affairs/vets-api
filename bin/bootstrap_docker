@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# Bootstrap Docker environment for vets-api
+# This script provisions local assets, builds containers, prepares the database,
+# and runs a fast-spec smoke-test so that new developers can verify their
+# installation in ~30 minutes or less.
+
+set -euo pipefail
+
+start_time=$(date +%s)
+
+header() {
+  echo -e "\n\033[1;34m==> $*\033[0m"
+}
+
+abort() {
+  echo -e "\033[1;31mERROR: $*\033[0m" >&2
+  exit 1
+}
+
+# ---------- Pre-flight checks -------------------------------------------------
+header "Verifying prerequisites"
+command -v docker >/dev/null 2>&1 || abort "Docker is not installed."
+
+docker compose version >/dev/null 2>&1 || abort "Docker Compose v2 is required (upgrade Docker Desktop)."
+
+# NEW: verify docker daemon running or attempt to start
+if ! docker info >/dev/null 2>&1; then
+  header "Docker daemon not detected; attempting to start it"
+  uname_out=$(uname -s)
+  case "${uname_out}" in
+    Darwin)
+      # macOS – try to launch Docker Desktop
+      open --background -a Docker || true
+      printf "  • Waiting for Docker Desktop to start"
+      for i in {1..30}; do
+        if docker info >/dev/null 2>&1; then
+          echo " ✓"
+          break
+        fi
+        printf "."; sleep 5
+      done
+      ;;
+    Linux)
+      if command -v systemctl >/dev/null 2>&1; then
+        sudo systemctl start docker || true
+      fi
+      ;;
+  esac
+
+  # Final check
+  if ! docker info >/dev/null 2>&1; then
+    abort "Docker daemon still not running after attempts. Please start Docker manually and re-run the script."
+  fi
+fi
+
+# Ensure we are in the repo root (contains Gemfile)
+[ -f "Gemfile" ] || abort "Run this script from the vets-api repository root."
+
+# Set default platform for Apple Silicon to avoid missing amd64 images
+arch=$(uname -m)
+if [[ "$arch" == "arm64" || "$arch" == "aarch64" ]]; then
+  header "Apple Silicon detected; setting DOCKER_DEFAULT_PLATFORM=linux/amd64 for image compatibility"
+  export DOCKER_DEFAULT_PLATFORM=linux/amd64
+fi
+
+# ---------- Local artifact setup ---------------------------------------------
+header "Preparing local configuration files"
+mkdir -p config/certs
+: > config/certs/vetsgov-localhost.crt
+: > config/certs/vetsgov-localhost.key
+
+if [ ! -f config/settings.local.yml ]; then
+  cp config/settings.local.yml.example config/settings.local.yml
+  echo "  • Created config/settings.local.yml"
+else
+  echo "  • config/settings.local.yml already exists"
+fi
+
+# ---------- Clone mock data repo ---------------------------------------------
+header "Ensuring vets-api-mockdata exists"
+if [ ! -d ../vets-api-mockdata ]; then
+  git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata || \
+    abort "Unable to clone vets-api-mockdata"
+else
+  echo "  • vets-api-mockdata already present"
+fi
+
+# ---------- Start dependency containers --------------------------------------
+header "Starting dependency containers"
+docker compose -f docker-compose-deps.yml up -d --wait
+
+docker_ps=$(docker compose ps --services --filter=status=running | wc -l)
+[ "$docker_ps" -ge 3 ] || abort "Dependencies failed to start. Run 'docker compose ps' for details."
+
+# ---------- Build application image ------------------------------------------
+header "Building vets-api web image (this can take a few minutes)"
+docker compose build web
+
+# ---------- Database setup ----------------------------------------------------
+header "Preparing database (development & test)"
+# development env is default
+docker compose run --rm web bundle exec rails db:prepare
+# test env
+docker compose run --rm -e RAILS_ENV=test web bundle exec rails db:prepare
+
+# ---------- Smoke-test --------------------------------------------------------
+header "Running RSpec smoke test"
+RSPEC_PATH=${BOOTSTRAP_RSPEC_PATH:-spec/smoke}
+if [[ "$RSPEC_PATH" == "skip" ]]; then
+  echo "Skipping RSpec run (BOOTSTRAP_RSPEC_PATH=skip)"
+else
+  docker compose run --rm web bundle exec rspec ${RSPEC_PATH}
+fi
+
+end_time=$(date +%s)
+elapsed=$(( end_time - start_time ))
+
+header "Bootstrap completed successfully in ${elapsed}s"
+
+echo "\nYou can now run 'docker compose up' to start the full application." 
