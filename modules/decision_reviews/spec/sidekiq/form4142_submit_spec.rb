@@ -57,6 +57,47 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
     let(:request_body) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }
 
     context 'when form4142 data exists' do
+      context 'when form4142_data is a hash without providerFacility' do
+        it 'returns the transformed data without changes' do
+          data = { 'privacyAgreementAccepted' => true }
+          expect(transform_form4142_data(data)).to eq(data)
+        end
+      end
+
+      context 'when form4142 data contains providerFacility with issues' do
+        it 'converts the issues array to a comma-separated conditionsTreated string' do
+          data = {
+            'privacyAgreementAccepted' => true,
+            'providerFacility' => [
+              {
+                'providerFacilityName' => 'Test Provider',
+                'issues' => %w[Hypertension Diabetes PTSD]
+              },
+              {
+                'providerFacilityName' => 'First Provider',
+                'issues' => ['Hypertension']
+              }
+            ]
+          }
+
+          expected = {
+            'privacyAgreementAccepted' => true,
+            'providerFacility' => [
+              {
+                'providerFacilityName' => 'Test Provider',
+                'conditionsTreated' => 'Hypertension,Diabetes,PTSD'
+              },
+              {
+                'providerFacilityName' => 'First Provider',
+                'conditionsTreated' => 'Hypertension'
+              }
+            ]
+          }
+
+          expect(transform_form4142_data(data)).to eq(expected)
+        end
+      end
+
       it '#decrypt_form properly decrypts encrypted payloads' do
         form4142 = request_body['form4142']
         payload = get_and_rejigger_required_info(
