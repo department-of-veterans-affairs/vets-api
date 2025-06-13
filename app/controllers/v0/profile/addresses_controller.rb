@@ -10,6 +10,8 @@ module V0
       after_action :invalidate_cache
 
       def create
+        log_validation_key
+
         write_to_vet360_and_render_transaction!(
           'address',
           address_params
@@ -18,6 +20,8 @@ module V0
       end
 
       def create_or_update
+        log_validation_key
+
         write_to_vet360_and_render_transaction!(
           'address',
           address_params,
@@ -26,6 +30,8 @@ module V0
       end
 
       def update
+        log_validation_key
+
         write_to_vet360_and_render_transaction!(
           'address',
           address_params,
@@ -66,6 +72,20 @@ module V0
           :zip_code,
           :zip_code_suffix
         )
+      end
+
+      def log_validation_key
+        if Settings.vsp_environment == 'staging'
+          if address_params[:validation_key].present?
+            Rails.logger.info("Address Type: #{address_params[:address_type]},
+                              Address Line 1: #{address_params[:address_line1]},
+                              Validation Key: #{address_params[:validation_key]}")
+          else
+            Rails.logger.info("Address Type: #{address_params[:address_type]},
+                              Address Line 1: #{address_params[:address_line1]},
+                              Validation Key: #{address_params[:override_validation_key]}")
+          end
+        end
       end
     end
   end
