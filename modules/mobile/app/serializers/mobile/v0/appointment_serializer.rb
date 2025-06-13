@@ -32,7 +32,8 @@ module Mobile
                  :friendly_location_name,
                  :service_category_name,
                  :travelPayClaim,
-                 :travel_pay_eligible
+                 :travel_pay_eligible,
+                 :show_schedule_link
     end
   end
 end
