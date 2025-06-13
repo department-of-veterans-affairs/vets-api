@@ -10,7 +10,7 @@ module BenefitsDiscovery
 
     def get_eligible_benefits(params = {})
       response = perform(:post, 'benefits-discovery-service/v0/recommendations', params.to_json, headers)
-      response.body
+      response.body['data']
     end
 
     private

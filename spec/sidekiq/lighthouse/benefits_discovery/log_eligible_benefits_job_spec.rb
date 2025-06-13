@@ -19,20 +19,18 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
   end
   let(:eligible_benefits) do
     {
-      'data' => {
-        'undetermined' => [],
-        'recommended' => [
-          {
-            'benefit_name' => 'Life Insurance (VALife)',
-            'benefit_url' => 'https://www.va.gov/life-insurance/'
-          },
-          {
-            'benefit_name' => 'Health',
-            'benefit_url' => 'https://www.va.gov/health-care/'
-          }
-        ],
-        'not_recommended' => []
-      }
+      'undetermined' => [],
+      'recommended' => [
+        {
+          'benefit_name' => 'Life Insurance (VALife)',
+          'benefit_url' => 'https://www.va.gov/life-insurance/'
+        },
+        {
+          'benefit_name' => 'Health',
+          'benefit_url' => 'https://www.va.gov/health-care/'
+        }
+      ],
+      'not_recommended' => []
     }
   end
 
@@ -52,14 +50,12 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
         expect(StatsD).to receive(:measure).with(described_class.name, be_a(Float))
         expect(StatsD).to receive(:increment).with(
           {
-            data: {
-              not_recommended: [],
-              recommended: [
-                { benefit_name: 'Health', benefit_url: 'https://www.va.gov/health-care/' },
-                { benefit_name: 'Life Insurance (VALife)', benefit_url: 'https://www.va.gov/life-insurance/' }
-              ],
-              undetermined: []
-            }
+            not_recommended: [],
+            recommended: [
+              { benefit_name: 'Health', benefit_url: 'https://www.va.gov/health-care/' },
+              { benefit_name: 'Life Insurance (VALife)', benefit_url: 'https://www.va.gov/life-insurance/' }
+            ],
+            undetermined: []
           }.to_json
         )
         described_class.new.perform(user.uuid)
