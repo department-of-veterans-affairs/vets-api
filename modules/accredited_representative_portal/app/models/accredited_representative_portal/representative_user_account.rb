@@ -60,6 +60,7 @@ module AccreditedRepresentativePortal
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def registration_numbers
       registration_nums = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
 
@@ -73,8 +74,14 @@ module AccreditedRepresentativePortal
         end
 
         representatives.each do |rep|
-          AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn,
-                                                                                              rep.representative_id)
+          result = AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(
+            icn, rep.representative_id
+          )
+
+          # Handle conflict response
+          if result == :conflict
+            raise Common::Exceptions::Forbidden, detail: 'ICN is already registered with a different representative.'
+          end
         end
       else
         # find types for numbers from api
@@ -85,6 +92,7 @@ module AccreditedRepresentativePortal
         map[rep.user_type] = rep.representative_id
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def power_of_attorney_holders
       @power_of_attorney_holders ||= registrations.flat_map do |registration|
