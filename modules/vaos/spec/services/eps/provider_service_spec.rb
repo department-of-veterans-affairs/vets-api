@@ -18,45 +18,6 @@ describe Eps::ProviderService do
     allow(Rails.logger).to receive(:public_send)
   end
 
-  describe '#get_provider_services' do
-    context 'when the request is successful' do
-      let(:response) do
-        double('Response', status: 200, body: { count: 1,
-                                                providerServices: [
-                                                  { id: '1Awee9b5', name: 'Provider 1' },
-                                                  { id: '2Awee9b5', name: 'Provider 2' }
-                                                ] },
-                           response_headers: { 'Content-Type' => 'application/json' })
-      end
-
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-      end
-
-      it 'returns an OpenStruct with the response body' do
-        result = service.get_provider_services
-
-        expect(result).to eq(OpenStruct.new(response.body))
-      end
-    end
-
-    context 'when the request fails' do
-      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
-      let(:exception) do
-        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
-      end
-
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
-      end
-
-      it 'raises an error' do
-        expect { service.get_provider_services }.to raise_error(Common::Exceptions::BackendServiceException,
-                                                                /VA900/)
-      end
-    end
-  end
-
   describe '#get_provider_service' do
     let(:provider_id) { 123 }
 
@@ -320,9 +281,18 @@ describe Eps::ProviderService do
 
   describe '#search_provider_services' do
     let(:npi) { '7894563210' }
+    let(:specialty) { 'Cardiology' }
+    let(:address) do
+      {
+        street1: '1105 Palmetto Ave',
+        city: 'Melbourne',
+        state: 'FL',
+        zip: '32901'
+      }
+    end
 
     context 'when the request is successful' do
-      context 'when a provider with matching NPI exists' do
+      context 'when a provider matches all criteria' do
         let(:response_body) do
           {
             count: 1,
@@ -331,6 +301,13 @@ describe Eps::ProviderService do
                 id: '53mL4LAZ',
                 name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
                 is_active: true,
+                specialties: [
+                  { name: 'Cardiology' },
+                  { name: 'Internal Medicine' }
+                ],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                },
                 individual_providers: [
                   {
                     name: 'Dr. Monty Graciano',
@@ -349,12 +326,182 @@ describe Eps::ProviderService do
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
+            .with(:get, "/#{config.base_path}/provider-services", { npi:, isSelfSchedulable: true }, headers)
             .and_return(response)
         end
 
-        it 'returns an OpenStruct with the first provider' do
-          result = service.search_provider_services(npi:)
+        it 'returns an OpenStruct with the matching provider' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when specialty matching is case-insensitive' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'CARDIOLOGY' }],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'matches specialty regardless of case' do
+          result = service.search_provider_services(npi:, specialty: 'cardiology', address:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when provider specialty does not match' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Dermatology' }],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when provider address does not match' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, Orlando, FL, 32801'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when street matches but full address does not' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1105 Palmetto Ave, Orlando, FL, 32801'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil and logs a warning' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:warn).with(
+            /Provider address partial match detected/
+          )
+        end
+      end
+
+      context 'when provider has street address with comma' do
+        let(:address_with_suite) do
+          {
+            street1: '1105 Main St, Suite A',
+            city: 'Melbourne',
+            state: 'FL',
+            zip: '32901'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1105 Main St, Suite A, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'matches street address containing commas' do
+          result = service.search_provider_services(npi:, specialty:, address: address_with_suite)
           expect(result).to be_a(OpenStruct)
           expect(result.id).to eq('53mL4LAZ')
         end
@@ -374,13 +521,71 @@ describe Eps::ProviderService do
         end
 
         before do
-          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
-            .and_return(response)
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
         end
 
         it 'returns nil' do
-          result = service.search_provider_services(npi:)
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when provider has blank specialty' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when provider has no location address' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {}
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
         end
       end
@@ -397,7 +602,7 @@ describe Eps::ProviderService do
       end
 
       it 'raises an error' do
-        expect { service.search_provider_services(npi:) }
+        expect { service.search_provider_services(npi:, specialty:, address:) }
           .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end

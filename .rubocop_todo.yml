@@ -285,7 +285,7 @@ RSpec/StubbedMock:
 # Offense count: 26
 RSpec/SubjectDeclaration:
   Exclude:
-    - 'modules/mobile/spec/helpers/mobile/appointments_cache_interface_spec.rb'
+    - 'modules/mobile/spec/services/appointments_cache_interface_spec.rb'
     - 'modules/va_notify/spec/models/veteran_spec.rb'
     - 'modules/vaos/spec/services/user_service_spec.rb'
     - 'modules/vba_documents/spec/sidekiq/run_unsuccessful_submissions_spec.rb'
