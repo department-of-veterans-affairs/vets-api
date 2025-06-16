@@ -386,13 +386,6 @@ Rails/Exit:
     - bin/**/*.rb
     - modules/mobile/lib/scripts/parse_rspec_xml.rb
 
-Rails/HelperInstanceVariable:
-  Exclude:
-    - modules/mobile/app/helpers/mobile/appointments_cache_interface.rb
-    - modules/mobile/app/helpers/mobile/appointments_helper.rb
-    - modules/mobile/app/helpers/mobile/list_filter.rb
-    - modules/mobile/app/helpers/mobile/pagination_helper.rb
-
 # kms_encrypted_model_patch is for a gem and the method name shouldn't be changed
 Naming/PredicatePrefix:
   Exclude:
