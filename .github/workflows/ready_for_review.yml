@@ -44,7 +44,7 @@ jobs:
             if ${{ github.event.pull_request.draft }}; then
               echo "pr_requested_teams=[]" >> $GITHUB_OUTPUT
             else
-              echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
+              echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.slug) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             fi
 
           elif ${{ github.event_name == 'workflow_run' }}; then
