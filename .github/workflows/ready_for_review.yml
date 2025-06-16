@@ -145,7 +145,7 @@ jobs:
 
       - name: Remove require-backend-approval label
         if: |
-          steps.check_exempt_teams.except_team == 'true'
+          steps.check_exempt_teams.except_team == 'true' ||
           steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
@@ -154,7 +154,7 @@ jobs:
 
       - name: Remove ready-for-backend-review label
         if: |
-          steps.check_exempt_teams.except_team == 'true'
+          steps.check_exempt_teams.except_team == 'true' ||
           steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
