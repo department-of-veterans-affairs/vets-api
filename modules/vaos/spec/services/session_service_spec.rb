@@ -26,6 +26,7 @@ describe VAOS::SessionService do
   before do
     RequestStore['request_id'] = request_id
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow(Settings).to receive(:hostname).and_return('id.review.vetsgov-internal')
   end
 
   describe 'headers' do

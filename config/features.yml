@@ -1825,10 +1825,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for for converting the start & end times in slots fetch to UTC.
-  va_online_scheduling_direct_schedule_appointment_conflict:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions

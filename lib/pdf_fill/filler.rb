@@ -68,7 +68,6 @@ module PdfFill
       '28-8832' => PdfFill::Forms::Va288832,
       '21-674' => PdfFill::Forms::Va21674,
       '21-674-V2' => PdfFill::Forms::Va21674v2,
-      '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-10216' => PdfFill::Forms::Va2210216,
