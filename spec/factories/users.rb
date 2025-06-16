@@ -4,11 +4,12 @@ require 'saml/url_service'
 
 FactoryBot.define do
   factory :user, class: 'User' do
-    uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+    uuid { user_verification.user_account.id }
     last_signed_in { Time.now.utc }
     fingerprint { '111.111.1.1' }
     session_handle { SecureRandom.hex }
     transient do
+      user_verification { create(:idme_user_verification, idme_uuid:) }
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
       first_name { 'abraham' }
@@ -18,7 +19,7 @@ FactoryBot.define do
       preferred_name { 'abe' }
       birth_date { '1809-02-12' }
       ssn { '796111863' }
-      idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      idme_uuid { SecureRandom.uuid }
       logingov_uuid { nil }
       verified_at { nil }
       sec_id { '123498767' }
@@ -138,7 +139,6 @@ FactoryBot.define do
     # This is used by the response_builder helper to build a user from saml attributes
     trait :response_builder do
       authn_context { nil }
-      uuid { nil }
       last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
       mhv_last_signed_in { Faker::Time.between(from: 1.week.ago, to: 1.minute.ago) }
       email { nil }
@@ -468,8 +468,7 @@ FactoryBot.define do
 
     trait :with_terms_of_use_agreement do
       after(:build) do |user, _context|
-        verification = create(:idme_user_verification, idme_uuid: user.idme_uuid)
-        create(:terms_of_use_agreement, user_account: verification.user_account)
+        create(:terms_of_use_agreement, user_account: user.user_account)
       end
     end
 

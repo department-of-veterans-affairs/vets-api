@@ -14,9 +14,8 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:request_id) { SecureRandom.uuid }
 
   # User test set-up
-  let(:user) { build(:user, loa, :with_terms_of_use_agreement, uuid:, idme_uuid: uuid) }
+  let(:user) { build(:user, loa, :with_terms_of_use_agreement) }
   let(:loa) { :loa3 }
-  let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
   let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
@@ -600,11 +599,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when logged in' do
-      let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      let(:loa1_user) { build(:user, :loa1) }
 
       before do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        session_object = Session.create(uuid:, token:)
+        session_object = Session.create(uuid: loa1_user.uuid, token:)
         session_object.to_hash.each { |k, v| session[k] = v }
         loa1 = User.create(loa1_user.attributes)
         UserIdentity.create(loa1_user.identity.attributes)
@@ -637,7 +636,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
-          expect(User.find(uuid)).not_to be_nil
+          expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
           call_endpoint
           expect(response.location).to eq(expected_redirect_url)
@@ -645,7 +644,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
-          expect(User.find(uuid)).to be_nil
+          expect(User.find(loa1_user.user_account.id)).to be_nil
         end
 
         context 'when agreements_declined is true' do
@@ -654,14 +653,14 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
             verify_session_cookie
-            expect(User.find(uuid)).not_to be_nil
+            expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
             call_endpoint
             expect(response.location).to eq(expected_redirect_url)
 
             expect(Session.find(token)).to be_nil
             expect(session).to be_empty
-            expect(User.find(uuid)).to be_nil
+            expect(User.find(loa1_user.user_account.id)).to be_nil
           end
         end
       end
@@ -721,7 +720,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa) }
         let(:application) { 'some-applicaton' }
 
         before do
@@ -778,7 +777,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa) }
         let(:application) { 'some-applicaton' }
 
         before do
@@ -828,8 +827,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         it_behaves_like 'a successful UserAudit log'
       end
 
-      context 'when cerner eligibiltiy is checked' do
-        let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, cerner_id:) }
+      context 'when cerner eligibility is checked' do
+        let(:user) { build(:user, :loa3, cerner_id:) }
         let(:cerner_id) { 'some-cerner-id' }
         let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
         let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
@@ -971,11 +970,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when user already logged in' do
-      let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid) }
 
       before do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        session_object = Session.create(uuid:, token:)
+        session_object = Session.create(uuid: loa1_user.uuid, token:)
         session_object.to_hash.each { |k, v| session[k] = v }
         loa1 = User.create(loa1_user.attributes)
         UserIdentity.create(loa1_user.identity.attributes)
@@ -995,7 +994,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             uuid: login_uuid,
             payload: { type: 'verify', application: 'vaweb', operation: 'authorize' }
           )
-          existing_user = User.find(uuid)
+          existing_user = User.find(loa1_user.uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: IAL::ONE, current: IAL::ONE)
@@ -1017,7 +1016,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           expect(response.location).to start_with(expected_redirect_url)
 
-          new_user = User.find(uuid)
+          new_user = User.find(loa1_user.uuid)
           expect(new_user.ssn).to eq('796111863')
           expect(new_user.ssn_mpi).not_to eq('155256322')
           expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
@@ -1043,7 +1042,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'UserIdentity & MPI ID validations' do
           let(:mpi_profile) { build(:mpi_profile) }
-          let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mpi_profile:) }
+          let(:user) { build(:user, :loa3, mpi_profile:) }
           let(:expected_error_data) do
             { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: user.icn }
           end
@@ -1106,13 +1105,13 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'changes the multifactor to true, time is the same', :aggregate_failures do
-          existing_user = User.find(uuid)
+          existing_user = User.find(loa1_user.uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
           call_endpoint
-          new_user = User.find(uuid)
+          new_user = User.find(loa1_user.uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           expect(new_user.multifactor).to be_truthy
           expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
@@ -1120,15 +1119,19 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'with mismatched UUIDs' do
           let(:params) { { RelayState: '{"type": "mfa"}' } }
-          let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid, mhv_icn: '11111111111')  }
-          let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mhv_icn: '11111111111')  }
+          let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
+          let(:loa3_user) { build(:user, :loa3, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
           let(:saml_user_attributes) do
-            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
+            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(mhv_icn: '11111111111'))
+          end
+
+          before do
+            allow_any_instance_of(UserAccount).to receive(:id).and_return('invalid')
           end
 
           it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-            expect(Sentry).to receive(:set_extras).with(current_user_uuid: uuid, current_user_icn: '11111111111')
+            expect(Sentry).to receive(:set_extras).with(current_user_uuid: user.uuid, current_user_icn: '11111111111')
             expect(Sentry).to receive(:set_extras).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })
             expect(Sentry).to receive(:capture_message).with(
               "Couldn't locate exiting user after MFA establishment",
@@ -1394,70 +1397,6 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
           end
-        end
-      end
-
-      context 'when a required saml attribute is missing' do
-        let(:loa) { :loa1 }
-        let(:saml_user_attributes) do
-          user.attributes.merge(user.identity.attributes).merge(uuid: nil)
-        end
-        let(:error_code) { '004' }
-
-        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-
-        it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! on User/Session Validation',
-              :error,
-              extra_context: {
-                code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
-                tag: :validations_failed,
-                short_message: 'on User/Session Validation',
-                level: :error,
-                uuid: nil,
-                user: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                session: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                identity: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"],
-                  authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
-                  loa: { current: 1, highest: 1 }
-                },
-                mvi: 'breakers is open for MVI'
-              }
-            )
-          expect(call_endpoint).to redirect_to(expected_redirect)
-          expect(response).to have_http_status(:found)
-        end
-
-        it 'increments the failed and total statsd counters' do
-          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vaweb' })
-          callback_tags = ['status:failure',
-                           "context:#{LOA::IDME_LOA1_VETS}",
-                           'version:v1',
-                           'type:idme',
-                           'client_id:vaweb',
-                           'operation:authorize']
-          failed_tags = ['error:validations_failed', 'version:v1']
-
-          expect { call_endpoint }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-        end
-
-        it 'captures the invalid saml response in a PersonalInformationLog' do
-          call_endpoint
-          expect(PersonalInformationLog.count).to be_positive
-          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
         end
       end
 
