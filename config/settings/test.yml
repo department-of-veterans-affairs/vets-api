@@ -259,6 +259,8 @@ decision_review:
     url: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews
 dependents:
   prefill: true
+dependents_verification:
+  prefill: true
 dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
@@ -1773,15 +1775,7 @@ virtual_agent:
   cxdw_client_secret: fake_secret
   cxdw_dataverse_uri: fake_dataverse_uri
   cxdw_table_prefix: fake_table_prefix
-  lighthouse_api_key: fake_api_key
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
-  speech_token_subscription_key: fake_speech_token_subscription_key
-  webchat_pva2_secret: fake_secret
   webchat_root_bot_secret: fake_secret
-  webchat_secret: fake_secret
-  webchat_secret_msft: fake_secret
-  webchat_secret_nlu: fake_secret
 virtual_hosts:
   - www.example.com
   - localhost

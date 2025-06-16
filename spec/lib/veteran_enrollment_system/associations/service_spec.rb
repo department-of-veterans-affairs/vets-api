@@ -162,11 +162,11 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         ) do
           failure_message = 'No record found for a person with the specified ICN'
 
-          expect do
-            described_class.new(current_user_with_invalid_icn).get_associations('10-10EZR')
-          end.to raise_error(
-            an_instance_of(Common::Exceptions::ResourceNotFound)
-          )
+          expect { described_class.new(current_user_with_invalid_icn).get_associations('10-10EZR') }
+            .to raise_error do |e|
+              expect(e).to be_an_instance_of(Common::Exceptions::ResourceNotFound)
+              expect(e.errors[0].detail).to eq(failure_message)
+            end
           expect(StatsD).to have_received(:increment).with(
             'api.veteran_enrollment_system.associations.get_associations.failed'
           )
@@ -204,7 +204,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     end
 
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
-    # deleting associations works as expected
+    # creating associations works as expected
     it 'creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
       VCR.use_cassette(
         'veteran_enrollment_system/associations/create_associations_success',
@@ -321,14 +321,11 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
               'associations[2].relationType: Relation type is required, associations[1].relationType: Relation ' \
               'type is required'
 
-            expect do
-              described_class.new(current_user).update_associations(
-                missing_required_fields,
-                '10-10EZR'
-              )
-            end.to raise_error(
-              an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
-            )
+            expect { described_class.new(current_user).update_associations(missing_required_fields, '10-10EZR') }
+              .to raise_error do |e|
+                expect(e).to be_an_instance_of(Common::Exceptions::BadRequest)
+                expect(e.errors[0].detail).to eq(failure_message)
+              end
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
             )
