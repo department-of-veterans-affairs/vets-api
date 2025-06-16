@@ -466,7 +466,6 @@ RSpec.describe SAML::User do
           ssn: '666811850',
           mhv_icn: '1012853550V207686',
           mhv_credential_uuid: '12345748',
-          uuid: nil,
           mhv_account_type: 'Premium',
           email: 'k+tristanmhv@example.com',
           idme_uuid: nil,
