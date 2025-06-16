@@ -10,6 +10,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:category_of_care) { 'CARDIOLOGY' }
       let(:provider_name) { 'Dr. Smith' }
       let(:provider_npi) { '1234567890' }
+      let(:provider_specialty) { 'Cardiology' }
       let(:treating_facility_phone) { '555-987-6543' }
       let(:treating_facility_name) { 'VA Medical Center' }
       let(:treating_facility_code) { '528A7' }
@@ -26,7 +27,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           treating_facility: treating_facility_name,
           treating_provider_info: {
             provider_name:,
-            provider_npi:
+            provider_npi:,
+            provider_specialty:
           },
           treating_facility_info: {
             facility_name: treating_facility_name,
@@ -78,6 +80,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(provider[:facilityName]).to eq(treating_facility_name)
         expect(provider[:npi]).to eq(provider_npi)
         expect(provider[:phone]).to eq(treating_facility_phone)
+        expect(provider[:specialty]).to eq(provider_specialty)
 
         # Check provider address
         address = provider[:address]
@@ -135,6 +138,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(provider[:facilityName]).to be_nil
         expect(provider[:npi]).to be_nil
         expect(provider[:phone]).to be_nil
+        expect(provider[:specialty]).to be_nil
         expect(provider[:address]).to be_nil
       end
     end
@@ -168,6 +172,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:referral_number) { 'VA0000005681' }
       let(:provider_name) { 'Dr. Johnson' }
       let(:provider_npi) { '9876543210' }
+      let(:provider_specialty) { 'Internal Medicine' }
       let(:treating_facility_phone) { '555-321-9876' }
 
       let(:referral) do
@@ -175,7 +180,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           referral_number:,
           treating_provider_info: {
             provider_name:,
-            provider_npi:
+            provider_npi:,
+            provider_specialty:
           },
           treating_facility_info: {
             phone: treating_facility_phone
@@ -193,6 +199,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(provider[:name]).to eq(provider_name)
         expect(provider[:npi]).to eq(provider_npi)
         expect(provider[:phone]).to eq(treating_facility_phone)
+        expect(provider[:specialty]).to eq(provider_specialty)
         expect(provider).not_to have_key(:address)
       end
     end

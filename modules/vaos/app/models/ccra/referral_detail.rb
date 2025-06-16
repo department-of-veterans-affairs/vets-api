@@ -6,7 +6,7 @@ module Ccra
     include ActiveModel::Model
 
     attr_reader :expiration_date, :category_of_care, :provider_name, :provider_npi,
-                :provider_telephone, :treating_facility, :referral_number,
+                :provider_specialty, :provider_telephone, :treating_facility, :referral_number,
                 :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
                 :referring_facility_address, :has_appointments,
@@ -73,6 +73,7 @@ module Ccra
         'category_of_care' => @category_of_care,
         'provider_name' => @provider_name,
         'provider_npi' => @provider_npi,
+        'provider_specialty' => @provider_specialty,
         'referral_number' => @referral_number,
         'has_appointments' => @has_appointments,
         'referral_date' => @referral_date,
@@ -120,6 +121,7 @@ module Ccra
     def assign_provider_info(hash)
       @provider_name = hash['provider_name']
       @provider_npi = hash['provider_npi']
+      @provider_specialty = hash['provider_specialty']
     end
 
     # Assign facility information including addresses
@@ -217,6 +219,7 @@ module Ccra
 
       @provider_name = provider_info[:provider_name]
       @provider_npi = provider_info[:provider_npi]
+      @provider_specialty = provider_info[:provider_specialty]
     end
 
     # Parse treating facility info from the CCRA response
