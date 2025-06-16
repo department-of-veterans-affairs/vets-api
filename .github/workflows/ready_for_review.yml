@@ -95,6 +95,7 @@ jobs:
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
           REPO="department-of-veterans-affairs/vets-api"
+          PR_NUMBER="${{ steps.get_pr_data.outputs.pr_number }}"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -121,7 +122,7 @@ jobs:
           fi
 
           # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${pr_number}/reviews)
+          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
           if [ "$PR_REVIEWS" != "[]" ]; then
             echo "$PR_REVIEWS" > pr_reviews.json
 
