@@ -670,9 +670,7 @@ module SM
     end
 
     def camelize_keys(hash)
-      hash.deep_transform_keys do |key|
-        key.to_s.gsub(/_([a-z])/) { $1.upcase }
-      end
+      hash.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
     end
 
     def form_large_attachment_payload(message, lg_attachments)
