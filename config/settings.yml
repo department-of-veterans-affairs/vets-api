@@ -260,6 +260,8 @@ decision_review:
     url: <%= ENV['decision_review__v1__url'] %>
 dependents:
   prefill: true
+dependents_verification:
+  prefill: true
 dgi:
   jwt:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>

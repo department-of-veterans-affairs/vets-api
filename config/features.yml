@@ -39,6 +39,9 @@ features:
     description: >
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+  accredited_representative_portal_submissions:
+    actor_type: user
+    description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
   aedp_vadx:
     actor_type: user
@@ -145,10 +148,6 @@ features:
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
-    enable_in_development: true
-  hca_download_completed_pdf:
-    actor_type: user
-    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -1826,10 +1825,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for for converting the start & end times in slots fetch to UTC.
-  va_online_scheduling_direct_schedule_appointment_conflict:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -1875,14 +1870,6 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
-  payment_history_exclude_third_party_disbursements:
-    actor_type: user
-    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
-    enable_in_development: false
-  payment_history_recategorize_hardship:
-    actor_type: user
-    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
-    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2251,6 +2238,9 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  vff_force_unique_file_name_date_property:
+    actor_type: user
+    description: Forces the unique_file_name method to use the date property in submission_archive.rb
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
