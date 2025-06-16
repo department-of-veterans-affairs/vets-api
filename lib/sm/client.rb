@@ -357,6 +357,7 @@ module SM
     def post_create_message_with_attachment(args = {})
       validate_create_context(args)
 
+      Rails.logger.info('MESSAGING: post_create_message_with_attachments')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
       Message.new(json[:data].merge(json[:metadata]))
@@ -401,6 +402,7 @@ module SM
       end
 
       # Build multipart payload
+      Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
       payload = form_large_attachment_payload(args[:message], lg_attachments)
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', payload, custom_headers).body
@@ -417,8 +419,38 @@ module SM
     def post_create_message_reply_with_attachment(id, args = {})
       validate_reply_context(args)
 
+      Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
+      Message.new(json[:data].merge(json[:metadata]))
+    end
+
+    ##
+    # Create a message reply with attachments
+    # Utilizes MHV S3 presigned URLs to upload large attachments
+    # bypassing the 10MB limit of the MHV API gateway limitation
+    #
+    # @param args [Hash] a hash of message arguments
+    # @return [Message]
+    # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+    #
+    def post_create_message_reply_with_lg_attachment(id, args = {})
+      validate_reply_context(args)
+
+      uploads = args.delete(:uploads)
+      lg_attachments = []
+
+      raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
+
+      uploads.each do |file|
+        lg_attachments << build_lg_attachment(file)
+      end
+
+      # Build multipart payload
+      Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
+      payload = form_large_attachment_payload(args[:message], lg_attachments)
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
+      json = perform(:post, "message/#{id}/reply/attach", payload, custom_headers).body
       Message.new(json[:data].merge(json[:metadata]))
     end
 
