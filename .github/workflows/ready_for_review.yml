@@ -94,6 +94,7 @@ jobs:
         run: |
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
+          REPO="department-of-veterans-affairs/vets-api"
           PR_NUMBER="${{ steps.get_pr_data.outputs.pr_number }}"
 
           EXEMPT_TEAMS=(
@@ -107,41 +108,44 @@ jobs:
           )
 
           TEAMS=$(echo '${{ steps.get_pr_data.outputs.pr_requested_teams }}' | jq -r '.[]')
-
-          for TEAM in $TEAMS; do
-            for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
-              if [[ "$TEAM" == "$EXEMPT" ]]; then
-                echo "Found exempt team"
-                echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                break 2
-              fi
-            done
-          done
-
-          # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews)
-          echo "$PR_REVIEWS" > pr_reviews.json
-
-          REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
-
-          declare -A REVIEWER_TEAMS
-
-          for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Fetching members of team"
-            TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
-
-            # Iterate over each member and each reviewer
-            while IFS= read -r MEMBER; do
-              while IFS= read -r REVIEWER; do
-                echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                  echo "Reviewew is in exempt team"
+          if [ "$TEAMS" != "[]" ]; then
+            for TEAM in $TEAMS; do
+              for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
+                if [[ "$TEAM" == "$EXEMPT" ]]; then
+                  echo "Found exempt team"
                   echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                   break 2
                 fi
-              done <<< "$REVIEWERS"
-            done <<< "$TEAM_MEMBERS"
-          done
+              done
+            done
+          fi
+
+          # Fetch PR reviews
+          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
+          if [ "$PR_REVIEWS" != "[]" ]; then
+            echo "$PR_REVIEWS" > pr_reviews.json
+
+            REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
+
+            declare -A REVIEWER_TEAMS
+
+            for TEAM in "${EXEMPT_TEAMS[@]}"; do
+              echo "Fetching members of team"
+              TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
+
+              # Iterate over each member and each reviewer
+              while IFS= read -r MEMBER; do
+                while IFS= read -r REVIEWER; do
+                  echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
+                  if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
+                    echo "Reviewew is in exempt team"
+                    echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+                    break 2
+                  fi
+                done <<< "$REVIEWERS"
+              done <<< "$TEAM_MEMBERS"
+            done
+          fi
 
       - name: Remove require-backend-approval label
         if: |
