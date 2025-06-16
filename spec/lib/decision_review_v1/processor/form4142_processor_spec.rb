@@ -236,17 +236,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
           processor
         end
-
-        it 'does not require signature stamping' do
-          expect(processor.send(:needs_signature_stamp?)).to be false
-        end
       end
 
       context 'with 2024 template (flag enabled)' do
         before do
-          # TODO: Remove once skip once this PR is merged, failing because there is no 2024 template
-          # https://github.com/department-of-veterans-affairs/vets-api/pull/22527
-
           allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         end
 
@@ -270,10 +263,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     end
 
     describe 'feature flag integration' do
-      # TODO: Remove once skip once this PR is merged, failing because there is no 2024 template
-      # https://github.com/department-of-veterans-affairs/vets-api/pull/22527
       it 'correctly reads the team-specific template flag' do
-
         expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         processor.send(:generate_2024_version?)
       end

@@ -38,8 +38,6 @@ module Processors
         'document' => to_faraday_upload,
         'metadata' => generate_metadata
       }
-
-binding.pry if selected_form_class_id == FORM_CLASS_ID_2024
     end
 
     # Invokes Filler ancillary form method to generate PDF document
@@ -53,8 +51,7 @@ binding.pry if selected_form_class_id == FORM_CLASS_ID_2024
       base_pdf = fill_form_template
       signed_pdf = add_signature_stamp(base_pdf)
       timestamped_pdf = add_vagov_timestamp(signed_pdf)
-      stamped_pdf = submission_date_stamps_first_page(timestamped_pdf)
-      submission_date_stamps_fourth_page(stamped_pdf)
+      submission_date_stamp(timestamped_pdf)
     end
 
     protected
@@ -105,7 +102,7 @@ binding.pry if selected_form_class_id == FORM_CLASS_ID_2024
         x: 50,
         y: 560,
         text_only: true,
-        size: 10,
+        size: 8,
         page_number: 1,
         template: pdf,
         multistamp: true,
@@ -124,46 +121,37 @@ binding.pry if selected_form_class_id == FORM_CLASS_ID_2024
       )
     end
 
-    def add_vagov_submission_label(pdf)
+    def submission_date_stamp(pdf)
+      if selected_form_class_id == FORM_CLASS_ID_2024
+        stamp_2024_form_pages(pdf)
+      else
+        # 2018 4142 form
+        stamp_legacy_form_page(pdf)
+      end
+    end
+
+    def stamp_2024_form_pages(pdf)
+      stamped_pdf = stamp_page(pdf, page: 0, x: 460, y: 715)
+      stamp_page(stamped_pdf, page: 3, x: 450, y: 718)
+    end
+
+    def stamp_legacy_form_page(pdf)
+      # 2018 Version of 4142
+      stamp_page(pdf, page: 2, x: 445, y: 715)
+    end
+
+    def stamp_page(pdf, page:, x:, y:)
+      stamped_pdf = apply_stamp_line(pdf, 'Application Submitted:', page, x, y)
+      apply_stamp_line(stamped_pdf, format_date(submission_date), page, x, y - 10)
+    end
+
+    def apply_stamp_line(pdf, text, page, x, y)
       PDFUtilities::DatestampPdf.new(pdf).run(
-        text: 'VA.gov Submission',
-        x: 510,
-        y: 775,
-        text_only: true
-      )
-    end
-
-    def submission_date_stamps_first_page(pdf)
-      add_submission_date_stamp(pdf, page: 0, x: 460, y: 715)
-    end
-
-    def submission_date_stamps_fourth_page(pdf)
-      add_submission_date_stamp(pdf, page: 3, x: 450, y: 720)
-    end
-
-    def add_submission_date_stamp(pdf, page:, x:, y:)
-      return pdf unless needs_date_stamp?
-
-      # First line - "Application Submitted:"
-      stamped_pdf = PDFUtilities::DatestampPdf.new(pdf).run(
-        text: 'Application Submitted:',
+        text:,
         text_only: true,
         size: 8,
-        x: x,
-        y: y,
-        timestamp: '',
-        page_number: page,
-        multistamp: true,
-        template: pdf
-      )
-
-      # Second line - formatted date
-      PDFUtilities::DatestampPdf.new(stamped_pdf).run(
-        text: format_date(submission_date),
-        text_only: true,
-        size: 8,
-        x: x,
-        y: y - 10, # 10 pixels below first line
+        x:,
+        y:,
         timestamp: '',
         page_number: page,
         multistamp: true,
