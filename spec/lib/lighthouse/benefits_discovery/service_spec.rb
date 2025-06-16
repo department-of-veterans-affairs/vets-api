@@ -12,76 +12,78 @@ RSpec.describe BenefitsDiscovery::Service do
     allow_any_instance_of(BenefitsDiscovery::Params).to receive(:prepared_params).and_return(params)
   end
 
-  context 'with params' do
-    let(:params) do
-      {
-        dateOfBirth: '2000-06-15',
-        dischargeStatus: ['HONORABLE_DISCHARGE'],
-        branchOfService: ['NAVY'],
-        disabilityRating: 60,
-        serviceDates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }]
-      }
+  describe '#get_eligible_benefits' do
+    context 'with params' do
+      let(:params) do
+        {
+          dateOfBirth: '2000-06-15',
+          dischargeStatus: ['HONORABLE_DISCHARGE'],
+          branchOfService: ['NAVY'],
+          disabilityRating: 60,
+          serviceDates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }]
+        }
+      end
+
+      it 'returns recommendations' do
+        VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params',
+                        match_requests_on: %i[method uri body]) do
+          response = subject.get_eligible_benefits(user.uuid)
+          expect(response).to eq(
+            {
+              'undetermined' => [],
+              'recommended' => [
+                {
+                  'benefit_name' => 'Life Insurance (VALife)',
+                  'benefit_url' => 'https://www.va.gov/life-insurance/'
+                },
+                {
+                  'benefit_name' => 'Health',
+                  'benefit_url' => 'https://www.va.gov/health-care/'
+                }
+              ],
+              'not_recommended' => []
+            }
+          )
+        end
+      end
     end
 
-    it 'returns recommendations' do
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params',
-                       match_requests_on: %i[method uri body]) do
-        response = subject.get_eligible_benefits(user.uuid)
-        expect(response).to eq(
-          {
-            'undetermined' => [],
-            'recommended' => [
-              {
+    context 'with empty values' do
+      let(:params) { {} }
+
+      it 'returns recommendations' do
+        VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params',
+                        match_requests_on: %i[method uri body]) do
+          response = subject.get_eligible_benefits(user.uuid)
+          expect(response).to eq(
+            {
+              'undetermined' => [
+                {
+                  'benefit_name' => 'Health',
+                  'benefit_url' => 'https://www.va.gov/health-care/'
+                }
+              ],
+              'recommended' => [],
+              'not_recommended' => [{
                 'benefit_name' => 'Life Insurance (VALife)',
                 'benefit_url' => 'https://www.va.gov/life-insurance/'
-              },
-              {
-                'benefit_name' => 'Health',
-                'benefit_url' => 'https://www.va.gov/health-care/'
-              }
-            ],
-            'not_recommended' => []
-          }
-        )
+              }]
+            }
+          )
+        end
       end
     end
-  end
 
-  context 'with empty values' do
-    let(:params) { {} }
+    context 'with invalid param values' do
+      let(:params) { { branchOfService: 'A-Team' } }
 
-    it 'returns recommendations' do
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params',
-                       match_requests_on: %i[method uri body]) do
-        response = subject.get_eligible_benefits(user.uuid)
-        expect(response).to eq(
-          {
-            'undetermined' => [
-              {
-                'benefit_name' => 'Health',
-                'benefit_url' => 'https://www.va.gov/health-care/'
-              }
-            ],
-            'recommended' => [],
-            'not_recommended' => [{
-              'benefit_name' => 'Life Insurance (VALife)',
-              'benefit_url' => 'https://www.va.gov/life-insurance/'
-            }]
-          }
-        )
-      end
-    end
-  end
-
-  context 'with invalid param values' do
-    let(:params) { { branchOfService: 'A-Team' } }
-
-    it 'raises client error' do
-      VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params',
-                       match_requests_on: %i[method uri body]) do
-        expect do
-          subject.get_eligible_benefits(user.uuid)
-        end.to raise_error(Common::Client::Errors::ClientError)
+      it 'raises client error' do
+        VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params',
+                        match_requests_on: %i[method uri body]) do
+          expect do
+            subject.get_eligible_benefits(user.uuid)
+          end.to raise_error(Common::Client::Errors::ClientError)
+        end
       end
     end
   end
