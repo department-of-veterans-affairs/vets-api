@@ -12,7 +12,7 @@ module TravelPay
     DEFAULT_CLIENT_PARAMS = {
       page_size: PAGE_SIZE_BASE,
       page_number: 1
-    }
+    }.freeze
 
     # We need to associate an existing claim to a VAOS appointment, matching on date-time
     #
