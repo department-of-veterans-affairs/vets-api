@@ -121,6 +121,7 @@ module V0
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::Banners,
+      Swagger::Requests::DatadogAction,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimDocuments,
