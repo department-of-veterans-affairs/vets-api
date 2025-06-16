@@ -95,8 +95,6 @@ jobs:
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
           REPO="department-of-veterans-affairs/vets-api"
-          PR_NUMBER="${{ steps.get_pr_data.outputs.pr_number }}"
-
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -121,7 +119,7 @@ jobs:
           fi
 
           # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
+          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${pr_number}/reviews)
           if [ "$PR_REVIEWS" != "[]" ]; then
             echo "$PR_REVIEWS" > pr_reviews.json
 
@@ -209,7 +207,6 @@ jobs:
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
                 failures=true
-                # break
               else
                 echo "$WORKFLOW completed successfully."
                 all_workflows_failing=false
