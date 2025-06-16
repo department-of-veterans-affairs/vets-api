@@ -40,9 +40,9 @@ module AskVAApi
           # Level of Authentication is a misnomer. it doesn't contain any PII and the two possible values are:
           # 1. 'Business' - for authenticated users
           # 2. 'Personal' - for unauthenticated users
-          if user.nil? && inquiry_detail&.education_benefits?
-            Rails.logger.warn("Unauthenticated Education inquiry submitted. - Category: #{inquiry_detail.category},
-              Topic: #{inquiry_detail.topic},
+          if user.nil? && inquiry_details&.education_benefits?
+            Rails.logger.warn("Unauthenticated Education inquiry submitted. - Category: #{inquiry_details.category},
+              Topic: #{inquiry_details.topic},
               Level of Authentication: #{inquiry_details.level_of_authentication}")
           end
 
