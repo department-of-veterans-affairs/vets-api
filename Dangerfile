@@ -394,28 +394,3 @@ if $PROGRAM_NAME != __FILE__
     end
   end
 end
-
-
-PR_INFO=$(gh api /repos/department-of-veterans-affairs/vets-api/pulls/22709 --jq '{
-  draft: .draft,
-  labels: [.labels[].name],
-  head_ref: .head.ref,
-  requested_teams: [.requested_teams[].slug]
-}')
-
-PR_REVIEWS=$(gh api /repos/department-of-veterans-affairs/vets-api/pulls/22698/reviews)
-echo "$PR_REVIEWS" > pr_reviews.json
-LATEST_REVIEWS=$(jq 'reverse | unique_by(.user.login)' pr_reviews.json)
-REVIEWERS=$(echo "$LATEST_REVIEWS" | jq -r '.[].user.login')
-declare -A REVIEWER_TEAMS
-for TEAM in "${EXEMPT_TEAMS[@]}"; do
-  MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
-  for MEMBER in $MEMBERS; do
-    for REVIEWER in $REVIEWERS; do
-      if [[ "$MEMBER" == "$REVIEWER" ]]; then
-        echo "Reviewer $REVIEWER is in exempt team: $TEAM"
-        echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
-      fi
-    done
-  done
-done
