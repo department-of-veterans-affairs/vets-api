@@ -30,9 +30,7 @@ RSpec.shared_examples 'a form filler' do |options|
   form_id, factory, test_data_types = options.values_at(:form_id, :factory, :test_data_types)
   test_data_types ||= %w[simple kitchen_sink overflow]
 
-  # rubocop:disable RSpec/PendingWithoutReason -- These specs are skipped because they are not maintained by our team.
-  xdescribe PdfFill::Filler, type: :model do
-    # rubocop:enable RSpec/PendingWithoutReason
+  describe PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
       let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
       let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
