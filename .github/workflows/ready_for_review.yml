@@ -91,9 +91,6 @@ jobs:
 
       - name: Exempt Teams
         id: check_exempt_teams
-        env:
-          pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
@@ -108,9 +105,10 @@ jobs:
             benefits-admin
           )
 
-          TEAMS=$(echo "$pr_requested_teams" | jq -r '.[]')
+          TEAMS=$(echo '${{ steps.get_pr_data.outputs.pr_requested_teams }}' | jq -r '.[]')
           echo "$TEAMS"
-          if [ -n "$TEAMS" ]; then
+
+          if [ "$TEAMS" != "[]" ]; then
             for TEAM in $TEAMS; do
               for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
                 if [[ "$TEAM" == "$EXEMPT" ]]; then
