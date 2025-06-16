@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 require 'bgs_service/person_web_service'
+require 'bgs/power_of_attorney_verifier'
 
 RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:headers) do
@@ -934,7 +935,6 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         it 'returns a 404' do
           mock_acg(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-            expect(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil).once
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
             expect(response).to have_http_status(:not_found)
           end
@@ -943,7 +943,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
       context 'when there is a BGS active power of attorney' do
         before do
-          Veteran::Service::Representative.new(representative_id: '11111', poa_codes: ['074'], first_name: 'Abraham',
+          Veteran::Service::Representative.new(representative_id: '11111', poa_codes: ['A01'], first_name: 'Abraham',
                                                last_name: 'Lincoln').save!
         end
 
@@ -957,7 +957,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         it 'returns a 200' do
           mock_acg(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-            expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
+            expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
             expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
             expect_any_instance_of(
               ClaimsApi::V1::Forms::PowerOfAttorneyController
@@ -967,34 +967,34 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             parsed = JSON.parse(response.body)
             expect(response).to have_http_status(:ok)
             expect(parsed['data']['attributes']['representative']['service_organization']['poa_code'])
-              .to eq('HelloWorld')
+              .to eq('A01')
           end
         end
       end
 
       context 'when a non-accredited representative and non-veteran request active power of attorney' do
-        it 'returns a 403' do
+        it 'returns a 404' do
           mock_acg(scopes) do |auth_header|
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
-            expect(response).to have_http_status(:forbidden)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
 
       describe 'additional POA info' do
+        let(:poa_codes) { %w[A01] }
+        let(:rep_last_name) { 'Lincoln' }
+
         before do
-          Veteran::Service::Representative.new(representative_id: '22222',
-                                               poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+          create(:representative, representative_id: '22222', first_name: 'Abraham', last_name: rep_last_name,
+                                  poa_codes:)
         end
 
         context 'when representative is part of an organization' do
           it "returns the organization's name and phone" do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(
-                ClaimsApi::V1::Forms::PowerOfAttorneyController
-              ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               expect(Veteran::Service::Organization).to receive(:find_by).and_return(
                 OpenStruct.new(name: 'Some Great Organization', phone: '555-555-5555')
@@ -1018,23 +1018,18 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'when representative is not part of an organization' do
+          before do
+            rep = Veteran::Service::Representative.find_by(first_name: 'Abraham', last_name: 'Lincoln')
+            rep.poa_codes = ['A01']
+            rep.phone = '555-555-5555'
+            rep.save!
+          end
+
           it "returns the representative's name and phone" do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(
-                ClaimsApi::V1::Forms::PowerOfAttorneyController
-              ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
-              allow(Veteran::Service::Representative).to receive(:where).and_return(
-                [
-                  OpenStruct.new(
-                    first_name: 'Tommy',
-                    last_name: 'Testerson',
-                    phone: '555-555-5555'
-                  )
-                ]
-              )
 
               get("#{path}/active", params: nil, headers: headers.merge(auth_header))
 
@@ -1042,9 +1037,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
               expect(response).to have_http_status(:ok)
               expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
-                .to eq('Tommy')
+                .to eq('Abraham')
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
-                .to eq('Testerson')
+                .to eq('Lincoln')
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
@@ -1054,19 +1049,37 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'when representative POA code not found in OGC scraped data' do
+          let(:poa_codes) { ['RepNotFound'] }
+
           it 'returns a 404' do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(
-                ClaimsApi::V1::Forms::PowerOfAttorneyController
-              ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').twice
+              allow(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               allow(Veteran::Service::Organization).to receive(:find_by).and_return(nil)
-              allow(Veteran::Service::Representative).to receive(:where).and_return([])
+              get("#{path}/active", params: nil, headers: headers.merge(auth_header))
+              expect(response).to have_http_status(:not_found)
+            end
+          end
+        end
+
+        # This spec is here to ensure API-46858 does not regress.
+        # Full specs on the cascade of POA lookup is on poa_verification_spec.rb
+        context 'when OGC includes suffix as part of the last name field' do
+          # While not historically accurate, auth_helper sets a suffix of IV for the former president
+          let(:rep_last_name) { 'Lincoln IV' }
+
+          it 'can find rep by suffix' do
+            expect(Veteran::Service::Representative.exists?(last_name: 'Lincoln')).to be false
+            mock_acg(scopes) do |auth_header|
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(bgs_poa_verifier).to receive_messages(current_poa_code: 'A01', previous_poa_code: nil)
 
               get("#{path}/active", params: nil, headers: headers.merge(auth_header))
 
-              expect(response).to have_http_status(:not_found)
+              parsed = JSON.parse(response.body)
+              expect(response).to have_http_status(:ok)
+              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code'])
+                .to eq('A01')
             end
           end
         end
