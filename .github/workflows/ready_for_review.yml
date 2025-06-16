@@ -195,7 +195,7 @@ jobs:
           TEAMS=$(echo '${{ env.pr_requested_teams }}' | jq -r '.[]')
           for TEAM in $TEAMS; do
             case "$TEAM" in
-              mobile|lighthouse|identity)
+              mobile|lighthouse|identity
                 echo "Found team: $TEAM"
                 exception_groups=true
                 break
