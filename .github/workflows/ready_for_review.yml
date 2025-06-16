@@ -255,31 +255,31 @@ jobs:
       - name: Check Backend Requirement
         id: check_backend_requirement
         run: |
-          echo "backend_approval_required=false" >> $GITHUB_OUTPUT
-
-          if [[ "${{ env.exempt_team }}" == "true" ]]; then
+          backend_approval_required=false
+          if [[ "${exempt_team}" == "true" ]]; then
             echo "Excemption Groups were found"
-            exit 0
           else
             echo "Excemption Groups were not found"
-            echo "backend_approval_required=true" >> $GITHUB_OUTPUT
+            echo "PR REQUESTED TEAMS: ${pr_requested_teams}"
+
+            if [ "${pr_requested_teams}" != "[]" ]; then
+              echo "${pr_requested_teams}" | jq -e '. | index("backend-review-group")' > /dev/null
+              if [[ $? -eq 0 ]]; then
+                echo "backend-review-group found in requested teams"
+                backend_approval_required=true
+              fi
+            fi
+
+            if [ "${pr_labels}" != "[]" ]; then
+              echo "${pr_labels}" | jq -e '. | index("require-backend-approval")' > /dev/null
+              if [[ $? -eq 0 ]]; then
+                echo "require-backend-approval found in labels"
+                backend_approval_required=true
+              fi
+            fi
           fi
 
-          echo "PR REQEUSTED TEAMS: ${{ env.pr_requested_teams }}"
-
-          echo "${{ env.pr_requested_teams }}" | jq -e '. | index("backend-review-group")' > /dev/null
-          if [[ $? -eq 0 ]]; then
-            echo "backend-review-group found in requested teams"
-            echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-          fi
-
-          echo "PR Labels: ${{ env.pr_labels }}"
-
-          echo "${{ env.pr_labels }}" | jq -e '. | index("require-backend-approval")' > /dev/null
-          if [[ $? -eq 0 ]]; then
-            echo "require-backend-approval found in labels"
-            echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-          fi
+          echo "backend_approval_required=${backend_approval_required}" >> $GITHUB_OUTPUT
 
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
@@ -350,7 +350,7 @@ jobs:
             echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
           fi
 
-          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
+          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
             [ .[]
             | select(.state == "APPROVED" and (.dismissed_at == null))
             ]
