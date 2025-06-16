@@ -219,7 +219,7 @@ module Ccra
 
       @provider_name = provider_info[:provider_name]
       @provider_npi = provider_info[:provider_npi]
-      @provider_specialty = provider_info[:provider_specialty]
+      @provider_specialty = provider_info[:specialty]
     end
 
     # Parse treating facility info from the CCRA response

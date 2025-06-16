@@ -28,7 +28,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           treating_provider_info: {
             provider_name:,
             provider_npi:,
-            provider_specialty:
+            specialty: provider_specialty
           },
           treating_facility_info: {
             facility_name: treating_facility_name,
@@ -181,7 +181,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           treating_provider_info: {
             provider_name:,
             provider_npi:,
-            provider_specialty:
+            specialty: provider_specialty
           },
           treating_facility_info: {
             phone: treating_facility_phone
