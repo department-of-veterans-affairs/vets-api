@@ -6,7 +6,7 @@ module Mobile
       service_tag 'feature-flag'
       # the feature toggle does not require authentication, but if a user is logged we might use @current_user
       skip_before_action :authenticate
-      before_action :load_user
+      before_action :set_current_user
 
       def index
         if params[:features].present?
@@ -26,6 +26,14 @@ module Mobile
           current_user: @current_user,
           cookie_id: params[:cookie_id]
         )
+      end
+
+      def set_current_user
+        # Try to load user if possible, but don't throw errors if not authenticated
+        load_user(skip_expiration_check: true)
+      rescue => e
+        Rails.logger.info("Error loading user in feature toggles: #{e.message}")
+        @current_user = nil
       end
     end
   end
