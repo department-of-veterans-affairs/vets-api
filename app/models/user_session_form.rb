@@ -22,10 +22,11 @@ class UserSessionForm
     @saml_uuid = saml_response.in_response_to
     saml_user = SAML::User.new(saml_response)
     saml_attributes = normalize_saml(saml_user)
-    uuid = saml_attributes[:uuid]
+    user_verification = create_user_verification(saml_attributes)
+    uuid = user_verification.user_account.id
     existing_user = User.find(uuid)
     @session = Session.new(uuid:, ssoe_transactionid: saml_user.user_attributes.try(:transactionid))
-    @user_identity = UserIdentity.new(saml_attributes)
+    @user_identity = UserIdentity.new(saml_attributes.merge(uuid:))
     @user = User.new(uuid:)
     @user.session_handle = @session.token
     @user.instance_variable_set(:@identity, @user_identity)
@@ -56,6 +57,16 @@ class UserSessionForm
     saml_user_attributes = saml_user.to_hash
     add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
     saml_user_attributes.merge({ uuid: idme_uuid, idme_uuid: })
+  end
+
+  def create_user_verification(saml_attributes)
+    Login::UserVerifier.new(login_type: saml_attributes[:sign_in]&.dig(:service_name),
+                            auth_broker: saml_attributes[:sign_in]&.dig(:auth_broker),
+                            mhv_uuid: saml_attributes[:mhv_credential_uuid],
+                            idme_uuid: saml_attributes[:idme_uuid],
+                            dslogon_uuid: saml_attributes[:edipi],
+                            logingov_uuid: saml_attributes[:logingov_uuid],
+                            icn: saml_attributes[:icn]).perform
   end
 
   def add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
