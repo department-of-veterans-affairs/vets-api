@@ -5,6 +5,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'disability_compensation/factories/api_provider_factory'
+require 'evss/disability_compensation_form/form4142_processor'
 
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
@@ -152,8 +153,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
                   # Form 4142 Backup Submission Process
                   expect(submission.form['form4142']).not_to be_nil
-                  form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
-                    form_data: submission.form['form4142'], submission_id: submission.id
+                  form4142_processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(
+                    submission, submission.id, validate: false
                   )
                   request_body = form4142_processor.request_body
                   metadata_hash = JSON.parse(request_body['metadata'])
