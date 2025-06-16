@@ -47,7 +47,7 @@ module AskVAApi
           end
 
           # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
-          Rails.logger.info("User LOA: #{user&.loa&.current&.fetch(:current, nil)}") if user
+          Rails.logger.info("User LOA: #{user&.loa&.fetch(:current, nil)}") if user.present?
 
           payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
 
