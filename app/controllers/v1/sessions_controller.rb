@@ -32,7 +32,10 @@ module V1
                        INTERSTITIAL_VERIFY = 'interstitial_verify',
                        INTERSTITIAL_SIGNUP = 'interstitial_signup',
                        MHV_EXCEPTION = 'mhv_exception',
-                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
+                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account',
+                       VERIFY_CTA_AUTHENTICATED = 'verify_cta_authenticated',
+                       VERIFY_PAGE_AUTHENTICATED = 'verify_page_authenticated',
+                       VERIFY_PAGE_UNAUTHENTICATED = 'verify_page_unauthenticated'].freeze
     CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
 
     # Collection Action: auth is required for certain types of requests

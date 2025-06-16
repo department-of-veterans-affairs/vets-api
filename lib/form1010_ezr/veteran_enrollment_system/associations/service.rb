@@ -2,11 +2,14 @@
 
 require 'veteran_enrollment_system/associations/service'
 require 'veteran_enrollment_system/associations/configuration'
+require 'form1010_ezr/veteran_enrollment_system/associations/reconciler'
 
 module Form1010Ezr
   module VeteranEnrollmentSystem
     module Associations
       class Service < ::VeteranEnrollmentSystem::Associations::Service
+        include HCA::EnrollmentSystem
+
         configuration ::VeteranEnrollmentSystem::Associations::Configuration
         # Associations API field names that are not nested
         FLAT_FIELDS = %w[
@@ -18,32 +21,19 @@ module Form1010Ezr
           role
         ].freeze
 
-        FIELD_MAPPINGS = [
-          %w[contactType role],
-          %w[relationship relationType]
-        ].freeze
+        FORM_ID = '10-10EZR'
 
-        NAME_MAPPINGS = [
-          %w[first givenName],
-          %w[middle middleName],
-          %w[last familyName],
-          %w[suffix suffix]
-        ].freeze
+        def reconcile_and_update_associations(form_associations)
+          ves_associations = get_associations(FORM_ID)
+          reconciled_associations = Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler.new(
+            ves_associations,
+            form_associations
+          ).reconcile_associations
 
-        ADDRESS_MAPPINGS = [
-          %w[street line1],
-          %w[street2 line2],
-          %w[street3 line3],
-          %w[city city],
-          %w[country country]
-        ].freeze
+          update_associations(reconciled_associations)
+        end
 
-        VES_ROLE_MAPPINGS = {
-          'PRIMARY_NEXT_OF_KIN' => 'Primary Next of Kin',
-          'EMERGENCY_CONTACT' => 'Emergency Contact',
-          'OTHER_NEXT_OF_KIN' => 'Other Next of Kin',
-          'OTHER_EMERGENCY_CONTACT' => 'Other emergency contact'
-        }.freeze
+        private
 
         def update_associations(associations)
           transformed_associations = transform_associations(associations)
@@ -76,8 +66,6 @@ module Form1010Ezr
           form_associations + associations_to_delete
         end
 
-        private
-
         # Transform the submitted form data to match the Associations API schema
         def transform_association(association)
           transformed_association = {}
@@ -99,25 +87,6 @@ module Form1010Ezr
           associations.map { |association| transform_association(association) }
         end
 
-        # Transform the VES Associations API data to match the EZR veteranContacts schema
-        def transform_ves_association(association)
-          transformed_association = {
-            'address' => get_address_from_association(association),
-            'alternatePhone' => sanitize_phone_number(association['alternatePhone']),
-            'contactType' => VES_ROLE_MAPPINGS[association['role']],
-            'fullName' => {},
-            'primaryPhone' => sanitize_phone_number(association['primaryPhone']),
-            'relationship' => remove_underscores(association['relationType'])
-          }
-          fill_association_full_name_from_ves_association(transformed_association, association)
-
-          Common::HashHelpers.deep_compact(transformed_association)
-        end
-
-        def transform_ves_associations(associations)
-          associations.map { |association| transform_ves_association(association) }
-        end
-
         # Transform non-nested fields to match the Associations API schema
         def transform_flat_fields(association, transformed_association)
           FLAT_FIELDS.each do |field|
@@ -133,61 +102,6 @@ module Form1010Ezr
               transformed_association[field] = association[field]
             end
           end
-        end
-
-        def get_address_from_association(association)
-          address = {}
-          fill_address_mappings_from_association(address, association)
-          fill_address_region_from_association(address, association)
-          address
-        end
-
-        def fill_address_mappings_from_association(address, association)
-          ADDRESS_MAPPINGS.each do |address_map|
-            address[address_map.first] = association['address'][address_map.last.to_s]
-          end
-        end
-
-        def fill_address_region_from_association(address, association)
-          case address['country']
-          when 'MEX'
-            fill_mexico_address_from_association(address, association)
-          when 'USA'
-            fill_usa_address_from_association(address, association)
-          else
-            fill_other_address_from_association(address, association)
-          end
-        end
-
-        def fill_mexico_address_from_association(address, association)
-          address['state'] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address['state']]
-          address['postalCode'] = association['address']['postalCode']
-        end
-
-        def fill_usa_address_from_association(address, association)
-          address['state'] = association['address']['state']
-          zip_code = association['address']['zipCode']
-          zip_plus4 = association['address']['zipPlus4']
-          address['postalCode'] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
-        end
-
-        def fill_other_address_from_association(address, association)
-          address['state'] = association['address']['provinceCode']
-          address['postalCode'] = association['address']['postalCode']
-        end
-
-        def fill_association_full_name_from_ves_association(association, ves_association)
-          NAME_MAPPINGS.each do |mapping|
-            association['fullName'][mapping.first] = ves_association['name'][mapping.last.to_s]
-          end
-        end
-
-        def remove_underscores(string)
-          string.gsub(/_/, ' ').split.join(' ')
-        end
-
-        def sanitize_phone_number(phone_number)
-          phone_number.gsub(/[()\-]/, '')
         end
       end
     end
