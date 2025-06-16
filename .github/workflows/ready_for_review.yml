@@ -111,7 +111,7 @@ jobs:
           for TEAM in $TEAMS; do
             for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
               if [[ "$TEAM" == "$EXEMPT" ]]; then
-                echo "Found exempt team: $TEAM"
+                echo "Found exempt team"
                 echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                 exit 0
               fi
@@ -127,7 +127,7 @@ jobs:
           declare -A REVIEWER_TEAMS
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Fetching members of team: $TEAM"
+            echo "Fetching members of team"
             TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
 
             # Iterate over each member and each reviewer
@@ -135,7 +135,7 @@ jobs:
               while IFS= read -r REVIEWER; do
                 echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
                 if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                  echo "Match: Reviewer $REVIEWER is in exempt team $TEAM"
+                  echo "Reviewew is in exempt team"
                   echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                   exit 0
                 fi
