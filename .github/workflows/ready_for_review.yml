@@ -92,7 +92,6 @@ jobs:
       - name: Exempt Teams
         id: check_exempt_teams
         run: |
-
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
           PR_NUMBER="${{ steps.get_pr_data.outputs.pr_number }}"
@@ -114,7 +113,7 @@ jobs:
               if [[ "$TEAM" == "$EXEMPT" ]]; then
                 echo "Found exempt team"
                 echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                exit 0
+                break 2
               fi
             done
           done
@@ -138,17 +137,17 @@ jobs:
                 if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
                   echo "Reviewew is in exempt team"
                   echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                  exit 0
+                  break 2
                 fi
               done <<< "$REVIEWERS"
             done <<< "$TEAM_MEMBERS"
           done
 
       - name: Remove require-backend-approval label
-        uses: actions-ecosystem/action-remove-labels@v1
         if: |
           steps.check_exempt_teams.except_team == 'true'
           steps.get_pr_data.outputs.pr_draft == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
