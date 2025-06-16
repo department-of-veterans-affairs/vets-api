@@ -75,7 +75,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   }.freeze
 
   before_create do
-    self.form_id = parsed_form['useEva'].present? ? self.class::FORM.upcase : '28-1900-V2'
+    self.form_id = parsed_form['useEva'].present? ? self.class::FORM : '28-1900-V2'
   end
 
   def initialize(args)
