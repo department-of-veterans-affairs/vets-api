@@ -53,7 +53,7 @@ FactoryBot.define do
   end
 
   factory :new_veteran_readiness_employment_claim, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
-    form_id { '28-1900' }
+    form_id { '28-1900-V2' }
 
     form {
       {
