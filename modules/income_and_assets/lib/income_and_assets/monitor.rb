@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'income_and_assets/notification_email'
-require 'zero_silent_failures/monitor'
 require 'logging/base_monitor'
 
 module IncomeAndAssets

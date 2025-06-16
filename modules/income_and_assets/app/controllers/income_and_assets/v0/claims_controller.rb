@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/benefits_intake/benefit_intake_job'
-require 'income_and_assets/claims/monitor'
+require 'income_and_assets/benefits_intake/submit_claim_job'
+require 'income_and_assets/monitor'
 
 module IncomeAndAssets
   module V0
@@ -43,11 +43,12 @@ module IncomeAndAssets
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
+          monitor.track_create_validation_error(in_progress_form, claim, current_user)
           log_validation_error_to_metadata(in_progress_form, claim)
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_lighthouse(claim)
+        process_and_upload_to_lighthouse(in_progress_form, claim)
 
         monitor.track_create_success(in_progress_form&.id, claim, current_user)
 
@@ -69,8 +70,13 @@ module IncomeAndAssets
       # send this Income and Assets Evidence claim to the Lighthouse Benefit Intake API
       #
       # @see https://developer.va.gov/explore/api/benefits-intake/docs
-      def process_and_upload_to_lighthouse(claim)
-        IncomeAndAssets::BenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
+      def process_and_upload_to_lighthouse(in_progress_form, claim)
+        claim.process_attachments!
+
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
+      rescue => e
+        monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        raise e
       end
 
       # Filters out the parameters to form access.

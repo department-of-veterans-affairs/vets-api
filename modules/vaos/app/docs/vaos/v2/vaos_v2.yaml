@@ -1136,6 +1136,9 @@ components:
           description: URL path for the After Visit Summary, for past booked appointments.
         modality:
           "$ref": "#/components/schemas/AppointmentModality"
+        showScheduleLink:
+          type: boolean
+          description: If true then this cancelled appointment can be scheduled via the web tool.
     AppointmentExtensions:
       type: object
       properties:

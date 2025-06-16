@@ -50,7 +50,7 @@ describe TravelPay::TokenClient do
     end
 
     it 'returns btsss token from proper endpoint' do
-      @stubs.post('api/v1.2/Auth/access-token') do
+      @stubs.post('api/v2/Auth/access-token') do
         [
           200,
           { 'Content-Type': 'application/json' },

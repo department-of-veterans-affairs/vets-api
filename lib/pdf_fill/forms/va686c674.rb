@@ -1565,6 +1565,10 @@ module PdfFill
       private
 
       def merge_veteran_helpers
+        unless @form_data['veteran_information']
+          @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
+        end
+
         veteran_information = @form_data['veteran_information']
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
