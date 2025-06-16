@@ -14,7 +14,7 @@ module AccreditedRepresentativePortal
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
-        render json: { status:, confirmation_number: }
+        render json: { status:, confirmationNumber: confirmation_number }
       end
 
       def upload_scanned_form

@@ -67,6 +67,7 @@ module ClaimsApi
       # @return [Boolean] True if valid poa code, False if not
       def valid_poa_code_for_current_user?(poa_code)
         return false if @current_user.first_name.nil? || @current_user.last_name.nil?
+        return false unless valid_poa_code?(poa_code)
 
         reps_by_first_and_last_name = ::Veteran::Service::Representative.all_for_user(
           first_name: @current_user.first_name,
@@ -77,7 +78,7 @@ module ClaimsApi
           find_by_suffix(poa_code) ||
           find_by_middle_initial(poa_code) ||
           find_by_poa_code(poa_code) ||
-          handle_not_found(reps_by_first_and_last_name)
+          handle_not_found(reps_by_first_and_last_name, poa_code)
       end
 
       #
@@ -93,6 +94,7 @@ module ClaimsApi
       rescue ::Common::Exceptions::UnprocessableEntity
         raise
       rescue
+        ClaimsApi::Logger.log 'poa_verification', level: :error, detail: e.message, error_class: e.class.name
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end
 
@@ -135,9 +137,13 @@ module ClaimsApi
         exactly_one_rep_match?(reps_by_poa_code, poa_code)
       end
 
-      def handle_not_found(reps)
-        raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
+      def handle_not_found(reps, poa_code)
+        ClaimsApi::Logger.log 'poa_verification',
+                              detail: "Found #{reps.size} reps for POA code #{poa_code}",
+                              level: :warn, poa_code:, rep_count: reps.size
+        raise ::Common::Exceptions::UnprocessableEntity, detail: 'Ambiguous VSO Representative Results' if reps.size > 1
 
+        # Intentionally does not raise in other cases. Doing so would break some shared behavior.
         false
       end
     end
