@@ -91,6 +91,7 @@ jobs:
 
       - name: Exempt Teams
         id: check_exempt_teams
+        run: |
 
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
