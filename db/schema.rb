@@ -685,7 +685,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_24_162553) do
     t.datetime "updated_at", null: false
     t.text "logout_redirect_uri"
     t.boolean "pkce"
-    t.string "certificates", default: [], array: true
     t.text "description"
     t.string "access_token_attributes", default: [], array: true
     t.text "terms_of_use_url"
@@ -1433,7 +1432,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_24_162553) do
     t.text "scopes", default: [], null: false, array: true
     t.string "access_token_audience", null: false
     t.interval "access_token_duration", null: false
-    t.string "certificates", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "access_token_user_attributes", default: [], array: true
