@@ -112,10 +112,10 @@ module Processors
 
     def add_vagov_timestamp(pdf)
       PDFUtilities::DatestampPdf.new(pdf).run(
-        text: "Signed electronically and submitted via VA.gov at #{format_date(submission_date)}. Signee signed with an identity-verified account.",
+        text: vagov_signature_text,
         text_only: true,
         size: 8,
-        x: 150,
+        x: 157,
         y: 10,
         timestamp: ''
       )
@@ -125,7 +125,7 @@ module Processors
       if selected_form_class_id == FORM_CLASS_ID_2024
         stamp_2024_form_pages(pdf)
       else
-        # 2018 4142 form
+        # 2018 Version of 4142
         stamp_legacy_form_page(pdf)
       end
     end
@@ -136,7 +136,6 @@ module Processors
     end
 
     def stamp_legacy_form_page(pdf)
-      # 2018 Version of 4142
       stamp_page(pdf, page: 2, x: 445, y: 715)
     end
 
@@ -161,10 +160,6 @@ module Processors
 
     def needs_signature_stamp?
       signature.present? && selected_form_class_id == FORM_CLASS_ID_2024
-    end
-
-    def needs_date_stamp?
-      selected_form_class_id == FORM_CLASS_ID_2024
     end
 
     def selected_form_class_id
@@ -208,6 +203,11 @@ module Processors
       name = [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
 
       "#{name} - signed by digital authentication to api.va.gov"
+    end
+
+    def vagov_signature_text
+      "Signed electronically and submitted via VA.gov at #{format_date(submission_date)}. " \
+        'Signee signed with an identity-verified account.'
     end
 
     def set_signature_date(incoming_data)
