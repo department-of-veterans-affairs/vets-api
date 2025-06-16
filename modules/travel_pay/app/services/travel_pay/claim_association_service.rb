@@ -94,7 +94,8 @@ module TravelPay
     private
 
     def client_params
-      @client_params ||= DEFAULT_CLIENT_PARAMS.dup
+      # For now just use the default params, but setting up the method so we can adjust for pagination
+      DEFAULT_CLIENT_PARAMS.dup
     end
 
     def rescue_errors(e) # rubocop:disable Metrics/MethodLength
