@@ -11,6 +11,10 @@ module SignIn
 
     delegate :not_before, :not_after, :subject, :issuer, :serial, to: :certificate
 
+    scope :active, -> { select(&:active?) }
+    scope :expired, -> { select(&:expired?) }
+    scope :expiring, -> { select(&:expiring?) }
+
     validates :pem, presence: true
     validate :validate_certificate!
 
@@ -20,10 +24,26 @@ module SignIn
       nil
     end
 
+    def public_key
+      certificate&.public_key
+    end
+
+    def active?
+      return if certificate.blank?
+
+      !expired?
+    end
+
     def expired?
       return if certificate.blank?
 
       not_after < Time.current
+    end
+
+    def expiring?
+      return if certificate.blank?
+
+      not_after < 60.days.from_now
     end
 
     private

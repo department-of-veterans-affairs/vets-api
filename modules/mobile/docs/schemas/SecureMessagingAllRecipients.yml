@@ -24,6 +24,7 @@ properties:
             - triageTeamId
             - name
             - stationNumber
+            - preferredTeam
             - relationType
             - locationName
             - suggestedNameDisplay
