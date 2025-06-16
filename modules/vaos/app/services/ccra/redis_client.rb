@@ -52,7 +52,8 @@ module Ccra
         cache_key,
         booking_start_time,
         namespace: REFERRAL_CACHE_NAMESPACE,
-        expires_in: redis_referral_expiry
+        expires_in: redis_referral_expiry,
+        serializer: JSON
       )
     end
 
@@ -64,7 +65,8 @@ module Ccra
       cache_key = generate_booking_start_time_cache_key(referral_number)
       Rails.cache.read(
         cache_key,
-        namespace: REFERRAL_CACHE_NAMESPACE
+        namespace: REFERRAL_CACHE_NAMESPACE,
+        serializer: JSON
       )
     end
 
