@@ -1222,17 +1222,28 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
     let(:npi) { '7894563210' }
+    let(:specialty) { 'Urology' }
     let(:appointment_type_id) { 'ov' }
     let(:start_date) { '2025-01-01T00:00:00Z' }
     let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:address) do
+      {
+        street1: '2184 E Irlo Bronson',
+        city: 'Kissimmee',
+        state: 'FL',
+        zip: '34744-4415'
+      }
+    end
     let(:referral_data) do
       {
+        category_of_care: specialty,
         referral_number: 'ref-123',
         referral_consult_id: '123-123456',
         npi:,
         appointment_type_id:,
         start_date:,
-        end_date:
+        end_date:,
+        treating_facility_address: address
       }
     end
 
@@ -1245,11 +1256,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     let(:referral_detail) do
       instance_double(Ccra::ReferralDetail,
+                      category_of_care: specialty,
                       referral_number: 'ref-123',
                       appointment_type_id:,
                       expiration_date: end_date,
                       provider_npi: npi,
-                      referral_date: start_date)
+                      referral_date: start_date,
+                      treating_facility_address: address)
     end
     let(:referral_identifiers) do
       {

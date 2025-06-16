@@ -870,4 +870,65 @@ describe PdfFill::ExtrasGeneratorV2 do
       end
     end
   end
+
+  describe '#apply_humanization' do
+    [
+      {
+        input: 'VETERAN',
+        format_options: { humanize: true },
+        expected: 'Veteran',
+        description: 'uses default humanization when humanize is true'
+      },
+      {
+        input: 'VETERAN',
+        format_options: { humanize: { 'VETERAN' => 'Service Member' } },
+        expected: 'Service Member',
+        description: 'uses custom mapping when provided'
+      },
+      {
+        input: 'CUSTODIAN',
+        format_options: { humanize: { 'VETERAN' => 'Service Member' } },
+        expected: 'Custodian',
+        description: 'falls back to default humanization for unmapped values'
+      },
+      {
+        input: 'VETERAN',
+        format_options: { humanize: false },
+        expected: 'VETERAN',
+        description: 'returns original value when humanize is false'
+      },
+      {
+        input: 'VETERAN',
+        format_options: {},
+        expected: 'VETERAN',
+        description: 'returns original value when humanize is not configured'
+      }
+    ].each do |test_case|
+      it "#{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
+        expect(subject.send(:apply_humanization, test_case[:input],
+                            test_case[:format_options])).to eq(test_case[:expected])
+      end
+    end
+  end
+
+  describe '#humanize_value' do
+    [
+      { input: 'VETERAN', expected: 'Veteran', description: 'ALL_CAPS single word' },
+      { input: 'CIVIL_SERVICE', expected: 'Civil Service', description: 'ALL_CAPS with underscore' },
+      { input: 'SOCIAL_SECURITY', expected: 'Social Security', description: 'ALL_CAPS with underscore' },
+      { input: 'RENTAL_PROPERTY', expected: 'Rental Property', description: 'ALL_CAPS compound word' },
+      { input: 'veteran_spouse', expected: 'Veteran Spouse', description: 'snake_case compound' },
+      { input: 'income_type', expected: 'Income Type', description: 'snake_case simple' },
+      { input: 'veteranSpouse', expected: 'Veteran Spouse', description: 'mixed case compound (camelCase)' },
+      { input: 'SocialSecurity', expected: 'Social Security', description: 'mixed case compound (PascalCase)' },
+      { input: 'Already Humanized', expected: 'Already Humanized', description: 'already spaced string' },
+      { input: 'Normal text', expected: 'Normal Text', description: 'lowercase spaced string' },
+      { input: '', expected: '', description: 'empty string' },
+      { input: nil, expected: '', description: 'nil value' }
+    ].each do |test_case|
+      it "converts #{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
+        expect(subject.send(:humanize_value, test_case[:input])).to eq(test_case[:expected])
+      end
+    end
+  end
 end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::AppointmentsCacheInterface do
+describe Mobile::Shared::AppointmentsCacheInterface do
   let(:subject) { described_class.new }
   let(:user) { build(:user) }
   let(:today) { '2020-11-01T10:30:00Z' }
