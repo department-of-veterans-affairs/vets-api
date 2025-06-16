@@ -192,7 +192,11 @@ jobs:
         id: check_exception_groups
         run: |
           exception_groups=false
-          exception_team_slugs=(
+          ORG="department-of-veterans-affairs"
+          REPO="department-of-veterans-affairs/vets-api"
+          PR_NUMBER="${{ env.pr_number }}"
+
+          EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
             lighthouse-pivot
@@ -205,7 +209,7 @@ jobs:
           TEAMS=$(echo '${{ env.pr_requested_teams }}' | jq -r '.[]')
 
           for TEAM in $TEAMS; do
-            for EXEMPT in "${exception_team_slugs[@]}"; do
+            for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
               if [[ "$TEAM" == "$EXEMPT" ]]; then
                 echo "Found exempt team: $TEAM"
                 exception_groups=true
@@ -213,6 +217,32 @@ jobs:
               fi
             done
           done
+
+          # Fetch PR reviews
+          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
+          echo "$PR_REVIEWS" > pr_reviews.json
+
+          REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
+
+          declare -A REVIEWER_TEAMS
+
+          for TEAM in "${EXEMPT_TEAMS[@]}"; do
+            echo "Fetching members of team: $TEAM"
+            TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
+
+            # Iterate over each member and each reviewer
+            while IFS= read -r MEMBER; do
+              while IFS= read -r REVIEWER; do
+                echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
+                if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
+                  echo "Found exempt team"
+                  exception_groups=true
+                  break 2
+                fi
+              done <<< "$REVIEWERS"
+            done <<< "$TEAM_MEMBERS"
+          done
+
           echo "exception_groups=$exception_groups" >> $GITHUB_OUTPUT
 
       - name: Check Backend Requirement
