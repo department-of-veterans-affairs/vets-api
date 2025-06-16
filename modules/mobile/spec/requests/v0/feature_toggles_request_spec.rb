@@ -62,7 +62,6 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
 
       it 'uses cookie_id when provided' do
         cookie_id = 'test-cookie-id'
-        # We can't check this parameter as it's passed in the constructor, not the method
         expect_any_instance_of(FeatureTogglesService).to receive(:get_all_features)
 
         get "/mobile/v0/feature-toggles?cookie_id=#{cookie_id}"
