@@ -22,3 +22,11 @@ https://us-gov-west-1.console.amazonaws-us-gov.com/systems-manager/parameters/%2
 | User identifier                          | [0009-adding-user-identifier-to-bpds-request.md](adr/0009-adding-user-identifier-to-bpds-request.md) | 2025-06-02 |
 
 ​	
+### Additional Links
+
+| Description                        | URL                                                      |
+| ---------------------------------- | -------------------------------------------------------- |
+| Swagger Doc for BPDS Forward Proxy | https://fwdproxy-staging.vfs.va.gov:4453/swagger-ui.html |
+| Swagger Doc for BPDS Dev Server    | https://bpds-dev.dev.bip.va.gov/swagger-ui.html          |
+
+Note: Citrix is required to access the dev server url
