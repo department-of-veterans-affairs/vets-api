@@ -28,7 +28,29 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
   end
 
-  ['old form', 'new form'].each do |form_type|
+  ['v1', 'v2'].each do |form_type|
+    describe '#form_id' do
+      context "with #{form_type}" do
+        let(:claim) { create_claim(form_type) }
+
+        it 'returns the correct form ID' do
+          expect(claim.form_id).to eq(form_type == 'v1' ? '28-1900' : '28-1900-V2')
+        end
+      end
+    end
+
+    describe '#after_create_metrics' do
+      let(:claim) { create_claim(form_type) }
+
+      it 'increments StatsD saved_claim.create' do
+        allow(StatsD).to receive(:increment)
+        claim.save!
+
+        tags = form_type == 'v1' ? ['form_id:28-1900'] : ['form_id:28-1900-V2']
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+      end
+    end
+
     describe '#add_claimant_info' do
       context "with #{form_type}" do
         let(:claim) { create_claim(form_type) }
@@ -55,7 +77,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             'dob' => '1986-05-06'
           }
           expect(claim.parsed_form['veteranInformation']).to include(
-            form_type == 'old form' ? old_form_data : new_form_data
+            form_type == 'v1' ? old_form_data : new_form_data
           )
           expect(claim.parsed_form['veteranInformation']).to include(*claimant_keys)
         end
@@ -72,7 +94,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
 
     describe '#send_to_vre' do
-      context "with #{form_type}" do
+      context "with #{form_type} form" do
         let(:claim) { create_claim(form_type) }
 
         it 'propagates errors from send_to_lighthouse!' do
@@ -232,7 +254,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   def create_claim(form_type)
-    if form_type == 'old form'
+    if form_type == 'v1'
       create(:veteran_readiness_employment_claim)
     else
       create(:new_veteran_readiness_employment_claim)
