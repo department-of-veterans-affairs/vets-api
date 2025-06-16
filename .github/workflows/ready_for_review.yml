@@ -130,7 +130,7 @@ jobs:
             declare -A REVIEWER_TEAMS
 
             for TEAM in "${EXEMPT_TEAMS[@]}"; do
-              echo "Fetching members of team"
+              echo "Fetching members of team: $TEAM"
               TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
 
               # Iterate over each member and each reviewer
