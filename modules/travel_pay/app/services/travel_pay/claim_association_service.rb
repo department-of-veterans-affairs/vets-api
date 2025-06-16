@@ -42,7 +42,7 @@ module TravelPay
       date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
       date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
 
-      client_params = DEFAULT_CLIENT_PARAMS.merge!(date_range)
+      client_params.merge!(date_range)
 
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
@@ -92,6 +92,10 @@ module TravelPay
     end
 
     private
+
+    def client_params
+      @client_params ||= DEFAULT_CLIENT_PARAMS.dup
+    end
 
     def rescue_errors(e) # rubocop:disable Metrics/MethodLength
       if e.is_a?(ArgumentError) || e.is_a?(InvalidComparableError)
