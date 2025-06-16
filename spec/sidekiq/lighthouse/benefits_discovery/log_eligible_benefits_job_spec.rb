@@ -6,15 +6,6 @@ require 'lighthouse/benefits_discovery/service'
 RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
   let(:service_instance) { instance_double(BenefitsDiscovery::Service) }
-  let(:prepared_params) do
-    {
-      dateOfBirth: '1980-01-01',
-      dischargeStatus: ['HONORABLE'],
-      branchOfService: ['ARMY'],
-      disabilityRating: 60,
-      serviceDates: [{ beginDate: '2001-01-01', endDate: '2005-01-01' }]
-    }
-  end
   let(:eligible_benefits) do
     {
       'undetermined' => [],
