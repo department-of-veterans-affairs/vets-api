@@ -64,7 +64,15 @@ module AccreditedRepresentativePortal
       end
 
       def authorize_submission
-        authorize(claimant_representative, policy_class: RepresentativeFormUploadPolicy)
+        claimant_icn.present? or
+          raise Common::Exceptions::RecordNotFound, <<~MSG.squish
+            Could not lookup claimant with given information.
+          MSG
+
+        authorize(
+          claimant_representative,
+          policy_class: RepresentativeFormUploadPolicy
+        )
       end
 
       def handle_attachment_upload(model_klass, serializer_klass)

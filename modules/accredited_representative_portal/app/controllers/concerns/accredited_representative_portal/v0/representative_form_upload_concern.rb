@@ -16,42 +16,45 @@ module AccreditedRepresentativePortal
       end
 
       def claimant_representative
-        @claimant_representative ||=
-          ClaimantRepresentative.find do |finder|
-            finder.for_claimant(
-              icn: claimant_icn
-            )
+        defined?(@claimant_representative) and
+          return @claimant_representative
 
-            finder.for_representative(
-              icn: current_user.icn,
-              email: current_user.email,
-              all_emails: current_user.all_emails
-            )
+        @claimant_representative =
+          if claimant_icn.present?
+            ClaimantRepresentative.find do |finder|
+              finder.for_claimant(
+                icn: claimant_icn
+              )
+
+              finder.for_representative(
+                icn: current_user.icn,
+                email: current_user.email,
+                all_emails: current_user.all_emails
+              )
+            end
           end
       end
 
       def claimant_icn
-        @claimant_icn ||= begin
-          claimant =
-            metadata[:dependent] ||
-            metadata[:veteran]
+        defined?(@claimant_icn) and
+          return @claimant_icn
 
-          mpi_response =
-            MPI::Service.new.find_profile_by_attributes(
-              ssn: claimant[:ssn],
-              first_name: claimant[:name][:first],
-              last_name: claimant[:name][:last],
-              birth_date: claimant[:dateOfBirth]
-            )
+        @claimant_icn =
+          begin
+            claimant =
+              metadata[:dependent] ||
+              metadata[:veteran]
 
-          icn = mpi_response.profile&.icn
-          icn.present? or
-            raise Common::Exceptions::RecordNotFound, <<~MSG.squish
-              Could not lookup claimant with given information.
-            MSG
+            mpi_response =
+              MPI::Service.new.find_profile_by_attributes(
+                ssn: claimant[:ssn],
+                first_name: claimant[:name][:first],
+                last_name: claimant[:name][:last],
+                birth_date: claimant[:dateOfBirth]
+              )
 
-          icn
-        end
+            mpi_response.profile&.icn
+          end
       end
 
       def metadata # rubocop:disable Metrics/MethodLength
