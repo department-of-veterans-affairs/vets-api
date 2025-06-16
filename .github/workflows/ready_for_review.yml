@@ -271,7 +271,6 @@ jobs:
           if [[ $? -eq 0 ]]; then
             echo "backend-review-group found in requested teams"
             echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-            exit 0
           fi
 
           echo "PR Labels: ${{ env.pr_labels }}"
@@ -280,7 +279,6 @@ jobs:
           if [[ $? -eq 0 ]]; then
             echo "require-backend-approval found in labels"
             echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-            exit 0
           fi
 
       - name: Add require-backend-approval label
