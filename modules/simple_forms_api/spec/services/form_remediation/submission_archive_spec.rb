@@ -235,8 +235,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
 
       it 'calls unique_file_name with form_type, benefits_intake_uuid, and created_at' do
         submission.created_at = today - 1.day
+        file_name = "#{submission.created_at.strftime('%-m.%d.%y')}_form_#{form_type}_vagov_#{benefits_intake_uuid}"
+
         result = archive_instance.send(:submission_file_name)
-        expect(result).to eq("#{submission.created_at.strftime('%-m.%d.%y')}_form_#{form_type}_vagov_#{benefits_intake_uuid}")
+        expect(result).to eq(file_name)
       end
     end
 
@@ -246,8 +248,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
       end
 
       it 'calls unique_file_name with only form_type and benefits_intake_uuid' do
+        file_name = "#{today.strftime('%-m.%d.%y')}_form_#{form_type}_vagov_#{benefits_intake_uuid}"
+
         result = archive_instance.send(:submission_file_name)
-        expect(result).to eq("#{today.strftime('%-m.%d.%y')}_form_#{form_type}_vagov_#{benefits_intake_uuid}")
+        expect(result).to eq(file_name)
       end
     end
   end
