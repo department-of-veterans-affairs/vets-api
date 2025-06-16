@@ -220,7 +220,10 @@ jobs:
         run: |
           echo "backend_approval_required=false" >> $GITHUB_OUTPUT
 
-          if [[ "${{ steps.check_exception_groups.outputs.exception_groups }}" == "false" ]]; then
+          if [[ "${{ steps.check_exception_groups.outputs.exception_groups }}" == "true" ]]; then
+            echo "Excemption Groups were found"
+            exit 0
+          else
             echo "Excemption Groups were not found"
             echo "backend_approval_required=true" >> $GITHUB_OUTPUT
             exit 0
