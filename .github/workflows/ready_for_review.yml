@@ -274,6 +274,8 @@ jobs:
             exit 0
           fi
 
+          echo "PR Labels: ${{ env.pr_labels }}"
+
           echo "${{ env.pr_labels }}" | jq -e '. | index("require-backend-approval")' > /dev/null
           if [[ $? -eq 0 ]]; then
             echo "require-backend-approval found in labels"
