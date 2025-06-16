@@ -26,7 +26,7 @@ RSpec.describe BenefitsDiscovery::Service do
 
       it 'returns recommendations' do
         VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params',
-                        match_requests_on: %i[method uri body]) do
+                         match_requests_on: %i[method uri body]) do
           response = subject.get_eligible_benefits(user.uuid)
           expect(response).to eq(
             {
@@ -53,7 +53,7 @@ RSpec.describe BenefitsDiscovery::Service do
 
       it 'returns recommendations' do
         VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params',
-                        match_requests_on: %i[method uri body]) do
+                         match_requests_on: %i[method uri body]) do
           response = subject.get_eligible_benefits(user.uuid)
           expect(response).to eq(
             {
@@ -79,7 +79,7 @@ RSpec.describe BenefitsDiscovery::Service do
 
       it 'raises client error' do
         VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params',
-                        match_requests_on: %i[method uri body]) do
+                         match_requests_on: %i[method uri body]) do
           expect do
             subject.get_eligible_benefits(user.uuid)
           end.to raise_error(Common::Client::Errors::ClientError)

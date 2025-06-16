@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'lighthouse/benefits_discovery/params'
 
 RSpec.describe BenefitsDiscovery::Params do
+  subject { described_class.new(user.uuid) }
+
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
-  let(:subject) { described_class.new(user.uuid) }
 
   before do
     token = 'blahblech'
