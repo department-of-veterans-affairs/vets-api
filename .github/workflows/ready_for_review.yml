@@ -14,9 +14,11 @@ permissions:
 jobs:
   get-pr-data:
     name: Get PR Data
+    permissions: write-all
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
