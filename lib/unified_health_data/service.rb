@@ -359,7 +359,7 @@ module UnifiedHealthData
 
     def fetch_observation_value(obs)
       type, text = if obs['valueQuantity']
-                     ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
+                     ['quantity', format_quantity_value(obs['valueQuantity'])]
                    elsif obs['valueCodeableConcept']
                      ['codeable-concept', obs['valueCodeableConcept']['text']]
                    elsif obs['valueString']
@@ -375,6 +375,19 @@ module UnifiedHealthData
                      [nil, nil]
                    end
       { text:, type: }
+    end
+
+    def format_quantity_value(value_quantity)
+      value = value_quantity['value']
+      unit = value_quantity['unit']
+      comparator = value_quantity['comparator']
+
+      result_text = ''
+      result_text += comparator.to_s if comparator.present?
+      result_text += value.to_s
+      result_text += " #{unit}" if unit.present?
+
+      result_text
     end
 
     def fetch_ordered_by(record)

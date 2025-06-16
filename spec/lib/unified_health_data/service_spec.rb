@@ -127,6 +127,41 @@ describe UnifiedHealthData::Service, type: :service do
       expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '5 mg' })
     end
 
+    it 'includes the less-than comparator in the text result when present' do
+      obs = { 'valueQuantity' => { 'value' => 50, 'comparator' => '<', 'unit' => 'mmol/L' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '<50 mmol/L' })
+    end
+
+    it 'includes the greater-than comparator in the text result when present' do
+      obs = { 'valueQuantity' => { 'value' => 120, 'comparator' => '>', 'unit' => 'mg/dL' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '>120 mg/dL' })
+    end
+
+    it 'includes the less-than-or-equal comparator in the text result when present' do
+      obs = { 'valueQuantity' => { 'value' => 6.5, 'comparator' => '<=', 'unit' => '%' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '<=6.5 %' })
+    end
+
+    it 'includes the greater-than-or-equal comparator in the text result when present' do
+      obs = { 'valueQuantity' => { 'value' => 8.0, 'comparator' => '>=', 'unit' => 'ng/mL' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '>=8.0 ng/mL' })
+    end
+
+    it 'includes the "sufficient to achieve" (ad) comparator in the text result when present' do
+      obs = { 'valueQuantity' => { 'value' => 12.3, 'comparator' => 'ad', 'unit' => 'mol/L' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: 'ad12.3 mol/L' })
+    end
+
+    it 'handles valueQuantity with no unit correctly' do
+      obs = { 'valueQuantity' => { 'value' => 10, 'comparator' => '>' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '>10' })
+    end
+
+    it 'handles empty or nil comparator gracefully' do
+      obs = { 'valueQuantity' => { 'value' => 75, 'comparator' => '', 'unit' => 'pg/mL' } }
+      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '75 pg/mL' })
+    end
+
     it 'returns codeable-concept type and text' do
       obs = { 'valueCodeableConcept' => { 'text' => 'POS' } }
       expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'codeable-concept', text: 'POS' })
