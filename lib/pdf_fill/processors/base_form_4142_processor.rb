@@ -38,6 +38,8 @@ module Processors
         'document' => to_faraday_upload,
         'metadata' => generate_metadata
       }
+
+binding.pry if selected_form_class_id == FORM_CLASS_ID_2024
     end
 
     # Invokes Filler ancillary form method to generate PDF document
@@ -51,7 +53,8 @@ module Processors
       base_pdf = fill_form_template
       signed_pdf = add_signature_stamp(base_pdf)
       timestamped_pdf = add_vagov_timestamp(signed_pdf)
-      add_vagov_submission_label(timestamped_pdf)
+      stamped_pdf = submission_date_stamps_first_page(timestamped_pdf)
+      submission_date_stamps_fourth_page(stamped_pdf)
     end
 
     protected
@@ -112,10 +115,12 @@ module Processors
 
     def add_vagov_timestamp(pdf)
       PDFUtilities::DatestampPdf.new(pdf).run(
-        text: 'VA.gov',
-        x: 5,
-        y: 5,
-        timestamp: submission_date
+        text: "Signed electronically and submitted via VA.gov at #{format_date(submission_date)}. Signee signed with an identity-verified account.",
+        text_only: true,
+        size: 8,
+        x: 150,
+        y: 10,
+        timestamp: ''
       )
     end
 
@@ -128,8 +133,50 @@ module Processors
       )
     end
 
+    def submission_date_stamps_first_page(pdf)
+      add_submission_date_stamp(pdf, page: 0, x: 460, y: 715)
+    end
+
+    def submission_date_stamps_fourth_page(pdf)
+      add_submission_date_stamp(pdf, page: 3, x: 450, y: 720)
+    end
+
+    def add_submission_date_stamp(pdf, page:, x:, y:)
+      return pdf unless needs_date_stamp?
+
+      # First line - "Application Submitted:"
+      stamped_pdf = PDFUtilities::DatestampPdf.new(pdf).run(
+        text: 'Application Submitted:',
+        text_only: true,
+        size: 8,
+        x: x,
+        y: y,
+        timestamp: '',
+        page_number: page,
+        multistamp: true,
+        template: pdf
+      )
+
+      # Second line - formatted date
+      PDFUtilities::DatestampPdf.new(stamped_pdf).run(
+        text: format_date(submission_date),
+        text_only: true,
+        size: 8,
+        x: x,
+        y: y - 10, # 10 pixels below first line
+        timestamp: '',
+        page_number: page,
+        multistamp: true,
+        template: pdf
+      )
+    end
+
     def needs_signature_stamp?
       signature.present? && selected_form_class_id == FORM_CLASS_ID_2024
+    end
+
+    def needs_date_stamp?
+      selected_form_class_id == FORM_CLASS_ID_2024
     end
 
     def selected_form_class_id
@@ -170,9 +217,9 @@ module Processors
       return unless form_data['signatureDate'].present? && form_data['veteranFullName'].present?
 
       full_name = form_data['veteranFullName']
-
       name = [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
-      "/es/ #{name}"
+
+      "#{name} - signed by digital authentication to api.va.gov"
     end
 
     def set_signature_date(incoming_data)
@@ -181,6 +228,10 @@ module Processors
 
     def received_date
       submission_date.strftime(SIGNATURE_TIMESTAMP_FORMAT)
+    end
+
+    def format_date(date)
+      date.in_time_zone('UTC').strftime('%H:%M %Z %D')
     end
 
     def us_country_code?(country_code)

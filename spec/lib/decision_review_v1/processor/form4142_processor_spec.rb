@@ -246,7 +246,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         before do
           # TODO: Remove once skip once this PR is merged, failing because there is no 2024 template
           # https://github.com/department-of-veterans-affairs/vets-api/pull/22527
-          skip 'No 2024 template available yet, see PR #22527'
 
           allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         end
@@ -274,7 +273,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       # TODO: Remove once skip once this PR is merged, failing because there is no 2024 template
       # https://github.com/department-of-veterans-affairs/vets-api/pull/22527
       it 'correctly reads the team-specific template flag' do
-        skip 'No 2024 template available yet, see PR #22527'
 
         expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         processor.send(:generate_2024_version?)
