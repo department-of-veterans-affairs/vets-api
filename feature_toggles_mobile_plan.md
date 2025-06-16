@@ -1,7 +1,7 @@
 # Implementation Plan: Add Feature Toggles Endpoint to Mobile Namespace
 
 ## Overview
-This plan details the steps to add a `/mobile/feature_toggles` endpoint with identical functionality to the existing web endpoint, extracting shared logic into a service class per vets-api standards.
+This plan details the steps to add a `/mobile/feature-toggles` endpoint with identical functionality to the existing web endpoint, extracting shared logic into a service class per vets-api standards.
 
 ## Tasks
 
@@ -40,8 +40,9 @@ This plan details the steps to add a `/mobile/feature_toggles` endpoint with ide
 - [x] Test specific and all feature queries
 
 ### 6. Update Documentation
-- [x] Add API documentation for the new endpoint
+- [x] Add API documentation for the new endpoint in `modules/mobile/docs/openapi.yaml`
 - [x] Include usage examples and parameter details
+- [x] Remove incorrectly created Swagger file
 
 ### 7. Manual Testing & Verification
 - [x] Verify service tests pass
@@ -49,9 +50,9 @@ This plan details the steps to add a `/mobile/feature_toggles` endpoint with ide
 - [ ] Test edge cases and error handling
 
 ### 8. Code Quality & Security
-- [ ] Run RuboCop to ensure code style compliance
-- [ ] Check for PII/sensitive data logging
-- [ ] Review for security and performance
+- [x] Run RuboCop to ensure code style compliance
+- [x] Check for PII/sensitive data logging
+- [x] Review for security and performance
 
 ### 9. Code Review Preparation
 - [ ] Run full test suite

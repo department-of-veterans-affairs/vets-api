@@ -1882,6 +1882,53 @@ paths:
       security:
         - Bearer: []
       summary: /v0/enrollment-status
+  /v0/feature-toggles:
+    get:
+      description: Returns feature toggle values for mobile applications
+      parameters:
+        - description: Comma-separated list of feature toggle names to check
+          in: query
+          name: features
+          required: false
+          schema:
+            type: string
+        - description: Cookie ID for anonymous users
+          in: query
+          name: cookie_id
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: feature_toggles
+                      features:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              example: featureName
+                            value:
+                              type: boolean
+                              example: true
+                type: object
+          description: Feature toggle values
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      security: []
+      summary: /v0/feature-toggles
   /v0/facilities-info:
     get:
       description: Retrieves facilities info for a user's va treatment facilities
@@ -3168,7 +3215,7 @@ paths:
               example:
                 errors:
                   - code: SM114
-                    detail: Unable to move message
+                    detail: 'Unable to move message'
                     status: '400'
                     title: Operation failed
               schema:
@@ -3422,53 +3469,6 @@ paths:
         '408':
           $ref: '#/components/responses/408'
         '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/messaging/health/messages/{id}/thread
-  /v1/messaging/health/messages/{id}/thread:
-    get:
-      description: |
-        Gets a list of message summaries that are related to the message of the passed id regardless of their age in 
-        relation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> 
-        include the message of the passed id itself.
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: Excludes the message with the provided message id
-          in: query
-          name: 'excludeProvidedMessage'
-          required: false
-          schema:
-            type: boolean
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/v1/SecureMessageListV1.yml
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
       security:
         - Bearer: []
       summary: /v1/messaging/health/messages/{id}/thread
