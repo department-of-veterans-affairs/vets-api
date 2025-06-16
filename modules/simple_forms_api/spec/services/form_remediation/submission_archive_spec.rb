@@ -223,4 +223,32 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
       end
     end
   end
+  describe '#submission_file_name' do
+    let(:archive_instance) { described_class.new(**hydrated_submission_args) }
+    let(:type) { 'submission' }
+    let(:today) { Time.now.utc.to_date }
+
+    context 'when vff_force_unique_file_name_date_property flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:vff_force_unique_file_name_date_property).and_return(true)
+      end
+
+      it 'calls unique_file_name with form_type, benefits_intake_uuid, and created_at' do
+        submission.created_at = today - 1.day
+        result = archive_instance.send(:submission_file_name)
+        expect(result).to eq("#{submission.created_at.strftime('%-m.%d.%y')}_form_#{form_type}_vagov_#{benefits_intake_uuid}")
+      end
+    end
+
+    context 'when vff_force_unique_file_name_date_property flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:vff_force_unique_file_name_date_property).and_return(false)
+      end
+
+      it 'calls unique_file_name with only form_type and benefits_intake_uuid' do
+        result = archive_instance.send(:submission_file_name)
+        expect(result).to eq("#{today.strftime('%-m.%d.%y')}_form_#{form_type}_vagov_#{benefits_intake_uuid}")
+      end
+    end
+  end
 end
