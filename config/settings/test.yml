@@ -788,7 +788,7 @@ maintenance:
     caseflow: ~
     cie: ~
     coe: PSY4HU1
-    decision_reviews: PT2SZGW
+    decision_reviews: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
@@ -820,7 +820,6 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
-    staging_decision_reviews: PHR6FGV
     staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
