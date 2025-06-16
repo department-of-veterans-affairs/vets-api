@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'benefits_intake_service/service'
+
 module AccreditedRepresentativePortal
   module SavedClaimService
     module Attach
