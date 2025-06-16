@@ -134,6 +134,8 @@ jobs:
         run: |
           failures=false
           all_workflows_failing=true
+          in_progress=false
+          completed=false
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
           WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
           echo "Pull request branch: ${pr_branch}"
@@ -146,7 +148,7 @@ jobs:
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
               failures=true
-              all_workflows_failing=false
+              in_progress=true
             else
               # Check if the latest completed run was successful
               SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
@@ -156,10 +158,14 @@ jobs:
                 failures=true
               else
                 echo "$WORKFLOW completed successfully."
-                all_workflows_failing=false
+                completed=true
               fi
             fi
           done
+
+          if [[ "${in_progress}" == "true" || "${completed}" == "true" ]]; then
+            all_workflows_failing=false
+          fi
 
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
           echo "all_workflows_failing=$all_workflows_failing" >> "$GITHUB_OUTPUT"
