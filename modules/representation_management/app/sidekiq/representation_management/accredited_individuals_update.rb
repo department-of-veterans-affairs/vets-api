@@ -40,20 +40,15 @@ module RepresentationManagement
     # is halted for the current AccreditedIndividual.
     # @param rep_data [Hash] The AccreditedIndividual data including id and address.
     def process_rep_data(rep_data)
-      return unless record_can_be_updated?(rep_data)
-
       address_validation_api_response = nil
 
-      if rep_data['address_changed']
+      api_response = get_best_address_candidate(rep_data['address'])
 
-        api_response = get_best_address_candidate(rep_data['address'])
-
-        # don't update the record if there is not a valid address with non-zero lat and long at this point
-        if api_response.nil?
-          return
-        else
-          address_validation_api_response = api_response
-        end
+      # don't update the record if there is not a valid address with non-zero lat and long at this point
+      if api_response.nil?
+        return
+      else
+        address_validation_api_response = api_response
       end
 
       begin
@@ -65,10 +60,6 @@ module RepresentationManagement
         log_error("Update failed for Rep id: #{rep_data['id']}: #{e.message}")
         nil
       end
-    end
-
-    def record_can_be_updated?(rep_data)
-      rep_data['address_exists'] || rep_data['address_changed']
     end
 
     # Constructs a validation address object from the provided address data.

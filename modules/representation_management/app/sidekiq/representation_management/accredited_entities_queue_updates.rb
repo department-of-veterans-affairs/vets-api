@@ -6,6 +6,7 @@ module RepresentationManagement
   class AccreditedEntitiesQueueUpdates
     include Sidekiq::Job
 
+    DECREASE_THRESHOLD = RepresentationManagement::AccreditationApiEntityCount::DECREASE_THRESHOLD
     SLICE_SIZE = 30
 
     def perform(force_update_types = [])
@@ -23,7 +24,7 @@ module RepresentationManagement
       process_attorneys
       delete_old_accredited_individuals
     rescue => e
-      log_error("Error in AgentsAndAttorneysQueueUpdate: #{e.message}")
+      log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
     end
 
     private
@@ -85,7 +86,6 @@ module RepresentationManagement
       agent_raw_address = raw_address_for_agent(agent)
       {
         id: record.id,
-        address_changed:,
         address: {
           address_pou: 'RESIDENCE/CHOICE',
           address_line1: agent_raw_address['address_line1'],
@@ -101,7 +101,6 @@ module RepresentationManagement
       attorney_raw_address = raw_address_for_attorney(attorney)
       {
         id: record.id,
-        address_changed:,
         address: {
           address_pou: 'RESIDENCE/CHOICE',
           address_line1: attorney_raw_address['address_line1'],
@@ -231,7 +230,7 @@ module RepresentationManagement
     end
 
     def log_error(message)
-      Rails.logger.error("RepresentationManagement::AgentsAndAttorneysQueueUpdate error: #{message}")
+      Rails.logger.error("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
     end
   end
 end
