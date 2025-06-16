@@ -28,7 +28,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
   end
 
-  ['v1', 'v2'].each do |form_type|
+  %w[v1 v2].each do |form_type|
     describe '#form_id' do
       context "with #{form_type}" do
         let(:claim) { create_claim(form_type) }

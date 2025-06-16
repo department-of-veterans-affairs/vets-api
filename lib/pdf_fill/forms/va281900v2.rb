@@ -205,7 +205,7 @@ module PdfFill
           'year' => {
             key: 'VBA281900[0].#subform[0].Date_Signed_Year[0]'
           }
-        }, # end date_signed
+        } # end date_signed
       }.freeze
 
       def merge_fields(options = {})
