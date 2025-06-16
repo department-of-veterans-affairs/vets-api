@@ -169,10 +169,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
           .and_return(response2)
 
         allow(AccreditedIndividual).to receive(:find_or_create_by)
-          .with(individual_type: 'claims_agent', ogc_id: '123')
+          .with({ individual_type: 'claims_agent', ogc_id: '123' })
           .and_return(record1)
         allow(AccreditedIndividual).to receive(:find_or_create_by)
-          .with(individual_type: 'claims_agent', ogc_id: '456')
+          .with({ individual_type: 'claims_agent', ogc_id: '456' })
           .and_return(record2)
 
         allow(record1).to receive(:update)
@@ -195,9 +195,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
         # Verify records were found/created and updated
         expect(AccreditedIndividual).to have_received(:find_or_create_by)
-          .with(individual_type: 'claims_agent', ogc_id: '123')
+          .with({ individual_type: 'claims_agent', ogc_id: '123' })
         expect(AccreditedIndividual).to have_received(:find_or_create_by)
-          .with(individual_type: 'claims_agent', ogc_id: '456')
+          .with({ individual_type: 'claims_agent', ogc_id: '456' })
 
         # Verify the records were updated
         expect(record1).to have_received(:update)
@@ -319,7 +319,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
                                                        poa_code: 'JKL',
                                                        ogc_id: '012',
                                                        first_name: 'Sarah',
-                                                       middle_initial: nil,
+                                                       middle_initial: '',
                                                        last_name: 'Williams'
                                                      ))
     end
@@ -450,7 +450,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     it 'handles empty middle name' do
       agent['middleName'] = ''
       result = job.send(:data_transform_for_agent, agent)
-      expect(result[:middle_initial]).to be_nil
+      expect(result[:middle_initial]).to eq('')
     end
   end
 
