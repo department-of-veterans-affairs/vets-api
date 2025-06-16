@@ -56,7 +56,7 @@ jobs:
             elif ${{ toJSON(github.event.workflow_run.pull_requests) != '[]' }}; then
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
 
-              echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUTf
+              echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
               echo "pr_branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
 
               # Fetch PR details from GitHub API
@@ -91,6 +91,8 @@ jobs:
 
       - name: Exempt Teams
         id: check_exempt_teams
+        env:
+          pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
         run: |
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
@@ -105,8 +107,8 @@ jobs:
             benefits-admin
           )
 
-          TEAMS=$(echo '${{ steps.get_pr_data.outputs.pr_requested_teams }}' | jq -r '.[]')
-          if [ "$TEAMS" != "[]" ]; then
+          TEAMS=$(echo "$pr_requested_teams" | jq -r '.[]')
+          if [ -n "$TEAMS" ]; then
             for TEAM in $TEAMS; do
               for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
                 if [[ "$TEAM" == "$EXEMPT" ]]; then
@@ -136,7 +138,7 @@ jobs:
                 while IFS= read -r REVIEWER; do
                   echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
                   if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                    echo "Reviewew is in exempt team"
+                    echo "Reviewer is in exempt team"
                     echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                     break 2
                   fi
@@ -147,7 +149,7 @@ jobs:
 
       - name: Remove require-backend-approval label
         if: |
-          steps.check_exempt_teams.outputs.except_team == 'true' ||
+          steps.check_exempt_teams.outputs.exempt_team == 'true' ||
           steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
@@ -156,7 +158,7 @@ jobs:
 
       - name: Remove ready-for-backend-review label
         if: |
-          steps.check_exempt_teams.outputs.except_team == 'true' ||
+          steps.check_exempt_teams.outputs.exempt_team == 'true' ||
           steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
@@ -193,8 +195,8 @@ jobs:
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
-            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
-              '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request")')
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event,headSha -q \
+              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1)
 
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
@@ -202,8 +204,8 @@ jobs:
               all_workflows_failing=false
             else
               # Check if the latest completed run was successful
-              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
-                '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
+              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
+                ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
                 failures=true
@@ -220,14 +222,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove ready-for-review label
-        if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        if: |
+          steps.check_workflow_status.outputs.failures_detected == 'true' &&
+          steps.check_workflow_status.outputs.all_workflows_failing == 'false'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-review
 
       - name: Remove ready-for-backend-review label
-        if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        if: |
+          steps.check_workflow_status.outputs.failures_detected == 'true' &&
+          steps.check_workflow_status.outputs.all_workflows_failing == 'false'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
@@ -393,9 +399,14 @@ jobs:
       # The ready-for-review label will be added when pull request has not been reviewed
       - name: Add ready-for-review label
         if: |
-          needs.check-workflow-status.outputs.failures_detected == 'false' &&
-          steps.verify_approval.outputs.approval_status == 'required' ||
-          steps.verify_approval.outputs.team_approval_status == 'required'
+          (
+            needs.check-workflow-status.outputs.failures_detected == 'false' ||
+            needs.check-workflow-status.outputs.all_workflows_failing == 'true'
+          ) &&
+          (
+            steps.verify_approval.outputs.approval_status == 'required' ||
+            steps.verify_approval.outputs.team_approval_status == 'required'
+          )
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
@@ -405,7 +416,10 @@ jobs:
       # The ready-for-backend-review label will be added for backend-review-group team members
       - name: Add ready-for-backend-review label
         if: |
-          needs.check-workflow-status.outputs.failures_detected == 'false' &&
+          (
+            needs.check-workflow-status.outputs.failures_detected == 'false' ||
+            needs.check-workflow-status.outputs.all_workflows_failing == 'true'
+          ) &&
           needs.check-backend-requirement.outputs.backend_approval_required == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           (

@@ -63,45 +63,45 @@ jobs:
           echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
           echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
           echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
-          echo "pr_requested_teams=$PR_REQUESTED_TEAMS" >> $GITHUB_OUTPUT
+          echo "pr_requested_teams=${PR_REQUESTED_TEAMS}" >> "$GITHUB_OUTPUT"
 
-
-          TEAMS=$(echo '${{ env.pr_requested_teams }}' | jq -r '.[]')
-
-          for TEAM in $TEAMS; do
-            for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
-              if [[ "$TEAM" == "$EXEMPT" ]]; then
-                echo "Found exempt team: $TEAM"
-                echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
-                exit 0
-              fi
-            done
-          done
-
-          # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
-          echo "$PR_REVIEWS" > pr_reviews.json
-
-          REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
-
-          declare -A REVIEWER_TEAMS
-
-          for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Fetching members of team: $TEAM"
-            TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
-
-            # Iterate over each member and each reviewer
-            while IFS= read -r MEMBER; do
-              while IFS= read -r REVIEWER; do
-                echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                  echo "Match: Reviewer $REVIEWER is in exempt team $TEAM"
+          TEAMS=$(echo "$pr_requested_teams" | jq -r '.[]')
+          if [ -n "$TEAMS" ]; then
+            for TEAM in $TEAMS; do
+              for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
+                if [[ "$TEAM" == "$EXEMPT" ]]; then
+                  echo "Found exempt team: $TEAM"
                   echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
                   exit 0
                 fi
-              done <<< "$REVIEWERS"
-            done <<< "$TEAM_MEMBERS"
-          done
+              done
+            done
+          fi
+
+          # Fetch PR reviews
+          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
+          if [ "$PR_REVIEWS" != "[]" ]; then
+            echo "$PR_REVIEWS" > pr_reviews.json
+            REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
+            declare -A REVIEWER_TEAMS
+
+            for TEAM in "${EXEMPT_TEAMS[@]}"; do
+              echo "Fetching members of team: $TEAM"
+              TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
+
+              # Iterate over each member and each reviewer
+              while IFS= read -r MEMBER; do
+                while IFS= read -r REVIEWER; do
+                  echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
+                  if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
+                    echo "Match: Reviewer $REVIEWER is in exempt team $TEAM"
+                    echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+                done <<< "$REVIEWERS"
+              done <<< "$TEAM_MEMBERS"
+            done
+          fi
 
           if ! echo "$PR_LABELS" | grep -q "require-backend-approval"; then
             echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
@@ -126,15 +126,17 @@ jobs:
       require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
     outputs:
       failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
+      all_workflows_failing: ${{ steps.check_workflow_status.outputs.all_workflows_failing }}
+
     steps:
       - name: Check if workflows have completed successfully
         id: check_workflow_status
         run: |
           failures=false
-
+          all_workflows_failing=true
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
           WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
-          echo "Pull request bracnch: ${pr_branch}"
+          echo "Pull request branch: ${pr_branch}"
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
@@ -144,6 +146,7 @@ jobs:
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
               failures=true
+              all_workflows_failing=false
             else
               # Check if the latest completed run was successful
               SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
@@ -151,14 +154,15 @@ jobs:
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
                 failures=true
-                # break
               else
                 echo "$WORKFLOW completed successfully."
+                all_workflows_failing=false
               fi
             fi
           done
 
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
+          echo "all_workflows_failing=$all_workflows_failing" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -175,6 +179,7 @@ jobs:
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
       failures_detected: ${{ needs.check-workflow-status.outputs.failures_detected }}
+      all_workflows_failing:  ${{ needs.check-workflow-status.outputs.all_workflows_failing }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
@@ -284,22 +289,21 @@ jobs:
         run: exit 0
 
       - name: Fail if draft or failures
-        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true' || steps.verify_approval.outputs.approval_status == 'required'
+        if: |
+          needs.get-pr-data.outputs.pr_draft == 'true' ||
+          (
+            needs.check-workflow-status.outputs.failures_detected == 'true' &&
+            needs.check-workflow-status.outputs.all_workflows_failing == 'false' &&
+            steps.verify_approval.outputs.approval_status == 'required'
+          )
         run: exit 1
-
-      - name: Remove ready-for-backend-review label
-        if: steps.verify_approval.outputs.approval_status == 'confirmed'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-backend-review
 
       - name: Add ready-for-backend-review label
         if: |
           steps.verify_approval.outputs.approval_status == 'required' &&
           (
             steps.verify_approval.outputs.team_approval_status == 'confirmed' ||
-            steps.verify_approval.author_is_backend == 'true'
+            steps.verify_approval.outputs.author_is_backend == 'true'
           )
         uses: actions-ecosystem/action-add-labels@v1
         with:
