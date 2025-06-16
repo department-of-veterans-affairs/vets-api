@@ -2,11 +2,9 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_discovery/service'
-require 'lighthouse/benefits_discovery/params'
 
 RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
-  let(:params_instance) { instance_double(BenefitsDiscovery::Params) }
   let(:service_instance) { instance_double(BenefitsDiscovery::Service) }
   let(:prepared_params) do
     {
@@ -36,14 +34,12 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
   describe '#perform' do
     before do
-      allow(BenefitsDiscovery::Params).to receive(:new).with(user.uuid).and_return(params_instance)
       allow(BenefitsDiscovery::Service).to receive(:new).and_return(service_instance)
     end
 
     context 'when all upstream services work' do
       before do
-        allow(params_instance).to receive(:prepared_params).and_return(prepared_params)
-        allow(service_instance).to receive(:get_eligible_benefits).with(prepared_params).and_return(eligible_benefits)
+        allow(service_instance).to receive(:get_eligible_benefits).with(user.uuid).and_return(eligible_benefits)
       end
 
       it 'processes benefits discovery successfully' do
@@ -121,11 +117,11 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
         }
         expected_logged_error = '[["not_recommended", ["Health", "Life Insurance (VALife)"]], ["recommended", ' \
                                 '["Childcare", "Education"]], ["undetermined", ["Job Assistance", "Wealth"]]]'
-        allow(service_instance).to receive(:get_eligible_benefits).with(prepared_params).and_return(benefits)
+        allow(service_instance).to receive(:get_eligible_benefits).with(user.uuid).and_return(benefits)
         expect(StatsD).to receive(:increment).with(expected_logged_error)
         described_class.new.perform(user.uuid)
 
-        allow(service_instance).to receive(:get_eligible_benefits).with(prepared_params).and_return(reordered_benefits)
+        allow(service_instance).to receive(:get_eligible_benefits).with(user.uuid).and_return(reordered_benefits)
         expect(StatsD).to receive(:increment).with(expected_logged_error)
         described_class.new.perform(user.uuid)
       end
@@ -133,12 +129,12 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
     context 'when params preparation fails' do
       before do
-        allow(params_instance).to receive(:prepared_params).and_raise(StandardError, 'Failed to prepare params')
+        allow(service_instance).to receive(:get_eligible_benefits).and_raise(StandardError, 'Failed to prepare params')
       end
 
       it 'logs error and re-raises the exception' do
         expect(Rails.logger).to receive(:error).with(
-          "Failed to process BenefitsDiscovery for user: #{user.uuid}, error: Failed to prepare params"
+          "Failed to process eligible benefits for user: #{user.uuid}, error: Failed to prepare params"
         )
         expect { described_class.new.perform(user.uuid) }.to raise_error(StandardError, 'Failed to prepare params')
       end
@@ -146,13 +142,12 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
     context 'when service call fails' do
       before do
-        allow(params_instance).to receive(:prepared_params).and_return(prepared_params)
         allow(service_instance).to receive(:get_eligible_benefits).and_raise(StandardError, 'API call failed')
       end
 
       it 'logs error and re-raises the exception' do
         expect(Rails.logger).to receive(:error).with(
-          "Failed to process BenefitsDiscovery for user: #{user.uuid}, error: API call failed"
+          "Failed to process eligible benefits for user: #{user.uuid}, error: API call failed"
         )
         expect { described_class.new.perform(user.uuid) }.to raise_error(StandardError, 'API call failed')
       end

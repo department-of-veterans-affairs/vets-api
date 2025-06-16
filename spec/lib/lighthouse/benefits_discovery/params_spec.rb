@@ -5,7 +5,7 @@ require 'lighthouse/benefits_discovery/params'
 
 RSpec.describe BenefitsDiscovery::Params do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
-  let(:params) { described_class.new(user.uuid) }
+  let(:subject) { described_class.new(user.uuid) }
 
   before do
     token = 'blahblech'
@@ -24,7 +24,7 @@ RSpec.describe BenefitsDiscovery::Params do
 
       VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          expect(params.prepared_params).to eq(expected_params)
+          expect(subject.prepared_params).to eq(expected_params)
         end
       end
     end
@@ -33,7 +33,7 @@ RSpec.describe BenefitsDiscovery::Params do
       it 'raises error' do
         VCR.use_cassette('lighthouse/veteran_verification/disability_rating/504_response') do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-            expect { params.prepared_params }.to raise_error(Common::Exceptions::GatewayTimeout, 'Gateway timeout')
+            expect { subject.prepared_params }.to raise_error(Common::Exceptions::GatewayTimeout, 'Gateway timeout')
           end
         end
       end
@@ -43,7 +43,7 @@ RSpec.describe BenefitsDiscovery::Params do
       it 'raises error' do
         VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
-            expect { params.prepared_params }.to raise_error(
+            expect { subject.prepared_params }.to raise_error(
               Common::Exceptions::BackendServiceException,
               'BackendServiceException: {:source=>"VAProfile::MilitaryPersonnel::Service", :code=>"VET360_CORE100"}'
             )

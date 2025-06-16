@@ -33,17 +33,16 @@ module BenefitsDiscovery
     end
 
     def discharge_status
-      discharge_codes = service_history.map(&:character_of_discharge_code)
-      discharge_types = []
-      discharge_codes.map do |dc|
-        discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[dc]
+      service_history.map do |sh|
+        code = sh[:character_of_discharge_code]
+        discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
         if discharge_type.nil?
           Rails.logger.error("No matching discharge code for: #{discharge_type}")
+          nil
         else
-          discharge_types << "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE"
+          "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE"
         end
-      end
-      discharge_types
+      end.compact
     end
   end
 end

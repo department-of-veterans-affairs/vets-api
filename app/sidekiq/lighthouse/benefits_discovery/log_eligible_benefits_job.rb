@@ -12,14 +12,13 @@ module Lighthouse
 
       def perform(user_uuid)
         start_time = Time.current
-        params = ::BenefitsDiscovery::Params.new(user_uuid).prepared_params
-        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(params)
+        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(user_uuid)
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
-        sorted = sort_benefits(eligible_benefits)
-        StatsD.increment(sorted.to_s)
+        sorted_benefits = sort_benefits(eligible_benefits)
+        StatsD.increment(sorted_benefits.to_s)
       rescue => e
-        Rails.logger.error("Failed to process BenefitsDiscovery for user: #{user_uuid}, error: #{e.message}")
+        Rails.logger.error("Failed to process eligible benefits for user: #{user_uuid}, error: #{e.message}")
         raise e
       end
 
