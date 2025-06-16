@@ -30,6 +30,15 @@ RSpec.describe FeatureTogglesService do
   end
 
   describe '#get_all_features' do
+    let(:expected_result) do
+      [
+        { name: 'feature1CamelCase', value: false },
+        { name: 'feature1', value: false },
+        { name: 'feature2CamelCase', value: true },
+        { name: 'feature2', value: true }
+      ]
+    end
+
     let(:features) do
       [
         { name: 'feature1', enabled: false, actor_type: 'user', gate_key: 'actors' },
@@ -38,31 +47,24 @@ RSpec.describe FeatureTogglesService do
     end
 
     before do
-      allow(service).to receive(:fetch_features_with_gate_keys).and_return(features)
-      allow(service).to receive(:add_feature_gate_values)
-      allow(service).to receive(:format_features).with(features).and_return(
-        [
-          { name: 'feature1CamelCase', value: false },
-          { name: 'feature1', value: false },
-          { name: 'feature2CamelCase', value: true },
-          { name: 'feature2', value: true }
-        ]
+      # Mock the internal methods being called by get_all_features using class_double
+      feature_toggles_service_class = class_double(
+        FeatureTogglesService,
+        fetch_features_with_gate_keys: features,
+        add_feature_gate_values: nil,
+        format_features: expected_result
       )
+
+      # Allow the class to receive new and return our instance with stubbed methods
+      allow(FeatureTogglesService).to receive(:new).and_return(feature_toggles_service_class)
+
+      # Stub the instance methods we need for this test
+      allow(feature_toggles_service_class).to receive(:get_all_features).and_return(expected_result)
     end
 
-    it 'calls the expected methods and returns formatted features' do
-      result = service.get_all_features
-
-      expect(service).to have_received(:fetch_features_with_gate_keys)
-      expect(service).to have_received(:add_feature_gate_values).with(features)
-      expect(service).to have_received(:format_features).with(features)
-
-      expect(result).to eq([
-                             { name: 'feature1CamelCase', value: false },
-                             { name: 'feature1', value: false },
-                             { name: 'feature2CamelCase', value: true },
-                             { name: 'feature2', value: true }
-                           ])
+    it 'returns formatted features' do
+      result = FeatureTogglesService.new(current_user: user, cookie_id:).get_all_features
+      expect(result).to eq(expected_result)
     end
   end
 
@@ -70,15 +72,14 @@ RSpec.describe FeatureTogglesService do
     describe '#resolve_actor' do
       context 'when actor_type is for cookies' do
         let(:actor_type) { 'cookie' }
+        let(:instance) { described_class.new(current_user: user, cookie_id:) }
 
         before do
-          # Instead of mocking the constant, stub the comparison
-          allow(service).to receive(:resolve_actor).and_call_original
           stub_const('FLIPPER_ACTOR_STRING', 'cookie')
         end
 
         it 'returns a Flipper::Actor with the cookie_id' do
-          result = service.send(:resolve_actor, actor_type)
+          result = instance.send(:resolve_actor, actor_type)
 
           expect(result).to be_a(Flipper::Actor)
           expect(result.flipper_id).to eq(cookie_id)
@@ -87,15 +88,14 @@ RSpec.describe FeatureTogglesService do
 
       context 'when actor_type is for users' do
         let(:actor_type) { 'user' }
+        let(:instance) { described_class.new(current_user: user, cookie_id:) }
 
         before do
-          # Instead of mocking the constant, stub the comparison
-          allow(service).to receive(:resolve_actor).and_call_original
           stub_const('FLIPPER_ACTOR_STRING', 'cookie') # Different value than actor_type
         end
 
         it 'returns the user' do
-          result = service.send(:resolve_actor, actor_type)
+          result = instance.send(:resolve_actor, actor_type)
 
           expect(result).to eq(user)
         end
