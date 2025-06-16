@@ -6,6 +6,10 @@ class SavedClaim::Test < SavedClaim
   def email
     parsed_form['email']
   end
+
+  def form_matches_schema
+    true
+  end
 end
 
 FactoryBot.define do
