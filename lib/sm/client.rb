@@ -646,11 +646,20 @@ module SM
     # Upload an attachment to S3 using a presigned URL
     # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
     def upload_attachment_to_s3(file, presigned_url)
-      custom_headers = token_headers.merge('Content-Type' => file.content_type)
-      perform(:put, presigned_url, file.read, custom_headers)
-    rescue Common::Client::Errors::ClientError => e
-      Rails.logger.error("Failed to upload attachment to S3: #{e.message}")
-      raise Common::Exceptions::BackendServiceException.new('SM_UPLOAD_ATTACHMENT_ERROR', 500)
+      uri = URI.parse(presigned_url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = (uri.scheme == 'https')
+
+      request = Net::HTTP::Put.new(uri)
+      request['Content-Type'] = file.content_type
+      request.body_stream = file
+      request.content_length = file.size
+
+      response = http.request(request)
+      unless response.is_a?(Net::HTTPSuccess)
+        Rails.logger.error("Failed to upload Messaging attachment to S3: #{response.body}")
+        raise Common::Exceptions::BackendServiceException.new('SM_UPLOAD_ATTACHMENT_ERROR', 500)
+      end
     end
 
     def extract_uploaded_file_name(url)
