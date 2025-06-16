@@ -17,7 +17,7 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
 
     context 'with authenticated user' do
       it 'uses the current_user for feature toggle evaluation' do
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_features).with(['feature1', 'feature2'])
+        expect_any_instance_of(FeatureTogglesService).to receive(:get_features).with(%w[feature1 feature2])
 
         get '/mobile/v0/feature-toggles?features=feature1,feature2', headers: sis_headers
 
@@ -43,7 +43,7 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
 
     context 'with unauthenticated user' do
       it 'passes nil as the user for specific features' do
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_features).with(['feature1', 'feature2'])
+        expect_any_instance_of(FeatureTogglesService).to receive(:get_features).with(%w[feature1 feature2])
 
         get '/mobile/v0/feature-toggles?features=feature1,feature2'
 

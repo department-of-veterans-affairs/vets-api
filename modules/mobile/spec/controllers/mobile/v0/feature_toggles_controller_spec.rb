@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Mobile::V0::FeatureTogglesController, type: :controller do
   describe '#index' do
     let(:features) { [{ name: 'feature1', value: true }, { name: 'feature2', value: false }] }
-    let(:service) { instance_double('FeatureTogglesService') }
+    let(:service) { instance_double(FeatureTogglesService) }
 
     before do
       allow(FeatureTogglesService).to receive(:new).and_return(service)
