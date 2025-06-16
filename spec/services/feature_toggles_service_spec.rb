@@ -47,23 +47,14 @@ RSpec.describe FeatureTogglesService do
     end
 
     before do
-      # Mock the internal methods being called by get_all_features using class_double
-      feature_toggles_service_class = class_double(
-        FeatureTogglesService,
-        fetch_features_with_gate_keys: features,
-        add_feature_gate_values: nil,
-        format_features: expected_result
-      )
-
-      # Allow the class to receive new and return our instance with stubbed methods
-      allow(FeatureTogglesService).to receive(:new).and_return(feature_toggles_service_class)
-
-      # Stub the instance methods we need for this test
-      allow(feature_toggles_service_class).to receive(:get_all_features).and_return(expected_result)
+      # Allow the instance methods we need for this test
+      allow_any_instance_of(FeatureTogglesService).to receive(:fetch_features_with_gate_keys).and_return(features)
+      allow_any_instance_of(FeatureTogglesService).to receive(:add_feature_gate_values)
+      allow_any_instance_of(FeatureTogglesService).to receive(:format_features).and_return(expected_result)
     end
 
     it 'returns formatted features' do
-      result = FeatureTogglesService.new(current_user: user, cookie_id:).get_all_features
+      result = service.get_all_features
       expect(result).to eq(expected_result)
     end
   end
