@@ -36,6 +36,19 @@ module AskVAApi
             DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
+          # Add debug logging to determine root cause for https://github.com/department-of-veterans-affairs/ask-va/issues/1872
+          # Level of Authentication is a misnomer. it doesn't contain any PII and the two possible values are:
+          # 1. 'Business' - for authenticated users
+          # 2. 'Personal' - for unauthenticated users
+          if user.nil? && inquiry_detail&.education_benefits?
+            Rails.logger.warn("Unauthenticated Education inquiry submitted. - Category: #{inquiry_detail.category},
+              Topic: #{inquiry_detail.topic},
+              Level of Authentication: #{inquiry_details.level_of_authentication}")
+          end
+
+          # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
+          Rails.logger.info("User LOA: #{user&.loa&.current&.fetch(:current, nil)}") if user
+
           payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
 
           payload
