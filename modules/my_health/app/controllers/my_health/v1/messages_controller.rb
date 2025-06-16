@@ -35,12 +35,18 @@ module MyHealth
         message_params_h = message_params.to_h
         message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
         create_message_params = { message: message_params_h }.merge(upload_params)
-
-        client_response = if message.uploads.present?
-                            client.post_create_message_with_attachment(create_message_params)
-                          else
-                            client.post_create_message(message_params_h)
-                          end
+        client_response =
+          if message.uploads.present?
+            any_file_too_large = message.uploads.any? { |upload| upload.size > 4.megabytes }
+            total_size_too_large = message.uploads.sum(&:size) > 10.megabytes
+            if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
+              client.post_create_message_with_lg_attachments(create_message_params)
+            else
+              client.post_create_message_with_attachment(create_message_params)
+            end
+          else
+            client.post_create_message(message_params_h)
+          end
 
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
@@ -74,11 +80,18 @@ module MyHealth
         message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
         create_message_params = { message: message_params_h }.merge(upload_params)
 
-        client_response = if message.uploads.present?
-                            client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-                          else
-                            client.post_create_message_reply(params[:id], message_params_h)
-                          end
+        client_response =
+          if message.uploads.present?
+            any_file_too_large = message.uploads.any? { |upload| upload.size > 4.megabytes }
+            total_size_too_large = message.uploads.sum(&:size) > 10.megabytes
+            if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
+              client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
+            else
+              client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+            end
+          else
+            client.post_create_message_reply(params[:id], message_params_h)
+          end
 
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
