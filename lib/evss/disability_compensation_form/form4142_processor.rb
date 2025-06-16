@@ -15,7 +15,7 @@ module EVSS
       def initialize(submission, jid)
         @submission = submission
         @jid = jid
-        super
+        super()
       end
 
       protected

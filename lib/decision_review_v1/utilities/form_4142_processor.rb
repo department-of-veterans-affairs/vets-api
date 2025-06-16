@@ -9,7 +9,7 @@ module DecisionReviewV1
       def initialize(form_data:, submission_id: nil)
         @submission = Form526Submission.find_by(id: submission_id)
         @form = set_signature_date(form_data)
-        super
+        super()
       end
 
       protected

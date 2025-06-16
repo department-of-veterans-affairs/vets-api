@@ -154,7 +154,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                   # Form 4142 Backup Submission Process
                   expect(submission.form['form4142']).not_to be_nil
                   form4142_processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(
-                    submission, submission.id, validate: false
+                    submission, submission.id
                   )
                   request_body = form4142_processor.request_body
                   metadata_hash = JSON.parse(request_body['metadata'])
