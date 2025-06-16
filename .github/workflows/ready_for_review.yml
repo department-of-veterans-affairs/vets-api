@@ -23,7 +23,7 @@ jobs:
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
       pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
-      exempt_team: ${{ steps.get_pr_data.outputs.exempt_team }}
+      exempt_team: ${{ steps.check_exempt_teams.outputs.exempt_team }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
       - name: Checkout PR HEAD ref
@@ -89,8 +89,12 @@ jobs:
             exit 1
           fi
 
+      - name: Exempt Teams
+        id: check_exempt_teams
+
           echo "exempt_team=false" >> "$GITHUB_OUTPUT"
           ORG="department-of-veterans-affairs"
+          PR_NUMBER="${{ steps.get_pr_data.outputs.pr_number }}"
 
           EXEMPT_TEAMS=(
             octo-identity
@@ -102,7 +106,7 @@ jobs:
             benefits-admin
           )
 
-          TEAMS=$(echo '${{ env.pr_requested_teams }}' | jq -r '.[]')
+          TEAMS=$(echo '${{ steps.get_pr_data.outputs.pr_requested_teams }}' | jq -r '.[]')
 
           for TEAM in $TEAMS; do
             for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
@@ -115,7 +119,7 @@ jobs:
           done
 
           # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews)
+          PR_REVIEWS=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews)
           echo "$PR_REVIEWS" > pr_reviews.json
 
           REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
@@ -141,13 +145,17 @@ jobs:
 
       - name: Remove require-backend-approval label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.get_pr_data.outputs.pr_draft == 'true'
+        if: |
+          steps.check_exempt_teams.except_team == 'true'
+          steps.get_pr_data.outputs.pr_draft == 'true'
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
 
       - name: Remove ready-for-backend-review label
-        if: steps.get_pr_data.outputs.pr_draft == 'true'
+        if: |
+          steps.check_exempt_teams.except_team == 'true'
+          steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
