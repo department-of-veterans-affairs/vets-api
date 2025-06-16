@@ -59,6 +59,10 @@ module AccreditedRepresentativePortal
       end
 
       delegate :to_pdf, to: :form_attachment
+
+      def latest_submission_attempt
+        form_submissions.order(created_at: :desc).first&.latest_attempt
+      end
     end
   end
 end
