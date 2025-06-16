@@ -1822,10 +1822,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for for converting the start & end times in slots fetch to UTC.
-  va_online_scheduling_direct_schedule_appointment_conflict:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -1871,14 +1867,6 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
-  payment_history_exclude_third_party_disbursements:
-    actor_type: user
-    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
-    enable_in_development: false
-  payment_history_recategorize_hardship:
-    actor_type: user
-    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
-    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
