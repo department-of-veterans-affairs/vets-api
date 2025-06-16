@@ -76,20 +76,6 @@
                 null
               ]
             },
-            "account": {
-              "type": "object",
-              "required": [
-                "accountUuid"
-              ],
-              "properties": {
-                "accountUuid": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                }
-              }
-            },
             "userAccount": {
               "type": "object",
               "required": [
