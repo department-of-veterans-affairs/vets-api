@@ -82,20 +82,9 @@ module Lighthouse
     end
 
     def process_record(record)
-      pdf_path = record.to_pdf
-      # coordinates 0, 0 is bottom left of the PDF
-      # This is the bottom left of the form, right under the form date, e.g. "AUG 2022"
-      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,
-                                                                   timestamp: record.created_at)
-      # This is the top right of the PDF, above "OMB approved line"
-      stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
-        text: 'FDC Reviewed - va.gov Submission',
-        x: 400,
-        y: 770,
-        text_only: true
-      )
+      document = stamp_pdf(record.to_pdf)
 
-      @lighthouse_service.valid_document?(document: stamped_path2)
+      @lighthouse_service.valid_document?(document:)
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error")
       raise e
@@ -106,6 +95,20 @@ module Lighthouse
     end
 
     private
+
+    def stamp_pdf(pdf_path)
+      # coordinates 0, 0 is bottom left of the PDF
+      # This is the bottom left of the form, right under the form date, e.g. "AUG 2022"
+      stamped_pdf_path = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,
+                                                                   timestamp: record.created_at)
+      # This is the top right of the PDF, above "OMB approved line"
+      PDFUtilities::DatestampPdf.new(stamped_pdf_path).run(
+        text: 'FDC Reviewed - va.gov Submission',
+        x: 400,
+        y: 770,
+        text_only: true
+      )
+    end
 
     def lighthouse_service_upload_payload
       {
