@@ -411,7 +411,7 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('>= 94 %')
+        expect(result.first.reference_range).to eq('Normal Range: >= 94 %')
       end
 
       it 'returns observations with only high value in reference range' do
@@ -448,7 +448,7 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('<= 120 mg/dL')
+        expect(result.first.reference_range).to eq('Normal Range: <= 120 mg/dL')
       end
 
       it 'handles mixed reference range formats correctly' do
@@ -460,10 +460,12 @@ describe UnifiedHealthData::Service, type: :service do
                 'code' => { 'text' => 'Mixed Format Test' },
                 'valueQuantity' => { 'value' => 5, 'unit' => 'units' },
                 'referenceRange' => [
-                  { 'text' => 'Text-only range' },
+                  { 'text' => 'YELLOW' },
                   {
-                    'low' => { 'value' => 1 },
                     'high' => { 'value' => 10 }
+                  },
+                  {
+                    'low' => { 'value' => 1 }
                   },
                   {
                     'low' => { 'value' => 2 }
@@ -479,15 +481,15 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('Text-only range, 1 - 10, >= 2, <= 8')
+        expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
 
       it 'handles multiple reference ranges with different types' do
         obs = {
           'referenceRange' => [
             {
-              'low' => { 'value' => 14 },
-              'high' => { 'value' => 20 },
+              'low' => { 'value' => 14, 'unit' => 'mL' },
+              'high' => { 'value' => 20, 'unit' => 'mL' },
               'type' => {
                 'coding' => [
                   {
@@ -500,8 +502,8 @@ describe UnifiedHealthData::Service, type: :service do
               }
             },
             {
-              'low' => { 'value' => 1000 },
-              'high' => { 'value' => 2000 },
+              'low' => { 'value' => 1000, 'unit' => 'mg/dL' },
+              'high' => { 'value' => 2000, 'unit' => 'mg/dL' },
               'type' => {
                 'coding' => [
                   {
@@ -516,7 +518,7 @@ describe UnifiedHealthData::Service, type: :service do
           ]
         }
         result = service.send(:fetch_reference_range, obs)
-        expect(result).to eq('Normal Range: 14 - 20, Critical Range: 1000 - 2000')
+        expect(result).to eq('Normal Range: 14 mL - 20 mL, Critical Range: 1000 mg/dL - 2000 mg/dL')
       end
 
       it 'handles multiple high-only reference ranges with different types' do
@@ -551,7 +553,7 @@ describe UnifiedHealthData::Service, type: :service do
           ]
         }
         result = service.send(:fetch_reference_range, obs)
-        expect(result).to eq('<= 20, Critical Range: <= 2000')
+        expect(result).to eq('Normal Range: <= 20, Critical Range: <= 2000')
       end
     end
   end
@@ -584,7 +586,7 @@ describe UnifiedHealthData::Service, type: :service do
         ]
       }
       result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('13.5 - 18.0')
+      expect(result).to eq('13.5 g/dL - 18.0 g/dL')
     end
 
     it 'formats low-only values correctly' do

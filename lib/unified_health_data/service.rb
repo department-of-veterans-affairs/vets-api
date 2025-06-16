@@ -211,9 +211,20 @@ module UnifiedHealthData
       return '' unless obs['referenceRange'].is_a?(Array) && !obs['referenceRange'].empty?
 
       begin
-        result = obs['referenceRange'].map { |range| format_reference_range(range) }
-        # Extra defensive filtering to handle nil or empty values
-        result.compact.reject(&:empty?).join(', ').strip
+        # Process each range element and transform it to a formatted string
+        formatted_ranges = obs['referenceRange'].map do |range|
+          next '' unless range.is_a?(Hash)
+
+          # Use the text directly if available, otherwise format it
+          if range['text'].is_a?(String) && !range['text'].empty?
+            range['text']
+          else
+            format_reference_range(range)
+          end
+        end
+
+        # Filter out empty strings and join the results
+        formatted_ranges.reject(&:empty?).join(', ').strip
       rescue => e
         Rails.logger.error("Error processing reference range: #{e.message}")
         ''
@@ -225,13 +236,10 @@ module UnifiedHealthData
       return '' unless range.is_a?(Hash)
 
       begin
-        # Case 1: Range has explicit text representation
         return range['text'] if range['text'].is_a?(String) && !range['text'].empty?
 
-        # Case 2: Range has numeric values
         return format_numeric_range(range) if range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
 
-        # No valid format found
         ''
       rescue => e
         Rails.logger.error("Error processing individual reference range: #{e.message}")
@@ -241,6 +249,9 @@ module UnifiedHealthData
 
     # Extract numeric value and unit from range component
     def extract_range_component(component)
+      # Handle the case where component is not a hash
+      return [nil, ''] unless component.is_a?(Hash)
+
       value = component&.dig('value')
       value = nil unless value.is_a?(Numeric)
       unit = component&.dig('unit').is_a?(String) ? component&.dig('unit') : ''
@@ -248,14 +259,16 @@ module UnifiedHealthData
     end
 
     # Determine range type prefix
-    def get_range_type_prefix(range, low_value, high_value)
+    def get_range_type_prefix(range)
+      return '' unless range.is_a?(Hash) && range['type'].present?
+
+      # Handle the case where type is not a hash
       return '' unless range['type'].is_a?(Hash)
 
       type_text = range['type']['text'].is_a?(String) ? range['type']['text'] : nil
 
-      # Special case: For Normal Range with single values, we omit the range type as per original behavior
-      if type_text && !(type_text == 'Normal Range' &&
-         ((low_value && !high_value) || (!low_value && high_value)))
+      # Always return the range type prefix if it exists
+      if type_text
         "#{type_text}: "
       else
         ''
@@ -269,17 +282,32 @@ module UnifiedHealthData
       high_value, high_unit = extract_range_component(range['high'])
 
       # Get range type prefix
-      range_type = get_range_type_prefix(range, low_value, high_value)
+      range_type = get_range_type_prefix(range)
+
+      # Create params hash for formatting
+      params = {
+        range_type:,
+        low: { value: low_value, unit: low_unit },
+        high: { value: high_value, unit: high_unit },
+        type_text: range['type'].is_a?(Hash) ? range['type']['text'] : nil
+      }
 
       # Format based on available values
+      format_range_based_on_values(params)
+    rescue => e
+      Rails.logger.error("Error in format_numeric_range: #{e.message}")
+      ''
+    end
+
+    # Helper method to format range based on which values are available
+    def format_range_based_on_values(params)
+      range_type = params[:range_type]
+      low_value = params[:low][:value]
+      low_unit = params[:low][:unit]
+      high_value = params[:high][:value]
+      high_unit = params[:high][:unit]
+
       if low_value && high_value
-        # Create a params hash to reduce parameter count
-        params = {
-          range_type:,
-          low: { value: low_value, unit: low_unit },
-          high: { value: high_value, unit: high_unit },
-          type_text: range.dig('type', 'text')
-        }
         format_low_high_range(params)
       elsif low_value
         low_unit_str = low_unit.empty? ? '' : " #{low_unit}"
@@ -299,15 +327,34 @@ module UnifiedHealthData
       low_unit = params[:low][:unit]
       high_value = params[:high][:value]
       high_unit = params[:high][:unit]
-      type_text = params[:type_text]
 
-      if ['Normal Range', 'Treatment Range'].include?(type_text) && !low_unit.empty? && !high_unit.empty?
-        # Case: with units
-        "#{range_type}#{low_value} #{low_unit} - #{high_value} #{high_unit}"
+      if !low_unit.empty? || !high_unit.empty?
+        format_range_with_units(params)
       else
-        # Case: without units
         "#{range_type}#{low_value} - #{high_value}"
       end
+    end
+
+    # Helper method to format range with units
+    def format_range_with_units(params)
+      range_type = params[:range_type]
+      low_value = params[:low][:value]
+      low_unit = params[:low][:unit]
+      high_value = params[:high][:value]
+      high_unit = params[:high][:unit]
+
+      # Use consistent units if both are specified
+      low_unit_str = if low_unit.empty?
+                       high_unit.empty? ? '' : " #{high_unit}"
+                     else
+                       " #{low_unit}"
+                     end
+      high_unit_str = if high_unit.empty?
+                        low_unit.empty? ? '' : " #{low_unit}"
+                      else
+                        " #{high_unit}"
+                      end
+      "#{range_type}#{low_value}#{low_unit_str} - #{high_value}#{high_unit_str}"
     end
 
     def fetch_observation_value(obs)
