@@ -27,8 +27,7 @@ module MyHealth
           with_patient_resource(client.get_allergy(allergy_id)) do |resource|
             raise Common::Exceptions::RecordNotFound, allergy_id if resource.blank?
 
-            options = { meta: resource.metadata }
-            render json: AllergySerializer.new(resource, options)
+            render json: AllergySerializer.new(resource)
           end
         else
           render_resource client.get_allergy(allergy_id)
