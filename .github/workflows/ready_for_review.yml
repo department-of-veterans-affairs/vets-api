@@ -22,6 +22,7 @@ jobs:
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
       pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
+      exempt_team: ${{ steps.get_pr_data.outputs.exempt_team }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
       - name: Checkout PR HEAD ref
@@ -46,7 +47,6 @@ jobs:
             else
               echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.slug) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             fi
-
           elif ${{ github.event_name == 'workflow_run' }}; then
             if ${{ github.event.workflow_run.event == 'push' }}; then
               HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
@@ -54,6 +54,7 @@ jobs:
               exit 0
             elif ${{ toJSON(github.event.workflow_run.pull_requests) != '[]' }}; then
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
+
               echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
               echo "pr_branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
 
@@ -86,6 +87,57 @@ jobs:
             echo "Pull Request not successfully retrieved."
             exit 1
           fi
+
+          echo "exempt_team=false" >> "$GITHUB_OUTPUT"
+          ORG="department-of-veterans-affairs"
+          REPO="department-of-veterans-affairs/vets-api"
+
+          EXEMPT_TEAMS=(
+            octo-identity
+            lighthouse-dash
+            lighthouse-pivot
+            lighthouse-banana-peels
+            mobile-api-team
+            accredited-representatives-admin
+            benefits-admin
+          )
+
+          TEAMS=$(echo '${{ env.pr_requested_teams }}' | jq -r '.[]')
+
+          for TEAM in $TEAMS; do
+            for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
+              if [[ "$TEAM" == "$EXEMPT" ]]; then
+                echo "Found exempt team: $TEAM"
+                echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            done
+          done
+
+          # Fetch PR reviews
+          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${{ env.pr_number }}/reviews)
+          echo "$PR_REVIEWS" > pr_reviews.json
+
+          REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
+
+          declare -A REVIEWER_TEAMS
+
+          for TEAM in "${EXEMPT_TEAMS[@]}"; do
+            echo "Fetching members of team: $TEAM"
+            TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
+
+            # Iterate over each member and each reviewer
+            while IFS= read -r MEMBER; do
+              while IFS= read -r REVIEWER; do
+                echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
+                if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
+                  echo "Match: Reviewer $REVIEWER is in exempt team $TEAM"
+                  echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+                  exit 0
+                fi
+              done <<< "$REVIEWERS"
+            done <<< "$TEAM_MEMBERS"
+          done
 
       - name: Remove require-backend-approval label
         uses: actions-ecosystem/action-remove-labels@v1
@@ -183,82 +235,22 @@ jobs:
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
+      exempt_team: ${{ needs.get-pr-data.outputs.exempt_team }}
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
-      exception_groups: ${{ steps.check_exception_groups.outputs.exception_groups }}
       backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
     steps:
-      - name: Check for Excempt Teams
-        id: check_exception_groups
-        run: |
-          exception_groups=false
-          ORG="department-of-veterans-affairs"
-          REPO="department-of-veterans-affairs/vets-api"
-          PR_NUMBER="${{ env.pr_number }}"
-
-          EXEMPT_TEAMS=(
-            octo-identity
-            lighthouse-dash
-            lighthouse-pivot
-            lighthouse-banana-peels
-            mobile-api-team
-            accredited-representatives-admin
-            benefits-admin
-          )
-
-          TEAMS=$(echo '${{ env.pr_requested_teams }}' | jq -r '.[]')
-
-          for TEAM in $TEAMS; do
-            for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
-              if [[ "$TEAM" == "$EXEMPT" ]]; then
-                echo "Found exempt team: $TEAM"
-                exception_groups=true
-                break 2
-              fi
-            done
-          done
-
-          # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
-          echo "$PR_REVIEWS" > pr_reviews.json
-
-          REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
-
-          declare -A REVIEWER_TEAMS
-
-          for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Fetching members of team: $TEAM"
-            TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
-
-            # Iterate over each member and each reviewer
-            while IFS= read -r MEMBER; do
-              while IFS= read -r REVIEWER; do
-                echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                  echo "Found exempt team"
-                  exception_groups=true
-                  break 2
-                fi
-              done <<< "$REVIEWERS"
-            done <<< "$TEAM_MEMBERS"
-          done
-
-          echo "exception_groups=$exception_groups" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check Backend Requirement
         id: check_backend_requirement
         run: |
           echo "backend_approval_required=false" >> $GITHUB_OUTPUT
 
-          if [[ "${{ steps.check_exception_groups.outputs.exception_groups }}" == "true" ]]; then
+          if [[ "${{ env.exempt_team }}" == "true" ]]; then
             echo "Excemption Groups were found"
             exit 0
           else
             echo "Excemption Groups were not found"
             echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-            exit 0
           fi
 
           echo "${{ env.pr_requested_teams }}" | jq -e '. | index("backend-review-group")' > /dev/null
@@ -365,7 +357,6 @@ jobs:
             echo "TEAM APPROVAL CONFIRMED"
             team_approval_status=confirmed
           fi
-
 
           if [[ "${{ needs.check-backend-requirement.outputs.backend_approval_required }}" == "true" ]]; then
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
