@@ -2198,3 +2198,7 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  update_mhv_prescriptions_policy:
+    actor_type: user
+    description: Aligns MHV prescriptions policy logic with messaging policy when enabled
+    enable_in_development: true
