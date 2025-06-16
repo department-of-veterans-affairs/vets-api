@@ -20,6 +20,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         params = { 'appointment_date_time' => '2024-01-01T16:45:34.465',
                    'facility_station_number' => '123',
+                   'facility_name' => 'Some Facility',
                    'appointment_type' => 'Other',
                    'is_complete' => false }
 
@@ -41,6 +42,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path], allow_playback_repeats: true) do
         params = { 'appointment_date_time' => 'My birthday, 4 years ago',
                    'facility_station_number' => '123',
+                   'facility_name' => 'Some Facility',
                    'appointment_type' => 'Other',
                    'is_complete' => false }
 
@@ -61,6 +63,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
               VCR.use_cassette('travel_pay/submit/500_submit_claim', match_requests_on: %i[method path]) do
                 params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
                            'facility_station_number' => '123',
+                           'facility_name' => 'Some Facility',
                            'appointment_type' => 'Other',
                            'is_complete' => false }
 
@@ -88,6 +91,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
             VCR.use_cassette('travel_pay/submit/500_add_expense', match_requests_on: %i[method path]) do
               params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
                          'facility_station_number' => '123',
+                         'facility_name' => 'Some Facility',
                          'appointment_type' => 'Other',
                          'is_complete' => false }
 
@@ -113,6 +117,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           VCR.use_cassette('travel_pay/submit/500_create_claim', match_requests_on: %i[method path]) do
             params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
                        'facility_station_number' => '123',
+                       'facility_name' => 'Some Facility',
                        'appointment_type' => 'Other',
                        'is_complete' => false }
 
