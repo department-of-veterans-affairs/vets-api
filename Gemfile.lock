@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 082ba91bce2699d47cf2bf3f1522d8e1663d4f70
+  revision: 83345d72fc384a1ab02efbe4e0679d779a86f5e1
   branch: master
   specs:
-    vets_json_schema (24.15.2)
+    vets_json_schema (24.16.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -110,6 +110,7 @@ PATH
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
+    medical_expense_reports (0.1.0)
     mobile (0.1.0)
       dry-validation
     mocked_authentication (0.1.0)
@@ -147,7 +148,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (2.0.1)
-    aasm (5.5.0)
+    aasm (5.5.1)
       concurrent-ruby (~> 1.0)
     actioncable (7.2.2.1)
       actionpack (= 7.2.2.1)
@@ -244,8 +245,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1113.0)
-    aws-sdk-core (3.225.1)
+    aws-partitions (1.1116.0)
+    aws-sdk-core (3.225.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -255,17 +256,17 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.104.0)
+    aws-sdk-kms (1.105.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.189.0)
+    aws-sdk-s3 (1.189.1)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sdk-sns (1.100.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sigv4 (1.12.0)
+    aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -274,7 +275,7 @@ GEM
     base64 (0.3.0)
     bcp47 (0.3.3)
       i18n
-    benchmark (0.4.0)
+    benchmark (0.4.1)
     bigdecimal (3.2.2)
     bigdecimal (3.2.2-java)
     bindex (0.8.1)
@@ -675,7 +676,7 @@ GEM
     libddwaf (1.22.0.0.2-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.8.6)
+    liquid (5.8.7)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -998,7 +999,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.75.6)
+    rubocop (1.76.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1006,10 +1007,10 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.44.0, < 2.0)
+      rubocop-ast (>= 1.45.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.44.1)
+    rubocop-ast (1.45.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     rubocop-capybara (2.22.1)
@@ -1019,12 +1020,12 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.31.0)
+    rubocop-rails (2.32.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
     rubocop-rspec (3.6.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -1068,7 +1069,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.24.0)
+    sentry-ruby (5.25.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1112,8 +1113,8 @@ GEM
     stringio (3.1.2)
     strong_migrations (2.3.0)
       activerecord (>= 7)
-    strscan (3.1.3)
-    strscan (3.1.3-java)
+    strscan (3.1.5)
+    strscan (3.1.5-java)
     super_diff (0.15.0)
       attr_extras (>= 6.2.4)
       diff-lcs
@@ -1304,6 +1305,7 @@ DEPENDENCIES
   lockbox
   mail
   meb_api!
+  medical_expense_reports!
   memoist
   mimemagic
   mini_magick
