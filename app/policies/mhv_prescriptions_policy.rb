@@ -6,35 +6,14 @@ MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
   RX_ACCOUNT_TYPES = %w[Premium Advanced].freeze
 
   def access?
-    if Flipper.enabled?(:update_mhv_prescriptions_policy)
-      feature_flag_access_check
+    if Flipper.enabled?(:mhv_medications_new_policy, user)
+      user.mhv_user_account&.patient == true
     else
       default_access_check
     end
   end
 
   private
-
-  def feature_flag_access_check
-    return false unless user.mhv_correlation_id && user.va_patient?
-
-    begin
-      client = Rx::Client.new(session: { user_id: user.mhv_correlation_id, user_uuid: user.uuid })
-      handle_client_session(client)
-    rescue
-      log_access_denied('RX ACCESS DENIED (feature flag)')
-      false
-    end
-  end
-
-  def handle_client_session(client)
-    if client.session.expired?
-      client.authenticate
-      !client.session.expired?
-    else
-      true
-    end
-  end
 
   def default_access_check
     service_name = user.identity.sign_in[:service_name]
