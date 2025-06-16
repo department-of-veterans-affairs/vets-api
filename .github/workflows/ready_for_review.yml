@@ -265,6 +265,8 @@ jobs:
             echo "backend_approval_required=true" >> $GITHUB_OUTPUT
           fi
 
+          echo "PR REQEUSTED TEAMS: ${{ env.pr_requested_teams }}"
+
           echo "${{ env.pr_requested_teams }}" | jq -e '. | index("backend-review-group")' > /dev/null
           if [[ $? -eq 0 ]]; then
             echo "backend-review-group found in requested teams"
