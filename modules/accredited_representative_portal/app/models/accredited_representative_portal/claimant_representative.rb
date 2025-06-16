@@ -86,11 +86,14 @@ module AccreditedRepresentativePortal
       delegate :id, to: :identifier
 
       def power_of_attorney_holder
-        unless defined?(@power_of_attorney_holder)
-          service = BenefitsClaims::Service.new(identifier.icn)
-          response = service.get_power_of_attorney['data'].to_h
+        defined?(@power_of_attorney_holder) and
+          return @power_of_attorney_holder
 
-          @power_of_attorney_holder =
+        @power_of_attorney_holder =
+          begin
+            service = BenefitsClaims::Service.new(identifier.icn)
+            response = service.get_power_of_attorney['data'].to_h
+
             ##
             # FYI, the API does not fully distinguish types like we do.
             # The value 'individual' is returned for both claims agents and
@@ -103,9 +106,7 @@ module AccreditedRepresentativePortal
                 can_accept_digital_poa_requests: nil
               )
             end
-        end
-
-        @power_of_attorney_holder
+          end
       end
 
       private
