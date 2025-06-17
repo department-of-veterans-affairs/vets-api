@@ -65,7 +65,7 @@ module Eps
     # @return [String] The generated cache key
     def generate_appointment_data_key(uuid, appointment_id)
       appointment_last4 = appointment_id.to_s.last(4).presence || '0000'
-      "#{AppointmentStatusCheckWorker::CACHE_KEY_PREFIX}:#{uuid}:#{appointment_last4}"
+      "#{CACHE_KEY}:#{uuid}:#{appointment_last4}"
     end
   end
 end
