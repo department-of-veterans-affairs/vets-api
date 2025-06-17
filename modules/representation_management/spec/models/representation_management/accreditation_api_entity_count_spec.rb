@@ -30,16 +30,13 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     end
 
     it 'assigns values from api counts for each type' do
-      expect do
-        model.save_api_counts
-      end.to change { model.reload.agents }.to(100)
-                                           .and change { model.reload.attorneys }.to(100)
-                                                                                 .and change {
-                                                                                        model.reload.representatives
-                                                                                      }.to(100)
-                                                                                       .and change {
-                                                                                              model.reload.veteran_service_organizations
-                                                                                            }.to(100)
+      model.save_api_counts
+      model.reload
+
+      expect(model.agents).to eq(100)
+      expect(model.attorneys).to eq(100)
+      expect(model.representatives).to eq(100)
+      expect(model.veteran_service_organizations).to eq(100)
     end
 
     it 'only assigns values for valid counts' do
@@ -75,8 +72,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     let(:type) { :agents }
 
     before do
-      allow(model).to receive(:current_db_counts).and_return({ agents: 100 })
-      allow(model).to receive(:current_api_counts).and_return({ agents: 110 })
+      allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 110 })
       allow(model).to receive(:notify_threshold_exceeded)
     end
 
@@ -102,8 +98,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
     context 'when new count is greater than previous count' do
       before do
-        allow(model).to receive(:current_db_counts).and_return({ agents: 100 })
-        allow(model).to receive(:current_api_counts).and_return({ agents: 110 })
+        allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 110 })
       end
 
       it 'returns true' do
@@ -113,8 +108,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
     context 'when new count is equal to previous count' do
       before do
-        allow(model).to receive(:current_db_counts).and_return({ agents: 100 })
-        allow(model).to receive(:current_api_counts).and_return({ agents: 100 })
+        allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 100 })
       end
 
       it 'returns true' do
@@ -124,8 +118,8 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
     context 'when new count is less than previous count but within threshold' do
       before do
-        allow(model).to receive(:current_db_counts).and_return({ agents: 100 })
-        allow(model).to receive(:current_api_counts).and_return({ agents: 90 }) # 10% decrease
+        # 10% decrease
+        allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 90 })
       end
 
       it 'returns true' do
@@ -135,8 +129,8 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
     context 'when new count is less than previous count and exceeds threshold' do
       before do
-        allow(model).to receive(:current_db_counts).and_return({ agents: 100 })
-        allow(model).to receive(:current_api_counts).and_return({ agents: 70 }) # 30% decrease
+        # 30% decrease
+        allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 70 })
       end
 
       it 'returns false' do
@@ -172,9 +166,9 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   end
 
   describe '#get_counts_from_api' do
-    let(:client) { instance_double('RepresentationManagement::GCLAWS::Client') }
+    let(:client) { instance_double(RepresentationManagement::GCLAWS::Client) }
     let(:response_body) { { 'totalRecords' => 100 } }
-    let(:response) { instance_double('Response', body: response_body) }
+    let(:response) { instance_double(Response, body: response_body) }
 
     before do
       allow(RepresentationManagement::GCLAWS::Client).to receive(:get_accredited_entities)

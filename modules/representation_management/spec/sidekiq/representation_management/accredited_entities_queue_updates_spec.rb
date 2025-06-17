@@ -121,15 +121,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
   end
 
-  # First, remove the "when updating agents" context from inside the perform block
-
-  describe '#perform' do
-    # Keep all your existing perform tests here
-    # But remove the 'when updating agents' context
-  end
-
-  # Then add this as a separate describe block at the same level as '#perform'
-
   describe '#update_agents' do
     subject(:job) { described_class.new }
 
