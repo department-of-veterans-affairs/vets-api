@@ -3,72 +3,172 @@
 require 'rails_helper'
 
 RSpec.describe Mobile::V0::FeatureTogglesController, type: :controller do
-  describe '#index' do
-    let(:features) { [{ name: 'feature1', value: true }, { name: 'feature2', value: false }] }
-    let(:service) { instance_double(FeatureTogglesService) }
+  routes { Mobile::Engine.routes }
 
-    before do
-      allow(FeatureTogglesService).to receive(:new).and_return(service)
+  before(:all) do
+    @feature_name = 'this_is_only_a_test'
+    @feature_name_camel = @feature_name.camelize(:lower)
+    @cached_enabled_val = Flipper.enabled?(@feature_name)
+    Flipper.enable(@feature_name)
+  end
+
+  after(:all) do
+    Flipper.disable(@feature_name)
+  end
+
+  describe 'GET #index without params' do
+    it 'returns all features (true or false)' do
+      Flipper.disable(@feature_name)
+      get :index
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+      disabled_feature = json_data['data']['features'].find { |f| f['name'] == @feature_name }
+
+      expect(json_data['data']['features'].first['value']).not_to be_nil
+      expect(disabled_feature['value']).to be false
     end
 
-    context 'with specific features requested' do
-      before do
-        allow(service).to receive(:get_features).with(%w[feature1 feature2]).and_return(features)
-        get :index, params: { features: 'feature1,feature2' }
-      end
+    it 'allows strings as actors' do
+      @feature_name =  'find_a_representative_enabled'
+      @feature_name_camel = @feature_name.camelize(:lower)
+      @cookie_id = 'abc_123'
+      actor = Flipper::Actor.new(@cookie_id)
+      Flipper.disable(@feature_name)
+      Flipper.enable_actor(@feature_name, actor)
 
-      it 'returns HTTP success' do
+      get :index, params: { cookie_id: @cookie_id }
+
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+
+      expect(json_data['data']['features']).to include({ 'name' => @feature_name_camel, 'value' => true })
+      expect(json_data['data']['features']).to include({ 'name' => @feature_name, 'value' => true })
+    end
+
+    it 'tests that both casing forms (snake and camel) are returned properly' do
+      get :index, params: { cookie_id: @cookie_id }
+
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+
+      expect(json_data['data']['features'].first['value']).not_to be_nil
+      expect(json_data['data']['features']).to include({ 'name' => @feature_name_camel, 'value' => true })
+      expect(json_data['data']['features']).to include({ 'name' => @feature_name, 'value' => true })
+    end
+
+    it 'returns percentage of actor consistently' do
+      Flipper.enable_percentage_of_actors(@feature_name, 25)
+
+      5.times do |i|
+        cookie_id = "cookie_#{31 + i}"
+        actor = Flipper::Actor.new(cookie_id)
+        is_enabled = Flipper.enabled?(@feature_name, actor)
+
+        get :index, params: { cookie_id: }
+
         expect(response).to have_http_status(:ok)
-      end
+        json_data = JSON.parse(response.body)
 
-      it 'returns the requested features' do
-        expect(JSON.parse(response.body)['data']['features']).to eq(
-          JSON.parse(features.to_json)
-        )
+        feature = json_data['data']['features'].find { |f| f['name'] == @feature_name }
+        feature_camel = json_data['data']['features'].find { |f| f['name'] == @feature_name_camel }
+        expect(feature['value']).to eq(is_enabled)
+        expect(feature_camel['value']).to eq(is_enabled)
       end
     end
 
-    context 'when requesting all features' do
+    it 'ignores individual actors and percentage_of_actors when globally enabled' do
+      cookie_id = 'abc_123'
+      actor = Flipper::Actor.new(cookie_id)
+
+      Flipper.enable_actor(@feature_name, actor)
+      Flipper.enable_percentage_of_actors(@feature_name, 25)
+      Flipper.enable(@feature_name)
+
+      get :index, params: { cookie_id: }
+
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+
+      feature = json_data['data']['features'].find { |f| f['name'] == @feature_name }
+      feature_camel = json_data['data']['features'].find { |f| f['name'] == @feature_name_camel }
+
+      expect(feature['value']).to be true
+      expect(feature_camel['value']).to be true
+    end
+
+    context 'when flipper.mute_logs settings is true' do
       before do
-        allow(service).to receive(:get_all_features).and_return(features)
+        allow(ActiveRecord::Base.logger).to receive(:silence)
+        allow(Settings.flipper).to receive(:mute_logs).and_return(true)
+        Flipper.disable(@feature_name)
+        Flipper.enable_percentage_of_actors(@feature_name, 100)
+      end
+
+      it 'sets ActiveRecord logger to silence' do
+        expect(ActiveRecord::Base.logger).to receive(:silence)
+
         get :index
       end
-
-      it 'returns HTTP success' do
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns all features' do
-        expect(JSON.parse(response.body)['data']['features']).to eq(
-          JSON.parse(features.to_json)
-        )
-      end
     end
 
-    context 'with both authenticated and unauthenticated users' do
-      let(:user) { create(:user) }
+    context 'when flipper.mute_logs settings is false' do
+      before { allow(Settings.flipper).to receive(:mute_logs).and_return(false) }
 
-      it 'works for authenticated users' do
-        allow(controller).to receive(:current_user).and_return(user)
-        allow(controller).to receive(:load_user)
-        allow(service).to receive(:get_all_features).and_return(features)
+      it 'does not set ActiveRecord logger to silence' do
+        expect(ActiveRecord::Base.logger).not_to receive(:silence)
 
         get :index
-
-        expect(FeatureTogglesService).to have_received(:new).with(current_user: user, cookie_id: nil)
-        expect(response).to have_http_status(:ok)
       end
+    end
+  end
 
-      it 'works for unauthenticated users with cookie ID' do
-        allow(controller).to receive(:current_user).and_return(nil)
-        allow(controller).to receive(:load_user)
-        allow(service).to receive(:get_all_features).and_return(features)
+  describe 'GET #index with params' do
+    it 'returns true for enabled flags' do
+      get :index, params: { features: @feature_name }
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
 
-        get :index, params: { cookie_id: 'test-cookie' }
+      expect(json_data['data']['features'].first['value']).to be true
+      expect(json_data['data']['features'].first['name']).to eq(@feature_name)
+      expect(json_data['data']['features'].count).to eq(1)
+    end
 
-        expect(FeatureTogglesService).to have_received(:new).with(current_user: nil, cookie_id: 'test-cookie')
-        expect(response).to have_http_status(:ok)
-      end
+    it 'keeps flags in format recieved' do
+      get :index, params: { features: @feature_name.camelize }
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+
+      expect(json_data['data']['features'].first['value']).to be true
+      expect(json_data['data']['features'].first['name']).to eq(@feature_name.camelize)
+      expect(json_data['data']['features'].count).to eq(1)
+    end
+
+    it 'returns false for nonexistent flags' do
+      @feature_name = 'thisIsNotARealFlag'
+      get :index, params: { features: @feature_name }
+
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+
+      expect(json_data['data']['features'].first['name']).to eq(@feature_name)
+      expect(json_data['data']['features'].first['value']).to be_falsey
+    end
+
+    it 'allows strings as actors' do
+      @feature_name =  'find_a_representative_enabled'
+      @cookie_id = 'abc_123'
+      actor = Flipper::Actor.new(@cookie_id)
+      Flipper.disable(@feature_name)
+      Flipper.enable_actor(@feature_name, actor)
+
+      get :index, params: { features: @feature_name, cookie_id: @cookie_id }
+
+      expect(response).to have_http_status(:ok)
+      json_data = JSON.parse(response.body)
+
+      expect(json_data['data']['features'].first['name']).to eq(@feature_name)
+      expect(json_data['data']['features'].first['value']).to be true
+      expect(json_data['data']['features'].count).to eq(1)
     end
   end
 end
