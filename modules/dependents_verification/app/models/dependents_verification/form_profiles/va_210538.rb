@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents_verification/helpers'
 require 'dependents_verification/monitor'
 
 module DependentsVerification
@@ -17,6 +18,7 @@ module DependentsVerification
 
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA210538 < FormProfile
+    include DependentsVerification::PrefillHelpers
     attribute :dependents_information, Array[DependentInformation]
 
     ##
@@ -32,13 +34,12 @@ module DependentsVerification
     end
 
     ##
-    # Prefills the form data with identity and contact information
+    # Prefills the form data with identity, contact, and dependent information
     #
-    # This method initializes identity and contact information and maps data according to form-specific mappings
+    # This method initializes identity, contact, and dependents information and maps data according to form-specific mappings
     #
     # @return [Hash]
     def prefill
-      monitor = DependentsVerification::Monitor.new
       begin
         @identity_information = initialize_identity_information
       rescue => e
@@ -63,10 +64,18 @@ module DependentsVerification
       { form_data:, metadata: }
     end
 
+    ##
+    # This method retrieves the dependents from the BGS service and maps them to the DependentInformation model.
+    # If no dependents are found or if they are not active for benefits, it returns an empty array.
+    #
+    # @return [Array<DependentInformation>]
     def initialize_dependents_information
       dependents = dependent_service.get_dependents
 
-      return [] if dependents.nil? || dependents[:persons].blank?
+      if dependents.nil? || dependents[:persons].blank?
+        monitor.track_missing_dependent_info
+        return []
+      end
 
       dependents[:persons].filter_map do |person|
         # Skip if the dependent is not active for benefits
@@ -93,23 +102,8 @@ module DependentsVerification
       @dependent_service ||= BGS::DependentService.new(user)
     end
 
-    ##
-    # Calculates the age of a dependent based on their date of birth
-    #
-    # @param date_of_birth [String] The date of birth of the dependent
-    # @return [Integer] The age of the dependent
-    def dependent_age(date_of_birth)
-      return nil if date_of_birth.blank?
-
-      dob = Date.parse(date_of_birth)
-      now = Time.now.utc.to_date
-
-      # If the current month is greater than the birth month,
-      # or if it's the same month but the current day is greater than or equal to the birth day,
-      # then the birthday has occurred this year.
-      # Otherwise, subtract one year additional year from the age.
-      after_birthday = now.month > dob.month || (now.month == dob.month && now.day >= dob.day)
-      now.year - dob.year - (after_birthday ? 0 : 1)
+    def monitor
+      @monitor ||= DependentsVerification::Monitor.new
     end
   end
 end

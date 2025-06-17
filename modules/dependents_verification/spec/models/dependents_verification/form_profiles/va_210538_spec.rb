@@ -106,6 +106,17 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
                                          metadata: })
     end
 
+    it 'handles missing dependents data' do
+      # Mock the dependent service to return no dependents
+      allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+      allow(dependent_service).to receive(:get_dependents).and_return(nil)
+      expect(subject.prefill).to match({ form_data: {
+                                           'veteranInformation' => veteran_information,
+                                           'veteranContactInformation' => contact_information
+                                         },
+                                         metadata: })
+    end
+
     it 'handles a contact information error' do
       allow(FormContactInformation).to receive(:new).and_raise(
         StandardError.new('Contact information error')
@@ -120,6 +131,26 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
       )
       expect(subject.prefill).to match({ form_data: { 'veteranContactInformation' => contact_information },
                                          metadata: })
+    end
+
+    describe 'initialize_dependents_information' do
+      it 'returns an empty array when no dependents are found' do
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+        allow(dependent_service).to receive(:get_dependents).and_return({ number_of_records: '0', persons: [] })
+        expect(subject.send(:initialize_dependents_information)).to eq([])
+      end
+
+      it 'returns an empty array BGS returns no data' do
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+        allow(dependent_service).to receive(:get_dependents).and_return(nil)
+        expect(subject.send(:initialize_dependents_information)).to eq([])
+      end
+
+      it 'returns dependents mapped to DependentInformation model' do
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+        allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
+        expect(subject.send(:initialize_dependents_information)).to all(be_a(DependentsVerification::DependentInformation))
+      end
     end
   end
 end
