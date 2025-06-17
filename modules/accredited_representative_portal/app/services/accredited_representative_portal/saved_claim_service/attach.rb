@@ -22,8 +22,13 @@ module AccreditedRepresentativePortal
       class << self
         def perform(attachment_klass, file:, form_id:)
           attachment_klass.new.tap do |attachment|
-            attachment.file = file
+            ##
+            # Must assign `form_id` _before_ assigning `file` so that the
+            # validations of `file` that occur upon assignment are run relative
+            # to the appropriate `form_id`.
+            #
             attachment.form_id = form_id
+            attachment.file = file
 
             validate_record!(attachment)
             validate_upstream!(attachment)
