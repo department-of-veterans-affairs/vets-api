@@ -5,6 +5,7 @@ module MPI
     class MviProfileAddress
       include ActiveModel::Model
       include ActiveModel::Attributes
+      include ActiveModel::PrettyInspect
 
       attribute :street,      :string
       attribute :street2,     :string
