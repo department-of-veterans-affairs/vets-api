@@ -473,7 +473,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     address_fields = %w[newAddress veteranAddress]
     address_fields.each do |field|
       address = parsed_form.dig(*field.split('/'))
-      break if address.blank? || !address.is_a?(Hash)
+      next if address.blank? || !address.is_a?(Hash)
 
       %w[country street city state postalCode].each do |sub_field|
         value = address[sub_field]

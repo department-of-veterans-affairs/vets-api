@@ -296,6 +296,29 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         expect(claim).to be_valid
       end
 
+      it 'passes validation when only one address object is present' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'street' => '123 Main St',
+          'city' => 'Anytown'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).to be_valid
+      end
+
+      it 'fails validation when one address object is missing street' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'country' => 'USA',
+          'city' => 'Anytown',
+          'state' => 'NY',
+          'postalCode' => '12345'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranAddress/street')
+      end
+
       it 'fails validation when street is missing' do
         claim_data = JSON.parse(claim.form)
         claim_data['veteranAddress'] = {
