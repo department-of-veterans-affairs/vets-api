@@ -123,7 +123,9 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
           'EpsAppointmentWorker missing or incomplete Redis data',
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
-        expect(StatsD).to receive(:increment).with("#{Eps::Metrics::STATSD_PREFIX}.appointment_status_check.redis_data_missing")
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.appointment_status_check.failure', tags: ["user_uuid: #{user.uuid}"]
+        )
         worker.perform(user.uuid, appointment_id_last4)
       end
     end

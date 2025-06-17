@@ -15,6 +15,7 @@ module Eps
   class EpsAppointmentWorker
     include Sidekiq::Worker
 
+    STATSD_PREFIX = 'api.vaos.appointment_status_check'
     MAX_RETRIES = 3
 
     ##
@@ -55,7 +56,7 @@ module Eps
       Rails.logger.error('EpsAppointmentWorker missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
                            appointment_data: }.to_json)
-      StatsD.increment("#{Eps::Metrics::STATSD_PREFIX}.appointment_status_check.redis_data_missing")
+      StatsD.increment("#{STATSD_PREFIX}.failure", tags: ["user_uuid: #{@user_uuid}"])
     end
 
     def process_appointment_status(user, appointment_id, email, retry_count)
