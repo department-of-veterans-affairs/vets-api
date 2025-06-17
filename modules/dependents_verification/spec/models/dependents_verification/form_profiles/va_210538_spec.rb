@@ -149,7 +149,9 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
       it 'returns dependents mapped to DependentInformation model' do
         allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
         allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
-        expect(subject.send(:initialize_dependents_information)).to all(be_a(DependentsVerification::DependentInformation))
+        expect(subject.send(:initialize_dependents_information)).to all(
+          be_a(DependentsVerification::DependentInformation)
+        )
       end
     end
   end

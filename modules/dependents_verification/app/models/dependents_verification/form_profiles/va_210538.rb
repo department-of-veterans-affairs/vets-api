@@ -36,7 +36,8 @@ module DependentsVerification
     ##
     # Prefills the form data with identity, contact, and dependent information
     #
-    # This method initializes identity, contact, and dependents information and maps data according to form-specific mappings
+    # This method initializes identity, contact, and dependents information
+    # and maps data according to form-specific mappings
     #
     # @return [Hash]
     def prefill
@@ -81,21 +82,30 @@ module DependentsVerification
         # Skip if the dependent is not active for benefits
         return nil if person[:award_indicator] == 'N'
 
-        DependentInformation.new(
-          full_name: FormFullName.new({
-                                        first: person[:first_name],
-                                        middle: person[:middle_name],
-                                        last: person[:last_name],
-                                        suffix: person[:suffix]
-                                      }),
-          date_of_birth: person[:date_of_birth],
-          ssn: person[:ssn],
-          age: dependent_age(person[:date_of_birth]),
-          relationship_to_veteran: person[:relationship],
-          removal_date: nil,
-          enrollment_type: nil
-        )
+        person_to_dependent_information(person)
       end
+    end
+
+    ##
+    # Assigns a dependent's information to the DependentInformation model.
+    #
+    # @param person [Hash] The dependent's information as a hash
+    # @return [DependentInformation] The dependent's information mapped to the model
+    def person_to_dependent_information(person)
+      DependentInformation.new(
+        full_name: FormFullName.new({
+                                      first: person[:first_name],
+                                      middle: person[:middle_name],
+                                      last: person[:last_name],
+                                      suffix: person[:suffix]
+                                    }),
+        date_of_birth: person[:date_of_birth],
+        ssn: person[:ssn],
+        age: dependent_age(person[:date_of_birth]),
+        relationship_to_veteran: person[:relationship],
+        removal_date: nil,
+        enrollment_type: nil
+      )
     end
 
     def dependent_service
