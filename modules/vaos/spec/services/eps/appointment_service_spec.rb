@@ -5,7 +5,10 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com', va_profile_email: 'va.profile@example.com') }
+  let(:user) do
+    double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com',
+                   va_profile_email: 'va.profile@example.com')
+  end
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
   let(:response_headers) { { 'Content-Type' => 'application/json' } }

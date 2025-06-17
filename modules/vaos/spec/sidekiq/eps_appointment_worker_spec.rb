@@ -25,7 +25,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
     # Store the full appointment_id so the worker can use it for the service call
     redis_client.store_appointment_data(
       uuid: user.uuid,
-      appointment_id: appointment_id,
+      appointment_id:,
       email: user.va_profile_email
     )
 
