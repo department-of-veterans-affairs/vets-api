@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com') }
+  let(:user) { double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com', va_profile_email: 'va.profile@example.com') }
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
   let(:response_headers) { { 'Content-Type' => 'application/json' } }
@@ -189,7 +189,7 @@ describe Eps::AppointmentService do
         expect(redis_client).to receive(:store_appointment_data).with(
           uuid: user.account_uuid,
           appointment_id:,
-          email: user.email
+          email: user.va_profile_email
         )
 
         expect(Eps::EpsAppointmentWorker).to receive(:perform_async).with(
