@@ -14,7 +14,7 @@ module SchemaContract
         @result = 'schema_errors_found'
         record.update(error_details: errors)
         detailed_message = { error_type: 'Schema discrepancy found', record_id: @record_id, response: record.response,
-                             details: errors }
+                             details: errors, contract_name: record.contract_name }
         raise SchemaContractValidationError, detailed_message
       else
         @result = 'success'

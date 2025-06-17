@@ -74,6 +74,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
+  before_create do
+    self.form_id = parsed_form['useEva'].present? ? self.class::FORM : '28-1900-V2'
+  end
+
   def initialize(args)
     @sent_to_lighthouse = false
     super
