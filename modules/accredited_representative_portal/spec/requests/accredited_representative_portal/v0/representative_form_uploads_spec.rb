@@ -43,7 +43,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     let(:attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f3' }
     let(:supporting_attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f2' }
     let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-686c') }
-    let!(:supporting_attachment) { PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-686c') }
+    let!(:supporting_attachment) do
+      PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-686c')
+    end
     let(:representative_fixture_path) do
       Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
                       'representative_form_upload_21_686c.json')
@@ -58,10 +60,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       JSON.parse(representative_fixture_path.read).tap do |memo|
         memo['representative_form_upload']['confirmationCode'] = attachment_guid
         memo['representative_form_upload']['supportingDocuments'] = [
-          { 
+          {
             'confirmationCode' => supporting_attachment_guid,
             'name' => 'supporting_document.pdf',
-            'size' => 12345
+            'size' => 12_345
           }
         ]
       end
