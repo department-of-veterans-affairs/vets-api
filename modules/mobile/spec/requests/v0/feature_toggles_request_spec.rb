@@ -7,67 +7,64 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
   include CommitteeHelper
 
   describe 'GET /mobile/v0/feature-toggles' do
-    let(:features) { [{ name: 'feature1', value: true }, { name: 'feature2', value: false }] }
     let!(:user) { sis_user }
+    let(:feature_toggles_service) { FeatureTogglesService.new(current_user: user) }
 
-    before do
-      allow_any_instance_of(FeatureTogglesService).to receive(:get_all_features).and_return(features)
-      allow_any_instance_of(FeatureTogglesService).to receive(:get_features).and_return(features)
+    before(:all) do
+      @feature_name = 'this_is_only_a_test'
+      @feature_name_camel = @feature_name.camelize(:lower)
+      @cached_enabled_val = Flipper.enabled?(@feature_name)
+      Flipper.enable(@feature_name)
+    end
+
+    after(:all) do
+      Flipper.disable(@feature_name)
     end
 
     context 'with authenticated user' do
-      it 'uses the current_user for feature toggle evaluation' do
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_features).with(%w[feature1 feature2])
-
-        get '/mobile/v0/feature-toggles?features=feature1,feature2', headers: sis_headers
-
-        expect(response).to have_http_status(:ok)
-        assert_schema_conform(200)
-        expect(JSON.parse(response.body)['data']['features']).to eq(
-          JSON.parse(features.to_json)
-        )
-      end
-
       it 'gets all features for the current user when no specific features requested' do
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_all_features)
-
         get '/mobile/v0/feature-toggles', headers: sis_headers
 
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
-        expect(JSON.parse(response.body)['data']['features']).to eq(
-          JSON.parse(features.to_json)
-        )
+        # assert feature values
+        parsed_features = JSON.parse(response.body)['data']['features']
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
+        expect(feature_toggle['value']).to eq(true)
       end
+
+      it 'uses the current_user for feature toggle evaluation' do
+        Flipper.disable(@feature_name)
+        Flipper.enable_actor(@feature_name, user)
+
+        # retrieve features anonymously
+        get '/mobile/v0/feature-toggles'
+        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
+        parsed_features = JSON.parse(response.body)['data']['features']
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
+        expect(feature_toggle['value']).to eq(false)
+
+        # retrieve features as the user
+        get '/mobile/v0/feature-toggles', headers: sis_headers
+        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
+        parsed_features = JSON.parse(response.body)['data']['features']
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
+        expect(feature_toggle['value']).to eq(true)
+      end
+
     end
 
     context 'with unauthenticated user' do
-      it 'passes nil as the user for specific features' do
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_features).with(%w[feature1 feature2])
-
-        get '/mobile/v0/feature-toggles?features=feature1,feature2'
-
-        expect(response).to have_http_status(:ok)
-        assert_schema_conform(200)
-      end
-
       it 'passes nil as the user for all features' do
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_all_features)
-
         get '/mobile/v0/feature-toggles'
 
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
-      end
-
-      it 'uses cookie_id when provided' do
-        cookie_id = 'test-cookie-id'
-        expect_any_instance_of(FeatureTogglesService).to receive(:get_all_features)
-
-        get "/mobile/v0/feature-toggles?cookie_id=#{cookie_id}"
-
-        expect(response).to have_http_status(:ok)
-        assert_schema_conform(200)
+        parsed_features = JSON.parse(response.body)['data']['features']
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
+        expect(feature_toggle['value']).to eq(true)
       end
     end
   end
