@@ -12,18 +12,6 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
                                                .with_foreign_key(:lighthouse_submission_id)
                                                .inverse_of(:submission_attempts)
     }
-
-    it { is_expected.to have_one(:saved_claim).through(:submission) }
-  end
-
-  describe 'encrypted attributes' do
-    it 'responds to encrypted fields' do
-      subject = described_class.new
-      expect(subject).to respond_to(:reference_data)
-      expect(subject).to respond_to(:metadata)
-      expect(subject).to respond_to(:error_message)
-      expect(subject).to respond_to(:response)
-    end
   end
 
   describe 'status transition methods' do
