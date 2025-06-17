@@ -39,8 +39,7 @@ module AskVAApi
 
           # Add debug logging to determine root cause for https://github.com/department-of-veterans-affairs/ask-va/issues/1872
           # Level of Authentication is a misnomer. it doesn't contain any PII and the two possible values are:
-          # 1. 'Business' - for authenticated users
-          # 2. 'Personal' - for unauthenticated users
+          # 'Business' or 'Personal'.
           if user.nil? && inquiry_details_obj.education_benefits?
             Rails.logger.warn('Unauthenticated Education inquiry submitted. ' \
                               "Category: #{inquiry_details_obj.category}, " \
