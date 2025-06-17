@@ -19,7 +19,7 @@ module DependentsVerification
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA210538 < FormProfile
     include DependentsVerification::PrefillHelpers
-    attribute :dependents_information, Array[DependentInformation]
+    attribute :dependents_information, DependentInformation, array: true
 
     ##
     # Returns metadata related to the form profile
