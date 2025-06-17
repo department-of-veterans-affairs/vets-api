@@ -89,14 +89,14 @@ module Eps
     end
 
     ##
-    # Search for provider services using NPI, specialty, and address
+    # Search for provider services using NPI, specialty, and optionally address
     #
     # @param npi [String] NPI number to search for
     # @param specialty [String] Specialty to match (case-insensitive)
     # @param address [Hash] Address object with :street1, :city, :state, :zip keys
     #
     # @return OpenStruct response containing the provider service where an individual provider has
-    # matching NPI, specialty, and address, or nil if not found
+    # matching NPI and specialty, with address used as tie-breaker if multiple matches, or nil if not found
     #
     def search_provider_services(npi:, specialty:, address:)
       query_params = { npi:, isSelfSchedulable: true }
@@ -104,12 +104,30 @@ module Eps
 
       return nil if response.body[:provider_services].blank?
 
-      # Filter providers by specialty and address
-      matching_provider = response.body[:provider_services].find do |provider|
-        specialty_matches?(provider, specialty) && address_matches?(provider, address)
+      # Step 1: Filter providers by specialty only (most reliable filter)
+      specialty_matches = response.body[:provider_services].select do |provider|
+        specialty_matches?(provider, specialty)
       end
 
-      matching_provider&.then { |provider| OpenStruct.new(provider) }
+      return nil if specialty_matches.empty?
+
+      # Step 2: If only one provider matches specialty, return it (no need for address matching)
+      return OpenStruct.new(specialty_matches.first) if specialty_matches.size == 1
+
+      # Step 3: Multiple providers match specialty, use address as tie-breaker
+      # Temporary log to help find issues with the matchers.
+      Rails.logger.info("Multiple providers (#{specialty_matches.size}) match NPI #{npi} and specialty #{specialty}")
+
+      address_match = specialty_matches.find do |provider|
+        address_matches?(provider, address)
+      end
+
+      if address_match.nil?
+        Rails.logger.warn("No address match found among #{specialty_matches.size} providers for NPI #{npi}")
+      end
+
+      # Return address match if found, otherwise nil (avoid false positives)
+      address_match&.then { |provider| OpenStruct.new(provider) }
     end
 
     private

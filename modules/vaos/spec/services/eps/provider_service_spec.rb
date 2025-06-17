@@ -400,7 +400,7 @@ describe Eps::ProviderService do
         end
       end
 
-      context 'when provider address does not match' do
+      context 'when only one provider matches specialty but address does not match' do
         let(:response_body) do
           {
             count: 1,
@@ -425,13 +425,14 @@ describe Eps::ProviderService do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
         end
 
-        it 'returns nil' do
+        it 'returns the provider since there is only one specialty match (address not used as filter)' do
           result = service.search_provider_services(npi:, specialty:, address:)
-          expect(result).to be_nil
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
         end
       end
 
-      context 'when street matches but full address does not' do
+      context 'when only one provider matches specialty and street matches but full address does not' do
         let(:response_body) do
           {
             count: 1,
@@ -457,12 +458,10 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:warn)
         end
 
-        it 'returns nil and logs a warning' do
+        it 'returns the provider since there is only one specialty match (address not used as filter)' do
           result = service.search_provider_services(npi:, specialty:, address:)
-          expect(result).to be_nil
-          expect(Rails.logger).to have_received(:warn).with(
-            /Provider address partial match detected/
-          )
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
         end
       end
 
@@ -561,7 +560,7 @@ describe Eps::ProviderService do
         end
       end
 
-      context 'when provider has no location address' do
+      context 'when only one provider matches specialty but has no location address' do
         let(:response_body) do
           {
             count: 1,
@@ -584,9 +583,158 @@ describe Eps::ProviderService do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
         end
 
-        it 'returns nil' do
+        it 'returns the provider since there is only one specialty match (address not used as filter)' do
           result = service.search_provider_services(npi:, specialty:, address:)
-          expect(result).to be_nil
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when multiple providers match specialty' do
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              },
+              {
+                id: 'abc123XY',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, Orlando, FL, 32801'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:info)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        context 'when one provider address matches' do
+          it 'returns the provider with matching address' do
+            result = service.search_provider_services(npi:, specialty:, address:)
+            expect(result).to be_a(OpenStruct)
+            expect(result.id).to eq('53mL4LAZ')
+            expect(Rails.logger).to have_received(:info).with(
+              "Multiple providers (2) match NPI #{npi} and specialty #{specialty}"
+            )
+          end
+        end
+
+        context 'when no provider address matches' do
+          let(:non_matching_address) do
+            {
+              street1: '999 Different Street',
+              city: 'Tampa',
+              state: 'FL',
+              zip: '33601'
+            }
+          end
+
+          it 'returns nil and logs warning' do
+            result = service.search_provider_services(npi:, specialty:, address: non_matching_address)
+            expect(result).to be_nil
+            expect(Rails.logger).to have_received(:info).with(
+              "Multiple providers (2) match NPI #{npi} and specialty #{specialty}"
+            )
+            expect(Rails.logger).to have_received(:warn).with(
+              "No address match found among 2 providers for NPI #{npi}"
+            )
+          end
+        end
+
+        context 'when address has extra formatting differences' do
+          let(:response_body_with_extra_formatting) do
+            {
+              count: 2,
+              provider_services: [
+                {
+                  id: '53mL4LAZ',
+                  specialties: [{ name: 'Cardiology' }],
+                  location: {
+                    address: '1105 Palmetto Ave, Melbourne, FL, 32901, US'
+                  }
+                },
+                {
+                  id: 'abc123XY',
+                  specialties: [{ name: 'Cardiology' }],
+                  location: {
+                    address: '2200 Oak Street, Orlando, FL, 32801, US'
+                  }
+                }
+              ]
+            }
+          end
+
+          let(:response_with_extra_formatting) do
+            double('Response', status: 200, body: response_body_with_extra_formatting,
+                               response_headers: { 'Content-Type' => 'application/json' })
+          end
+
+          before do
+            allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response_with_extra_formatting)
+          end
+
+          it 'still matches despite extra country code' do
+            result = service.search_provider_services(npi:, specialty:, address:)
+            expect(result).to be_a(OpenStruct)
+            expect(result.id).to eq('53mL4LAZ')
+          end
+        end
+
+        context 'when street matches but full address does not for multiple providers' do
+          let(:response_body_partial_match) do
+            {
+              count: 2,
+              provider_services: [
+                {
+                  id: '53mL4LAZ',
+                  specialties: [{ name: 'Cardiology' }],
+                  location: {
+                    address: '1105 Palmetto Ave, Orlando, FL, 32801'
+                  }
+                },
+                {
+                  id: 'abc123XY',
+                  specialties: [{ name: 'Cardiology' }],
+                  location: {
+                    address: '2200 Oak Street, Tampa, FL, 33601'
+                  }
+                }
+              ]
+            }
+          end
+
+          let(:response_partial_match) do
+            double('Response', status: 200, body: response_body_partial_match,
+                               response_headers: { 'Content-Type' => 'application/json' })
+          end
+
+          before do
+            allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response_partial_match)
+          end
+
+          it 'returns nil and logs partial match warning' do
+            result = service.search_provider_services(npi:, specialty:, address:)
+            expect(result).to be_nil
+            expect(Rails.logger).to have_received(:warn).with(
+              /Provider address partial match detected.*Provider: '1105 Palmetto Ave, Orlando, FL, 32801'.*Referral: '1105 Palmetto Ave Melbourne FL 32901'/
+            )
+          end
         end
       end
     end
