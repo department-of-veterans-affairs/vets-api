@@ -27,8 +27,7 @@ module MyHealth
           with_patient_resource(client.get_condition(condition_id)) do |resource|
             raise Common::Exceptions::RecordNotFound, condition_id if resource.blank?
 
-            options = { meta: resource.metadata }
-            render json: HealthConditionSerializer.new(resource, options)
+            render json: HealthConditionSerializer.new(resource)
           end
         else
           render_resource client.get_condition(condition_id)
