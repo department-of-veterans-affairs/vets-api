@@ -41,7 +41,7 @@ module Identity
       LOGINGOV_ID_REGEX = /^[\w-]+\^PN\^200VLGN\^USDVA\^A$/
 
       # VHA_FACILITY_IDS_REGEX, ex. 123456{-1,.123}^PI^200MHV^USVHA^A
-      VHA_FACILITY_IDS_REGEX = /^[0-9\-\.]+\^PI\^\w+\^USVHA\^\w+$/
+      VHA_FACILITY_IDS_REGEX = /^[0-9A-Za-z\-\.]+\^PI\^\w+\^USVHA\^\w+$/
 
       # CERNER_FACILITY_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^C
       CERNER_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^C$/
