@@ -23,25 +23,62 @@ module Eps
     # @param appointment_id [String] the ID of the appointment to process
     # @param user [User] the user associated with the appointment
     # @param retry_count [Integer] the current retry count (default: 0)
-    def perform(appointment_id, user, retry_count = 0)
-      service = Eps::AppointmentService.new(user)
-      begin
-        response = service.get_appointment(appointment_id:)
-        if appointment_finished?(response)
-          # Appointment finished successfully, do nothing
-        elsif retry_count < MAX_RETRIES
-          self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
-        else
-          send_vanotify_message(user:, error: 'Could not complete booking')
-        end
-      rescue Common::Exceptions::BackendServiceException
-        send_vanotify_message(user:, error: 'Service error, please contact support')
-      rescue => e
-        send_vanotify_message(user:, error: e.message)
-      end
+    def perform(user_uuid, appointment_id_last4, retry_count = 0)
+      @user_uuid = user_uuid
+      @appointment_id_last4 = appointment_id_last4
+
+      appointment_data = fetch_and_validate_appointment_data
+      return unless appointment_data
+
+      appointment_id = appointment_data[:appointment_id]
+      email = appointment_data[:email]
+      user = User.find(user_uuid)
+
+      process_appointment_status(user, appointment_id, email, retry_count)
     end
 
     private
+
+    def fetch_and_validate_appointment_data
+      redis_client = Eps::RedisClient.new
+      appointment_data = redis_client.fetch_appointment_data(uuid: @user_uuid, appointment_id: @appointment_id_last4)
+
+      if appointment_data.nil? || appointment_data[:appointment_id].blank? || appointment_data[:email].blank?
+        log_missing_redis_data(appointment_data)
+        return nil
+      end
+
+      appointment_data
+    end
+
+    def log_missing_redis_data(appointment_data)
+      Rails.logger.error('EpsAppointmentWorker missing or incomplete Redis data',
+                         { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
+                           appointment_data: }.to_json)
+      StatsD.increment("#{Eps::Metrics::STATSD_PREFIX}.appointment_status_check.redis_data_missing")
+    end
+
+    def process_appointment_status(user, appointment_id, email, retry_count)
+      service = Eps::AppointmentService.new(user)
+      begin
+        response = service.get_appointment(appointment_id:)
+        handle_appointment_response(response, email, retry_count)
+      rescue Common::Exceptions::BackendServiceException
+        send_vanotify_message(email:, error: 'Service error, please contact support')
+      rescue => e
+        send_vanotify_message(email:, error: e.message)
+      end
+    end
+
+    def handle_appointment_response(response, email, retry_count)
+      if appointment_finished?(response)
+        # Appointment finished successfully, do nothing
+      elsif retry_count < MAX_RETRIES
+        self.class.perform_in(1.minute, @user_uuid, @appointment_id_last4, retry_count + 1)
+      else
+        send_vanotify_message(email:, error: 'Could not complete booking')
+      end
+    end
 
     ##
     # Checks if the appointment is finished.
@@ -57,9 +94,9 @@ module Eps
     #
     # @param user [User] the user to send the message to
     # @param error [String, nil] the error message (default: nil)
-    def send_vanotify_message(user:, error: nil)
+    def send_vanotify_message(email:, error: nil)
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-      notify_client.send_email(email_address: user.va_profile_email,
+      notify_client.send_email(email_address: email,
                                template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
                                parameters: {
                                  'error' => error
