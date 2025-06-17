@@ -148,23 +148,30 @@ jobs:
           ' || true)
 
           echo "$APPROVED"
-          if [ -n "$APPROVED" ]; then
-            for TEAM in "${EXEMPT_TEAMS[@]}"; do
-              echo "Fetching members of team: $TEAM"
-              TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
 
-              # Iterate over each member and each reviewer
-              while IFS= read -r MEMBER; do
-                while IFS= read -r REVIEWER; do
-                  echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                  if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                    echo "Reviewer is in exempt team"
-                    echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                    break 2
-                  fi
-                done <<< "$APPROVED"
-              done <<< "$TEAM_MEMBERS"
-            done
+          if [ -n "$APPROVED" ]; then
+            BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
+            BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
+            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+            echo "Backend Approvals: $BE_APPROVALS"
+            if [ -z "$BE_APPROVALS" ]; then
+              for TEAM in "${EXEMPT_TEAMS[@]}"; do
+                echo "Fetching members of team: $TEAM"
+                TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
+
+                # Iterate over each member and each reviewer
+                while IFS= read -r MEMBER; do
+                  while IFS= read -r REVIEWER; do
+                    echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
+                    if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
+                      echo "Reviewer is in exempt team"
+                      echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+                      break 2
+                    fi
+                  done <<< "$APPROVED"
+                done <<< "$TEAM_MEMBERS"
+              done
+            fi
           fi
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
