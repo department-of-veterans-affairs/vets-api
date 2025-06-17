@@ -30,7 +30,8 @@ class UserIdentity < Common::RedisModel
   attribute :mhv_credential_uuid, :string
   attribute :mhv_account_type, :string # this is only available for MHV sign-in users
   attribute :edipi, :string # this is only available for dslogon users
-  attribute :sign_in, :string # original sign_in (see sso_service#mergable_identity_attributes) (RedisStore note: using string and serializing manually)
+  attribute :sign_in, :string # original sign_in (see sso_service#mergable_identity_attributes) 
+  # (RedisStore note: use string for sign_in and serializing manually)
   attribute :icn_with_aaid, :string
   attribute :search_token, :string
 
