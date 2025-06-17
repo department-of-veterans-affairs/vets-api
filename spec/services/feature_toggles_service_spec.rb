@@ -9,22 +9,22 @@ RSpec.describe FeatureTogglesService do
   let(:cookie_id) { 'test-cookie-id' }
 
   describe '#get_features' do
-    let(:features_params) { %w[feature1 feature2] }
+    let(:features_params) { %w[feature_one feature_two] }
 
     before do
       allow(FLIPPER_FEATURE_CONFIG).to receive(:[]).with('features').and_return(
-        'feature1' => { 'actor_type' => 'user' },
-        'feature2' => { 'actor_type' => 'cookie' }
+        'feature_one' => { 'actor_type' => 'user' },
+        'feature_two' => { 'actor_type' => 'cookie' }
       )
-      allow(Flipper).to receive(:enabled?).with('feature1', user).and_return(true)
-      allow(Flipper).to receive(:enabled?).with('feature2', instance_of(Flipper::Actor)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('feature_one', user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with('feature_two', instance_of(Flipper::Actor)).and_return(false)
     end
 
     it 'returns the expected features with correct values' do
       result = service.get_features(features_params)
       expect(result).to eq([
-                             { name: 'feature1', value: true },
-                             { name: 'feature2', value: false }
+                             { name: 'feature_one', value: true },
+                             { name: 'feature_two', value: false }
                            ])
     end
   end
@@ -32,25 +32,43 @@ RSpec.describe FeatureTogglesService do
   describe '#get_all_features' do
     let(:expected_result) do
       [
-        { name: 'feature1CamelCase', value: false },
-        { name: 'feature1', value: false },
-        { name: 'feature2CamelCase', value: true },
-        { name: 'feature2', value: true }
+        { name: 'featureOne', value: false },
+        { name: 'feature_one', value: false },
+        { name: 'featureTwo', value: true },
+        { name: 'feature_two', value: true }
       ]
     end
 
     let(:features) do
       [
-        { name: 'feature1', enabled: false, actor_type: 'user', gate_key: 'actors' },
-        { name: 'feature2', enabled: true, actor_type: 'cookie', gate_key: 'boolean' }
+        { name: 'feature_one', enabled: false, actor_type: 'user', gate_key: 'actors' },
+        { name: 'feature_two', enabled: true, actor_type: 'cookie', gate_key: 'boolean' }
       ]
     end
 
     before do
-      # Stub the instance methods on the specific service instance
-      allow(service).to receive(:fetch_features_with_gate_keys).and_return(features)
-      allow(service).to receive(:add_feature_gate_values)
-      allow(service).to receive(:format_features).and_return(expected_result)
+      allow_any_instance_of(FeatureTogglesService).to receive(:feature_gates).and_return(
+        [
+          {
+            'feature_name' => 'feature_one',
+            'gate_key' => 'actors',
+            'value' => nil
+          },
+          {
+            'feature_name' => 'feature_two',
+            'gate_key' => 'boolean',
+            'value' => 'true'
+          }
+        ]
+      )
+
+      allow(FLIPPER_FEATURE_CONFIG).to receive(:[]).with('features').and_return(
+        'feature_one' => { 'actor_type' => 'user' },
+        'feature_two' => { 'actor_type' => 'cookie' }
+      )
+
+      allow(Flipper).to receive(:enabled?).with('feature_one', user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('feature_two', instance_of(Flipper::Actor)).and_return(true)
     end
 
     it 'returns formatted features' do
