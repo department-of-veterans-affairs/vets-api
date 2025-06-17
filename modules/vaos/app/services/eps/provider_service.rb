@@ -154,54 +154,19 @@ module Eps
 
       provider_address = provider[:location][:address]
 
-      # Parse provider address to extract city and zip only
-      provider_address_components = parse_provider_address(provider_address)
-
-      # Compare the three reliable components: street, city, and 5-digit zip
+      # Compare the two reliable components: street and 5-digit zip
       street_matches = street_address_matches?(provider_address, address[:street1])
-      city_matches = city_matches?(provider_address_components[:city], address[:city])
-      zip_matches = zip_code_matches?(provider_address_components[:zip], address[:zip])
+      zip_matches = zip_code_matches?(provider_address, address[:zip])
 
       # Log for monitoring if some components match but not all (helps identify format issues)
       if zip_matches && !street_matches
         Rails.logger.warn("Provider address partial match - Street: #{street_matches}, " \
-                          "City: #{city_matches}, Zip: #{zip_matches}. " \
+                          "Zip: #{zip_matches}. " \
                           "Provider: '#{provider_address}', " \
-                          "Referral: '#{address[:street1]}, #{address[:city]}, #{address[:zip]}'")
+                          "Referral: '#{address[:street1]}, #{address[:zip]}'")
       end
 
-      street_matches && city_matches && zip_matches
-    end
-
-    ##
-    # Parse provider address string to extract city and zip code only
-    # Example: "1601 NEEDMORE ROAD, STE 1 and 2, DAYTON, OH 45414-3848"
-    #
-    # @param address_string [String] Full provider address string
-    # @return [Hash] Hash with :city and :zip keys
-    #
-    def parse_provider_address(address_string)
-      return { city: '', zip: '' } if address_string.blank?
-
-      # Split by commas and clean up
-      parts = address_string.split(',').map(&:strip)
-
-      return { city: '', zip: '' } if parts.length < 3
-
-      # Last part contains state and zip
-      last_part = parts.last
-
-      # Extract 5-digit zip code
-      zip_match = last_part.match(/(\d{5})/)
-      zip = zip_match ? zip_match[1] : ''
-
-      # City is second to last part
-      city = parts[-2]
-
-      {
-        city: city.strip,
-        zip: zip.strip
-      }
+      street_matches && zip_matches
     end
 
     ##
@@ -221,32 +186,25 @@ module Eps
     end
 
     ##
-    # Check if city names match (case-insensitive comparison)
+    # Check if zip codes match by extracting zip from provider address string
     #
-    # @param provider_city [String] City from provider
-    # @param referral_city [String] City from referral
-    # @return [Boolean] True if cities match
-    #
-    def city_matches?(provider_city, referral_city)
-      return false if provider_city.blank? || referral_city.blank?
-
-      normalize_address_text(provider_city) == normalize_address_text(referral_city)
-    end
-
-    ##
-    # Check if zip codes match (direct comparison since provider zip is already 5-digit)
-    #
-    # @param provider_zip [String] 5-digit zip code from provider (already extracted)
+    # @param provider_address [String] Full provider address string
     # @param referral_zip [String] Zip code from referral
     # @return [Boolean] True if 5-digit zip codes match
     #
-    def zip_code_matches?(provider_zip, referral_zip)
-      return false if provider_zip.blank? || referral_zip.blank?
+    def zip_code_matches?(provider_address, referral_zip)
+      return false if provider_address.blank? || referral_zip.blank?
 
-      # Extract 5 digits from referral zip only (provider zip is already 5-digit)
+      # Extract 5-digit zip code from provider address string
+      provider_zip_match = provider_address.match(/(\d{5})(-\d{4})?/)
+      return false unless provider_zip_match
+
+      provider_5_digit = provider_zip_match[1]
+
+      # Extract 5 digits from referral zip
       referral_5_digit = referral_zip.to_s.gsub(/\D/, '')[0, 5]
 
-      provider_zip == referral_5_digit && referral_5_digit.length == 5
+      provider_5_digit == referral_5_digit && referral_5_digit.length == 5
     end
 
     ##
