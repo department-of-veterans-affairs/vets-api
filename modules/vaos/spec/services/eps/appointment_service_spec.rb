@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234', icn:) }
+  let(:user) { double('User', account_uuid: '1234', icn:, uuid: '1234', email: 'test@example.com') }
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
   let(:response_headers) { { 'Content-Type' => 'application/json' } }
@@ -183,6 +183,19 @@ describe Eps::AppointmentService do
             referral_number: valid_params[:referral_number]
           }
         }
+
+        redis_client = instance_double(Eps::RedisClient)
+        allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+        expect(redis_client).to receive(:store_appointment_data).with(
+          uuid: user.account_uuid,
+          appointment_id:,
+          email: user.email
+        )
+
+        expect(Eps::EpsAppointmentWorker).to receive(:perform_async).with(
+          user.account_uuid,
+          appointment_id.last(4)
+        )
 
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
           .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
