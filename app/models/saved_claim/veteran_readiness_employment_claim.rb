@@ -463,7 +463,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def validate_dob
     value = parsed_form.dig('veteranInformation', 'dob')
     if value.present? && value.is_a?(String) && !value.match?(
-      /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/)
+      /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/
+    )
       errors.add('/veteranInformation/dob', 'must be a valid date in YYYY-MM-DD format')
     end
   end

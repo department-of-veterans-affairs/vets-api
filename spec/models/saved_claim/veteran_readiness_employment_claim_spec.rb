@@ -416,9 +416,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context "when string field receives #{invalid_type} data type" do
         it 'fails validation' do
           claim = build(:new_veteran_readiness_employment_claim, main_phone: invalid_type, cell_phone: invalid_type,
-                                                                 international_number: invalid_type, email: invalid_type,
-                                                                 years_of_ed: invalid_type, first: invalid_type,
-                                                                 middle: invalid_type, last: invalid_type, dob: invalid_type)
+                                                                 international_number: invalid_type,
+                                                                 email: invalid_type, years_of_ed: invalid_type,
+                                                                 first: invalid_type, middle: invalid_type,
+                                                                 last: invalid_type, dob: invalid_type)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/mainPhone')
