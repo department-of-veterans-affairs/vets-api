@@ -126,7 +126,7 @@ jobs:
           if [ "$PR_REVIEWS" != "[]" ]; then
             echo "$PR_REVIEWS" > pr_reviews.json
 
-            REVIEWERS=$(jq -r 'reverse | unique_by(.user.login) | .[].user.login' pr_reviews.json)
+            REVIEWERS=$(jq -r 'group_by(.user.login) | map(last) | map(select(.state == "APPROVED")) | .[].user.login' pr_reviews.json)
 
             declare -A REVIEWER_TEAMS
 
