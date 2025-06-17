@@ -52,6 +52,23 @@ jobs:
           echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
           echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
 
+      - name: Remove ready-for-review label
+        if: steps.pr_data.outputs.pr_draft == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-review
+
+      - name: Remove ready-for-backend-review label
+        if: steps.pr_data.outputs.pr_draft == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review
+
+      - name: Fail if draft or failures
+        if: steps.pr_data.outputs.pr_draft == 'true'
+        run: exit 1
 
   # This workflow should fail when backend approval is required and required workflows are not complete.
   check-workflow-status:
@@ -66,15 +83,13 @@ jobs:
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
     outputs:
       failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
-      all_workflows_failing: ${{ steps.check_workflow_status.outputs.all_workflows_failing }}
     steps:
       - name: Check if workflows have completed successfully
         id: check_workflow_status
         run: |
           failures=false
-          all_workflows_failing=true
-          in_progress=false
-          completed=false
+          unsuccessful_count=0
+
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
           WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
           echo "Pull request branch: ${pr_branch}"
@@ -87,30 +102,28 @@ jobs:
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
               failures=true
-              in_progress=true
             else
               # Check if the latest completed run was successful
               SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
                 ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
+                ((unsuccessful_count++))
                 failures=true
               else
                 echo "$WORKFLOW completed successfully."
-                completed=true
               fi
             fi
           done
 
-          if [[ "${in_progress}" == "true" || "${completed}" == "true" ]]; then
-            all_workflows_failing=false
+          if [ "$unsuccessful_count" -eq 4 ]; then
+            failures=false
+            echo "All workflows are failing."
           fi
 
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
-          echo "all_workflows_failing=$all_workflows_failing" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
   # Fetch approvals when required workflows are successful.
   fetch-pr-reviews:
@@ -123,7 +136,6 @@ jobs:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       failures_detected: ${{ needs.check-workflow-status.outputs.failures_detected }}
-      all_workflows_failing:  ${{ needs.check-workflow-status.outputs.all_workflows_failing }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
@@ -240,25 +252,16 @@ jobs:
 
       - name: Remove ready-for-review label
         if: |
-          needs.get-pr-data.outputs.pr_draft == 'true' ||
+          needs.check-workflow-status.outputs.failures_detected == 'true' ||
           steps.verify_approval.outputs.team_approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-review
 
-      - name: Remove require-backend-approval label
-        uses: actions-ecosystem/action-remove-labels@v1
-        if: |
-          needs.get-pr-data.outputs.pr_draft == 'true' ||
-          steps.verify_approval.outputs.backend_approval_required == 'false'
-        with:
-          number: ${{ env.pr_number }}
-          labels: require-backend-approval
-
       - name: Remove ready-for-backend-review label
         if: |
-          needs.get-pr-data.outputs.pr_draft == 'true' ||
+          needs.check-workflow-status.outputs.failures_detected == 'true' ||
           steps.verify_approval.outputs.approval_status == 'confirmed' ||
           steps.verify_approval.outputs.backend_approval_required == 'false'
         uses: actions-ecosystem/action-remove-labels@v1
@@ -267,24 +270,18 @@ jobs:
           labels: ready-for-backend-review
 
       - name: Exit for non backend approvals
-        if:
-          needs.get-pr-data.outputs.pr_draft == 'false' &&
-          steps.verify_approval.outputs.backend_approval_required == 'false'
+        if: steps.verify_approval.outputs.backend_approval_required == 'false'
         run: exit 0
 
       - name: Fail if draft or failures
         if: |
-          needs.get-pr-data.outputs.pr_draft == 'true' ||
-          (
-            needs.check-workflow-status.outputs.failures_detected == 'true' &&
-            needs.check-workflow-status.outputs.all_workflows_failing == 'false'
-          ) &&
+          needs.check-workflow-status.outputs.failures_detected == 'true' ||
           steps.verify_approval.outputs.approval_status == 'required'
         run: exit 1
 
       - name: Add ready-for-backend-review label
         if: |
-          needs.get-pr-data.outputs.pr_draft == 'false' &&
+          needs.check-workflow-status.outputs.failures_detected == 'false' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           (
             steps.verify_approval.outputs.team_approval_status == 'confirmed' ||
@@ -298,6 +295,6 @@ jobs:
 
       - name: Backend Approval Confirmed
         if: |
-          needs.get-pr-data.outputs.pr_draft == 'false' &&
+          needs.check-workflow-status.outputs.failures_detected == 'false' &&
           steps.verify_approval.outputs.approval_status == 'confirmed'
         run: exit 0

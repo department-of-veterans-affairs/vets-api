@@ -194,6 +194,11 @@ jobs:
           number: ${{ env.pr_number }}
           labels: ready-for-review
 
+      - name: Fail if draft
+        if: steps.get_pr_data.outputs.pr_draft == 'true'
+        run: exit 1
+
+
   check-workflow-status:
     name: Check Workflow Statuses
     needs: [get-pr-data]
@@ -205,15 +210,13 @@ jobs:
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
     outputs:
       failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
-      all_workflows_failing: ${{ steps.check_workflow_status.outputs.all_workflows_failing }}
     steps:
       - name: Check if workflows have completed successfully
         id: check_workflow_status
         run: |
           failures=false
-          all_workflows_failing=true
-          in_progress=false
-          completed=false
+          unsuccessful_count=0
+
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
           WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
 
@@ -225,47 +228,29 @@ jobs:
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
               failures=true
-              in_progress=true
             else
               # Check if the latest completed run was successful
               SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
                 ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
+                ((unsuccessful_count++))
                 failures=true
               else
                 echo "$WORKFLOW completed successfully."
-                completed=true
               fi
             fi
           done
 
-          if [[ "${in_progress}" == "true" || "${completed}" == "true" ]]; then
-            all_workflows_failing=false
+          if [ "$unsuccessful_count" -eq 4 ]; then
+            failures=false
+            echo "All workflows are failing."
           fi
 
+          echo "$failures"
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
-          echo "all_workflows_failing=$all_workflows_failing" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Remove ready-for-review label
-        if: |
-          steps.check_workflow_status.outputs.failures_detected == 'true' ||
-          steps.check_workflow_status.outputs.all_workflows_failing == 'false'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-review
-
-      - name: Remove ready-for-backend-review label
-        if: |
-          steps.check_workflow_status.outputs.failures_detected == 'true' ||
-          steps.check_workflow_status.outputs.all_workflows_failing == 'false'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-backend-review
 
   check-backend-requirement:
     name: Check Backend Requirement
@@ -274,7 +259,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
-      all_workflows_failing:  ${{ needs.check-workflow-status.outputs.all_workflows_failing }}
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
@@ -427,10 +411,7 @@ jobs:
       # The ready-for-review label will be added when pull request has not been reviewed
       - name: Add ready-for-review label
         if: |
-          (
-            needs.check-workflow-status.outputs.failures_detected == 'false' ||
-            needs.check-workflow-status.outputs.all_workflows_failing == 'true'
-          ) &&
+          needs.check-workflow-status.outputs.failures_detected == 'false' &&
           (
             steps.verify_approval.outputs.approval_status == 'required' ||
             steps.verify_approval.outputs.team_approval_status == 'required'
@@ -444,10 +425,7 @@ jobs:
       # The ready-for-backend-review label will be added for backend-review-group team members
       - name: Add ready-for-backend-review label
         if: |
-          (
-            needs.check-workflow-status.outputs.failures_detected == 'false' ||
-            needs.check-workflow-status.outputs.all_workflows_failing == 'true'
-          ) &&
+          needs.check-workflow-status.outputs.failures_detected == 'false' &&
           needs.check-backend-requirement.outputs.backend_approval_required == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           (
