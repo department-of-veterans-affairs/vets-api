@@ -9,7 +9,12 @@ FactoryBot.define do
     fingerprint { '111.111.1.1' }
     session_handle { SecureRandom.hex }
     transient do
-      user_verification { create(:idme_user_verification, idme_uuid:) }
+      icn do
+        digits = Faker::Number.number(digits: 16)
+        "#{digits[0..9]}V#{digits[10..]}"
+      end
+      user_account { create(:user_account, icn:) }
+      user_verification { create(:user_verification, user_account:, idme_uuid:, logingov_uuid:) }
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
       first_name { 'abraham' }
@@ -19,13 +24,12 @@ FactoryBot.define do
       preferred_name { 'abe' }
       birth_date { '1809-02-12' }
       ssn { '796111863' }
-      idme_uuid { SecureRandom.uuid }
+      idme_uuid { Faker::Alphanumeric.alphanumeric(number: 32) }
       logingov_uuid { nil }
       verified_at { nil }
       sec_id { '123498767' }
       participant_id { Faker::Number.number(digits: 8) }
       birls_id { Faker::Number.number(digits: 9) }
-      icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
       mhv_ids { [mhv_credential_uuid] }
