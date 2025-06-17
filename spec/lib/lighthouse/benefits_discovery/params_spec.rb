@@ -9,8 +9,15 @@ RSpec.describe BenefitsDiscovery::Params do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
 
   before do
-    token = 'blahblech'
-    allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return(token)
+    allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('token')
+  end
+
+  describe '.new' do
+    context 'when user does not exist' do
+      it 'raises not found error' do
+        expect { described_class.new('boo') }.to raise_error(Common::Exceptions::RecordNotFound)
+      end
+    end
   end
 
   describe '#prepared_params' do

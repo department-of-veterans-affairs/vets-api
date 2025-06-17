@@ -4,6 +4,7 @@ module BenefitsDiscovery
   class Params
     def initialize(user_uuid)
       @user = User.find(user_uuid)
+      raise Common::Exceptions::RecordNotFound, user_uuid if @user.nil?
     end
 
     def prepared_params
