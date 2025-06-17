@@ -90,12 +90,6 @@ module Lighthouse
       raise e
     end
 
-    def split_file_and_path(path)
-      { file: path, file_name: path.split('/').last }
-    end
-
-    private
-
     def stamp_pdf(record)
       pdf_path = record.to_pdf
       # coordinates 0, 0 is bottom left of the PDF
@@ -112,6 +106,12 @@ module Lighthouse
 
       stamped_path2
     end
+
+    def split_file_and_path(path)
+      { file: path, file_name: path.split('/').last }
+    end
+
+    private
 
     def lighthouse_service_upload_payload
       {
