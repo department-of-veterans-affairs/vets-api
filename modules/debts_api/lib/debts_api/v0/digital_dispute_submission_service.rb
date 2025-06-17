@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'debt_management_center/base_service'
+
 module DebtsApi
   module V0
-    class DigitalDisputeSubmissionService
+    class DigitalDisputeSubmissionService < DebtManagementCenter::BaseService
       MAX_FILE_SIZE = 1.megabyte
       ACCEPTED_CONTENT_TYPE = 'application/pdf'
 
@@ -10,7 +12,8 @@ module DebtsApi
       class FileTooLargeError < StandardError; end
       class NoFilesProvidedError < StandardError; end
 
-      def initialize(files)
+      def initialize(user, files)
+        super(user)
         @files = files
       end
 
@@ -18,7 +21,7 @@ module DebtsApi
         validate_files_present
         validate_files
 
-        process_files
+        send_to_dmc
 
         {
           success: true,
@@ -31,6 +34,24 @@ module DebtsApi
       private
 
       attr_reader :files
+
+      def send_to_dmc
+        measure_latency("#{DebtsApi::V0::DigitalDispute::STATS_KEY}.fsr.submit.vba.latency") do
+          perform(:post, '/dispute-debt', build_payload)
+        end
+      end
+
+      def build_payload
+        {
+          file_number: @file_number,
+          dispute_pdfs: files.map do |file|
+            {
+              file_name: sanitize_filename(file.original_filename),
+              file_contents: Base64.strict_encode64(file.read)
+            }
+          end
+        }
+      end
 
       def validate_files_present
         if files.blank? || !files.is_a?(Array) || files.empty?
@@ -51,12 +72,6 @@ module DebtsApi
         end
 
         raise InvalidFileTypeError, errors.join(', ') if errors.any?
-      end
-
-      def process_files
-        files.each do |file|
-          sanitize_filename(file.original_filename)
-        end
       end
 
       def sanitize_filename(filename)
