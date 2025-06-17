@@ -20,7 +20,7 @@ module Processors
   class BaseForm4142Processor
     SIGNATURE_DATE_KEY = 'signatureDate'
     SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
-    TIMEZONE = 'Central Time (US & Canada)'
+    TIMEZONE = 'UTC'
     US_COUNTRY_CODES = %w[US USA].freeze
     FORM_SCHEMA_ID = '21-4142'
     LEGACY_FORM_CLASS_ID = '21-4142'
@@ -42,9 +42,9 @@ module Processors
 
     # Invokes Filler ancillary form method to generate PDF document
     # Then calls method PDFUtilities::DatestampPdf to stamp the document.
-    # Its stamps once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
-    # and second time to stamp with text "FDC Reviewed - Vets.gov Submission" at the top of each page
-    # and third time to stamp the signature on the first page if needed.
+    # It stamps the signature first, followed by the VA.gov watermark the
+    # submission date at the bottom of the last page
+    # and finally the datestamp box.
     # @return [Pathname] the stamped PDF path
 
     def generate_stamp_pdf
@@ -112,10 +112,10 @@ module Processors
 
     def add_vagov_timestamp(pdf)
       PDFUtilities::DatestampPdf.new(pdf).run(
-        text: vagov_signature_text,
+        text: va_gov_watermark_text,
         text_only: true,
         size: 8,
-        x: 157,
+        x: 155,
         y: 10,
         timestamp: ''
       )
@@ -141,7 +141,7 @@ module Processors
 
     def stamp_page(pdf, page:, x:, y:)
       stamped_pdf = apply_stamp_line(pdf, 'Application Submitted:', page, x, y)
-      apply_stamp_line(stamped_pdf, format_date(submission_date), page, x, y - 10)
+      apply_stamp_line(stamped_pdf, format_date(submission_date), page, x - 2, y - 10)
     end
 
     def apply_stamp_line(pdf, text, page, x, y)
@@ -205,7 +205,7 @@ module Processors
       "#{name} - signed by digital authentication to api.va.gov"
     end
 
-    def vagov_signature_text
+    def va_gov_watermark_text
       "Signed electronically and submitted via VA.gov at #{format_date(submission_date)}. " \
         'Signee signed with an identity-verified account.'
     end
@@ -219,7 +219,7 @@ module Processors
     end
 
     def format_date(date)
-      date.in_time_zone('UTC').strftime('%H:%M %Z %D')
+      date.in_time_zone(TIMEZONE).strftime('%H:%M UTC %Y-%m-%d')
     end
 
     def us_country_code?(country_code)
