@@ -10,28 +10,66 @@ module AccreditedRepresentativePortal
 
       VALID_FORM_NUMBERS = %w[21-686c].freeze
 
+      before_action :authorize_attachment_upload, only: %i[
+        upload_scanned_form
+        upload_supporting_documents
+      ]
+
       def submit
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
-        render json: { status:, confirmation_number: }
+        render json: { status:, confirmationNumber: confirmation_number }
       end
 
       def upload_scanned_form
-        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = PersistentAttachments::VAForm.new
-        attachment.form_id = params['form_id']
-        attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        handle_attachment_upload(
+          PersistentAttachments::VAForm,
+          PersistentAttachmentVAFormSerializer
+        )
+      end
 
-        attachment.save
-        serialized = PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
-          key.camelize(:lower)
-        end
-        render json: serialized
+      def upload_supporting_documents
+        handle_attachment_upload(
+          PersistentAttachments::VAFormDocumentation,
+          PersistentAttachmentSerializer
+        )
       end
 
       private
+
+      def authorize_attachment_upload
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
+      end
+
+      def handle_attachment_upload(model_klass, serializer_klass)
+        attachment =
+          SavedClaimService::Attach.perform(
+            model_klass, file: params[:file], form_id:
+              SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID
+          )
+
+        json = serializer_klass.new(attachment).as_json
+        json = json.deep_transform_keys do |key|
+          key.camelize(:lower)
+        end
+
+        render json:
+      rescue SavedClaimService::Attach::RecordInvalidError => e
+        raise Common::Exceptions::ValidationErrors, e.record
+      rescue SavedClaimService::Attach::UpstreamInvalidError => e
+        raise Common::Exceptions::UpstreamUnprocessableEntity,
+              detail: e.message
+
+      ##
+      # Once we have a uniform strategy for handling errors in our controllers,
+      # we may be comfortable allowing parent code to handle these generic
+      # errors for us implicitly.
+      #
+      rescue SavedClaimService::Attach::UnknownError => e
+        # Is there any particular reason to prefer `e.cause` over `e`?
+        raise Common::Exceptions::InternalServerError, e.cause
+      end
 
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new

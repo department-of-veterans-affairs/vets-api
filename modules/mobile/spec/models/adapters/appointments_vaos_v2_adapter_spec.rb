@@ -107,7 +107,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                  'patient_email' => nil,
                                  'best_time_to_call' => nil,
                                  'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                 'service_category_name' => nil
+                                 'service_category_name' => nil,
+                                 'show_schedule_link' => nil
                                })
   end
 
@@ -675,6 +676,22 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       it 'is set to nil' do
         appt = appointment_by_id(booked_cc_id)
         expect(appt.service_category_name).to be_nil
+      end
+    end
+  end
+
+  describe 'show_schedule_link' do
+    context 'when appointment is cancelled' do
+      it 'passes through the proper boolean value' do
+        appt = appointment_by_id(cancelled_va_id)
+        expect(appt.show_schedule_link).to be(true)
+      end
+    end
+
+    context 'when appointment has a different status' do
+      it 'does not contain the show_schedule_link field' do
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.show_schedule_link).to be_nil
       end
     end
   end

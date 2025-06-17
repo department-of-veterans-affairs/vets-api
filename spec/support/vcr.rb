@@ -55,10 +55,17 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_CLIENT_ID>') do
     Settings.lighthouse.benefits_education.client_id
   end
+  c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_API_KEY>') do
+    Settings.benefits_intake_service.api_key
+  end
+  c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_URL>') do
+    Settings.benefits_intake_service.url
+  end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
   c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
   c.filter_sensitive_data('<VAOS_PATIENTS_PATH>') { Settings.va_mobile.patients_path }
+  c.filter_sensitive_data('<BENEFITS_CLAIMS_PATH>') { Settings.va_mobile.claims_path }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
     Settings.accredited_representative_portal.allow_list.github.access_token
   end

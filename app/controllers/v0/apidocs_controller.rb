@@ -85,6 +85,10 @@ module V0
         key :name, 'banners'
         key :description, 'VAMC Situation Update Banners'
       end
+      tag do
+        key :name, 'digital_disputes'
+        key :description, 'Submit digital dispute PDFs to the Debt Management Center and VBS'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -131,11 +135,13 @@ module V0
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
+      Swagger::Requests::DigitalDisputes,
       Swagger::Requests::DependentsVerifications,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::DisabilityCompensationInProgressForms,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Efolder,
+      Swagger::Requests::EventBusGateway,
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
       Swagger::Requests::Form1010cg::Attachments,
@@ -172,7 +178,6 @@ module V0
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
-      Swagger::Requests::VirtualAgentToken,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,
@@ -245,7 +250,6 @@ module V0
       Swagger::Schemas::Vet360::Countries,
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
-      Swagger::Schemas::VirtualAgentWebchatToken,
       FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze

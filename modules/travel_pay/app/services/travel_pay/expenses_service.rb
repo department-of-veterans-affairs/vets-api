@@ -14,10 +14,9 @@ module TravelPay
         raise ArgumentError,
               message: 'You must provide a claim ID and appointment date to add an expense.'
       end
-
       new_expense_response = client.add_mileage_expense(veis_token, btsss_token, params)
 
-      new_expense_response.body
+      new_expense_response.body['data']
     end
 
     private

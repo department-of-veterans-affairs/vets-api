@@ -1,23 +1,24 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
-def load_fixture(path_suffix)
-  dir = './create_spec/fixtures'
-  File.expand_path("#{dir}/#{path_suffix}", __dir__)
-      .then { |path| File.read(path) }
-      .then { |json| JSON.parse(json) }
-end
-
-dependent_claimant_form =
-  load_fixture('dependent_claimant_form.json')
+require AccreditedRepresentativePortal::Engine.root / 'spec/spec_helper'
 
 RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   subject(:perform) do
     described_class.perform(
       type: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim,
-      attachment_guids: attachments.map(&:guid),
-      metadata:
+      attachment_guids: attachments.map(&:guid), metadata:,
+      claimant_representative:
+    )
+  end
+
+  let(:claimant_representative) do
+    AccreditedRepresentativePortal::ClaimantRepresentative.new(
+      claimant_id: Faker::Internet.uuid,
+      power_of_attorney_holder_type:
+        AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+      power_of_attorney_holder_poa_code: Faker::Alphanumeric.alphanumeric(number: 3),
+      accredited_individual_registration_number: Faker::Number.number(digits: 5).to_s
     )
   end
 
@@ -33,6 +34,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   end
 
   describe 'with valid metadata' do
+    fixture_path =
+      'form_data/saved_claim/benefits_intake/dependent_claimant.json'
+
+    dependent_claimant_form =
+      load_fixture(fixture_path) do |fixture|
+        JSON.parse(fixture)
+      end
+
     let(:metadata) { dependent_claimant_form }
 
     describe 'attachment composition' do
@@ -47,7 +56,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
           # But of one of the expected types.
           #
           :persistent_attachment_va_form_documentation,
-          saved_claim: build(:burial_claim)
+          saved_claim: build(:fake_saved_claim)
         )
       end
 
@@ -69,9 +78,26 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'none already parented' do
           let(:attachments) { [form_a] }
 
-          it 'returns a saved claim' do
-            expect(perform).to be_a(
+          it 'returns a saved claim, enqueues the submission job, claimant representative was associated' do
+            claim = perform
+
+            expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+            )
+
+            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              have_enqueued_sidekiq_job(claim.id)
+            )
+
+            claimant_representative_associated =
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
+                **claimant_representative.to_h,
+                saved_claim_id: claim.id,
+                claimant_type: 'dependent'
+              )
+
+            expect(claimant_representative_associated).to(
+              be(true)
             )
           end
         end
@@ -91,9 +117,26 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'with a main form' do
           let(:attachments) { [form_a, attachment_a, attachment_b] }
 
-          it 'returns a saved claim' do
-            expect(perform).to be_a(
+          it 'returns a saved claim, enqueues the submission job, claimant representative was associated' do
+            claim = perform
+
+            expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+            )
+
+            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              have_enqueued_sidekiq_job(claim.id)
+            )
+
+            claimant_representative_associated =
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
+                **claimant_representative.to_h,
+                saved_claim_id: claim.id,
+                claimant_type: 'dependent'
+              )
+
+            expect(claimant_representative_associated).to(
+              be(true)
             )
           end
 
