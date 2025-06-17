@@ -152,7 +152,8 @@ jobs:
           if [ -n "$APPROVED" ]; then
             BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
             BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+            BACKEND_REVIEWER_PATTERN=$(echo "$BACKEND_REVIEWERS" | paste -sd'|' -)
+            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^(${BACKEND_REVIEWER_PATTERN})$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
             if [ -z "$BE_APPROVALS" ]; then
               for TEAM in "${EXEMPT_TEAMS[@]}"; do
