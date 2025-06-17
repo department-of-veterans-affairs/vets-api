@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module MDOT
   class Eligibility
-    include Virtus.model
+    include Vets::Model
 
-    attribute :batteries, Boolean, default: false
-    attribute :accessories, Boolean, default: false
-    attribute :apneas, Boolean, default: false
-    attribute :assistive_devices, Boolean, default: false
+    attribute :batteries, Bool, default: false
+    attribute :accessories, Bool, default: false
+    attribute :apneas, Bool, default: false
+    attribute :assistive_devices, Bool, default: false
   end
 end

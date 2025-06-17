@@ -4,8 +4,9 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
-      - 'vets-api/config/**'
+      - 'config/**'
 permissions:
+  id-token: write
   contents: read
   checks: write
 
@@ -54,8 +55,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
       - name: Obtain GitHub Token
@@ -167,7 +167,7 @@ jobs:
           message: |
             :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
             ${{ env.INVALID_PARAMETERS }}
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Fail if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
@@ -179,4 +179,4 @@ jobs:
         with:
           message: |
             :+1: All Parameter Store values in this PR are valid
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}

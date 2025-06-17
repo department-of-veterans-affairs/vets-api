@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'ves_api/client'
+require 'json'
 
 # This job grabs all failed VES submissions and retries them
 # After 5 attempts, it will trigger a slack notification
@@ -42,7 +43,7 @@ module IvcChampva
 
     def resubmit_ves_request(record)
       ves_client = IvcChampva::VesApi::Client.new
-      ves_request = record.ves_request_data
+      ves_request = JSON.parse(record.ves_request_data)
 
       # Generate a new transaction UUID
       ves_request['transaction_uuid'] = SecureRandom.uuid

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.wellhive.com/care-navigation/v1/provider-services?npi=9mN718pHa
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services?npi=9mN718pHa
     body:
       encoding: US-ASCII
       string: ''

@@ -9,7 +9,7 @@ module MedicalRecords
     attribute :refresh_time, Date
 
     redis_store REDIS_CONFIG[:medical_records_store][:namespace]
-    redis_ttl 3600
+    redis_ttl REDIS_CONFIG[:medical_records_store][:each_ttl]
     redis_key :icn
   end
 end

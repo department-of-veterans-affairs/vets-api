@@ -1,15 +1,22 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module SimpleFormsApi
   class BaseForm
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
 
-    attribute :data
+    attribute :data, Hash
 
     attr_accessor :signature_date
 
     def initialize(data)
-      @data = data
+      # Convert data to an unsafe hash if it is not already a Hash.
+      # This is necessary to handle cases where data might be an instance of
+      # ActionController::Parameters or similar. Ensure that the input is sanitized
+      # before this point to avoid potential security risks.
+      data = data&.to_unsafe_h unless data.is_a?(Hash)
+      super({ data: })
       @signature_date = Time.current.in_time_zone('America/Chicago')
     end
 

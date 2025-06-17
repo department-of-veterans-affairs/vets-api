@@ -35,12 +35,15 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
 
   describe '#perform' do
     context 'actual records' do
-      it 'populates institutions with the relevant attributes' do
-        csv_data = <<~CSV
+      let(:csv_data) do
+        <<~CSV
           ID,ACTIVATIONDATE,DEACTIVATIONDATE,NAME,STATIONNUMBER,VISTANAME,AGENCY_ID,STREETCOUNTRY_ID,STREETADDRESSLINE1,STREETADDRESSLINE2,STREETADDRESSLINE3,STREETCITY,STREETSTATE_ID,STREETCOUNTY_ID,STREETPOSTALCODE,MAILINGCOUNTRY_ID,MAILINGADDRESSLINE1,MAILINGADDRESSLINE2,MAILINGADDRESSLINE3,MAILINGCITY,MAILINGSTATE_ID,MAILINGCOUNTY_ID,MAILINGPOSTALCODE,FACILITYTYPE_ID,MFN_ZEG_RECIPIENT,PARENT_ID,REALIGNEDFROM_ID,REALIGNEDTO_ID,VISN_ID,VERSION,CREATED,UPDATED,CREATEDBY,UPDATEDBY
           1000250,,,AUDIE L. MURPHY MEMORIAL HOSP,671,AUDIE L. MURPHY MEMORIAL HOSP,1009121,1006840,7400 MERTON MINTER BLVD,,,SAN ANTONIO,1009348,,78229-4404,1006840,7400 MERTON MINTER BLVD,,,SAN ANTONIO,1009348,,78229-4404,1009231,1,1002217,,,1002217,0,2004-06-04 13:18:48 +0000,2015-12-28 10:05:46 +0000,Initial Load,DataBroker - CQ# 0938 12/09/2015
           1000090,,1969-12-31 00:00:00 +0000,CRAWFORD COUNTY CBOC (420),420,ZZ CRAWFORD COUNTY CBOC,1009121,1006840,,,,,1009342,,,,,,,,,,,1009197,0,,,,,0,2004-06-04 13:18:48 +0000,2007-05-07 10:18:36 +0000,Initial Load,Cleanup For Inactive Rows
         CSV
+      end
+
+      it 'populates institutions with the relevant attributes' do
         allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
 
         expect do
@@ -54,6 +57,34 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
         deacrivated_crawford_facility = StdInstitutionFacility.find_by(station_number: '420')
         expect(deacrivated_crawford_facility.name).to eq 'CRAWFORD COUNTY CBOC (420)'
         expect(deacrivated_crawford_facility.deactivation_date).to eq Date.new(1969, 12, 31)
+      end
+
+      it 'logs newly created facilities' do
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
+
+        expect(Rails.logger).to receive(:info).with('[HCA] - Job started with 0 existing facilities.')
+        expect(Rails.logger).to receive(:info).with('[HCA] - 2 new institutions: [1000250, 1000090]')
+        expect(Rails.logger).to receive(:info).with('[HCA] - Job ended with 2 existing facilities.')
+
+        expect do
+          described_class.new.perform
+        end.to change(StdInstitutionFacility, :count).by(2)
+      end
+
+      it 'logs when receiving preexisting facilities' do
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
+
+        expect(Rails.logger).to receive(:info).with('[HCA] - Job started with 0 existing facilities.')
+        expect(Rails.logger).to receive(:info).with('[HCA] - 2 new institutions: [1000250, 1000090]')
+        expect(Rails.logger).to receive(:info).with('[HCA] - Job started with 2 existing facilities.')
+        expect(Rails.logger).to receive(:info).with('[HCA] - Job ended with 2 existing facilities.').twice
+
+        expect do
+          described_class.new.perform
+        end.to change(StdInstitutionFacility, :count).by(2)
+        expect do
+          described_class.new.perform
+        end.not_to change(StdInstitutionFacility, :count)
       end
     end
 

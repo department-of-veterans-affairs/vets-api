@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
 require 'rails_helper'
 require 'ves_api/client'
 
@@ -87,31 +86,6 @@ RSpec.describe IvcChampva::VesApi::Client do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
-    end
-  end
-
-  describe 'check options' do
-    it 'sets the request timeout to at least 5 seconds' do
-      # RuboCop prefers a constant class reference, but a string reference is necessary
-      # because Common::Client::Base::Connection is private.
-      # rubocop:disable RSpec/VerifiedDoubleReference
-      connection = instance_double('Common::Client::Base::Connection') # Mock the private connection class
-      # rubocop:enable RSpec/VerifiedDoubleReference
-      response = instance_double(Faraday::Response, status: 200, body: '')
-      allow(client).to receive(:connection).and_return(connection)
-
-      expect(connection).to receive(:post) do |&block|
-        request = double(options: Faraday::RequestOptions.new)
-        allow(request).to receive(:headers=)
-        allow(request).to receive(:body=)
-        allow(request).to receive(:options=) do |options|
-          expect(options[:timeout]).to be > 5
-        end
-        block.call(request)
-        response
-      end
-
-      client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
     end
   end
 

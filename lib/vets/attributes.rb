@@ -52,20 +52,28 @@ module Vets
       def define_getter(name, default)
         define_method(name) do
           # check if the attribute is assigned and not nil
-          if instance_variable_defined?("@#{name}")
-            value = instance_variable_get("@#{name}")
-            return value unless value.nil?
-          end
+          value = instance_variable_get("@#{name}")
+          return value if instance_variable_defined?("@#{name}") && !value.nil?
 
           # if value is nil check for a default
           return nil unless defined?(default)
 
           # if there's a default, assign the default value
-          if default.is_a?(Symbol) && respond_to?(default)
-            send(default)
-          else
-            default
-          end
+          value =
+            if default.respond_to?(:call) # Proc or lambda
+              instance_exec(&default)
+            elsif default.is_a?(Symbol) && respond_to?(default)
+              send(default)
+            else
+              begin
+                default.dup
+              rescue
+                default
+              end
+            end
+
+          instance_variable_set("@#{name}", value)
+          value
         end
       end
 

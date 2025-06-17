@@ -7,6 +7,7 @@ module IvcChampva
   class OldRecordsCleanupJob
     include Sidekiq::Job
     sidekiq_options retry: 3
+    sidekiq_options backtrace: true
 
     BATCH_SIZE = 500
     CLEANUP_THRESHOLD_DAYS = 60
@@ -17,10 +18,15 @@ module IvcChampva
 
       total_deleted = 0
 
-      # Process in batches to avoid memory issues
-      find_old_records_in_batches do |batch|
-        batch_count = delete_old_records(batch)
-        total_deleted += batch_count
+      begin
+        # Process in batches to avoid memory issues
+        find_old_records_in_batches do |batch|
+          batch_count = delete_old_records(batch)
+          total_deleted += batch_count
+        end
+      rescue => e
+        Rails.logger.error("IvcChampva::OldRecordsCleanupJob failed: #{e.message}")
+        raise e
       end
 
       Rails.logger.info("IvcChampva::OldRecordsCleanupJob completed: #{total_deleted} records deleted")

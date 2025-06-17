@@ -22,7 +22,7 @@ RSpec.describe LighthouseRatedDisabilitiesProvider do
   it 'retrieves rated disabilities from the Lighthouse API' do
     VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
       response = @provider.get_rated_disabilities('', '')
-      expect(response['rated_disabilities'].length).to eq(1)
+      expect(response.rated_disabilities.length).to eq(1)
     end
   end
 

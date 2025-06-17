@@ -33,7 +33,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:other_poa_code) { 'z99' }
 
   let(:test_user) do
-    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
 
   let(:accredited_individual) do
@@ -46,6 +46,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:representative) do
     create(:representative,
            :vso,
+           email: test_user.email,
            representative_id: accredited_individual.accredited_individual_registration_number,
            poa_codes: [poa_code])
   end
@@ -245,6 +246,30 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       it 'returns 403 Forbidden' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests')
         expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when providing as_selected_individual param' do
+      let!(:unassigned) do
+        # this should not show up in the results
+        create(:power_of_attorney_request, :with_veteran_claimant, poa_code:)
+      end
+      let!(:assigned_list) do
+        3.times.map { create(:power_of_attorney_request, poa_code:, accredited_individual: representative) }
+      end
+
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
+          .to receive(:get_registration_number).with('veteran_service_organization')
+          .and_return(accredited_individual.accredited_individual_registration_number)
+      end
+
+      it 'returns the filtered list for the logged-in user' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?as_selected_individual=true')
+
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data'].size).to eq(3)
+        expect(response.parsed_body['data'].map { |poa| poa['id'] }).to match_array(assigned_list.map(&:id))
       end
     end
 
@@ -495,11 +520,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
-      it 'returns 400 if page size is less than 10' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?page[size]=5')
+      it 'returns 400 if page size is less than 1' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?page[size]=0')
 
         expect(response).to have_http_status(:bad_request)
-        expect(parsed_response['errors'].join).to match(/Invalid parameters.*must be greater than or equal to 10/)
+        expect(parsed_response['errors'].join).to match(/Invalid parameters.*must be greater than or equal to 1/)
       end
 
       it 'returns an empty array for a page beyond the total pages' do
