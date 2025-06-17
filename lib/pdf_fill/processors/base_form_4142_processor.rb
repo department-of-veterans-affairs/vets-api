@@ -31,8 +31,8 @@ module Processors
     # @return [Pathname] the generated PDF path
     # @return [Hash] the generated request body
 
-    def initialize(validate: true)
-      validate_form4142 if validate
+    def initialize
+      validate_form4142
       @pdf_path = generate_stamp_pdf
       @request_body = {
         'document' => to_faraday_upload,

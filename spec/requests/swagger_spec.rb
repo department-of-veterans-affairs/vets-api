@@ -434,7 +434,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           200,
           '_data' => {
             'burial_claim' => {
-              'form' => build(:burial_claim).form
+              'form' => build(:burials_saved_claim).form
             }
           }
         )
