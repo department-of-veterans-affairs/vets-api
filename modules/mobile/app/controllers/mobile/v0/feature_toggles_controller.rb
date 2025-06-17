@@ -27,11 +27,10 @@ module Mobile
         )
       end
 
+      # Try to load user if possible, but don't throw errors if not authenticated
       def set_current_user
-        # Try to load user if possible, but don't throw errors if not authenticated
-        load_user(skip_expiration_check: true)
-      rescue => e
-        Rails.logger.info("Error loading user in feature toggles: #{e.message}")
+        load_user
+      rescue
         @current_user = nil
       end
     end

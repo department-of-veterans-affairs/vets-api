@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# Service for handling feature toggle functionality
-# This service extracts the logic from V0::FeatureTogglesController
-# to be reused across different controllers
 class FeatureTogglesService
   attr_reader :current_user, :cookie_id
 
