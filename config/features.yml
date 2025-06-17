@@ -1327,7 +1327,7 @@ features:
     enable_in_development: true
   mhv_medications_new_policy:
     actor_type: user
-    description: Aligns MHV medications policy logic with messaging policy when enabled
+    description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
