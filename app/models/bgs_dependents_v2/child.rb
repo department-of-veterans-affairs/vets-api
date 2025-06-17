@@ -106,7 +106,19 @@ module BGSDependentsV2
     end
 
     def child_status
-      CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
+      if @child_info['is_biological_child']
+        'Biological'
+      elsif @child_info['relationship_to_child']
+        # adopted, stepchild
+        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)] || 'Other'
+      elsif @child_info['child_status']
+        # v1 format - included in case of legacy data
+        # adopted, stepchild, child_under18, child_over18_in_school, disabled
+        CHILD_STATUS[@child_info['child_status']&.key(true)] || 'Other'
+      else
+        # child_under18, child_over18_in_school, disabled (no longer explicitly listed)
+        'Other'
+      end
     end
 
     def marriage_indicator
