@@ -9,7 +9,7 @@ module Eps
     attr_reader :settings
 
     # Cache keys and namespaces
-    CACHE_KEY = 'vaos_eps_appointment_'
+    CACHE_KEY = 'vaos_eps_appointment'
     CACHE_NAMESPACE = 'eps-appointments'
     CACHE_TTL = 24.hours
 
