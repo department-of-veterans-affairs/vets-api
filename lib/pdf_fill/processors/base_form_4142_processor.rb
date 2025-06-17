@@ -20,7 +20,7 @@ module Processors
   class BaseForm4142Processor
     SIGNATURE_DATE_KEY = 'signatureDate'
     SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
-    TIMEZONE = 'UTC'
+    TIMEZONE = 'Central Time (US & Canada)'
     US_COUNTRY_CODES = %w[US USA].freeze
     FORM_SCHEMA_ID = '21-4142'
     LEGACY_FORM_CLASS_ID = '21-4142'
@@ -219,7 +219,7 @@ module Processors
     end
 
     def format_date(date)
-      date.in_time_zone(TIMEZONE).strftime('%H:%M UTC %Y-%m-%d')
+      date.in_time_zone('UTC').strftime('%H:%M UTC %Y-%m-%d')
     end
 
     def us_country_code?(country_code)
