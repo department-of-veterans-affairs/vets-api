@@ -97,14 +97,12 @@ module Lighthouse
       stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,
                                                                    timestamp: record.created_at)
       # This is the top right of the PDF, above "OMB approved line"
-      stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
+      PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
-
-      stamped_path2
     end
 
     def split_file_and_path(path)
