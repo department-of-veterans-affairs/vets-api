@@ -376,6 +376,400 @@ describe Eps::ProviderService do
           expect(result).to be_nil
         end
       end
+
+      # New comprehensive tests for specialty and address matching
+      context 'when both specialty and address match perfectly' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns the matching provider' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+      end
+
+      context 'when specialty matches but address does not' do
+        let(:non_matching_address) do
+          {
+            street1: '123 Different Street',
+            city: 'COLUMBUS',
+            state: 'Ohio',
+            zip: '43201'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil and logs warning' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:warn).with(
+            /No address match found among 1 provider\(s\) for NPI #{npi}/
+          )
+        end
+      end
+
+      context 'when specialty matching is case-insensitive' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'CARDIOLOGY' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'matches specialty regardless of case' do
+          result = service.search_provider_services(npi:, specialty: 'cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+      end
+
+      context 'when address has zip+4 vs 5-digit zip' do
+        let(:zip_5_digit_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'matches 5-digit zip against zip+4' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: zip_5_digit_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+      end
+
+      context 'when zip code does not match' do
+        let(:different_zip_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '43201'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: different_zip_address)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when street address does not match' do
+        let(:different_street_address) do
+          {
+            street1: '999 Different Street',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil and logs partial match warning' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: different_street_address)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:warn).with(
+            /Provider address partial match.*Street: false.*Zip: true/
+          )
+        end
+      end
+
+      context 'when multiple providers match specialty' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns the provider with matching address' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+      end
+
+      context 'when multiple providers match specialty but none match address' do
+        let(:non_matching_address) do
+          {
+            street1: '999 Nowhere Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil and logs warning' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:warn).with(
+            /No address match found among 2 provider\(s\) for NPI #{npi}/
+          )
+        end
+      end
+
+      context 'when provider has missing address components' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: 'Incomplete Address'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil when provider address cannot be parsed' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_nil
+        end
+      end
     end
 
     context 'when the request fails' do
