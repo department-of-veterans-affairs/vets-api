@@ -212,7 +212,10 @@ claims_api:
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
 claims_evidence_api:
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
+  breakers_error_threshold: 80
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
+  mock: false
+  read_timeout: 20
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
