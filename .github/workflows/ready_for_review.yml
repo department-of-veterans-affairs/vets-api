@@ -122,14 +122,17 @@ jobs:
           fi
 
           # Fetch PR reviews
-          PR_REVIEWS=$(gh api /repos/${REPO}/pulls/${PR_NUMBER}/reviews)
-          if [ "$PR_REVIEWS" != "[]" ]; then
-            echo "$PR_REVIEWS" > pr_reviews.json
+          APPROVED=$(gh api /repos/department-of-veterans-affairs/vets-api/pulls/${PR_NUMBER}/reviews --jq '
+            [ .[]
+            | select(.state == "APPROVED" and (.dismissed_at == null))
+            ]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user.login)
+            | .[].user.login
+          ' || true)
 
-            REVIEWERS=$(jq -r 'group_by(.user.login) | map(last) | map(select(.state == "APPROVED")) | .[].user.login' pr_reviews.json)
-
-            declare -A REVIEWER_TEAMS
-
+          if [ -n "$APPROVED" ]; then
             for TEAM in "${EXEMPT_TEAMS[@]}"; do
               echo "Fetching members of team: $TEAM"
               TEAM_MEMBERS=$(gh api /orgs/${ORG}/teams/${TEAM}/members --paginate --jq '.[].login')
@@ -143,7 +146,7 @@ jobs:
                     echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                     break 2
                   fi
-                done <<< "$REVIEWERS"
+                done <<< "$APPROVED"
               done <<< "$TEAM_MEMBERS"
             done
           fi
