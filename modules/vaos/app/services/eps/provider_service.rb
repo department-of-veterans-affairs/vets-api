@@ -3,18 +3,6 @@
 module Eps
   class ProviderService < BaseService
     ##
-    # Get providers data from EPS
-    #
-    # @return OpenStruct response from EPS providers endpoint
-    #
-    def get_provider_services
-      response = perform(:get, "/#{config.base_path}/provider-services",
-                         {}, request_headers)
-
-      OpenStruct.new(response.body)
-    end
-
-    ##
     # Get provider data from EPS
     #
     # @return OpenStruct response from EPS provider endpoint
@@ -101,23 +89,167 @@ module Eps
     end
 
     ##
-    # Search for provider services using NPI
+    # Search for provider services using NPI, specialty, and address
     #
     # @param npi [String] NPI number to search for
+    # @param specialty [String] Specialty to match (case-insensitive)
+    # @param address [Hash] Address object with :street1, :city, :state, :zip keys
     #
     # @return OpenStruct response containing the provider service where an individual provider has
-    # matching NPI, or nil if not found
+    # matching NPI, specialty, and address, or nil if not found
     #
-    def search_provider_services(npi:)
-      query_params = { npi: }
+    def search_provider_services(npi:, specialty:, address:)
+      query_params = { npi:, isSelfSchedulable: true }
       response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
 
-      # NPIs are unique, so we expect either an empty array or an array with exactly one matching provider
-      response.body[:provider_services]&.first&.then { |provider| OpenStruct.new(provider) }
+      return nil if response.body[:provider_services].blank?
+
+      # Filter providers by specialty and address
+      matching_provider = response.body[:provider_services].find do |provider|
+        specialty_matches?(provider, specialty) && address_matches?(provider, address)
+      end
+
+      matching_provider&.then { |provider| OpenStruct.new(provider) }
     end
 
     private
 
+    ##
+    # Check if provider's specialty matches the requested specialty (case-insensitive)
+    #
+    # @param provider [Hash] Provider data from EPS response
+    # @param specialty [String] Requested specialty to match against
+    # @return [Boolean] True if specialty matches, false otherwise
+    #
+    def specialty_matches?(provider, specialty)
+      return false if provider[:specialties].blank? || specialty.blank?
+
+      provider[:specialties].any? do |provider_specialty|
+        provider_specialty[:name].to_s.casecmp?(specialty.to_s)
+      end
+    end
+
+    ##
+    # Check if provider's address matches the requested address using a two-step approach
+    #
+    # @param provider [Hash] Provider data from EPS response
+    # @param address [Hash] Address object with :street1, :city, :state, :zip keys
+    # @return [Boolean] True if address matches, false otherwise
+    #
+    def address_matches?(provider, address)
+      return false if provider.dig(:location, :address).blank? || address.blank?
+
+      provider_address = provider[:location][:address]
+
+      # Step 1: Primary filter - check if street address matches (most likely to filter out non-matches)
+      return false unless street_address_matches?(provider_address, address[:street1])
+
+      # Step 2: Full address comparison with logging for monitoring, so we can detect formatting differences
+      full_match = full_address_matches?(provider_address, address)
+
+      log_partial_address_match(provider_address, address) unless full_match
+
+      # Return false if full address doesn't match
+      full_match
+    end
+
+    ##
+    # Check if the street portion of provider address matches referral street1
+    #
+    # @param provider_address [String] Full provider address string
+    # @param referral_street1 [String] Street address from referral
+    # @return [Boolean] True if street addresses match
+    #
+    def street_address_matches?(provider_address, referral_street1)
+      return false if provider_address.blank? || referral_street1.blank?
+
+      # Check if referral street appears at the beginning of provider address
+      normalized_provider_address = normalize_address_text(provider_address)
+      normalized_referral_street = normalize_address_text(referral_street1)
+
+      normalized_provider_address.start_with?(normalized_referral_street)
+    end
+
+    ##
+    # Check if full provider address matches referral address components
+    #
+    # @param provider_address [String] Full provider address string
+    # @param address [Hash] Address object with :street1, :city, :state, :zip keys
+    # @return [Boolean] True if full address matches
+    #
+    def full_address_matches?(provider_address, address)
+      # Normalize provider address by removing commas and extra spaces
+      normalized_provider = normalize_address_text(provider_address.gsub(',', ' '))
+
+      # Build referral address string, remove commas, and normalize
+      address_parts = [
+        address[:street1],
+        address[:city],
+        address[:state],
+        address[:zip]
+      ].compact.map(&:to_s).compact_blank
+
+      referral_address_string = address_parts.join(' ').gsub(',', ' ')
+      normalized_referral = normalize_address_text(referral_address_string)
+
+      # Check if provider address starts with referral address (handles extra country info)
+      normalized_provider.start_with?(normalized_referral)
+    end
+
+    ##
+    # Log partial match between provider address and referral address
+    #
+    # @param provider_address [String] Full provider address string
+    # @param address [Hash] Address object with :street1, :city, :state, :zip keys
+    #
+    def log_partial_address_match(provider_address, referral_address)
+      return '' if referral_address.blank?
+
+      address_parts = [
+        referral_address[:street1],
+        referral_address[:city],
+        referral_address[:state],
+        referral_address[:zip]
+      ].compact.map(&:to_s).compact_blank
+
+      if address_parts.any?
+        Rails.logger.warn("Provider address partial match detected - Street matched but full address didn't. " \
+                          "Provider: '#{provider_address}', " \
+                          "Referral: '#{address_parts.join(' ')}'")
+      end
+    end
+
+    ##
+    # Normalize address text by removing extra spaces and converting to lowercase
+    #
+    # @param text [String] Address text to normalize
+    # @return [String] Normalized address text
+    #
+    def normalize_address_text(text)
+      return '' if text.blank?
+
+      text.to_s.strip.downcase.gsub(/\s+/, ' ')
+    end
+
+    ##
+    # Builds search parameters from the given input parameters.
+    #
+    # @param params [Hash] A hash containing search filter keys:
+    #   - :search_text [String] the text to search for.
+    #   - :appointment_id [String] the appointment identifier.
+    #   - :npi [String] the National Provider Identifier.
+    #   - :network_id [String] the network identifier.
+    #   - :max_miles_from_near [Integer] the maximum allowable miles from the specified location.
+    #   - :near_location [String] the location reference for proximity.
+    #   - :organization_names [Array<String>] an array of organization names.
+    #   - :specialty_ids [Array<Integer>] an array of specialty identifiers.
+    #   - :visit_modes [Array<String>] an array of visit mode options.
+    #   - :include_inactive [Boolean] flag to include inactive records.
+    #   - :digital_or_not [Boolean] flag indicating digital capability.
+    #   - :is_self_schedulable [Boolean] flag for self-schedulability.
+    #   - :next_token [String] token for pagination.
+    #
+    # @return [Hash] a hash of search parameters with nil values removed.
     def build_search_params(params)
       {
         searchText: params[:search_text],

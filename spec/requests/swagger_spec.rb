@@ -434,7 +434,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           200,
           '_data' => {
             'burial_claim' => {
-              'form' => build(:burial_claim).form
+              'form' => build(:burials_saved_claim).form
             }
           }
         )
@@ -574,6 +574,23 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
               )
             end
           end
+        end
+      end
+
+      context 'digital disputes' do
+        let(:pdf_file) do
+          fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
+        end
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            200,
+            headers.merge(
+              '_data' => { files: [pdf_file] }
+            )
+          )
         end
       end
     end
