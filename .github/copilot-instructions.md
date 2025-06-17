@@ -29,6 +29,7 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 - Use FactoryBot for fixtures.
 - If using a feature toggle, aka Flipper, write corresponding tests for both the Flipper on and Flipper off scenarios.
 - When invoking a feature toggle in a test, don't disable or enable it. Mock it instead, using this format for enabling a flipper: `allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)`
+- To enable logging during tests (disabled by default), set the `RAILS_ENABLE_TEST_LOG` environment variable to true: `RAILS_ENABLE_TEST_LOG=true bundle exec rspec path/to/spec.rb`. Test logs will be written to `log/test.log`.
 
 ## Utilities
 - Faraday: The primary HTTP client for all external API calls. Use Faraday in service objects, and ensure requests are properly instrumented.
