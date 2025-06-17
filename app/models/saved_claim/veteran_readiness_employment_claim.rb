@@ -241,6 +241,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
+    if parsed_form['useEva'].present?
+      validate_form_v1
+    else
+      validate_form_v2
+    end
+  end
+
+  def validate_form_v1
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
     schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
 
@@ -257,6 +265,22 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     add_errors_from_form_validation(validation_errors)
 
     schema_errors.empty? && validation_errors.empty?
+  end
+
+  def validate_form_v2
+    validate_required_fields
+    validate_string_fields
+    validate_name_length
+    validate_is_moving
+    validate_email
+    validate_phone_numbers
+    validate_dob
+    validate_addresses
+
+    unless errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: })
+    end
   end
 
   # SavedClaims require regional_office to be defined
@@ -380,5 +404,88 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     yield
     elapsed_time = Time.current - start_time
     StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
+  end
+
+  def validate_required_fields
+    required_fields = %w[email isMoving yearsOfEducation veteranInformation/fullName veteranInformation/fullName/first
+                         veteranInformation/fullName/last veteranInformation/dob]
+    required_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      errors.add("/#{field}", 'is required') if value.blank?
+    end
+  end
+
+  def validate_string_fields
+    string_fields = %w[mainPhone cellPhone internationalNumber email yearsOfEducation veteranInformation/fullName/first
+                       veteranInformation/fullName/middle veteranInformation/fullName/last veteranInformation/dob]
+    string_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      errors.add("/#{field}", 'must be a string') unless value.is_a?(String)
+    end
+  end
+
+  def validate_name_length
+    max_30_fields = %w[veteranInformation/fullName/first veteranInformation/fullName/middle
+                       veteranInformation/fullName/last]
+    max_30_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      if value.present? && value.is_a?(String) && value.length > 30
+        errors.add("/#{field}", 'must be 30 characters or less')
+      end
+    end
+  end
+
+  def validate_is_moving
+    value = parsed_form['isMoving']
+    errors.add('/isMoving', 'must be a boolean') unless value.is_a?(TrueClass) || value.is_a?(FalseClass)
+  end
+
+  def validate_email
+    value = parsed_form['email']
+    if value.present? && value.is_a?(String) && value.length > 256
+      errors.add('/email', 'must be 256 characters or less')
+    end
+    if value.present? && value.is_a?(String) && !value.match?(/.+@.+\..+/i) # pulled from profile email model
+      errors.add('/email', 'must be a valid email address')
+    end
+  end
+
+  def validate_phone_numbers
+    phone_fields = %w[mainPhone cellPhone]
+    phone_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      if value.present? && value.is_a?(String) && !value.match?(/^\d{10}$/)
+        errors.add("/#{field}", 'must be a valid phone number with 10 digits only')
+      end
+    end
+  end
+
+  def validate_dob
+    value = parsed_form.dig('veteranInformation', 'dob')
+    if value.present? && value.is_a?(String) && !value.match?(
+      /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/)
+      errors.add('/veteranInformation/dob', 'must be a valid date in YYYY-MM-DD format')
+    end
+  end
+
+  def validate_addresses
+    address_fields = %w[newAddress veteranAddress]
+    address_fields.each do |field|
+      address = parsed_form.dig(*field.split('/'))
+      break if address.blank? || !address.is_a?(Hash)
+
+      %w[country street city state postalCode].each do |sub_field|
+        value = address[sub_field]
+        if %w[street city].include?(sub_field) && value.blank?
+          errors.add("/#{field}/#{sub_field}", 'is required')
+        elsif !value.is_a?(String) && value.present?
+          errors.add("/#{field}/#{sub_field}", 'must be a string')
+        elsif sub_field == 'postalCode' && value.present? && !value.match?(/^\d{5}(-\d{4})?$/)
+          errors.add("/#{field}/#{sub_field}", 'must be a valid postal code in XXXXX or XXXXX-XXXX format')
+        elsif %w[state city].include?(sub_field) && value.present? && value.length > 100
+          errors.add("/#{field}/#{sub_field}", 'must be 100 characters or less')
+        end
+      end
+    end
   end
 end
