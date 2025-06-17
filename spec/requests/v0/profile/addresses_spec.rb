@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'V0::Profile::Addresses', type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, icn: '123498767V234859') }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
