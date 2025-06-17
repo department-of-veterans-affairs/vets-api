@@ -61,7 +61,11 @@ module ClaimsApi
 
       return false if error_messages&.dig(:messages).nil?
 
-      error_messages[:messages].any? { |msg| msg[:text]&.include?('417') }
+      error_messages[:messages].any? do |msg|
+        msg[:text]&.include?('417') || msg[:text]&.include?(
+          'Error calling external service to establish the claim during Submit'
+        )
+      end
     end
 
     def handle_exception(auto_claim:, orig_form_data:, e:)
