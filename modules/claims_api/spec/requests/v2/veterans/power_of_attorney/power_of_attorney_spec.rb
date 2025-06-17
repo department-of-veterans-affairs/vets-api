@@ -135,7 +135,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
           expect(response).to have_http_status(:not_found)
         end
       end
-      
+
       it 'sets current_poa from the submitted form data, not from BGS' do
         mock_ccg(scopes) do |auth_header|
           new_poa_code = 'NEWCODE'
@@ -149,7 +149,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
           poa = ClaimsApi::PowerOfAttorney.create!(
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_header,
-            form_data: form_data,
+            form_data:,
             current_poa: form_data['serviceOrganization']['poaCode'],
             header_hash: 'dummyhash'
           )
@@ -157,7 +157,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
           expect(poa.current_poa).to eq(new_poa_code)
           expect(poa.current_poa).not_to eq('OLDCODE')
         end
-      end      
+      end
     end
   end
 end
