@@ -42,11 +42,12 @@ module AskVAApi
           # 1. 'Business' - for authenticated users
           # 2. 'Personal' - for unauthenticated users
           if user.nil? && inquiry_details_obj.education_benefits?
-            Rails.logger.warn('Unauthenticated Education inquiry submitted., ' \
+            Rails.logger.warn('Unauthenticated Education inquiry submitted. ' \
                               "Category: #{inquiry_details_obj.category}, " \
-                              "Topic: #{inquiry_details_obj.topic}, " \
-                              "Level of Authentication: #{inquiry_details[:level_of_authentication]}")
+                              "Topic: #{inquiry_details_obj.topic}")
           end
+
+          Rails.logger.info("Level of Authentication: #{inquiry_details[:level_of_authentication]}")
 
           # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
           Rails.logger.info("User LOA: #{user&.loa&.fetch(:current, nil)}") if user.present?
