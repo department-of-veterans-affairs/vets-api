@@ -444,6 +444,27 @@ RSpec.describe V0::SignInController, type: :controller do
 
           it_behaves_like 'an idme service interface with appropriate operation'
         end
+
+        context 'and the operation param is verify_cta_authenticated' do
+          let(:operation_value) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is verify_page_authenticated' do
+          let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_AUTHENTICATED }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is verify_page_unauthenticated' do
+          let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_UNAUTHENTICATED }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
       end
 
       shared_context 'an idme service interface with appropriate operation' do
