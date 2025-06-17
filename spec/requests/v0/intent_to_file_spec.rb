@@ -7,14 +7,14 @@ require 'lighthouse/benefits_claims/intent_to_file/monitor'
 RSpec.describe 'V0::IntentToFile', type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:disabilities_compensation_user) }
+  let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
   let(:camel_inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:monitor) { double('monitor') }
 
   before do
-    sign_in
+    sign_in_as(user)
     Flipper.disable(:disability_compensation_production_tester)
 
     allow(BenefitsClaims::IntentToFile::Monitor).to receive(:new).and_return(monitor)

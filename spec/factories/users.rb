@@ -477,9 +477,7 @@ FactoryBot.define do
     end
 
     trait :idme_lock do
-      after(:build) do |user, _context|
-        create(:idme_user_verification, idme_uuid: user.idme_uuid, locked: true)
-      end
+      user_verification { create(:idme_user_verification, user_account:, idme_uuid:, logingov_uuid:, locked: true) }
     end
   end
 end
