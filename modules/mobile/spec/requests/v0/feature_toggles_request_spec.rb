@@ -29,8 +29,8 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
         assert_schema_conform(200)
         # assert feature values
         parsed_features = JSON.parse(response.body)['data']['features']
-        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
-        expect(feature_toggle['value']).to eq(true)
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name }
+        expect(feature_toggle['value']).to be(true)
       end
 
       it 'uses the current_user for feature toggle evaluation' do
@@ -42,18 +42,17 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
         parsed_features = JSON.parse(response.body)['data']['features']
-        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
-        expect(feature_toggle['value']).to eq(false)
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name }
+        expect(feature_toggle['value']).to be(false)
 
         # retrieve features as the user
         get '/mobile/v0/feature-toggles', headers: sis_headers
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
         parsed_features = JSON.parse(response.body)['data']['features']
-        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
-        expect(feature_toggle['value']).to eq(true)
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name }
+        expect(feature_toggle['value']).to be(true)
       end
-
     end
 
     context 'with unauthenticated user' do
@@ -63,8 +62,8 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
         parsed_features = JSON.parse(response.body)['data']['features']
-        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name}
-        expect(feature_toggle['value']).to eq(true)
+        feature_toggle = parsed_features.find { |f| f['name'] == @feature_name }
+        expect(feature_toggle['value']).to be(true)
       end
     end
   end
