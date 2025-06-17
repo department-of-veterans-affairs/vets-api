@@ -16,8 +16,8 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
   let(:lighthouse_updated_at) { Time.current }
   let(:form_data) do
     {
-      full_name: { first: 'Veteran' },
-      email: 'test@email.com'
+      'full_name' => { 'first' => 'Veteran' },
+      'email' => 'test@email.com'
     }
   end
 
@@ -62,7 +62,7 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
     context 'form_data is missing email' do
       let(:config) do
         {
-          form_data: { full_name: { first: 'Veteran' } },
+          form_data: { 'full_name' => { 'first' => 'Veteran' } },
           form_number: '21-0779',
           confirmation_number: 'confirmation-number',
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
@@ -78,8 +78,12 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
 
     context 'form_data is missing first_name' do
       let(:config) do
-        { form_data: { email: 'test@email.com' }, form_number: '21-0779', confirmation_number: 'confirmation-number',
-          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        {
+          form_data: { 'email' => 'test@email.com' },
+          form_number: '21-0779',
+          confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
       end
 
       it 'fails' do
@@ -140,14 +144,14 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
     end
     let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:email) { 'fake@email.com' }
-    let(:full_name) { { first: 'fake', last: 'name' } }
+    let(:full_name) { { 'first' => 'fake', 'last' => 'name' } }
     let(:form_name) { 'fake-form' }
     let(:form_data) do
-      { email:, full_name:, form_name: }
+      { 'email' => email, 'full_name' => full_name, 'form_name' => form_name }
     end
     let(:expected_personalization) do
       {
-        'first_name' => full_name[:first].titleize,
+        'first_name' => full_name['first'].titleize,
         'form_number' => form_number,
         'form_name' => form_name,
         'date_submitted' => date_submitted,

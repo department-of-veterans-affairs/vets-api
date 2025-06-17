@@ -12,7 +12,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     Flipper.disable(:form526_send_document_upload_failure_notification)
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -20,6 +21,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   let(:submission) do
     create(:form526_submission, :with_uploads,
            user_uuid: user.uuid,
+           user_account:,
            auth_headers_json: auth_headers.to_json,
            saved_claim_id: saved_claim.id,
            submitted_claim_id: '600130094')
@@ -353,7 +355,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   context 'catastrophic failure state' do
     describe 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission, :with_uploads) }
+      let!(:form526_submission) { create(:form526_submission, :with_uploads, user_account:) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -419,11 +421,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           {
             job_id: form526_job_status.job_id,
             error_class: nil,
-            error_message: 'An error occured',
+            error_message: 'An error occurred',
             timestamp: instance_of(Time),
             form526_submission_id: submission.id
           },
-          nil,
+          user_account.id,
           call_location: instance_of(Logging::CallLocation)
         )
 

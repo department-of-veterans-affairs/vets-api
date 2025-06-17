@@ -73,12 +73,30 @@ module SimpleFormsApi
       end
     end
 
-    def notification_email_address
-      if %w[veteran third-party-veteran].include? data['preparer_type']
-        data['veteran_email_address']
+    def notification_last_name
+      if data['preparer_type'] == 'veteran'
+        data.dig('veteran_full_name', 'last')
+      elsif data['preparer_type'] == 'non-veteran'
+        data.dig('non_veteran_full_name', 'last')
       else
-        data['non_veteran_email_address']
+        data.dig('third_party_full_name', 'last')
       end
+    end
+
+    def notification_email_address
+      return data['point_of_contact_email'] if should_send_to_point_of_contact?
+
+      if data['preparer_type'] == 'veteran'
+        data['veteran_email_address']
+      elsif data['preparer_type'] == 'non-veteran'
+        data['non_veteran_email_address']
+      else
+        data['third_party_email_address']
+      end
+    end
+
+    def notification_point_of_contact_name
+      data['point_of_contact_name']
     end
 
     def zip_code_is_us_based
@@ -129,6 +147,10 @@ module SimpleFormsApi
 
     def get_attachments
       PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
+
+    def should_send_to_point_of_contact?
+      preparer_is_not_third_party? && living_situation_is_none?
     end
 
     private
@@ -193,6 +215,14 @@ module SimpleFormsApi
         data['non_veteran_phone']&.gsub('-', '')&.[](3..5),
         data['non_veteran_phone']&.gsub('-', '')&.[](6..9)
       ]
+    end
+
+    def preparer_is_not_third_party?
+      %w[third-party-veteran third-party-non-veteran].exclude?(data['preparer_type'])
+    end
+
+    def living_situation_is_none?
+      data.dig('living_situation', 'NONE')
     end
   end
 end

@@ -56,29 +56,29 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
       expect(parsed['errors'][0]['source']['pointer']).to eq '/included/0/attributes/issue'
     end
 
-    # it 'create the job to build the PDF' do
-    #   client_stub = instance_double(CentralMail::Service)
-    #   faraday_response = instance_double(Faraday::Response)
+    it 'create the job to build the PDF' do
+      client_stub = instance_double(CentralMail::Service)
+      faraday_response = instance_double(Faraday::Response)
 
-    #   allow(CentralMail::Service).to receive(:new) { client_stub }
-    #   allow(client_stub).to receive(:upload).and_return(faraday_response)
-    #   allow(faraday_response).to receive(:success?).and_return(true)
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(client_stub).to receive(:upload).and_return(faraday_response)
+      allow(faraday_response).to receive(:success?).and_return(true)
 
-    #   with_settings(Settings.vanotify.services.lighthouse.template_id,
-    #                 notice_of_disagreement_received: 'veteran_template',
-    #                 notice_of_disagreement_received_claimant: 'claimant_template') do
-    #     client = instance_double(VaNotify::Service)
-    #     allow(VaNotify::Service).to receive(:new).and_return(client)
-    #     allow(client).to receive(:send_email)
+      with_settings(Settings.vanotify.services.lighthouse.template_id,
+                    notice_of_disagreement_received: 'veteran_template',
+                    notice_of_disagreement_received_claimant: 'claimant_template') do
+        client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(client)
+        allow(client).to receive(:send_email)
 
-    #     Sidekiq::Testing.inline! do
-    #       post(path, params: data, headers:)
-    #     end
+        Sidekiq::Testing.inline! do
+          post(path, params: data, headers:)
+        end
 
-    #     nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
-    #     expect(nod.status).to eq('submitted')
-    #   end
-    # end
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+        expect(nod.status).to eq('submitted')
+      end
+    end
 
     context 'keeps track of board_review_option' do
       let(:path) { base_path('notice_of_disagreements') }

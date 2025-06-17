@@ -47,4 +47,17 @@ RSpec.describe ClaimDocuments::Monitor do
       monitor.track_document_upload_failed(form_id, attachment_id, current_user, error)
     end
   end
+
+  describe '#track_document_upload_input error' do
+    it 'logs a failed upload from input error' do
+      expect(StatsD).to receive(:increment).with("#{document_stats_key}.input_error",
+                                                 tags: include("form_id:#{form_id}"))
+      expect(Rails.logger).to receive(:error).with(
+        "Input error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{error}",
+        hash_including(statsd: "#{document_stats_key}.input_error")
+      )
+
+      monitor.track_document_upload_input_error(form_id, attachment_id, current_user, error)
+    end
+  end
 end

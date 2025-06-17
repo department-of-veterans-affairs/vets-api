@@ -19,7 +19,7 @@ module UserEligibility
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.medical_records.host}/mhvapi/v1/usermgmt/usereligibility/"
+      "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/usermgmt/usereligibility/"
     end
 
     ##
@@ -27,7 +27,7 @@ module UserEligibility
     #
     def x_headers
       base_request_headers.merge({
-                                   'x-api-key': Settings.mhv.medical_records.mhv_x_api_key,
+                                   'x-api-key': Settings.mhv.medical_records.x_api_key,
                                    appToken: Settings.mhv.rx.app_token
                                  })
     end
@@ -46,7 +46,7 @@ module UserEligibility
     #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :multipart_request
         conn.request :multipart
         conn.request :json

@@ -25,8 +25,11 @@ module VAProfile
         def address_suggestions(address)
           with_monitoring do
             address.address_pou = address.address_pou == 'RESIDENCE/CHOICE' ? 'RESIDENCE' : address.address_pou
-            candidate_res = candidate(address)
 
+            candidate_res = candidate(address)
+            if Settings.vsp_environment == 'staging'
+              Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}")
+            end
             AddressSuggestionsResponse.new(candidate_res)
           end
         end

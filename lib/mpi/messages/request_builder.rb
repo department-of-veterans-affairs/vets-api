@@ -5,12 +5,13 @@ module MPI
     class RequestBuilder
       extend ActiveSupport::Concern
 
-      attr_reader :extension, :body, :search_token
+      attr_reader :extension, :body, :search_token, :as_agent
 
-      def initialize(extension:, body:, search_token: nil)
+      def initialize(extension:, body:, search_token: nil, as_agent: false)
         @extension = extension
         @body = body
         @search_token = search_token
+        @as_agent = as_agent
       end
 
       def perform
@@ -95,7 +96,10 @@ module MPI
 
       def build_sender_device
         device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
-        device << element('id', root: MPI::Constants::VA_ROOT_OID, extension: '200VGOV')
+        root = as_agent ? Constants::AS_AGENT_DEVICE_ID_ROOT_OID : Constants::VA_ROOT_OID
+        device << element('id', root:, extension: '200VGOV')
+        device << build_as_agent if as_agent
+        device
       end
 
       def build_envelope
@@ -109,8 +113,16 @@ module MPI
         env << element('env:Header')
       end
 
+      def build_as_agent
+        as_agent = element('asAgent', classCode: 'AGNT')
+        represented_organization = element('representedOrganization', classCode: 'ORG', determinerCode: 'INSTANCE')
+        represented_organization << element('typeId', extension: '200DVPE', root: MPI::Constants::VA_ROOT_OID)
+        as_agent << represented_organization
+        as_agent
+      end
+
       def processing_code
-        Settings.mvi.processing_code
+        IdentitySettings.mvi.processing_code
       end
 
       def element(name, attributes = {}, body_text = nil)

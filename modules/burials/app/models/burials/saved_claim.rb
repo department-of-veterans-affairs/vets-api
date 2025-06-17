@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'burials/processing_office'
+
 module Burials
   ##
   # Burial 21P-530EZ Active::Record
@@ -8,12 +9,6 @@ module Burials
   #
   # todo: migrate encryption to Burials::SavedClaim, remove inheritance and encryption shim
   class SavedClaim < ::SavedClaim
-    # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
-    self.inheritance_column = :_type_disabled
-
-    # We want to override the `Type` behaviors for backwards compatability
-    default_scope -> { where(type: 'SavedClaim::Burial') }, all_queries: true
-
     ##
     # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
     #
@@ -25,7 +20,7 @@ module Burials
     end
 
     # Burial Form ID
-    FORM = '21P-530EZ'
+    FORM = Burials::FORM_ID
 
     ##
     # Associates uploaded attachments with the current saved claim
@@ -74,30 +69,6 @@ module Burials
     end
 
     ##
-    # Processes a PDF by applying a timestamp and renaming it for VBMS upload
-    #
-    # @param pdf_path [String]
-    # @param timestamp [Time, nil]
-    # @param form_id [String, nil]
-    #
-    # @return [String]
-    def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-      processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
-        text: 'Application Submitted on va.gov',
-        x: 400,
-        y: 675,
-        text_only: true, # passing as text only because we override how the date is stamped in this instance
-        timestamp:,
-        page_number: 6,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
-        multistamp: true
-      )
-      renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
-      File.rename(processed_pdf, renamed_path) # rename for vbms upload
-      renamed_path # return the renamed path
-    end
-
-    ##
     # Returns the business line associated with this process
     #
     # @return [String]
@@ -125,7 +96,7 @@ module Burials
     # Utility function to retrieve claimant first name from form
     #
     # @return [String]
-    def claimaint_first_name
+    def claimant_first_name
       parsed_form.dig('claimantFullName', 'first')
     end
 

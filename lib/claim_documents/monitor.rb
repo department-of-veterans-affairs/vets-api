@@ -44,5 +44,17 @@ module ClaimDocuments
       track_request('error', "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{e}",
                     "#{DOCUMENT_STATS_KEY}.failure", **additional_context)
     end
+
+    def track_document_upload_input_error(form_id, attachment_id, current_user, e)
+      additional_context = {
+        attachment_id:,
+        user_account_uuid: current_user&.user_account_uuid,
+        tags: ["form_id:#{form_id}"],
+        message: e&.message
+      }
+      track_request('error',
+                    "Input error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{e}",
+                    "#{DOCUMENT_STATS_KEY}.input_error", **additional_context)
+    end
   end
 end

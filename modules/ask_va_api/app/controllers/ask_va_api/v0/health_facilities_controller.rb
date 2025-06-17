@@ -6,7 +6,6 @@ module AskVAApi
   module V0
     class HealthFacilitiesController < FacilitiesApi::ApplicationController
       around_action :handle_exceptions
-      skip_before_action :verify_authenticity_token
 
       def search
         params[:facilityIds] = params[:ids] if params[:ids].present?

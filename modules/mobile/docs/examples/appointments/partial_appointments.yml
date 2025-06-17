@@ -41,6 +41,11 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
+      travelPayClaim:
+        metadata:
+          status: 500
+          success: false
+          message: 'Something went wrong'
 meta:
   errors: [{source: "VA Service"}]
   upcomingAppointmentsCount: 1

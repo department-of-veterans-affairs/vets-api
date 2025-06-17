@@ -32,7 +32,7 @@ class LCPERedis < Common::RedisStore
   end
 
   def force_client_refresh_and_cache(gids_response)
-    v_fresh = gids_response.response_headers['Etag'].match(%r{W/'(\d+)'})[1]
+    v_fresh = gids_response.response_headers['Etag'].match(%r{W/"(\d+)"})[1]
     # no need to cache if vets-api cache already has fresh version
     cache(lcpe_type, GI::LCPE::Response.from(gids_response)) unless v_fresh == cached_version
     raise ClientCacheStaleError

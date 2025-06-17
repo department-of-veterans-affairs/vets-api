@@ -80,7 +80,13 @@ RSpec.describe EVSSClaimService do
         f = Tempfile.new(['file with spaces', '.txt'])
         f.write('test')
         f.rewind
-        Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+        rack_file = Rack::Test::UploadedFile.new(f.path, 'text/plain')
+
+        ActionDispatch::Http::UploadedFile.new(
+          tempfile: rack_file.tempfile,
+          filename: rack_file.original_filename,
+          type: rack_file.content_type
+        )
       end
 
       let(:document) do
@@ -120,7 +126,7 @@ RSpec.describe EVSSClaimService do
       user.save!
     end
 
-    let(:issue_instant) { Time.now.to_i }
+    let(:issue_instant) { Time.current.to_i }
     let(:submitted_date) do
       BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
     end
@@ -129,8 +135,15 @@ RSpec.describe EVSSClaimService do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
       f.rewind
-      Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+      rack_file = Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+
+      ActionDispatch::Http::UploadedFile.new(
+        tempfile: rack_file.tempfile,
+        filename: rack_file.original_filename,
+        type: rack_file.content_type
+      )
     end
+
     let(:document) do
       EVSSClaimDocument.new(
         tracked_item_id: 1,
@@ -157,7 +170,7 @@ RSpec.describe EVSSClaimService do
         evidence_submission = EvidenceSubmission.first
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status)
-          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED])
         expect(current_personalisation['date_submitted']).to eql(submitted_date)
         expect(StatsD)
           .to have_received(:increment)
@@ -179,7 +192,7 @@ RSpec.describe EVSSClaimService do
     it 'updates document with sanitized filename' do
       subject.upload_document(document)
       job = EVSS::DocumentUpload.jobs.last
-      doc_args = job['args'].last
+      doc_args = job['args'][2]
       expect(doc_args['file_name']).to match(/filewithspaces.*\.txt/)
     end
   end

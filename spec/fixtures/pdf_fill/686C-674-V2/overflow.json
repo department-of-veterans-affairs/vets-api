@@ -37,7 +37,7 @@
     "view:completed_veteran_former_marriage": false,
     "view:completed_spouse_former_marriage": false,
     "current_marriage_information": {
-      "type": "CIVIL",
+      "type_of_marriage": "CIVIL",
       "location": {
         "city": "washingtonlongnamecity",
         "state": "DC"
@@ -106,7 +106,7 @@
         "end_date": "2009-01-02",
         "start_date": "2008-02-01",
         "reason_marriage_ended": "Other",
-        "reason_marriage_ended_other": "annulment overflowannulment overflowannulment over",
+        "other_reason_marriage_ended": "annulment overflowannulment overflowannulment over",
         "full_name": { "first": "testlongnametoaddone", "middle": "sam", "last": "spouseformeronelongname" }
       },
       {

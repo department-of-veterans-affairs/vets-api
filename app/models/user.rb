@@ -27,26 +27,12 @@ class User < Common::RedisStore
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
-  attribute :account_uuid, String
-  attribute :account_id, Integer
   attribute :user_account_uuid, String
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
   attribute :session_handle, String
-
-  def account
-    @account ||= Identity::AccountCreator.new(self).call
-  end
-
-  def account_uuid
-    @account_uuid ||= account&.uuid
-  end
-
-  def account_id
-    @account_id ||= account&.id
-  end
 
   def initial_sign_in
     user_account.created_at
@@ -192,7 +178,6 @@ class User < Common::RedisStore
   delegate :cerner_facility_ids, to: :mpi
   delegate :edipis, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true
-  delegate :home_phone, to: :mpi
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :id_theft_flag, to: :mpi
@@ -211,14 +196,14 @@ class User < Common::RedisStore
   end
 
   def address
-    address = mpi_profile&.address || {}
+    address = mpi_profile&.address
     {
-      street: address[:street],
-      street2: address[:street2],
-      city: address[:city],
-      state: address[:state],
-      country: address[:country],
-      postal_code: address[:postal_code]
+      street: address&.street,
+      street2: address&.street2,
+      city: address&.city,
+      state: address&.state,
+      country: address&.country,
+      postal_code: address&.postal_code
     }
   end
 
@@ -467,12 +452,8 @@ class User < Common::RedisStore
     (edipi.present? && veteran?) || military_person?
   end
 
-  def power_of_attorney
-    EVSS::CommonService.get_current_info[:poa]
-  end
-
   def flipper_id
-    email&.downcase || account_uuid
+    email&.downcase || user_account_uuid
   end
 
   def relationships
@@ -483,6 +464,16 @@ class User < Common::RedisStore
     return unless can_create_mhv_account?
 
     MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def provision_cerner_async(source: nil)
+    return unless cerner_eligible?
+
+    Identity::CernerProvisionerJob.perform_async(icn, source)
+  end
+
+  def cerner_eligible?
+    loa3? && cerner_id.present?
   end
 
   def can_create_mhv_account?

@@ -14,23 +14,26 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
         ]
 
         emails.each do |email|
-          expect(described_class).to receive(:perform_async).with(email, 'ch33')
+          expect(described_class).to receive(:perform_async).with(email)
         end
 
-        described_class.send_to_emails(emails, 'ch33')
+        described_class.send_to_emails(emails)
       end
     end
 
     context 'when no emails are passed in' do
-      it 'logs a message to sentry' do
-        expect(described_class).to receive(:log_message_to_sentry).with(
-          'Direct Deposit info update: no email address present for confirmation email',
-          :info,
-          {},
-          feature: 'direct_deposit'
+      it 'logs info message' do
+        expect(Rails.logger).to receive(:info).with(
+          event: 'direct_deposit_confirmation_skipped',
+          reason: 'missing_email',
+          context: {
+            feature: 'direct_deposit',
+            job: described_class.name
+          },
+          message: 'No email address present for Direct Deposit confirmation email'
         )
 
-        described_class.send_to_emails([], 'ch33')
+        described_class.send_to_emails([])
       end
     end
   end
@@ -38,46 +41,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
   describe '#perform' do
     let(:notification_client) { double('Notifications::Client') }
 
-    context 'with a dd type of ch33' do
-      it 'sends a confirmation email using the edu template' do
-        allow(VaNotify::Service).to receive(:new)
-          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
-
-        expect(notification_client).to receive(:send_email).with(
-          email_address: email, template_id: 'edu_template_id'
-        )
-
-        described_class.new.perform(email, 'ch33')
-      end
-    end
-
-    context 'with a dd type of comp_pen' do
-      it 'sends a confirmation email using the comp and pen template' do
-        allow(VaNotify::Service).to receive(:new)
-          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
-
-        expect(notification_client).to receive(:send_email).with(
-          email_address: email, template_id: 'comp_pen_template_id'
-        )
-
-        described_class.new.perform(email, 'comp_pen')
-      end
-    end
-
-    context 'with a dd type of comp_and_pen' do
-      it 'sends a confirmation email using the comp and pen template' do
-        allow(VaNotify::Service).to receive(:new)
-          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
-
-        expect(notification_client).to receive(:send_email).with(
-          email_address: email, template_id: 'comp_pen_template_id'
-        )
-
-        described_class.new.perform(email, 'comp_and_pen')
-      end
-    end
-
-    context 'without a dd type' do
+    context 'with default email template' do
       it 'sends a confirmation email using the direct_deposit template' do
         allow(VaNotify::Service).to receive(:new)
           .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
@@ -86,7 +50,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
           email_address: email, template_id: 'direct_deposit_template_id'
         )
 
-        described_class.new.perform(email, nil)
+        described_class.new.perform(email)
       end
     end
 
@@ -102,8 +66,8 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
 
       allow(notification_client).to receive(:send_email).and_raise(error)
 
-      expect(described_class).to receive(:log_exception_to_sentry).with(error)
-      expect { subject.perform(email, 'comp_pen') }
+      expect(Rails.logger).to receive(:error)
+      expect { subject.perform(email) }
         .to trigger_statsd_increment('worker.direct_deposit_confirmation_email.error')
     end
 
@@ -119,44 +83,10 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
 
       allow(notification_client).to receive(:send_email).and_raise(error)
 
-      expect(described_class).to receive(:log_exception_to_sentry).with(error)
-      expect { subject.perform(email, 'comp_and_pen') }
+      expect(Rails.logger).to receive(:error)
+      expect { subject.perform(email) }
         .to raise_error(Common::Exceptions::BackendServiceException)
         .and trigger_statsd_increment('worker.direct_deposit_confirmation_email.error')
-    end
-  end
-
-  describe '#get_template' do
-    let(:job) { VANotifyDdEmailJob.new }
-
-    context 'when dd_type is nil' do
-      it 'returns the direct_deposit template' do
-        expect(job.template_type(nil)).to eq('direct_deposit')
-      end
-    end
-
-    context 'when dd_type is unknown' do
-      it 'returns the direct_deposit template' do
-        expect(job.template_type('fake')).to eq('direct_deposit')
-      end
-    end
-
-    context 'when dd_type is comp_pen' do
-      it 'returns the direct_deposit_comp_pen template' do
-        expect(job.template_type('comp_pen')).to eq('direct_deposit_comp_pen')
-      end
-    end
-
-    context 'when dd_type is comp_and_pen' do
-      it 'returns the direct_deposit_comp_pen template' do
-        expect(job.template_type('comp_and_pen')).to eq('direct_deposit_comp_pen')
-      end
-    end
-
-    context 'when dd_type is edu' do
-      it 'returns the direct_deposit_edu template' do
-        expect(job.template_type('ch33')).to eq('direct_deposit_edu')
-      end
     end
   end
 end

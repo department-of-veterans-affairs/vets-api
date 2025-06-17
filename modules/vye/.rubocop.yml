@@ -1,7 +1,7 @@
 inherit_from:
   - ../../.rubocop.yml
 
-require:
+plugins:
   - rubocop-rspec_rails
 
 Metrics/ModuleLength:

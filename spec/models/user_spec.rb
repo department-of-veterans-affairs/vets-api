@@ -395,7 +395,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'has a vet360 id if one exists' do
-          expect(user.vet360_id).to be(vet360_id)
+          expect(user.vet360_id).to eq(vet360_id)
         end
       end
 
@@ -451,7 +451,7 @@ RSpec.describe User, type: :model do
           context 'user has an address' do
             it 'returns mpi_profile\'s address as hash' do
               expect(user.address).to eq(expected_address)
-              expect(user.address).to eq(user.send(:mpi_profile).address.to_h)
+              expect(user.address).to eq(user.send(:mpi_profile).address.attributes.deep_symbolize_keys)
             end
 
             it 'returns mpi_profile\'s address postal code' do
@@ -779,10 +779,10 @@ RSpec.describe User, type: :model do
 
         it 'fetches address data from MPI and stores it as a hash' do
           expect(user.address[:street]).to eq(mpi_profile.address.street)
-          expect(user.address[:street2]).to be(mpi_profile.address[:street2])
-          expect(user.address[:city]).to be(mpi_profile.address[:city])
-          expect(user.address[:postal_code]).to be(mpi_profile.address[:postal_code])
-          expect(user.address[:country]).to be(mpi_profile.address[:country])
+          expect(user.address[:street2]).to be(mpi_profile.address.street2)
+          expect(user.address[:city]).to be(mpi_profile.address.city)
+          expect(user.address[:postal_code]).to be(mpi_profile.address.postal_code)
+          expect(user.address[:country]).to be(mpi_profile.address.country)
         end
 
         it 'fetches ssn from MPI' do
@@ -995,36 +995,6 @@ RSpec.describe User, type: :model do
 
       it 'returns blank pciu_alternate_phone' do
         expect(user.pciu_alternate_phone).to be_nil
-      end
-    end
-  end
-
-  describe '#account' do
-    context 'when user has an existing Account record' do
-      let(:user) { create(:user, :accountable) }
-
-      it 'returns the users Account record' do
-        account = Account.find_by(idme_uuid: user.uuid)
-
-        expect(user.account).to eq account
-      end
-    end
-
-    context 'when user does not have an existing Account record' do
-      let(:user) { create(:user, :loa3) }
-
-      before do
-        account = Account.find_by(idme_uuid: user.uuid)
-        account.destroy
-      end
-
-      it 'creates and returns the users Account record', :aggregate_failures do
-        account = Account.find_by(idme_uuid: user.uuid)
-        expect(account).to be_nil
-        account = user.account
-
-        expect(account.class).to eq Account
-        expect(account.idme_uuid).to eq user.uuid
       end
     end
   end
@@ -1525,6 +1495,74 @@ RSpec.describe User, type: :model do
         user.create_mhv_account_async
 
         expect(MHV::AccountCreatorJob).not_to have_received(:perform_async)
+      end
+    end
+  end
+
+  describe '#provision_cerner_async' do
+    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:cerner_id) { 'some-cerner-id' }
+
+    before do
+      allow(Identity::CernerProvisionerJob).to receive(:perform_async)
+    end
+
+    context 'when the user is loa3' do
+      context 'when the user has a cerner_id' do
+        it 'enqueues a job to provision the Cerner account' do
+          user.provision_cerner_async
+
+          expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user.icn, nil)
+        end
+      end
+
+      context 'when the user does not have a cerner_id' do
+        let(:cerner_id) { nil }
+
+        it 'does not enqueue a job to provision the Cerner account' do
+          user.provision_cerner_async
+
+          expect(Identity::CernerProvisionerJob).not_to have_received(:perform_async)
+        end
+      end
+    end
+
+    context 'when the user is not loa3' do
+      let(:user) { build(:user, cerner_id:) }
+
+      it 'does not enqueue a job to provision the Cerner account' do
+        user.provision_cerner_async
+
+        expect(Identity::CernerProvisionerJob).not_to have_received(:perform_async)
+      end
+    end
+  end
+
+  describe '#cerner_eligible?' do
+    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:cerner_id) { 'some-cerner-id' }
+
+    context 'when the user is loa3' do
+      context 'when the user has a cerner_id' do
+        it 'returns true' do
+          expect(user.cerner_eligible?).to be true
+        end
+      end
+
+      context 'when the user does not have a cerner_id' do
+        let(:cerner_id) { nil }
+
+        it 'returns false' do
+          expect(user.cerner_eligible?).to be false
+        end
+      end
+    end
+
+    context 'when the user is not loa3' do
+      let(:user) { build(:user) }
+
+      it 'returns false' do
+        expect(user.cerner_eligible?).to be false
       end
     end
   end

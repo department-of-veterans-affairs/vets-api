@@ -38,7 +38,6 @@ class SimpleCovHelper
   end
 
   def self.add_filters
-    add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -52,7 +51,6 @@ class SimpleCovHelper
     add_filter 'lib/vet360/response.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
-    add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
   end
 
@@ -65,13 +63,16 @@ class SimpleCovHelper
     add_group 'Banners', 'modules/banners/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'DebtsApi', 'modules/debts_api/'
+    add_group 'DependentsVerification', 'modules/dependents_verification/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IncomeAndAssets', 'modules/income_and_assets/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
+    add_group 'MedicalExpenseReports', 'modules/medical_expense_reports/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
-    add_group 'HealthQuest', 'modules/health_quest'
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'MyHealth', 'modules/my_health/'
@@ -83,6 +84,7 @@ class SimpleCovHelper
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
     add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
+    add_group 'VRE', 'modules/vre/'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'

@@ -16,7 +16,7 @@ module Lighthouse
       def perform
         record_count = EvidenceSubmission.all.count
         deleted_records = EvidenceSubmission.where(
-          delete_date: ..DateTime.now,
+          delete_date: ..DateTime.current,
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
         ).destroy_all
 

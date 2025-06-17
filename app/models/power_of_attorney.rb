@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 # PowerOfAttorney model
-class PowerOfAttorney < Common::Base
-  attribute :social_security_number
-  attribute :code
-  attribute :name
-  attribute :organization
-  attribute :begin_date
+class PowerOfAttorney
+  include Vets::Model
+
+  attribute :social_security_number, String
+  attribute :code, String
+  attribute :name, String
+  attribute :organization, String
+  attribute :begin_date, String
 end

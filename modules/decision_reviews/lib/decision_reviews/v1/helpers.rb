@@ -36,14 +36,44 @@ module DecisionReviews
             last: user.last_name.to_s.presence
           },
           veteranDateOfBirth: user.birth_date.to_s.strip.presence,
-          veteranAddress: vet['address'].merge(
-            'country' => vet['address']['countryCodeISO2'],
-            'postalCode' => vet['address']['zipCode5']
-          ),
+          veteranAddress: transform_address_fields(vet['address']),
           email: vet['email'],
           veteranPhone: "#{vet['phone']['areaCode']}#{vet['phone']['phoneNumber']}"
         }
-        x.merge(form4142).deep_stringify_keys
+
+        transformed_form4142 = transform_form4142_data(form4142)
+        x.merge(transformed_form4142).deep_stringify_keys
+      end
+
+      def transform_form4142_data(form4142_data)
+        return form4142_data unless form4142_data.is_a?(Hash)
+
+        transformed_data = form4142_data.deep_dup
+
+        if transformed_data['providerFacility'].is_a?(Array)
+          transformed_data['providerFacility'].each do |facility|
+            # Convert the 'issues' array received from the FE to a 'conditionsTreated' string
+            # as expected by the backend schema
+            facility['conditionsTreated'] = facility.delete('issues') if facility.is_a?(Hash) && facility.key?('issues')
+            if facility['conditionsTreated'].is_a?(Array)
+              facility['conditionsTreated'] = facility['conditionsTreated'].join(', ')
+            end
+          end
+        end
+
+        transformed_data
+      end
+
+      def transform_address_fields(address)
+        address.merge(
+          {
+            'street' => address['addressLine1'],
+            'street2' => address['addressLine2'],
+            'state' => address['stateCode'],
+            'country' => IsoCountryCodes.find(address['countryCodeISO2'])&.alpha3,
+            'postalCode' => address['zipCode5']
+          }
+        )
       end
 
       def create_supplemental_claims_headers(user)

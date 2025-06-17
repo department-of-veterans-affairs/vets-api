@@ -39,7 +39,10 @@ module MedicalRecords
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
-    def list_allergies
+    ##
+    # @param _uuid [String] an unused parameter for compatibility with the base client
+    #
+    def list_allergies(_uuid)
       bundle = lighthouse_client.list_allergy_intolerances
       bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
       sort_bundle(bundle, :recordedDate, :desc)
@@ -57,12 +60,6 @@ module MedicalRecords
         body = JSON.parse(result.body)
         diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
         diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
-
-        # Special-case exception handling
-        if result.code == 500 && diagnostics.include?('HAPI-1363')
-          # "HAPI-1363: Either No patient or multiple patient found"
-          raise MedicalRecords::PatientNotFound
-        end
 
         # Default exception handling
         raise Common::Exceptions::BackendServiceException.new(

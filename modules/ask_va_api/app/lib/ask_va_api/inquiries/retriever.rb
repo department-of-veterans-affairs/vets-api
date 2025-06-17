@@ -7,7 +7,7 @@ module AskVAApi
     class Retriever < BaseRetriever
       attr_reader :icn
 
-      def initialize(icn: nil, **args)
+      def initialize(icn:, **args)
         super(**args)
         @icn = icn
       end
@@ -31,6 +31,7 @@ module AskVAApi
       # Fetch correspondences related to the inquiry
       def fetch_correspondences(inquiry_id:)
         correspondences = Correspondences::Retriever.new(
+          icn:,
           inquiry_id:,
           user_mock_data:,
           entity_class: AskVAApi::Correspondences::Entity
@@ -64,16 +65,9 @@ module AskVAApi
       # Fetch inquiry data from CRM
       def fetch_crm_data(id)
         endpoint = 'inquiries'
-        payload = build_payload(id)
+        payload = id ? { inquiryNumber: id } : {}
         response = Crm::Service.new(icn:).call(endpoint:, payload:)
         handle_response_data(response:, error_class: InquiriesRetrieverError)
-      end
-
-      # Build API payload for CRM call
-      def build_payload(id)
-        raise ArgumentError, 'Either ID or ICN must be provided' if id.nil? && icn.nil?
-
-        id ? { inquiryNumber: id } : { ICN: icn }
       end
 
       # Add category name to each inquiry based on category ID

@@ -34,6 +34,11 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
+      travelPayClaim:
+        metadata:
+          status: 200
+          success: true
+          message: 'Data retrieved successfully'
 meta:
   upcomingAppointmentsCount: 1
   upcomingDaysLimit: 30

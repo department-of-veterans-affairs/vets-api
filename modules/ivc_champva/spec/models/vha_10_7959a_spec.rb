@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe IvcChampva::VHA107959a do
+  let(:current_user) { build(:user, :loa3) }
+
   let(:data) do
     {
       'primary_contact_info' => {
@@ -72,5 +74,24 @@ RSpec.describe IvcChampva::VHA107959a do
         vha_10_7959a.track_email_usage
       end
     end
+  end
+
+  describe '#track_current_user_loa' do
+    it 'logs current user loa' do
+      expect(Rails.logger).to receive(:info)
+        .with('IVC ChampVA Forms - 10-7959A Current User LOA', { current_user_loa: 3 })
+      vha_10_7959a.track_current_user_loa(current_user)
+    end
+  end
+
+  it 'is not past OMB expiration date' do
+    # Update this date string to match the current PDF OMB expiration date:
+    omb_expiration_date = Date.strptime('12312027', '%m%d%Y')
+    error_message = <<~MSG
+      If this test is failing it likely means the form 10-7959a PDF has reached
+      OMB expiration date. Please see ivc_champva module README for details on updating the PDF file.
+    MSG
+
+    expect(omb_expiration_date.past?).to be(false), error_message
   end
 end

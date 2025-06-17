@@ -21,11 +21,11 @@ module TravelPay
     def get_all_appointments(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       query_path = if params.empty?
-                     'api/v1.2/appointments'
+                     'api/v2/appointments'
                    else
-                     "api/v1.2/appointments?#{params.to_query}"
+                     "api/v2/appointments?#{params.to_query}"
                    end
       log_to_statsd('appointments', 'get_all') do
         connection(server_url: btsss_url).get(query_path) do |req|
@@ -33,6 +33,37 @@ module TravelPay
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
           req.headers.merge!(claim_headers)
+        end
+      end
+    end
+
+    ##
+    # HTTP POST call to the BTSSS 'appointments/find-or-create' endpoint
+    # API responds with BTSSS appointment ID
+    #
+    # @params:
+    #  {
+    #   appointmentDateTime: datetime string ('2024-01-01T12:45:34.465Z'),
+    #   facilityStationNumber: string (i.e. facilityId),
+    #   appointmentType: string, 'CompensationAndPensionExamination' || 'Other'
+    #   isComplete: boolean,
+    #  }
+    #
+    # @return [TravelPay::Appointment]
+    #
+    def find_or_create(veis_token, btsss_token, params)
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
+      url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
+
+      log_to_statsd('appointments', 'find_or_create') do
+        connection(server_url: btsss_url).post('api/v2/appointments/find-or-add') do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+          req.body = url_params.to_json
         end
       end
     end

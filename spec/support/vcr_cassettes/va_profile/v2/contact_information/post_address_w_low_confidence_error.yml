@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/addresses
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
     body:
       encoding: UTF-8
       string: '{"bio":{"addressId":42,"addressLine1":"1493 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"DOMESTIC","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":null,"countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2018-04-09T11:52:03.000-06:00","effectiveStartDate":null,"effectiveEndDate":null}}'

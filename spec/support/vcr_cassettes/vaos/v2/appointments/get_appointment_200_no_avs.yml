@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/192308
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012845331V153043/appointments/192308
     body:
       encoding: US-ASCII
       string: ''
@@ -54,7 +54,7 @@ http_interactions:
   recorded_at: Mon, 05 Feb 2024 19:48:21 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983
     body:
       encoding: US-ASCII
       string: ''

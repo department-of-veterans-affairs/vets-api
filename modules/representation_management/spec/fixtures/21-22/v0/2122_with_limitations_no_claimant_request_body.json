@@ -1,12 +1,16 @@
 {
   "record_consent": true,
   "consent_address_change": true,
-  "consent_limits": ["DRUG_ABUSE", "HIV", "SICKLE_CELL"],
+  "consent_limits": [
+    "DRUG_ABUSE",
+    "HIV",
+    "SICKLE_CELL"
+  ],
   "veteran": {
     "ssn": "123456789",
     "va_file_number": "123456789",
     "date_of_birth": "1980-12-31",
-    "service_number": "123456789",
+    "service_number": "AA12345",
     "service_branch": "ARMY",
     "phone": "5555555555",
     "email": "veteran@example.com",
@@ -26,7 +30,7 @@
     }
   },
   "representative": {
-		"id": "bd22d501-b3df-4a52-9229-5c25b4d2036a",
-		"organization_id": "8f4242b6-6f17-4f60-b91c-cfe4d7e01d91"
-	}
+    "id": "bd22d501-b3df-4a52-9229-5c25b4d2036a",
+    "organization_id": "8f4242b6-6f17-4f60-b91c-cfe4d7e01d91"
+  }
 }

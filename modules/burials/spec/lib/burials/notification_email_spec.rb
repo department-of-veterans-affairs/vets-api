@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Burials::NotificationEmail do
   let(:saved_claim) { create(:burials_saved_claim) }
-  let(:notification_email) { described_class.new(saved_claim.id) }
 
   describe '#deliver' do
     it 'successfully sends an email' do

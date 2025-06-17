@@ -34,12 +34,16 @@ module SignIn
       nil
     end
 
-    def access_token_authenticate(skip_error_handling: false)
+    def access_token_authenticate(skip_render_error: false, re_raise: false)
       access_token.present?
     rescue Errors::AccessTokenExpiredError => e
-      render json: { errors: e }, status: :forbidden unless skip_error_handling
+      raise if re_raise
+
+      render json: { errors: e }, status: :forbidden unless skip_render_error
     rescue Errors::StandardError => e
-      handle_authenticate_error(e) unless skip_error_handling
+      raise if re_raise
+
+      handle_authenticate_error(e) unless skip_render_error
     end
 
     private
@@ -61,6 +65,7 @@ module SignIn
 
     def authenticate_access_token(with_validation: true)
       access_token_jwt = bearer_token || cookie_access_token
+
       AccessTokenJwtDecoder.new(access_token_jwt:).perform(with_validation:)
     end
 

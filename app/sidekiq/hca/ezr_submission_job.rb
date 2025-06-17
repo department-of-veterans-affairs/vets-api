@@ -33,11 +33,10 @@ module HCA
 
         send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
 
-        log_message_to_sentry(
+        Form1010Ezr::Service.log_submission_failure_to_sentry(
+          parsed_form,
           '1010EZR total failure',
-          :error,
-          Form1010Ezr::Service.new(nil).veteran_initials(parsed_form),
-          ezr: :total_failure
+          'total_failure'
         )
       end
     end
@@ -75,14 +74,23 @@ module HCA
     rescue VALIDATION_ERROR => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.enrollment_system_validation_error")
 
-      PersonalInformationLog.create!(
-        data: parsed_form,
-        error_class: 'Form1010Ezr EnrollmentSystemValidationFailure'
-      )
+      PersonalInformationLog.create!(data: parsed_form, error_class: 'Form1010Ezr EnrollmentSystemValidationFailure')
 
-      Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
+      Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       self.class.log_exception_to_sentry(e)
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
+    rescue Ox::ParseError => e
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_did_not_retry")
+
+      Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
+
+      self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
+
+      Form1010Ezr::Service.log_submission_failure_to_sentry(
+        parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
+      )
+      # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
+      raise Sidekiq::JobRetry::Skip
     rescue
       StatsD.increment("#{STATSD_KEY_PREFIX}.async.retries")
       raise

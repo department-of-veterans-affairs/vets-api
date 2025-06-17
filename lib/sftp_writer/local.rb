@@ -19,6 +19,7 @@ module SFTPWriter
       path = File.join(write_path(filename), filename)
       FileUtils.mkdir_p(File.dirname(path))
       File.binwrite(path, contents)
+      0
     end
   end
 end

@@ -11,7 +11,7 @@ RSpec.describe 'MockedAuthentication::MPI::Mockdata', type: :request do
 
   describe 'GET #show' do
     before do
-      allow(Settings.sign_in).to receive(:mockdata_sync_api_key).and_return(api_key)
+      allow(IdentitySettings.sign_in).to receive(:mockdata_sync_api_key).and_return(api_key)
     end
 
     context 'when icn is present and api_key is valid' do

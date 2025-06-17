@@ -35,6 +35,26 @@ describe LighthousePolicy do
     end
   end
 
+  permissions :access_vet_status? do
+    context 'user has ICN' do
+      let(:user) { build(:user, :loa3) }
+
+      it 'grants access' do
+        expect(subject).to permit(user, :lighthouse)
+      end
+    end
+
+    context 'user without ICN' do
+      let(:user) { build(:user, :loa3) }
+
+      before { allow(user).to receive(:icn).and_return(nil) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :lighthouse)
+      end
+    end
+  end
+
   permissions :direct_deposit_access? do
     let(:user) { build(:evss_user) }
 

@@ -19,7 +19,7 @@ module EVSS
     #   @return [String] The recipient's full name
     #
     class LettersResponse < EVSS::Response
-      attribute :letters, Array[EVSS::Letters::Letter]
+      attribute :letters, EVSS::Letters::Letter, array: true, default: []
       attribute :full_name, String
 
       def initialize(status, response = nil)

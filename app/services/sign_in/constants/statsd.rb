@@ -5,6 +5,9 @@ module SignIn
     module Statsd
       STATSD_SIS_AUTHORIZE_SUCCESS = 'api.sis.auth.success'
       STATSD_SIS_AUTHORIZE_FAILURE = 'api.sis.auth.failure'
+      STATSD_SIS_AUTHORIZE_SSO_SUCCESS = 'api.sis.auth_sso.success'
+      STATSD_SIS_AUTHORIZE_SSO_FAILURE = 'api.sis.auth_sso.failure'
+      STATSD_SIS_AUTHORIZE_SSO_REDIRECT = 'api.sis.auth_sso.redirect'
       STATSD_SIS_CALLBACK_SUCCESS = 'api.sis.callback.success'
       STATSD_SIS_CALLBACK_FAILURE = 'api.sis.callback.failure'
       STATSD_SIS_TOKEN_SUCCESS = 'api.sis.token.success'

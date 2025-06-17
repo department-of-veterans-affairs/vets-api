@@ -17,8 +17,8 @@ describe ClaimsApi::VnpPersonService, metadata do
 
     # get a proc_id from vnp_proc_create
     # get a ptcpnt_id from vnp_ptcpnt_create (using the proc_id from the previous step)
-    let(:vnp_proc_id) { '3854545' }
-    let(:vnp_ptcpnt_id) { '182008' }
+    let(:vnp_proc_id) { '3860232' }
+    let(:vnp_ptcpnt_id) { '189015' }
     let(:expected_response) do
       { vnp_proc_id:, vnp_ptcpnt_id:,
         first_nm: 'Tamara', last_nm: 'Ellis' }

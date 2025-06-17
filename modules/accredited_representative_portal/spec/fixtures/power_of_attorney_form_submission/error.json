@@ -33,6 +33,32 @@
         }
       },
       "status": "errored",
+      "steps": [
+        {
+          "type": "PDF_SUBMISSION",
+          "status": "FAILED",
+          "completedAt": null,
+          "nextStep": "POA_UPDATE"
+        },
+        {
+          "type": "POA_UPDATE",
+          "status": "NOT_STARTED",
+          "completedAt": null,
+          "nextStep": "POA_ACCESS_UPDATE"
+        },
+        {
+          "type": "POA_ACCESS_UPDATE",
+          "status": "NOT_STARTED",
+          "completedAt": null,
+          "nextStep": "CLAIMANT_NOTIFICATION"
+        },
+        {
+          "type": "CLAIMANT_NOTIFICATION",
+          "status": "NOT_STARTED",
+          "completedAt": null,
+          "nextStep": null
+        }
+      ],
       "errors": [
         {
           "title": "some error",

@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require_relative 'eligibility'
 require_relative 'supply'
 require_relative 'token'
 require_relative 'address'
 
 module MDOT
-  class Response < Common::Base
+  class Response
+    include Vets::Model
     attr_reader :status
 
     attribute :permanent_address, MDOT::Address
     attribute :temporary_address, MDOT::Address
-    attribute :supplies, Array[MDOT::Supply]
+    attribute :supplies, MDOT::Supply, array: true, default: []
     attribute :eligibility, MDOT::Eligibility
     attribute :vet_email, String
 
@@ -36,7 +37,7 @@ module MDOT
       eligibility = MDOT::Eligibility.new
 
       supplies.each do |supply|
-        group = supply.product_group.downcase.pluralize.to_sym
+        group = supply.product_group.downcase.pluralize.parameterize(separator: '_').to_sym
         eligibility.send("#{group}=", true) if eligibility.attributes.key?(group) && supply.available_for_reorder
       end
 

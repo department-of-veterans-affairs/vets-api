@@ -37,7 +37,7 @@ module SignIn
       set_cookie!(name: Constants::Auth::INFO_COOKIE_NAME,
                   value: info_cookie_value.to_json,
                   httponly: false,
-                  domain: Settings.sign_in.info_cookie_domain)
+                  domain: IdentitySettings.sign_in.info_cookie_domain)
 
       if anti_csrf_enabled_client?
         set_cookie!(name: Constants::Auth::ANTI_CSRF_COOKIE_NAME,
@@ -50,7 +50,7 @@ module SignIn
       cookies[name] = {
         value:,
         expires: session_expiration,
-        secure: Settings.sign_in.cookies_secure,
+        secure: IdentitySettings.sign_in.cookies_secure,
         httponly:,
         path:,
         domain:
@@ -72,7 +72,7 @@ module SignIn
 
     def token_json_payload
       payload = {}
-      payload[:refresh_token] = encrypted_refresh_token
+      payload[:refresh_token] = encrypted_refresh_token unless web_sso_client?
       payload[:access_token] = encoded_access_token
       payload[:anti_csrf_token] = anti_csrf_token if anti_csrf_enabled_client?
       payload[:device_secret] = device_secret if device_secret_enabled_client?
@@ -130,6 +130,10 @@ module SignIn
 
     def client_config
       @client_config ||= session_container.client_config
+    end
+
+    def web_sso_client?
+      @web_sso_client ||= session_container.web_sso_client
     end
   end
 end

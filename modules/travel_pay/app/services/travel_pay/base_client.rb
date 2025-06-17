@@ -27,7 +27,7 @@ module TravelPay
       service_name = Settings.travel_pay.service_name
 
       Faraday.new(url: server_url) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.response :raise_custom_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if mock_enabled?
         conn.response :json

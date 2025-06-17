@@ -13,7 +13,6 @@ AskVAApi::Engine.routes.draw do
     get '/profile', to: 'inquiries#profile'
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
-    post '/upload_attachment', to: 'inquiries#upload_attachment'
     post '/inquiries/:id/reply/new', to: 'inquiries#create_reply'
 
     # static_data
@@ -21,12 +20,9 @@ AskVAApi::Engine.routes.draw do
     get '/categories/:category_id/topics', to: 'static_data#topics'
     get '/topics/:topic_id/subtopics', to: 'static_data#subtopics'
     get '/contents', to: 'static_data#contents'
-    get '/zipcodes', to: 'static_data#zipcodes'
-    get '/states', to: 'static_data#states'
     get '/optionset', to: 'static_data#optionset'
     get '/announcements', to: 'static_data#announcements'
     get '/branch_of_service', to: 'static_data#branch_of_service'
-    get '/test_endpoint', to: 'static_data#test_endpoint'
 
     # address_validation
     post '/address_validation', to: 'address_validation#create'

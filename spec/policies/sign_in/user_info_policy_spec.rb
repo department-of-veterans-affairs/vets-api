@@ -11,7 +11,7 @@ describe SignIn::UserInfoPolicy do
   let(:user_info_clients) { [client_id] }
 
   before do
-    allow(Settings.sign_in).to receive(:user_info_clients).and_return(user_info_clients)
+    allow(IdentitySettings.sign_in).to receive(:user_info_clients).and_return(user_info_clients)
   end
 
   permissions :show? do

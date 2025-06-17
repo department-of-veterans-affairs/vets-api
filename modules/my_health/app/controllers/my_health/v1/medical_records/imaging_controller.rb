@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class ImagingController < MrController
+      class ImagingController < MRController
         include ActionController::Live
 
         before_action :set_study_id, only: %i[request_download images image dicom]
@@ -55,7 +55,7 @@ module MyHealth
         def header_callback
           lambda do |headers|
             headers.each do |k, v|
-              next if %w[Content-Type Transfer-Encoding].include?(k)
+              next if %w[Content-Type Transfer-Encoding Content-Encoding].include?(k)
 
               response.headers[k] = v if k.present?
             end

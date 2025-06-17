@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :pensions_module_pension_claim, class: 'Pensions::SavedClaim' do
+  factory :pensions_saved_claim, class: 'Pensions::SavedClaim' do
     form_id { '21P-527EZ' }
+    user_account_id { '123567788' }
     form do
       {
         veteranFullName: {
@@ -26,19 +27,19 @@ FactoryBot.define do
 
     trait :pending do
       after(:create) do |pension_claim|
-        create(:form_submission, :pending, saved_claim_id: pension_claim.id)
+        create(:lighthouse_submission, :pending, saved_claim_id: pension_claim.id)
       end
     end
 
-    trait :success do
+    trait :submitted do
       after(:create) do |pension_claim|
-        create(:form_submission, :success, saved_claim_id: pension_claim.id)
+        create(:lighthouse_submission, :submitted, saved_claim_id: pension_claim.id)
       end
     end
 
     trait :failure do
       after(:create) do |pension_claim|
-        create(:form_submission, :failure, saved_claim_id: pension_claim.id)
+        create(:lighthouse_submission, :failure, saved_claim_id: pension_claim.id)
       end
     end
   end

@@ -9,27 +9,12 @@ module VAOS
       end
 
       def user_facing?(appointment)
-        return true if valid_appointment?(appointment) &&
-                       (presentable_upcoming_appointment?(appointment) ||
-                         presentable_past_appointment?(appointment) ||
-                         presentable_cancelled_appointment?(appointment))
+        return true if valid_appointment?(appointment)
 
         presentable_requested_appointment?(appointment)
       end
 
       private
-
-      def presentable_upcoming_appointment?(appointment)
-        appointment[:start] >= @now
-      end
-
-      def presentable_past_appointment?(appointment)
-        appointment[:start] < @now && appointment[:status] != 'cancelled'
-      end
-
-      def presentable_cancelled_appointment?(appointment)
-        appointment[:status] == 'cancelled' && appointment[:start] >= 30.days.ago.beginning_of_day
-      end
 
       def presentable_requested_appointment?(appointment)
         created_at = appointment[:created]

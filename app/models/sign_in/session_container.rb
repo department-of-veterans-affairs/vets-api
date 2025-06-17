@@ -10,7 +10,8 @@ module SignIn
       :access_token,
       :anti_csrf_token,
       :client_config,
-      :device_secret
+      :device_secret,
+      :web_sso_client
     )
 
     validates(
@@ -27,13 +28,15 @@ module SignIn
                    access_token:,
                    anti_csrf_token:,
                    client_config:,
-                   device_secret: nil)
+                   device_secret: nil,
+                   web_sso_client: false)
       @session = session
       @refresh_token = refresh_token
       @access_token = access_token
       @anti_csrf_token = anti_csrf_token
       @client_config = client_config
       @device_secret = device_secret
+      @web_sso_client = web_sso_client
 
       validate!
     end

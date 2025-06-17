@@ -111,10 +111,11 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
           allow(Tempfile).to receive(:new).and_return(tempfile3)
           allow(tempfile3).to receive(:each_line).and_raise(RuntimeError, 'Bad file')
 
-          expect(Rails.logger).to receive(:error).once.with('Bad file.')
-          expect(Rails.logger).to receive(:error).once # log_exception_to_sentry stacktrace error
+          expect(Rails.logger).to receive(:error).once.with('Form1095B Creation Job Error: Error processing file: ' \
+                                                            "#{file_names3.first}, on line 0; Bad file")
           expect(Rails.logger).to receive(:error).once.with(
-            "failed to save 0 forms from file: #{file_names3.first}; successfully saved 0 forms"
+            "Form1095B Creation Job Error: failed to save 0 forms from file: #{file_names3.first}; " \
+            'successfully saved 0 forms'
           )
           expect(bucket).not_to receive(:delete_objects)
 

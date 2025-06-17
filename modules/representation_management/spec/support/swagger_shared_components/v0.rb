@@ -64,7 +64,6 @@ module SwaggerSharedComponents
         record_consent: true,
         consent_address_change: true,
         consent_limits: [],
-        claimant:,
         representative: poa_request_representative,
         veteran:
       }
@@ -100,7 +99,7 @@ module SwaggerSharedComponents
         ssn: '123456789',
         va_file_number: '123456789',
         date_of_birth: '1980-12-31',
-        service_number: '123456789',
+        service_number: 'AA12345',
         service_branch: 'ARMY',
         phone: '5555555555',
         email: 'veteran@example.com',
@@ -188,7 +187,6 @@ module SwaggerSharedComponents
         schema: {
           type: :object,
           properties: appointment_conditions_parameter.merge(
-            claimant: claimant_parameter,
             representative: poa_request_rep_parameter,
             veteran: veteran_parameter
           ),

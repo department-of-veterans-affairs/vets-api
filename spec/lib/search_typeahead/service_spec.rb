@@ -59,5 +59,49 @@ describe SearchTypeahead::Service do
         end
       end
     end
+
+    context 'when a timeout error occurs' do
+      let(:query) { 'ebenefits' }
+
+      before do
+        allow(Faraday).to receive(:get).and_raise(Faraday::TimeoutError.new('timeout'))
+      end
+
+      it 'returns a status of 504 and a timeout error message' do
+        response = subject.suggestions
+        expect(response.status).to eq 504
+        expect(JSON.parse(response.body)['error']).to eq 'The request timed out. Please try again.'
+      end
+    end
+
+    context 'when a connection error occurs' do
+      let(:query) { 'ebenefits' }
+
+      before do
+        allow(Faraday).to receive(:get).and_raise(Faraday::ConnectionFailed.new('connection failed'))
+      end
+
+      it 'returns a status of 502 and a connection error message' do
+        response = subject.suggestions
+        expect(response.status).to eq 502
+        expect(JSON.parse(response.body)['error']).to eq(
+          'Unable to connect to the search service. Please try again later.'
+        )
+      end
+    end
+
+    context 'when an unexpected error occurs' do
+      let(:query) { 'ebenefits' }
+
+      before do
+        allow(Faraday).to receive(:get).and_raise(StandardError.new('unexpected'))
+      end
+
+      it 'returns a status of 500 and a generic error message' do
+        response = subject.suggestions
+        expect(response.status).to eq 500
+        expect(JSON.parse(response.body)['error']).to eq 'An unexpected error occurred.'
+      end
+    end
   end
 end

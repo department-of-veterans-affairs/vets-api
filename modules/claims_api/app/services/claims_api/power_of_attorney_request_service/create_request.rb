@@ -118,7 +118,7 @@ module ClaimsApi
             {
               vnp_proc_id: @vnp_proc_id,
               vnp_ptcpnt_id: nil
-            }.merge(bgs_jrn_fields)
+            }
           )
       end
 
@@ -136,7 +136,7 @@ module ClaimsApi
             tin_waiver_reason_type_cd: nil,
             ptcpnt_fk_ptcpnt_id: nil,
             corp_ptcpnt_id: participant_id
-          }.merge(bgs_jrn_fields)
+          }
         )
       end
 
@@ -151,8 +151,9 @@ module ClaimsApi
               last_nm: person[:lastName],
               brthdy_dt: person[:birthdate],
               ssn_nbr: person[:ssn],
-              file_nbr: person[:va_file_number]
-            }.merge(bgs_jrn_fields)
+              file_nbr: person[:va_file_number],
+              person_type_nm: 'Veteran'
+            }
           )
       end
 
@@ -196,7 +197,7 @@ module ClaimsApi
               zip_first_suffix_nbr: address[:zipCodeSuffix],
               zip_prefix_nbr: address[:zipCode],
               zip_second_suffix_nbr: nil
-            }.merge(bgs_jrn_fields)
+            }
           )
       end
       # rubocop: enable Metrics/MethodLength
@@ -241,7 +242,7 @@ module ClaimsApi
               zip_first_suffix_nbr: nil,
               zip_prefix_nbr: nil,
               zip_second_suffix_nbr: nil
-            }.merge(bgs_jrn_fields)
+            }
           )
       end
       # rubocop: enable Metrics/MethodLength

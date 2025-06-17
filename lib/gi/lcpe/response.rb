@@ -10,7 +10,7 @@ module GI
       # @param response returned from the rest call
       # @return [GI::LCPE::Response]
       def self.from(response)
-        version = response.response_headers['Etag'].match(%r{W/'(\d+)'})[1]
+        version = response.response_headers['Etag'].match(%r{W/"(\d+)"})[1]
         new(status: response.status, body: response.body.merge(version:))
       end
 

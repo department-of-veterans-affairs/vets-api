@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed-token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Wed, 26 May 2021 22:47:08 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '260'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.5.0
+      B3:
+      - edb650c5fed99511-10c51619b9c07470-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - d8af5ed
+      X-Vamf-Timestamp:
+      - '2021-05-24T22:00:44+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+    body:
+      encoding: UTF-8
+      string: '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}'
+  recorded_at: Wed, 26 May 2021 22:47:08 GMT

@@ -24,12 +24,10 @@ module ClaimsApi
     ALL_STATUSES = [PENDING, SUBMITTED, UPLOADED, UPDATED, ERRORED].freeze
 
     before_save :set_md5
+    before_save :set_header_hash
 
-    def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
-      primary_identifier = {}
-      primary_identifier[:id] = id if id.present?
-      primary_identifier[:header_md5] = header_md5 if header_md5.present?
-      primary_identifier[:md5] = md5 if md5.present?
+    def self.find_using_identifier_and_source(primary_identifier, source_name)
+      # md5 deprecated 3/26/2025 due to security: https://github.com/department-of-veterans-affairs/vets-api/security/code-scanning/852
       # it's possible to have duplicate POAs, so be sure to return the most recently created match
       poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
       poas = poas.select { |poa| poa.source_data['name'] == source_name }
@@ -67,6 +65,15 @@ module ClaimsApi
       headers['status'] = status
       self.header_md5 = Digest::MD5.hexdigest headers.to_json
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
+    end
+
+    def set_header_hash
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
+      headers['status'] = status
+      self.header_hash = Digest::SHA256.hexdigest headers.to_json
     end
 
     def processes

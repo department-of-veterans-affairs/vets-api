@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class RadiologyController < MrController
+      class RadiologyController < MRController
         def index
           resource = bb_client.list_radiology
           render json: resource.to_json

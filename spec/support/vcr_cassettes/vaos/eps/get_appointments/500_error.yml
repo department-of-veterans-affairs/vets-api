@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_EPS_API_URL>/care-navigation/v1/appointments?patientId=care-nav-patient-casey"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 5d202f6b-a460-4d4b-91ee-b89771def980
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Mon, 24 Mar 2025 16:20:54 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}'
+  recorded_at: Thu, 02 Sep 2021 14:00:00 GMT
+recorded_with: VCR 6.3.1

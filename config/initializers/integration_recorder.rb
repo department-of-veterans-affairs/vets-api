@@ -76,7 +76,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
     c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
     c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
-    c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
+    c.filter_sensitive_data('<MPI_URL>') { IdentitySettings.mvi.url }
     c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
     c.before_record do |i|
       %i[response request].each do |env|

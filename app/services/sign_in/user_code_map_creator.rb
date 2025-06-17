@@ -12,7 +12,8 @@ module SignIn
                 :mhv_credential_uuid,
                 :request_ip,
                 :first_name,
-                :last_name
+                :last_name,
+                :web_sso_session_id
 
     def initialize(user_attributes:, state_payload:, verified_icn:, request_ip:)
       @state_payload = state_payload
@@ -26,6 +27,7 @@ module SignIn
       @request_ip = request_ip
       @first_name = user_attributes[:first_name]
       @last_name = user_attributes[:last_name]
+      @web_sso_session_id = user_attributes[:session_id]
     end
 
     def perform
@@ -59,7 +61,8 @@ module SignIn
                         user_verification_id: user_verification.id,
                         credential_email:,
                         user_attributes: access_token_attributes,
-                        device_sso:).save!
+                        device_sso:,
+                        web_sso_session_id:).save!
     end
 
     def device_sso

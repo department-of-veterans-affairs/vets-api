@@ -163,12 +163,12 @@
         "providerFacilityName": "provider 1",
         "treatmentDateRange": [
           {
-            "from": "1980-1-1",
-            "to": "1985-1-1"
+            "from": "1980-01-01",
+            "to": "1985-01-01"
           },
           {
-            "from": "1986-1-1",
-            "to": "1987-1-1"
+            "from": "1986-01-01",
+            "to": "1987-01-01"
           }
         ],
         "providerFacilityAddress": {
@@ -184,12 +184,12 @@
         "providerFacilityName": "provider 2",
         "treatmentDateRange": [
           {
-            "from": "1980-2-1",
-            "to": "1985-2-1"
+            "from": "1980-02-01",
+            "to": "1985-02-01"
           },
           {
-            "from": "1986-2-1",
-            "to": "1987-2-1"
+            "from": "1986-02-01",
+            "to": "1987-02-01"
           }
         ],
         "providerFacilityAddress": {
@@ -205,12 +205,12 @@
         "providerFacilityName": "provider 3",
         "treatmentDateRange": [
           {
-            "from": "1980-3-1",
-            "to": "1985-3-1"
+            "from": "1980-03-01",
+            "to": "1985-03-01"
           },
           {
-            "from": "1986-3-1",
-            "to": "1987-3-1"
+            "from": "1986-03-01",
+            "to": "1987-03-01"
           }
         ],
         "providerFacilityAddress": {
@@ -226,12 +226,12 @@
         "providerFacilityName": "provider 4",
         "treatmentDateRange": [
           {
-            "from": "1980-4-1",
-            "to": "1985-4-1"
+            "from": "1980-04-01",
+            "to": "1985-04-01"
           },
           {
-            "from": "1986-4-1",
-            "to": "1987-4-1"
+            "from": "1986-04-01",
+            "to": "1987-04-01"
           }
         ],
         "providerFacilityAddress": {
@@ -247,12 +247,12 @@
         "providerFacilityName": "provider 5",
         "treatmentDateRange": [
           {
-            "from": "1980-5-1",
-            "to": "1985-5-1"
+            "from": "1980-05-01",
+            "to": "1985-05-01"
           },
           {
-            "from": "1986-5-1",
-            "to": "1987-5-1"
+            "from": "1986-05-01",
+            "to": "1987-05-01"
           }
         ],
         "providerFacilityAddress": {

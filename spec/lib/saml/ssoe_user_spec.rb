@@ -934,7 +934,7 @@ RSpec.describe SAML::User do
 
       it 'does not trigger upleveling' do
         loa = subject.to_hash[:loa]
-        expect((loa[:highest] > loa[:current])).to be false
+        expect(loa[:highest] > loa[:current]).to be false
       end
     end
 

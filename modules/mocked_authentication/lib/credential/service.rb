@@ -43,14 +43,14 @@ module MockedAuthentication
         {
           type:,
           acr_values: acr,
-          mock_redirect_uri: Settings.sign_in.mock_redirect_uri,
+          mock_redirect_uri: IdentitySettings.sign_in.mock_redirect_uri,
           state:,
           operation:
         }.compact
       end
 
       def redirect_uri
-        Settings.sign_in.mock_auth_url
+        IdentitySettings.sign_in.mock_auth_url
       end
 
       def logingov_acr(code)
@@ -73,11 +73,7 @@ module MockedAuthentication
       end
 
       def idme_auth_service(type)
-        @idme_auth_service ||= begin
-          @idme_auth_service = SignIn::Idme::Service.new
-          @idme_auth_service.type = type
-          @idme_auth_service
-        end
+        @idme_auth_service ||= SignIn::Idme::Service.new(type:)
       end
 
       def logingov_auth_service

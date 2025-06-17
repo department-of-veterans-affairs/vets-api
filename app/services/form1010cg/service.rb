@@ -55,6 +55,7 @@ module Form1010cg
     end
 
     def process_claim_v2!
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
       payload = CARMA::Models::Submission.from_claim(claim, build_metadata).to_request_payload
 
       claim_pdf_path, poa_attachment_path = self.class.collect_attachments(claim)
@@ -63,8 +64,17 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
       CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+      self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :success, start_time:)
     rescue => e
-      log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
+      self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :failure, start_time:)
+      if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
+        Rails.logger.error(
+          '[10-10CG] - Error processing Caregiver submission',
+          { form: '10-10CG', exception: e, claim_guid: claim.guid }
+        )
+      else
+        log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
+      end
       raise e
     end
 
@@ -74,7 +84,11 @@ module Form1010cg
     def assert_veteran_status
       if icn_for('veteran') == NOT_FOUND
         error = InvalidVeteranStatus.new
-        log_exception_to_sentry(error)
+        if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
+          Rails.logger.error('[10-10CG] - Error fetching Veteran ICN', { error: })
+        else
+          log_exception_to_sentry(error)
+        end
         raise error
       end
     end

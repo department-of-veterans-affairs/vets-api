@@ -150,6 +150,10 @@ module VAProfileRedis
 
       private
 
+      def verified_user?
+        @user&.icn.present?
+      end
+
       def value_for(key)
         value = response&.person&.send(key)
 
@@ -158,6 +162,10 @@ module VAProfileRedis
 
       def dig_out(key, type, matcher)
         response_value = value_for(key)
+
+        if key == 'addresses' && Settings.vsp_environment == 'staging'
+          Rails.logger.info("ContactInformationV2 Redis Address POU: #{response_value}")
+        end
 
         return if response_value.blank?
 
@@ -174,10 +182,6 @@ module VAProfileRedis
 
       def contact_info_service
         @service ||= VAProfile::V2::ContactInformation::Service.new @user
-      end
-
-      def verified_user?
-        @user.icn.present?
       end
     end
   end

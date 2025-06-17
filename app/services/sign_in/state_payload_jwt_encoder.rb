@@ -87,7 +87,7 @@ module SignIn
     end
 
     def sso_not_enabled_for_device_sso_scope?
-      scope == Constants::Auth::DEVICE_SSO && !client_config.device_sso_enabled?
+      scope == Constants::Auth::DEVICE_SSO && !client_config.api_sso_enabled?
     end
 
     def remove_base64_padding(data)
@@ -99,7 +99,7 @@ module SignIn
     end
 
     def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
+      OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_encode_key))
     end
   end
 end

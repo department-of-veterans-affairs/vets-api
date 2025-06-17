@@ -3,163 +3,118 @@
 require 'rails_helper'
 
 RSpec.describe Eps::EpsAppointmentSerializer do
+  subject(:serialized) { described_class.new(eps_appointment).serializable_hash }
+
   let(:provider) do
     double(
-      id: '1',
-      name: 'Dr. Smith',
+      id: 'test-provider-id',
+      name: 'Timothy Bob',
       is_active: true,
-      individual_providers: ['Dr. Jones', 'Dr. Williams'],
-      provider_organization: 'Medical Group',
-      location: { address: '123 Medical St' },
-      network_ids: ['sandbox-network-5vuTac8v'],
-      scheduling_notes: 'Available weekdays',
-      appointment_types: [
-        {
-          id: 'ov',
-          name: 'Office Visit',
-          is_self_schedulable: true
+      provider_organization: {
+        name: 'test-provider-org-name'
+      },
+      location: {
+        name: 'Test Medical Complex',
+        address: '207 Davishill Ln',
+        latitude: 33.058736,
+        longitude: -80.032819,
+        timezone: 'America/New_York'
+      },
+      network_ids: ['sandbox-network-test'],
+      phone: nil
+    )
+  end
+
+  let(:eps_appointment) do
+    instance_double(
+      VAOS::V2::EpsAppointment,
+      id: 'qdm61cJ5',
+      status: 'booked',
+      start: '2024-11-21T18:00:00Z',
+      is_latest: true,
+      last_retrieved: '2023-10-01T12:00:00Z',
+      provider:,
+      provider_details: {
+        id: 'test-provider-id',
+        name: 'Timothy Bob',
+        is_active: true,
+        organization: {
+          name: 'test-provider-org-name'
+        },
+        location: {
+          name: 'Test Medical Complex',
+          address: '207 Davishill Ln',
+          latitude: 33.058736,
+          longitude: -80.032819,
+          timezone: 'America/New_York'
+        },
+        network_ids: ['sandbox-network-test'],
+        address: {
+          street1: '123 Main St',
+          street2: 'Suite 456',
+          city: 'Anytown',
+          state: 'CA',
+          zip: '12345'
         }
-      ],
-      specialties: [
-        {
-          id: '208800000X',
-          name: 'Urology'
-        }
-      ],
-      visit_mode: 'in-person',
-      features: {
-        is_digital: true
       }
     )
   end
 
-  let(:appointment) do
-    {
-      id: 123,
-      appointment_details: { status: 'booked', last_retrieved: '2023-10-01T00:00:00Z', start: '2023-10-10T10:00:00Z' },
-      referral: { referral_number: '12345' },
-      patient_id: '1234567890V123456',
-      network_id: 'network_1',
-      provider_service_id: 'clinic_1',
-      contact: 'contact_info'
-    }
-  end
+  describe 'serialization' do
+    it 'serializes the appointment with correct structure' do
+      expect(serialized[:data][:type]).to eq(:epsAppointment)
+      expect(serialized[:data][:id]).to eq('qdm61cJ5')
+      expect(serialized[:data][:attributes][:id]).to eq('qdm61cJ5')
+      expect(serialized[:data][:attributes][:status]).to eq('booked')
+      expect(serialized[:data][:attributes][:start]).to eq('2024-11-21T18:00:00Z')
+      expect(serialized[:data][:attributes][:modality]).to eq('OV')
+    end
 
-  let(:eps_appointment) do
-    double(
-      id: 123,
-      appointment:,
-      provider:
-    )
-  end
-
-  describe '#serializable_hash' do
-    subject(:serialized_json) { described_class.new(eps_appointment).serializable_hash }
-
-    it 'has the correct structure' do
-      expect(serialized_json).to include(
-        data: {
-          id: '123',
-          type: :eps_appointment,
-          attributes: {
-            appointment: {
-              id: '123',
-              status: 'booked',
-              patient_icn: '1234567890V123456',
-              created: '2023-10-01T00:00:00Z',
-              location_id: 'network_1',
-              clinic: 'clinic_1',
-              start: '2023-10-10T10:00:00Z',
-              contact: 'contact_info',
-              referral_id: '12345',
-              referral: {
-                referral_number: '12345'
-              },
-              provider_service_id: 'clinic_1',
-              provider_name: 'unknown'
-            },
-            provider: {
-              id: '1',
-              name: 'Dr. Smith',
-              is_active: true,
-              individual_providers: ['Dr. Jones', 'Dr. Williams'],
-              provider_organization: 'Medical Group',
-              location: { address: '123 Medical St' },
-              network_ids: ['sandbox-network-5vuTac8v'],
-              scheduling_notes: 'Available weekdays',
-              appointment_types: [
-                {
-                  id: 'ov',
-                  name: 'Office Visit',
-                  is_self_schedulable: true
-                }
-              ],
-              specialties: [
-                {
-                  id: '208800000X',
-                  name: 'Urology'
-                }
-              ],
-              visit_mode: 'in-person',
-              features: {
-                is_digital: true
-              }
-            }
-          }
+    it 'includes provider details' do
+      provider_data = serialized[:data][:attributes][:provider]
+      expect(provider_data).to include(
+        id: 'test-provider-id',
+        name: 'Timothy Bob',
+        is_active: true,
+        organization: {
+          name: 'test-provider-org-name'
+        },
+        location: {
+          name: 'Test Medical Complex',
+          address: '207 Davishill Ln',
+          latitude: 33.058736,
+          longitude: -80.032819,
+          timezone: 'America/New_York'
+        },
+        network_ids: ['sandbox-network-test'],
+        address: {
+          street1: '123 Main St',
+          street2: 'Suite 456',
+          city: 'Anytown',
+          state: 'CA',
+          zip: '12345'
         }
       )
     end
+  end
 
-    describe 'appointment' do
-      context 'when appointment is nil' do
-        let(:appointment) { nil }
-
-        it 'returns nil for appointment' do
-          appointment_data = serialized_json.dig(:data, :attributes, :appointment)
-          expect(appointment_data).to be_nil
-        end
-      end
-
-      it 'includes appointment details' do
-        appointment_data = serialized_json.dig(:data, :attributes, :appointment)
-        expect(appointment_data).to include(
-          id: '123',
+  describe 'edge cases' do
+    context 'when provider is nil' do
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
           status: 'booked',
-          patient_icn: '1234567890V123456',
-          created: '2023-10-01T00:00:00Z',
-          location_id: 'network_1',
-          clinic: 'clinic_1',
-          start: '2023-10-10T10:00:00Z',
-          contact: 'contact_info',
-          referral_id: '12345',
-          referral: {
-            referral_number: '12345'
-          }
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          provider: nil,
+          provider_details: nil
         )
       end
-    end
 
-    describe 'provider' do
-      context 'when provider is nil' do
-        let(:provider) { nil }
-
-        it 'returns nil for provider' do
-          provider_data = serialized_json.dig(:data, :attributes, :provider)
-          expect(provider_data).to be_nil
-        end
-      end
-
-      it 'includes provider details' do
-        provider_data = serialized_json.dig(:data, :attributes, :provider)
-        expect(provider_data).to include(
-          id: '1',
-          name: 'Dr. Smith',
-          is_active: true,
-          individual_providers: [
-            'Dr. Jones',
-            'Dr. Williams'
-          ]
-        )
+      it 'returns nil for provider' do
+        expect(serialized[:data][:attributes][:provider]).to be_nil
       end
     end
   end

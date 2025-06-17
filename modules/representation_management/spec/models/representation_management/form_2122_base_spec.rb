@@ -40,8 +40,8 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject).to allow_value('1234567890').for(:veteran_phone) }
     it { expect(subject).not_to allow_value('123456789A').for(:veteran_phone) }
     it { expect(subject).not_to allow_value('123456789').for(:veteran_phone) }
-    it { expect(subject).to allow_value('123456789').for(:veteran_service_number) }
-    it { expect(subject).not_to allow_value('12345678').for(:veteran_service_number) }
+    it { expect(subject).to allow_value('AA12345').for(:veteran_service_number) }
+    it { expect(subject).not_to allow_value('123456789').for(:veteran_service_number) }
     it { expect(subject).not_to allow_value('1234567890').for(:veteran_service_number) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_first_name).is_at_most(12) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_last_name) }

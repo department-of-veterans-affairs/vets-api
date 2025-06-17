@@ -3,6 +3,8 @@
 module BenefitsDocuments
   module Constants
     UPLOAD_STATUS = {
+      CREATED: 'CREATED',
+      QUEUED: 'QUEUED',
       PENDING: 'IN_PROGRESS',
       FAILED: 'FAILED',
       SUCCESS: 'SUCCESS'

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'ves_api/client'
 
 RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
@@ -20,51 +21,282 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     'vha_10_7959a.json'
   ]
 
+  let(:ves_request) { double('IvcChampva::VesRequest') }
+  let(:ves_client) { double('IvcChampva::VesApi::Client') }
+
   before do
     @original_aws_config = Aws.config.dup
     Aws.config.update(stub_responses: true)
+    allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
+    allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
+    allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
+    allow(ves_request).to receive_messages(transaction_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b',
+                                           application_uuid: 'test-uuid')
+    allow(ves_request).to receive(:transaction_uuid=)
+    allow(ves_request).to receive(:to_json).and_return('{}')
   end
 
   after do
     Aws.config = @original_aws_config
   end
 
-  describe '#submit' do
+  describe 'run this section with both values of champva_retry_logic_refactor expecting identical behavior' do
+    retry_logic_refactor_values = [false, true]
+    retry_logic_refactor_values.each do |champva_retry_logic_refactor_state|
+      describe '#submit with flipper champva_send_to_ves enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_send_to_ves, @current_user)
+            .and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_retry_logic_refactor, @current_user)
+            .and_return(champva_retry_logic_refactor_state)
+        end
+
+        forms.each do |form|
+          fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
+          data = JSON.parse(fixture_path.read)
+
+          it 'uploads a PDF file to S3' do
+            mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+            allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+              .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+            allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+            allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+              double('response',
+                     context: double('context', http_response: double('http_response', status_code: 200)))
+            )
+
+            post '/ivc_champva/v1/forms', params: data
+
+            record = IvcChampvaForm.first
+
+            expect(record.first_name).to eq('Veteran')
+            expect(record.last_name).to eq('Surname')
+            expect(record.form_uuid).to be_present
+
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+            allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+
+            # Actual supporting_docs should exist as records in the DB. This test
+            # ensures that if they aren't present we won't have a silent failure
+            data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+            post '/ivc_champva/v1/forms', params: data_with_docs
+
+            expect(response).to have_http_status(:internal_server_error)
+          end
+
+          context 'when environment is production' do
+            it 'does not do any VES processing' do
+              with_settings(Settings, vsp_environment: 'production') do
+                post '/ivc_champva/v1/forms', params: data
+                expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+                expect(ves_client).not_to have_received(:submit_1010d)
+              end
+            end
+          end
+
+          context 'when environment is not production' do
+            it 'does VES processing only for form 10-10D' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                controller = IvcChampva::V1::UploadsController.new
+                allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
+                                                      call_upload_form: [[200], nil],
+                                                      get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                      params: ActionController::Parameters.new(data))
+                allow(controller).to receive(:render)
+
+                controller.send(:submit)
+
+                if data['form_number'] == '10-10D'
+                  expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
+                  # make sure submit_1010d is called with the request object from the formatter
+                  expect(ves_client).to have_received(:submit_1010d).with(anything, anything, ves_request)
+                else
+                  expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                end
+              end
+            end
+
+            it 'returns an error and does proceed when format_for_request throws an error' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+                    .and_raise(StandardError.new('oh no'))
+                  controller = IvcChampva::V1::UploadsController.new
+                  allow(controller).to receive(:call_handle_file_uploads)
+                  allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+                  allow(controller).to receive(:render)
+
+                  controller.send(:submit)
+
+                  expect(controller).not_to have_received(:call_handle_file_uploads)
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                  expect(controller).to have_received(:render)
+                    .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
+                end
+              end
+            end
+
+            it 'returns an error and does not proceed when format_for_request returns nil' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
+                  controller = IvcChampva::V1::UploadsController.new
+                  allow(controller).to receive(:call_handle_file_uploads)
+                  allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+                  allow(controller).to receive(:render)
+
+                  controller.send(:submit)
+
+                  expect(controller).not_to have_received(:call_handle_file_uploads)
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                  expect(controller).to have_received(:render)
+                    .with({
+                            json: { error_message: 'Error: Failed to format data for VES submission' },
+                            status: :internal_server_error
+                          })
+                end
+              end
+            end
+
+            it 'returns an error and does not proceed when handle_file_uploads fails' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  controller = IvcChampva::V1::UploadsController.new
+                  allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
+                                                        get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                        params: ActionController::Parameters.new(data))
+                  allow(controller).to receive(:render)
+
+                  controller.send(:submit)
+
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                  expect(controller).to have_received(:render)
+                    .with({ json: { error_message: 'oh no' }, status: 400 })
+                end
+              end
+            end
+
+            it 'returns ok when submitting to VES results in an error' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  # These must be mocked in order for submit to be able to complete successfully: find_by, put_object
+                  allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+                    .and_return(double('Record1', created_at: 1.day.ago,
+                                                  id: 'some_uuid', file: double(id: 'file0')))
+                  allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+                    double('response',
+                           context: double('context', http_response: double('http_response', status_code: 200)))
+                  )
+                  # Mock VES returning an error
+                  allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+
+                  post '/ivc_champva/v1/forms', params: data
+
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+
+          it 'retries VES submission if it fails' do
+            with_settings(Settings, vsp_environment: 'staging') do
+              if data['form_number'] == '10-10D'
+                allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
+
+                controller = IvcChampva::V1::UploadsController.new
+
+                allow(ves_client).to receive(:submit_1010d)
+                  .with(anything, anything, anything)
+                  .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+
+                allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
+
+                controller.send(:submit_ves_request, ves_request, {})
+
+                expect(ves_client).to have_received(:submit_1010d).twice
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  describe '#submit with flipper champva_send_to_ves disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_send_to_ves, @current_user)
+        .and_return(false)
+    end
+
     forms.each do |form|
       fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
 
-      it 'uploads a PDF file to S3' do
-        mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
-        allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-          .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
-        allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-          double('response',
-                 context: double('context', http_response: double('http_response', status_code: 200)))
-        )
-
+      it 'does not format data for VES' do
         post '/ivc_champva/v1/forms', params: data
-
-        record = IvcChampvaForm.first
-
-        expect(record.first_name).to eq('Veteran')
-        expect(record.last_name).to eq('Surname')
-        expect(record.form_uuid).to be_present
-
-        expect(response).to have_http_status(:ok)
+        expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
       end
 
-      it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
-
-        # Actual supporting_docs should exist as records in the DB. This test
-        # ensures that if they aren't present we won't have a silent failure
-        data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
-        post '/ivc_champva/v1/forms', params: data_with_docs
-
-        expect(response).to have_http_status(:internal_server_error)
+      it 'does not submit to VES' do
+        post '/ivc_champva/v1/forms', params: data
+        expect(ves_client).not_to have_received(:submit_1010d)
       end
+    end
+  end
+
+  # Copied this test from the #submit endpoint tests above and adjusted to use
+  # the new endpoint. We'll need more tests in future, but wanted to have at
+  # least one verifying it wasn't throwing rampant errors
+  describe '#submit_champva_app_merged' do
+    fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                   'vha_10_10d_extended.json')
+    data = JSON.parse(fixture_path.read)
+
+    it 'uploads a PDF file to S3' do
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      record = IvcChampvaForm.first
+
+      expect(record.first_name).to eq('Veteran')
+      expect(record.last_name).to eq('Surname')
+      expect(record.form_uuid).to be_present
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    # Also taken from the main #submit endpoint tests as they function the same at this level
+    it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+
+      # Actual supporting_docs should exist as records in the DB. This test
+      # ensures that if they aren't present we won't have a silent failure
+      data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data_with_docs
+
+      expect(response).to have_http_status(:internal_server_error)
+    end
+  end
+
+  describe 'stored ves data is encrypted' do
+    it 'ves_request_data is encrypted' do
+      # This is the only part of the test we actually need
+      expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
     end
   end
 
@@ -112,12 +344,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#unlock_file' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
-
-    before do
-      allow(Flipper).to receive(:enabled?)
-        .with(:champva_pdf_decrypt, @current_user)
-        .and_return(true)
-    end
 
     context 'with locked PDF and no provided password' do
       let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
@@ -410,6 +636,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
       end
     end
+
+    context 'when status codes are nil' do
+      it 'handles nil values and returns a 500 error' do
+        expect(controller.send(:build_json, nil, nil)).to eq({ json:
+        { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
+      end
+    end
   end
 
   describe '#handle_file_uploads' do
@@ -419,126 +652,256 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       form_id = form_file.gsub('vha_', '').gsub('.json', '').upcase
       form_numbers_and_classes[form_id]
 
-      context "with form #{form_id}" do
-        let(:form_id) { form_id }
-        let(:parsed_form_data) do
-          JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
-        end
-        let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
-        let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
-        let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
-        let(:error_response) { [[200, nil], [400, 'Upload failed']] }
-
+      context 'with retry feature disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
-          allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
-          allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+          allow(Flipper).to receive(:enabled?).with(:champva_retry_logic_refactor, @current_user).and_return(false)
         end
 
-        context 'when require_all_s3_success feature is enabled' do
-          let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
-          let(:mock_s3) { instance_double(IvcChampva::S3) }
+        context "with form #{form_id}" do
+          let(:form_id) { form_id }
+          let(:parsed_form_data) do
+            JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
+          end
+          let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+          let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+          let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
-            allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, @current_user).and_return(false)
-            allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
-            allow(IvcChampva::FileUploader).to receive(:new).and_call_original
+            allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
+            allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
           end
 
-          it 'returns success when all uploads succeed' do
-            allow(mock_s3).to receive(:put_object).and_return({ success: true })
+          context 'when require_all_s3_success feature is enabled' do
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
+            let(:mock_s3) { instance_double(IvcChampva::S3) }
 
-            expect(uploader.handle_uploads).to eq([200, nil])
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, @current_user).and_return(false)
+              allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
+              allow(IvcChampva::FileUploader).to receive(:new).and_call_original
+            end
 
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([200])
-            expect(error_message).to eq([])
+            it 'returns success when all uploads succeed' do
+              allow(mock_s3).to receive(:put_object).and_return({ success: true })
+
+              expect(uploader.handle_uploads).to eq([200, nil])
+
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([200])
+              expect(error_message).to eq([])
+            end
+
+            it 'raises a StandardError when any upload fails' do
+              # need to test the FileUploader here since exceptions are being swallowed by the controller
+              allow(mock_s3).to receive(:put_object).and_return({
+                                                                  success: false,
+                                                                  error_message: 'Upload failed'
+                                                                })
+
+              expect do
+                uploader.handle_uploads
+              end.to raise_error(StandardError, /failed to upload all documents/)
+
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
+            end
           end
 
-          it 'raises a StandardError when any upload fails' do
-            # need to test the FileUploader here since exceptions are being swallowed by the controller
-            allow(mock_s3).to receive(:put_object).and_return({
-                                                                success: false,
-                                                                error_message: 'Upload failed'
-                                                              })
+          context 'when file uploads succeed' do
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
+            end
 
-            expect do
-              uploader.handle_uploads
-            end.to raise_error(StandardError, /failed to upload all documents/)
+            it 'returns success statuses and no error message' do
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([200])
+              expect(error_message).to eq([])
+            end
+          end
 
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+          context 'when file uploads fail with other errors' do
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+            end
 
-            # TODO: should this be nil, or 400/'Upload failed'?
-            expect(statuses).to be_nil
-            expect(error_message).to be_nil
+            it 'returns the error statuses and error message' do
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([200, 400])
+              expect(error_message).to eq([nil, 'Upload failed'])
+            end
+          end
+
+          context 'when file uploads fail with other errors retry once' do
+            subject(:result) { controller.send(:call_handle_file_uploads, form_id, parsed_form_data) }
+
+            let(:expected_statuses) { [200, 400] } # All http codes
+            let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
+
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+            end
+
+            it 'returns the error statuses and error message' do
+              expect(result).to eq([expected_statuses, expected_error_message])
+            end
+          end
+
+          context 'when a file repeatedly fails to load' do
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
+            end
+
+            it 'handles 400 status with error message' do
+              allow(file_uploader).to receive(:handle_uploads).and_return([400, 'Upload failed'])
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([400])
+              expect(error_message).to eq(['Upload failed'])
+            end
+
+            it 'handles server error status codes' do
+              allow(file_uploader).to receive(:handle_uploads).and_return([500, 'Server error occurred'])
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
+            end
+
+            it 'retries handle_uploads once and returns an error message' do
+              # Expect handle_uploads to be called twice due to one retry
+              expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
+              _statuses, _error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              # This expectation causes the `.to receive(:handle_uploads)` count to increment by 1:
+              expect { file_uploader.handle_uploads }.to raise_error(StandardError, /Unable to find file/)
+            end
           end
         end
+      end
 
-        context 'when file uploads succeed' do
-          before do
-            allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
-          end
-
-          it 'returns success statuses and no error message' do
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([200])
-            expect(error_message).to eq([])
-          end
+      context 'with retry feature enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_retry_logic_refactor, @current_user).and_return(true)
         end
 
-        context 'when file uploads fail with other errors' do
-          before do
-            allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+        context "with form #{form_id}" do
+          let(:form_id) { form_id }
+          let(:parsed_form_data) do
+            JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
           end
-
-          it 'returns the error statuses and error message' do
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([200, 400])
-            expect(error_message).to eq([nil, 'Upload failed'])
-          end
-        end
-
-        context 'when file uploads fail with other errors retry once' do
-          subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
-
-          let(:expected_statuses) { [200, 400] } # All http codes
-          let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
+          let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+          let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+          let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
-            allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+            allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
+            allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
           end
 
-          it 'returns the error statuses and error message' do
-            expect(result).to eq([expected_statuses, expected_error_message])
-          end
-        end
+          context 'when require_all_s3_success feature is enabled' do
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
+            let(:mock_s3) { instance_double(IvcChampva::S3) }
 
-        context 'when a file repeatedly fails to load' do
-          before do
-            allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, @current_user).and_return(false)
+              allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
+              allow(IvcChampva::FileUploader).to receive(:new).and_call_original
+            end
+
+            it 'returns success when all uploads succeed' do
+              allow(mock_s3).to receive(:put_object).and_return({ success: true })
+
+              expect(uploader.handle_uploads).to eq([200, nil])
+
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([200])
+              expect(error_message).to eq([])
+            end
+
+            it 'raises a StandardError when any upload fails' do
+              # need to test the FileUploader here since exceptions are being swallowed by the controller
+              allow(mock_s3).to receive(:put_object).and_return({
+                                                                  success: false,
+                                                                  error_message: 'Upload failed'
+                                                                })
+
+              expect do
+                uploader.handle_uploads
+              end.to raise_error(StandardError, /failed to upload all documents/)
+
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
+            end
           end
 
-          it 'handles 400 status with error message' do
-            allow(file_uploader).to receive(:handle_uploads).and_return([400, 'Upload failed'])
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([400])
-            expect(error_message).to eq(['Upload failed'])
+          context 'when file uploads succeed' do
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
+            end
+
+            it 'returns success statuses and no error message' do
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([200])
+              expect(error_message).to eq([])
+            end
           end
 
-          it 'handles server error status codes' do
-            allow(file_uploader).to receive(:handle_uploads).and_return([500, 'Server error occurred'])
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([500])
-            expect(error_message).to eq(['Server error occurred'])
+          context 'when file uploads fail with other errors' do
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+            end
+
+            it 'returns the error statuses and error message' do
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([200, 400])
+              expect(error_message).to eq([nil, 'Upload failed'])
+            end
           end
 
-          it 'retries handle_uploads once and returns an error message' do
-            # Expect handle_uploads to be called twice due to one retry
-            expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
-            _statuses, _error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            # This expectation causes the `.to receive(:handle_uploads)` count to increment by 1:
-            expect { file_uploader.handle_uploads }.to raise_error(StandardError, /Unable to find file/)
+          context 'when file uploads fail with other errors retry once' do
+            subject(:result) { controller.send(:call_handle_file_uploads, form_id, parsed_form_data) }
+
+            let(:expected_statuses) { [200, 400] } # All http codes
+            let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
+
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+            end
+
+            it 'returns the error statuses and error message' do
+              expect(result).to eq([expected_statuses, expected_error_message])
+            end
+          end
+
+          context 'when a file repeatedly fails to load' do
+            before do
+              allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
+            end
+
+            it 'handles 400 status with error message' do
+              allow(file_uploader).to receive(:handle_uploads).and_return([400, 'Upload failed'])
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([400])
+              expect(error_message).to eq(['Upload failed'])
+            end
+
+            it 'handles server error status codes' do
+              allow(file_uploader).to receive(:handle_uploads).and_return([500, 'Server error occurred'])
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
+            end
+
+            it 'retries handle_uploads once and returns an error message' do
+              # Expect handle_uploads to be called twice due to one retry
+              expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
+              _statuses, _error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
+              # This expectation causes the `.to receive(:handle_uploads)` count to increment by 1:
+              expect { file_uploader.handle_uploads }.to raise_error(StandardError, /Unable to find file/)
+            end
           end
         end
       end
@@ -575,6 +938,87 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     it 'returns false when max attempts exceeded' do
       error_message = 'failed to generate file'
       expect(controller.send(:should_retry?, error_message.downcase, 4, 3)).to be false
+    end
+  end
+
+  describe '#handle_file_uploads_with_refactored_retry' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+    let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+    let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+
+    before do
+      allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
+      allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when the retry method fails outside the retry block' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_raise(StandardError.new('Catastrophic failure'))
+      end
+
+      it 'raises the error' do
+        expect do
+          controller.send(:handle_file_uploads_with_refactored_retry, form_id, parsed_form_data)
+        end.to raise_error(StandardError, 'Catastrophic failure')
+      end
+    end
+
+    context 'when the retry method executes successfully' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_yield
+        allow(file_uploader).to receive(:handle_uploads).and_return([[200, nil]])
+      end
+
+      it 'returns the values from handle_uploads' do
+        statuses, error_messages = controller.send(:handle_file_uploads_with_refactored_retry, form_id,
+                                                   parsed_form_data)
+        expect(statuses).to eq([200])
+        expect(error_messages).to eq([nil])
+      end
+    end
+  end
+
+  describe '#upload_form_with_refactored_retry' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+    let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+    let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+
+    before do
+      allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when the retry method fails outside the retry block' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_raise(StandardError.new('Catastrophic failure'))
+      end
+
+      it 'raises the error' do
+        expect do
+          controller.send(:upload_form_with_refactored_retry, form_id, file_paths, metadata)
+        end.to raise_error(StandardError, 'Catastrophic failure')
+      end
+    end
+
+    context 'when the retry method executes successfully' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_yield
+        allow(file_uploader).to receive(:handle_uploads).and_return([[200, nil]])
+      end
+
+      it 'returns the values from handle_uploads' do
+        statuses, error_messages = controller.send(:upload_form_with_refactored_retry, form_id, file_paths, metadata)
+        expect(statuses).to eq([200])
+        expect(error_messages).to eq([nil])
+      end
     end
   end
 end

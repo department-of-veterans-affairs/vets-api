@@ -5,7 +5,7 @@ module CARMA
     class MuleSoftAuthTokenConfiguration < Common::Client::Configuration::REST
       def connection
         Faraday.new(base_path) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.request :instrumentation, name: service_name
           conn.adapter Faraday.default_adapter
         end

@@ -66,7 +66,7 @@ describe UserEligibility::Client do
       end
 
       it 'does not perform an eligibility check on the user' do
-        expect(a_request(:get, %r{mhvapi/v1/usermgmt/usereligibility/isValidSMUser})).not_to have_been_made
+        expect(a_request(:get, %r{v1/usermgmt/usereligibility/isValidSMUser})).not_to have_been_made
       end
     end
 

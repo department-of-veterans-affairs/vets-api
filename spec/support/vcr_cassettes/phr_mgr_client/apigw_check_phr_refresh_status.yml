@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/v2/phrmgr/status/1000000000V000000"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      X-Authorization-Key:
+      - "<MHV_MR_X_AUTH_KEY>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY_V2>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Mar 2025 14:47:31 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '213'
+      X-Amzn-Requestid:
+      - 45f231a1-a8ff-4e35-baf8-57b886c91e09
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - H_NAjGWNvHMFnnQ=
+      Vary:
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - Origin
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 14:47:31 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"patient":{"identifier":"1000000000V000000","assigningFacility":"200M","assigningAuthority":"USVHA","typeCode":"NI","icn":true},"retrievedDate":1742914051172,"lastRefreshDate":null,"facilityExtractStatusList":[]}'
+  recorded_at: Tue, 25 Mar 2025 14:47:31 GMT
+recorded_with: VCR 6.3.1

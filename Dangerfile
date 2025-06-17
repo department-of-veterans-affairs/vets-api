@@ -166,7 +166,7 @@ module VSPDanger
     end
 
     def file_git_diff(file_name)
-      `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{file_name}`
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -w --ignore-blank-lines -- #{file_name}`
     end
   end
 
@@ -189,6 +189,7 @@ module VSPDanger
                             @department-of-veterans-affairs/lighthouse-dash
                             @department-of-veterans-affairs/lighthouse-pivot
                             @department-of-veterans-affairs/lighthouse-banana-peels
+                            @department-of-veterans-affairs/mobile-api-team
                             @department-of-veterans-affairs/accredited-representatives-admin
                             @department-of-veterans-affairs/benefits-admin]
 

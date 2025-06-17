@@ -5,7 +5,7 @@ http_interactions:
     uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/2122"
     body:
       encoding: UTF-8
-      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"123 Main St","addressLine2":"Apt 1","city":"Springfield","stateCode":"IL","countryCode":"US","zipCode":"62704","zipCodeSuffix":"6789"},"phone":{"areaCode":"123","phoneNumber":"4567890"},"email":"veteran@example.com","serviceNumber":"123456789"},"serviceOrganization":{"poaCode":"x23","registrationNumber":"357458"},"recordConsent":true,"consentLimits":["HIV","DRUG_ABUSE"],"consentAddressChange":true}}}'
+      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"123 Main St","addressLine2":"Apt 1","city":"Springfield","stateCode":"IL","countryCode":"US","zipCode":"62704","zipCodeSuffix":"6789"},"phone":{"areaCode":"123","phoneNumber":"4567890"},"email":"veteran@example.com","serviceNumber":"123456789"},"serviceOrganization":{"poaCode":"x23","registrationNumber":"357458"},"recordConsent":false,"consentLimits":["HIV","DRUG_ABUSE"],"consentAddressChange":true}}}'
     headers:
       Accept:
       - application/json

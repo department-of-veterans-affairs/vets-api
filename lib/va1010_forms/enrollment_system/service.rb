@@ -38,6 +38,11 @@ module VA1010Forms
         }
       rescue => e
         Rails.logger.error "#{form_id} form submission failed: #{e.message}"
+
+        if e.is_a?(Ox::ParseError)
+          PersonalInformationLog.create!(data: submission_body, error_class: 'Form1010Ezr FailedWithParsingError')
+        end
+
         raise e
       end
 

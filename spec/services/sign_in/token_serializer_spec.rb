@@ -48,10 +48,10 @@ RSpec.describe SignIn::TokenSerializer do
         }
       end
       let(:path) { '/' }
-      let(:secure) { Settings.sign_in.cookies_secure }
+      let(:secure) { IdentitySettings.sign_in.cookies_secure }
       let(:httponly) { true }
       let(:httponly_info_cookie) { false }
-      let(:domain) { Settings.sign_in.info_cookie_domain }
+      let(:domain) { IdentitySettings.sign_in.info_cookie_domain }
       let(:refresh_path) { SignIn::Constants::Auth::REFRESH_ROUTE_PATH }
       let(:expected_access_token_cookie) do
         {
@@ -230,10 +230,10 @@ RSpec.describe SignIn::TokenSerializer do
         }
       end
       let(:path) { '/' }
-      let(:secure) { Settings.sign_in.cookies_secure }
+      let(:secure) { IdentitySettings.sign_in.cookies_secure }
       let(:httponly) { true }
       let(:httponly_info_cookie) { false }
-      let(:domain) { Settings.sign_in.info_cookie_domain }
+      let(:domain) { IdentitySettings.sign_in.info_cookie_domain }
       let(:refresh_path) { SignIn::Constants::Auth::REFRESH_ROUTE_PATH }
       let(:expected_access_token_cookie) do
         {

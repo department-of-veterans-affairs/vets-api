@@ -1,5 +1,5 @@
 {
-  "vha107959fform[0].#subform[0].RadioButtonList[0]":             "<%= ['true', true].include?(form.data['send_payment']) ? 0 : 1 %>",
+  "vha107959fform[0].#subform[0].RadioButtonList[0]":             "<%= form.data.dig('veteran', 'send_payment') == 'Provider' ? 1 : 0 %>",
   "vha107959fform[0].#subform[0].LastName-1[0]":                  "<%= form.data.dig('veteran', 'full_name', 'last') %>",
   "vha107959fform[0].#subform[0].FirstName-1[0]":                 "<%= form.data.dig('veteran', 'full_name', 'first') %>",
   "vha107959fform[0].#subform[0].MiddleInitial-1[0]":             "<%= form.data.dig('veteran', 'full_name', 'middle')&.first %>",
@@ -13,5 +13,6 @@
   "vha107959fform[0].#subform[0].Telephone-1[0]":                 "<%= form.data.dig('veteran', 'phone_number') %>",
   "vha107959fform[0].#subform[0].EmailAddress[0]":                "<%= form.data.dig('veteran', 'email_address') %>",
   "vha107959fform[0].#subform[0].SignatureDate-1[0]":             "<%= form.data['current_date'] %>",
-  "vha107959fform[0].#subform[0].VeteranFiduciarySignature-1[0]": "<%= form.data['statement_of_truth_signature'] %>"
+  "vha107959fform[0].#subform[0].VeteranFiduciarySignature-1[0]": "<%= form.data['statement_of_truth_signature'] %>",
+  "vha107959fform[0]":                                            "<%= data.dig('vha107959fform') %>"
 }

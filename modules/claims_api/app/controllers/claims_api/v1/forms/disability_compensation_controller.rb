@@ -67,7 +67,8 @@ module ClaimsApi
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
           unless auto_claim.id
-            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim
+                                  .find_by('header_hash = ? OR md5 = ?', auto_claim.header_hash, auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
 
@@ -276,7 +277,11 @@ module ClaimsApi
         end
 
         def unprocessable_response(e)
-          log_message_to_sentry('Upload error in 526', :warning, body: e.message)
+          ClaimsApi::Logger.log '526',
+                                detail: 'Upload error in 526',
+                                level: :warn,
+                                error_message: e&.message,
+                                error_source: e&.key
 
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]

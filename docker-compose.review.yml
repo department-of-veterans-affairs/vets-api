@@ -15,6 +15,7 @@ x-app: &common
     SETTINGS__REDIS__SIDEKIQ__URL: "redis://redis:6379"
     SETTINGS__REDIS__RAILS_CACHE__URL: "redis://redis:6379"
     SETTINGS__SAML_SSOE__IDP_METADATA_FILE: "config/ssoe_idp_sqa_metadata_isam.xml"
+    IDENTITY_SETTINGS__SAML_SSOE__IDP_METADATA_FILE: "config/ssoe_idp_sqa_metadata_isam.xml"
     SETTINGS__BETAMOCKS__CACHE_DIR: "config/vets-api-mockdata"
   image: vets-api:${DOCKER_IMAGE:-latest}
   restart: unless-stopped

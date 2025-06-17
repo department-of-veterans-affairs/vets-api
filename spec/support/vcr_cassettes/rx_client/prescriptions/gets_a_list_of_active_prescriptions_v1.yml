@@ -22,367 +22,494 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 31 Jul 2023 02:40:28 GMT
+      - Wed, 16 Apr 2025 15:17:00 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '37678'
+      - '23059'
       X-Amzn-Requestid:
-      - 2f511ee4-ac6a-461b-9c81-189fdcbe745a
+      - b36453d4-f1be-49b3-b8ca-d198e0418e81
+      X-Amzn-Remapped-Connection:
+      - keep-alive
       X-Amz-Apigw-Id:
-      - I6HMXFdOPHMFVhg=
+      - JHx89HRQvHMFeMA=
       X-Amzn-Remapped-Date:
-      - Mon, 31 Jul 2023 02:40:27 GMT
+      - Wed, 16 Apr 2025 15:17:00 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Sun,
-        30 Jul 2023 14:28:17 EDT","prescriptionList":[{"refillStatus":"refillinprocess","refillSubmitDate":null,"refillDate":"Tue,
-        08 Aug 2023 00:00:00 EDT","refillRemaining":4,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12284508,"sig":"INJECT
-        10MG INTRAVENOUS WEEKLY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Sun,
-        06 Aug 2023 00:00:00 EDT","quantity":1,"expirationDate":"Tue, 06 Aug 2024
-        00:00:00 EDT","prescriptionNumber":"3636453","prescriptionName":"ZOLEDRONIC
-        ACID 4MG INJ","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+      string: '{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Wed,
+        16 Apr 2025 10:57:44 EDT","prescriptionList":[{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Mon,
+        07 Apr 2025 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25506367,"sig":"APPLY
+        GEL TO AFFECTED AREA WEEKLY FOR 30 DAYS TEST PI","orderedDate":"Mon, 07 Apr
+        2025 00:00:00 EDT","quantity":1,"expirationDate":"Wed, 07 May 2025 00:00:00
+        EDT","prescriptionNumber":"2721263A","prescriptionName":"BECAPLERMIN 0.01%
+        TOP GEL","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
-        28 Jul 2023 12:37:48 EDT","refillDate":"Mon, 07 Aug 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12275855,"sig":"APPLY,
-        A SEGMENT(S) INSIDE, LOWER LID OF EYE EVERY DAY FOR 30 DAYS TEST IND TEST
-        P I","orderedDate":"Tue, 18 Jul 2023 00:00:00 EDT","quantity":1,"expirationDate":"Thu,
-        18 Jul 2024 00:00:00 EDT","prescriptionNumber":"3636449","prescriptionName":"BACITRACIN
-        500 UNT/GM OPH OINT","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Tue,
-        18 Jul 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12275912,"sig":"TAKE
-        ONE CAPSULE EVERY DAY FOR 30 DAYS","orderedDate":"Mon, 17 Jul 2023 00:00:00
-        EDT","quantity":30,"expirationDate":"Wed, 17 Jul 2024 00:00:00 EDT","prescriptionNumber":"3636450","prescriptionName":"BALSALAZIDE
-        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Thu,
-        22 Jun 2023 00:00:00 EDT","refillRemaining":5,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12278007,"sig":"TAKE
-        ONE CAPSULE BY MOUTH EVERY DAY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Wed,
-        21 Jun 2023 00:00:00 EDT","quantity":30,"expirationDate":"Fri, 21 Jun 2024
-        00:00:00 EDT","prescriptionNumber":"3636452","prescriptionName":"ZIPRASIDONE
-        HCL 20MG CAP","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        11 Apr 2025 00:00:00 EDT","refillDate":"Thu, 24 Apr 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25500049,"sig":"INJECT
+        1 INTRAMUSCULAR DAILY","orderedDate":"Fri, 04 Apr 2025 00:00:00 EDT","quantity":2,"expirationDate":"Sun,
+        05 Apr 2026 00:00:00 EDT","prescriptionNumber":"2720945A","prescriptionName":"ALTEPLASE
+        for INJ 100mg VIAL","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
-        20 Jul 2023 13:58:54 EDT","refillDate":"Tue, 18 Jul 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":true,"prescriptionId":12277403,"sig":"TAKE
-        ONE-HALF CAPSULE EVERY EIGHT (8) HOURS FOR 30 DAYS","orderedDate":"Tue, 20
-        Jun 2023 00:00:00 EDT","quantity":45,"expirationDate":"Thu, 20 Jun 2024 00:00:00
-        EDT","prescriptionNumber":"3636451","prescriptionName":"ZIDOVUDINE 100MG CAP","dispensedDate":"Wed,
-        19 Jul 2023 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        20 Mar 2025 00:00:00 EDT","refillDate":"Mon, 07 Apr 2025 00:00:00 EDT","refillRemaining":10,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25426459,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY","orderedDate":"Tue, 18 Mar 2025 00:00:00 EDT","quantity":30,"expirationDate":"Thu,
+        19 Mar 2026 00:00:00 EDT","prescriptionNumber":"2721333","prescriptionName":"METFORMIN
+        HCL 500MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
-        12 Jul 2023 11:44:54 EDT","refillDate":"Sun, 30 Jul 2023 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12260153,"sig":"TAKE
-        10ML BY MOUTH EVERY DAY FOR 30 DAYS TEST INDICATION TEST PATIENT INSTRUCTIONS","orderedDate":"Sat,
-        10 Jun 2023 00:00:00 EDT","quantity":1,"expirationDate":"Mon, 10 Jun 2024
-        00:00:00 EDT","prescriptionNumber":"3636448","prescriptionName":"PEPTINEX
-        DT LIQUID UNFLAVORED 250ML","dispensedDate":"Sun, 16 Jul 2023 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Fri, 02 May 2025 00:00:00 EDT","refillRemaining":9,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25426817,"sig":"TAKE
+        ONE CAPSULE BY MOUTH DAILY --AVOID ANTACIDS--","orderedDate":"Wed, 26 Feb
+        2025 00:00:00 EST","quantity":30,"expirationDate":"Fri, 27 Feb 2026 00:00:00
+        EST","prescriptionNumber":"2721334","prescriptionName":"GABAPENTIN 100MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
-        17 Jul 2023 13:49:01 EDT","refillDate":"Fri, 28 Jul 2023 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12241425,"sig":"USE
-        PAD(S) THE AFFECTED AREA ONE (1) TIME EACH MONTH TEST","orderedDate":"Thu,
-        08 Jun 2023 00:00:00 EDT","quantity":30,"expirationDate":"Sat, 08 Jun 2024
-        00:00:00 EDT","prescriptionNumber":"3636441","prescriptionName":"PAD,ABDOMINAL
-        8 X 10 STERILE","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25493319,"sig":"INJECT
+        10ML MOUTH WEEKLY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Tue, 04 Mar
+        2025 00:00:00 EST","quantity":1,"expirationDate":"Thu, 05 Mar 2026 00:00:00
+        EST","prescriptionNumber":"2721349","prescriptionName":"UROKINASE 5,000 IU/ML","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
-        17 Jul 2023 13:49:01 EDT","refillDate":"Fri, 28 Jul 2023 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12241477,"sig":"TAKE
-        1 TEASPOONFUL {10 MILLIGRAMS} BY MOUTH FIVE (5) TIMES PER WEEK SPECIAL CHAR  TEST","orderedDate":"Thu,
-        08 Jun 2023 00:00:00 EDT","quantity":10,"expirationDate":"Sat, 08 Jun 2024
-        00:00:00 EDT","prescriptionNumber":"3636443","prescriptionName":"HALOPERIDOL
-        2MG/ML ORAL SOLN","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Mon, 31 Mar 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":true,"prescriptionId":25493320,"sig":"USE
+        BANDAGE ON AFFECTED AREA WEEKLY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Tue,
+        04 Mar 2025 00:00:00 EST","quantity":1,"expirationDate":"Thu, 05 Mar 2026
+        00:00:00 EST","prescriptionNumber":"2721350","prescriptionName":"ACE BANDAGE
+        4 INCH (ea)","dispensedDate":"Tue, 01 Apr 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Thu,
-        08 Jun 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12241478,"sig":"TAKE
-        1 TABLET BY MOUTH TWO (2) TIMES PER WEEK UNKNOWN","orderedDate":"Thu, 08 Jun
-        2023 00:00:00 EDT","quantity":15,"expirationDate":"Sat, 08 Jun 2024 00:00:00
-        EDT","prescriptionNumber":"3636444","prescriptionName":"PSEUDO 60/TRIPROLIDINE
-        2.5MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":"00093721410"},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":4,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115087,"sig":"TAKE
+        ONE TABLET EVERY DAY FOR 30 DAYS TAKE WITH FOOD","orderedDate":"Wed, 08 Jan
+        2025 00:00:00 EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026 00:00:00
+        EST","prescriptionNumber":"3636691F","prescriptionName":"ALLOPURINOL 100MG
+        TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
-        12 Jul 2023 11:44:54 EDT","refillDate":"Sun, 23 Jul 2023 00:00:00 EDT","refillRemaining":0,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12224588,"sig":"TAKE
-        1MG EVERY DAY FOR 30 DAYS TEST SPECIAL CHARCTORS PATIENT INTRUCTIONS","orderedDate":"Fri,
-        12 May 2023 00:00:00 EDT","quantity":30,"expirationDate":"Sun, 12 May 2024
-        00:00:00 EDT","prescriptionNumber":"3636352B","prescriptionName":"ACITRETIN
-        10MG CAP","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Mon,
-        03 Jul 2023 11:49:02 EDT","refillDate":"Mon, 17 Jul 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT3","isRefillable":true,"isTrackable":false,"prescriptionId":12241818,"sig":"APPLY
-        LIBERAL AMOUNT TO AFFECTED AREA DAILY FOR 30 DAYS TEST INDICATION 060623 ","orderedDate":"Sun,
-        07 May 2023 00:00:00 EDT","quantity":1,"expirationDate":"Tue, 07 May 2024
-        00:00:00 EDT","prescriptionNumber":"2719817","prescriptionName":"BACITRACIN
-        500 UNIT/GM OINT 30GM","dispensedDate":null,"stationNumber":"994","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
-        17 Jul 2023 12:17:02 EDT","refillDate":"Wed, 26 Jul 2023 00:00:00 EDT","refillRemaining":0,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12240584,"sig":"TAKE
-        ONE-HALF TABLET BY MOUTH THREE (3) TIMES A DAY FOR 30 DAYS TEST ","orderedDate":"Sun,
-        07 May 2023 00:00:00 EDT","quantity":45,"expirationDate":"Tue, 07 May 2024
-        00:00:00 EDT","prescriptionNumber":"3636440","prescriptionName":"BACLOFEN
-        10MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
-        28 Jul 2023 12:37:48 EDT","refillDate":"Tue, 25 Jul 2023 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":12220892,"sig":"APPLY
-        A THIN LAYER THREE (3) TIMES PER WEEK FOR 60 DAYS , RUB CREAM IN UNTIL NOT
-        LONGER VISIBLE. * WASH HANDS BEFORE AND AFTER CREAM APPLICATION *","orderedDate":"Tue,
-        02 May 2023 00:00:00 EDT","quantity":1,"expirationDate":"Thu, 02 May 2024
-        00:00:00 EDT","prescriptionNumber":"3636436","prescriptionName":"IMIQUIMOD
-        5% CREAM PKT 0.25GM","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
-        28 Apr 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12234154,"sig":"TAKE
-        ONE TABLET TWO (2) TIMES PER DAY, WITH FOOD INDICATION 05232023 SIG PIPE  TEST","orderedDate":"Fri,
-        28 Apr 2023 00:00:00 EDT","quantity":60,"expirationDate":"Sun, 28 Apr 2024
-        00:00:00 EDT","prescriptionNumber":"3636439","prescriptionName":"SALSALATE
-        750MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Sun,
-        23 Apr 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12234139,"sig":"TAKE
-        1 INHALATION BY MOUTH EVERY TWELVE (12) HOURS FOR 30 DAYS SIG TEST PIPE  TEST","orderedDate":"Sun,
-        23 Apr 2023 00:00:00 EDT","quantity":1,"expirationDate":"Tue, 23 Apr 2024
-        00:00:00 EDT","prescriptionNumber":"3636438","prescriptionName":"SALMETEROL
-        50MCG/BLSTR PO INHL DISKUS 60","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Mon,
-        17 Jul 2023 13:49:01 EDT","refillDate":"Mon, 17 Jul 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT3","isRefillable":true,"isTrackable":false,"prescriptionId":12220878,"sig":"INJECT
-        1GM WEEKLY FOR 30 DAYS TEST INDICATION ADDED TO SIG 05122023","orderedDate":"Sat,
-        22 Apr 2023 00:00:00 EDT","quantity":1,"expirationDate":"Mon, 22 Apr 2024
-        00:00:00 EDT","prescriptionNumber":"2719816","prescriptionName":"IFOSFAMIDE
-        1GM VI","dispensedDate":null,"stationNumber":"994","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Mon,
-        17 Jul 2023 13:49:01 EDT","refillDate":"Mon, 17 Jul 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT3","isRefillable":true,"isTrackable":false,"prescriptionId":12220773,"sig":"INJECT
-        10MG IV WEEKLY FOR 30 DAYS","orderedDate":"Mon, 17 Apr 2023 00:00:00 EDT","quantity":1,"expirationDate":"Wed,
-        17 Apr 2024 00:00:00 EDT","prescriptionNumber":"2719815","prescriptionName":"IBUTILIDE
-        FUMARATE 0.1MG/ML INJ,SOLN","dispensedDate":null,"stationNumber":"994","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
-        14 Apr 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12220890,"sig":"TAKE
-        ONE-HALF TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Fri, 14 Apr 2023 00:00:00
-        EDT","quantity":15,"expirationDate":"Sun, 14 Apr 2024 00:00:00 EDT","prescriptionNumber":"3636434","prescriptionName":"IMATINIB
-        MESYLATE 400MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
-        14 Apr 2023 00:00:00 EDT","refillRemaining":5,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12220891,"sig":"TAKE
-        ONE TABLET AT BEDTIME FOR 30 DAYS TEST INDICATION ADDED TO SIG 05122023","orderedDate":"Fri,
-        14 Apr 2023 00:00:00 EDT","quantity":30,"expirationDate":"Sun, 14 Apr 2024
-        00:00:00 EDT","prescriptionNumber":"3636435","prescriptionName":"IMIPRAMINE
-        HCL 10MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Wed,
-        12 Apr 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT3","isRefillable":true,"isTrackable":false,"prescriptionId":12220771,"sig":"TAKE
-        ONE TABLET BY MOUTH DAILY FOR 30 DAYS","orderedDate":"Wed, 12 Apr 2023 00:00:00
-        EDT","quantity":30,"expirationDate":"Fri, 12 Apr 2024 00:00:00 EDT","prescriptionNumber":"2719813","prescriptionName":"IBERSARTAN
-        300MG TAB","dispensedDate":null,"stationNumber":"994","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Wed,
-        12 Apr 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT3","isRefillable":true,"isTrackable":false,"prescriptionId":12220772,"sig":"1
-        TEASPOONFUL MOUTH WEEKLY --TAKE WITH FOOD IF GI UPSET OCCURS--","orderedDate":"Wed,
-        12 Apr 2023 00:00:00 EDT","quantity":1,"expirationDate":"Fri, 12 Apr 2024
-        00:00:00 EDT","prescriptionNumber":"2719814","prescriptionName":"IBUPROFEN
-        100MG/5ML SUSP","dispensedDate":null,"stationNumber":"994","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Wed,
-        03 May 2023 09:54:03 EDT","refillDate":"Sun, 30 Apr 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12212478,"sig":"TAKE
-        ONE TABLET TWO (2) TIMES A DAY FOR 30 DAYS TEST DEMO INDICATION TEST DEMO","orderedDate":"Mon,
-        03 Apr 2023 00:00:00 EDT","quantity":60,"expirationDate":"Wed, 03 Apr 2024
-        00:00:00 EDT","prescriptionNumber":"3636433","prescriptionName":"NEFAZODONE
-        100MG TAB","dispensedDate":"Mon, 01 May 2023 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Mon,
-        01 May 2023 14:22:03 EDT","refillDate":"Fri, 31 Mar 2023 00:00:00 EDT","refillRemaining":4,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12184156,"sig":"TAKE
-        10MG EVERY DAY, 30 MINUTES BEFORE A MEAL FOR 30 DAYS TAKE 30 MINUTES BEFORE
-        BREAKFAST","orderedDate":"Sat, 11 Mar 2023 00:00:00 EST","quantity":3,"expirationDate":"Mon,
-        11 Mar 2024 00:00:00 EDT","prescriptionNumber":"3636432","prescriptionName":"LANSOPRAZOLE
-        15MG SA CAP","dispensedDate":"Fri, 31 Mar 2023 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Mon,
-        01 May 2023 14:22:03 EDT","refillDate":"Mon, 01 May 2023 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12184155,"sig":"APPLY
-        1ML TO THE AFFECTED AREA EVERY DAY FOR 30 DAYS","orderedDate":"Wed, 01 Mar
-        2023 00:00:00 EST","quantity":1,"expirationDate":"Fri, 01 Mar 2024 00:00:00
-        EST","prescriptionNumber":"3636431","prescriptionName":"LANOLIN ANHYDROUS
-        OINT","dispensedDate":"Mon, 01 May 2023 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Thu,
-        27 Apr 2023 14:33:01 EDT","refillDate":"Tue, 28 Mar 2023 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":12183903,"sig":"TAKE
-        TWO TABLETS TWO (2) TIMES PER WEEK FOR 30 DAYS TEST !@#$","orderedDate":"Tue,
-        28 Feb 2023 00:00:00 EST","quantity":18,"expirationDate":"Thu, 29 Feb 2024
-        00:00:00 EST","prescriptionNumber":"3636430","prescriptionName":"CABERGOLINE
-        0.5MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        18 Mar 2025 00:00:00 EDT","refillDate":"Sun, 23 Mar 2025 00:00:00 EDT","refillRemaining":10,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115088,"sig":"TAKE
+        ONE TABLET AT BEDTIME FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00
+        EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636710F","prescriptionName":"AMITRIPTYLINE
+        HCL 10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
-        12 Jan 2023 09:51:14 EST","refillDate":"Sat, 19 Nov 2022 11:27:57 EST","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":4931240,"sig":"PLACE
-        1 DROP OPTHALMIC AFTER DINNER FOR 5 DAYS TEST","orderedDate":"Thu, 17 Nov
-        2022 11:28:05 EST","quantity":10,"expirationDate":"Thu, 15 Apr 2021 00:00:00
-        EDT","prescriptionNumber":"3636244","prescriptionName":"HOMATROPINE HYDROBROMIDE
-        5% OPH SOLN","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        10 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":11,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115089,"sig":"TAKE
+        ONE TABLET EVERY EVENING FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00
+        EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636714E","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":null,"refillDate":"Sun,
-        20 Nov 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":9008379,"sig":"TAKE
-        10MG BY MOUTH WEEKLY FOR 30 DAYS","orderedDate":"Mon, 31 Oct 2022 00:00:00
-        EDT","quantity":30,"expirationDate":"Wed, 01 Nov 2023 00:00:00 EDT","prescriptionNumber":"3636418A","prescriptionName":"PANCREASE
-        MT 16 EC CAP","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
-        31 Oct 2022 13:05:16 EDT","refillDate":"Mon, 31 Oct 2022 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":9008380,"sig":"TAKE
-        ONE TABLET BY MOUTH EVERY DAY, 30 MINUTES BEFORE A MEAL FOR 30 DAYS","orderedDate":"Sat,
-        01 Oct 2022 00:00:00 EDT","quantity":30,"expirationDate":"Mon, 02 Oct 2023
-        00:00:00 EDT","prescriptionNumber":"3636419","prescriptionName":"PANTOPRAZOLE
-        NA 40MG EC TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Mon,
-        07 Nov 2022 15:36:38 EST","refillDate":"Sun, 04 Jun 2023 00:00:00 EDT","refillRemaining":0,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8914139,"sig":"APPLY,
-        A SMALL AMOUNT (APPROXIMATELY, 4 MILLIMETERS) OPTHALMIC WEEKLY FOR 30 DAYS","orderedDate":"Thu,
-        27 Oct 2022 00:00:00 EDT","quantity":4,"expirationDate":"Sat, 28 Oct 2023
-        00:00:00 EDT","prescriptionNumber":"3636361B","prescriptionName":"ERYTHROMYCIN
-        0.5% OPH OINT","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
-        14 Oct 2022 14:20:56 EDT","refillDate":"Fri, 14 Oct 2022 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8440856,"sig":"TAKE
-        ONE TABLET TWO (2) TIMES PER DAY, WITH FOOD FOR 30 DAYS","orderedDate":"Tue,
-        30 Aug 2022 00:00:00 EDT","quantity":60,"expirationDate":"Thu, 31 Aug 2023
-        00:00:00 EDT","prescriptionNumber":"3636382A","prescriptionName":"NAPROXEN
-        250MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
-        14 Sep 2022 11:10:07 EDT","refillDate":"Tue, 04 Oct 2022 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8440854,"sig":"TAKE
-        10MG BY MOUTH EVERY SIX (6) HOURS FOR 30 DAYS AS DIRECTED \"SHAKE WELL\" BEFORE
-        USING AND CLEAN MOUTHPIECE WEEKLY.","orderedDate":"Tue, 30 Aug 2022 00:00:00
-        EDT","quantity":3,"expirationDate":"Thu, 31 Aug 2023 00:00:00 EDT","prescriptionNumber":"3636381A","prescriptionName":"LEVALBUTEROL
-        45MCG 200D HFA ORAL INHL","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Tue,
-        04 Oct 2022 10:24:02 EDT","refillDate":"Mon, 24 Oct 2022 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8514366,"sig":"TAKE
-        ONE-HALF TABLET BY MOUTH EVERY TWELVE (12) HOURS TEST COMMENT TEST INDICATION","orderedDate":"Tue,
-        04 Oct 2022 00:00:00 EDT","quantity":30,"expirationDate":"Thu, 05 Oct 2023
-        00:00:00 EDT","prescriptionNumber":"3636405","prescriptionName":"FLECAINIDE
-        ACETATE 150MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Tue,
-        14 Mar 2023 16:06:28 EDT","refillDate":"Tue, 14 Mar 2023 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8937605,"sig":"APPLY
-        1 APPLICATION TO THE AFFECTED AREA EVERY DAY FOR 30 DAYS","orderedDate":"Wed,
-        28 Sep 2022 00:00:00 EDT","quantity":1,"expirationDate":"Fri, 29 Sep 2023
-        00:00:00 EDT","prescriptionNumber":"3636417","prescriptionName":"TAZAROTENE
-        0.1% TOP GEL","dispensedDate":"Tue, 14 Mar 2023 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":5,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115092,"sig":"DEVICE(S)
+        TRACH WEEKLY FOR 60 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00 EST","quantity":1,"expirationDate":"Fri,
+        09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636956B","prescriptionName":"LARYNG
+        TUBE, CANNULA  #8 LGT","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Fri,
-        17 Mar 2023 11:36:44 EDT","refillDate":"Tue, 27 Sep 2022 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8906055,"sig":"TAKE
-        1MG EVERY TWELVE (12) HOURS FOR 30 DAYS AVOID DAIRY PRODUCTS. FINISH ALL MEDICATION","orderedDate":"Tue,
-        27 Sep 2022 00:00:00 EDT","quantity":30,"expirationDate":"Thu, 28 Sep 2023
-        00:00:00 EDT","prescriptionNumber":"3636413","prescriptionName":"DOXYCYCLINE
-        HYCLATE 100MG CAP","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        14 Feb 2025 00:00:00 EST","refillDate":"Sat, 15 Feb 2025 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115086,"sig":"TAKE
+        ONE TABLET BY MOUTH EVERY DAY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Wed,
+        08 Jan 2025 00:00:00 EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026
+        00:00:00 EST","prescriptionNumber":"3636965B","prescriptionName":"ALBUTEROL
+        SULFATE 2MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","refillDate":"Sun, 23 Mar 2025 00:00:00 EDT","refillRemaining":4,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115093,"sig":"APPLY
+        APPLICATION(S) TO THE AFFECTED AREA WEEKLY FOR 30 DAYS TEST INDI 09132023
+        TEST PI 09152023","orderedDate":"Wed, 08 Jan 2025 00:00:00 EST","quantity":1,"expirationDate":"Fri,
+        09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636971A","prescriptionName":"LIDOCAINE
+        5% OINT","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","refillDate":"Sun, 23 Mar 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115094,"sig":"APPLY
+        1MG TO THE AFFECTED AREA ONCE FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025
+        00:00:00 EST","quantity":1,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636972A","prescriptionName":"LINDANE
+        1% LOTION","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115091,"sig":"APPLY
+        APPLICATION(S) TO THE AFFECTED AREA EVERY DAY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Wed,
+        08 Jan 2025 00:00:00 EST","quantity":1,"expirationDate":"Fri, 09 Jan 2026
+        00:00:00 EST","prescriptionNumber":"3637008A","prescriptionName":"HEXACHLOROPHENE
+        3% TOP LIQUID","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115090,"sig":"INSERT
+        10MG IN RECTUM WEEKLY FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00
+        EST","quantity":1,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3637009A","prescriptionName":"HEMORRHOIDAL
+        RTL SUPP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
+        26 Feb 2025 00:00:00 EST","refillDate":"Wed, 26 Feb 2025 00:00:00 EST","refillRemaining":9,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25310236,"sig":"TAKE
+        ONE TABLET BY MOUTH WEEKLY FOR 30 DAYS TEST INDI --TAKE WITH FOOD--","orderedDate":"Sun,
+        05 Jan 2025 00:00:00 EST","quantity":5,"expirationDate":"Tue, 06 Jan 2026
+        00:00:00 EST","prescriptionNumber":"2721317","prescriptionName":"ACARBOSE
+        25MG TAB","dispensedDate":"Mon, 17 Feb 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        03 Dec 2024 00:00:00 EST","refillDate":"Wed, 12 Mar 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":24865545,"sig":"TAKE
+        ONE-HALF TABLET EVERY MORNING, 30 MINUTES BEFORE MEAL WITH FULL GLASS OF WATER,
+        ONLY. DON''T LIE DOWN, EAT, DRINK, OR TAKE MEDS FOR ONE-HALF (1/2) HOUR.","orderedDate":"Mon,
+        02 Dec 2024 00:00:00 EST","quantity":3,"expirationDate":"Wed, 03 Dec 2025
+        00:00:00 EST","prescriptionNumber":"3637029","prescriptionName":"ALENDRONATE
+        10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Fri,
+        11 Apr 2025 00:00:00 EDT","refillDate":"Mon, 02 Dec 2024 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":24865546,"sig":"EACH(S)
+        MISC EVERY DAY","orderedDate":"Mon, 02 Dec 2024 00:00:00 EST","quantity":3,"expirationDate":"Wed,
+        03 Dec 2025 00:00:00 EST","prescriptionNumber":"3637030","prescriptionName":"BATTERY
+        3V #300.0035","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
-        27 Oct 2022 14:40:04 EDT","refillDate":"Wed, 16 Nov 2022 00:00:00 EST","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8906056,"sig":"TAKE
-        ONE CAPSULE EVERY TWELVE (12) HOURS FOR 30 DAYS","orderedDate":"Tue, 27 Sep
-        2022 00:00:00 EDT","quantity":60,"expirationDate":"Thu, 28 Sep 2023 00:00:00
-        EDT","prescriptionNumber":"3636414","prescriptionName":"TACROLIMUS 0.5MG CAP","dispensedDate":"Thu,
-        27 Oct 2022 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        21 Nov 2024 00:00:00 EST","refillDate":"Fri, 11 Apr 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":24783946,"sig":"TAKE
+        1 TEASPOONFUL MOUTH WEEKLY FOR 90 DAYS --TAKE WITH FOOD--","orderedDate":"Wed,
+        20 Nov 2024 00:00:00 EST","quantity":500,"expirationDate":"Fri, 21 Nov 2025
+        00:00:00 EST","prescriptionNumber":"2721221","prescriptionName":"AMOXICILLIN
+        125MG/5ML SUSP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
-        27 Oct 2022 14:40:04 EDT","refillDate":"Wed, 16 Nov 2022 00:00:00 EST","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8906057,"sig":"TAKE
-        ONE TABLET EVERY TWELVE (12) HOURS FOR 30 DAYS","orderedDate":"Tue, 27 Sep
-        2022 00:00:00 EDT","quantity":60,"expirationDate":"Thu, 28 Sep 2023 00:00:00
-        EDT","prescriptionNumber":"3636415","prescriptionName":"TAMOXIFEN CITRATE
-        10MG TAB","dispensedDate":"Thu, 27 Oct 2022 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":"v","cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
-        28 Oct 2022 10:13:28 EDT","refillDate":"Wed, 16 Nov 2022 00:00:00 EST","refillRemaining":3,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8914138,"sig":"TAKE
-        ONE CAPSULE EVERY DAY, WITH FOOD FOR 30 DAYS FOR PROSTATE","orderedDate":"Tue,
-        27 Sep 2022 00:00:00 EDT","quantity":30,"expirationDate":"Thu, 28 Sep 2023
-        00:00:00 EDT","prescriptionNumber":"3636416","prescriptionName":"TAMSULOSIN
-        HCL 0.4MG CAP","dispensedDate":"Wed, 26 Oct 2022 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":"v","cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Tue,
-        25 Oct 2022 12:06:46 EDT","refillDate":"Mon, 14 Nov 2022 00:00:00 EST","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8864216,"sig":"TAKE
-        ONE TABLET EVERY DAY FOR 30 DAYS TEST INDICATION","orderedDate":"Sun, 25 Sep
-        2022 00:00:00 EDT","quantity":30,"expirationDate":"Tue, 26 Sep 2023 00:00:00
-        EDT","prescriptionNumber":"3636408","prescriptionName":"PHENELZINE SULFATE
-        15MG TAB","dispensedDate":"Wed, 26 Oct 2022 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        03 Apr 2025 00:00:00 EDT","refillDate":"Mon, 31 Mar 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":24972467,"sig":"TAKE
+        ONE CAPSULE BY MOUTH DAILY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Tue,
+        19 Nov 2024 00:00:00 EST","quantity":30,"expirationDate":"Thu, 20 Nov 2025
+        00:00:00 EST","prescriptionNumber":"2721261","prescriptionName":"BALSALAZIDE
+        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
-        30 Mar 2023 13:09:35 EDT","refillDate":"Mon, 17 Apr 2023 00:00:00 EDT","refillRemaining":0,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8864477,"sig":"TAKE
-        1MG 30 MINUTES BEFORE MEALS AND AT BEDTIME FOR 30 DAYS","orderedDate":"Sun,
-        25 Sep 2022 00:00:00 EDT","quantity":30,"expirationDate":"Tue, 26 Sep 2023
-        00:00:00 EDT","prescriptionNumber":"3636409","prescriptionName":"TACRINE HCL
-        10MG CAP","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        10 Apr 2025 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":24972783,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS TEST PI","orderedDate":"Tue, 19 Nov
+        2024 00:00:00 EST","quantity":30,"expirationDate":"Thu, 20 Nov 2025 00:00:00
+        EST","prescriptionNumber":"2721265","prescriptionName":"BENAZEPRIL HCL 10MG
+        TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
+        04 Apr 2025 00:00:00 EDT","refillDate":"Sun, 20 Apr 2025 00:00:00 EDT","refillRemaining":4,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23861792,"sig":"TAKE
+        2 DAILY","orderedDate":"Sat, 04 May 2024 00:00:00 EDT","quantity":200,"expirationDate":"Mon,
+        05 May 2025 00:00:00 EDT","prescriptionNumber":"2721048","prescriptionName":"AMOXICILLIN
+        250MG/5ML SUSP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Thu,
-        10 Nov 2022 16:51:30 EST","refillDate":"Mon, 14 Nov 2022 00:00:00 EST","refillRemaining":1,"facilityName":"SLC4","isRefillable":true,"isTrackable":false,"prescriptionId":8864571,"sig":"APPLY
-        APPLICATION(S) TO THE AFFECTED AREA TWO (2) TIMES A DAY FOR 30 DAYS","orderedDate":"Sun,
-        25 Sep 2022 00:00:00 EDT","quantity":1,"expirationDate":"Tue, 26 Sep 2023
-        00:00:00 EDT","prescriptionNumber":"3636412","prescriptionName":"TACROLIMUS
-        0.1% TOP OINT","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        08 Aug 2024 00:00:00 EDT","refillDate":"Tue, 03 Dec 2024 00:00:00 EST","refillRemaining":0,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23844911,"sig":"INHALE
+        1 DAILY FOR 30 DAYS TEST","orderedDate":"Mon, 29 Apr 2024 00:00:00 EDT","quantity":200,"expirationDate":"Wed,
+        30 Apr 2025 00:00:00 EDT","prescriptionNumber":"2721008","prescriptionName":"ALBUTEROL
+        200MCG INHL CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
-        01 Sep 2022 09:13:04 EDT","refillDate":"Thu, 01 Sep 2022 00:00:00 EDT","refillRemaining":3,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8440857,"sig":"TAKE
-        ONE TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Tue, 30 Aug 2022 00:00:00
-        EDT","quantity":30,"expirationDate":"Thu, 31 Aug 2023 00:00:00 EDT","prescriptionNumber":"3636378A","prescriptionName":"TIAGABINE
-        HCL 4MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"activeParked","refillSubmitDate":"Wed,
+        29 May 2024 00:00:00 EDT","refillDate":"Fri, 14 Jun 2024 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675093,"sig":"INSERT
+        1 SUPPOSITORY(IES) IN RECTUM DAILY FOR 30 DAYS","orderedDate":"Thu, 18 Apr
+        2024 00:00:00 EDT","quantity":12,"expirationDate":"Sat, 19 Apr 2025 00:00:00
+        EDT","prescriptionNumber":"2720928","prescriptionName":"ACETAMINOPHEN 325MG
+        RTL SUPP","dispensedDate":"Fri, 31 May 2024 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Tue,
-        30 Aug 2022 15:43:44 EDT","refillDate":"Mon, 19 Sep 2022 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8440855,"sig":"TAKE
-        ONE-HALF TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Tue, 30 Aug 2022 00:00:00
-        EDT","quantity":15,"expirationDate":"Thu, 31 Aug 2023 00:00:00 EDT","prescriptionNumber":"3636379A","prescriptionName":"NADOLOL
-        20MG TAB","dispensedDate":"Wed, 31 Aug 2022 00:00:00 EDT","stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":"(983)777-0928","cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Tue, 18 Mar 2025 00:00:00 EDT","refillRemaining":8,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675098,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS","orderedDate":"Thu, 18 Apr 2024 00:00:00
+        EDT","quantity":2,"expirationDate":"Sat, 19 Apr 2025 00:00:00 EDT","prescriptionNumber":"2720933","prescriptionName":"AMITRIPTYLINE
+        HCL 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
+        29 May 2024 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":9,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675099,"sig":"TAKE
+        ONE TABLET DAILY FOR 30 DAYS","orderedDate":"Thu, 18 Apr 2024 00:00:00 EDT","quantity":2,"expirationDate":"Sat,
+        19 Apr 2025 00:00:00 EDT","prescriptionNumber":"2720934","prescriptionName":"AMOXAPINE
+        150MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
-        29 Aug 2022 16:34:57 EDT","refillDate":"Tue, 06 Sep 2022 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC4","isRefillable":false,"isTrackable":false,"prescriptionId":8398469,"sig":"TAKE
-        ONE-HALF TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Wed, 17 Aug 2022 00:00:00
-        EDT","quantity":15,"expirationDate":"Fri, 18 Aug 2023 00:00:00 EDT","prescriptionNumber":"3636337A","prescriptionName":"COLCHICINE
-        0.6MG TAB","dispensedDate":null,"stationNumber":"991","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Fri,
-        02 Dec 2022 17:39:30 EST","refillDate":"Tue, 10 Jan 2023 00:00:00 EST","refillRemaining":0,"facilityName":"DAYT3","isRefillable":false,"isTrackable":false,"prescriptionId":8443674,"sig":"TAKE
-        ONE TABLET BY MOUTH DAILY FOR 30 DAYS --TAKE WITH FOOD TO INCREASE ABSORPTION--
-        TEST INDICATION","orderedDate":"Mon, 08 Aug 2022 00:00:00 EDT","quantity":30,"expirationDate":"Wed,
-        09 Aug 2023 00:00:00 EDT","prescriptionNumber":"2719810","prescriptionName":"NABUMETONE
-        500MG TAB","dispensedDate":null,"stationNumber":"994","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        09 Dec 2024 00:00:00 EST","refillDate":"Wed, 12 Mar 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675101,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS --AVOID GRAPEFRUIT JUICE/AVOID ANTACIDS--","orderedDate":"Thu,
+        18 Apr 2024 00:00:00 EDT","quantity":2,"expirationDate":"Sat, 19 Apr 2025
+        00:00:00 EDT","prescriptionNumber":"2720936","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null}],"errors":[],"infoMessages":[]}'
-  recorded_at: Mon, 31 Jul 2023 02:40:28 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Wed, 16 Apr 2025 15:17:00 GMT
+- request:
+    method: get
+    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/getactiverx"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 16 Apr 2025 15:17:01 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '23059'
+      X-Amzn-Requestid:
+      - 2cf455e4-e124-4874-bc75-826fc4261db1
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - JHx9EHbavHMFbHg=
+      X-Amzn-Remapped-Date:
+      - Wed, 16 Apr 2025 15:17:01 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Wed,
+        16 Apr 2025 10:57:44 EDT","prescriptionList":[{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Mon,
+        07 Apr 2025 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25506367,"sig":"APPLY
+        GEL TO AFFECTED AREA WEEKLY FOR 30 DAYS TEST PI","orderedDate":"Mon, 07 Apr
+        2025 00:00:00 EDT","quantity":1,"expirationDate":"Wed, 07 May 2025 00:00:00
+        EDT","prescriptionNumber":"2721263A","prescriptionName":"BECAPLERMIN 0.01%
+        TOP GEL","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
+        11 Apr 2025 00:00:00 EDT","refillDate":"Thu, 24 Apr 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25500049,"sig":"INJECT
+        1 INTRAMUSCULAR DAILY","orderedDate":"Fri, 04 Apr 2025 00:00:00 EDT","quantity":2,"expirationDate":"Sun,
+        05 Apr 2026 00:00:00 EDT","prescriptionNumber":"2720945A","prescriptionName":"ALTEPLASE
+        for INJ 100mg VIAL","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","refillDate":"Mon, 07 Apr 2025 00:00:00 EDT","refillRemaining":10,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25426459,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY","orderedDate":"Tue, 18 Mar 2025 00:00:00 EDT","quantity":30,"expirationDate":"Thu,
+        19 Mar 2026 00:00:00 EDT","prescriptionNumber":"2721333","prescriptionName":"METFORMIN
+        HCL 500MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Fri, 02 May 2025 00:00:00 EDT","refillRemaining":9,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25426817,"sig":"TAKE
+        ONE CAPSULE BY MOUTH DAILY --AVOID ANTACIDS--","orderedDate":"Wed, 26 Feb
+        2025 00:00:00 EST","quantity":30,"expirationDate":"Fri, 27 Feb 2026 00:00:00
+        EST","prescriptionNumber":"2721334","prescriptionName":"GABAPENTIN 100MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25493319,"sig":"INJECT
+        10ML MOUTH WEEKLY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Tue, 04 Mar
+        2025 00:00:00 EST","quantity":1,"expirationDate":"Thu, 05 Mar 2026 00:00:00
+        EST","prescriptionNumber":"2721349","prescriptionName":"UROKINASE 5,000 IU/ML","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Mon, 31 Mar 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":true,"prescriptionId":25493320,"sig":"USE
+        BANDAGE ON AFFECTED AREA WEEKLY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Tue,
+        04 Mar 2025 00:00:00 EST","quantity":1,"expirationDate":"Thu, 05 Mar 2026
+        00:00:00 EST","prescriptionNumber":"2721350","prescriptionName":"ACE BANDAGE
+        4 INCH (ea)","dispensedDate":"Tue, 01 Apr 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":"00093721410"},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":4,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115087,"sig":"TAKE
+        ONE TABLET EVERY DAY FOR 30 DAYS TAKE WITH FOOD","orderedDate":"Wed, 08 Jan
+        2025 00:00:00 EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026 00:00:00
+        EST","prescriptionNumber":"3636691F","prescriptionName":"ALLOPURINOL 100MG
+        TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        18 Mar 2025 00:00:00 EDT","refillDate":"Sun, 23 Mar 2025 00:00:00 EDT","refillRemaining":10,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115088,"sig":"TAKE
+        ONE TABLET AT BEDTIME FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00
+        EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636710F","prescriptionName":"AMITRIPTYLINE
+        HCL 10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":11,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115089,"sig":"TAKE
+        ONE TABLET EVERY EVENING FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00
+        EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636714E","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":5,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115092,"sig":"DEVICE(S)
+        TRACH WEEKLY FOR 60 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00 EST","quantity":1,"expirationDate":"Fri,
+        09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636956B","prescriptionName":"LARYNG
+        TUBE, CANNULA  #8 LGT","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Fri,
+        14 Feb 2025 00:00:00 EST","refillDate":"Sat, 15 Feb 2025 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115086,"sig":"TAKE
+        ONE TABLET BY MOUTH EVERY DAY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Wed,
+        08 Jan 2025 00:00:00 EST","quantity":30,"expirationDate":"Fri, 09 Jan 2026
+        00:00:00 EST","prescriptionNumber":"3636965B","prescriptionName":"ALBUTEROL
+        SULFATE 2MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","refillDate":"Sun, 23 Mar 2025 00:00:00 EDT","refillRemaining":4,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115093,"sig":"APPLY
+        APPLICATION(S) TO THE AFFECTED AREA WEEKLY FOR 30 DAYS TEST INDI 09132023
+        TEST PI 09152023","orderedDate":"Wed, 08 Jan 2025 00:00:00 EST","quantity":1,"expirationDate":"Fri,
+        09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636971A","prescriptionName":"LIDOCAINE
+        5% OINT","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","refillDate":"Sun, 23 Mar 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115094,"sig":"APPLY
+        1MG TO THE AFFECTED AREA ONCE FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025
+        00:00:00 EST","quantity":1,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3636972A","prescriptionName":"LINDANE
+        1% LOTION","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115091,"sig":"APPLY
+        APPLICATION(S) TO THE AFFECTED AREA EVERY DAY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Wed,
+        08 Jan 2025 00:00:00 EST","quantity":1,"expirationDate":"Fri, 09 Jan 2026
+        00:00:00 EST","prescriptionNumber":"3637008A","prescriptionName":"HEXACHLOROPHENE
+        3% TOP LIQUID","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Wed, 08 Jan 2025 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":25115090,"sig":"INSERT
+        10MG IN RECTUM WEEKLY FOR 30 DAYS","orderedDate":"Wed, 08 Jan 2025 00:00:00
+        EST","quantity":1,"expirationDate":"Fri, 09 Jan 2026 00:00:00 EST","prescriptionNumber":"3637009A","prescriptionName":"HEMORRHOIDAL
+        RTL SUPP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
+        26 Feb 2025 00:00:00 EST","refillDate":"Wed, 26 Feb 2025 00:00:00 EST","refillRemaining":9,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":25310236,"sig":"TAKE
+        ONE TABLET BY MOUTH WEEKLY FOR 30 DAYS TEST INDI --TAKE WITH FOOD--","orderedDate":"Sun,
+        05 Jan 2025 00:00:00 EST","quantity":5,"expirationDate":"Tue, 06 Jan 2026
+        00:00:00 EST","prescriptionNumber":"2721317","prescriptionName":"ACARBOSE
+        25MG TAB","dispensedDate":"Mon, 17 Feb 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        03 Dec 2024 00:00:00 EST","refillDate":"Wed, 12 Mar 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":24865545,"sig":"TAKE
+        ONE-HALF TABLET EVERY MORNING, 30 MINUTES BEFORE MEAL WITH FULL GLASS OF WATER,
+        ONLY. DON''T LIE DOWN, EAT, DRINK, OR TAKE MEDS FOR ONE-HALF (1/2) HOUR.","orderedDate":"Mon,
+        02 Dec 2024 00:00:00 EST","quantity":3,"expirationDate":"Wed, 03 Dec 2025
+        00:00:00 EST","prescriptionNumber":"3637029","prescriptionName":"ALENDRONATE
+        10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"submitted","refillSubmitDate":"Fri,
+        11 Apr 2025 00:00:00 EDT","refillDate":"Mon, 02 Dec 2024 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10
+        TEST LAB","isRefillable":false,"isTrackable":false,"prescriptionId":24865546,"sig":"EACH(S)
+        MISC EVERY DAY","orderedDate":"Mon, 02 Dec 2024 00:00:00 EST","quantity":3,"expirationDate":"Wed,
+        03 Dec 2025 00:00:00 EST","prescriptionNumber":"3637030","prescriptionName":"BATTERY
+        3V #300.0035","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        21 Nov 2024 00:00:00 EST","refillDate":"Fri, 11 Apr 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":24783946,"sig":"TAKE
+        1 TEASPOONFUL MOUTH WEEKLY FOR 90 DAYS --TAKE WITH FOOD--","orderedDate":"Wed,
+        20 Nov 2024 00:00:00 EST","quantity":500,"expirationDate":"Fri, 21 Nov 2025
+        00:00:00 EST","prescriptionNumber":"2721221","prescriptionName":"AMOXICILLIN
+        125MG/5ML SUSP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        03 Apr 2025 00:00:00 EDT","refillDate":"Mon, 31 Mar 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":24972467,"sig":"TAKE
+        ONE CAPSULE BY MOUTH DAILY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Tue,
+        19 Nov 2024 00:00:00 EST","quantity":30,"expirationDate":"Thu, 20 Nov 2025
+        00:00:00 EST","prescriptionNumber":"2721261","prescriptionName":"BALSALAZIDE
+        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":24972783,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS TEST PI","orderedDate":"Tue, 19 Nov
+        2024 00:00:00 EST","quantity":30,"expirationDate":"Thu, 20 Nov 2025 00:00:00
+        EST","prescriptionNumber":"2721265","prescriptionName":"BENAZEPRIL HCL 10MG
+        TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
+        04 Apr 2025 00:00:00 EDT","refillDate":"Sun, 20 Apr 2025 00:00:00 EDT","refillRemaining":4,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23861792,"sig":"TAKE
+        2 DAILY","orderedDate":"Sat, 04 May 2024 00:00:00 EDT","quantity":200,"expirationDate":"Mon,
+        05 May 2025 00:00:00 EDT","prescriptionNumber":"2721048","prescriptionName":"AMOXICILLIN
+        250MG/5ML SUSP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"active","refillSubmitDate":"Thu,
+        08 Aug 2024 00:00:00 EDT","refillDate":"Tue, 03 Dec 2024 00:00:00 EST","refillRemaining":0,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23844911,"sig":"INHALE
+        1 DAILY FOR 30 DAYS TEST","orderedDate":"Mon, 29 Apr 2024 00:00:00 EDT","quantity":200,"expirationDate":"Wed,
+        30 Apr 2025 00:00:00 EDT","prescriptionNumber":"2721008","prescriptionName":"ALBUTEROL
+        200MCG INHL CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"activeParked","refillSubmitDate":"Wed,
+        29 May 2024 00:00:00 EDT","refillDate":"Fri, 14 Jun 2024 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675093,"sig":"INSERT
+        1 SUPPOSITORY(IES) IN RECTUM DAILY FOR 30 DAYS","orderedDate":"Thu, 18 Apr
+        2024 00:00:00 EDT","quantity":12,"expirationDate":"Sat, 19 Apr 2025 00:00:00
+        EDT","prescriptionNumber":"2720928","prescriptionName":"ACETAMINOPHEN 325MG
+        RTL SUPP","dispensedDate":"Fri, 31 May 2024 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":"(983)777-0928","cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Tue, 18 Mar 2025 00:00:00 EDT","refillRemaining":8,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675098,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS","orderedDate":"Thu, 18 Apr 2024 00:00:00
+        EDT","quantity":2,"expirationDate":"Sat, 19 Apr 2025 00:00:00 EDT","prescriptionNumber":"2720933","prescriptionName":"AMITRIPTYLINE
+        HCL 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Wed,
+        29 May 2024 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":9,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675099,"sig":"TAKE
+        ONE TABLET DAILY FOR 30 DAYS","orderedDate":"Thu, 18 Apr 2024 00:00:00 EDT","quantity":2,"expirationDate":"Sat,
+        19 Apr 2025 00:00:00 EDT","prescriptionNumber":"2720934","prescriptionName":"AMOXAPINE
+        150MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Wed, 12 Mar 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","isRefillable":false,"isTrackable":false,"prescriptionId":23675101,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS --AVOID GRAPEFRUIT JUICE/AVOID ANTACIDS--","orderedDate":"Thu,
+        18 Apr 2024 00:00:00 EDT","quantity":2,"expirationDate":"Sat, 19 Apr 2025
+        00:00:00 EDT","prescriptionNumber":"2720936","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null}],"errors":[],"infoMessages":[]}'
+  recorded_at: Wed, 16 Apr 2025 15:17:01 GMT
+recorded_with: VCR 6.3.1

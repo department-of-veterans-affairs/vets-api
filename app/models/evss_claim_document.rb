@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'pdf_info'
 
-class EVSSClaimDocument < Common::Base
-  include ActiveModel::Validations
+class EVSSClaimDocument
+  include Vets::Model
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
@@ -46,7 +46,7 @@ class EVSSClaimDocument < Common::Base
     'L149' => 'VA Form 21-8940 - Veterans Application for Increased Compensation Based on Un-employability',
     'L159' => 'VA Form 26-4555 - Application in Acquiring Specially Adapted Housing or Special Home Adaptation Grant',
     'L222' => 'VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance',
-    'L228' => 'VA Form 21-0781 - Statement in Support of Claim for PTSD',
+    'L228' => 'VA Form 21-0781 - Statement in Support of Claimed Mental Health Disorder(s) Due to an In-Service Traumatic Event(s)',
     'L229' => 'VA Form 21-0781a - Statement in Support of Claim for PTSD Secondary to Personal Assault',
     'L418' => 'Court papers / documents',
     'L450' => 'STR - Dental - Photocopy',
@@ -76,13 +76,12 @@ class EVSSClaimDocument < Common::Base
 
   def to_serializable_hash
     # file_obj is not suitable for serialization
-    to_hash.tap { |h| h.delete :file_obj }
+    attributes.tap { |h| h.delete :file_obj }
   end
 
-  # The front-end URLencodes a nil tracked_item_id as the string 'null'
+  # The front-end URL encodes a nil tracked_item_id as the string 'null'
   def tracked_item_id=(num)
-    num = nil if num == 'null'
-    super num
+    @tracked_item_id = num == 'null' ? nil : num
   end
 
   private
@@ -141,8 +140,11 @@ class EVSSClaimDocument < Common::Base
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
+    Rails.logger.info("Document for claim #{evss_claim_id} is encrypted") if metadata.encrypted?
+
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
+    Rails.logger.info("MetadataReadError: Document for claim #{evss_claim_id}")
     log_exception_to_sentry(e, nil, nil, 'warn')
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))

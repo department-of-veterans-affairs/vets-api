@@ -38,7 +38,14 @@ module IvcChampva
       private
 
       def update_data(form_uuid, file_names, status, case_id)
-        ivc_forms = forms_query(form_uuid, file_names)
+        # First get the query that defines which records we want to update
+        ivc_forms = if file_names.any? { |name| name.end_with?('_merged.pdf') }
+                      # Use all forms for this UUID if it's a merged PDF case
+                      fetch_forms_by_uuid(form_uuid)
+                    else
+                      # Only use specified files for non-merged cases
+                      forms_query(form_uuid, file_names)
+                    end
 
         if ivc_forms.any?
           ivc_forms.each { |form| form.update!(pega_status: status, case_id:) }
@@ -46,19 +53,10 @@ module IvcChampva
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
 
-          # rubocop:disable Style/IfInsideElse
-          # Temporarily disabling rubocop because of flipper
-          if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
-            send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
-            # Possible values for form.pega_status are 'Processed', 'Not Processed'
-          else
-            send_email(form_uuid, ivc_forms.first) if form.email.present?
-          end
-          # rubocop:enable Style/IfInsideElse
+          # Possible values for form.pega_status are 'Processed', 'Not Processed'
+          send_email(form_uuid, form) if form.email.present? && status == 'Processed'
 
-          if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
-            monitor.track_update_status(form_uuid, status)
-          end
+          monitor.track_update_status(form_uuid, status)
 
           { json: {}, status: :ok }
         else

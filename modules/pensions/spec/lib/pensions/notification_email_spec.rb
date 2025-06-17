@@ -5,7 +5,7 @@ require 'pensions/notification_callback'
 require 'pensions/notification_email'
 
 RSpec.describe Pensions::NotificationEmail do
-  let(:claim) { build(:pensions_module_pension_claim) }
+  let(:claim) { build(:pensions_saved_claim) }
 
   describe '#deliver' do
     it 'successfully sends an email' do

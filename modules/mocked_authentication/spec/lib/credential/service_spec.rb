@@ -16,7 +16,7 @@ describe MockedAuthentication::Credential::Service do
     let(:acr) { 'some-acr' }
     let(:type) { 'some-type' }
     let(:operation) { 'some-operation' }
-    let(:expected_redirect_url) { Settings.sign_in.mock_auth_url }
+    let(:expected_redirect_url) { IdentitySettings.sign_in.mock_auth_url }
     let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
     it 'renders the oauth_get_form template with meta refresh tag' do
@@ -247,6 +247,7 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
+          all_csp_emails: nil,
           multifactor:,
           authn_context:,
           auto_uplevel:,
@@ -302,6 +303,7 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
+          all_csp_emails: nil,
           multifactor:,
           authn_context:,
           auto_uplevel:,
@@ -357,6 +359,7 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
+          all_csp_emails: nil,
           multifactor:,
           authn_context:,
           auto_uplevel:,

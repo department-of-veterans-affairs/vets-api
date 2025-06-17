@@ -2,8 +2,9 @@
 
 module TravelPay
   class ClaimAssociationService
-    def initialize(user)
+    def initialize(user, client)
       @user = user
+      @client = client
     end
 
     # We need to associate an existing claim to a VAOS appointment, matching on date-time
@@ -152,7 +153,13 @@ module TravelPay
     end
 
     def auth_manager
-      @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @user)
+      @client_number = if @client == 'mobile'
+                         Settings.travel_pay.mobile_client_number
+                       else
+                         # default to the VA.gov client number
+                         Settings.travel_pay.client_number
+                       end
+      @auth_manager ||= TravelPay::AuthManager.new(@client_number, @user)
     end
 
     def client

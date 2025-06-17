@@ -5,7 +5,8 @@ require_relative Rails.root.join('app', 'models', 'schema_contract', 'validation
 
 describe SchemaContract::ValidationInitiator do
   describe '.call' do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, :with_terms_of_use_agreement) }
+    let(:user_account_id) { user.user_account_uuid }
     let(:response) do
       OpenStruct.new({ success?: true, status: 200, body: { key: 'value' } })
     end
@@ -17,7 +18,7 @@ describe SchemaContract::ValidationInitiator do
 
     context 'response is successful, feature flag is on, and no record exists for the current day' do
       before do
-        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
+        create(:schema_contract_validation, contract_name: 'test_index', user_account_id:, user_uuid: '1234', response:,
                                             status: 'initialized', created_at: Time.zone.yesterday.beginning_of_day)
       end
 
@@ -31,7 +32,7 @@ describe SchemaContract::ValidationInitiator do
 
     context 'when a validation record already exists for the current day' do
       before do
-        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
+        create(:schema_contract_validation, contract_name: 'test_index', user_account_id:, user_uuid: '1234', response:,
                                             status: 'initialized')
       end
 

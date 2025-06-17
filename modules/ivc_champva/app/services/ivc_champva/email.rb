@@ -28,7 +28,7 @@ module IvcChampva
 
       VANotify::EmailJob.perform_async(
         data[:email],
-        (data[:template_id] ? EMAIL_TEMPLATE_MAP[data[:template_id]] : EMAIL_TEMPLATE_MAP[data[:form_number]]),
+        data[:template_id] ? EMAIL_TEMPLATE_MAP[data[:template_id]] : EMAIL_TEMPLATE_MAP[data[:form_number]],
         # Create a subset of `data` - Using .index_with rather than .slice so that keys
         # default to `nil` if not present in `data`. This helps us w/ testing.
         %i[first_name last_name file_count pega_status date_submitted form_uuid]

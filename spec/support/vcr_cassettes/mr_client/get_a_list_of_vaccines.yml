@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Immunization?_count=9999&patient=2952&status:not=entered-in-error"
+      uri: "<MHV_MR_HOST>/fhir/Immunization?_count=200&patient=2952&status:not=entered-in-error"
       body:
         encoding: US-ASCII
         string: ""

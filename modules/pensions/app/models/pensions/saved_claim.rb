@@ -25,7 +25,7 @@ module Pensions
     end
 
     # form_id, form_type
-    FORM = '21P-527EZ'
+    FORM = Pensions::FORM_ID
 
     ##
     # the predefined regional office address

@@ -18,14 +18,17 @@ module DebtManagementCenter
       STATSD_KEY_PREFIX = 'api.vha.financial_status_report.sharepoint.request'
 
       attr_reader :settings
-      attr_accessor :access_token, :user
+      attr_accessor :user
 
       def_delegators :settings, :sharepoint_url, :client_id, :client_secret, :tenant_id, :resource, :service_name,
                      :base_path, :authentication_url
 
       def initialize
         @settings = initialize_settings
-        @access_token = set_sharepoint_access_token
+      end
+
+      def access_token
+        @access_token ||= set_sharepoint_access_token
       end
 
       ##
@@ -39,9 +42,21 @@ module DebtManagementCenter
       #
       def upload(form_contents:, form_submission:, station_id:)
         @user = set_user_data(form_submission.user_account_id)
-        upload_response = upload_pdf(form_contents:, form_submission:, station_id:)
-        list_item_id = get_pdf_list_item_id(upload_response)
-        resp = update_list_item_fields(list_item_id:, form_submission:, station_id:)
+
+        # Upload PDF with retry
+        upload_response = with_sharepoint_retry('PDF upload') do
+          upload_pdf(form_contents:, form_submission:, station_id:)
+        end
+
+        # Get list item ID with retry
+        list_item_id = with_sharepoint_retry('get list item') do
+          get_pdf_list_item_id(upload_response)
+        end
+
+        # Update list item fields with retry
+        resp = with_sharepoint_retry('update metadata') do
+          update_list_item_fields(list_item_id:, form_submission:, station_id:)
+        end
 
         if resp.success?
           StatsD.increment("#{STATSD_KEY_PREFIX}.success")
@@ -170,7 +185,7 @@ module DebtManagementCenter
       def auth_connection
         Faraday.new(url: authentication_url, headers: auth_headers) do |conn|
           conn.request :url_encoded
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.response :raise_custom_error, error_prefix: service_name
           conn.response :json
@@ -182,7 +197,7 @@ module DebtManagementCenter
       def sharepoint_connection
         Faraday.new(url: "https://#{sharepoint_url}", headers: sharepoint_headers) do |conn|
           conn.request :json
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           if Flipper.enabled?(:debts_sharepoint_error_logging)
             conn.response :sharepoint_errors, error_prefix: service_name
@@ -199,7 +214,7 @@ module DebtManagementCenter
         Faraday.new(url: "https://#{sharepoint_url}", headers: sharepoint_headers) do |conn|
           conn.request :multipart
           conn.request :url_encoded
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           if Flipper.enabled?(:debts_sharepoint_error_logging)
             conn.response :sharepoint_pdf_errors, error_prefix: service_name
@@ -209,6 +224,25 @@ module DebtManagementCenter
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter
+        end
+      end
+
+      # retry sharepoint operation with exponential backoff
+      def with_sharepoint_retry(operation_name, max_attempts = 3)
+        attempts = 0
+        begin
+          attempts += 1
+          yield
+        rescue => e
+          if attempts < max_attempts
+            delay = (2**attempts) * 0.25 # 0.5s, 1s, 2s ...
+            Rails.logger.warn("SharePoint #{operation_name} failed, retrying in #{delay}s: #{e.message}")
+            sleep(delay)
+            retry
+          else
+            Rails.logger.error("SharePoint #{operation_name} failed after #{max_attempts} attempts: #{e.message}")
+            raise
+          end
         end
       end
 

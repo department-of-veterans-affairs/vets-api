@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'form_profile'
+
 module Pensions
   ##
   # Extends FormMilitaryInformation to add additional military information fields to Pension prefill
-  # @see app/models/form_profile.rb FormProfile::FormMilitaryInformation
-  class FormMilitaryInformation < ::FormProfile::FormMilitaryInformation
+  # @see app/models/form_profile.rb FormMilitaryInformation
+  class FormMilitaryInformation < ::FormMilitaryInformation
     include Virtus.model
 
     attribute :first_uniformed_entry_date, String

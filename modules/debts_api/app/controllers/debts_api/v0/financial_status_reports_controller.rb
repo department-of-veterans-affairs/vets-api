@@ -31,14 +31,23 @@ module DebtsApi
       end
 
       def submissions
-        submissions = DebtsApi::V0::Form5655Submission.where(user_uuid: current_user.uuid)
-        render json: { 'submissions' => submissions.map { |sub| { 'id' => sub.id } } }
+        submissions = DebtsApi::V0::Form5655Submission
+                      .where(user_uuid: current_user.uuid)
+                      .order(created_at: :desc)
+
+        render json: {
+          'submissions' => submissions.map do |submission|
+            DebtsApi::V0::Form5655SubmissionSerializer.new(submission).serialize
+          end
+        }
       end
 
       def rehydrate
         submission_id = params[:submission_id]
 
-        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid, submission_id:)
+        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid,
+                                                                user_account: current_user.user_account,
+                                                                submission_id:)
 
         render json: { result: 'FSR rehydrated' }
       rescue ActiveRecord::RecordNotFound

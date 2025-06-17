@@ -3,11 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::TokenResponseGenerator do
-  subject(:generator) { described_class.new(params:, cookies:) }
+  subject(:generator) { described_class.new(params:, cookies:, request_attributes:) }
 
+  let(:request_attributes) { { remote_ip: } }
+  let(:remote_ip) { Faker::Internet.ip_v4_address }
   let(:cookies) { double('cookies') }
 
-  before { allow(Rails.logger).to receive(:info) }
+  before do
+    allow(Rails.logger).to receive(:info)
+  end
 
   describe '#perform' do
     context 'when grant_type is AUTH_CODE_GRANT' do
@@ -24,6 +28,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
       end
       let(:access_token) { session_container.access_token }
       let(:validated_credential) { create(:validated_credential) }
+      let(:user_verification) { validated_credential.user_verification }
       let(:session_container) { create(:session_container) }
       let(:code_validator) { instance_double(SignIn::CodeValidator, perform: validated_credential) }
       let(:session_creator) { instance_double(SignIn::SessionCreator, perform: session_container) }
@@ -53,6 +58,40 @@ RSpec.describe SignIn::TokenResponseGenerator do
       it 'logs the expected message' do
         subject.perform
         expect(Rails.logger).to have_received(:info).with(expected_log_message, access_token.to_s)
+      end
+
+      context 'when UserAudit logger is called' do
+        let(:event) { :sign_in }
+        let(:user_account) { user_verification.user_account }
+        let!(:user_action_event) { create(:user_action_event, identifier: event) }
+        let(:icn) { user_account.icn }
+        let(:user_agent) { Faker::Internet.user_agent }
+        let(:expected_log_payload) do
+          {
+            event: :sign_in,
+            user_verification_id: user_verification.id,
+            status: :success
+          }
+        end
+        let(:expected_log_tags) { { remote_ip:, user_agent: } }
+        let(:expected_audit_log_message) do
+          expected_log_payload.merge(acting_ip_address: remote_ip, acting_user_agent: user_agent).as_json
+        end
+
+        before do
+          allow(SemanticLogger).to receive(:named_tags).and_return(expected_log_tags)
+          allow(UserAudit.logger).to receive(:success).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect { subject.perform }.to change(Audit::Log, :count).by(1)
+          expect(UserAudit.logger).to have_received(:success).with(event:, user_verification:)
+        end
+
+        it 'creates a user action' do
+          expect { subject.perform }.to change(UserAction, :count).by(1)
+          expect(UserAudit.logger).to have_received(:success).with(event: :sign_in, user_verification:)
+        end
       end
     end
 

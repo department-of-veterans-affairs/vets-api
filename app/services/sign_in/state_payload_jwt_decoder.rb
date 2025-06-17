@@ -51,13 +51,13 @@ module SignIn
     end
 
     def public_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key)).public_key
+      OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_encode_key)).public_key
     end
 
     def public_key_old
-      return unless Settings.sign_in.jwt_old_encode_key
+      return unless IdentitySettings.sign_in.jwt_old_encode_key
 
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_old_encode_key)).public_key
+      OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_old_encode_key)).public_key
     end
   end
 end

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_education/service'
+require 'vets/model'
 
 module VA10203
   FORM_ID = '22-10203'
 
   class FormInstitutionInfo
-    include Virtus.model
+    include Vets::Model
 
     attribute :name, String
     attribute :city, String
@@ -15,7 +16,7 @@ module VA10203
   end
 
   class FormEntitlementInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :months, Integer
     attribute :days, Integer

@@ -45,6 +45,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'attempts to send failure email to user if the elapsed days w/out PEGA status exceed the threshold' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
+
     threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
 
@@ -60,6 +62,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'identifies forms nearing expiration threshold and attempts to notify PEGA' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
+
     threshold = 8
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
 
@@ -80,7 +84,41 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
+  it 'checks PEGA reporting API and declines to send failure email if form has actually been processed' do
+    # The `pega_status` stored on a form object may be innacurate if the PEGA service
+    # had an unrelated failure when attempting to update the status via the API.
+    # As a result, we double-check PEGA's reporting API for any submissions that
+    # are due to send a "missing status failure email", and bail if they're in that system.
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(true)
+
+    threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
+    allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
+    allow(job).to receive(:num_docs_match_reports?).and_return(false) # Default
+
+    # Roll up the form submissions into batches and grab the first for testing
+    original_uuid, batch = job.missing_status_cleanup.get_missing_statuses(silent: true).first
+
+    # Mock checking the reporting API to pretend like this form w missing status has
+    # been ingested on the PEGA side
+    allow(job).to receive(:num_docs_match_reports?).with(batch).and_return(true)
+
+    # Verify that the first batch is past threshold and has no email sent:
+    expect(days_since_now(batch[0].created_at) > threshold).to be true
+    expect(batch[0].email_sent).to be false
+
+    # Identify the form as lapsed and check PEGA API before sending a failure email:
+    job.perform
+
+    # Re-fetch batches to ensure we have updated data
+    batches = job.missing_status_cleanup.get_missing_statuses(silent: true)
+    batch = batches[original_uuid]
+
+    # Verify that the failure email was not sent for first batch, as it HAS been ingested into PEGA
+    expect(batch[0].email_sent).to be false
+  end
+
   it 'does not mark email_sent true when email fails to send' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
     threshold = 5
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
@@ -98,17 +136,21 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'ignores forms created within the last 1 minute' do
+    # We created 3 test forms above
     forms[0].update(created_at: Time.zone.now) # Created within the last minute
-    forms[1].update(created_at: 1.minute.ago) # Created more than 1 minute ago
+    # Created more than 1 minute ago
+    forms[1].update(created_at: 2.minutes.ago)
+    forms[2].update(created_at: 3.minutes.ago)
 
     # Perform the job that checks form statuses
-    IvcChampva::MissingFormStatusJob.new.perform
+    job.perform
 
     # Check that forms created in the last minute are ignored
     expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
   end
 
   it 'processes nil forms in batches that belong to the same submission' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
     # Set shared `form_uuid` so these two now belong to the same batch:
     forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
     forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
@@ -126,7 +168,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
 
     # Perform the job that checks form statuses
-    batches = job.get_nil_batches
+    batches = job.missing_status_cleanup.get_missing_statuses(silent: true)
 
     expect(batches.count == forms.count - 1).to be true
     expect(batches['78444a0b-3ac8-454d-a28d-8d63cddd0d3b'].count == 2).to be true

@@ -58,7 +58,8 @@
     "meta": {
       "required": [
         "pagination",
-        "availableYears"
+        "availableYears",
+        "recurringPayment"
       ],
       "properties": {
         "errors": {
@@ -89,6 +90,17 @@
         },
         "availableYears": {
           "type": "array"
+        },
+        "recurringPayment": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            }
+          }
         }
       }
     }

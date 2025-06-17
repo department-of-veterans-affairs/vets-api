@@ -10,15 +10,21 @@ module Form1095
     def perform(limit = 100_000)
       forms_to_delete = Form1095B.where('tax_year < ?', Form1095B.current_tax_year).limit(limit)
       if forms_to_delete.none?
-        Rails.logger.info('No old Form1095B records to delete')
+        log_message('No old Form1095B records to delete')
         return
       end
 
-      Rails.logger.info("Begin deleting #{forms_to_delete.count} old Form1095B files")
+      log_message("Begin deleting #{forms_to_delete.count} old Form1095B files")
       start_time = Time.now.to_f
       forms_to_delete.in_batches(&:delete_all)
       duration = Time.now.to_f - start_time
-      Rails.logger.info("Finished deleting old Form1095B files in #{duration} seconds")
+      log_message("Finished deleting old Form1095B files in #{duration} seconds")
+    end
+
+    private
+
+    def log_message(message)
+      Rails.logger.info("Form1095B Deletion Job: #{message}")
     end
   end
 end

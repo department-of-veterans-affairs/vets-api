@@ -37,7 +37,7 @@ module BGS
     def find_rating_data
       service.rating.find_rating_data(@user.ssn)
     rescue BGS::ShareError => e
-      raise Common::Exceptions::RecordNotFound, @user.account_id if e.message =~ /No record found for/
+      raise Common::Exceptions::RecordNotFound, @user.user_account_uuid if e.message =~ /No record found for/
 
       raise e
     end
@@ -133,7 +133,7 @@ module BGS
         pgm_type_cd: 'CPL'
       }
 
-      increment_params.merge!(user_ssn) if Settings.bgs.mock_response == true
+      increment_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
       with_multiple_attempts_enabled do
         service.share_data.find_benefit_claim_type_increment(**increment_params)
       end
@@ -172,7 +172,7 @@ module BGS
         jrn_obj_id: Settings.bgs.application
       }
 
-      auth_params.merge!(user_ssn) if Settings.bgs.mock_response == true
+      auth_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
 
       auth_params
     end

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'net/sftp'
 require 'sentry_logging'
 require 'sftp_writer/factory'
 
@@ -42,6 +43,8 @@ module EducationForm
 
     # rubocop:disable Metrics/MethodLength
     def perform
+      return unless Flipper.enabled?(:form_10282_sftp_upload)
+
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
       excel_file_event = ExcelFileEvent.build_event(filename)
@@ -67,7 +70,7 @@ module EducationForm
         formatted_records = format_records(records)
         write_csv_file(formatted_records, filename)
 
-        email_excel_files(filename)
+        upload_file_to_sftp(filename)
 
         # Make records processed and add excel file event for rake job
         records.each { |r| r.update(processed_at: Time.zone.now) }
@@ -187,8 +190,22 @@ module EducationForm
       logger.info(message)
     end
 
-    def email_excel_files(contents)
-      CreateExcelFilesMailer.build(contents).deliver_now
+    def upload_file_to_sftp(filename)
+      log_info('Form 10282 SFTP Upload: Begin')
+
+      options = Settings.form_10282.sftp.merge!(allow_staging_uploads: true)
+
+      writer = SFTPWriter::Factory.get_writer(options).new(options, logger:)
+      file_size = File.size("tmp/#{filename}")
+      bytes_sent = writer.write(File.open("tmp/#{filename}"), filename)
+      log_info("Form 10282 SFTP Upload: wrote #{bytes_sent} bytes of a #{file_size} byte file")
+
+      log_info('Form 10282 SFTP Upload: Complete')
+    rescue => e
+      log_exception(DailyExcelFileError.new("Failed SFTP upload: #{e.message}"))
+      raise
+    ensure
+      writer&.close
     end
   end
 end

@@ -32,8 +32,13 @@ module SearchTypeahead
           req.options.open_timeout = 2
         end
       end
+    rescue Faraday::TimeoutError
+      build_error_response('The request timed out. Please try again.', 504)
+    rescue Faraday::ConnectionFailed
+      build_error_response('Unable to connect to the search service. Please try again later.', 502)
     rescue => e
-      e
+      Rails.logger.error("SearchTypeahead Service error: #{e.message}")
+      build_error_response('An unexpected error occurred.', 500)
     end
 
     private
@@ -60,6 +65,13 @@ module SearchTypeahead
 
     def api_key
       Settings.search_typeahead.api_key
+    end
+
+    def build_error_response(message, status_code)
+      OpenStruct.new(
+        body: { error: message }.to_json,
+        status: status_code
+      )
     end
   end
 end

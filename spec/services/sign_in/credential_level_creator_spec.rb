@@ -31,7 +31,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
     let(:auto_uplevel) { false }
 
-    before { allow(Settings.sign_in).to receive(:auto_uplevel).and_return(auto_uplevel) }
+    before { allow(IdentitySettings.sign_in).to receive(:auto_uplevel).and_return(auto_uplevel) }
 
     shared_examples 'invalid credential level error' do
       let(:expected_error) { SignIn::Errors::InvalidCredentialLevelError }

@@ -463,7 +463,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when the banking info is redacted' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      it 'gathers the banking info from the PPIU service' do
+      it 'gathers the banking info from Lighthouse DirectDeposit' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
             'accountType' => 'CHECKING',
@@ -478,8 +478,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when not provided banking info' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      context 'and the PPIU service has the account info' do
-        it 'gathers the banking info from the PPIU service' do
+      context 'and the Lighthouse DirectDeposit service has the account info' do
+        it 'gathers the banking info from the LH DirectDeposit' do
           VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
               'accountType' => 'CHECKING',
@@ -491,8 +491,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
       end
 
-      context 'and the PPIU service does not have the account info' do
-        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil) }
+      context 'and the Lighthouse DirectDeposit service does not have the account info' do
+        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
 
         it 'does not set payment information' do
           expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)

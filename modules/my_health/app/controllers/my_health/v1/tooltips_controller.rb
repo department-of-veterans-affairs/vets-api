@@ -15,6 +15,7 @@ module MyHealth
       def create
         tooltip = @user_account.tooltips.build(tooltip_params)
         tooltip.last_signed_in = current_user.last_signed_in
+        tooltip.counter += 1
         tooltip.save!
         render json: tooltip, status: :created
       rescue ActiveRecord::RecordInvalid => e
@@ -27,17 +28,16 @@ module MyHealth
       # If there are 3 unique sessions the hidden counter is switched to true, purpose: hide the tooltip in the view.
       # User can choose to hide the tooltip before reaching 3 unique sessions.
       def update
-        if params[:tooltip].blank?
-          render json: { error: "Request body must contain a 'tooltip' object." }, status: :bad_request
-          return
-        end
+        increment_counter_if_new_session(@tooltip) if params[:increment_counter] == 'true'
 
-        if @tooltip.update(tooltip_params)
-          increment_counter_if_new_session(@tooltip) if params[:tooltip][:increment_counter] == 'true'
-          @tooltip.update(hidden: params[:tooltip][:hidden]) if params[:tooltip][:hidden].present?
-          render json: @tooltip
+        if params[:tooltip].present?
+          if @tooltip.update(tooltip_params)
+            render json: @tooltip
+          else
+            render json: { errors: @tooltip.errors.full_messages }, status: :unprocessable_entity
+          end
         else
-          render json: { errors: @tooltip.errors.full_messages }, status: :unprocessable_entity
+          render json: @tooltip
         end
       rescue ActiveRecord::RecordNotFound => e
         log_and_render_error(e, 'Tooltip not found')
@@ -59,9 +59,9 @@ module MyHealth
         render json: { error: 'Tooltip not found' }, status: :not_found unless @tooltip
       end
 
-      # only allow the tooltip_name and hidden attributes to be modified via params object.
+      # only allow the tooltip_name, hidden, & counter(to reset) attributes to be modified via params object.
       def tooltip_params
-        params.require(:tooltip).permit(:tooltip_name, :hidden)
+        params.require(:tooltip).permit(:tooltip_name, :hidden, :counter)
       end
 
       def increment_counter_if_new_session(tooltip)

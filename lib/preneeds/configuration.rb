@@ -15,7 +15,7 @@ module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
     # Number of seconds before timeout
     #
-    TIMEOUT = 30
+    TIMEOUT = 60
 
     # @return [String] The base path for the external EOAS service
     #
@@ -44,7 +44,7 @@ module Preneeds
       @faraday ||= Faraday.new(
         path, headers: base_request_headers, request: request_options, ssl: { verify: false }
       ) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
 
         conn.options.timeout = TIMEOUT
 

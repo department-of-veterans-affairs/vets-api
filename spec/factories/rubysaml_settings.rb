@@ -2,10 +2,10 @@
 
 FactoryBot.define do
   factory :rubysaml_settings, class: 'OneLogin::RubySaml::Settings' do
-    certificate                     { Settings.saml_ssoe.certificate }
-    private_key                     { Settings.saml_ssoe.key }
-    sp_entity_id                    { Settings.saml_ssoe.issuer }
-    assertion_consumer_service_url  { Settings.saml_ssoe.callback_url }
+    certificate                     { IdentitySettings.saml_ssoe.certificate }
+    private_key                     { IdentitySettings.saml_ssoe.key }
+    sp_entity_id                    { IdentitySettings.saml_ssoe.issuer }
+    assertion_consumer_service_url  { IdentitySettings.saml_ssoe.callback_url }
     idp_cert                        {
       File.read(Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/'))
                             .to_s)
@@ -18,10 +18,10 @@ FactoryBot.define do
   end
 
   factory :settings_no_context, class: 'OneLogin::RubySaml::Settings' do
-    certificate                     { Settings.saml_ssoe.certificate }
-    private_key                     { Settings.saml_ssoe.key }
-    sp_entity_id                    { Settings.saml_ssoe.issuer }
-    assertion_consumer_service_url  { Settings.saml_ssoe.callback_url }
+    certificate                     { IdentitySettings.saml_ssoe.certificate }
+    private_key                     { IdentitySettings.saml_ssoe.key }
+    sp_entity_id                    { IdentitySettings.saml_ssoe.issuer }
+    assertion_consumer_service_url  { IdentitySettings.saml_ssoe.callback_url }
     idp_cert                        {
       File.read(Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/'))
                             .to_s)

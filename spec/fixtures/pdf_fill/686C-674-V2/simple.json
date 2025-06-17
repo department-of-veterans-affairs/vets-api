@@ -33,7 +33,7 @@
       }
     },
     "current_marriage_information": {
-      "type": "CEREMONIAL",
+      "type_of_marriage": "CEREMONIAL",
       "location": {
         "city": "Washington",
         "state": "DC"

@@ -7,12 +7,13 @@ require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
 require 'hca/overrides_parser'
 require 'va1010_forms/enrollment_system/service'
+require 'form1010_ezr/veteran_enrollment_system/associations/service'
 
 module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::Utils
-    include SentryLogging
+    extend SentryLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 
@@ -26,6 +27,32 @@ module Form1010Ezr
     def initialize(user)
       super()
       @user = user
+    end
+
+    def self.veteran_initials(parsed_form)
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
+      }
+    end
+
+    # @param [JSON] parsed_form
+    # @param [String] sentry_msg
+    # @param [String] sentry_context - identifier specific to the error
+    def self.log_submission_failure_to_sentry(
+      parsed_form,
+      sentry_msg,
+      sentry_context
+    )
+      if parsed_form.present?
+        log_message_to_sentry(
+          sentry_msg.to_s,
+          :error,
+          veteran_initials(parsed_form),
+          ezr: :"#{sentry_context}"
+        )
+      end
     end
 
     def submit_async(parsed_form)
@@ -48,7 +75,7 @@ module Form1010Ezr
         end
       end
       # Log the 'formSubmissionId' for successful submissions
-      log_successful_submission(res[:formSubmissionId], veteran_initials(parsed_form))
+      log_successful_submission(res[:formSubmissionId], self.class.veteran_initials(parsed_form))
 
       if parsed_form['attachments'].present?
         StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
@@ -56,7 +83,8 @@ module Form1010Ezr
 
       res
     rescue => e
-      log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
+      Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       raise e
     end
 
@@ -67,31 +95,13 @@ module Form1010Ezr
       @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
+      handle_associations(parsed_form) if Flipper.enabled?(:ezr_associations_api_enabled)
+
       submit_async(parsed_form)
     rescue => e
-      log_submission_failure(parsed_form)
-      raise e
-    end
-
-    def log_submission_failure(parsed_form)
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-
-      if parsed_form.present?
-        log_message_to_sentry(
-          '1010EZR failure',
-          :error,
-          veteran_initials(parsed_form),
-          ezr: :failure
-        )
-      end
-    end
-
-    def veteran_initials(parsed_form)
-      {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
-        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
-        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
-      }
+      self.class.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      raise e
     end
 
     private
@@ -189,6 +199,20 @@ module Form1010Ezr
         submission_id:,
         veteran_initials:
       )
+    end
+
+    def handle_associations(parsed_form)
+      form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
+      return parsed_form if form_associations.empty?
+
+      Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user).reconcile_and_update_associations(
+        form_associations
+      )
+      # Since we are using the Associations API to update the associations, we'll remove the
+      # 'nextOfKins' and 'emergencyContacts' from the parsed_form to prevent redundancy
+      %w[nextOfKins emergencyContacts].each { |key| parsed_form.delete(key) }
+
+      parsed_form
     end
   end
 end

@@ -7,11 +7,11 @@ module MAP
   module SignUp
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.map_services.sign_up_service_url
+        IdentitySettings.map_services.sign_up_service_url
       end
 
       def provisioning_api_key
-        Settings.map_services.sign_up_service_provisioning_api_key
+        IdentitySettings.map_services.sign_up_service_provisioning_api_key
       end
 
       def service_name
@@ -62,11 +62,11 @@ module MAP
           headers: base_request_headers,
           request: request_options
         ) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
           conn.response :json, content_type: /\bjson/
-          conn.response :betamocks if Settings.map_services.sign_up_service.mock
+          conn.response :betamocks if IdentitySettings.map_services.sign_up_service.mock
         end
       end
     end

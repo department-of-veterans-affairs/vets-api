@@ -3,13 +3,36 @@
 require 'rails_helper'
 require 'kafka/avro_producer'
 require 'kafka/oauth_token_refresher'
+require 'kafka/schema_registry/service'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
-  let(:schema_path) { Rails.root.join('lib', 'kafka', 'schemas', 'submission_trace_mock_dev-value-1.avsc') }
-  let(:schema) { Avro::Schema.parse(File.read(schema_path)) }
-  let(:valid_payload) { { 'data' => { 'key' => 'value' } } }
+  let(:topic) { 'submission_trace_form_status_change_test' }
+  let(:valid_payload) do
+    {
+      'priorId' => nil,
+      'currentId' => '12345',
+      'nextId' => nil,
+      'icn' => 'ICN123456',
+      'vasiId' => 'VASI98765',
+      'systemName' => 'Lighthouse',
+      'submissionName' => 'F1010EZ',
+      'state' => 'received',
+      'timestamp' => '2024-03-04T12:00:00Z',
+      'additionalIds' => nil
+    }
+  end
+  let(:valid_test_payload) { { 'data' => { 'key' => 'value' } } }
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
+  let(:schema) do
+    VCR.use_cassette('kafka/topics') do
+      response = Kafka::SchemaRegistry::Service.new.subject_version('submission_trace_form_status_change_test',
+                                                                    'latest')
+
+      schema = response['schema']
+      Avro::Schema.parse(schema)
+    end
+  end
 
   before do
     allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
@@ -44,9 +67,10 @@ describe Kafka::AvroProducer do
   end
 
   context 'producing a message successfully' do
+    let(:topic1_payload_value) { "\x00\x00\x00\x00\x05\x02\x06key\nvalue\x00" }
+
     before do
       Kafka::ProducerManager.instance.send(:setup_producer)
-      allow(avro_producer).to receive(:get_schema).and_return(schema)
     end
 
     after do
@@ -54,32 +78,57 @@ describe Kafka::AvroProducer do
       avro_producer.producer.client.reset
     end
 
-    it 'produces a message to the specified topic' do
-      avro_producer.produce('topic-1', valid_payload)
-      avro_producer.produce('topic-1', valid_payload)
-      avro_producer.produce('topic-2', valid_payload)
+    context 'with dynamic schema registry retrieval' do
+      context 'of an existing schema' do
+        it 'produces a message to the specified topic' do
+          VCR.use_cassette('kafka/topics') do
+            avro_producer.produce(topic, valid_payload)
+            avro_producer.produce('submission_trace_mock_test', valid_test_payload)
+            expect(avro_producer.producer.client.messages.length).to eq(2)
+            topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
+            expect(topic_1_messages.length).to eq(1)
+            expect(topic_1_messages[0][:payload]).to be_a(String)
+          end
+        end
+      end
 
-      expect(avro_producer.producer.client.messages.length).to eq(3)
-      topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
-      expect(topic_1_messages.length).to eq(2)
-      expect(topic_1_messages[0][:payload]).to be_a(String)
+      context 'of an non-existing schema' do
+        it 'raises approriate error' do
+          allow(Settings.kafka_producer).to receive(:topic_name).and_return('topic-999')
+
+          VCR.use_cassette('kafka/topics404') do
+            expect do
+              avro_producer.produce('topic-999', valid_payload)
+            end.to raise_error(Faraday::ResourceNotFound)
+          end
+        end
+      end
     end
   end
 
   context 'when an error occurs' do
     before do
       Kafka::ProducerManager.instance.send(:setup_producer)
-      allow(avro_producer).to receive(:get_schema).and_return(schema)
     end
 
-    it 'triggers MessageInvalidError if no valid topic is provided' do
+    it 'triggers MessageInvalidError if empty string topic is provided' do
+      expect(Rails.logger).to receive(:error).with(/Message is invalid/)
+
+      # Send an invalid message to trigger an error (no topic provided)
+      expect do
+        avro_producer.produce('', valid_payload)
+      end.to raise_error(WaterDrop::Errors::MessageInvalidError,
+                         { topic: 'no topic provided' }.to_s)
+    end
+
+    it 'triggers MessageInvalidError if nil topic is provided' do
       expect(Rails.logger).to receive(:error).with(/Message is invalid/)
 
       # Send an invalid message to trigger an error (no topic provided)
       expect do
         avro_producer.produce(nil, valid_payload)
       end.to raise_error(WaterDrop::Errors::MessageInvalidError,
-                         { topic: 'does not match the topic allowed format' }.to_s)
+                         { topic: 'no topic provided' }.to_s)
     end
 
     it 'triggers MessageInvalidError if no valid payload is provided' do
@@ -92,7 +141,9 @@ describe Kafka::AvroProducer do
 
       # Send an invalid message to trigger an error (no payload provided)
       expect do
-        avro_producer.produce('topic-1', large_payload)
+        VCR.use_cassette('kafka/topics') do
+          avro_producer.produce(topic, large_payload)
+        end
       end.to raise_error(WaterDrop::Errors::MessageInvalidError,
                          { payload: 'is more than `max_payload_size` config value' }.to_s)
     end
@@ -105,7 +156,7 @@ describe Kafka::AvroProducer do
 
       # Trigger the error and handle it
       expect do
-        avro_producer.produce('topic-1', valid_payload)
+        avro_producer.produce(topic, valid_payload)
       end.to raise_error(StandardError)
     end
 
@@ -116,9 +167,11 @@ describe Kafka::AvroProducer do
         .and_raise(WaterDrop::Errors::ProduceError)
 
       # Trigger the error and handle it
-      expect do
-        avro_producer.produce('topic-1', valid_payload)
-      end.to raise_error(WaterDrop::Errors::ProduceError)
+      VCR.use_cassette('kafka/topics') do
+        expect do
+          avro_producer.produce(topic, valid_payload)
+        end.to raise_error(WaterDrop::Errors::ProduceError)
+      end
     end
 
     it 'logs a message when a SchemaValidationError occurs' do
@@ -127,14 +180,17 @@ describe Kafka::AvroProducer do
       # allow(Avro::SchemaValidator).to receive(:validate!).and_raise(Avro::SchemaValidator::ValidationError)
 
       # Trigger the error using an invalid schema
-      expect do
-        avro_producer.produce('topic-1', invalid_payload)
-      end.to raise_error(Avro::SchemaValidator::ValidationError)
+      VCR.use_cassette('kafka/topics') do
+        expect do
+          avro_producer.produce(topic, invalid_payload)
+        end.to raise_error(Avro::SchemaValidator::ValidationError)
+      end
     end
   end
 
   describe '#encode_payload' do
     it 'encodes the payload using the specified schema' do
+      avro_producer.instance_variable_set(:@schema_id, 5)
       encoder = Avro::IO::BinaryEncoder.new(StringIO.new)
       datum_writer = Avro::IO::DatumWriter.new(schema)
 

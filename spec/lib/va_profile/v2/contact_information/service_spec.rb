@@ -50,6 +50,37 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
+  describe '#get_person when vet360 is null' do
+    let(:verified_user) { build(:user, :loa3, vet360_id: nil) }
+
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::V3::Person)
+        end
+      end
+
+      it 'has a bad address' do
+        VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+          expect(response.person.addresses[0].bad_address).to be(true)
+        end
+      end
+    end
+
+    context 'when person response has no body data' do
+      it 'returns 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/verified_person_without_data', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::V3::Person)
+        end
+      end
+    end
+  end
+
   describe '#post_email' do
     let(:email) { build(:email, :contact_info_v2, source_system_user: user.icn) }
 
@@ -102,6 +133,40 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
+          response = subject.put_email(email)
+          expect(response.transaction.id).to eq('c3c712ea-0cfb-484b-b81e-22f11ee0dcaf')
+          expect(response).to be_ok
+        end
+      end
+    end
+  end
+
+  describe '#put_email when vet360_id is null' do
+    let(:verified_user) { build(:user, :loa3, vet360_id: nil) }
+
+    let(:email) do
+      build(
+        :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
+                                  source_system_user: verified_user.icn
+      )
+    end
+
+    context 'when successful' do
+      it 'creates an old_email record' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_email_success_icn', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
+            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+            old_email = user.va_profile_email
+            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+            response = subject.put_email(email)
+            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
+          end
+        end
+      end
+
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_email_success_icn', VCR::MATCH_EVERYTHING) do
           response = subject.put_email(email)
           expect(response.transaction.id).to eq('c3c712ea-0cfb-484b-b81e-22f11ee0dcaf')
           expect(response).to be_ok

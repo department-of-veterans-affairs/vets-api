@@ -10,46 +10,12 @@ describe Eps::ProviderService do
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
 
   before do
-    allow(config).to receive(:base_path).and_return('api/v1')
+    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow(service).to receive_messages(config:, headers:)
-  end
-
-  describe '#get_provider_services' do
-    context 'when the request is successful' do
-      let(:response) do
-        double('Response', status: 200, body: { count: 1,
-                                                providerServices: [
-                                                  { id: '1Awee9b5', name: 'Provider 1' },
-                                                  { id: '2Awee9b5', name: 'Provider 2' }
-                                                ] })
-      end
-
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-      end
-
-      it 'returns an OpenStruct with the response body' do
-        result = service.get_provider_services
-
-        expect(result).to eq(OpenStruct.new(response.body))
-      end
-    end
-
-    context 'when the request fails' do
-      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
-      let(:exception) do
-        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
-      end
-
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
-      end
-
-      it 'raises an error' do
-        expect { service.get_provider_services }.to raise_error(Common::Exceptions::BackendServiceException,
-                                                                /VA900/)
-      end
-    end
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(Rails.logger).to receive(:debug)
+    allow(Rails.logger).to receive(:public_send)
   end
 
   describe '#get_provider_service' do
@@ -57,7 +23,8 @@ describe Eps::ProviderService do
 
     context 'when the request is successful' do
       let(:response) do
-        double('Response', status: 200, body: { id: provider_id, name: 'Provider 1' })
+        double('Response', status: 200, body: { id: provider_id, name: 'Provider 1' },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -96,7 +63,8 @@ describe Eps::ProviderService do
                                                 networks: [
                                                   { id: 'network-5vuTac8v', name: 'Care Navigation' },
                                                   { id: 'network-2Awee9b5', name: 'Take Care Navigation' }
-                                                ] })
+                                                ] },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -145,20 +113,21 @@ describe Eps::ProviderService do
     context 'when the request is successful' do
       let(:response) do
         double('Response', status: 200, body: {
-                 'destinations' => {
-                   '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
-                     'distanceInMiles' => '4',
-                     'driveTimeInSecondsWithTraffic' => '566',
-                     'driveTimeInSecondsWithoutTraffic' => '493',
-                     'latitude' => '-74.12870564772521',
-                     'longitude' => '-151.6240405624497'
-                   }
-                 },
-                 'origin' => {
-                   'latitude' => '4.627174468915552',
-                   'longitude' => '-88.72187894562788'
-                 }
-               })
+                                          'destinations' => {
+                                            '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
+                                              'distanceInMiles' => '4',
+                                              'driveTimeInSecondsWithTraffic' => '566',
+                                              'driveTimeInSecondsWithoutTraffic' => '493',
+                                              'latitude' => '-74.12870564772521',
+                                              'longitude' => '-151.6240405624497'
+                                            }
+                                          },
+                                          'origin' => {
+                                            'latitude' => '4.627174468915552',
+                                            'longitude' => '-88.72187894562788'
+                                          }
+                                        },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -204,7 +173,8 @@ describe Eps::ProviderService do
                                               slots: [
                                                 { id: 'slot1', providerServiceId: '9mN718pH' },
                                                 { id: 'slot2', providerServiceId: '9mN718pH' }
-                                              ] })
+                                              ] },
+                         response_headers: { 'Content-Type' => 'application/json' })
     end
 
     context 'when provider_id is invalid' do
@@ -230,9 +200,12 @@ describe Eps::ProviderService do
     context 'when nextToken is provided' do
       it 'makes request with nextToken parameter' do
         next_token = 'token123'
+        response = double('Response', status: 200, body: valid_response.body,
+                                      response_headers: { 'Content-Type' => 'application/json' })
+
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
           .with(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", { nextToken: next_token }, headers)
-          .and_return(OpenStruct.new(valid_response.body))
+          .and_return(response)
 
         service.get_provider_slots(provider_id, nextToken: next_token)
       end
@@ -302,6 +275,335 @@ describe Eps::ProviderService do
         expect do
           service.get_provider_slots(provider_id, required_params)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+  end
+
+  describe '#search_provider_services' do
+    let(:npi) { '7894563210' }
+    let(:specialty) { 'Cardiology' }
+    let(:address) do
+      {
+        street1: '1105 Palmetto Ave',
+        city: 'Melbourne',
+        state: 'FL',
+        zip: '32901'
+      }
+    end
+
+    context 'when the request is successful' do
+      context 'when a provider matches all criteria' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
+                is_active: true,
+                specialties: [
+                  { name: 'Cardiology' },
+                  { name: 'Internal Medicine' }
+                ],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                },
+                individual_providers: [
+                  {
+                    name: 'Dr. Monty Graciano',
+                    npi: '7894563210'
+                  }
+                ]
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi:, isSelfSchedulable: true }, headers)
+            .and_return(response)
+        end
+
+        it 'returns an OpenStruct with the matching provider' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when specialty matching is case-insensitive' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'CARDIOLOGY' }],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'matches specialty regardless of case' do
+          result = service.search_provider_services(npi:, specialty: 'cardiology', address:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when provider specialty does not match' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Dermatology' }],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when provider address does not match' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, Orlando, FL, 32801'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when street matches but full address does not' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1105 Palmetto Ave, Orlando, FL, 32801'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns nil and logs a warning' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:warn).with(
+            /Provider address partial match detected/
+          )
+        end
+      end
+
+      context 'when provider has street address with comma' do
+        let(:address_with_suite) do
+          {
+            street1: '1105 Main St, Suite A',
+            city: 'Melbourne',
+            state: 'FL',
+            zip: '32901'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1105 Main St, Suite A, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'matches street address containing commas' do
+          result = service.search_provider_services(npi:, specialty:, address: address_with_suite)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when the response contains no providers' do
+        let(:response_body) do
+          {
+            count: 0,
+            provider_services: []
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when provider has blank specialty' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [],
+                location: {
+                  address: '1105 Palmetto Ave, Melbourne, FL, 32901'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when provider has no location address' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                specialties: [{ name: 'Cardiology' }],
+                location: {}
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:, specialty:, address:)
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect { service.search_provider_services(npi:, specialty:, address:) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
   end

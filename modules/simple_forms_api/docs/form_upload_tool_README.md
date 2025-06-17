@@ -6,37 +6,37 @@ The Form Upload tool was developed by the Veteran Facing Forms team to provide a
 
 The Form Upload tool launched with support for four forms: `21-0779`, `21-509`, `21P-0518-1`, and `21P-0516-1`. If you'd like to add support for additional forms, follow the steps below.
 
-### 1. Add the form to the prefill configuration.
+### 1. Add the form to the prefill configuration
 
-- Add an entry to [this array](https://github.com/department-of-veterans-affairs/vets-api/blob/863dba2808abdca9b5484b5cd5e94dbdc3a124a4/app/models/form_profile.rb#L101), appending `-UPLOAD` to the form id.
+- Add an entry to [this array](https://github.com/department-of-veterans-affairs/vets-api/blob/master/app/models/form_profile.rb#L101-L108), appending `-UPLOAD` to the form id.
 
-  **Why?**  
+  **Why?**
   This enables prefill functionality for the form.
 
-- Add a corresponding entry to [this hash](https://github.com/department-of-veterans-affairs/vets-api/blob/863dba2808abdca9b5484b5cd5e94dbdc3a124a4/app/models/form_profile.rb#L120), similar to the existing configuration for `21-0779`.
+- Add a corresponding entry to [this hash](https://github.com/department-of-veterans-affairs/vets-api/blob/master/app/models/form_profile.rb#L127), similar to the existing configuration for `21-0779`.
 
-  **Why?**  
+  **Why?**
   This ensures the form is recognized for prefill.
-  
+
 ### 2. Define the form’s expected page limits
 
-- Add an entry to [this hash](https://github.com/department-of-veterans-affairs/vets-api/blob/863dba2808abdca9b5484b5cd5e94dbdc3a124a4/app/models/persistent_attachments/va_form.rb#L11-L16), specifying:
+- Add an entry to [this hash](https://github.com/department-of-veterans-affairs/vets-api/blob/master/app/models/persistent_attachments/va_form.rb#L11-L19), specifying:
   - The maximum expected number of pages.
   - The minimum number required for a valid submission.
 
-  **Why?**  
+  **Why?**
   This applies a **soft validation** which won’t block submission if incorrect, but it will display a confirmation alert prompting users to verify their uploaded file.
 
 ### 3. Integrate with VANotify to send notification emails (not required, but highly recommended)
 
-- Add your form id to [this array](https://github.com/department-of-veterans-affairs/vets-api/blob/863dba2808abdca9b5484b5cd5e94dbdc3a124a4/modules/simple_forms_api/app/services/simple_forms_api/form_upload_notification_email.rb#L14).
+- Add your form id to [this array](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/simple_forms_api/app/services/simple_forms_api/notification/form_upload_email.rb#L15-L23).
 
-  **Why?**  
+  **Why?**
   This allows VANotify to send emails about the form submission. Three emails potentially get sent: once upon **submission**, and once each upon **error** or **receipt/final success**.
 
-### 4. Follow the instructions in the `vets-website` repo.
+### 4. Follow the instructions in the `vets-website` repo
 
-- [Follow the instructions here](https://github.com/department-of-veterans-affairs/vets-website/blob/56ef89fee0e645df5c39e1285df295cd9eed8818/src/applications/simple-forms/form-upload/README.md) to enable the form on the front-end.
+- [Follow the instructions here](https://github.com/department-of-veterans-affairs/vets-website/blob/main/src/applications/simple-forms/form-upload/README.md) to enable the form on the front-end.
 
-  **Why?**  
+  **Why?**
   The front end needs a few pieces of data to be able to accurately render the tool for additional forms.

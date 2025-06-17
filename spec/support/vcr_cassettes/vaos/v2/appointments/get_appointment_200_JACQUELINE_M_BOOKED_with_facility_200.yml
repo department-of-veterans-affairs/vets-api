@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments/72106
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments/72106
     body:
       encoding: US-ASCII
       string: ''
@@ -62,7 +62,7 @@ http_interactions:
   recorded_at: Tue, 11 Jan 2022 18:33:11 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/984
     body:
       encoding: US-ASCII
       string: ''

@@ -56,37 +56,47 @@ module HCA
       if response_code == '200'
         response.body
       else
-        Rails.logger.info("CSV retrieval failed with response code #{response_code}")
+        Rails.logger.warn("[HCA] - CSV retrieval failed with response code #{response_code}")
 
         nil
       end
     end
 
     def perform
-      Rails.logger.info("Job started with #{StdInstitutionFacility.count} existing facilities.")
+      Rails.logger.info("[HCA] - Job started with #{StdInstitutionFacility.count} existing facilities.")
 
       ActiveRecord::Base.transaction do
         data = fetch_csv_data
         raise 'Failed to fetch CSV data.' unless data
 
-        CSV.parse(data, headers: true) do |row|
-          id = row['ID'].to_i
-          std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id:)
-          Rails.logger.info("institution #{id} new? #{std_institution_facility.new_record?}")
+        import_institutions_from_csv(data)
 
-          created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
-          updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
-          string_attributes = STRING_ATTRIBUTES.transform_values { |string_field| row[string_field]&.to_s }
-          integer_attributes = INTEGER_ATTRIBUTES.transform_values { |integer_field| row[integer_field]&.to_i }
-          std_institution_facility.assign_attributes(
-            { created:, updated: }.merge(string_attributes).merge(integer_attributes)
-          )
-
-          std_institution_facility.save!
-        end
-        Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
+        HCA::HealthFacilitiesImportJob.perform_async
+        Rails.logger.info("[HCA] - Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")
+    end
+
+    private
+
+    def import_institutions_from_csv(data)
+      new_facilities = []
+      CSV.parse(data, headers: true) do |row|
+        id = row['ID'].to_i
+        std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id:)
+        new_facilities << id if std_institution_facility.new_record?
+
+        created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
+        updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
+        string_attributes = STRING_ATTRIBUTES.transform_values { |string_field| row[string_field]&.to_s }
+        integer_attributes = INTEGER_ATTRIBUTES.transform_values { |integer_field| row[integer_field]&.to_i }
+        std_institution_facility.assign_attributes(
+          { created:, updated: }.merge(string_attributes).merge(integer_attributes)
+        )
+
+        std_institution_facility.save!
+      end
+      Rails.logger.info("[HCA] - #{new_facilities.count} new institutions: #{new_facilities}") if new_facilities.any?
     end
   end
 end

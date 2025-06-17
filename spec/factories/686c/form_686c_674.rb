@@ -926,7 +926,7 @@ FactoryBot.define do
           'view:completed_veteran_former_marriage' => false,
           'view:completed_spouse_former_marriage' => false,
           'current_marriage_information' => {
-            'type' => 'CIVIL',
+            'type_of_marriage' => 'CIVIL',
             'location' => {
               'city' => 'portland',
               'state' => 'ME'

@@ -64,9 +64,7 @@ module SAML
       )
     end
 
-    def validate!
-      @user_attributes.validate!
-    end
+    delegate :validate!, to: :@user_attributes
 
     def changing_multifactor?
       return false if authn_context.nil?

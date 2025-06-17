@@ -3,9 +3,11 @@
 FactoryBot.define do
   factory :form526_submission do
     transient do
-      user { create(:disabilities_compensation_user) }
+      user_verification { create(:idme_user_verification) }
+      user { create(:disabilities_compensation_user, idme_uuid: user_verification.idme_uuid) }
       submissions_path { Rails.root.join(*'/spec/support/disability_compensation_form/submissions'.split('/')).to_s }
     end
+    user_account { user_verification.user_account }
     user_uuid { user.uuid }
     saved_claim { create(:va526ez) }
     submitted_claim_id { nil }
@@ -41,6 +43,12 @@ FactoryBot.define do
   trait :with_everything do
     form_json do
       File.read("#{submissions_path}/with_everything.json")
+    end
+  end
+
+  trait :with_0781 do # rubocop:disable Naming/VariableNumber
+    form_json do
+      File.read("#{submissions_path}/with_0781.json")
     end
   end
 

@@ -21,6 +21,7 @@ map_services:
 
 mhv:
   account_creation:
+    host: https://apigw-sysb.aws.myhealth.va.gov
     mock: false
     sts:
       issuer: https://staging-api.va.gov
@@ -29,14 +30,16 @@ mhv:
 mvi:
   client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
   client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  mock: false
   url: https://fwdproxy-staging.vfs.va.gov:4434/psim_webservice/stage1a/IdMWebService
 
 saml_ssoe:
   callback_url: https://staging-api.va.gov/v1/sessions/callback
   cert_path: /srv/vets-api/secret/vagov-ssoe-saml-staging-cert.pem
-  idp_metadata_file: /app/config/ssoe_idp_int_metadata_isam.xml
+  idp_metadata_file: /app/config/ssoe_idp_sqa_metadata_isam.xml
   issuer: https://ssoe-sp-staging.va.gov
   key_path: /srv/vets-api/secret/vagov-ssoe-saml-staging-key.pem
+  logout_app_key: https://ssoe-sp-staging.va.gov
   logout_url: https://sqa.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-staging.va.gov
   request_signing: true
   response_encryption: true
@@ -51,9 +54,11 @@ sign_in:
   cookies_secure: true
   info_cookie_domain: va.gov
   jwt_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-lowers-key.pem
+  jwt_old_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-lowers-key-old.pem
   sts_client:
     base_url: https://staging-api.va.gov
     key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://staging.va.gov/sign-in
   vamobile_client_id:
     - vamobile
     - vamobile_test

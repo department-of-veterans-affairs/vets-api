@@ -5,6 +5,7 @@
     "last": "Rep-Veteran"
   },
   "third_party_type": "representative",
+  "third_party_email_address": "third.party@example.com",
   "veteran_email_address": "john.veteran@example.com",
   "veteran_full_name": {
     "first": "John",

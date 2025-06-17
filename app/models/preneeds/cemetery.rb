@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module Preneeds
   # Models a cemetery from the EOAS service.
@@ -13,24 +13,20 @@ module Preneeds
   # @!attribute num
   #   @return [String] cemetery number
   #
-  class Cemetery < Common::Base
+  class Cemetery
+    include Vets::Model
+
     attribute :cemetery_type, String
     attribute :name, String
     attribute :num, String
+
+    default_sort_by name: :asc
 
     # Alias of #num
     # @return [String] cemetery number
     #
     def id
       num
-    end
-
-    # Sort operator. Default sort should be by name ascending
-    #
-    # @return [Integer] -1, 0, or 1
-    #
-    def <=>(other)
-      name <=> other.name
     end
   end
 end

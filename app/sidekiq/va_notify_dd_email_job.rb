@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 class VANotifyDdEmailJob
   include Sidekiq::Job
-  extend SentryLogging
   # retry for  2d 1h 47m 12s
   # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
   sidekiq_options retry: 16
@@ -12,25 +9,27 @@ class VANotifyDdEmailJob
   STATSD_ERROR_NAME = 'worker.direct_deposit_confirmation_email.error'
   STATSD_SUCCESS_NAME = 'worker.direct_deposit_confirmation_email.success'
 
-  def self.send_to_emails(user_emails, dd_type = nil)
+  def self.send_to_emails(user_emails)
     if user_emails.present?
       user_emails.each do |email|
-        perform_async(email, dd_type)
+        perform_async(email)
       end
     else
-      log_message_to_sentry(
-        'Direct Deposit info update: no email address present for confirmation email',
-        :info,
-        {},
-        feature: 'direct_deposit'
+      Rails.logger.info(
+        event: 'direct_deposit_confirmation_skipped',
+        reason: 'missing_email',
+        context: {
+          feature: 'direct_deposit',
+          job: name
+        },
+        message: 'No email address present for Direct Deposit confirmation email'
       )
     end
   end
 
-  def perform(email, dd_type = nil)
+  def perform(email)
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-    template_type = template_type(dd_type)
-    template_id = Settings.vanotify.services.va_gov.template_id.public_send(template_type)
+    template_id = Settings.vanotify.services.va_gov.template_id[:direct_deposit]
 
     notify_client.send_email(
       email_address: email,
@@ -41,17 +40,16 @@ class VANotifyDdEmailJob
     handle_errors(e)
   end
 
-  def template_type(dd_type)
-    return 'direct_deposit_edu' if dd_type&.to_sym == :ch33
-    return 'direct_deposit_comp_pen' if %i[comp_pen comp_and_pen].include? dd_type&.to_sym
-
-    'direct_deposit'
-  end
-
-  def handle_errors(ex)
-    VANotifyDdEmailJob.log_exception_to_sentry(ex)
+  def handle_errors(exception)
     StatsD.increment(STATSD_ERROR_NAME)
 
-    raise ex if ex.status_code.between?(500, 599)
+    Rails.logger.error(
+      message: 'Direct Deposit confirmation email job failed',
+      error: exception.message,
+      backtrace: exception.backtrace.take(5),
+      source: self.class.name
+    )
+
+    raise exception if exception.status_code.between?(500, 599)
   end
 end

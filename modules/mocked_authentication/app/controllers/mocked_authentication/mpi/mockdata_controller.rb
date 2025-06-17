@@ -40,7 +40,7 @@ module MockedAuthentication
 
       def mockdata_authorize
         authenticate_or_request_with_http_token do |token|
-          token == Settings.sign_in.mockdata_sync_api_key
+          token == IdentitySettings.sign_in.mockdata_sync_api_key
         end
       end
     end

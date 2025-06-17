@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
-require 'common/models/base'
+require 'vets/model'
 
 module EVSS
   ##
@@ -10,14 +10,15 @@ module EVSS
   # @param status [Integer] The HTTP status code from the service
   # @param attributes [Hash] Additional response attributes
   #
-  class Response < Common::Base
+  class Response
+    include Vets::Model
     include Common::Client::Concerns::ServiceStatus
 
     attribute :status, Integer
 
     def initialize(status, attributes = nil)
       super(attributes) if attributes
-      self.status = status
+      @status = status
     end
 
     def ok?
