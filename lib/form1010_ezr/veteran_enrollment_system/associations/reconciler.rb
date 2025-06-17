@@ -64,7 +64,6 @@ module Form1010Ezr
         def transform_ves_association(association)
           transformed_association = {
             'address' => get_address_from_association(association),
-            'alternatePhone' => sanitize_phone_number(association['alternatePhone']),
             'contactType' => VES_ROLE_MAPPINGS[association['role']],
             'fullName' => {},
             'primaryPhone' => sanitize_phone_number(association['primaryPhone']),

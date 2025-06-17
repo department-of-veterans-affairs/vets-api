@@ -634,8 +634,7 @@ module HCA
         'contactType' => relationship_to_contact_type(contact['contactType']),
         'relationship' => contact['relationship'],
         'address' => format_address(contact['address']),
-        'primaryPhone' => contact['primaryPhone'],
-        'alternatePhone' => contact['alternatePhone']
+        'primaryPhone' => contact['primaryPhone']
       }.merge(convert_full_name_alt(contact['fullName']))
     end
 

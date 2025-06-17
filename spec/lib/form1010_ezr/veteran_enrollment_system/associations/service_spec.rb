@@ -32,8 +32,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           'provinceCode' => 'guanajuato',
           'postalCode' => '84754'
         },
-        'primaryPhone' => '4449131234',
-        'alternatePhone' => '6544551234'
+        'primaryPhone' => '4449131234'
       },
       {
         'fullName' => {
@@ -52,8 +51,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           'state' => 'FL',
           'postalCode' => '33726-3942'
         },
-        'primaryPhone' => '1238835546',
-        'alternatePhone' => '2658350023'
+        'primaryPhone' => '1238835546'
       },
       {
         'fullName' => {
@@ -72,8 +70,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           'state' => 'CA',
           'postalCode' => '90038-1234'
         },
-        'primaryPhone' => '7563627422',
-        'alternatePhone' => '1123321232'
+        'primaryPhone' => '7563627422'
       },
       {
         'fullName' => {
@@ -92,8 +89,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           'state' => 'KS',
           'postalCode' => '67203-1234'
         },
-        'primaryPhone' => '6437432434',
-        'alternatePhone' => '9563001117'
+        'primaryPhone' => '6437432434'
       }
     ]
   end

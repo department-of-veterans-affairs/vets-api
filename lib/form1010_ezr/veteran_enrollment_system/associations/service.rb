@@ -16,7 +16,6 @@ module Form1010Ezr
 
         # Associations API field names that are not nested
         FLAT_FIELDS = %w[
-          alternatePhone
           deleteIndicator
           lastUpdateDate
           primaryPhone
