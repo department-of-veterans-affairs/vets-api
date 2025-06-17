@@ -12,6 +12,12 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
     )
   end
 
+  before do
+    allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+      receive(:perform)
+    )
+  end
+
   let(:claimant_representative) do
     AccreditedRepresentativePortal::ClaimantRepresentative.new(
       claimant_id: Faker::Internet.uuid,
@@ -45,10 +51,10 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
     let(:metadata) { dependent_claimant_form }
 
     describe 'attachment composition' do
-      let(:form_a) { create(:persistent_attachment_va_form) }
-      let(:form_b) { create(:persistent_attachment_va_form) }
-      let(:attachment_a) { create(:persistent_attachment_va_form_documentation) }
-      let(:attachment_b) { create(:persistent_attachment_va_form_documentation) }
+      let(:form_a) { create(:persistent_attachment_va_form, form_id: '21-686c') }
+      let(:form_b) { create(:persistent_attachment_va_form, form_id: '21-686c') }
+      let(:attachment_a) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
+      let(:attachment_b) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
 
       let(:already_parented_attachment) do
         create(
@@ -56,12 +62,27 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
           # But of one of the expected types.
           #
           :persistent_attachment_va_form_documentation,
-          saved_claim: build(:burial_claim)
+          saved_claim: build(:burial_claim),
+          form_id: '21-686c'
         )
       end
 
       let(:extraneous_type_attachment) do
-        create(:persistent_attachment)
+        create(:persistent_attachment, form_id: '21-686c')
+      end
+
+      describe 'form type' do
+        let(:extraneous_form_type_attachment) do
+          create(:persistent_attachment_va_form, form_id: 'nonsense')
+        end
+
+        let(:attachments) { [extraneous_form_type_attachment] }
+
+        it 'raises `WrongAttachmentsError`' do
+          expect { perform }.to raise_error(
+            described_class::WrongAttachmentsError
+          )
+        end
       end
 
       describe 'parenting' do
@@ -79,14 +100,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
           let(:attachments) { [form_a] }
 
           it 'returns a saved claim, enqueues the submission job, claimant representative was associated' do
+            expect_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              receive(:perform)
+            )
+
             claim = perform
 
             expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
-            )
-
-            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
-              have_enqueued_sidekiq_job(claim.id)
             )
 
             claimant_representative_associated =
@@ -118,14 +139,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
           let(:attachments) { [form_a, attachment_a, attachment_b] }
 
           it 'returns a saved claim, enqueues the submission job, claimant representative was associated' do
+            expect_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              receive(:perform)
+            )
+
             claim = perform
 
             expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
-            )
-
-            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
-              have_enqueued_sidekiq_job(claim.id)
             )
 
             claimant_representative_associated =
