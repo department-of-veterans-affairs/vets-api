@@ -66,7 +66,7 @@ module AccreditedRepresentativePortal
         # I.e., number of types & no re-parenting. Ideally something more atomic
         # with no gap between checking and persisting.
         #
-        def organize_attachments!(form_id, guids)
+        def organize_attachments!(form_id, guids) # rubocop:disable Metrics/MethodLength
           groups = Hash.new { |h, k| h[k] = [] }
           attachments = PersistentAttachment.where(guid: guids).to_a
 
