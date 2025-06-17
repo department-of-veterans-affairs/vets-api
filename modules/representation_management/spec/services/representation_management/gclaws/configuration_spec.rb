@@ -26,5 +26,9 @@ describe RepresentationManagement::GCLAWS::Configuration do
     it 'sets the api_key' do
       expect(subject.connection.headers['x-api-key']).to eq(Settings.gclaws.accreditation.api_key)
     end
+
+    it 'sets the origin' do
+      expect(subject.connection.headers['Origin']).to eq(Settings.gclaws.accreditation.origin)
+    end
   end
 end

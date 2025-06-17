@@ -19,7 +19,7 @@ module EVSS
         :upload_to_vbms,
         :perform_client_upload,
         additional_class_logs: {
-          action: 'upload form 21-0781 to EVSS'
+          action: 'upload form 21-0781'
         },
         additional_instance_logs: {
           submission_id: [:submission_id],

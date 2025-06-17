@@ -28,7 +28,7 @@ module V0
         render json: ::Form1010cg::ClaimSerializer.new(@claim)
       else
         PersonalInformationLog.create!(data: { form: @claim.parsed_form }, error_class: '1010CGValidationError')
-        auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
+        auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.full_messages)
         raise(Common::Exceptions::ValidationErrors, @claim)
       end
     rescue => e

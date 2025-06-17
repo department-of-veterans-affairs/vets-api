@@ -107,11 +107,19 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
 
   def set_cerner_eligibility_cookie
     cookie_name = V1::SessionsController::CERNER_ELIGIBLE_COOKIE_NAME
-    return if cookies.signed[cookie_name].present?
+    existing = cookies.signed[cookie_name].present?
 
-    cookies.signed.permanent[cookie_name] = eligible = @current_user.cerner_eligible?
+    eligible = @current_user.cerner_eligible?
 
-    Rails.logger.info('[SessionsController] Cerner Eligibility', eligible:, cookie_action: :set, icn: @current_user.icn)
+    cookies.signed.permanent[cookie_name] = {
+      value: eligible,
+      domain: IdentitySettings.sign_in.info_cookie_domain
+    }
+
+    unless existing
+      Rails.logger.info('[SessionsController] Cerner Eligibility', eligible:, cookie_action: :set,
+                                                                   icn: @current_user.icn)
+    end
   end
 
   def set_session_expiration_header

@@ -75,10 +75,10 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
     context 'success' do
       it 'updates HealthFacilities table without duplicating existing records' do
         expect(Rails.logger).to receive(:info).with(
-          'Job started with 2 existing health facilities.'
+          '[HCA] - Job started with 2 existing health facilities.'
         )
         expect(Rails.logger).to receive(:info).with(
-          'Job ended with 3 health facilities.'
+          '[HCA] - Job ended with 3 health facilities.'
         )
 
         expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.health_facilities_import_job_complete")
@@ -126,10 +126,10 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
       it 'logs errors when API call fails' do
         expect(lighthouse_service).to receive(:get_facilities).and_raise(StandardError, 'something broke')
         expect(Rails.logger).to receive(:info).with(
-          'Job started with 2 existing health facilities.'
+          '[HCA] - Job started with 2 existing health facilities.'
         )
         expect(Rails.logger).to receive(:error).with(
-          "Error occurred in #{described_class.name}: something broke"
+          "[HCA] - Error occurred in #{described_class.name}: something broke"
         )
         expect do
           described_class.new.perform
@@ -140,7 +140,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         it 'logs error and increments StatsD' do
           described_class.within_sidekiq_retries_exhausted_block do
             expect(Rails.logger).to receive(:error).with(
-              "#{described_class.name} failed with no retries left."
+              "[HCA] - #{described_class.name} failed with no retries left."
             )
             expect(StatsD).to receive(:increment).with(
               "#{statsd_key_prefix}.health_facilities_import_job_failed_no_retries"
@@ -157,10 +157,10 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
 
       it 'enqueues IncomeLimits::StdStateImport and raises error' do
         expect(Rails.logger).to receive(:info).with(
-          'Job started with 2 existing health facilities.'
+          '[HCA] - Job started with 2 existing health facilities.'
         )
         expect(Rails.logger).to receive(:error).with(
-          "Error occurred in #{described_class.name}: StdStates missing – triggered import and retrying job"
+          "[HCA] - Error occurred in #{described_class.name}: StdStates missing – triggered import and retrying job"
         )
 
         import_job = instance_double(IncomeLimits::StdStateImport)

@@ -87,10 +87,16 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def mark_declined!(creator, reason)
+    def mark_declined!(creator, declination_reason)
       PowerOfAttorneyRequestDecision.create_declination!(
-        creator:, power_of_attorney_request: self, reason:
+        creator:,
+        power_of_attorney_request: self,
+        declination_reason:
       )
+    rescue => e
+      Rails.logger.error("Error creating declination: #{e.class} - #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
+      raise
     end
 
     def mark_replaced!(superseding_power_of_attorney_request)
@@ -99,6 +105,11 @@ module AccreditedRepresentativePortal
         superseding_power_of_attorney_request:
       )
     end
+
+    # We're using just the timestamp for convenience and speed. Direct queries
+    # against the redacted fields will always be authoritative
+    scope :unredacted, -> { where(redacted_at: nil) }
+    scope :redacted, -> { where.not(redacted_at: nil) }
 
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
@@ -195,6 +206,10 @@ module AccreditedRepresentativePortal
       values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
 
       where(prefixed_names => values)
+    }
+
+    scope :for_accredited_individual, lambda { |accredited_individual_registration_number|
+      where(accredited_individual_registration_number:)
     }
 
     private

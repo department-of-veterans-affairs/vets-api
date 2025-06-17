@@ -2,6 +2,31 @@
 
 First make sure to follow the common [base setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md#Base%20setup).
 
+## ClamAV Antivirus Configuration
+### EKS
+Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
+
+Note: Running clamav natively, as we did in Vets API master still needs to be configured. For the time being, please run via docker:
+
+Please set the clamav intitalizer initializers/clamav.rb file to the following:
+
+```ruby
+if Rails.env.development?
+  ENV['CLAMD_TCP_HOST'] = Settings.clamav.host
+  ENV['CLAMD_TCP_PORT'] = Settings.clamav.port
+end
+```
+
+### Mocking ClamAV Locally
+There is an additional choice to "mock" a successful clamav response if you want to receive a quick scanning response for local development. If you choose this path, please set the clamav mock setting to true in the local settings.yml. This will mock the clamav response in the virus_scan code.
+
+```ruby
+clamav:
+  mock: true
+```
+
+## Makefile
+
 A Makefile provides shortcuts for interacting with the docker images.
 
 You can see all of the targets and an explanation of what they do with:

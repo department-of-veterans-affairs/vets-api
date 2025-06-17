@@ -175,27 +175,18 @@ class SavedClaim < ApplicationRecord
   # the error logging smooth and identical for both options.
   # This method also filters out the `data` key because it could
   # potentially contain pii.
-  def reformatted_schemer_errors(errors) # rubocop:disable Metrics/MethodLength
-    if Flipper.enabled?(:filter_saved_claim_logs)
-      errors.map do |error|
-        symbolized = error.symbolize_keys
-        {
-          data_pointer: symbolized[:data_pointer],
-          error: symbolized[:error],
-          details: symbolized[:details],
-          schema: symbolized[:schema],
-          root_schema: symbolized[:root_schema],
-          message: symbolized[:error],
-          fragment: symbolized[:data_pointer]
-        }
-      end
-    else
-      errors.map!(&:symbolize_keys)
-      errors.each do |error|
-        error[:fragment] = error[:data_pointer]
-        error[:message] = error[:error]
-      end
-      errors
+  def reformatted_schemer_errors(errors)
+    errors.map do |error|
+      symbolized = error.symbolize_keys
+      {
+        data_pointer: symbolized[:data_pointer],
+        error: symbolized[:error],
+        details: symbolized[:details],
+        schema: symbolized[:schema],
+        root_schema: symbolized[:root_schema],
+        message: symbolized[:error],
+        fragment: symbolized[:data_pointer]
+      }
     end
   end
 
@@ -220,9 +211,6 @@ class SavedClaim < ApplicationRecord
 
   def pdf_overflow_tracking
     tags = ["form_id:#{form_id}"]
-
-    # TODO: 686C-674 will require special handling
-    return if form_id.start_with? '686C-674'
 
     form_class = PdfFill::Filler::FORM_CLASSES[form_id]
     unless form_class

@@ -60,7 +60,7 @@ module Form1010cg
       begin
         claim.destroy!
       rescue => e
-        log_exception_to_sentry(e, { claim_id: })
+        log_error(e, '[10-10CG] - Error destroying Caregiver claim after processing submission in job', claim_id)
       end
       Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :success, start_time:)
     rescue CARMA::Client::MuleSoftClient::RecordParseError
@@ -68,7 +68,7 @@ module Form1010cg
       Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
       self.class.send_failure_email(claim)
     rescue => e
-      log_exception_to_sentry(e, { claim_id: })
+      log_error(e, '[10-10CG] - Error processing Caregiver claim submission in job', claim_id)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
       Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
 
@@ -98,6 +98,16 @@ module Form1010cg
         )
 
         StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"])
+      end
+    end
+
+    private
+
+    def log_error(exception, message, claim_id)
+      if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
+        Rails.logger.error(message, { exception:, claim_id: })
+      else
+        log_exception_to_sentry(exception, { claim_id: })
       end
     end
   end

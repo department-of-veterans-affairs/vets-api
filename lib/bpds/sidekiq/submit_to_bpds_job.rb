@@ -15,7 +15,7 @@ module BPDS
         bpds_submission.submission_attempts.create(status: 'failure', error_message: error&.message)
       end
 
-      def perform(saved_claim_id)
+      def perform(saved_claim_id, encrypted_payload)
         return nil unless Flipper.enabled?(:bpds_service_enabled)
 
         init(saved_claim_id)
@@ -26,7 +26,8 @@ module BPDS
 
         begin
           # Submit the BPDS submission to the BPDS service
-          response = BPDS::Service.new.submit_json(@saved_claim)
+          payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_payload))
+          response = BPDS::Service.new.submit_json(@saved_claim, payload['participant_id'], payload['file_number'])
           @bpds_submission.submission_attempts.create(status: 'submitted', response: response.to_json,
                                                       bpds_id: response['uuid'])
           @monitor.track_submit_success(saved_claim_id)

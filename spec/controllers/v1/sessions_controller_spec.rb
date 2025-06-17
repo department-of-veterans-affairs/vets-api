@@ -841,12 +841,17 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'when the cerner eligible cookie is not present' do
+          before do
+            allow(IdentitySettings.sign_in).to receive(:info_cookie_domain).and_return('some-domain')
+          end
+
           context 'when the user is cerner eligible' do
             let(:eligible) { true }
 
             it 'sets the cookie and logs the cerner eligibility' do
               call_endpoint
 
+              expect(response.headers['set-cookie']).to include('domain=some-domain')
               expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
               expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
             end
@@ -870,7 +875,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             cookies.signed[cerner_eligible_cookie] = 'true'
           end
 
-          it 'does nothing' do
+          it 'does not log a message' do
             call_endpoint
 
             expect(Rails.logger).not_to have_received(:info).with(expected_log_message, anything)
@@ -1506,30 +1511,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
-        end
-      end
-
-      context 'when creating a user account' do
-        context 'and the current user does not yet have an Account record' do
-          before do
-            Account.first.destroy
-            expect(Account.count).to eq 0
-          end
-
-          it 'creates an Account record for the user' do
-            call_endpoint
-
-            expect(Account.first.idme_uuid).to eq uuid
-          end
-        end
-
-        context 'and the current user already has an Account record' do
-          it 'does not create a new Account record for the user', :aggregate_failures do
-            call_endpoint
-
-            expect(Account.count).to eq 1
-            expect(Account.first.idme_uuid).to eq user.idme_uuid
-          end
         end
       end
     end

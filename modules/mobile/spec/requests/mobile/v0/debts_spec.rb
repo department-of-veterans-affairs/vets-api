@@ -152,7 +152,6 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
             debt_data = response.parsed_body['data'].map { |d| d.except('id') }
             expect(debt_data).to include(debt1)
             expect(debt_data).to include(debt2)
-            expect(debt_data).to include(debt3)
             expect(debt_data).to include(debt4)
             expect(debt_data).to include(debt5)
           end

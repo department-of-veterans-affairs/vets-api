@@ -13,10 +13,10 @@ module Mobile
       attribute :type
 
       def initialize(cemeteries_info)
-        resource = cemeteries_info.collect do |cemetery_info|
-          CemeteriesStruct.new(id: cemetery_info['num'],
-                               name: cemetery_info['name'],
-                               type: cemetery_info['cemetery_type'])
+        resource = cemeteries_info.records.map do |cemetery_info|
+          CemeteriesStruct.new(id: cemetery_info.num,
+                               name: cemetery_info.name,
+                               type: cemetery_info.cemetery_type)
         end
 
         super(resource)

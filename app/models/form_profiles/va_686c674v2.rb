@@ -38,9 +38,9 @@ class FormProfiles::VA686c674v2 < FormProfile
   def prefill_form_address
     begin
       mailing_address = if user.icn.present? && Flipper.enabled?(:remove_pciu, user)
-                          VAProfileRedis::V2::ContactInformation.for_user(user)
+                          VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
                         elsif user.vet360_id.present?
-                          VAProfileRedis::ContactInformation.for_user(user)
+                          VAProfileRedis::ContactInformation.for_user(user).mailing_address
                         end
     rescue
       nil

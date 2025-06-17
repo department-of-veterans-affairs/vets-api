@@ -16,6 +16,7 @@ describe Vye::MidnightRun::IngressTims, type: :worker do
 
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   context 'when it is not a holiday' do
@@ -37,6 +38,21 @@ describe Vye::MidnightRun::IngressTims, type: :worker do
       described_class.drain
 
       expect(Vye::MidnightRun::IngressTimsChunk).to have_enqueued_sidekiq_job.exactly(5).times
+    end
+
+    context 'when BDN processing is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(true)
+      end
+
+      it 'does not enqueue anything' do
+        expect(Vye::BatchTransfer::TimsChunk).not_to receive(:build_chunks)
+
+        worker = described_class.new
+        worker.perform
+
+        expect(Vye::MidnightRun::IngressTimsChunk).to have_enqueued_sidekiq_job.exactly(0).times
+      end
     end
   end
 

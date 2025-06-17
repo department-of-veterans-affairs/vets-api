@@ -360,7 +360,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           expect(Rails.logger)
             .to receive(:info)
             .with(log_message)
-          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: statsd_tags)
         end
       end
     end

@@ -212,7 +212,7 @@ module IvcChampva
       end
 
       def submit_supporting_documents
-        if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
+        if %w[10-10D 10-7959C 10-7959F-2 10-7959A 10-10D-EXTENDED].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
           unlocked = unlock_file(params['file'], params['password'])
@@ -329,6 +329,10 @@ module IvcChampva
         attempt = 0
         max_attempts = 1
 
+        # Initialize with default values to handle nil reference cases
+        statuses = [500]
+        error_messages = ['Server error occurred']
+
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
           hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
@@ -367,6 +371,10 @@ module IvcChampva
         attempt = 0
         max_attempts = 1
 
+        # Initialize with default values to handle nil reference cases
+        statuses = [500]
+        error_messages = ['Server error occurred']
+
         begin
           hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
@@ -402,8 +410,9 @@ module IvcChampva
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
         }
 
-        statuses = nil
-        error_messages = nil
+        # set default values for statuses and error_messages to avoid nil reference errors
+        statuses = [500]
+        error_messages = ['Server error occurred']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
@@ -432,8 +441,9 @@ module IvcChampva
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
         }
 
-        statuses = nil
-        error_messages = nil
+        # set default values for statuses and error_messages to avoid nil reference errors
+        statuses = [500]
+        error_messages = ['Server error occurred']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
@@ -525,6 +535,10 @@ module IvcChampva
       end
 
       def build_json(statuses, error_message)
+        if statuses.nil?
+          return { json: { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 }
+        end
+
         unique_statuses = statuses.uniq
 
         if unique_statuses == [200]

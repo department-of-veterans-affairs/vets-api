@@ -38,7 +38,6 @@ class SimpleCovHelper
   end
 
   def self.add_filters
-    add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -64,11 +63,14 @@ class SimpleCovHelper
     add_group 'Banners', 'modules/banners/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'DebtsApi', 'modules/debts_api/'
+    add_group 'DependentsVerification', 'modules/dependents_verification/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'IncomeAndAssets', 'modules/income_and_assets/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
+    add_group 'MedicalExpenseReports', 'modules/medical_expense_reports/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'IncomeLimits', 'modules/income_limits/'

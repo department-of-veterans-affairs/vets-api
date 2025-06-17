@@ -23,7 +23,7 @@ module VRE
     #
     def submit
       if @claim.nil?
-        Rails.logger.error('Ch31NilClaimError. user icn:', @user.icn)
+        Rails.logger.error('Ch31NilClaimError. user uuid:', @user&.uuid)
         raise Ch31NilClaimError
       end
 

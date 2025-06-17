@@ -14,7 +14,7 @@ module DebtsApi
 
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true
-    belongs_to :user_account, dependent: nil, optional: true
+    belongs_to :user_account, dependent: nil, optional: false
     has_kms_key
     has_encrypted :form_json, :metadata, :ipf_data, key: :kms_key, **lockbox_options
 
@@ -102,20 +102,17 @@ module DebtsApi
     end
 
     def send_failed_form_email
-      if Flipper.enabled?(:debts_silent_failure_mailer)
-        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        submission_email = ipf_form['personal_data']['email_address'].downcase
+      StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
+      submission_email = ipf_form['personal_data']['email_address'].downcase
+      jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
+        24.hours,
+        submission_email,
+        SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
+        failure_email_personalization_info,
+        { id_type: 'email', failure_mailer: true }
+      )
 
-        jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
-          24.hours,
-          submission_email,
-          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
-          failure_email_personalization_info,
-          { id_type: 'email', failure_mailer: true }
-        )
-
-        Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
-      end
+      Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
     end
 
     def failure_email_personalization_info
@@ -137,6 +134,43 @@ module DebtsApi
 
     def streamlined?
       public_metadata.dig('streamlined', 'value') == true
+    end
+
+    def vba_debt_identifiers
+      return [] if metadata.blank?
+
+      parsed_metadata = JSON.parse(metadata)
+      debts = parsed_metadata['debts'] || []
+
+      debts.map do |debt|
+        "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
+      end.compact
+    rescue JSON::ParserError
+      []
+    end
+
+    def vha_copay_identifiers
+      return [] if metadata.blank?
+
+      parsed_metadata = JSON.parse(metadata)
+      copays = parsed_metadata['copays'] || []
+
+      copays.map { |copay| copay['id'] }.compact # rubocop:disable Rails/Pluck
+    rescue JSON::ParserError
+      []
+    end
+
+    def debt_identifiers
+      # For combined forms, we need to check both debts and copays
+      if public_metadata['combined']
+        vba_debt_identifiers + vha_copay_identifiers
+      elsif public_metadata['debt_type'] == 'DEBT'
+        vba_debt_identifiers
+      elsif public_metadata['debt_type'] == 'COPAY'
+        vha_copay_identifiers
+      else
+        []
+      end
     end
 
     def upsert_in_progress_form(user_account:)

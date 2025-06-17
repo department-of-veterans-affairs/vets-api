@@ -269,7 +269,7 @@ describe MHV::AccountCreation::Service do
       let(:expected_log_payload) do
         {
           body: 'Internal Server Error',
-          error_message: "unexpected token at 'Internal Server Error'",
+          error_message: "unexpected token 'Internal Server Error' at line 1 column 1",
           status: 500,
           icn:
         }

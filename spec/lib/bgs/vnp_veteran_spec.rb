@@ -569,6 +569,33 @@ RSpec.describe BGS::VnpVeteran do
           end
         end
       end
+
+      context 'veteran has APO address with an AE State' do
+        it 'uses IsoCountryCodes to determine the country name' do
+          # rubocop:disable Layout/LineLength
+          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['country'] = 'USA'
+          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['city'] = 'APO'
+          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['state'] = 'AE'
+          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
+          # rubocop:enable Layout/LineLength
+
+          expected_address = { frgn_postal_cd: nil,
+                               mlty_postal_type_cd: 'AE',
+                               mlty_post_office_type_cd: 'APO' }
+
+          VCR.use_cassette('bgs/vnp_veteran/create') do
+            expect_any_instance_of(BGS::Service).to receive(:create_address)
+              .with(a_hash_including(expected_address))
+              .and_call_original
+            BGS::VnpVeteran.new(
+              proc_id: '12345',
+              payload: all_flows_payload_v2,
+              user: user_object,
+              claim_type: '130DPNEBNADJ'
+            ).create
+          end
+        end
+      end
     end
   end
 end

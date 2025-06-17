@@ -302,7 +302,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            'form - object at root is missing required properties: privacyAgreementAccepted'
           )
         ).to be(true)
       end

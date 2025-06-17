@@ -15,6 +15,50 @@ describe PdfFill::ExtrasGeneratorV2 do
       question
     end
 
+    describe '#numbered_label_markup' do
+      context 'when show_suffix is true' do
+        it 'appends suffix to question number when there is a single subquestion' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
+        end
+
+        it 'does not append suffix when there are multiple subquestions' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value1', { question_suffix: 'A' })
+          question.add_text('Value2', { question_suffix: 'B' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+
+        it 'handles nil suffix gracefully' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value', {})
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+      end
+
+      context 'when show_suffix is false' do
+        it 'does not append suffix to question number' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: false })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+      end
+
+      context 'when number is not an integer' do
+        it 'does not include a prefix' do
+          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>Test Question</h3>')
+        end
+      end
+    end
+
     describe '#format_value' do
       it 'applies formatting based on format options' do
         question = described_class.new('Test', { question_num: 1 })
@@ -251,15 +295,18 @@ describe PdfFill::ExtrasGeneratorV2 do
   describe '#add_page_numbers' do
     subject { described_class.new(start_page: 8) }
 
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400, bottom: 0)) }
+    let(:pdf) do
+      double('Prawn::Document',
+             bounds: double('Bounds', left: 0, bottom: 0, width: 500),
+             page_number: 1)
+    end
 
     it 'adds page numbers starting at @start_page' do
-      expect(pdf).to receive(:number_pages).with(
-        'Page <page>',
-        start_count_at: 8,
-        at: [400 - 50, 0],
-        align: :right,
-        size: 9
+      expect(pdf).to receive(:repeat).with(:all, dynamic: true).and_yield
+      expect(pdf).to receive(:bounding_box).and_yield
+      expect(pdf).to receive(:markup).with(
+        'Page 8',
+        text: { align: :right, valign: :bottom, size: described_class::FOOTER_FONT_SIZE }
       )
 
       subject.add_page_numbers(pdf)
@@ -346,7 +393,7 @@ describe PdfFill::ExtrasGeneratorV2 do
         expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
                         'Signee signed with an identity-verified account.'
         expect(pdf).to have_received(:markup).with(
-          expected_text, text: { align: :left, size: footer_font_size }
+          expected_text, text: { align: :left, valign: :bottom, size: footer_font_size }
         )
       end
     end
@@ -778,6 +825,109 @@ describe PdfFill::ExtrasGeneratorV2 do
         added_value = item.instance_variable_get(:@subquestions).first
 
         expect(added_value[:metadata][:format_options]).to eq({ bold_value: true })
+      end
+    end
+
+    describe '#measure_actual_height' do
+      let(:item) do
+        instance_double(PdfFill::ExtrasGeneratorV2::Question)
+      end
+
+      before do
+        allow(pdf).to receive(:cursor).and_return(100, 50, 200, 100, 400, 200)
+        allow(pdf).to receive(:start_new_page)
+        allow(pdf).to receive(:markup)
+        allow(item).to receive(:should_render?).and_return(true)
+        allow(item).to receive(:render)
+      end
+
+      context 'when some items are nil' do
+        it 'returns the height measurements' do
+          items = [item, nil, item, nil]
+          subject.instance_variable_set(:@items, items)
+          heights = subject.measure_actual_height(pdf)
+
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights[:title]).to eq(50)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(2) # 2 items are not nil
+          expect(heights[:items][0]).to eq(100)  # mocked items index 0
+          expect(heights[:items][1]).to eq(200)  # mocked items index 2
+        end
+      end
+
+      context 'when item is nil' do
+        it 'returns nil' do
+          heights = subject.measure_actual_height(pdf)
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(0)
+        end
+      end
+    end
+  end
+
+  describe '#apply_humanization' do
+    [
+      {
+        input: 'VETERAN',
+        format_options: { humanize: true },
+        expected: 'Veteran',
+        description: 'uses default humanization when humanize is true'
+      },
+      {
+        input: 'VETERAN',
+        format_options: { humanize: { 'VETERAN' => 'Service Member' } },
+        expected: 'Service Member',
+        description: 'uses custom mapping when provided'
+      },
+      {
+        input: 'CUSTODIAN',
+        format_options: { humanize: { 'VETERAN' => 'Service Member' } },
+        expected: 'Custodian',
+        description: 'falls back to default humanization for unmapped values'
+      },
+      {
+        input: 'VETERAN',
+        format_options: { humanize: false },
+        expected: 'VETERAN',
+        description: 'returns original value when humanize is false'
+      },
+      {
+        input: 'VETERAN',
+        format_options: {},
+        expected: 'VETERAN',
+        description: 'returns original value when humanize is not configured'
+      }
+    ].each do |test_case|
+      it "#{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
+        expect(subject.send(:apply_humanization, test_case[:input],
+                            test_case[:format_options])).to eq(test_case[:expected])
+      end
+    end
+  end
+
+  describe '#humanize_value' do
+    [
+      { input: 'VETERAN', expected: 'Veteran', description: 'ALL_CAPS single word' },
+      { input: 'CIVIL_SERVICE', expected: 'Civil Service', description: 'ALL_CAPS with underscore' },
+      { input: 'SOCIAL_SECURITY', expected: 'Social Security', description: 'ALL_CAPS with underscore' },
+      { input: 'RENTAL_PROPERTY', expected: 'Rental Property', description: 'ALL_CAPS compound word' },
+      { input: 'veteran_spouse', expected: 'Veteran Spouse', description: 'snake_case compound' },
+      { input: 'income_type', expected: 'Income Type', description: 'snake_case simple' },
+      { input: 'veteranSpouse', expected: 'Veteran Spouse', description: 'mixed case compound (camelCase)' },
+      { input: 'SocialSecurity', expected: 'Social Security', description: 'mixed case compound (PascalCase)' },
+      { input: 'Already Humanized', expected: 'Already Humanized', description: 'already spaced string' },
+      { input: 'Normal text', expected: 'Normal Text', description: 'lowercase spaced string' },
+      { input: '', expected: '', description: 'empty string' },
+      { input: nil, expected: '', description: 'nil value' }
+    ].each do |test_case|
+      it "converts #{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
+        expect(subject.send(:humanize_value, test_case[:input])).to eq(test_case[:expected])
       end
     end
   end

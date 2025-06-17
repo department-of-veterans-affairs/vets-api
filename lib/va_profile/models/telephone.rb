@@ -83,15 +83,18 @@ module VAProfile
         length: { maximum: 3, minimum: 1 }
       )
 
+      # This is called in FormProfile, which is used for form prefill
+      # We currently only support prefilling US phone numbers on forms
       def formatted_phone
         return if phone_number.blank?
 
         if is_international
-          return_val = "+#{country_code} #{phone_number}"
-        else
-          return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
-          return_val += " Ext. #{extension}" if extension.present?
+          Rails.logger.info('International phone number excluded from prefill')
+          return
         end
+
+        return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
+        return_val += " Ext. #{extension}" if extension.present?
 
         return_val
       end

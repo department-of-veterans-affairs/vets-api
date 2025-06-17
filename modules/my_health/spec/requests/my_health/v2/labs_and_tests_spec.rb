@@ -8,7 +8,7 @@ require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
-  let(:default_params) { { start_date: '2024-01-01', end_date: '2024-12-31' } }
+  let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }
   let(:path) { '/my_health/v2/medical_records/labs_and_tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
@@ -47,9 +47,9 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(3)
-        expect(json_response[0]).to eq(ch_response)
-        expect(json_response[2]).to eq(sp_response)
+        expect(json_response.count).to eq(4)
+        expect(json_response[1]).to eq(ch_response)
+        expect(json_response[3]).to eq(sp_response)
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns not_implemented when a value attachment is received' do
         expect(Rails.logger).to have_received(:error).with(
-          { message: 'Observation with ID b7347c02-4abe-4784-af18-21f8c7b8fc6a has unsupported value type: Attachment' }
+          { message: 'Observation with ID 4e0a8d43-1281-4d11-97b8-f77452bea53a has unsupported value type: Attachment' }
         )
         expect(response).to have_http_status(:not_implemented)
       end

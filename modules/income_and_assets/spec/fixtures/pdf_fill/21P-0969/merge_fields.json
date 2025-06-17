@@ -236,8 +236,8 @@
       "recipientRelationship": 1,
       "recipientRelationshipOverflow": "SPOUSE",
       "incomeGenerationMethodOverflow": "OTHER",
-      "grossMonthlyIncomeOverflow": "$12,345.67",
-      "fairMarketValueOverflow": "$12,345,678.91",
+      "grossMonthlyIncomeOverflow": 12345.67,
+      "fairMarketValueOverflow": 12345678.91,
       "canBeSoldOverflow": false
     },
     {
@@ -259,8 +259,8 @@
       "otherRecipientRelationshipType": "Sibling",
       "recipientRelationshipOverflow": "OTHER",
       "incomeGenerationMethodOverflow": "USE_OF_LAND",
-      "grossMonthlyIncomeOverflow": "$123.00",
-      "fairMarketValueOverflow": "$1,234.00",
+      "grossMonthlyIncomeOverflow": 123,
+      "fairMarketValueOverflow": 1234,
       "canBeSoldOverflow": true
     }
   ],
