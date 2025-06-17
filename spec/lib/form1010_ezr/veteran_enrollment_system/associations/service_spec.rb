@@ -291,6 +291,28 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           end
         end
       end
+
+      context 'when an exception is raised' do
+        before do
+          allow_any_instance_of(
+            Common::Client::Base
+          ).to receive(:perform).and_raise(Common::Client::Errors::ClientError.new('some error'))
+        end
+
+        it 'increments StatsD, logs a failure message, and raises an exception' do
+          expect { described_class.new(user).reconcile_and_update_associations(updated_associations) }
+            .to raise_error do |e|
+            expect(e).to be_a(Common::Client::Errors::ClientError)
+            expect(e.message).to eq('some error')
+          end
+          expect(StatsD).to have_received(:increment).with(
+            'api.1010ezr.veteran_enrollment_system.associations.reconcile_and_update_associations.failed'
+          )
+          expect(Rails.logger).to have_received(:error).with(
+            '10-10EZR reconciling and updating associations failed: some error'
+          )
+        end
+      end
     end
   end
 

@@ -11,6 +11,9 @@ module Form1010Ezr
         include HCA::EnrollmentSystem
 
         configuration ::VeteranEnrollmentSystem::Associations::Configuration
+
+        STATSD_KEY_PREFIX = 'api.1010ezr.veteran_enrollment_system.associations'
+
         # Associations API field names that are not nested
         FLAT_FIELDS = %w[
           alternatePhone
@@ -31,6 +34,13 @@ module Form1010Ezr
           ).reconcile_associations
 
           update_associations(reconciled_associations)
+        rescue => e
+          StatsD.increment("#{STATSD_KEY_PREFIX}.reconcile_and_update_associations.failed")
+          Rails.logger.error(
+            "#{FORM_ID} reconciling and updating associations failed: " \
+            "#{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+          )
+          raise e
         end
 
         private
