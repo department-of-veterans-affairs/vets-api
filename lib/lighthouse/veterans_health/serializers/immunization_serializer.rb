@@ -158,11 +158,7 @@ module Lighthouse
         def self.extract_location_id(location)
           return nil if location.nil?
 
-          if location.is_a?(Hash) && location['reference']
-            location['reference'].split('/').last
-          else
-            nil
-          end
+          location['reference'].split('/').last if location.is_a?(Hash) && location['reference']
         end
       end
     end
