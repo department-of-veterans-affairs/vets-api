@@ -39,6 +39,9 @@ features:
     description: >
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+  accredited_representative_portal_submissions:
+    actor_type: user
+    description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
   aedp_vadx:
     actor_type: user
@@ -1870,14 +1873,6 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
-  payment_history_exclude_third_party_disbursements:
-    actor_type: user
-    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
-    enable_in_development: false
-  payment_history_recategorize_hardship:
-    actor_type: user
-    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
-    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2246,6 +2241,9 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  vff_force_unique_file_name_date_property:
+    actor_type: user
+    description: Forces the unique_file_name method to use the date property in submission_archive.rb
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
