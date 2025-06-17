@@ -90,7 +90,7 @@ module VeteranEnrollmentSystem
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
         Rails.logger.error(
-          "#{form_id} update associations failed: #{e.errors.present? ? e.errors.first[:detail] : e.message}"
+          "#{form_id} update associations failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
         )
 
         raise e
