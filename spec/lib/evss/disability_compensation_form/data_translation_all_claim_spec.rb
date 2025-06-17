@@ -111,6 +111,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
         end
 
+        let(:form_0781_note) do
+          "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder.\n"
+        end
+        let(:form_0781a_note) do
+          "VA Form 0781a has been completed by the applicant and sent to the VBMS eFolder.\n"
+        end
+
         context 'when the form is submitted using the old v1 flow, producing two possible forms (0781 and 0781a)' do
           context 'when 0781 data is included without personal assault incidents' do
             let(:form_content) do
@@ -124,8 +131,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             end
 
             it 'includes the 0781 note in the overflow text' do
-              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder.\n"
-              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(form_0781_note)
             end
           end
 
@@ -142,8 +148,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             end
 
             it 'includes the 0781a note in the overflow text' do
-              expected_note = "VA Form 0781a has been completed by the applicant and sent to the VBMS eFolder.\n"
-              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(form_0781a_note)
             end
           end
 
@@ -161,8 +166,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             end
 
             it 'includes both notes in the overflow text' do
-              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder.\n" \
-                              "VA Form 0781a has been completed by the applicant and sent to the VBMS eFolder.\n"
+              expected_note = "#{form_0781_note}#{form_0781a_note}"
               expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
             end
           end
@@ -200,8 +204,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             end
 
             it 'includes the 0781 note in the overflow text' do
-              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder.\n"
-              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(form_0781_note)
             end
           end
 
@@ -219,8 +222,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             end
 
             it 'includes the 0781 note in the overflow text' do
-              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder.\n"
-              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(form_0781_note)
             end
           end
 
@@ -240,8 +242,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             end
 
             it 'includes the 0781 note in the overflow text' do
-              expected_note = "VA Form 0781 has been completed by the applicant and sent to the VBMS eFolder.\n"
-              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(expected_note)
+              expect(described_class.new(user, form_content, false).send(:overflow_text)).to eq(form_0781_note)
             end
           end
 
