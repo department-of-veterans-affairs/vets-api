@@ -47,10 +47,10 @@ RSpec.describe FeatureTogglesService do
     end
 
     before do
-      # Allow the instance methods we need for this test
-      allow_any_instance_of(FeatureTogglesService).to receive(:fetch_features_with_gate_keys).and_return(features)
-      allow_any_instance_of(FeatureTogglesService).to receive(:add_feature_gate_values)
-      allow_any_instance_of(FeatureTogglesService).to receive(:format_features).and_return(expected_result)
+      # Stub the instance methods on the specific service instance
+      allow(service).to receive(:fetch_features_with_gate_keys).and_return(features)
+      allow(service).to receive(:add_feature_gate_values)
+      allow(service).to receive(:format_features).and_return(expected_result)
     end
 
     it 'returns formatted features' do
