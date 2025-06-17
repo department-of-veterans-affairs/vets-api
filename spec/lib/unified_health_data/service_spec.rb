@@ -326,7 +326,7 @@ describe UnifiedHealthData::Service, type: :service do
         }
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
-        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L')
+        expect(result.first.reference_range).to eq('Normal Range: 0.7 - 4.5 mIU/L')
       end
 
       it 'returns observations with multiple low/high reference ranges joined' do
@@ -388,8 +388,8 @@ describe UnifiedHealthData::Service, type: :service do
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq(
-          'Normal Range: 0.7 mIU/L - 4.5 mIU/L, ' \
-          'Treatment Range: 0.5 mIU/L - 5.0 mIU/L'
+          'Normal Range: 0.7 - 4.5 mIU/L, ' \
+          'Treatment Range: 0.5 - 5.0 mIU/L'
         )
       end
 
@@ -553,7 +553,7 @@ describe UnifiedHealthData::Service, type: :service do
           ]
         }
         result = service.send(:fetch_reference_range, obs)
-        expect(result).to eq('Normal Range: 14 mL - 20 mL, Critical Range: 1000 mg/dL - 2000 mg/dL')
+        expect(result).to eq('Normal Range: 14 - 20 mL, Critical Range: 1000 - 2000 mg/dL')
       end
 
       it 'handles multiple high-only reference ranges with different types' do
@@ -621,7 +621,7 @@ describe UnifiedHealthData::Service, type: :service do
         ]
       }
       result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('13.5 g/dL - 18.0 g/dL')
+      expect(result).to eq('13.5 - 18.0 g/dL')
     end
 
     it 'formats low-only values correctly' do

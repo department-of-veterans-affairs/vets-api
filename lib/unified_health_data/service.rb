@@ -310,11 +310,11 @@ module UnifiedHealthData
       if low_value && high_value
         format_low_high_range(params)
       elsif low_value
-        low_unit_str = low_unit.empty? ? '' : " #{low_unit}"
-        "#{range_type}>= #{low_value}#{low_unit_str}"
+        unit_str = low_unit.empty? ? '' : " #{low_unit}"
+        "#{range_type}>= #{low_value}#{unit_str}"
       elsif high_value
-        high_unit_str = high_unit.empty? ? '' : " #{high_unit}"
-        "#{range_type}<= #{high_value}#{high_unit_str}"
+        unit_str = high_unit.empty? ? '' : " #{high_unit}"
+        "#{range_type}<= #{high_value}#{unit_str}"
       else
         ''
       end
@@ -343,18 +343,20 @@ module UnifiedHealthData
       high_value = params[:high][:value]
       high_unit = params[:high][:unit]
 
-      # Use consistent units if both are specified
-      low_unit_str = if low_unit.empty?
-                       high_unit.empty? ? '' : " #{high_unit}"
-                     else
-                       " #{low_unit}"
-                     end
-      high_unit_str = if high_unit.empty?
-                        low_unit.empty? ? '' : " #{low_unit}"
-                      else
-                        " #{high_unit}"
-                      end
-      "#{range_type}#{low_value}#{low_unit_str} - #{high_value}#{high_unit_str}"
+      # Determine which unit to display (prefer high's unit, fall back to low's unit)
+      final_unit = if !high_unit.empty?
+                     high_unit
+                   elsif !low_unit.empty?
+                     low_unit
+                   else
+                     ''
+                   end
+
+      # Only show the unit on the last value
+      unit_str = final_unit.empty? ? '' : " #{final_unit}"
+
+      # Format the range with units only at the end
+      "#{range_type}#{low_value} - #{high_value}#{unit_str}"
     end
 
     def fetch_observation_value(obs)
