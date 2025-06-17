@@ -51,7 +51,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
 
             expect(payload[:dispute_pdfs].size).to eq(2)
 
-            payload[:dispute_pdfs].each_with_index do |pdf, i|
+            payload[:dispute_pdfs].each do |pdf|
               expect(pdf[:file_name]).to end_with('.pdf')
               expect(pdf[:file_contents]).to be_a(String)
               expect(Base64.decode64(pdf[:file_contents])).to include('%PDF')
