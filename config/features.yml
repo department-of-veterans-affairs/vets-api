@@ -2238,6 +2238,9 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  vff_force_unique_file_name_date_property:
+    actor_type: user
+    description: Forces the unique_file_name method to use the date property in submission_archive.rb
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
