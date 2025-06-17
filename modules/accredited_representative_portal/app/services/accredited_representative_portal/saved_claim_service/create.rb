@@ -35,7 +35,7 @@ module AccreditedRepresentativePortal
 
             create!(saved_claim, claimant_representative)
 
-            SubmitBenefitsIntakeClaimJob.perform_async(
+            SubmitBenefitsIntakeClaimJob.new.perform(
               saved_claim.id
             )
           end
