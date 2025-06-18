@@ -241,7 +241,7 @@ class FormProfile
   #   end
   #
   # For now, this method is a no-op.
-  def self.prepend_module(form_class, form_id)
+  def self.prepend_module(form_class, _form_id)
     # Placeholder for future namespace logic. See documentation above.
     form_class
   end
