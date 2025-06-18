@@ -44,10 +44,8 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
       ).call
 
       unless status == :ok
-        req_validator_error = EvidenceSubmissionRequestValidatorError.new(error)
-        error_details = { error_message: req_validator_error.message }
-        error_details[:back_trace] = req_validator_error.backtrace.join('\n') unless req_validator_error.backtrace.nil?
-        Rails.logger.warn('Nod Evidence Submission Validation Error', error_details)
+        Rails.logger.warn('Nod Evidence Submission Validation Error',
+                          { error_message: EvidenceSubmissionRequestValidatorError.new(error).message })
 
         return render json: { errors: [error] }, status: error[:title].to_sym
       end

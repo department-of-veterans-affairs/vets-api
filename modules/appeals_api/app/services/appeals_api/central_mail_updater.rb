@@ -64,8 +64,8 @@ module AppealsApi
 
       central_mail_response = CentralMail::Service.new.status(appeals.pluck(:id))
       unless central_mail_response.success?
-        Rails.logger.warn('Error getting status from EMMS API.',
-                          { emms_status: central_mail_response.status, emms_body: central_mail_response.body })
+        Rails.logger.warn('Error getting status from Central Mail API".',
+                          { central_mail_status: central_mail_response.status, central_mail_body: central_mail_response.body })
         raise Common::Exceptions::BadGateway
       end
 
@@ -91,8 +91,8 @@ module AppealsApi
 
     def update_appeal_status!(appeal, central_mail_status)
       attributes = CENTRAL_MAIL_STATUS_ATTRIBUTES.fetch(central_mail_status.status) do
-        Rails.logger.warn('Unknown status value from EMMS API.' \
-                          " EMMS Status: #{central_mail_status.status}")
+        Rails.logger.warn('Unknown status value from Central Mail API.',
+                          { central_mail_status: central_mail_status.status })
         raise Common::Exceptions::BadGateway
       end
 
@@ -116,15 +116,14 @@ module AppealsApi
         appeal_status: appeal.status,
         attempted_status: status
       }
-      error_details = { details: e.message }
-      error_details[:back_trace] = e.backtrace.join("\n") unless e.backtrace.nil?
-      Rails.logger.warn('Error updating appeal status', error_details)
 
       slack_details = {
         exception: e.class.to_s,
         exception_message: e.message,
         detail: 'Error when trying to update appeal status'
       }.merge(details)
+
+      Rails.logger.warn('Error updating appeal status', slack_details)
 
       AppealsApi::Slack::Messager.new(slack_details).notify!
     end
