@@ -37,11 +37,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response =
           if message.uploads.present?
-            any_file_too_large = message.uploads.any? { |upload| upload.size > 4.megabytes }
-            total_size_too_large = message.uploads.sum(&:size) > 10.megabytes
             if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
+              Rails.logger.info('MHV SM: Using large attachments endpoint')
               client.post_create_message_with_lg_attachments(create_message_params)
             else
+              Rails.logger.info('MHV SM: Using standard attachments endpoint')
               client.post_create_message_with_attachment(create_message_params)
             end
           else
@@ -82,11 +82,11 @@ module MyHealth
 
         client_response =
           if message.uploads.present?
-            any_file_too_large = message.uploads.any? { |upload| upload.size > 4.megabytes }
-            total_size_too_large = message.uploads.sum(&:size) > 10.megabytes
             if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
+              Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
               client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
             else
+              Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
               client.post_create_message_reply_with_attachment(params[:id], create_message_params)
             end
           else
@@ -131,6 +131,14 @@ module MyHealth
 
       def upload_params
         @upload_params ||= { uploads: params[:uploads] }
+      end
+
+      def any_file_too_large
+        Array(@upload_params[:uploads]).any? { |upload| upload.size > 4.megabytes }
+      end
+
+      def total_size_too_large
+        Array(@upload_params[:uploads]).sum(&:size) > 10.megabytes
       end
     end
   end
