@@ -114,6 +114,9 @@ features:
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
+  bgs_param_logging_enabled:
+    actor_type: user
+    description: Enables logging of BGS parameters (filtered in production)
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
