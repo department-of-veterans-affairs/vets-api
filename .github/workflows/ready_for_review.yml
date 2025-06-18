@@ -179,7 +179,7 @@ jobs:
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
-      pr_requested_teams: '${{ needs.get-pr-data.outputs.pr_requested_teams }}'
+      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
       exempt_team: ${{ steps.check_backend_requirement.outputs.exempt_team }}
       backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
@@ -189,6 +189,7 @@ jobs:
         run: |
           backend_approval_required=false
           exempt_team=false
+          PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
           echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
           PR_LABELS="${{ env.pr_labels }}"
