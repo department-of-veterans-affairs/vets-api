@@ -7,7 +7,6 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-
       before_action :authorize_submission, only: :submit
       before_action :authorize_attachment_upload, only: %i[
         upload_scanned_form
@@ -64,10 +63,12 @@ module AccreditedRepresentativePortal
       end
 
       def authorize_submission
-        claimant_icn.present? or
-          raise Common::Exceptions::RecordNotFound, <<~MSG.squish
-            Could not lookup claimant with given information.
-          MSG
+        claimant_icn = nil
+        debugger
+        raise Common::Exceptions::InvalidPOA if claimant_icn.blank?
+          # , <<~MSG.squish
+          #   Could not lookup claimant with given information.
+          # MSG
 
         authorize(
           claimant_representative,
@@ -107,3 +108,12 @@ module AccreditedRepresentativePortal
     end
   end
 end
+
+# class FakeModel
+#   include ActiveModel::Validations
+
+#   attr_accessor :claimant_icn
+
+#   validates :claimant_icn, presence: true
+# end
+

@@ -30,6 +30,12 @@ en:
         detail: "%{resource} is not a valid resource"
         code: 101
         status: 400
+      invalid_poa:
+        <<: *defaults
+        title: Invalid POA Code
+        detail: The POA code provided is not recognized or is not authorized for the current representative.
+        code: ARPORTAL_422
+        status: 422
       invalid_field:
         <<: *defaults
         title: Invalid field

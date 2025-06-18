@@ -7,6 +7,7 @@ require 'datadog'
 require 'vets/shared_logging'
 
 module ExceptionHandling
+  # debugger
   extend ActiveSupport::Concern
   include Vets::SharedLogging
 
@@ -32,6 +33,7 @@ module ExceptionHandling
 
   included do
     rescue_from 'Exception' do |exception|
+      debugger
       va_exception =
         case exception
         when Pundit::NotAuthorizedError
@@ -49,7 +51,11 @@ module ExceptionHandling
         when Common::Client::Errors::ClientError
           # SSLError, ConnectionFailed, SerializationError, etc
           Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
+        when Common::Exceptions::InvalidPOA.new
+          debugger
+          exception
         else
+          debugger
           Common::Exceptions::InternalServerError.new(exception)
         end
 
