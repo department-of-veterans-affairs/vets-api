@@ -607,7 +607,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     let(:mpi_profile) { build(:mpi_profile, participant_id:) }
 
     before do
-      sign_in(user)
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
