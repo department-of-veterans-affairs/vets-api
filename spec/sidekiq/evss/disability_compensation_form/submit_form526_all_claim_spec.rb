@@ -26,7 +26,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   end
 
   let(:user) { create(:user, :loa3, icn: '123498767V234859') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end

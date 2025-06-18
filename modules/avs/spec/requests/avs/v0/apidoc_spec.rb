@@ -23,7 +23,7 @@ RSpec.describe 'Avs::V0::Apidocs', type: :request do
       Apivore::SwaggerChecker.instance_for('/avs/v0/apidocs.json')
     end
 
-    let(:user01) { build(:user, :loa3, { email: 'vets.gov.user+1@gmail.com' }) }
+    let(:user01) { build(:user, :loa3, icn: '123498767V234859', email: 'vets.gov.user+1@gmail.com') }
     let(:params) do
       {
         '_headers' => {
