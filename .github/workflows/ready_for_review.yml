@@ -93,7 +93,7 @@ jobs:
         if: steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pr_number }}
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: require-backend-approval
 
       - name: Remove ready-for-backend-review label
@@ -107,7 +107,7 @@ jobs:
         if: steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pr_number }}
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: ready-for-review
 
       - name: Fail if draft
@@ -188,6 +188,8 @@ jobs:
         run: |
           backend_approval_required=false
           exempt_team=false
+          PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
+          PR_LABELS="${{ env.pr_labels }}"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -200,7 +202,7 @@ jobs:
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
-            if [[ ${{ contains(fromJSON(env.pr_requested_teams), "$TEAM") }} ]]; then
+            if echo "$pr_requested_teams" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
               echo "Excemption Groups were found: $TEAM"
               exempt_team=true
               backend_approval_required=false
@@ -208,20 +210,15 @@ jobs:
             fi
           done
 
-          if [[ "${exempt_team}" == "false" ]]; then
+          if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Groups were not found"
-            echo "PR REQUESTED TEAMS: ${pr_requested_teams}"
-
-            if [[ ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }} ]]; then
-              echo "backend-review-group found in requested teams"
-              backend_approval_required=true
-            fi
-
-            if [[ ${{ contains(fromJSON(env.pr_labels), 'require-backend-approval') }} ]]; then
-              echo "backend-review-group found in requested teams"
+            echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS}"
+            if echo "$PR_REQUESTED_TEAMS" | jq -e '. | index("backend-review-group")' > /dev/null || \
+                echo "$PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
               backend_approval_required=true
             fi
           fi
+
           echo "exempt_team=${exempt_team}" >> $GITHUB_OUTPUT
           echo "backend_approval_required=${backend_approval_required}" >> $GITHUB_OUTPUT
 
