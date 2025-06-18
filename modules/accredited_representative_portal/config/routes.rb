@@ -4,10 +4,8 @@ AccreditedRepresentativePortal::Engine.routes.draw do
   namespace :v0, defaults: { format: :json } do
     get 'user', to: 'representative_users#show'
 
-    if Flipper.enabled?(:accredited_representative_portal_form_21a)
-      post 'form21a', to: 'form21a#submit'
-      resources :in_progress_forms, only: %i[update show destroy]
-    end
+    post 'form21a', to: 'form21a#submit'
+    resources :in_progress_forms, only: %i[update show destroy]
 
     post '/submit_representative_form', to: 'representative_form_upload#submit'
     post '/representative_form_upload', to: 'representative_form_upload#upload_scanned_form'
