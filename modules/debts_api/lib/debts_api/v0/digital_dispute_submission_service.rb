@@ -22,7 +22,7 @@ module DebtsApi
         validate_files
 
         send_to_dmc
-
+        ipf_form = in_progress_form
         {
           success: true,
           message: 'Digital dispute submission received successfully'
@@ -53,6 +53,10 @@ module DebtsApi
         }
       end
 
+      def in_progress_form
+        InProgressForm.form_for_user('digital_dispute', @user)
+      end
+
       def validate_files_present
         if files.blank? || !files.is_a?(Array) || files.empty?
           raise NoFilesProvidedError,
@@ -81,6 +85,7 @@ module DebtsApi
       end
 
       def failure_result(error)
+        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}")
         case error
         when NoFilesProvidedError
           {

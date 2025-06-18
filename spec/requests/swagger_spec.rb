@@ -581,8 +581,12 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         let(:pdf_file) do
           fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
         end
+        let(:service_double) { instance_double(DebtsApi::V0::DigitalDisputeSubmissionService) }
 
         it 'validates the route' do
+          allow(service_double).to receive(:call).and_return(
+            { success: true, message: 'Digital dispute submission received successfully' }
+          )
           expect(subject).to validate(
             :post,
             '/debts_api/v0/digital_disputes',
