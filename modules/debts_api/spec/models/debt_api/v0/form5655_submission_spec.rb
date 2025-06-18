@@ -99,8 +99,10 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.user_cache_id' do
-    let(:form5655_submission) { create(:debts_api_form5655_submission) }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
+    let(:form5655_submission) do
+      create(:debts_api_form5655_submission, user_uuid: user.uuid, user_account: user.user_account)
+    end
 
     it 'creates a new User profile attribute' do
       cache_id = form5655_submission.user_cache_id

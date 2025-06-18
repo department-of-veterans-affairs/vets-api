@@ -54,7 +54,7 @@ RSpec.describe GIBillFeedback, type: :model do
     end
 
     context 'with a user' do
-      let(:user) { create(:user) }
+      let(:user) { create(:user, icn: '123498767V234859') }
 
       it 'transforms the form to the right format' do
         expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
