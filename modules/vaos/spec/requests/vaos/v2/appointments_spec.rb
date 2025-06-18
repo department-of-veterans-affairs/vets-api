@@ -1036,6 +1036,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     describe 'POST appointments/submit' do
       before do
+        allow(Rails).to receive(:cache).and_return(memory_store)
+        Rails.cache.clear
+
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                   instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
@@ -1073,6 +1076,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               text: 'text'
             } }
         end
+        let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
         it 'successfully submits referral appointment' do
           VCR.use_cassette('vaos/v2/eps/post_access_token',
@@ -1108,14 +1112,49 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'records success metric when submitting referral appointment' do
+        it 'records success metrics when submitting referral appointment' do
           VCR.use_cassette('vaos/v2/eps/post_access_token',
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
                              match_requests_on: %i[method path body]) do
-              expect_metric_increment(described_class::APPT_CREATION_SUCCESS_METRIC) do
-                post '/vaos/v2/appointments/submit', params:, headers: inflection_header
-                expect(response).to have_http_status(:created)
+              Timecop.freeze(Time.current) do
+                # mimic caching of referral data that occurs when the referral object is created
+                # earlier in the appointment creation process
+                referral = Ccra::ReferralDetail.new(
+                  referral_number: params[:referral_number],
+                  category_of_care: 'CARDIOLOGY',
+                  treating_facility: 'VA Medical Center',
+                  referral_date: Time.current.strftime('%Y-%m-%d'),
+                  station_id: '528A6',
+                  treating_provider_info: {
+                    provider_name: 'Dr. Smith',
+                    provider_npi: '9mN718pH'
+                  }
+                )
+                Rails.cache.clear
+                client = Ccra::RedisClient.new
+
+                client.save_referral_data(
+                  id: params[:referral_number],
+                  icn: current_user.icn,
+                  referral_data: referral
+                )
+
+                client.save_booking_start_time(
+                  referral_number: params[:referral_number],
+                  booking_start_time: Time.current.to_f
+                )
+
+                Timecop.travel(5.seconds.from_now)
+
+                allow(StatsD).to receive(:measure).with(any_args)
+                expect_metric_increment(described_class::APPT_CREATION_SUCCESS_METRIC) do
+                  post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+                  expect(response).to have_http_status(:created)
+                end
+
+                expect(StatsD).to have_received(:measure).with(described_class::APPT_CREATION_DURATION_METRIC,
+                                                               kind_of(Numeric))
               end
             end
           end
@@ -1197,7 +1236,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
     let(:referral_data) do
       {
-        category_of_care: specialty,
+        provider_specialty: specialty,
         referral_number: 'ref-123',
         referral_consult_id: '123-123456',
         npi:,
@@ -1217,7 +1256,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     let(:referral_detail) do
       instance_double(Ccra::ReferralDetail,
-                      category_of_care: specialty,
+                      provider_specialty: specialty,
                       referral_number: 'ref-123',
                       appointment_type_id:,
                       expiration_date: end_date,
@@ -1750,5 +1789,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     yield
 
     expect(metric_calls).to eq(1)
+  end
+
+  # Helper method to verify a StatsD measure metric is called with the expected value
+  def expect_metric_measure(metric_name, expected_value)
+    metric_called = false
+    allow(StatsD).to receive(:measure) do |metric, value, *_args|
+      if metric == metric_name
+        metric_called = true
+        expect(value).to eq(expected_value)
+      end
+    end
+
+    yield
+
+    expect(metric_called).to be true
   end
 end
