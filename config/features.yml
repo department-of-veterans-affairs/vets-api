@@ -39,6 +39,9 @@ features:
     description: >
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+  accredited_representative_portal_submissions:
+    actor_type: user
+    description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
   aedp_vadx:
     actor_type: user
@@ -120,9 +123,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_carma_submitted_at:
-    actor_type: user
-    description: Enables sending CARMA the current time as a metadata submitted_at value
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
@@ -148,10 +148,6 @@ features:
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
-    enable_in_development: true
-  hca_download_completed_pdf:
-    actor_type: user
-    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -563,6 +559,13 @@ features:
   decision_review_notification_secondary_form_callbacks:
     actor_type: user
     description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
+  decision_review_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in decision review applications
+  decision_review_form4142_validate_schema:
+    actor_type: user
+    description: Enables the use of schema validation for form 4142 in decision review applications
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -671,6 +674,12 @@ features:
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
+  disability_526_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in disability 526 applications
+  disability_526_form4142_validate_schema:
+    actor_type: user
+    description: Enables the use of schema validation for form 4142 in disability 526 applications
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -775,9 +784,6 @@ features:
     actor_type: user
     description: Enables declination reason feature for frontend and backend
     enable_in_development: true
-  form4142_validate_schema:
-    actor_type: user
-    description: Enable validation of form 4142 in Form4142Processor
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -1319,6 +1325,9 @@ features:
     actor_type: user
     description: Enables/disables partial fill content
     enable_in_development: true
+  mhv_medications_new_policy:
+    actor_type: user
+    description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
@@ -1508,6 +1517,9 @@ features:
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
+  schema_contract_claims_and_appeals_get_claim:
+    actor_type: user
+    description: Enables schema validation for the claims and appeals service get claim fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -1814,18 +1826,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_mhv_route_guards:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for adopting MHV route guards for the appointment tool.
   va_online_scheduling_convert_slots_to_utc:
     actor_type: user
     enable_in_development: true
     description: Toggle for for converting the start & end times in slots fetch to UTC.
-  va_online_scheduling_direct_schedule_appointment_conflict:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -1871,14 +1875,6 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
-  payment_history_exclude_third_party_disbursements:
-    actor_type: user
-    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
-    enable_in_development: false
-  payment_history_recategorize_hardship:
-    actor_type: user
-    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
-    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2247,9 +2243,19 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  vff_force_unique_file_name_date_property:
+    actor_type: user
+    description: Forces the unique_file_name method to use the date property in submission_archive.rb
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
   accredited_representative_portal_form:
     actor_type: user
     description: Enables form with new options for rep
+  my_va_display_all_lighthouse_benefits_intake_forms:
+    actor_type: user
+    description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
+  va_online_scheduling_mental_health_history_filtering:
+    actor_type: user
+    enable_in_development: true
+    description: When enabled, allows past visit filtering for Mental Health
