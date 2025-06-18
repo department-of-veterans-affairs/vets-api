@@ -376,12 +376,25 @@ module BBInternal
       conn.in_parallel do
         call_lambdas.each do |key, request_lambda|
           deferred[key] = request_lambda.call(conn)
-        rescue => e
-          errors[key] = { message: e.message, class: e.class.name }
         end
       end
 
-      responses = deferred.transform_values(&:body) # now safe
+      responses = {}
+      deferred.each do |key, resp|
+        # We are not using Faraday's :raise_custom_error for parallel requests,
+        # so we need to handle errors manually.
+        if resp.success?
+          # For 200–299, populate the responses hash
+          responses[key] = resp.body
+        else
+          # For any other status, populate the errors hash
+          errors[key] = {
+            status: resp.status,
+            message: resp.body.presence || resp.reason_phrase || nil
+          }
+        end
+      end
+
       { responses:, errors: }
     end
 
