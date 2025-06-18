@@ -27,8 +27,7 @@ module MyHealth
           with_patient_resource(client.get_vaccine(vaccine_id)) do |resource|
             raise Common::Exceptions::RecordNotFound, vaccine_id if resource.blank?
 
-            options = { meta: resource.metadata }
-            render json: VaccineSerializer.new(resource, options)
+            render json: VaccineSerializer.new(resource)
           end
         else
           render_resource client.get_vaccine(vaccine_id)
