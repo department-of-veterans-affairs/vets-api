@@ -12,7 +12,7 @@ module V0
         render json: { error: 'Metric not allowed' }, status: :bad_request and return
       end
 
-      StatsD.increment("frontend.#{metric}", tags:)
+      StatsD.increment("web.frontend.#{metric}", tags:)
       head :no_content
     end
   end

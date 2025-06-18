@@ -16,7 +16,7 @@ RSpec.describe V0::DatadogActionController, type: :controller do
       it 'increments the metric with supplied tags and returns 204' do
         tags = %w[tag1 tag2]
         expect(StatsD).to receive(:increment)
-          .with("frontend.#{allowed_metric}", tags:)
+          .with("web.frontend.#{allowed_metric}", tags:)
 
         post :create, params: { metric: allowed_metric, tags: }
 
@@ -26,7 +26,7 @@ RSpec.describe V0::DatadogActionController, type: :controller do
 
       it 'uses an empty tags array when none are provided' do
         expect(StatsD).to receive(:increment)
-          .with("frontend.#{allowed_metric}", tags: [])
+          .with("web.frontend.#{allowed_metric}", tags: [])
 
         post :create, params: { metric: allowed_metric }
 
