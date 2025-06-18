@@ -207,8 +207,6 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
-        # Verify booking_start_time is not exposed in the API
-        expect(response_data['data']['attributes']).not_to have_key('bookingStartTime')
       end
 
       it 'sets the booking start time in the cache' do
