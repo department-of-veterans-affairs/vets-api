@@ -452,6 +452,37 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    it 'supports adding a pension claim' do
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
+
+      VCR.use_cassette(
+        'mpi/find_candidate/find_profile_with_attributes',
+        VCR::MATCH_EVERYTHING
+      ) do
+        expect(subject).to validate(
+          :post,
+          '/pensions/v0/claims',
+          200,
+          '_data' => {
+            'pension_claim' => {
+              'form' => build(:pensions_saved_claim).form
+            }
+          }
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/pensions/v0/claims',
+          422,
+          '_data' => {
+            'pension_claim' => {
+              'invalid-form' => { invalid: true }.to_json
+            }
+          }
+        )
+      end
+    end
+
     context 'MDOT tests' do
       let(:user_details) do
         {
