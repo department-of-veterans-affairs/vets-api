@@ -12,6 +12,9 @@ module Burials
     # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
     self.inheritance_column = :_type_disabled
 
+    # We want to override the `Type` behaviors for backwards compatabilityAdd commentMore actions
+    default_scope -> { where(type: 'SavedClaim::Burial') }, all_queries: true
+
     ##
     # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
     # ***********************************************************************************
