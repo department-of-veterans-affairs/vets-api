@@ -7,13 +7,6 @@ module TravelPay
       @client = client
     end
 
-    PAGE_SIZE_BASE = 50
-
-    DEFAULT_CLIENT_PARAMS = {
-      page_size: PAGE_SIZE_BASE,
-      page_number: 1
-    }.freeze
-
     # We need to associate an existing claim to a VAOS appointment, matching on date-time
     #
     # There will be a 1:1 claimID > appt association
@@ -42,10 +35,8 @@ module TravelPay
       date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
       date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
 
-      client_params.merge!(date_range)
-
       auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, date_range)
 
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
@@ -92,11 +83,6 @@ module TravelPay
     end
 
     private
-
-    def client_params
-      # For now just use the default params, but setting up the method so we can adjust for pagination
-      DEFAULT_CLIENT_PARAMS.dup
-    end
 
     def rescue_errors(e) # rubocop:disable Metrics/MethodLength
       if e.is_a?(ArgumentError) || e.is_a?(InvalidComparableError)
