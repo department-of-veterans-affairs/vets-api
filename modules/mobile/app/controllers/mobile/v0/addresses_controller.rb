@@ -25,7 +25,7 @@ module Mobile
         )
       end
 
-      def validate
+      def validate # rubocop:disable Metrics/MethodLength
         validated_address_params = if Flipper.enabled?(:remove_pciu)
                                      VAProfile::Models::V3::ValidationAddress.new(address_params)
                                    else
@@ -48,7 +48,9 @@ module Mobile
           Mobile::V0::SuggestedAddress.new(address)
         end
 
-        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
+        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses.sort_by { |addr|
+          addr[:address_meta][:address][:confidence_score]
+        })
       end
 
       private

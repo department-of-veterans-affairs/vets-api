@@ -36,7 +36,7 @@ module Mobile
           Mobile::V0::Immunization.set_cached(@current_user, immunizations)
         end
 
-        immunizations
+        immunizations.sort_by(&:date)
       end
     end
   end
