@@ -773,7 +773,7 @@ module VAOS
         return usage unless usage[:success]
 
         provider = find_provider(npi: referral.provider_npi,
-                                 specialty: referral.category_of_care,
+                                 specialty: referral.provider_specialty,
                                  address: referral.treating_facility_address)
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
