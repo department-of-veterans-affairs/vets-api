@@ -147,6 +147,7 @@ module V0
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::Gibct::InstitutionPrograms,
       Swagger::Requests::Gibct::YellowRibbonPrograms,
+      Swagger::Requests::Gibct::VersionPublicExports,
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::HCAAttachments,
       Swagger::Requests::InProgressForms,
