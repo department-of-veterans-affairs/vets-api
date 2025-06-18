@@ -24,6 +24,7 @@ mhv:
 mvi:
   client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
   client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  mock: false
   url: https://fwdproxy-dev.vfs.va.gov:4434/psim_webservice/dev/IdMWebService
 
 saml_ssoe:
