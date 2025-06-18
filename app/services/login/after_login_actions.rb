@@ -4,6 +4,8 @@ require 'login/errors'
 
 module Login
   class AfterLoginActions
+    include Accountable
+
     attr_reader :current_user, :skip_mhv_account_creation
 
     def initialize(user, skip_mhv_account_creation)
