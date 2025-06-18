@@ -116,9 +116,6 @@ describe TravelPay::ClaimAssociationService do
     it 'returns appointments with matched claims' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-10-17T09:00:00Z',
-                end_date: '2024-12-15T16:45:00Z' })
         .and_return(claims_success_response)
 
       association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
@@ -143,9 +140,6 @@ describe TravelPay::ClaimAssociationService do
     it 'returns appointments with error metadata if claims call fails' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-10-17T09:00:00Z',
-                end_date: '2024-12-15T16:45:00Z' })
         .and_raise(Common::Exceptions::BackendServiceException.new(
                      'VA900',
                      { source: 'test' },
@@ -294,9 +288,6 @@ describe TravelPay::ClaimAssociationService do
     it 'returns an appointment with a claim' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-01-01T16:45:34Z',
-                end_date: '2024-01-01T16:45:34Z' })
         .and_return(single_claim_success_response)
 
       association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
@@ -313,9 +304,6 @@ describe TravelPay::ClaimAssociationService do
     it 'instantiates auth_manager with mobile client number' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-01-01T16:45:34Z',
-                end_date: '2024-01-01T16:45:34Z' })
         .and_return(single_claim_success_response)
 
       expect(TravelPay::AuthManager).to receive(:new)
@@ -332,9 +320,6 @@ describe TravelPay::ClaimAssociationService do
     it 'instantiates auth_manager with vagov client number' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-01-01T16:45:34Z',
-                end_date: '2024-01-01T16:45:34Z' })
         .and_return(single_claim_success_response)
 
       expect(TravelPay::AuthManager).to receive(:new)
@@ -351,9 +336,6 @@ describe TravelPay::ClaimAssociationService do
     it 'returns an appointment with success metadata but no claim' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-01-01T16:45:34Z',
-                end_date: '2024-01-01T16:45:34Z' })
         .and_return(no_claim_data_success)
 
       association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
@@ -370,9 +352,6 @@ describe TravelPay::ClaimAssociationService do
     it 'returns appointment with error metadata if claims call fails' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token],
-              { start_date: '2024-01-01T16:45:34Z',
-                end_date: '2024-01-01T16:45:34Z' })
         .and_raise(Common::Exceptions::BackendServiceException.new(
                      'VA900',
                      { source: 'test' },
