@@ -96,22 +96,28 @@ module EVSS
         incidents.partition { |incident| incident['personalAssault'] }
       end
 
+      def get_form0781_types
+        has_v1_form0781 = false
+        has_v1_form0781a = false
+        if input_form['form0781'].present?
+          has_v1_form0781 = true
+          incs0781a, incs0781 = split_0781_incidents(input_form['form0781']['incidents'])
+          has_v1_form0781a = incs0781a.present?
+          has_v1_form0781 = false if has_v1_form0781a && incs0781.empty?
+        end
+        has_v2_form0781 = input_form['form0781v2'].present?
+        { has_form0781: has_v1_form0781 || has_v2_form0781, has_form0781a: has_v1_form0781a }
+      end
+
       def overflow_text
         overflow = ''
         overflow += TERMILL_OVERFLOW_TEXT if input_form['isTerminallyIll'].present?
         overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
 
         if Flipper.enabled?(:form526_include_document_upload_list_in_overflow_text)
-          has_v2_form0781 = input_form['form0781v2'].present?
-          if input_form['form0781'].present?
-            has_v1_form0781 = true
-            incs0781a, incs0781 = split_0781_incidents(input_form['form0781']['incidents'])
-            has_v1_form0781a = incs0781a.present?
-            has_v1_form0781 = false if has_v1_form0781a && incs0781.empty?
-          end
-
-          overflow += FORM0781_OVERFLOW_TEXT if has_v1_form0781 || has_v2_form0781
-          overflow += FORM0781A_OVERFLOW_TEXT if has_v1_form0781a
+          form0781_content = get_form0781_types
+          overflow += FORM0781_OVERFLOW_TEXT if form0781_content[:has_form0781]
+          overflow += FORM0781A_OVERFLOW_TEXT if form0781_content[:has_form0781a]
 
           if input_form['attachments'].present?
             file_guids = input_form['attachments'].pluck('confirmationCode')
