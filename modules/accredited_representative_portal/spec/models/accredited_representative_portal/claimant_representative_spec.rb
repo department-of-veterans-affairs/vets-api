@@ -84,7 +84,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
             before do
               allow_any_instance_of(BenefitsClaims::Service).to(
                 receive(:get_power_of_attorney).and_return(
-                  { "data" => {} }
+                  { 'data' => {} }
                 )
               )
             end
@@ -99,10 +99,10 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
               allow_any_instance_of(BenefitsClaims::Service).to(
                 receive(:get_power_of_attorney).and_return(
                   {
-                    "data" => {
-                      "type" => "organization",
-                      "attributes" => {
-                        "code" => claimant_poa_code
+                    'data' => {
+                      'type' => 'organization',
+                      'attributes' => {
+                        'code' => claimant_poa_code
                       }
                     }
                   }
