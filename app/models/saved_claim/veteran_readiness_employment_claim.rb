@@ -4,7 +4,7 @@ require 'sentry_logging'
 require 'res/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
-  include SentryLogging
+  include Vets::SharedLogging
 
   FORM = '28-1900'
   FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
