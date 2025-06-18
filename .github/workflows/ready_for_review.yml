@@ -130,6 +130,7 @@ jobs:
       - name: Check if workflows have completed successfully
         id: check_workflow_status
         run: |
+          failures_detected=false
           failures=false
           unsuccessful_count=0
 
