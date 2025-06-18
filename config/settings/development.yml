@@ -810,7 +810,7 @@ maintenance:
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: PGT74RC
     mhv: PP2ZZ2V
     mhv_meds: ~
     mhv_mr: ~
@@ -823,7 +823,6 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
-    staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
     travel_pay: ~
