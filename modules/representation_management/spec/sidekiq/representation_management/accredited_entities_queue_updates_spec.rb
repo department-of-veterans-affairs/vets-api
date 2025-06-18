@@ -141,13 +141,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       context 'when forcing claims_agent updates' do
         it 'updates agents despite invalid count' do
-          job.perform(['claims_agent'])
+          job.perform(['agents'])
           expect(AccreditedIndividual).to have_received(:find_or_create_by)
             .with(individual_type: 'claims_agent', ogc_id: '123')
         end
 
         it 'does not update attorneys' do
-          job.perform(['claims_agent'])
+          job.perform(['agents'])
           expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
             .with(individual_type: 'attorney', ogc_id: '789')
         end
@@ -176,13 +176,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       context 'when forcing attorney updates' do
         it 'updates attorneys despite invalid count' do
-          job.perform(['attorney'])
+          job.perform(['attorneys'])
           expect(AccreditedIndividual).to have_received(:find_or_create_by)
             .with(individual_type: 'attorney', ogc_id: '789')
         end
 
         it 'does not update agents' do
-          job.perform(['attorney'])
+          job.perform(['attorneys'])
           expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
             .with(individual_type: 'claims_agent', ogc_id: '123')
         end

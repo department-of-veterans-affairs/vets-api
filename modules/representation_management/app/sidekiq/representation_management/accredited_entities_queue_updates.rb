@@ -114,9 +114,9 @@ module RepresentationManagement
     end
 
     def process_agents
-      return if @force_update_types.any? && @force_update_types.exclude?('claims_agent')
+      return if @force_update_types.any? && @force_update_types.exclude?('agents')
 
-      if @entity_counts.valid_count?(:agents) || @force_update_types.include?('claims_agent')
+      if @entity_counts.valid_count?(:agents) || @force_update_types.include?('agents')
         update_agents
         validate_agent_addresses
       else
@@ -125,9 +125,9 @@ module RepresentationManagement
     end
 
     def process_attorneys
-      return if @force_update_types.any? && @force_update_types.exclude?('attorney')
+      return if @force_update_types.any? && @force_update_types.exclude?('attorneys')
 
-      if @entity_counts.valid_count?(:attorneys) || @force_update_types.include?('attorney')
+      if @entity_counts.valid_count?(:attorneys) || @force_update_types.include?('attorneys')
         update_attorneys
         validate_attorney_addresses
       else
