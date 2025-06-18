@@ -89,14 +89,14 @@ module Eps
     end
 
     ##
-    # Search for provider services using NPI, specialty, and address
+    # Search for provider services using NPI, specialty and address.
     #
     # @param npi [String] NPI number to search for
     # @param specialty [String] Specialty to match (case-insensitive)
     # @param address [Hash] Address object with :street1, :city, :state, :zip keys
     #
     # @return OpenStruct response containing the provider service where an individual provider has
-    # matching NPI, specialty, and address, or nil if not found
+    # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
       query_params = { npi:, isSelfSchedulable: true }
@@ -104,12 +104,24 @@ module Eps
 
       return nil if response.body[:provider_services].blank?
 
-      # Filter providers by specialty and address
-      matching_provider = response.body[:provider_services].find do |provider|
-        specialty_matches?(provider, specialty) && address_matches?(provider, address)
+      # Step 1: Filter providers by specialty only
+      specialty_matches = response.body[:provider_services].select do |provider|
+        specialty_matches?(provider, specialty)
       end
 
-      matching_provider&.then { |provider| OpenStruct.new(provider) }
+      return nil if specialty_matches.empty?
+
+      # Step 2: Filter specialty matches by address
+      address_match = specialty_matches.find do |provider|
+        address_matches?(provider, address)
+      end
+
+      if address_match.nil?
+        Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI #{npi}")
+      end
+
+      # Return address match if found, otherwise nil (avoid false positives)
+      address_match&.then { |provider| OpenStruct.new(provider) }
     end
 
     private
@@ -130,7 +142,8 @@ module Eps
     end
 
     ##
-    # Check if provider's address matches the requested address using a two-step approach
+    # Check if provider's address matches the requested address using simplified matching
+    # Compares street address, city, and 5-digit zip code (ignores state to avoid format complexity)
     #
     # @param provider [Hash] Provider data from EPS response
     # @param address [Hash] Address object with :street1, :city, :state, :zip keys
@@ -141,82 +154,60 @@ module Eps
 
       provider_address = provider[:location][:address]
 
-      # Step 1: Primary filter - check if street address matches (most likely to filter out non-matches)
-      return false unless street_address_matches?(provider_address, address[:street1])
+      # Compare the two reliable components: street and 5-digit zip
+      street_matches = street_address_matches?(provider_address, address[:street1])
+      zip_matches = zip_code_matches?(provider_address, address[:zip])
 
-      # Step 2: Full address comparison with logging for monitoring, so we can detect formatting differences
-      full_match = full_address_matches?(provider_address, address)
+      # Log for monitoring if some components match but not all (helps identify format issues)
+      if zip_matches && !street_matches
+        Rails.logger.warn("Provider address partial match - Street: #{street_matches}, " \
+                          "Zip: #{zip_matches}. " \
+                          "Provider: '#{provider_address}', " \
+                          "Referral: '#{address[:street1]}, #{address[:zip]}'")
+      end
 
-      log_partial_address_match(provider_address, address) unless full_match
-
-      # Return false if full address doesn't match
-      full_match
+      street_matches && zip_matches
     end
 
     ##
-    # Check if the street portion of provider address matches referral street1
+    # Check if street address matches by comparing referral street to beginning of provider address
     #
     # @param provider_address [String] Full provider address string
-    # @param referral_street1 [String] Street address from referral
-    # @return [Boolean] True if street addresses match
+    # @param referral_street [String] Street address from referral
+    # @return [Boolean] True if provider address starts with referral street
     #
-    def street_address_matches?(provider_address, referral_street1)
-      return false if provider_address.blank? || referral_street1.blank?
+    def street_address_matches?(provider_address, referral_street)
+      return false if provider_address.blank? || referral_street.blank?
 
-      # Check if referral street appears at the beginning of provider address
-      normalized_provider_address = normalize_address_text(provider_address)
-      normalized_referral_street = normalize_address_text(referral_street1)
+      normalized_provider = normalize_address_text(provider_address)
+      normalized_referral = normalize_address_text(referral_street)
 
-      normalized_provider_address.start_with?(normalized_referral_street)
-    end
-
-    ##
-    # Check if full provider address matches referral address components
-    #
-    # @param provider_address [String] Full provider address string
-    # @param address [Hash] Address object with :street1, :city, :state, :zip keys
-    # @return [Boolean] True if full address matches
-    #
-    def full_address_matches?(provider_address, address)
-      # Normalize provider address by removing commas and extra spaces
-      normalized_provider = normalize_address_text(provider_address.gsub(',', ' '))
-
-      # Build referral address string, remove commas, and normalize
-      address_parts = [
-        address[:street1],
-        address[:city],
-        address[:state],
-        address[:zip]
-      ].compact.map(&:to_s).compact_blank
-
-      referral_address_string = address_parts.join(' ').gsub(',', ' ')
-      normalized_referral = normalize_address_text(referral_address_string)
-
-      # Check if provider address starts with referral address (handles extra country info)
       normalized_provider.start_with?(normalized_referral)
     end
 
     ##
-    # Log partial match between provider address and referral address
+    # Check if zip codes match by extracting zip from provider address string
     #
     # @param provider_address [String] Full provider address string
-    # @param address [Hash] Address object with :street1, :city, :state, :zip keys
+    # @param referral_zip [String] Zip code from referral
+    # @return [Boolean] True if 5-digit zip codes match
     #
-    def log_partial_address_match(provider_address, referral_address)
-      return '' if referral_address.blank?
+    def zip_code_matches?(provider_address, referral_zip)
+      return false if provider_address.blank? || referral_zip.blank?
 
-      address_parts = [
-        referral_address[:street1],
-        referral_address[:city],
-        referral_address[:state],
-        referral_address[:zip]
-      ].compact.map(&:to_s).compact_blank
+      # Extract the LAST 5-digit zip code from provider address string
+      # This handles cases where street addresses contain 5-digit numbers (e.g., "16011 NEEDMORE RD")
+      # We want the zip code, not the street number
+      all_zip_matches = provider_address.scan(/(\d{5})(-\d{4})?/)
+      return false if all_zip_matches.empty?
 
-      if address_parts.any?
-        Rails.logger.warn("Provider address partial match detected - Street matched but full address didn't. " \
-                          "Provider: '#{provider_address}', " \
-                          "Referral: '#{address_parts.join(' ')}'")
-      end
+      # Get the last match (should be the actual zip code, not street address number)
+      provider_5_digit = all_zip_matches.last[0]
+
+      # Extract 5 digits from referral zip
+      referral_5_digit = referral_zip.to_s.gsub(/\D/, '')[0, 5]
+
+      provider_5_digit == referral_5_digit && referral_5_digit.length == 5
     end
 
     ##
