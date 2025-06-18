@@ -1325,6 +1325,9 @@ features:
     actor_type: user
     description: Enables/disables partial fill content
     enable_in_development: true
+  mhv_medications_new_policy:
+    actor_type: user
+    description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
@@ -1514,6 +1517,9 @@ features:
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
+  schema_contract_claims_and_appeals_get_claim:
+    actor_type: user
+    description: Enables schema validation for the claims and appeals service get claim fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -1817,10 +1823,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_mhv_route_guards:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for adopting MHV route guards for the appointment tool.
   va_online_scheduling_convert_slots_to_utc:
     actor_type: user
     enable_in_development: true
@@ -2238,6 +2240,9 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  vff_force_unique_file_name_date_property:
+    actor_type: user
+    description: Forces the unique_file_name method to use the date property in submission_archive.rb
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
@@ -2247,3 +2252,7 @@ features:
   my_va_display_all_lighthouse_benefits_intake_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
+  va_online_scheduling_mental_health_history_filtering:
+    actor_type: user
+    enable_in_development: true
+    description: When enabled, allows past visit filtering for Mental Health
