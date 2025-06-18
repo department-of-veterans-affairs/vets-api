@@ -56,14 +56,14 @@ jobs:
         if: steps.pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pr_number }}
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: ready-for-review
 
       - name: Remove ready-for-backend-review label
         if: steps.pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pr_number }}
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: ready-for-backend-review
 
       - name: Fail if draft or failures
