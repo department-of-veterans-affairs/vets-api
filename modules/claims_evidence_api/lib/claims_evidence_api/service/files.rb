@@ -8,6 +8,12 @@ module ClaimsEvidenceApi
     # Files API
     class Files < Base
 
+      def create(file_path, payload)
+        raise UndefinedXFolderURI unless x_folder_uri?
+        raise FileNotFound unless File.exist?(pdf_path)
+
+      end
+
     end
 
     # end Service
