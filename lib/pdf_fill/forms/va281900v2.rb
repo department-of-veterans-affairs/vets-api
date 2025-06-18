@@ -2,7 +2,7 @@
 
 module PdfFill
   module Forms
-    class Va281900 < FormBase
+    class Va281900v2 < FormBase
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -205,22 +205,12 @@ module PdfFill
           'year' => {
             key: 'VBA281900[0].#subform[0].Date_Signed_Year[0]'
           }
-        }, # end date_signed
-        'useEva' => {
-          key: 'useEva'
-        },
-        'useTelecounseling' => {
-          key: 'useTelecounseling'
-        },
-        'appointmentTimePreferences' => {
-          key: 'appointmentTimePreferences'
-        }
+        } # end date_signed
       }.freeze
 
       def merge_fields(options = {})
         merge_veteran_helpers
         merge_address_helpers
-        merge_preferences_helpers
 
         created_at = options[:created_at] if options[:created_at].present?
         expand_signature(@form_data['veteranInformation']['fullName'], created_at&.to_date || Time.zone.today)
@@ -276,23 +266,6 @@ module PdfFill
         address['addressLine1'] = "#{address['street']} #{street2} #{street3}"
         address['addressLine2'] = "#{address['city']} #{state} #{address['postalCode']}"
         address['addressLine3'] = address['country']
-      end
-
-      def merge_preferences_helpers
-        @form_data['useEva'] = @form_data['useEva'] ? 'Yes' : 'No'
-        @form_data['useTelecounseling'] = @form_data['useTelecounseling'] ? 'Yes' : 'No'
-        @form_data['appointmentTimePreferences'] = set_appointment_time_preferences
-      end
-
-      def set_appointment_time_preferences
-        times = @form_data['appointmentTimePreferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
-        counseling_hours = {
-          'morning' => "Mornings 6:00 to 10:00 a.m.\n",
-          'midday' => "Midday 10:00 a.m. to 2:00 p.m.\n",
-          'afternoon' => "Afternoons 2:00 to 6:00 p.m.\n"
-        }
-
-        times.map { |time| counseling_hours[time] }.join
       end
     end
   end
