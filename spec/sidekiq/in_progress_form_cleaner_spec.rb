@@ -53,7 +53,7 @@ RSpec.describe InProgressFormCleaner do
     context 'when tracking VRE form deletions' do
       let(:form1) { create(:in_progress_form, form_id: '28-1900', expires_at: 1.day.ago) }
       let(:form2) { create(:in_progress_form, form_id: '28-1900_V2', expires_at: 1.day.ago) }
-      
+
       context 'with existing VRE forms' do
         before do
           Timecop.freeze(now - 366.days)
@@ -67,7 +67,6 @@ RSpec.describe InProgressFormCleaner do
             .with('worker.in_progress_form_cleaner.28_1900_deleted', 1)
           expect(StatsD).to receive(:increment)
             .with('worker.in_progress_form_cleaner.28_1900_v2_deleted', 1)
-            
           subject.perform
         end
       end
