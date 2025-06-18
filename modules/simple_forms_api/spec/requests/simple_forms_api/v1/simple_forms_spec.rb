@@ -603,13 +603,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#get_intents_to_file' do
-    let(:user) { create(:user, icn: '1013062086V794840') }
+    let(:user) { create(:user, icn: '123498767V234859') }
+    let(:mpi_profile) { build(:mpi_profile, participant_id: '123456789') }
 
     before do
-      sign_in(user)
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
+      allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
+      sign_in(user)
 
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
     end
