@@ -393,13 +393,14 @@ module SM
       validate_create_context(args)
 
       uploads = args.delete(:uploads)
-      lg_attachments = []
-
       raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
 
-      uploads.each do |file|
-        lg_attachments << build_lg_attachment(file)
+      # Parallel upload of attachments
+      require 'concurrent-ruby'
+      futures = uploads.map do |file|
+        Concurrent::Promises.future { build_lg_attachment(file) }
       end
+      lg_attachments = Concurrent::Promises.zip(*futures).value!
 
       # Build multipart payload
       Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
@@ -438,13 +439,14 @@ module SM
       validate_reply_context(args)
 
       uploads = args.delete(:uploads)
-      lg_attachments = []
-
       raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
 
-      uploads.each do |file|
-        lg_attachments << build_lg_attachment(file)
+      # Parallel upload of attachments
+      require 'concurrent-ruby'
+      futures = uploads.map do |file|
+        Concurrent::Promises.future { build_lg_attachment(file) }
       end
+      lg_attachments = Concurrent::Promises.zip(*futures).value!
 
       # Build multipart payload
       Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
@@ -688,8 +690,9 @@ module SM
       request.content_length = file.size
 
       response = http.request(request)
+
       unless response.is_a?(Net::HTTPSuccess)
-        Rails.logger.error("Failed to upload Messaging attachment to S3: #{response.body}")
+        Rails.logger.error("Failed to upload Messaging attachment to S3: \\#{response.body}")
         raise Common::Exceptions::BackendServiceException.new('SM_UPLOAD_ATTACHMENT_ERROR', 500)
       end
     end
