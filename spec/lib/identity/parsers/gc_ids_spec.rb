@@ -75,6 +75,24 @@ describe Identity::Parsers::GCIds do
         end
       end
 
+      context 'and the ids include vha_facilites with non-standard person identifiers' do
+        let(:id_objects) { ['123456-1^PI^741MM^USVHA^A', '123456.123^PI^741^USVHA^A', '123456_B1^PI^741A^USVHA^A'] }
+        let(:ids) do
+          structs = []
+          id_objects.each do |id_object|
+            structs << OpenStruct.new(attributes: { extension: id_object, root: root_oid })
+          end
+          structs
+        end
+        let(:facility_hash) do
+          { '741MM' => ['123456-1'], '741' => ['123456.123'], '741A' => ['123456_B1'] }
+        end
+
+        it 'maps both vista accounts to their respective vha_facility id' do
+          expect(subject[:vha_facility_hash]).to eq(facility_hash)
+        end
+      end
+
       context 'and the ids include multiple vha_facilites' do
         let(:id_objects) { ["#{id}^PI^200M^USVHA^A", '987656789^PI^984^USVHA^A', '133230796^PI^200M^USVHA^P'] }
         let(:ids) do
