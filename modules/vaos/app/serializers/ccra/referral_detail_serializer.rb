@@ -25,7 +25,8 @@ module Ccra
         name: referral.provider_name,
         facility_name: referral.treating_facility_name,
         npi: referral.provider_npi,
-        phone: referral.treating_facility_phone
+        phone: referral.treating_facility_phone,
+        specialty: referral.provider_specialty
       }
 
       # Only add address if it exists and has actual data
