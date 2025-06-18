@@ -76,6 +76,20 @@
                 null
               ]
             },
+            "userAccount": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                }
+              }
+            },
             "account": {
               "type": "object",
               "required": [
