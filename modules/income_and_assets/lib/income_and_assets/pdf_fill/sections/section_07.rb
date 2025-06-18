@@ -66,10 +66,7 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(3)',
             question_text: 'WHAT ASSET WAS TRANSFERRED?',
-            question_label: 'What Was Transferred',
-            format_options: {
-              humanize: true
-            }
+            question_label: 'What Was Transferred'
           },
           # Q4
           'newOwnerName' => {
