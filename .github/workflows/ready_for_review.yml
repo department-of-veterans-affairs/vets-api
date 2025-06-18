@@ -17,13 +17,12 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
       pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
-      exempt_team: ${{ steps.check_exempt_teams.outputs.exempt_team }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
       - name: Checkout PR HEAD ref
@@ -33,18 +32,6 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: "us-gov-west-1"
-
-      - name: Get bot token from Parameter Store
-        uses: marvinpinto/action-inject-ssm-secrets@latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Get pull_request data
         id: get_pr_data
@@ -89,6 +76,7 @@ jobs:
                 echo "pr_requested_teams=[]" >> $GITHUB_OUTPUT
               else
                 PR_REQUESTED_TEAMS=$(echo "$PR_INFO" | jq -c '.requested_teams')
+                echo "Requested Teams: $PR_REQUESTED_TEAMS"
                 echo "pr_requested_teams=$PR_REQUESTED_TEAMS" >> $GITHUB_OUTPUT
               fi
             else
@@ -101,95 +89,15 @@ jobs:
             exit 1
           fi
 
-      - name: Exempt Teams
-        id: check_exempt_teams
-        run: |
-          echo "exempt_team=false" >> "$GITHUB_OUTPUT"
-          ORG="department-of-veterans-affairs"
-          REPO="department-of-veterans-affairs/vets-api"
-          PR_NUMBER="${{ steps.get_pr_data.outputs.pr_number }}"
-          EXEMPT_TEAMS=(
-            octo-identity
-            lighthouse-dash
-            lighthouse-pivot
-            lighthouse-banana-peels
-            mobile-api-team
-            accredited-representatives-admin
-            benefits-admin
-          )
-
-          TEAMS_RAW='${{ steps.get_pr_data.outputs.pr_requested_teams }}'
-          if echo "$TEAMS_RAW" | jq -e 'length > 0' >/dev/null 2>&1; then
-            TEAMS=$(echo "$TEAMS_RAW" | jq -r '.[]')
-            echo "$TEAMS"
-
-            if [ "$TEAMS" != "[]" ]; then
-              for TEAM in $TEAMS; do
-                for EXEMPT in "${EXEMPT_TEAMS[@]}"; do
-                  if [[ "$TEAM" == "$EXEMPT" ]]; then
-                    echo "Found exempt team"
-                    echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                    break 2
-                  fi
-                done
-              done
-            fi
-          fi
-
-          # Fetch PR reviews
-          APPROVED=$(gh api /repos/department-of-veterans-affairs/vets-api/pulls/${PR_NUMBER}/reviews --jq '
-            [ .[]
-            | select(.state == "APPROVED" and (.dismissed_at == null))
-            ]
-            | sort_by(.submitted_at)
-            | reverse
-            | unique_by(.user.login)
-            | .[].user.login
-          ' || true)
-
-          echo "$APPROVED"
-
-          if [ -n "$APPROVED" ]; then
-            BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
-            BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
-            BACKEND_REVIEWER_PATTERN=$(echo "$BACKEND_REVIEWERS" | paste -sd'|' -)
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^(${BACKEND_REVIEWER_PATTERN})$" || true)
-            echo "Backend Approvals: $BE_APPROVALS"
-            if [ -z "$BE_APPROVALS" ]; then
-              for TEAM in "${EXEMPT_TEAMS[@]}"; do
-                echo "Fetching members of team: $TEAM"
-                TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
-
-                # Iterate over each member and each reviewer
-                while IFS= read -r MEMBER; do
-                  while IFS= read -r REVIEWER; do
-                    echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                    if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                      echo "Reviewer is in exempt team"
-                      echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                      break 2
-                    fi
-                  done <<< "$APPROVED"
-                done <<< "$TEAM_MEMBERS"
-              done
-            fi
-          fi
-        env:
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-
       - name: Remove require-backend-approval label
-        if: |
-          steps.check_exempt_teams.outputs.exempt_team == 'true' ||
-          steps.get_pr_data.outputs.pr_draft == 'true'
+        if: steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
 
       - name: Remove ready-for-backend-review label
-        if: |
-          steps.check_exempt_teams.outputs.exempt_team == 'true' ||
-          steps.get_pr_data.outputs.pr_draft == 'true'
+        if: steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
@@ -270,38 +178,51 @@ jobs:
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
-      exempt_team: ${{ needs.get-pr-data.outputs.exempt_team }}
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
+      exempt_team: ${{ steps.check_backend_requirement.outputs.exempt_team }}
       backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
     steps:
       - name: Check Backend Requirement
         id: check_backend_requirement
         run: |
           backend_approval_required=false
-          if [[ "${exempt_team}" == "true" ]]; then
-            echo "Excemption Groups were found"
-          else
+          exempt_team=false
+          EXEMPT_TEAMS=(
+            octo-identity
+            lighthouse-dash
+            lighthouse-pivot
+            lighthouse-banana-peels
+            mobile-api-team
+            accredited-representatives-admin
+            benefits-admin
+          )
+
+          for TEAM in "${EXEMPT_TEAMS[@]}"; do
+            echo "Non BE Requested Team: $TEAM"
+            if [[ ${{ contains(fromJSON(env.pr_requested_teams), "$TEAM") }} ]]; then
+              echo "Excemption Groups were found: $TEAM"
+              exempt_team=true
+              backend_approval_required=false
+              break
+            fi
+          done
+
+          if [[ "${exempt_team}" == "false" ]]; then
             echo "Excemption Groups were not found"
             echo "PR REQUESTED TEAMS: ${pr_requested_teams}"
 
-            if [ "${pr_requested_teams}" != "[]" ]; then
-              echo "${pr_requested_teams}" | jq -e '. | index("backend-review-group")' > /dev/null
-              if [[ $? -eq 0 ]]; then
-                echo "backend-review-group found in requested teams"
-                backend_approval_required=true
-              fi
+            if [[ ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }} ]]; then
+              echo "backend-review-group found in requested teams"
+              backend_approval_required=true
             fi
 
-            if [ "${pr_labels}" != "[]" ]; then
-              echo "${pr_labels}" | jq -e '. | index("require-backend-approval")' > /dev/null
-              if [[ $? -eq 0 ]]; then
-                echo "require-backend-approval found in labels"
-                backend_approval_required=true
-              fi
+            if [[ ${{ contains(fromJSON(env.pr_labels), 'require-backend-approval') }} ]]; then
+              echo "backend-review-group found in requested teams"
+              backend_approval_required=true
             fi
           fi
-
+          echo "exempt_team=${exempt_team}" >> $GITHUB_OUTPUT
           echo "backend_approval_required=${backend_approval_required}" >> $GITHUB_OUTPUT
 
       - name: Add require-backend-approval label
@@ -325,6 +246,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
+      exempt_team: ${{ needs.check-backend-requirement.outputs.exempt_team }}
       backend_approval_required: ${{ needs.check-backend-requirement.outputs.backend_approval_required }}
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
@@ -361,7 +283,15 @@ jobs:
           approval_status=required
           team_approval_status=required
           author_is_backend=false
-
+          EXEMPT_TEAMS=(
+            octo-identity
+            lighthouse-dash
+            lighthouse-pivot
+            lighthouse-banana-peels
+            mobile-api-team
+            accredited-representatives-admin
+            benefits-admin
+          )
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
           BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
           echo "Backend reviewers regex: $BACKEND_REVIEWERS"
@@ -375,7 +305,7 @@ jobs:
 
           APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
             [ .[]
-            | select(.state == "APPROVED" and (.dismissed_at == null))
+            | select(.state == "APPROVED")
             ]
             | sort_by(.submitted_at)
             | reverse
@@ -383,7 +313,7 @@ jobs:
             | .[].user.login
           ' || true)
 
-          echo "$APPROVED"
+          echo "Approvals: $APPROVED"
 
           TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
           echo "Team Approvals: $TEAM_APPROVALS"
@@ -395,7 +325,9 @@ jobs:
             team_approval_status=confirmed
           fi
 
-          if [[ "${{ needs.check-backend-requirement.outputs.backend_approval_required }}" == "true" ]]; then
+          if [[ "${exempt_team}" == "true" ]]l; then
+            approval_status=confirmed
+          else
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
             if [ -z "$BE_APPROVALS" ]; then
@@ -405,9 +337,23 @@ jobs:
               echo "BE APPROVAL CONFIRMED"
               approval_status=confirmed
             fi
-          else
-            echo "Backend Approval is not required."
-            approval_status=confirmed
+          fi
+
+          if [[ "$team_approval_status" == "confirmed" ]]; then
+            for TEAM in "${EXEMPT_TEAMS[@]}"; do
+              echo "Fetching members of team: $TEAM"
+              TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
+              while IFS= read -r MEMBER; do
+                while IFS= read -r REVIEWER; do
+                  echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
+                  if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
+                    echo "Reviewer is in exempt team"
+                    echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+                    break 2
+                  fi
+                done <<< "$APPROVED"
+              done <<< "$TEAM_MEMBERS"
+            done
           fi
 
           echo "author_is_backend=$author_is_backend" >> "$GITHUB_OUTPUT"
