@@ -20,7 +20,6 @@ RSpec.describe InProgressFormCleaner do
       it 'deletes old records' do
         expect { subject.perform }.to change(InProgressForm, :count).by(-1)
         expect { @form_expired.reload }.to raise_exception(ActiveRecord::RecordNotFound)
-        expect(StatsD).not_to receive(:increment)
       end
     end
 
@@ -50,25 +49,21 @@ RSpec.describe InProgressFormCleaner do
       end
     end
 
-    context 'when tracking VRE form deletions' do
-      let(:form1) { create(:in_progress_form, form_id: '28-1900', expires_at: 1.day.ago) }
-      let(:form2) { create(:in_progress_form, form_id: '28-1900_V2', expires_at: 1.day.ago) }
-
-      context 'with existing VRE forms' do
-        before do
-          Timecop.freeze(now - 366.days)
-          @form1_expired = create(:in_progress_form, form_id: '28-1900')
-          @form2_expired = create(:in_progress_form, form_id: '28-1900_V2')
-          Timecop.return
-        end
-
-        it 'tracks metrics for each form type' do
-          expect(StatsD).to receive(:increment)
-            .with('worker.in_progress_form_cleaner.28_1900_deleted', 1)
-          expect(StatsD).to receive(:increment)
-            .with('worker.in_progress_form_cleaner.28_1900_v2_deleted', 1)
-          subject.perform
-        end
+    context 'when tracking form deletions' do
+      it 'increments stats for each form type' do
+        Timecop.freeze(Time.zone.now - 366.days)
+        create(:in_progress_form, form_id: 'form-1')
+        create(:in_progress_form, form_id: 'form-1')  # Two of these
+        create(:in_progress_form, form_id: 'form-2')
+        Timecop.return
+        
+        # Expect StatsD to be called for each form type with correct count
+        expect(StatsD).to receive(:increment)
+          .with('worker.in_progress_form_cleaner.form_1_deleted', 2)
+        expect(StatsD).to receive(:increment)
+          .with('worker.in_progress_form_cleaner.form_2_deleted', 1)
+          
+        subject.perform
       end
     end
   end
