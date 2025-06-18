@@ -13,6 +13,7 @@ module AccreditedRepresentativePortal
         #
         def define_claim_type(form_id:, business_line:)
           Class.new(self) do
+            const_set(:FORM_ID, form_id)
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
 
@@ -59,6 +60,10 @@ module AccreditedRepresentativePortal
       end
 
       delegate :to_pdf, to: :form_attachment
+
+      def latest_submission_attempt
+        form_submissions.order(created_at: :desc).first&.latest_attempt
+      end
     end
   end
 end
