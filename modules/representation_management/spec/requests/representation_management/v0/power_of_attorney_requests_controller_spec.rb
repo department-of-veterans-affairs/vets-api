@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :request do
   describe 'POST #create' do
     let(:user) { create(:user, :loa3) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:base_path) { '/representation_management/v0/power_of_attorney_requests' }
     let(:organization) { create(:organization, can_accept_digital_poa_requests: accepts_digital_requests) }
     let(:accepts_digital_requests) { true }

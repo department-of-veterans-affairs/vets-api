@@ -8,7 +8,6 @@ RSpec.describe 'Power of Attorney Requests',
                openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
                type: :request do
   let(:user) { create(:user, :loa3) }
-  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
   let!(:organization) do
     create(:organization, poa: SwaggerSharedComponents::V0.poa_request_representative[:organization_id],
                           can_accept_digital_poa_requests: true)
