@@ -283,6 +283,7 @@ jobs:
           approval_status=required
           team_approval_status=required
           author_is_backend=false
+          EXEMPT_TEAM="${{ env.exempt_team }}"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -325,7 +326,7 @@ jobs:
             team_approval_status=confirmed
           fi
 
-          if [[ "${exempt_team}" == "true" ]]l; then
+          if [[ "${EXEMPT_TEAM}" == "true" ]]; then
             approval_status=confirmed
           else
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
