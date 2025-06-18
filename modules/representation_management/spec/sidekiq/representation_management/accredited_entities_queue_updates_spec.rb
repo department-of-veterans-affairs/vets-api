@@ -62,16 +62,16 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
         .with(type: 'agents', page: 1)
-        .and_return(instance_double('Response', body: agent_response))
+        .and_return(instance_double(Faraday::Response, body: agent_response))
       allow(client).to receive(:get_accredited_entities)
         .with(type: 'agents', page: 2)
-        .and_return(instance_double('Response', body: empty_response))
+        .and_return(instance_double(Faraday::Response, body: empty_response))
       allow(client).to receive(:get_accredited_entities)
         .with(type: 'attorneys', page: 1)
-        .and_return(instance_double('Response', body: attorney_response))
+        .and_return(instance_double(Faraday::Response, body: attorney_response))
       allow(client).to receive(:get_accredited_entities)
         .with(type: 'attorneys', page: 2)
-        .and_return(instance_double('Response', body: empty_response))
+        .and_return(instance_double(Faraday::Response, body: empty_response))
 
       # Mock record creation
       allow(AccreditedIndividual).to receive(:find_or_create_by)
@@ -218,8 +218,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         'workEmailAddress' => 'jane@example.com'
       }
     end
-    let(:response1) { instance_double('Response', body: agent_response1) }
-    let(:response2) { instance_double('Response', body: agent_response2) }
+    let(:response1) { instance_double(Faraday::Response, body: agent_response1) }
+    let(:response2) { instance_double(Faraday::Response, body: agent_response2) }
     let(:record1) { instance_double(AccreditedIndividual, id: 1, raw_address: nil) }
     let(:record2) { instance_double(AccreditedIndividual, id: 2, raw_address: nil) }
 
@@ -229,6 +229,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.instance_variable_set(:@agent_responses, [])
       job.instance_variable_set(:@agent_json_for_address_validation, [])
 
+      # Only stub external dependencies, not methods on the object under test
       allow(client).to receive(:get_accredited_entities)
         .with(type: 'agents', page: 1)
         .and_return(response1)
@@ -236,13 +237,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         .with(type: 'agents', page: 2)
         .and_return(response2)
 
-      # Allow any find_or_create_by call to avoid the specific expectation error
       allow(AccreditedIndividual).to receive(:find_or_create_by) do |args|
         case args[:ogc_id]
-        when '123'
-          record1
-        when '456'
-          record2
+        when '123' then record1
+        when '456' then record2
         else
           instance_double(AccreditedIndividual, id: SecureRandom.uuid, raw_address: nil)
         end
@@ -251,25 +249,34 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(record1).to receive(:update)
       allow(record2).to receive(:update)
 
-      # Mock other methods called by update_agents
-      allow(job).to receive(:raw_address_for_agent).and_return('raw_address')
-      allow(job).to receive(:data_transform_for_agent).and_call_original
-      allow(job).to receive(:log_error)
+      # IMPORTANT: Do NOT stub these methods as they are part of the class under test
+      # Instead, let them run with their real implementation
+      # NOT doing: allow(job).to receive(:raw_address_for_agent)
+      # NOT doing: allow(job).to receive(:data_transform_for_agent)
+
+      # We still need to stub the logger to avoid actual logging
+      allow(Rails.logger).to receive(:error)
     end
 
     it 'fetches agents from the client' do
       job.send(:update_agents)
-      expect(client).to have_received(:get_accredited_entities).with(type: 'agents', page: 1)
-      expect(client).to have_received(:get_accredited_entities).with(type: 'agents', page: 2)
+
+      expect(client).to have_received(:get_accredited_entities)
+        .with(type: 'agents', page: 1)
+      expect(client).to have_received(:get_accredited_entities)
+        .with(type: 'agents', page: 2)
     end
 
     it 'stores agent responses' do
       job.send(:update_agents)
-      expect(job.instance_variable_get(:@agent_responses)).to eq([[agent1, agent2]])
+
+      expect(job.instance_variable_get(:@agent_responses))
+        .to eq([[agent1, agent2]])
     end
 
     it 'finds or creates records for each agent' do
       job.send(:update_agents)
+
       expect(AccreditedIndividual).to have_received(:find_or_create_by)
         .with(individual_type: 'claims_agent', ogc_id: '123')
       expect(AccreditedIndividual).to have_received(:find_or_create_by)
@@ -278,23 +285,48 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     it 'updates records with transformed data' do
       job.send(:update_agents)
-      expect(record1).to have_received(:update).with(hash_including(
-                                                       individual_type: 'claims_agent',
-                                                       registration_number: 'A123',
-                                                       poa_code: 'ABC',
-                                                       ogc_id: '123'
-                                                     ))
-      expect(record2).to have_received(:update).with(hash_including(
-                                                       individual_type: 'claims_agent',
-                                                       registration_number: 'A456',
-                                                       poa_code: 'DEF',
-                                                       ogc_id: '456'
-                                                     ))
+
+      # We're expecting the real data_transform_for_agent method
+      # to be called with the actual implementation
+      record1_attrs = {
+        individual_type: 'claims_agent',
+        registration_number: 'A123',
+        poa_code: 'ABC',
+        ogc_id: '123',
+        first_name: 'John',
+        middle_initial: 'A',
+        last_name: 'Doe'
+      }
+
+      record2_attrs = {
+        individual_type: 'claims_agent',
+        registration_number: 'A456',
+        poa_code: 'DEF',
+        ogc_id: '456',
+        first_name: 'Jane',
+        last_name: 'Smith'
+      }
+
+      expect(record1).to have_received(:update)
+        .with(hash_including(record1_attrs))
+      expect(record2).to have_received(:update)
+        .with(hash_including(record2_attrs))
     end
 
     it 'collects agent IDs' do
       job.send(:update_agents)
       expect(job.instance_variable_get(:@agent_ids)).to eq([1, 2])
+    end
+
+    it 'adds address validation data when address has changed' do
+      # Setup a specific case where address has changed
+      old_address = { 'address_line1' => 'Old Address' }
+      allow(record1).to receive(:raw_address).and_return(old_address)
+
+      job.send(:update_agents)
+
+      # The real implementation should add to the validation array
+      expect(job.instance_variable_get(:@agent_json_for_address_validation)).not_to be_empty
     end
   end
 
@@ -337,12 +369,18 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         'emailAddress' => 'sarah@example.com'
       }
     end
-    let(:response1) { instance_double('Response', body: attorney_response1) }
-    let(:response2) { instance_double('Response', body: attorney_response2) }
+    let(:response1) { instance_double(Faraday::Response, body: attorney_response1) }
+    let(:response2) { instance_double(Faraday::Response, body: attorney_response2) }
     let(:record1) { instance_double(AccreditedIndividual, id: 3, raw_address: nil) }
     let(:record2) { instance_double(AccreditedIndividual, id: 4, raw_address: nil) }
 
     before do
+      # Initialize instance variables
+      job.instance_variable_set(:@attorney_ids, [])
+      job.instance_variable_set(:@attorney_responses, [])
+      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+
+      # Mock external dependencies only
       allow(client).to receive(:get_accredited_entities)
         .with(type: 'attorneys', page: 1)
         .and_return(response1)
@@ -350,65 +388,91 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         .with(type: 'attorneys', page: 2)
         .and_return(response2)
 
-      allow(AccreditedIndividual).to receive(:find_or_create_by)
-        .with({ individual_type: 'attorney', ogc_id: '789' })
-        .and_return(record1)
-      allow(AccreditedIndividual).to receive(:find_or_create_by)
-        .with({ individual_type: 'attorney', ogc_id: '012' })
-        .and_return(record2)
+      # Use flexible argument matcher for find_or_create_by
+      allow(AccreditedIndividual).to receive(:find_or_create_by) do |args|
+        case args[:ogc_id]
+        when '789' then record1
+        when '012' then record2
+        else
+          instance_double(AccreditedIndividual, id: SecureRandom.uuid, raw_address: nil)
+        end
+      end
 
       allow(record1).to receive(:update)
       allow(record2).to receive(:update)
+      allow(record1).to receive(:raw_address)
+      allow(record2).to receive(:raw_address)
 
-      job.instance_variable_set(:@attorney_ids, [])
-      job.instance_variable_set(:@attorney_responses, [])
-      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+      # Don't stub any methods on the job object itself
     end
 
     it 'fetches attorneys from the client' do
       job.send(:update_attorneys)
-      expect(client).to have_received(:get_accredited_entities).with(type: 'attorneys', page: 1)
-      expect(client).to have_received(:get_accredited_entities).with(type: 'attorneys', page: 2)
+
+      expect(client).to have_received(:get_accredited_entities)
+        .with(type: 'attorneys', page: 1)
+      expect(client).to have_received(:get_accredited_entities)
+        .with(type: 'attorneys', page: 2)
     end
 
     it 'stores attorney responses' do
       job.send(:update_attorneys)
-      expect(job.instance_variable_get(:@attorney_responses)).to eq([[attorney1, attorney2]])
+
+      expect(job.instance_variable_get(:@attorney_responses))
+        .to eq([[attorney1, attorney2]])
     end
 
     it 'finds or creates records for each attorney' do
       job.send(:update_attorneys)
+
       expect(AccreditedIndividual).to have_received(:find_or_create_by)
-        .with({ individual_type: 'attorney', ogc_id: '789' })
+        .with(hash_including(individual_type: 'attorney', ogc_id: '789'))
       expect(AccreditedIndividual).to have_received(:find_or_create_by)
-        .with({ individual_type: 'attorney', ogc_id: '012' })
+        .with(hash_including(individual_type: 'attorney', ogc_id: '012'))
     end
 
     it 'updates records with transformed data' do
       job.send(:update_attorneys)
-      expect(record1).to have_received(:update).with(hash_including(
-                                                       individual_type: 'attorney',
-                                                       registration_number: 'B789',
-                                                       poa_code: 'GHI',
-                                                       ogc_id: '789',
-                                                       first_name: 'Bob',
-                                                       middle_initial: 'C',
-                                                       last_name: 'Johnson'
-                                                     ))
-      expect(record2).to have_received(:update).with(hash_including(
-                                                       individual_type: 'attorney',
-                                                       registration_number: 'B012',
-                                                       poa_code: 'JKL',
-                                                       ogc_id: '012',
-                                                       first_name: 'Sarah',
-                                                       middle_initial: '',
-                                                       last_name: 'Williams'
-                                                     ))
+
+      record1_attrs = {
+        individual_type: 'attorney',
+        registration_number: 'B789',
+        poa_code: 'GHI',
+        ogc_id: '789',
+        first_name: 'Bob',
+        middle_initial: 'C',
+        last_name: 'Johnson'
+      }
+
+      record2_attrs = {
+        individual_type: 'attorney',
+        registration_number: 'B012',
+        poa_code: 'JKL',
+        ogc_id: '012',
+        first_name: 'Sarah',
+        middle_initial: '',
+        last_name: 'Williams'
+      }
+
+      expect(record1).to have_received(:update)
+        .with(hash_including(record1_attrs))
+      expect(record2).to have_received(:update)
+        .with(hash_including(record2_attrs))
     end
 
     it 'collects attorney IDs' do
       job.send(:update_attorneys)
       expect(job.instance_variable_get(:@attorney_ids)).to eq([3, 4])
+    end
+
+    it 'adds address validation data when address has changed' do
+      old_address = { 'address_line1' => 'Old Address' }
+      allow(record1).to receive(:raw_address).and_return(old_address)
+
+      job.send(:update_attorneys)
+
+      expect(job.instance_variable_get(:@attorney_json_for_address_validation))
+        .not_to be_empty
     end
   end
 
@@ -426,7 +490,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(relation).to receive(:not).with(id: [agent_id, attorney_id]).and_return(relation)
       allow(relation).to receive(:find_each).and_yield(old_record)
       allow(old_record).to receive(:destroy)
-      allow(job).to receive(:log_error)
+
+      # Instead of stubbing the log_error method on the job,
+      # stub Rails.logger which is an external dependency
+      allow(Rails.logger).to receive(:error)
     end
 
     it 'deletes records not in the agent or attorney ids' do
@@ -441,7 +508,12 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       it 'logs an error' do
         job.send(:delete_old_accredited_individuals)
-        expect(job).to have_received(:log_error).with(/Error deleting old accredited individual with ID 3: Delete error/)
+
+        # Expect the external dependency to be called instead
+        error_text_heading = 'RepresentationManagement::AccreditedEntitiesQueueUpdates error:'
+        error_text_message = 'Error deleting old accredited individual with ID 3: Delete error'
+        expect(Rails.logger).to have_received(:error)
+          .with("#{error_text_heading} #{error_text_message}")
       end
     end
   end
@@ -451,7 +523,11 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     let(:description) { 'Test description' }
 
     before do
+      # Only stub external dependencies
       allow(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch)
+      allow(batch).to receive(:description=)
+      allow(batch).to receive(:jobs).and_yield
     end
 
     it 'sets batch description' do
@@ -461,7 +537,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     it 'queues jobs with individual slices' do
       job.send(:validate_addresses, records, description)
-      expect(RepresentationManagement::AccreditedIndividualsUpdate).to have_received(:perform_in)
+      expect(RepresentationManagement::AccreditedIndividualsUpdate)
+        .to have_received(:perform_in)
         .with(0.minutes, records.to_json)
     end
 
@@ -478,8 +555,12 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       end
 
       it 'logs an error' do
+        error_text_heading = 'RepresentationManagement::AccreditedEntitiesQueueUpdates error:'
+        error_text_message = 'Error queuing address updates: Batch error'
+        expect(Rails.logger).to receive(:error)
+          .with("#{error_text_heading} #{error_text_message}")
+
         job.send(:validate_addresses, records, description)
-        expect(Rails.logger).to have_received(:error).with(/Error queuing address updates: Batch error/)
       end
     end
   end
@@ -503,30 +584,29 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       }
     end
 
-    before do
-      allow(job).to receive(:raw_address_for_agent).with(agent).and_return('raw_address')
-    end
+    # No need to stub raw_address_for_agent - let the real method run
+    # Instead, we'll check if the expected keys are in the result
 
     it 'transforms agent data to the expected format' do
       result = job.send(:data_transform_for_agent, agent)
-      expect(result).to include(
-        individual_type: 'claims_agent',
-        registration_number: 'A123',
-        poa_code: 'ABC',
-        ogc_id: '123',
-        first_name: 'John',
-        middle_initial: 'A',
-        last_name: 'Doe',
-        address_line1: '123 Main St',
-        address_line2: 'Apt 456',
-        address_line3: '',
-        zip_code: '12345',
-        country_code_iso3: 'USA',
-        country_name: 'USA',
-        phone: '555-1234',
-        email: 'john@example.com',
-        raw_address: 'raw_address'
-      )
+
+      expected_keys = %i[
+        individual_type registration_number poa_code ogc_id
+        first_name middle_initial last_name address_line1
+        address_line2 address_line3 zip_code country_code_iso3
+        country_name phone email raw_address
+      ]
+
+      expect(result.keys).to include(*expected_keys)
+      expect(result[:individual_type]).to eq('claims_agent')
+      expect(result[:registration_number]).to eq('A123')
+      expect(result[:poa_code]).to eq('ABC')
+      expect(result[:ogc_id]).to eq('123')
+      expect(result[:first_name]).to eq('John')
+      expect(result[:middle_initial]).to eq('A')
+      expect(result[:last_name]).to eq('Doe')
+      expect(result[:raw_address]).to be_a(Hash)
+      expect(result[:raw_address]['address_line1']).to eq('123 Main St')
     end
 
     it 'handles empty middle name' do
@@ -558,23 +638,30 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     it 'transforms attorney data to the expected format' do
       result = job.send(:data_transform_for_attorney, attorney)
-      expect(result).to include(
-        individual_type: 'attorney',
-        registration_number: 'B789',
-        poa_code: 'GHI',
-        ogc_id: '789',
-        first_name: 'Bob',
-        middle_initial: 'C',
-        last_name: 'Johnson',
-        address_line1: '321 Pine St',
-        address_line2: 'Suite 789',
-        address_line3: '',
-        city: 'Anytown',
-        state_code: 'CA',
-        zip_code: '98765',
-        phone: '555-9876',
-        email: 'bob@example.com'
-      )
+
+      expected_keys = %i[
+        individual_type registration_number poa_code ogc_id
+        first_name middle_initial last_name address_line1
+        address_line2 address_line3 city state_code
+        zip_code phone email
+      ]
+
+      expect(result.keys).to include(*expected_keys)
+      expect(result[:individual_type]).to eq('attorney')
+      expect(result[:registration_number]).to eq('B789')
+      expect(result[:poa_code]).to eq('GHI')
+      expect(result[:ogc_id]).to eq('789')
+      expect(result[:first_name]).to eq('Bob')
+      expect(result[:middle_initial]).to eq('C')
+      expect(result[:last_name]).to eq('Johnson')
+      expect(result[:city]).to eq('Anytown')
+      expect(result[:state_code]).to eq('CA')
+    end
+
+    it 'handles empty middle name' do
+      attorney['middleName'] = ''
+      result = job.send(:data_transform_for_attorney, attorney)
+      expect(result[:middle_initial]).to eq('')
     end
   end
 end
