@@ -189,7 +189,8 @@ jobs:
         run: |
           backend_approval_required=false
           exempt_team=false
-          PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
+          PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
+          echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
           PR_LABELS="${{ env.pr_labels }}"
           EXEMPT_TEAMS=(
             octo-identity
@@ -203,7 +204,7 @@ jobs:
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
-            if echo "$pr_requested_teams" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
+            if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
               echo "Excemption Groups were found: $TEAM"
               exempt_team=true
               backend_approval_required=false
@@ -213,8 +214,8 @@ jobs:
 
           if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Groups were not found"
-            echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS}"
-            if echo "$PR_REQUESTED_TEAMS" | jq -e '. | index("backend-review-group")' > /dev/null || \
+            echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
+            if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null || \
                 echo "$PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
               backend_approval_required=true
             fi
