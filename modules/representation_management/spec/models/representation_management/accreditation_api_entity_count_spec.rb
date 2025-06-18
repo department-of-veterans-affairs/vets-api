@@ -168,7 +168,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   describe '#get_counts_from_api' do
     let(:client) { instance_double(RepresentationManagement::GCLAWS::Client) }
     let(:response_body) { { 'totalRecords' => 100 } }
-    let(:response) { instance_double(Response, body: response_body) }
+    let(:response) { instance_double(Faraday::Response, body: response_body) }
 
     before do
       allow(RepresentationManagement::GCLAWS::Client).to receive(:get_accredited_entities)
