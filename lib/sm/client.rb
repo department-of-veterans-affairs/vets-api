@@ -512,6 +512,11 @@ module SM
 
     ##
     # Retrieve a message attachment
+    # Endpoint returns either a binary file response or a AWS S3 URL
+    # depending on attachment upload method.
+    # If the response is a URL, it will fetch the file from that URL.
+    # This is useful for large attachments that exceed the
+    # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
     # @param attachment_id [Fixnum] the attachment id
@@ -519,10 +524,27 @@ module SM
     #
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
-
       response = perform(:get, path, nil, token_headers)
-      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
-      { body: response.body, filename: }
+      data = response.body[:data]
+
+      # If response body is a string and looks like a URL, fetch the file from the URL
+      if data.is_a?(String) && data.match?(%r{^https?://})
+        url = data
+        uri = URI.parse(url)
+        file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+          http.get(uri.request_uri)
+        end
+        unless file_response.is_a?(Net::HTTPSuccess)
+          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
+        end
+        filename = uri.path.split('/').last
+        { body: file_response.body, filename: }
+      else
+        # Default: treat as binary file response
+        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
+        { body: response.body, filename: }
+      end
     end
     # @!endgroup
 
