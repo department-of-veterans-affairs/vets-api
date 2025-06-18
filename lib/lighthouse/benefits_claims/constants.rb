@@ -29,7 +29,7 @@ module BenefitsClaims
                                                                      ' your posttraumatic stress disorder (PTSD).',
       'RV1 - Reserve Records Request' => 'We’ve requested your reserve records on your behalf. No action is needed.',
       'Proof of service (DD214, etc.)' => 'We’ve requested your proof of service on your behalf. No action is needed.',
-      'PMR Request' => 'We\'ve requested your non-VA medical records on your behalf. No action is needed.',
+      'PMR Request' => 'We’ve requested your non-VA medical records on your behalf. No action is needed.',
       'General Records Request (Medical)' => 'We’ve requested your non-VA medical records on your behalf.' \
                                              ' No action is needed.',
       'DBQ AUDIO Hearing Loss and Tinnitus' => 'We’ve requested a disability exam for your hearing.' \
