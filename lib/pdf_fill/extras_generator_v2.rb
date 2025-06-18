@@ -365,7 +365,7 @@ module PdfFill
       set_markup_options(pdf)
     end
 
-    def add_text(value, metadata) # rubocop:disable Metrics/MethodLength
+    def add_text(value, metadata)
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
 
@@ -641,10 +641,6 @@ module PdfFill
     end
 
     private
-
-    def should_humanize?(format_options)
-      format_options&.dig(:humanize).present?
-    end
 
     def apply_humanization(value, format_options)
       humanize_config = format_options[:humanize]
