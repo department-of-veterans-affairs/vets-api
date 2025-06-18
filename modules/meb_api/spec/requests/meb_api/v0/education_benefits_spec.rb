@@ -23,7 +23,8 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       last_name: 'Hoover',
       middle_name: '',
       birth_date: '1970-01-01',
-      ssn: '796121200'
+      ssn: '796121200',
+      icn: '123498767V234859'
     }
   end
 

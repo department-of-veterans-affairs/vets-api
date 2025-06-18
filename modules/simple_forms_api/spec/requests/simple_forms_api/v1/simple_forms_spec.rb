@@ -71,8 +71,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         context "for #{form}" do
           if is_authenticated
             before do
-              user = create(:user)
-              sign_in_as(user)
+              user = create(:user, icn: '123498767V234859')
+              sign_in(user)
               create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
             end
           end
@@ -603,11 +603,14 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#get_intents_to_file' do
+    let(:user) { create(:user, icn: '1013062086V794840') }
+
     before do
+      sign_in(user)
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension')
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor')
-      sign_in
+
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
     end
 
@@ -710,7 +713,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   describe 'email confirmations' do
     let(:confirmation_number) { 'some_confirmation_number' }
-    let(:user) { build(:user) }
+    let(:user) { build(:user, icn: '123498767V234859') }
 
     before do
       sign_in(user)
@@ -898,7 +901,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         before do
           user = create(:user)
-          sign_in_as(user)
+          sign_in(user)
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
           allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)
