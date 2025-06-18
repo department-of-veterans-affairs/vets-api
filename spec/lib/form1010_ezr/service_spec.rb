@@ -228,17 +228,17 @@ RSpec.describe Form1010Ezr::Service do
           end
 
           it 'removes the associations from the form and returns a success object',
-             run_at: 'Mon, 09 Jun 2025 20:30:18 GMT' do
+             run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
             VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_updated_associations',
+              'form1010_ezr/authorized_submit_with_associations_removed',
               match_requests_on: %i[method uri body],
               erb: true
             ) do
               expect(service.submit_form(form_with_associations)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 442_951_612,
-                  timestamp: '2025-06-09T15:30:18.643-05:00'
+                  formSubmissionId: 443_145_123,
+                  timestamp: '2025-06-18T11:12:43.943-05:00'
                 }
               )
             end
@@ -495,13 +495,18 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'when the form includes next of kin and/or emergency contact info' do
-          it 'returns a success object' do
-            VCR.use_cassette('example', :record => :once) do
-              response = service.submit_sync(form_with_associations)
-
-              debugger
-
-              expect(response).to be_a(Object)
+          it 'returns a success object', run_at: 'Wed, 18 Jun 2025 18:58:43 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_associations',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect(service.submit_sync(form_with_associations)).to eq(
+                {
+                  success: true,
+                  formSubmissionId: 443_148_464,
+                  timestamp: '2025-06-18T13:58:43.116-05:00'
+                }
+              )
             end
           end
         end
