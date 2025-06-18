@@ -9,9 +9,6 @@ class PersistentAttachments::ClaimEvidence < PersistentAttachment
   # Leverages the Shrine gem library to provide file attachment functionality for this model.
   include ::ClaimDocumentation::Uploader::Attachment.new(:file)
 
-  # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
-  self.inheritance_column = :_type_disabled
-
   ##
   # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
   # ***********************************************************************************
