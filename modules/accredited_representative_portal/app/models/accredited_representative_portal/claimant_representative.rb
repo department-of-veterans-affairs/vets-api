@@ -127,14 +127,7 @@ module AccreditedRepresentativePortal
         to: :representative_user_account
       )
 
-      def power_of_attorney_holders
-        ##
-        # TODO: Make this method public once the codebase is churning less.
-        #
-        representative_user_account.send(
-          :power_of_attorney_holders
-        )
-      end
+      delegate :power_of_attorney_holders, to: :representative_user_account
 
       private
 
