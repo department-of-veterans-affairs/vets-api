@@ -39,6 +39,7 @@ module Form1010Ezr
             "#{FORM_ID} reconciling and updating associations failed: " \
             "#{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
           )
+          
           raise e
         end
 
