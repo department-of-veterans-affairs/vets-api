@@ -82,15 +82,49 @@ RSpec.describe SignIn::AssertionValidator do
         end
       end
 
+      context 'and service account id in assertion is missing' do
+        let(:expected_error) { SignIn::Errors::ServiceAccountConfigNotFound }
+        let(:expected_error_message) { 'Service account config not found' }
+
+        before { assertion_payload.delete(:service_account_id) }
+
+        context 'and issuer in assertion matches an existing service account config' do
+          let(:iss) { service_account_config.service_account_id }
+
+          it 'uses issuer as service account id to query the service account config' do
+            expect { subject }.not_to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and issuer in assertion does not match an existing service account config' do
+          let(:iss) { 'some-iss' }
+
+          it 'raises service account config not found error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
       context 'and service account config in assertion does match an existing service account config' do
         let(:service_account_id) { service_account_config.service_account_id }
 
         context 'and iss does not equal service account config audience' do
-          let(:iss) { 'some-iss' }
           let(:expected_error_message) { 'Assertion issuer is not valid' }
 
-          it 'raises service account assertion attributes error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
+          context 'and iss equals service account id' do
+            let(:iss) { service_account_id }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error(expected_error, expected_error_message)
+            end
+          end
+
+          context 'and iss does not equal service account id' do
+            let(:iss) { 'some-iss' }
+
+            it 'raises service account assertion attributes error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
           end
         end
 
