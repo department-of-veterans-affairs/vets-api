@@ -114,6 +114,8 @@ module RepresentationManagement
     end
 
     def process_agents
+      return if @force_update_types.any? && @force_update_types.exclude?('claims_agent')
+
       if @entity_counts.valid_count?(:agents) || @force_update_types.include?('claims_agent')
         update_agents
         validate_agent_addresses
@@ -123,6 +125,8 @@ module RepresentationManagement
     end
 
     def process_attorneys
+      return if @force_update_types.any? && @force_update_types.exclude?('attorney')
+
       if @entity_counts.valid_count?(:attorneys) || @force_update_types.include?('attorney')
         update_attorneys
         validate_attorney_addresses

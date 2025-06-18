@@ -145,6 +145,12 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
           expect(AccreditedIndividual).to have_received(:find_or_create_by)
             .with(individual_type: 'claims_agent', ogc_id: '123')
         end
+
+        it 'does not update attorneys' do
+          job.perform(['claims_agent'])
+          expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
+            .with(individual_type: 'attorney', ogc_id: '789')
+        end
       end
     end
 
@@ -173,6 +179,12 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
           job.perform(['attorney'])
           expect(AccreditedIndividual).to have_received(:find_or_create_by)
             .with(individual_type: 'attorney', ogc_id: '789')
+        end
+
+        it 'does not update agents' do
+          job.perform(['attorney'])
+          expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
+            .with(individual_type: 'claims_agent', ogc_id: '123')
         end
       end
     end
