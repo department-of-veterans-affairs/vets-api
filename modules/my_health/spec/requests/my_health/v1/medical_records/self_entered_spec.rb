@@ -103,14 +103,34 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
     end
 
     context 'when some of the upstream calls error out' do
+      let(:allergy_error_response) do
+        instance_double(
+          Faraday::Response,
+          success?: false,
+          status: 500,
+          body: 'allergy service is down',
+          reason_phrase: 'Internal Server Error'
+        )
+      end
+
+      let(:immunization_error_response) do
+        instance_double(
+          Faraday::Response,
+          success?: false,
+          status: 504,
+          body: 'immunization timeout',
+          reason_phrase: 'Gateway Timeout'
+        )
+      end
+
       before do
         allow_any_instance_of(BBInternal::Client)
           .to receive(:get_sei_allergies)
-          .and_raise(StandardError.new('allergy service is down'))
+          .and_return(allergy_error_response)
 
         allow_any_instance_of(BBInternal::Client)
           .to receive(:get_sei_immunizations)
-          .and_raise(StandardError.new('immunization timeout'))
+          .and_return(immunization_error_response)
       end
 
       it 'returns errors for some services but still succeeds overall' do
