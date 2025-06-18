@@ -181,7 +181,7 @@ jobs:
             backend_approval_required=false
           else
             backend_approval_required=true
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE ^($BACKEND_REVIEWERS)$" || true)
+            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
             if [ -z "$BE_APPROVALS" ]; then
               echo "BE APPROVAL NOT CONFIRMED"
