@@ -89,14 +89,14 @@ module Eps
     end
 
     ##
-    # Search for provider services using NPI, specialty, and optionally address
+    # Search for provider services using NPI, specialty and address.
     #
     # @param npi [String] NPI number to search for
     # @param specialty [String] Specialty to match (case-insensitive)
     # @param address [Hash] Address object with :street1, :city, :state, :zip keys
     #
     # @return OpenStruct response containing the provider service where an individual provider has
-    # matching NPI and specialty, with address used as tie-breaker if multiple matches, or nil if not found
+    # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
       query_params = { npi:, isSelfSchedulable: true }
@@ -195,11 +195,14 @@ module Eps
     def zip_code_matches?(provider_address, referral_zip)
       return false if provider_address.blank? || referral_zip.blank?
 
-      # Extract 5-digit zip code from provider address string
-      provider_zip_match = provider_address.match(/(\d{5})(-\d{4})?/)
-      return false unless provider_zip_match
+      # Extract the LAST 5-digit zip code from provider address string
+      # This handles cases where street addresses contain 5-digit numbers (e.g., "16011 NEEDMORE RD")
+      # We want the zip code, not the street number
+      all_zip_matches = provider_address.scan(/(\d{5})(-\d{4})?/)
+      return false if all_zip_matches.empty?
 
-      provider_5_digit = provider_zip_match[1]
+      # Get the last match (should be the actual zip code, not street address number)
+      provider_5_digit = all_zip_matches.last[0]
 
       # Extract 5 digits from referral zip
       referral_5_digit = referral_zip.to_s.gsub(/\D/, '')[0, 5]
