@@ -57,8 +57,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           )
         end
 
-        let(:poa_code_a) { Faker::Alphanumeric.alphanumeric(number: 3) }
-        let(:poa_code_b) { Faker::Alphanumeric.alphanumeric(number: 3) }
+        let(:poa_code_a) { '00A' }
+        let(:poa_code_b) { '00B' }
         let(:representative_icn) { Faker::Number.unique.number(digits: 10) }
         let(:representative_email) { Faker::Internet.email }
         let(:claimant_icn) { Faker::Number.unique.number(digits: 10) }
@@ -84,7 +84,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
             before do
               allow_any_instance_of(BenefitsClaims::Service).to(
                 receive(:get_power_of_attorney).and_return(
-                  JSON.parse(%({"data": {}}))
+                  { "data" => {} }
                 )
               )
             end
@@ -98,18 +98,14 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
             before do
               allow_any_instance_of(BenefitsClaims::Service).to(
                 receive(:get_power_of_attorney).and_return(
-                  JSON.parse(
-                    <<~JSON
-                      {
-                        "data": {
-                          "type": "organization",
-                          "attributes": {
-                            "code": "#{claimant_poa_code}"
-                          }
-                        }
+                  {
+                    "data" => {
+                      "type" => "organization",
+                      "attributes" => {
+                        "code" => claimant_poa_code
                       }
-                    JSON
-                  )
+                    }
+                  }
                 )
               )
             end
@@ -130,15 +126,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
             end
 
             context 'and a claimant that does not have poa with one of them' do
-              alphabet = ('a'..'z').to_a
-              let(:claimant_poa_code) do
-                ##
-                # This avoids the other POA codes.
-                #
-                poa_code_a.chars.zip(poa_code_b.chars).map do |chars|
-                  alphabet.find { |c| !c.in?(chars) }
-                end.join
-              end
+              let(:claimant_poa_code) { 'XYZ' }
 
               it 'returns nil' do
                 expect(subject).to be_nil
