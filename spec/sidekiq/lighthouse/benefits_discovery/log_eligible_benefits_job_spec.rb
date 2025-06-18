@@ -36,7 +36,8 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
       it 'processes benefits discovery successfully' do
         expect(StatsD).to receive(:measure).with(described_class.name, be_a(Float))
         expect(StatsD).to receive(:increment).with(
-          '[["not_recommended", []], ["recommended", ["Health", "Life Insurance (VALife)"]], ["undetermined", []]]'
+          'Benefits Discovery Service results: [["not_recommended", []], ' \
+          '["recommended", ["Health", "Life Insurance (VALife)"]], ["undetermined", []]]'
         )
         described_class.new.perform(user.uuid)
       end
@@ -106,7 +107,8 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
             }
           ]
         }
-        expected_logged_error = '[["not_recommended", ["Health", "Life Insurance (VALife)"]], ["recommended", ' \
+        expected_logged_error = 'Benefits Discovery Service results: [["not_recommended", ' \
+                                '["Health", "Life Insurance (VALife)"]], ["recommended", ' \
                                 '["Childcare", "Education"]], ["undetermined", ["Job Assistance", "Wealth"]]]'
         allow(service_instance).to receive(:get_eligible_benefits).with(user.uuid).and_return(benefits)
         expect(StatsD).to receive(:increment).with(expected_logged_error)
