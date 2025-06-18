@@ -1197,7 +1197,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
     let(:referral_data) do
       {
-        category_of_care: specialty,
+        provider_specialty: specialty,
         referral_number: 'ref-123',
         referral_consult_id: '123-123456',
         npi:,
@@ -1217,7 +1217,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     let(:referral_detail) do
       instance_double(Ccra::ReferralDetail,
-                      category_of_care: specialty,
+                      provider_specialty: specialty,
                       referral_number: 'ref-123',
                       appointment_type_id:,
                       expiration_date: end_date,
