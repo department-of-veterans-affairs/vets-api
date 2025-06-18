@@ -7,8 +7,7 @@ MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
 
   def access?
     if Flipper.enabled?(:mhv_medications_new_policy, user)
-      mhv_user_account = user.mhv_user_account
-      mhv_user_account&.patient == true || mhv_user_account&.champ_va == true
+      user.mhv_user_account&.patient || user.mhv_user_account&.champ_va
     else
       default_access_check
     end
