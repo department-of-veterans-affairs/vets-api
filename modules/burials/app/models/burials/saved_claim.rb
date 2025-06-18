@@ -11,7 +11,12 @@ module Burials
   class SavedClaim < ::SavedClaim
     ##
     # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+    # ***********************************************************************************
+    # Note: This CAN NOT be removed as long as there are existing records of this type. *
+    # ***********************************************************************************
     #
+    self.inheritance_column = :_type_disabled
+
     def kms_encryption_context
       {
         model_name: 'SavedClaim::Burial',

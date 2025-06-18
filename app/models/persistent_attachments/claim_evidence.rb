@@ -15,6 +15,8 @@ class PersistentAttachments::ClaimEvidence < PersistentAttachment
   # Note: This CAN NOT be removed as long as there are existing records of this type. *
   # ***********************************************************************************
   #
+  self.inheritance_column = :_type_disabled
+
   def kms_encryption_context
     {
       model_name: 'PersistentAttachments::PensionBurial',
