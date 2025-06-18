@@ -10,6 +10,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
 
   before do
     sign_in_as(user)
+    allow(Flipper).to receive(:enabled?).with(:cst_claim_letters_use_lighthouse_api_provider).and_return(false)
   end
 
   describe '#index' do
