@@ -136,7 +136,8 @@ class Message
   end
 
   def total_file_count_validation
-      return unless uploads.length > MAX_TOTAL_FILE_COUNT
-      errors.add(:base, "Total file count exceeds #{MAX_TOTAL_FILE_COUNT} files)")
+    return unless uploads.length > MAX_TOTAL_FILE_COUNT
+
+    errors.add(:base, "Total file count exceeds #{MAX_TOTAL_FILE_COUNT} files)")
   end
 end
