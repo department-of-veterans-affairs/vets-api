@@ -129,7 +129,7 @@ module IncomeAndAssets
                 '0' => 'Yes',
                 '1' => 'No'
               }
-            }   
+            }
           },
           # Q9
           'fairMarketValue' => {
