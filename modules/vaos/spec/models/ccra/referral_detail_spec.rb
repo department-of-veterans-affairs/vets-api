@@ -40,7 +40,8 @@ describe Ccra::ReferralDetail do
         },
         treating_provider_info: {
           provider_name: 'Dr. Smith',
-          provider_npi: '1659458917'
+          provider_npi: '1659458917',
+          specialty: 'CARDIOLOGY'
         },
         treating_facility_info: {
           facility_name: 'VA Cardiology Clinic',
@@ -69,6 +70,7 @@ describe Ccra::ReferralDetail do
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.provider_npi).to eq('1659458917')
+      expect(subject.provider_specialty).to eq('CARDIOLOGY')
 
       # Referring facility info
       expect(subject.referring_facility_name).to eq('Bath VA Medical Center')
@@ -155,6 +157,7 @@ describe Ccra::ReferralDetail do
         'has_appointments' => true,
         'provider_name' => 'Dr. Smith',
         'provider_npi' => '1659458917',
+        'provider_specialty' => 'CARDIOLOGY',
         'referring_facility_name' => 'Bath VA Medical Center',
         'referring_facility_phone' => '555-123-4567',
         'referring_facility_code' => '528A6',
@@ -196,6 +199,7 @@ describe Ccra::ReferralDetail do
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.provider_npi).to eq('1659458917')
+      expect(subject.provider_specialty).to eq('CARDIOLOGY')
     end
 
     it 'symbolizes keys in the address hashes' do
