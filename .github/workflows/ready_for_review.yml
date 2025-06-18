@@ -1,7 +1,7 @@
 name: Pull Request Ready for Review
 on:
   pull_request:
-     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested, review_request_removed, labeled]
+     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested]
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags", "CodeQL"]
     types: [completed]
@@ -113,7 +113,6 @@ jobs:
       - name: Fail if draft
         if: steps.get_pr_data.outputs.pr_draft == 'true'
         run: exit 1
-
 
   check-workflow-status:
     name: Check Workflow Statuses
