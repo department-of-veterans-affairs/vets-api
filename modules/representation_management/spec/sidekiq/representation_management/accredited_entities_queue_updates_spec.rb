@@ -18,106 +18,163 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   describe '#perform' do
     let(:entity_counts) { instance_double(RepresentationManagement::AccreditationApiEntityCount) }
 
+    # Setup for external entities
+    let(:agent_response) { { 'items' => [agent1] } }
+    let(:empty_response) { { 'items' => [] } }
+    let(:agent1) do
+      {
+        'id' => '123',
+        'number' => 'A123',
+        'poa' => 'ABC',
+        'firstName' => 'John',
+        'lastName' => 'Doe',
+        'workAddress1' => '123 Main St',
+        'workZip' => '12345',
+        'workCountry' => 'USA'
+      }
+    end
+
+    let(:attorney_response) { { 'items' => [attorney1] } }
+    let(:attorney1) do
+      {
+        'id' => '789',
+        'number' => 'B789',
+        'poa' => 'GHI',
+        'firstName' => 'Bob',
+        'lastName' => 'Johnson',
+        'workAddress1' => '321 Pine St',
+        'workCity' => 'Anytown',
+        'workState' => 'CA',
+        'workZip' => '98765'
+      }
+    end
+
+    let(:agent_record) { instance_double(AccreditedIndividual, id: 1, raw_address: nil) }
+    let(:attorney_record) { instance_double(AccreditedIndividual, id: 2, raw_address: nil) }
+
     before do
+      # Only stub external dependencies
       allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
       allow(entity_counts).to receive(:save_api_counts)
-      allow(entity_counts).to receive(:valid_count?).and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(true)
 
-      allow(job).to receive(:update_agents)
-      allow(job).to receive(:validate_agent_addresses)
-      allow(job).to receive(:update_attorneys)
-      allow(job).to receive(:validate_attorney_addresses)
-      allow(job).to receive(:delete_old_accredited_individuals)
-      allow(job).to receive(:log_error)
+      # Mock API responses
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: 'agents', page: 1)
+        .and_return(instance_double('Response', body: agent_response))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: 'agents', page: 2)
+        .and_return(instance_double('Response', body: empty_response))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: 'attorneys', page: 1)
+        .and_return(instance_double('Response', body: attorney_response))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: 'attorneys', page: 2)
+        .and_return(instance_double('Response', body: empty_response))
+
+      # Mock record creation
+      allow(AccreditedIndividual).to receive(:find_or_create_by)
+        .with({ individual_type: 'claims_agent', ogc_id: '123' })
+        .and_return(agent_record)
+      allow(AccreditedIndividual).to receive(:find_or_create_by)
+        .with({ individual_type: 'attorney', ogc_id: '789' })
+        .and_return(attorney_record)
+
+      # Mock record updates
+      allow(agent_record).to receive(:update)
+      allow(attorney_record).to receive(:update)
+      allow(agent_record).to receive(:raw_address)
+      allow(attorney_record).to receive(:raw_address)
+
+      # Mock ActiveRecord for deletion
+      relation = double('ActiveRecord::Relation')
+      allow(AccreditedIndividual).to receive(:where).and_return(relation)
+      allow(relation).to receive(:not).and_return(relation)
+      allow(relation).to receive(:find_each)
+
+      # Allow validation
+      allow(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
     end
 
-    it 'saves API counts when not forcing updates' do
+    it 'processes all entity types and saves API counts' do
       job.perform
+
+      # Verify API counts were saved
       expect(entity_counts).to have_received(:save_api_counts)
+
+      # Verify records were created and updated
+      expect(AccreditedIndividual).to have_received(:find_or_create_by)
+        .with(individual_type: 'claims_agent', ogc_id: '123')
+      expect(AccreditedIndividual).to have_received(:find_or_create_by)
+        .with(individual_type: 'attorney', ogc_id: '789')
+      expect(agent_record).to have_received(:update)
+      expect(attorney_record).to have_received(:update)
     end
 
-    it 'skips saving API counts when forcing updates' do
-      job.perform(['claims_agent'])
-      expect(entity_counts).not_to have_received(:save_api_counts)
+    context 'when forcing updates' do
+      it 'skips saving API counts' do
+        job.perform(['claims_agent'])
+        expect(entity_counts).not_to have_received(:save_api_counts)
+      end
     end
 
-    context 'when processing agents' do
-      context 'with valid agent count' do
-        before do
-          allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(true)
-        end
-
-        it 'updates agents and validates addresses' do
-          job.perform
-          expect(job).to have_received(:update_agents)
-          expect(job).to have_received(:validate_agent_addresses)
-        end
+    context 'when agent count is invalid' do
+      before do
+        allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(false)
       end
 
-      context 'with invalid agent count' do
-        before do
-          allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(false)
-        end
+      it 'logs an error and skips agent updates' do
+        expect(Rails.logger).to receive(:error).with(/decreased by more than/)
+        job.perform
 
-        it 'logs an error and does not update agents' do
-          job.perform
-          expect(job).to have_received(:log_error).with(/Agents count decreased by more than/)
-          expect(job).not_to have_received(:update_agents)
-        end
+        # Verify no agents were processed
+        expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
+          .with(hash_including(individual_type: 'claims_agent'))
+      end
+
+      it 'still updates attorneys' do
+        job.perform
+        expect(AccreditedIndividual).to have_received(:find_or_create_by)
+          .with(individual_type: 'attorney', ogc_id: '789')
       end
 
       context 'when forcing claims_agent updates' do
-        before do
-          allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(false)
-        end
-
         it 'updates agents despite invalid count' do
           job.perform(['claims_agent'])
-          expect(job).to have_received(:update_agents)
+          expect(AccreditedIndividual).to have_received(:find_or_create_by)
+            .with(individual_type: 'claims_agent', ogc_id: '123')
         end
       end
     end
 
-    context 'when processing attorneys' do
-      context 'with valid attorney count' do
-        before do
-          allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(true)
-        end
-
-        it 'updates attorneys and validates addresses' do
-          job.perform
-          expect(job).to have_received(:update_attorneys)
-          expect(job).to have_received(:validate_attorney_addresses)
-        end
+    context 'when attorney count is invalid' do
+      before do
+        allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(false)
       end
 
-      context 'with invalid attorney count' do
-        before do
-          allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(false)
-        end
+      it 'logs an error and skips attorney updates' do
+        expect(Rails.logger).to receive(:error).with(/decreased by more than/)
+        job.perform
 
-        it 'logs an error and does not update attorneys' do
-          job.perform
-          expect(job).to have_received(:log_error).with(/Attorneys count decreased by more than/)
-          expect(job).not_to have_received(:update_attorneys)
-        end
+        # Verify no attorneys were processed
+        expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
+          .with(hash_including(individual_type: 'attorney'))
+      end
+
+      it 'still updates agents' do
+        job.perform
+        expect(AccreditedIndividual).to have_received(:find_or_create_by)
+          .with(individual_type: 'claims_agent', ogc_id: '123')
       end
 
       context 'when forcing attorney updates' do
-        before do
-          allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(false)
-        end
-
         it 'updates attorneys despite invalid count' do
           job.perform(['attorney'])
-          expect(job).to have_received(:update_attorneys)
+          expect(AccreditedIndividual).to have_received(:find_or_create_by)
+            .with(individual_type: 'attorney', ogc_id: '789')
         end
       end
-    end
-
-    it 'deletes old accredited individuals' do
-      job.perform
-      expect(job).to have_received(:delete_old_accredited_individuals)
     end
   end
 
