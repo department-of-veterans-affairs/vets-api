@@ -51,18 +51,18 @@ RSpec.describe InProgressFormCleaner do
 
     context 'when tracking form deletions' do
       it 'increments stats for each form type' do
-        Timecop.freeze(Time.zone.now - 366.days)
+        Timecop.freeze(now - 366.days)
         create(:in_progress_form, form_id: 'form-1')
-        create(:in_progress_form, form_id: 'form-1')  # Two of these
+        create(:in_progress_form, form_id: 'form-1')
         create(:in_progress_form, form_id: 'form-2')
         Timecop.return
-        
+
         # Expect StatsD to be called for each form type with correct count
         expect(StatsD).to receive(:increment)
           .with('worker.in_progress_form_cleaner.form_1_deleted', 2)
         expect(StatsD).to receive(:increment)
           .with('worker.in_progress_form_cleaner.form_2_deleted', 1)
-          
+
         subject.perform
       end
     end
