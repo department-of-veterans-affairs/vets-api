@@ -108,7 +108,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     describe 'form 0781/a' do
       context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
         before do
-          Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+          allow(Flipper).to receive(:enabled?).with(:form526_include_document_upload_list_in_overflow_text)
+                                              .and_return(true)
         end
 
         let(:form_0781_note) do
@@ -173,7 +174,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
           context 'when a form 0781/a is not included with Form 526' do
             before do
-              Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+              allow(Flipper).to receive(:enabled?).with(:form526_include_document_upload_list_in_overflow_text)
+                                                  .and_return(true)
             end
 
             let(:form_content) do
@@ -248,7 +250,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
           context 'when a form 0781 is not included with Form 526' do
             before do
-              Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+              allow(Flipper).to receive(:enabled?).with(:form526_include_document_upload_list_in_overflow_text)
+                                                  .and_return(true)
             end
 
             let(:form_content) do
@@ -266,7 +269,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
         before do
-          Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+          allow(Flipper).to receive(:enabled?).with(:form526_include_document_upload_list_in_overflow_text)
+                                              .and_return(false)
         end
 
         it 'does not include a note in the overflow text' do
@@ -325,7 +329,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
         context 'when the form526_include_document_upload_list_in_overflow_text flipper is enabled' do
           before do
-            Flipper.enable(:form526_include_document_upload_list_in_overflow_text)
+            allow(Flipper).to receive(:enabled?).with(:form526_include_document_upload_list_in_overflow_text)
+                                                .and_return(true)
           end
 
           let(:file_list) do
@@ -448,7 +453,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                       { 'confirmationCode' => file2_guid }
                     ],
                     'form0781' => {
-                      'incidents' => ['personalAssault' => false]
+                      'incidents' => [{ 'personalAssault' => false }]
                     }
                   }
                 }
@@ -527,7 +532,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
         context 'when the form526_include_document_upload_list_in_overflow_text flipper is disabled' do
           before do
-            Flipper.disable(:form526_include_document_upload_list_in_overflow_text)
+            allow(Flipper).to receive(:enabled?).with(:form526_include_document_upload_list_in_overflow_text)
+                                                .and_return(false)
           end
 
           it 'does not include the list of documents in the overflow text' do
