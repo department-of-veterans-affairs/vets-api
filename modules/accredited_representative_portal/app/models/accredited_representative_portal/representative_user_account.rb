@@ -13,6 +13,11 @@ module AccreditedRepresentativePortal
       @all_emails = all_emails
     end
 
+    ##
+    # TODO: Rename or otherwise refactor callers. `active_` does not helpfully
+    # describe the purpose of this method, which is to return POA holders that
+    # accept digital POA requests.
+    #
     def active_power_of_attorney_holders
       power_of_attorney_holders
         .select(&:accepts_digital_power_of_attorney_requests?)
@@ -47,6 +52,8 @@ module AccreditedRepresentativePortal
 
       nil
     end
+
+    private
 
     def registrations
       @email.present? or
@@ -111,8 +118,6 @@ module AccreditedRepresentativePortal
       end
     end
     # rubocop:enable Metrics/MethodLength
-
-    private
 
     def get_organizations(representative_id)
       representative =
