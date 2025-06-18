@@ -1677,6 +1677,9 @@ features:
   show_new_schedule_view_appointments_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
+  show_preneed_mulesoft_integration:
+    actor_type: user
+    description: Show the va.gov to mulsoft work for Pre-Need form.
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
