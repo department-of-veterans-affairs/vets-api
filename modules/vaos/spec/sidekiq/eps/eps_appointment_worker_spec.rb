@@ -12,7 +12,6 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   let(:service) { instance_double(Eps::AppointmentService) }
   let(:response) { OpenStruct.new(state: 'completed', appointmentDetails: OpenStruct.new(status: 'booked')) }
   let(:unfinished_response) { OpenStruct.new(state: 'pending', appointmentDetails: OpenStruct.new(status: 'pending')) }
-  let(:va_notify_service) { instance_double(VaNotify::Service) }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
@@ -21,8 +20,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
     Sidekiq::Job.clear_all
     Rails.cache.clear
     redis_client = Eps::RedisClient.new
-    # Store appointment data in Redis for testing
-    # Store the full appointment_id so the worker can use it for the service call
+
     redis_client.store_appointment_data(
       uuid: user.uuid,
       appointment_id:,
@@ -30,9 +28,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
     )
 
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
-    allow(VaNotify::Service).to receive(:new)
-      .with(Settings.vanotify.services.va_gov.api_key)
-      .and_return(va_notify_service)
+    allow(Eps::AppointmentEmailWorker).to receive(:perform_async)
   end
 
   after do
@@ -63,12 +59,10 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => 'Could not complete booking'
-          }
+        expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
+          user.uuid,
+          appointment_id_last4,
+          'Could not complete booking'
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
@@ -82,12 +76,10 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => 'Service error, please contact support'
-          }
+        expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
+          user.uuid,
+          appointment_id_last4,
+          'Service error, please contact support'
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
@@ -101,12 +93,10 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => 'Service error, please contact support'
-          }
+        expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
+          user.uuid,
+          appointment_id_last4,
+          'Service error, please contact support'
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
@@ -127,19 +117,6 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
           'api.vaos.appointment_status_check.failure', tags: ["user_uuid: #{user.uuid}"]
         )
         worker.perform(user.uuid, appointment_id_last4)
-      end
-    end
-
-    describe '#send_vanotify_message' do
-      it 'sends email notification' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => nil
-          }
-        )
-        worker.send(:send_vanotify_message, email: user.va_profile_email)
       end
     end
   end
