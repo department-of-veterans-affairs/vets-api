@@ -24,7 +24,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
            submitted_claim_id: 1)
   end
   let(:processor) do
-    described_class.new(form_data: submission.form['form4142'], submission_id: submission.id, validate: true)
+    described_class.new(form_data: submission.form['form4142'], submission_id: submission.id)
   end
   let(:received_date) do
     submission.created_at.in_time_zone(described_class::TIMEZONE).strftime(described_class::SIGNATURE_TIMESTAMP_FORMAT)
@@ -174,20 +174,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       end
     end
 
-    # New tests for the validation flag
-    context 'when validation is explicitly disabled' do
-      context 'with invalid form data' do
-        let(:invalid_form_data) { form4142.except('providerFacility') }
-
-        it 'does not raise a validation error even when flipper is enabled' do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
-
-          expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id, validate: false) }
-            .not_to raise_error
-        end
-      end
-    end
-
     context 'when validation is explicitly enabled' do
       context 'with invalid form data' do
         let(:invalid_form_data) { form4142.except('providerFacility') }
@@ -195,14 +181,14 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         it 'raises a validation error when flipper is enabled' do
           allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
 
-          expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id, validate: true) }
+          expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
             .to raise_error(Processors::Form4142ValidationError)
         end
 
         it 'does not raise a validation error when flipper is disabled' do
           allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
 
-          expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id, validate: true) }
+          expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
             .not_to raise_error
         end
       end
@@ -244,10 +230,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
       context 'with 2024 template (flag enabled)' do
         before do
-          # TODO: Remove once skip once this PR is merged, failing because there is no 2024 template
-          # https://github.com/department-of-veterans-affairs/vets-api/pull/22527
-          skip 'No 2024 template available yet, see PR #22527'
-
           allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         end
 
@@ -271,11 +253,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     end
 
     describe 'feature flag integration' do
-      # TODO: Remove once skip once this PR is merged, failing because there is no 2024 template
-      # https://github.com/department-of-veterans-affairs/vets-api/pull/22527
       it 'correctly reads the team-specific template flag' do
-        skip 'No 2024 template available yet, see PR #22527'
-
         expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         processor.send(:generate_2024_version?)
       end
