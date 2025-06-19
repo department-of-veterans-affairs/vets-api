@@ -36,7 +36,7 @@ module DebtsApi
       attr_reader :files
 
       def send_to_dmc
-        measure_latency("#{DebtsApi::V0::DigitalDispute::STATS_KEY}.fsr.submit.vba.latency") do
+        measure_latency("#{DebtsApi::V0::DigitalDispute::STATS_KEY}.vba.latency") do
           perform(:post, '/dispute-debt', build_payload)
         end
       end
