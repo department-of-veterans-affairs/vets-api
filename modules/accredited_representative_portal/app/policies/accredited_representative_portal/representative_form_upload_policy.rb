@@ -7,11 +7,15 @@ module AccreditedRepresentativePortal
     include ValidatePowerOfAttorney
 
     def submit?
-      authorize_poa
+      @record.present?
     end
 
     def upload_scanned_form?
-      @user.user_account.active_power_of_attorney_holders.size.positive?
+      @user.user_account.power_of_attorney_holders.size.positive?
+    end
+
+    def upload_supporting_documents?
+      @user.user_account.power_of_attorney_holders.size.positive?
     end
   end
 end
