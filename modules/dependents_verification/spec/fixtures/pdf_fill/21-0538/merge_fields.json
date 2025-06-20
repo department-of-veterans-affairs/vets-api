@@ -1,7 +1,40 @@
 {
-    "veteranFullName": {
+    "veteranFullName":{
         "first": "Jane",
         "last": "Maximal",
         "middleInitial": "E"
-    }
+    },
+    "veteranSSN":{
+        "first": "333",
+        "second": "22",
+        "third": "4445"
+    },
+    "veteranFileNumber": "333224445",
+    "veteranDOB": {
+        "month": "01",
+        "day": "01",
+        "year": "2020"
+    },
+    "veteranAddress": {
+        "street": "123 Main St",
+        "unit_number": "4B",
+        "city": "Anytown",
+        "state": "NY",
+        "postal_code": {
+            "firstFive": "12345",
+            "lastFour": "1234"
+        },
+        "country": "US"
+    },
+    "veteranEmail": {
+        "firstPart": "maximal@example.co",
+        "secondPart": "m"
+    },
+    "veteranEmailAgree": 1,
+    "veteranPhone": {
+        "phone_area_code": "555",
+        "phone_first_three_numbers": "123",
+        "phone_last_four_numbers": "4567"
+    },
+    "veteranInternationalPhone": "15552229999"
 }
