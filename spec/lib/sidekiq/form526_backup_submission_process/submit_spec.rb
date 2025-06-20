@@ -5,6 +5,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'disability_compensation/factories/api_provider_factory'
+require 'evss/disability_compensation_form/form4142_processor'
 
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
@@ -14,6 +15,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
+
+    # By default, this flag is enabled in test environments, turning this off to avoid using the 2024 template
+    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
   end
 
   let(:user_account) { create(:user_account, icn: '123498767V234859') }
@@ -149,8 +153,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
                   # Form 4142 Backup Submission Process
                   expect(submission.form['form4142']).not_to be_nil
-                  form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
-                    form_data: submission.form['form4142'], submission_id: submission.id
+                  form4142_processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(
+                    submission, submission.id
                   )
                   request_body = form4142_processor.request_body
                   metadata_hash = JSON.parse(request_body['metadata'])

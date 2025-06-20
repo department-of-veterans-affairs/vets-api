@@ -2,8 +2,6 @@
 
 module SignIn
   class ServiceAccountConfig < ApplicationRecord
-    include SignIn::Concerns::Certifiable
-
     attribute :access_token_duration, :interval
 
     has_many :config_certificates, as: :config, dependent: :destroy

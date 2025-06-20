@@ -25,6 +25,7 @@ path 'modules' do
   gem 'income_limits'
   gem 'ivc_champva'
   gem 'meb_api'
+  gem 'medical_expense_reports'
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
@@ -57,7 +58,7 @@ gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.g
 gem 'blind_index'
 gem 'blueprinter'
 gem 'bootsnap', require: false
-gem 'breakers', git: 'https://github.com/department-of-veterans-affairs/breakers', tag: '1.0.1'
+gem 'breakers'
 gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clamav-client', require: 'clamav/client'
