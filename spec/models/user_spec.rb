@@ -1478,7 +1478,9 @@ RSpec.describe User, type: :model do
       end
 
       before do
-        allow_any_instance_of(MHV::AccountCreation::Service).to receive(:create_account).and_return(mhv_service_response)
+        allow_any_instance_of(MHV::AccountCreation::Service)
+          .to receive(:create_account)
+          .and_return(mhv_service_response)
       end
 
       context 'and the mhv response is cached' do
