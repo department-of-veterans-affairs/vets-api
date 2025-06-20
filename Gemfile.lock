@@ -456,7 +456,7 @@ GEM
       faraday (>= 0.8)
     faraday-httpclient (2.0.1)
       httpclient (>= 2.2)
-    faraday-multipart (1.1.0)
+    faraday-multipart (1.1.1)
       multipart-post (~> 2.0)
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
@@ -649,10 +649,10 @@ GEM
       base64
     jwt (2.10.1)
       base64
-    karafka-core (2.5.1)
+    karafka-core (2.5.2)
       karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.19.4)
+    karafka-rdkafka (0.19.5)
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)

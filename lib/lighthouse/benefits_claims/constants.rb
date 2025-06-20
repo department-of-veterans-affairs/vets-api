@@ -27,21 +27,21 @@ module BenefitsClaims
                                                ' if awarded.',
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'We need information about the cause of' \
                                                                      ' your posttraumatic stress disorder (PTSD).',
-      'RV1 - Reserve Records Request' => 'We\'ve requested your reserve records on your behalf. No action is needed.',
-      'Proof of service (DD214, etc.)' => 'We\'ve requested your proof of service on your behalf. No action is needed.',
-      'PMR Request' => 'We\'ve requested your non-VA medical records on your behalf. No action is needed.',
-      'General Records Request (Medical)' => 'We\'ve requested your non-VA medical records on your behalf.' \
+      'RV1 - Reserve Records Request' => 'We’ve requested your reserve records on your behalf. No action is needed.',
+      'Proof of service (DD214, etc.)' => 'We’ve requested your proof of service on your behalf. No action is needed.',
+      'PMR Request' => 'We’ve requested your non-VA medical records on your behalf. No action is needed.',
+      'General Records Request (Medical)' => 'We’ve requested your non-VA medical records on your behalf.' \
                                              ' No action is needed.',
-      'DBQ AUDIO Hearing Loss and Tinnitus' => 'We\'ve requested a disability exam for your hearing.' \
-                                               ' The examiner\'s office will contact you to schedule this appointment.',
-      'DBQ PSYCH Mental Disorders' => 'We\'ve requested a mental health exam for you. The examiner\'s office' \
+      'DBQ AUDIO Hearing Loss and Tinnitus' => 'We’ve requested a disability exam for your hearing.' \
+                                               ' The examiner’s office will contact you to schedule this appointment.',
+      'DBQ PSYCH Mental Disorders' => 'We’ve requested a mental health exam for you. The examiner’s office' \
                                       ' will contact you to schedule this appointment.'
     }.freeze
 
     SHORT_DESCRIPTION_MAPPING = {
-      'RV1 - Reserve Records Request' => 'For your benefits claim, we\'ve requested your service records' \
+      'RV1 - Reserve Records Request' => 'For your benefits claim, we’ve requested your service records' \
                                          ' or treatment records from your reserve unit.',
-      'Proof of service (DD214, etc.)' => 'For your benefits claim, we\'ve requested all your DD Form 214\'s' \
+      'Proof of service (DD214, etc.)' => 'For your benefits claim, we’ve requested all your DD Form 214’s' \
                                           ' or other separation papers for all your periods of military service.'
     }.freeze
 
