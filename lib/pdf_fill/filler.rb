@@ -23,6 +23,7 @@ require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'utilities/date_parser'
+require 'pdf_fill/pdf_post_processor'
 
 # rubocop:disable Metrics/ModuleLength
 module PdfFill
@@ -87,11 +88,18 @@ module PdfFill
     # @return [String] The path to the final combined PDF.
     #
     def combine_extras(old_file_path, extras_generator)
+      require 'hexapdf'
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
+        main_reader = PDF::Reader.new(old_file_path)
+        original_page_count = main_reader.page_count
+
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
+        # Adds links and destintions to the combined PDF
+        pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates)
+        pdf_post_processor.process!
 
         File.delete(extras_path)
         File.delete(old_file_path)
