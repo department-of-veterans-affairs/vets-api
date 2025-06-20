@@ -79,6 +79,10 @@ module AccreditedRepresentativePortal
       def latest_submission_attempt
         form_submissions.order(created_at: :desc).first&.latest_attempt
       end
+
+      def display_form_id
+        self.class::PROPER_FORM_ID
+      end
     end
   end
 end

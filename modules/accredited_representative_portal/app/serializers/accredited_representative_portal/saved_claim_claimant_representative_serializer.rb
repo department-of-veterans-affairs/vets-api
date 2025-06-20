@@ -21,7 +21,7 @@ module AccreditedRepresentativePortal
       object.saved_claim.parsed_form[object.claimant_type].dig('name', 'last')
     end
 
-    attribute :form_type, &:form_id
+    attribute :form_type, &:display_form_id
 
     attribute :packet do |object|
       object.persistent_attachments.size > 1
