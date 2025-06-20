@@ -10,6 +10,7 @@ module MPI
     class MviProfile
       include ActiveModel::Model
       include ActiveModel::Attributes
+      include ActiveModel::PrettyInspect
       include MviProfileIdentity
       include MviProfileIds
 
