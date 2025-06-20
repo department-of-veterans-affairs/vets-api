@@ -25,6 +25,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     data = File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
     JSON.parse(data, symbolize_names: true)
   end
+  let(:span) { instance_double('Datadog::Tracing::Span') }
 
   before do
     allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
@@ -51,8 +52,20 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'assigns VeteranICN and posts data to the service' do
+        allow(Datadog::Tracing).to receive(:trace).and_yield(span)
+        allow(span).to receive(:set_tag)
+
         response = creator.call(inquiry_params: inquiry_params[:inquiry])
         expect(response).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
+      end
+
+      it 'traces the call with Datadog and sets appropriate tags' do
+        expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
+        expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
+        expect(span).to receive(:set_tag).with('user.loa', anything)
+        expect(span).to receive(:set_tag).with('inquiry_context', anything)
+
+        creator.call(inquiry_params: inquiry_params[:inquiry])
       end
     end
 
@@ -62,43 +75,33 @@ RSpec.describe AskVAApi::Inquiries::Creator do
           ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
           'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
       end
-      let(:expected_context_hash) do
-        {
-          safe_fields: {
-            category_id: '73524deb-d864-eb11-bb24-000d3a579c45',
-            contact_preference: 'Email',
-            family_members_location_of_residence: 'Alabama',
-            is_question_about_veteran_or_someone_else: 'Veteran',
-            more_about_your_relationship_to_veteran: 'CHILD',
-            relationship_to_veteran: "I'm a family member of a Veteran",
-            select_category: 'Health care',
-            select_topic: 'Audiology and hearing aids',
-            subtopic_id: '',
-            topic_id: 'c0da1728-d91f-ed11-b83c-001dd8069009',
-            veterans_postal_code: '80122',
-            who_is_your_question_about: 'Someone else'
-          }
-        }
-      end
-      let(:expected_error) do
-        {
-          error: 'InquiriesCreatorError: {"Data":null,"Message":"Data Validation: missing InquiryCategory",' \
-                 '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missingInquiryCategory",' \
-                 '"MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
-        }
-      end
       let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
         allow(service).to receive(:call).and_return(failure)
       end
 
-      it 'raises InquiriesCreatorError with safe fields in context' do
-        creator.call(inquiry_params: inquiry_params[:inquiry])
-      rescue AskVAApi::Inquiries::InquiriesCreatorError => e
-        expect(e).to be_a(AskVAApi::Inquiries::InquiriesCreatorError)
-        expect(e.context).to eq(expected_context_hash)
-        expect(e.message).to eq(expected_error[:error])
+      it 'raises InquiriesCreatorError with proper error message' do
+        allow(Datadog::Tracing).to receive(:trace).and_yield(span)
+        allow(span).to receive(:set_tag)
+        allow(span).to receive(:set_error)
+
+        expect { creator.call(inquiry_params: inquiry_params[:inquiry]) }.to raise_error(
+          AskVAApi::Inquiries::InquiriesCreatorError,
+          /InquiriesCreatorError: .*Data Validation: missing InquiryCategory/
+        )
+      end
+
+      it 'sets error on Datadog span when exception occurs' do
+        expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
+        expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
+        expect(span).to receive(:set_tag).with('user.loa', anything)
+        expect(span).to receive(:set_tag).with('inquiry_context', anything)
+        expect(span).to receive(:set_error).with(anything)
+
+        expect { creator.call(inquiry_params: inquiry_params[:inquiry]) }.to raise_error(
+          AskVAApi::Inquiries::InquiriesCreatorError
+        )
       end
     end
   end
