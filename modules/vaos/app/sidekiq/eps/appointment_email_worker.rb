@@ -62,7 +62,11 @@ module Eps
         callback_klass: 'Eps::AppointmentNotificationCallback',
         callback_metadata: {
           user_uuid:,
-          appointment_id_last4:
+          appointment_id_last4:,
+          statsd_tags: {
+            'service' => 'vaos',
+            'function' => 'appointment-status-notification'
+          }
         }
       }
     end
