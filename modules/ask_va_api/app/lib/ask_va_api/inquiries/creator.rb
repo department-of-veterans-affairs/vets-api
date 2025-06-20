@@ -54,7 +54,7 @@ module AskVAApi
         # This is a temporary solution to avoid the need for a full refactor of Logservice.
         Datadog::Tracing.trace('ask_va_api.inquiries.creator.call') do |span|
           safe_fields = log_safe_fields_from_inquiry(inquiry_params)
-          span.set_tag('user.isAuthenticated', user&.present?)
+          span.set_tag('user.isAuthenticated', user.present?)
           span.set_tag('user.loa', user&.loa&.fetch(:current, nil))
 
           payload = build_payload(inquiry_params)
