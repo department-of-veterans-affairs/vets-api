@@ -92,7 +92,7 @@ RSpec.describe Eps::AppointmentEmailWorker, type: :job do
 
         expect(Rails.logger).to have_received(:error).with(
           /upstream error - will not retry: 400/,
-          { user_uuid: user_uuid, appointment_id_last4: appointment_id_last4 }
+          { user_uuid:, appointment_id_last4: }
         )
         check_statsd_failure_increment(user_uuid, appointment_id_last4)
       end
@@ -109,7 +109,7 @@ RSpec.describe Eps::AppointmentEmailWorker, type: :job do
 
         expect(Rails.logger).to have_received(:error).with(
           /upstream error - will retry: 500/,
-          { user_uuid: user_uuid, appointment_id_last4: appointment_id_last4 }
+          { user_uuid:, appointment_id_last4: }
         )
         expect(StatsD).not_to have_received(:increment)
       end
@@ -125,7 +125,7 @@ RSpec.describe Eps::AppointmentEmailWorker, type: :job do
 
         expect(Rails.logger).to have_received(:error).with(
           /unexpected error: StandardError/,
-          { user_uuid: user_uuid, appointment_id_last4: appointment_id_last4 }
+          { user_uuid:, appointment_id_last4: }
         )
         check_statsd_failure_increment(user_uuid, appointment_id_last4)
       end

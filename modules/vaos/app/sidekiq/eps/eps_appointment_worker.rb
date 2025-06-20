@@ -71,7 +71,7 @@ module Eps
       end
     end
 
-    def handle_appointment_response(response, email, retry_count)
+    def handle_appointment_response(response, retry_count)
       if appointment_finished?(response)
         # Appointment finished successfully, do nothing
       elsif retry_count < MAX_RETRIES
