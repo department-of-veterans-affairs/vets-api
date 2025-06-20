@@ -9,10 +9,6 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   let(:decrease_threshold) { 0.20 } # Assuming this is the threshold value
 
   before do
-    # Mock the ALLOWED_TYPES constant
-    stub_const("#{described_class}::TYPES", allowed_types)
-    stub_const("#{described_class}::DECREASE_THRESHOLD", decrease_threshold)
-
     # Mock log_error method to prevent actual logging during tests
     allow(model).to receive(:log_error)
     # Mock Slack notification
@@ -166,7 +162,6 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   end
 
   describe '#get_counts_from_api' do
-    let(:client) { instance_double(RepresentationManagement::GCLAWS::Client) }
     let(:response_body) { { 'totalRecords' => 100 } }
     let(:response) { instance_double(Faraday::Response, body: response_body) }
 
@@ -176,7 +171,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     end
 
     it 'fetches counts for each type from the API' do
-      allowed_types.each do |type|
+      described_class::TYPES.each do |type|
         expect(RepresentationManagement::GCLAWS::Client).to receive(:get_accredited_entities)
           .with(type:, page: 1, page_size: 1)
           .and_return(response)
@@ -184,7 +179,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
       result = model.send(:get_counts_from_api)
 
-      allowed_types.each do |type|
+      described_class::TYPES.each do |type|
         expect(result[type]).to eq(100)
       end
     end
