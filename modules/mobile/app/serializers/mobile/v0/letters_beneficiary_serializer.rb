@@ -16,7 +16,7 @@ module Mobile
           end
 
           resource = LettersBeneficiaryStruct.new(user.uuid, resource.benefit_information,
-                                                  resource.military_service.sort_by(&:enteredDate))
+                                                  resource.military_service.sort_by(&:entered_date))
         end
         super(resource, options)
       end
