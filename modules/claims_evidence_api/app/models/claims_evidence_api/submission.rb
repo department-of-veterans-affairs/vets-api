@@ -29,7 +29,7 @@ class ClaimsEvidenceApi::Submission < Submission
   alias_attribute :file_uuid, :va_claim_id
 
   # retrieve the header value from encrypted reference_data
-  def x_folder_uri?
+  def get_x_folder_uri
     reference_data['x_folder_uri']
   end
 
@@ -39,7 +39,7 @@ class ClaimsEvidenceApi::Submission < Submission
   # * VETERAN - Allows: FILENUMBER, SSN, PARTICIPANT_ID, SEARCH, ICN and EDIPI
   # * PERSON - Allows: PARTICIPANT_ID, SEARCH
   # eg. VETERAN:FILENUMBER:987267855
-  def x_folder_uri(type, identifier, id)
+  def set_x_folder_uri(type, identifier, id)
     # TODO: validate arguments
 
     data = reference_data || {}
@@ -47,6 +47,6 @@ class ClaimsEvidenceApi::Submission < Submission
 
     self.reference_data = data
 
-    x_folder_uri?
+    get_x_folder_uri
   end
 end
