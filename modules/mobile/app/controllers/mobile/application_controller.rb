@@ -10,7 +10,7 @@ module Mobile
 
     before_action :authenticate
     before_action :set_sentry_tags_and_extra_context
-    skip_before_action :authenticate, only: :cors_preflight # rubocop:disable Rails/LexicallyScopedActionFilter
+    skip_before_action :authenticate, only: :cors_preflight
 
     private
 

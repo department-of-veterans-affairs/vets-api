@@ -429,5 +429,4 @@ end
 Q = PersonalInformationLogQueryBuilder
 puts recipes
 
-# rubocop:enable Lint/ShadowingOuterLocalVariable
 # rubocop:enable Style/MultilineBlockChain
