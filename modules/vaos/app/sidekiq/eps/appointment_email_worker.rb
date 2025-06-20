@@ -44,7 +44,7 @@ module Eps
 
     private
 
-    def send_notification_email(appointment_data:, user_uuid:, appointment_id_last4:, error:)
+    def send_notification_email(appointment_data:, error:)
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
 
       notify_client.send_email(
