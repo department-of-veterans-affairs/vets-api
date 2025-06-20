@@ -43,7 +43,7 @@ module Mobile
       end
 
       def create
-        new_appointment = appointments_helper.create_new_appointment(params)
+        new_appointment = appointment_creator.create_new_appointment(params)
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointment')
         render json: { data: serialized }, status: :created
@@ -148,12 +148,12 @@ module Mobile
         end
       end
 
-      def appointments_helper
-        @appointments_helper ||= Mobile::AppointmentsHelper.new(@current_user)
+      def appointment_creator
+        @appointment_creator ||= Mobile::Shared::AppointmentCreator.new(@current_user)
       end
 
       def appointments_cache_interface
-        @appointments_cache_interface ||= Mobile::AppointmentsCacheInterface.new
+        @appointments_cache_interface ||= Mobile::Shared::AppointmentsCacheInterface.new
       end
 
       def staging_custom_error
