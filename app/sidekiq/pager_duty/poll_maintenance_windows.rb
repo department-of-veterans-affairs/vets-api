@@ -10,10 +10,6 @@ module PagerDuty
 
     MESSAGE_INDICATOR = 'USER_MESSAGE:'
 
-    def parse_user_message(raw_description)
-      raw_description.partition(MESSAGE_INDICATOR)[2].strip
-    end
-
     def perform
       client = PagerDuty::MaintenanceClient.new
       pd_windows = client.get_all
@@ -34,6 +30,12 @@ module PagerDuty
       end
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
+    end
+
+    private
+
+    def parse_user_message(raw_description)
+      raw_description.partition(MESSAGE_INDICATOR)[2].strip
     end
   end
 end
