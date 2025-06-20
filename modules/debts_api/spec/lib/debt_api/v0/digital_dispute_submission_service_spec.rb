@@ -20,7 +20,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       it 'sends expected payload with correct structure' do
         expect_any_instance_of(described_class).to receive(:perform).with(
           :post,
-          '/dispute-debt',
+          'dispute-debt',
           satisfy do |payload|
             expect(payload[:file_number]).to eq(user.ssn)
 
@@ -45,21 +45,18 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       it 'returns success result for multiple PDF files' do
         expect_any_instance_of(described_class).to receive(:perform).with(
           :post,
-          '/dispute-debt',
+          'dispute-debt',
           satisfy do |payload|
-            expect(payload[:file_number]).to eq(user.ssn) # Or however it's derived
+            next false unless payload[:file_number] == user.ssn
+            next false unless payload[:dispute_pdfs].size == 2
 
-            expect(payload[:dispute_pdfs].size).to eq(2)
-
-            payload[:dispute_pdfs].each do |pdf|
-              expect(pdf[:file_name]).to end_with('.pdf')
-              expect(pdf[:file_contents]).to be_a(String)
-              expect(Base64.decode64(pdf[:file_contents])).to include('%PDF')
+            payload[:dispute_pdfs].all? do |pdf|
+              pdf[:file_name].end_with?('.pdf') &&
+                pdf[:file_contents].is_a?(String) &&
+                Base64.decode64(pdf[:file_contents]).include?('%PDF')
             end
-
-            true
           end
-        ).and_return(true)
+        )
 
         service = described_class.new(user, [pdf_file_one, pdf_file_two])
         result = service.call
