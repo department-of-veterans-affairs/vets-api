@@ -1024,7 +1024,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', '2122', 'submit.json').read)
 
           before do |example|
-            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_organization, poa: organization_poa_code,
@@ -1386,7 +1386,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '999999999999',
