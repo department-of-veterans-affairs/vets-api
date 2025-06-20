@@ -27,20 +27,14 @@ module PdfFill
 
       def numbered_label_markup
         config = find_config_for_number
-        hide_number = config && config[:hide_question_num]
+        hide_number = config&.dig(:hide_question_num) || false
+
+        return "<h3>#{@text}</h3>" if hide_number || @number.blank?
+
         show_suffix = @subquestions.first&.dig(:metadata, :show_suffix)
         suffix = @subquestions.first&.dig(:metadata, :question_suffix)
-
-        prefix = if @number.present? && !hide_number
-                   if show_suffix && suffix.present?
-                     "#{@number.to_s.sub(/\.0$/, '')}#{suffix.downcase}. "
-                   else
-                     "#{@number}. "
-                   end
-                 else
-                   ''
-                 end
-        "<h3>#{prefix}#{@text}</h3>"
+        suffix_part = show_suffix && suffix.present? ? suffix.to_s.downcase : ''
+        "<h3>#{@number}#{suffix_part}. #{@text}</h3>"
       end
 
       def find_config_for_number
@@ -385,26 +379,29 @@ module PdfFill
       set_markup_options(pdf)
     end
 
-    def get_question_by_number(number)
-      @question_key.find { |q| q[:question_number] == number.to_s }
-    end
-
     def add_text(value, metadata)
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
-      question_num = metadata[:question_num]
+
+      question_config = get_question_config(metadata)
+      question_text = question_config&.dig(:question_text)
+      question_number = question_config&.dig(:question_number)
+
+      @questions[question_number] = get_question(question_text, metadata) if @questions[question_number].blank?
 
       value = apply_humanization(value, metadata[:format_options])
-
-      @questions[question_num] = get_question(metadata) if @questions[question_num].blank?
-
-      @questions[question_num].add_text(value, metadata)
+      @questions[question_number].add_text(value, metadata)
     end
 
-    def get_question(metadata)
-      config = get_question_by_number(metadata[:question_num])
-      question_text = config&.dig(:question_text)
+    def get_question_config(metadata)
+      @question_key.find do |q|
+        q[:question_number].to_s.downcase == "#{metadata[:question_num]}#{metadata[:question_suffix]}".downcase
+      end || @question_key.find do |q|
+        q[:question_number].to_s.downcase == metadata[:question_num].to_s.downcase
+      end
+    end
 
+    def get_question(question_text, metadata)
       if metadata[:i].blank?
         case metadata[:question_type]
         when 'free_text'
@@ -433,16 +430,9 @@ module PdfFill
 
     def sort_generate_blocks
       populate_section_indices!
-      question_keys = @questions.keys
-
-      # Split section labels and question numbers
-      section_keys, question_keys = question_keys.partition { |key| key.to_s.start_with?('section_') }
-
-      # Sort question keys numerically
-      sorted_question_keys = question_keys.sort_by { |k| k.to_s.gsub(/[^\d.]/, '').to_f }
-
-      # Combine section labels and sorted questions, maintaining insertion order
-      (section_keys + sorted_question_keys).map { |key| @questions[key] }.filter(&:overflow)
+      @questions.keys.sort_by { |q| [q[/\d+(?:\.\d+)?/].to_f, q[/[A-Za-z]+/] || ''] } # Sort by number and suffix
+                .map { |key| @questions[key] } # Get the questions
+                .filter(&:overflow) # Only include questions that have overflow
     end
 
     def measure_section_header_height(temp_pdf, section_index)

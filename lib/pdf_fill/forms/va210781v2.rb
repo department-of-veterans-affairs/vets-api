@@ -280,7 +280,7 @@ module PdfFill
         'additionalBehaviorsDetails' => { # question_num: 10C
           key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
           limit: 784,
-          question_num: 10.0, # This is needed to distinguish from the 10B overflow
+          question_num: 10,
           question_suffix: 'C',
           question_text: 'Additional Behavioral Changes',
           show_suffix: true
@@ -618,7 +618,7 @@ module PdfFill
         { question_number: '8', question_text: 'Type of in-service traumatic event(s)' },
         { question_number: '9', question_text: 'Traumatic event(s) information' },
         { question_number: '10', question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)' },
-        { question_number: '10.0', question_text: 'Additional Behavioral Change(s)' },
+        { question_number: '10C', question_text: 'Additional Behavioral Change(s)' },
         { question_number: '11', question_text: 'Was an official report filed?' },
         { question_number: '11.5', question_text: 'Police report location(s)',  hide_question_num: true },
         { question_number: '12', question_text: 'Possible sources of evidence following the traumatic event(s)' },
@@ -638,7 +638,7 @@ module PdfFill
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: %w[10 10c 11 11.5 12]
+          question_nums: %w[10 10C 11 11.5 12]
         },
         {
           label: 'Section IV: Treatment Information',

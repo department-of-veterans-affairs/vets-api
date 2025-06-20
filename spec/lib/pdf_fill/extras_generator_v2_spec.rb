@@ -82,27 +82,11 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
       end
 
-      context 'when question_num is numeric 10.0 and question_number is string "10c"' do
-        it 'renders 10c. for numeric/string match' do
-          config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)' }]
-          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
-          question.add_text('Value', {})
-          expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
-        end
-      end
-
       it 'falls back to just question_number when display_suffix is missing' do
         config = [{ question_number: '11.5', question_text: 'Police report location(s)' }]
         question = described_class.new('Police report location(s)', { question_num: '11.5' }, config)
         question.add_text('Value', {})
         expect(question.numbered_label_markup).to eq('<h3>11.5. Police report location(s)</h3>')
-      end
-
-      it 'matches numeric question_num to string question_number in config' do
-        config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)' }]
-        question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
-        question.add_text('Value', {})
-        expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
       end
 
       it 'falls back to just number if no config match' do
@@ -311,7 +295,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
   describe '#populate_section_indices!' do
     it 'populates section indices correctly' do
-      questions = %w[1 9 42 7].index_with do |question_num|
+      questions = [1, 9, 42, 7].index_with do |question_num|
         described_class::Question.new(nil, { question_num: })
       end
       subject.instance_variable_set(:@questions, questions)
