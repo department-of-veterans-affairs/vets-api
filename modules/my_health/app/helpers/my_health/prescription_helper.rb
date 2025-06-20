@@ -122,7 +122,7 @@ module MyHealth
         non_va_meds.sort_by! { |med| med.prescription_name.to_s.downcase }
         va_meds.sort_by! { |med| med.prescription_name.to_s.downcase }
         # Order: filled meds first, empty va non filled meds second, then empty non filled non va meds last.
-        resource.records = filled_meds + non_va_meds + non_va_meds
+        resource.records = filled_meds + va_meds + non_va_meds
 
         resource
       end

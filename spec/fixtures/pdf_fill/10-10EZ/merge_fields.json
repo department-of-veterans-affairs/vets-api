@@ -71,7 +71,7 @@
   "exposureToWarfareAgents": 6,
   "exposureToOther": 7,
   "otherToxicExposure": "Other Toxic Exposure",
-  "isEssentialAcaCoverage": true,
+  "isEssentialAcaCoverage": false,
   "vaMedicalFacility": "520GA - Mobile VA Clinic",
   "wantsInitialVaContact": 1,
   "email": "indiana@jones.com",

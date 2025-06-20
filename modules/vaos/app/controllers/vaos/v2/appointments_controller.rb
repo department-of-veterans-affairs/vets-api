@@ -12,6 +12,7 @@ module VAOS
       APPT_DRAFT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_draft_creation.failure'
       APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
       APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
+      APPT_CREATION_DURATION_METRIC = 'api.vaos.appointment_creation.duration'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -126,6 +127,8 @@ module VAOS
           StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
+
+        log_referral_booking_duration(params[:referral_number])
 
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
@@ -466,12 +469,13 @@ module VAOS
       ##
       # Searches for a provider using the NPI from the referral data.
       #
-      # @param referral_data [Hash] The referral data containing provider information
-      # @option referral_data [String] :npi The National Provider Identifier (NPI) to search for
+      # @param npi [String] The National Provider Identifier (NPI) to search for
+      # @param specialty [String] The specialty to search for
+      # @param address [Hash] The address to search for
       # @return [Object, nil] The provider service object if found, nil otherwise
       #
-      def find_provider(npi:)
-        eps_provider_service.search_provider_services(npi:)
+      def find_provider(npi:, specialty:, address:)
+        eps_provider_service.search_provider_services(npi:, specialty:, address:)
       end
 
       ##
@@ -771,7 +775,9 @@ module VAOS
         usage = check_referral_usage(referral_id)
         return usage unless usage[:success]
 
-        provider = find_provider(npi: referral.provider_npi)
+        provider = find_provider(npi: referral.provider_npi,
+                                 specialty: referral.provider_specialty,
+                                 address: referral.treating_facility_address)
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
         slots = fetch_provider_slots(referral, provider.id)
@@ -779,6 +785,24 @@ module VAOS
         drive_time = fetch_drive_times(provider)
 
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
+      end
+
+      # Records the duration between when a referral booking was started and when it completes
+      # by measuring the time between the cached start time and current time.
+      # The duration is recorded as a StatsD metric in milliseconds.
+      #
+      # @param referral_number [String] The referral number to lookup the start time for
+      # @return [void]
+      def log_referral_booking_duration(referral_number)
+        start_time = ccra_referral_service.get_booking_start_time(
+          referral_number,
+          current_user.icn
+        )
+
+        return unless start_time
+
+        duration_ms = ((Time.current.to_f - start_time) * 1000).round
+        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms)
       end
     end
   end

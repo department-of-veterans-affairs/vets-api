@@ -94,6 +94,7 @@ class FormProfile
     coe: ['26-1880'],
     decision_review: %w[20-0995 20-0996 10182],
     dependents: %w[686C-674 686C-674-V2],
+    dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
@@ -142,6 +143,7 @@ class FormProfile
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0538' => DependentsVerification::FormProfiles::VA210538,
     '21-0966' => ::FormProfiles::VA210966,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,

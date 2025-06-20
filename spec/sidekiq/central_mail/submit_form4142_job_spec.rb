@@ -11,8 +11,10 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     # Make Job use old CentralMail route for all tests
     Flipper.disable(:disability_compensation_form4142_supplemental)
     # By default, features are enabled in test environments and disabled by default in other environments
-    # this is to ensure that the 2024 4142 template is not used in tests unless explicitly enabled
+    # This is to ensure that the 2024 4142 template and schema validation is
+    # not used in tests unless explicitly enabled
     Flipper.disable(:disability_526_form4142_use_2024_template)
+    Flipper.disable(:disability_526_form4142_validate_schema)
   end
 
   #######################

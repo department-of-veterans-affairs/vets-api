@@ -7,7 +7,7 @@ module AskVAApi
         include SharedHelpers
 
         class InquiryPayloadError < StandardError; end
-        attr_reader :inquiry_params, :inquiry_details, :submitter_profile, :user, :veteran_profile
+        attr_reader :inquiry_params, :inquiry_details, :inquiry_details_obj, :submitter_profile, :user, :veteran_profile
 
         # NOTE: These two constants share the same ID value ('722310000') intentionally.
         # This is due to an API quirk where different fields (e.g., authentication status and inquiry source)
@@ -19,7 +19,8 @@ module AskVAApi
         def initialize(inquiry_params:, user: nil)
           @inquiry_params = inquiry_params
           validate_params!
-          @inquiry_details = InquiryDetails.new(inquiry_params).call
+          @inquiry_details_obj = InquiryDetails.new(inquiry_params)
+          @inquiry_details = @inquiry_details_obj.call
           @user = user
           @submitter_profile = SubmitterProfile.new(inquiry_params:, user:, inquiry_details:)
           @veteran_profile = VeteranProfile.new(inquiry_params:, user:, inquiry_details:)
@@ -35,6 +36,20 @@ module AskVAApi
             DependentDOB: family_member_field(:date_of_birth),
             DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
+
+          # Add debug logging to determine root cause for https://github.com/department-of-veterans-affairs/ask-va/issues/1872
+          # Level of Authentication is a misnomer. it doesn't contain any PII and the two possible values are:
+          # 'Business' or 'Personal'.
+          if user.nil? && inquiry_details_obj.education_benefits?
+            Rails.logger.warn('Unauthenticated Education inquiry submitted. ' \
+                              "Category: #{inquiry_details_obj.category}, " \
+                              "Topic: #{inquiry_details_obj.topic}")
+          end
+
+          Rails.logger.info("Level of Authentication: #{inquiry_details[:level_of_authentication]}")
+
+          # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
+          Rails.logger.info("User LOA: #{user&.loa&.fetch(:current, nil)}") if user.present?
 
           payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
 

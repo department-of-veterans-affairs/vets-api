@@ -5,7 +5,7 @@ http_interactions:
     uri: <LIGHTHOUSE_BENEFITS_DISCOVERY_HOST>/benefits-discovery-service/v0/recommendations
     body:
       encoding: US-ASCII
-      string: '"{}"'
+      string: '{}'
     headers:
       Accept:
       - application/json

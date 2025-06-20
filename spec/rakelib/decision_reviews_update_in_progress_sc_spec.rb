@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# Ensure this specific test runs in test environment
-ENV['RAILS_ENV'] = 'test'
-
 require 'rails_helper'
 require 'rake'
 

@@ -123,7 +123,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
 
         it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment_formatted_correctly',
             VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -150,7 +150,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
 
         it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment',
             VCR::MATCH_EVERYTHING.merge(erb: true)

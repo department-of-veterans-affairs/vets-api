@@ -40,7 +40,8 @@
               "recipientId",
               "recipientName",
               "readReceipt",
-              "suggestedNameDisplay"
+              "suggestedNameDisplay",
+              "isOhMessage"
             ],
             "properties": {
               "messageId": {
@@ -84,6 +85,9 @@
               },
               "suggestedNameDisplay": {
                 "type": ["null", "string"]
+              },
+              "isOhMessage": {
+                "type": "boolean"
               }
             }
           },

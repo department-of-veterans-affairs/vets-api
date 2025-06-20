@@ -16,7 +16,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
     it 'does nothing' do
       expect(Rails.logger).not_to receive(:info)
       expect(Rails.logger).not_to receive(:error)
-      expect(FormSubmissionAttempt).not_to receive(:where)
+      expect(Lighthouse::SubmissionAttempt).not_to receive(:where)
       expect(BenefitsIntake::Service).not_to receive(:new)
       job.perform
     end
@@ -33,16 +33,16 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
       allow(BenefitsIntake::Service).to receive(:new).and_return(service)
 
-      create_list(:form_submission, 2, :success)
-      create_list(:form_submission, 2, :failure)
-      create_list(:form_submission, 4, :pending, form_type: 'TEST')
+      create_list(:lighthouse_submission, 2, :submitted)
+      create_list(:lighthouse_submission, 2, :failure)
+      create_list(:lighthouse_submission, 4, :pending, form_id: 'TEST')
 
       stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', {
                    'TEST' => handler
                  })
     end
 
-    it 'processes only form_types with handlers' do
+    it 'processes only form_ids with handlers' do
       stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'FOO' => 'BAR' })
       expect(service).not_to receive(:bulk_status)
 
@@ -67,7 +67,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       end
 
       it 'submits only pending form submissions' do
-        fsa_pending_uuids = FormSubmissionAttempt.where(aasm_state: 'pending').map(&:benefits_intake_uuid)
+        fsa_pending_uuids = Lighthouse::SubmissionAttempt.where(status: 'pending').map(&:benefits_intake_uuid)
         response = double(body: { 'data' => [] }, success?: true)
         expect(service).to receive(:bulk_status).with(uuids: fsa_pending_uuids).and_return(response)
 
@@ -94,8 +94,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
     end
 
     context 'processes the status response' do
-      let(:pending) { FormSubmissionAttempt.find_by(aasm_state: 'pending') }
-      let(:form_id) { pending.form_submission.form_type }
+      let(:pending) { Lighthouse::SubmissionAttempt.find_by(status: 'pending') }
+      let(:form_id) { pending.submission.form_id }
 
       before do
         allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send)
@@ -137,7 +137,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         job.perform
 
         updated = pending.reload
-        expect(updated.aasm_state).to eq 'failure'
+        expect(updated.status).to eq 'failure'
         expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to eq 'expired'
       end
@@ -153,7 +153,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         job.perform
 
         updated = pending.reload
-        expect(updated.aasm_state).to eq 'failure'
+        expect(updated.status).to eq 'failure'
         expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to eq 'CODE###: TEST ERROR'
       end
@@ -169,7 +169,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         job.perform
 
         updated = pending.reload
-        expect(updated.aasm_state).to eq 'vbms'
+        expect(updated.status).to eq 'vbms'
         expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to be_nil
       end
@@ -185,7 +185,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         job.perform
 
         updated = pending.reload
-        expect(updated.aasm_state).to eq 'pending'
+        expect(updated.status).to eq 'pending'
         expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to be_nil
       end
@@ -193,7 +193,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       it 'handles a stale attempt' do
         expect(service).to receive(:bulk_status).and_return(mock_response(:any_other_status))
 
-        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
+        allow_any_instance_of(Lighthouse::SubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
         expect(StatsD).to receive(:increment).with("#{stats_key}.#{form_id}.stale").once
         expect(StatsD).to receive(:increment).with("#{stats_key}.all_forms.stale").once
 
@@ -202,14 +202,14 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         job.perform
 
         updated = pending.reload
-        expect(updated.aasm_state).to eq 'pending'
+        expect(updated.status).to eq 'pending'
         expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to be_nil
       end
     end
 
     context 'handles the attempt result' do
-      let(:pending) { FormSubmissionAttempt.find_by(aasm_state: 'pending') }
+      let(:pending) { Lighthouse::SubmissionAttempt.find_by(status: 'pending') }
 
       it 'does nothing if there is no handler' do
         data = [{ 'id' => pending.benefits_intake_uuid, 'attributes' => { 'status' => 'vbms' } }]
@@ -236,8 +236,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid,
                                                                  'error').and_call_original
 
-        allow_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
-        allow_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
+        allow_any_instance_of(Lighthouse::Submission).to receive(:form_id).and_return('TEST')
+        allow_any_instance_of(Lighthouse::Submission).to receive(:saved_claim_id).and_return(42)
         expect(handler).to receive(:new).with(42).and_return(handler)
         expect(handler).to receive(:handle).with('failure', anything)
 
@@ -254,9 +254,9 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid,
                                                                  'pending').and_call_original
 
-        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
-        allow_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
-        allow_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
+        allow_any_instance_of(Lighthouse::SubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
+        allow_any_instance_of(Lighthouse::Submission).to receive(:form_id).and_return('TEST')
+        allow_any_instance_of(Lighthouse::Submission).to receive(:saved_claim_id).and_return(42)
         expect(handler).to receive(:new).with(42).and_return(handler)
         expect(handler).to receive(:handle).with('stale', anything).and_raise(StandardError, 'raise handler error')
         expect(Rails.logger).to receive(:error).with("#{job.class}: ERROR handling result", anything)

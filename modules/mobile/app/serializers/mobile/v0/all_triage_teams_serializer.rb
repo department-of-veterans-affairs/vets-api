@@ -8,8 +8,13 @@ module Mobile
       set_type :all_triage_teams
       set_id(&:triage_team_id)
 
-      attributes :triage_team_id, :name, :station_number, :relation_type,
-                 :location_name, :suggested_name_display,
+      attributes :triage_team_id,
+                 :name,
+                 :station_number,
+                 :preferred_team,
+                 :relation_type,
+                 :location_name,
+                 :suggested_name_display,
                  :health_care_system_name
     end
   end

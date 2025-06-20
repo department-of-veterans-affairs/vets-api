@@ -101,15 +101,15 @@ module ClaimsApi
     end
 
     def assign_poa_to_dependent_via_update_benefit_claim?
-      first_open_claim_details
+      claim_details = first_open_claim_details
 
-      if first_open_claim_details.blank?
+      if claim_details.blank?
         log(detail: 'Dependent has no open claims.', statuses: dependent_claims.pluck(:phase_type).uniq)
 
         raise ::Common::Exceptions::ServiceError
       end
 
-      benefit_claim_update_input = build_benefit_claim_update_input(claim_details: first_open_claim_details)
+      benefit_claim_update_input = build_benefit_claim_update_input(claim_details:)
 
       result = benefit_claim_service.update_benefit_claim(benefit_claim_update_input)
 
@@ -131,7 +131,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'Dependent claims not found in BGS')
 
-      raise ::Common::Exceptions::ResourceNotFound
+      {}
     end
 
     def e_benefits_bnft_claim_status_web_service
@@ -153,7 +153,6 @@ module ClaimsApi
 
     def claim_details(claim_id)
       res = benefit_claim_web_service.find_bnft_claim(claim_id:)
-
       return res&.dig(:bnft_claim_dto) if res&.dig(:bnft_claim_dto).present?
 
       log(level: :error, detail: 'Claim details not found in BGS', claim_id:)
@@ -199,6 +198,7 @@ module ClaimsApi
         open_claims = benefit_claim_web_service.find_bnft_claim_by_clmant_id(
           dependent_participant_id: @dependent_participant_id
         )
+
         first_claim_id = open_claims.present? ? open_claims[:bnft_claim_dto].first[:bnft_claim_id] : nil
         first_claim_id.present? ? claim_details(first_claim_id) : {}
       end

@@ -12,10 +12,10 @@ require 'simple_forms_api_submission/metadata_validator'
 module EVSS
   module DisabilityCompensationForm
     class Form4142Processor < Processors::BaseForm4142Processor
-      def initialize(submission, jid, validate: true)
+      def initialize(submission, jid)
         @submission = submission
         @jid = jid
-        super(validate:) # Pass validate flag to parent
+        super()
       end
 
       protected

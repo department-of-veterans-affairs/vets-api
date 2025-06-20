@@ -57,6 +57,31 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
       end
     end
 
+    context 'when user is authenticated and inquiry is about Education benefits and work study' do
+      let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '234', edipi: '123') }
+      let(:params) { i_am_veteran_edu[:inquiry] }
+
+      it 'does not set LevelOfAuthentication to (722310000) UNAUTHENTICATED for authenticated users' do
+        result = builder.call
+        expect(result[:LevelOfAuthentication]).not_to eq('722310000')
+        # Should be some other value for authenticated users
+        expect(result[:LevelOfAuthentication]).to be_present
+      end
+    end
+
+    # According to business requirements, this is an invalid scenario, but the
+    # code currently doesn't handle it properly
+    # In the future this test would be useful to test for a validation exception of some sorts.
+    context 'when user is nil and inquiry is about Education benefits and work study' do
+      let(:authorized_user) { nil }
+      let(:params) { i_am_veteran_edu[:inquiry] }
+
+      it 'sets LevelOfAuthentication to (722310000) UNAUTHENTICATED for education benefits inquiries' do
+        result = builder.call
+        expect(result[:LevelOfAuthentication]).to eq('722310000')
+      end
+    end
+
     context 'when no params are passed' do
       let(:params) { nil }
 

@@ -473,6 +473,11 @@ module PdfFill
         end
       end
 
+      def address_fields_overflow?(address)
+        street2 = address['street2']&.size || 0 # street2 can be nil, so we default to 0
+        address['street'].size > 30 || street2 > 5 || address['city'].size > 18
+      end
+
       def expand_provider_address(providers)
         providers.each do |provider|
           address = {
@@ -485,9 +490,7 @@ module PdfFill
           }
 
           # only fill out the completeAddress key (for the overflow page) if any of address fields are too long
-          if address['street'].size > 30 || address['street2'].size > 5 || address['city'].size > 18
-            provider['addressOverflows'] = true
-          end
+          provider['addressOverflows'] = true if address_fields_overflow?(address)
 
           # We need to put the address in an array to take advantage of hashConverter's
           # configuration options for overflowing the address properly
