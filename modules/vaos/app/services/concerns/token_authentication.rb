@@ -17,6 +17,23 @@ module TokenAuthentication
       }
     end
 
+    # Returns a hash of HTTP headers including the authorization token and a unique correlation ID.
+    # This method generates a new correlation ID for each call, enabling better tracing of individual
+    # service requests within a single user request.
+    #
+    # @return [Hash] the HTTP headers with correlation ID
+    def headers_with_correlation_id
+      correlation_id = SecureRandom.uuid
+      Rails.logger.info(message: 'EPS API Call', correlation_id:, request_id: RequestStore.store['request_id'])
+
+      {
+        'Authorization' => "Bearer #{token}",
+        'Content-Type' => 'application/json',
+        'X-Request-ID' => RequestStore.store['request_id'],
+        'X-Correlation-ID' => correlation_id
+      }
+    end
+
     # Retrieves a new token by making a POST request.
     #
     # @return [Object] the token response from the API.
