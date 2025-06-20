@@ -29,9 +29,13 @@ module SignIn
     end
 
     def validate_issuer
-      if issuer != audience
-        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid'
+      error = false
+      if service_account_id && issuer != service_account_id
+        error = true if issuer != audience
+      elsif issuer != service_account_config.service_account_id
+        error = true
       end
+      raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid' if error
     end
 
     def validate_audience
@@ -71,7 +75,7 @@ module SignIn
     end
 
     def create_new_access_token
-      ServiceAccountAccessToken.new(service_account_id:,
+      ServiceAccountAccessToken.new(service_account_id: service_account_id || issuer,
                                     audience:,
                                     scopes:,
                                     user_attributes:,
@@ -123,6 +127,10 @@ module SignIn
       @issuer ||= decoded_assertion.iss
     end
 
+    def nonvalidated_issuer
+      @nonvalidated_issuer ||= decoded_assertion_without_validation.iss
+    end
+
     def assertion_audience
       @assertion_audience ||= Array(decoded_assertion.aud)
     end
@@ -140,7 +148,8 @@ module SignIn
     end
 
     def service_account_config
-      @service_account_config ||= ServiceAccountConfig.find_by(service_account_id:)
+      @service_account_config ||= ServiceAccountConfig.find_by(service_account_id: service_account_id ||
+                                                                                   nonvalidated_issuer)
     end
 
     def jwt_decode(with_validation: true)
