@@ -51,8 +51,8 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     expect(service).to receive(:request_upload)
     expect(monitor).to receive(:track_submission_begun).and_call_original
 
-    expect(FormSubmission).to receive(:create).and_call_original
-    expect(FormSubmissionAttempt).to receive(:create).and_call_original
+    expect(Lighthouse::Submission).to receive(:create).and_call_original
+    expect(Lighthouse::SubmissionAttempt).to receive(:create).and_call_original
     expect(Datadog::Tracing).to receive(:active_trace).and_call_original
 
     expect(service).to receive(:location)
@@ -74,12 +74,12 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     lh_bi_uuid = IncomeAndAssets::BenefitsIntake::SubmitClaimJob.new.perform(saved_claim_id)
 
     # verify upload artifacts - form_submission and claim_va_notification
-    submission = FormSubmission.find_by(saved_claim_id:)
+    submission = Lighthouse::Submission.find_by(saved_claim_id:)
     expect(submission).to be_present
 
     attempt = submission.latest_pending_attempt
     expect(attempt).to be_present
-    expect(attempt.aasm_state).to eq 'pending'
+    expect(attempt.status).to eq 'pending'
     expect(attempt.benefits_intake_uuid).to eq lh_bi_uuid
 
     notification = ClaimVANotification.find_by(saved_claim_id:)
@@ -104,7 +104,7 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     BenefitsIntake::SubmissionStatusJob.new.perform(IncomeAndAssets::FORM_ID)
 
     updated = attempt.reload
-    expect(updated.aasm_state).to eq 'vbms'
+    expect(updated.status).to eq 'vbms'
     expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
     expect(updated.error_message).to be_nil
   end
