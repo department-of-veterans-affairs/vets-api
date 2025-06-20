@@ -77,8 +77,8 @@ module BPDS
     #
     # - 'sensitivityLevel' is currently set to 0. We may need to calculate this value in the future.
     # - 'payloadNamespace' is determined by the bpds_namespace method using the claim's form_id.
-    # - 'participantId' is included if provided, representing the participant's ID.
-    # - 'fileNumber' is included if provided, representing the participant's file number.
+    # - 'participantId' is included if provided, representing the user's participant ID.
+    # - 'fileNumber' is included if provided, representing the user's file number.
     # - 'payload' contains the parsed form data from the claim.
     def default_payload(claim, participant_id = nil, file_number = nil)
       {
