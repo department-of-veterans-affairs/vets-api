@@ -49,7 +49,7 @@ module Mobile
         end
 
         render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses.sort_by { |addr|
-          addr[:address_meta][:address][:confidence_score]
+          addr.address_meta.confidence_score
         })
       end
 
