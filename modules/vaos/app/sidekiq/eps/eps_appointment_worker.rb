@@ -32,7 +32,6 @@ module Eps
       return unless appointment_data
 
       appointment_id = appointment_data[:appointment_id]
-      email = appointment_data[:email]
       user = User.find(user_uuid)
 
       process_appointment_status(user, appointment_id, retry_count)
@@ -56,7 +55,8 @@ module Eps
       Rails.logger.error('EpsAppointmentWorker missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
                            appointment_data: }.to_json)
-      StatsD.increment("#{STATSD_PREFIX}.failure", tags: ["user_uuid: #{@user_uuid}"])
+      StatsD.increment("#{STATSD_PREFIX}.failure",
+                       tags: ["user_uuid: #{@user_uuid}", "appointment_id_last4: #{@appointment_id_last4}"])
     end
 
     def process_appointment_status(user, appointment_id, retry_count)
@@ -64,10 +64,13 @@ module Eps
       begin
         response = service.get_appointment(appointment_id:)
         handle_appointment_response(response, retry_count)
-      rescue Common::Exceptions::BackendServiceException
-        send_vanotify_message(error: 'Service error, please contact support')
-      rescue => e
-        send_vanotify_message(error: e.message)
+      rescue
+        Rails.logger.error('EpsAppointmentWorker failed to get appointment status',
+                           { user_uuid: @user_uuid,
+                             appointment_id_last4: @appointment_id_last4,
+                             appointment_id: })
+        send_vanotify_message(error: 'Could not verify the booking status of your submitted appointment, ' \
+                                     'please contact support')
       end
     end
 

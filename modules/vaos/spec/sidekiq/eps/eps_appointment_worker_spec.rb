@@ -79,7 +79,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
         expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
-          'Service error, please contact support'
+          'Could not verify the booking status of your submitted appointment, please contact support'
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
@@ -96,7 +96,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
         expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
-          'Service error, please contact support'
+          'Could not verify the booking status of your submitted appointment, please contact support'
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
@@ -114,7 +114,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(
-          'api.vaos.appointment_status_check.failure', tags: ["user_uuid: #{user.uuid}"]
+          'api.vaos.appointment_status_check.failure', tags: ["user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
         )
         worker.perform(user.uuid, appointment_id_last4)
       end
