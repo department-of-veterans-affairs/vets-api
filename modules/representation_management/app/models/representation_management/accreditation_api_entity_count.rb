@@ -4,6 +4,8 @@ require 'sentry_logging'
 
 module RepresentationManagement
   class AccreditationApiEntityCount < ApplicationRecord
+    self.table_name = 'accreditation_api_entity_counts'
+
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
     # The total number of representatives and organizations parsed from the GCLAWS API
     # must not decrease by more than this percentage from the previous count
