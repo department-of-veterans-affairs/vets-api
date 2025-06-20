@@ -1524,7 +1524,6 @@ spec/mailers/stem_applicant_sco_mailer_spec.rb @department-of-veterans-affairs/v
 spec/mailers/transactional_email_mailer_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/veteran_readiness_employment_mailer_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/middleware @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/models/_shared_examples @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/models/account_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/accreditation_spec.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 spec/models/accredited_individual_spec.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
@@ -1897,6 +1896,7 @@ spec/support/form1095 @department-of-veterans-affairs/vfs-1095-b @department-of-
 spec/support/matchers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/mdot_helpers.rb @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/support/medical_copays @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/support/models/shared_examples @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/support/model_helpers.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/mpi @department-of-veterans-affairs/octo-identity
 spec/support/mr_client_helpers.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
