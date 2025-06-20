@@ -20,8 +20,9 @@ module ClaimsApi
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
         def show
-          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
+          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
+
           if poa_code.blank?
             render json: { data: }
           else
