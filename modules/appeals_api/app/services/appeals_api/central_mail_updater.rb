@@ -2,8 +2,6 @@
 
 module AppealsApi
   class CentralMailUpdater
-    include SentryLogging
-
     MAX_UUIDS_PER_REQUEST = 100
 
     ERROR_UNIDENTIFIED_MAIL = %w[
@@ -66,12 +64,8 @@ module AppealsApi
 
       central_mail_response = CentralMail::Service.new.status(appeals.pluck(:id))
       unless central_mail_response.success?
-        log_message_to_sentry(
-          'Error getting status from Central Mail',
-          :warning,
-          status: central_mail_response.status,
-          body: central_mail_response.body
-        )
+        Rails.logger.warn('Error getting status from Central Mail API".',
+                          { central_mail_status: central_mail_response.status, central_mail_body: central_mail_response.body })
         raise Common::Exceptions::BadGateway
       end
 
@@ -97,11 +91,8 @@ module AppealsApi
 
     def update_appeal_status!(appeal, central_mail_status)
       attributes = CENTRAL_MAIL_STATUS_ATTRIBUTES.fetch(central_mail_status.status) do
-        log_message_to_sentry(
-          'Unknown status value from Central Mail API',
-          :warning,
-          status: central_mail_status.status
-        )
+        Rails.logger.warn('Unknown status value from Central Mail API.',
+                          { central_mail_status: central_mail_status.status })
         raise Common::Exceptions::BadGateway
       end
 
@@ -119,19 +110,20 @@ module AppealsApi
     def log_exception(e, appeal, status)
       details = {
         class: self.class.to_s,
+        detail: 'Error when trying to update appeal status',
         appeal_type: appeal.class.to_s,
         appeal_id: appeal.id,
         appeal_status: appeal.status,
         attempted_status: status
       }
 
-      log_exception_to_sentry e, details
-
       slack_details = {
         exception: e.class.to_s,
         exception_message: e.message,
         detail: 'Error when trying to update appeal status'
       }.merge(details)
+
+      Rails.logger.warn('Error updating appeal status', slack_details)
 
       AppealsApi::Slack::Messager.new(slack_details).notify!
     end
