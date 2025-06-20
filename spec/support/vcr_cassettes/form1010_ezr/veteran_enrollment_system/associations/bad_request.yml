@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 05 Jun 2025 21:31:46 GMT
+      - Tue, 17 Jun 2025 21:08:09 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -34,8 +34,10 @@ http_interactions:
       - SAMEORIGIN
       Content-Security-Policy:
       - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
       X-Envoy-Upstream-Service-Time:
-      - '19'
+      - '24'
       Ssl-Env:
       - 'On'
       X-Xss-Protection:
@@ -43,23 +45,27 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="1537444589"
+      - dtSInfo;desc="0", dtRpid;desc="-840278299"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"associations":[]},"messages":[]}'
-  recorded_at: Thu, 05 Jun 2025 21:31:46 GMT
+      string: '{"data":{"associations":[{"role":"OTHER_NEXT_OF_KIN","relationType":"DAUGHTER","name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"address":{"line1":"875
+        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"5435553234","lastUpdateDate":"2025-06-17T16:07:28"},{"role":"OTHER_EMERGENCY_CONTACT","relationType":"UNRELATED_FRIEND","name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"address":{"line1":"875
+        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"1442342659","lastUpdateDate":"2025-06-17T16:07:28"},{"role":"PRIMARY_NEXT_OF_KIN","relationType":"SON","name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"address":{"line1":"NE
+        54th St","line2":"Apt 7","line3":"Unit 1222","city":"guanajuato","provinceCode":"guanajuato","postalCode":"84754","country":"MEX"},"primaryPhone":"9473747334","lastUpdateDate":"2025-06-17T16:07:28"},{"role":"EMERGENCY_CONTACT","relationType":"BROTHER","name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"address":{"line1":"28
+        Parker St","city":"Los Angeles","state":"CA","zipCode":"90038","zipPlus4":"1234","country":"USA"},"primaryPhone":"5436422223","lastUpdateDate":"2025-06-17T16:07:28"}]},"messages":[]}'
+  recorded_at: Tue, 17 Jun 2025 21:08:09 GMT
 - request:
     method: put
     uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
     body:
       encoding: UTF-8
       string: '{"associations":[{"address":{"city":"guanajuato","country":"MEX","line1":"NE
-        54th St","line2":"Apt 7","line3":"Unit 1222","provinceCode":"guanajuato","postalCode":"84754"},"name":{"givenName":"UPDATEDFIRSTNOKA","middleName":"UPDATEDMIDDLENOKA","familyName":"UPDATEDLASTNOKA","suffix":"JR."},"alternatePhone":"6544551234","primaryPhone":"4449131234","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"},{"address":{"city":"Tampa","country":"USA","line1":"875
-        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"UPDATEDFIRSTNOKB","middleName":"UPDATEDMIDDLENOKB","familyName":"UPDATEDLASTNOKB"},"alternatePhone":"2658350023","primaryPhone":"1238835546","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"},{"address":{"city":"Los
-        Angeles","country":"USA","line1":"28 Parker St","state":"CA","zipCode":"90038","zipPlus4":"1234"},"name":{"givenName":"UPDATEDFIRSTECA","middleName":"UPDATEDMIDDLEECA","familyName":"UPDATEDLASTECA"},"alternatePhone":"1123321232","primaryPhone":"7563627422","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"},{"address":{"city":"Wichita","country":"USA","line1":"875
-        West Blvd","line2":"Apt 3","line3":"Unit 6","state":"KS","zipCode":"67203","zipPlus4":"1234"},"name":{"givenName":"UPDATEDFIRSTECB","middleName":"UPDATEDMIDDLEECB","familyName":"UPDATEDLASTECB"},"alternatePhone":"9563001117","primaryPhone":"6437432434","relationType":"","role":"","lastUpdateDate":"2025-06-05T21:31:46Z"}]}'
+        54th St","line2":"Apt 7","line3":"Unit 1222","provinceCode":"guanajuato","postalCode":"84754"},"name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"primaryPhone":"9473747334","relationType":"","role":"","lastUpdateDate":"2025-06-17T21:08:19Z"},{"address":{"city":"Tampa","country":"USA","line1":"875
+        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"primaryPhone":"5435553234","relationType":"","role":"","lastUpdateDate":"2025-06-17T21:08:19Z"},{"address":{"city":"Los
+        Angeles","country":"USA","line1":"28 Parker St","state":"CA","zipCode":"90038","zipPlus4":"1234"},"name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"primaryPhone":"5436422223","relationType":"","role":"","lastUpdateDate":"2025-06-17T21:08:19Z"},{"address":{"city":"Tampa","country":"USA","line1":"875
+        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"primaryPhone":"1442342659","relationType":"","role":"","lastUpdateDate":"2025-06-17T21:08:19Z"}]}'
     headers:
       Accept:
       - application/json
@@ -75,7 +81,7 @@ http_interactions:
       message: Bad Request
     headers:
       Date:
-      - Thu, 05 Jun 2025 21:31:49 GMT
+      - Tue, 17 Jun 2025 21:08:29 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -88,8 +94,10 @@ http_interactions:
       - SAMEORIGIN
       Content-Security-Policy:
       - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
       X-Envoy-Upstream-Service-Time:
-      - '26'
+      - '6'
       Ssl-Env:
       - 'On'
       X-Xss-Protection:
@@ -97,19 +105,18 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="1866326672"
+      - dtSInfo;desc="0", dtRpid;desc="-1971561066"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"description":"associations[0].relationType: Relation
-        type is required","code":"VES_109"},{"description":"associations[1].relationType:
+      string: '{"messages":[{"description":"associations[0].role: Role is required","code":"VES_109"},{"description":"associations[2].role:
+        Role is required","code":"VES_109"},{"description":"associations[0].relationType:
         Relation type is required","code":"VES_109"},{"description":"associations[3].role:
-        Role is required","code":"VES_109"},{"description":"associations[3].relationType:
-        Relation type is required","code":"VES_109"},{"description":"associations[1].role:
-        Role is required","code":"VES_109"},{"description":"associations[0].role:
-        Role is required","code":"VES_109"},{"description":"associations[2].role:
         Role is required","code":"VES_109"},{"description":"associations[2].relationType:
+        Relation type is required","code":"VES_109"},{"description":"associations[1].role:
+        Role is required","code":"VES_109"},{"description":"associations[1].relationType:
+        Relation type is required","code":"VES_109"},{"description":"associations[3].relationType:
         Relation type is required","code":"VES_109"}],"retryable":false}'
-  recorded_at: Thu, 05 Jun 2025 21:31:49 GMT
+  recorded_at: Tue, 17 Jun 2025 21:08:29 GMT
 recorded_with: VCR 6.3.1
