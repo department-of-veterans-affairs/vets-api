@@ -17,7 +17,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   let(:client) { instance_double(VaNotify::Service) }
   let(:callback_options) do
     {
-      callback_klass: 'EmailDeliveryStatusCallback',
+      callback_klass: 'AccreditedRepresentativePortal::EmailDeliveryStatusCallback',
       callback_metadata: {
         statsd_tags: {
           service: 'accredited-representative-portal',
@@ -48,13 +48,33 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       expect(power_of_attorney_request_notification.notification_id).to eq(response.id)
     end
 
-    context 'when building callback options based on notification type' do
+    context 'when handling the accredited_representative_portal_email_delivery_callback feature flag' do
       let(:type) { 'requested' }
 
-      it 'passes callback options with the correct function tag to VaNotify::Service' do
-        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+      context 'when the feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_email_delivery_callback)
+            .and_return(true)
+        end
 
-        described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
+        it 'passes callback options with the correct function tag to VaNotify::Service' do
+          expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+          described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
+        end
+      end
+
+      context 'when the feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_email_delivery_callback)
+            .and_return(false)
+        end
+
+        it 'does not pass callback options to VaNotify::Service' do
+          expect(VaNotify::Service).to receive(:new).with(api_key, nil).and_return(client)
+          described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
+        end
       end
     end
 
