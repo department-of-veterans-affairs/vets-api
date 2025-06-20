@@ -35,12 +35,9 @@ module BPDS
     # @return [String] The response body from the submission
     # @raise [StandardError] If an error occurs during submission.
     def submit_json(claim, participant_id = nil, file_number = nil)
-      payload = default_payload(claim)
-      payload.merge({ 'participantId' => participant_id }) if participant_id.present?
-      payload.merge({ 'fileNumber' => file_number }) if file_number.present?
+      payload = default_payload(claim, participant_id, file_number)
       response = perform(:post, '', payload.to_json, config.base_request_headers)
 
-      # TODO: store the bpds_uuid in the future
       response.body
     end
 
@@ -63,6 +60,8 @@ module BPDS
     # Generates the default payload for a given claim.
     #
     # @param claim [Object] The claim object containing the form data.
+    # @param participant_id [String, nil] The participant ID to be included in the payload (optional).
+    # @param file_number [String, nil] The file number to be included in the payload (optional).
     # @return [Hash, nil] A hash representing the default payload for the claim, or nil if the claim is nil.
     #
     # The returned hash has the following structure:
@@ -70,18 +69,24 @@ module BPDS
     #   'bpd' => {
     #     'sensitivityLevel' => Integer,
     #     'payloadNamespace' => String,
+    #     'participantId' => String, # Optional
+    #     'fileNumber' => String, # Optional
     #     'payload' => Hash
     #   }
     # }
     #
     # - 'sensitivityLevel' is currently set to 0. We may need to calculate this value in the future.
     # - 'payloadNamespace' is determined by the bpds_namespace method using the claim's form_id.
+    # - 'participantId' is included if provided, representing the participant's ID.
+    # - 'fileNumber' is included if provided, representing the participant's file number.
     # - 'payload' contains the parsed form data from the claim.
-    def default_payload(claim)
+    def default_payload(claim, participant_id = nil, file_number = nil)
       {
         'bpd' => {
           'sensitivityLevel' => 0,
           'payloadNamespace' => bpds_namespace(claim.form_id),
+          'participantId' => participant_id,
+          'fileNumber' => file_number,
           'payload' => claim.parsed_form
         }
       }
