@@ -33,5 +33,6 @@ Datadog.configure do |c|
     # Enable ASM
     c.appsec.enabled = true
     c.appsec.instrument :rails
+    c.logger.level = Logger::INFO
   end
 end
