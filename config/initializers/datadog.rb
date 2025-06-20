@@ -26,7 +26,6 @@ Datadog.configure do |c|
     c.tracing.instrument :redis, service_name: 'vets-api-redis'
     c.tracing.instrument :pg, service_name: 'vets-api-pg'
     c.tracing.instrument :http, service_name: 'vets-api-net-http'
-    c.tracing.log_injection.enabled = false
 
     # Enable profiling
     c.profiling.enabled = true
