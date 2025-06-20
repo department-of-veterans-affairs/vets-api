@@ -9,7 +9,7 @@ describe MHVPrescriptionsPolicy do
   let(:mhv_prescriptions) { double('mhv_prescriptions') }
   let(:user) do
     u = OpenStruct.new(
-      mhv_user_account: OpenStruct.new(patient: true),
+      mhv_user_account: OpenStruct.new(patient: true, champ_va: true),
       mhv_account_type: 'Premium',
       va_patient: true,
       va_treatment_facility_ids: ['123'],
@@ -32,11 +32,18 @@ describe MHVPrescriptionsPolicy do
     end
 
     it 'returns true if user is a patient' do
+      user.mhv_user_account.champ_va = false
       expect(described_class.new(user, mhv_prescriptions).access?).to be(true)
     end
 
-    it 'returns false if user is not a patient' do
+    it 'returns true if user is champ_va' do
       user.mhv_user_account.patient = false
+      expect(described_class.new(user, mhv_prescriptions).access?).to be(true)
+    end
+
+    it 'returns false if user is not a patient or champ_va' do
+      user.mhv_user_account.patient = false
+      user.mhv_user_account.champ_va = false
       expect(described_class.new(user, mhv_prescriptions).access?).to be(false)
     end
   end

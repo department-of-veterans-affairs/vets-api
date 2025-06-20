@@ -8,3 +8,4 @@ veteranContactInformation:
   homePhone: [contact_information, home_phone]
   usPhone: [contact_information, us_phone]
   emailAddress: [contact_information, email]
+dependents: [dependents_information]
