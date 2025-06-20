@@ -67,18 +67,47 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
         # Should be some other value for authenticated users
         expect(result[:LevelOfAuthentication]).to be_present
       end
+
+      it 'does not raise InquiryPayloadError for authenticated education inquiries' do
+        expect { builder.call }.not_to raise_error
+      end
+
+      it 'does not log warning message for authenticated education inquiries' do
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          any_args
+        )
+
+        builder.call
+      end
     end
 
-    # According to business requirements, this is an invalid scenario, but the
-    # code currently doesn't handle it properly
-    # In the future this test would be useful to test for a validation exception of some sorts.
+    # According to business requirements, this is an invalid scenario
+    # Unauthenticated education inquiries should raise an error
     context 'when user is nil and inquiry is about Education benefits and work study' do
       let(:authorized_user) { nil }
       let(:params) { i_am_veteran_edu[:inquiry] }
 
-      it 'sets LevelOfAuthentication to (722310000) UNAUTHENTICATED for education benefits inquiries' do
-        result = builder.call
-        expect(result[:LevelOfAuthentication]).to eq('722310000')
+      it 'raises InquiryPayloadError for unauthenticated education benefits inquiries' do
+        expect { builder.call }.to raise_error(
+          AskVAApi::Inquiries::PayloadBuilder::InquiryPayload::InquiryPayloadError,
+          'Unauthenticated Education inquiry submitted'
+        )
+      end
+
+      it 'logs a warning message with inquiry context before raising error' do
+        expect(Rails.logger).to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          inquiry_context: {
+            category: 'Education benefits and work study',
+            topic: 'Transfer of benefits'
+          }
+        )
+
+        expect { builder.call }.to raise_error(
+          AskVAApi::Inquiries::PayloadBuilder::InquiryPayload::InquiryPayloadError,
+          'Unauthenticated Education inquiry submitted'
+        )
       end
     end
 
