@@ -33,11 +33,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
   before do
     login_as(representative_user)
+
+    allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+      receive(:perform)
+    )
   end
 
   describe '#submit' do
     let(:attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f3' }
-    let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid) }
+    let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-686c') }
     let(:representative_fixture_path) do
       Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
                       'representative_form_upload_21_686c.json')
@@ -145,7 +149,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                           'confirmationCode' => attachment.guid,
                                           'name' => 'doctors-note.gif',
                                           'size' => 83_403,
-                                          'warnings' => []
+                                          'warnings' => ['wrong_form']
                                         }
                                       }
                                     })
