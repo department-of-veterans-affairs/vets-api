@@ -8,7 +8,10 @@ require 'gi/client'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
+  let(:user) do
+    build(:user, :loa3, suffix: 'Jr.', idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', icn: '123498767V234859',
+                        address: build(:mpi_profile_address))
+  end
 
   before do
     stub_evss_pciu(user)

@@ -862,7 +862,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    user_uuid: logingov_uuid,
+                    csp_uuid: logingov_uuid,
                     authentication_time:
                   }
                 end
@@ -1034,7 +1034,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    user_uuid: idme_uuid,
+                    csp_uuid: idme_uuid,
                     authentication_time:
                   }
                 end
@@ -1168,7 +1168,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  user_uuid: backing_idme_uuid,
+                  csp_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1317,7 +1317,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  user_uuid: backing_idme_uuid,
+                  csp_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -2571,7 +2571,7 @@ RSpec.describe V0::SignInController, type: :controller do
     subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
     let!(:user) { create(:user, uuid: user_uuid) }
-    let(:user_uuid) { user_verification.credential_identifier }
+    let(:user_uuid) { user_verification.user_account.id }
     let(:refresh_token_param) { { refresh_token: } }
     let(:refresh_token) { 'example-refresh-token' }
     let(:anti_csrf_token_param) { { anti_csrf_token: } }
@@ -3067,9 +3067,9 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
-      let(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
-      let(:user_account) { user_verification.user_account }
       let(:user) { create(:user, :loa3) }
+      let(:user_verification) { user.user_verification }
+      let(:user_account) { user.user_account }
       let(:user_uuid) { user.uuid }
       let(:oauth_session) { create(:oauth_session, user_account:) }
       let(:access_token_object) do
