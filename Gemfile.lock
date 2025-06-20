@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: 8233129def00c29b33e56ac5ad6d08f5442d665c
+  revision: b8a833194a3765babda5652fa31526b11f4afb80
   branch: master
   specs:
     betamocks (0.11.0)
@@ -460,7 +460,7 @@ GEM
       httpclient (>= 2.2)
     faraday-multipart (1.1.1)
       multipart-post (~> 2.0)
-    faraday-net_http (3.4.0)
+    faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
     faraday-retry (2.3.1)
       faraday (~> 2.0)
