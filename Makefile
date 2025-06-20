@@ -154,3 +154,7 @@ native-spec-parallel:
 .PHONY: native-spec-parallel-setup
 native-spec-parallel-setup:
 	RAILS_ENV=test bundle exec rake parallel:setup
+
+.PHONY: bootstrap
+bootstrap:  ## Runs bin/bootstrap_docker script
+	./bin/bootstrap_docker
