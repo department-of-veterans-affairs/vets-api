@@ -26,13 +26,9 @@ module EventBusGateway
       when 'delivered'
         StatsD.increment('api.vanotify.notifications.delivered')
         StatsD.increment('callbacks.event_bus_gateway.va_notify.notifications.delivered')
-        tags = ['service:event-bus-gateway', 'function: Event Bus Gateway - VA Notify decision letter ready email']
-        StatsD.increment('silent_failure_avoided', tags:)
       when 'permanent-failure'
         StatsD.increment('api.vanotify.notifications.permanent_failure')
         StatsD.increment('callbacks.event_bus_gateway.va_notify.notifications.permanent_failure')
-        tags = ['service:event-bus-gateway', 'function: Event Bus Gateway - VA Notify decision letter ready email']
-        StatsD.increment('silent_failure', tags:)
       when 'temporary-failure'
         StatsD.increment('api.vanotify.notifications.temporary_failure')
         StatsD.increment('callbacks.event_bus_gateway.va_notify.notifications.temporary_failure')
