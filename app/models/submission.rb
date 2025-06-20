@@ -23,6 +23,6 @@ class Submission < ApplicationRecord
   has_many :submission_attempts, dependent: :destroy
 
   def latest_attempt
-    submission_attempts&.order(created_at: :asc)&.last
+    submission_attempts&.order(created_at: :desc)&.first
   end
 end
