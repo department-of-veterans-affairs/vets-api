@@ -11,7 +11,7 @@ module Eps
       appointment_data = fetch_appointment_data(user_uuid, appointment_id_last4)
       return unless appointment_data
 
-      send_notification_email(appointment_data:, user_uuid:, appointment_id_last4:, error:)
+      send_notification_email(appointment_data:, error:)
     rescue => e
       handle_exception(error: e, user_uuid:, appointment_id_last4:)
     end

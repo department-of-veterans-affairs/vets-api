@@ -35,7 +35,7 @@ module Eps
       email = appointment_data[:email]
       user = User.find(user_uuid)
 
-      process_appointment_status(user, appointment_id, email, retry_count)
+      process_appointment_status(user, appointment_id, retry_count)
     end
 
     private
@@ -59,11 +59,11 @@ module Eps
       StatsD.increment("#{STATSD_PREFIX}.failure", tags: ["user_uuid: #{@user_uuid}"])
     end
 
-    def process_appointment_status(user, appointment_id, email, retry_count)
+    def process_appointment_status(user, appointment_id, retry_count)
       service = Eps::AppointmentService.new(user)
       begin
         response = service.get_appointment(appointment_id:)
-        handle_appointment_response(response, email, retry_count)
+        handle_appointment_response(response, retry_count)
       rescue Common::Exceptions::BackendServiceException
         send_vanotify_message(error: 'Service error, please contact support')
       rescue => e
