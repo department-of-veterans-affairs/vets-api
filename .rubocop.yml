@@ -387,13 +387,13 @@ Rails/Exit:
     - modules/mobile/lib/scripts/parse_rspec_xml.rb
 
 # kms_encrypted_model_patch is for a gem and the method name shouldn't be changed
-Naming/PredicatePrefix:
+Naming/PredicateName:
   Exclude:
     - app/models/concerns/kms_encrypted_model_patch.rb
     - app/models/preneeds/burial_form.rb
 
 Rails/UnusedIgnoredColumns:
-  Exclude: 
+  Exclude:
     - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
 
 Rails/InverseOf:
@@ -408,5 +408,9 @@ Lint/DuplicateMethods:
     - modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb
 
 Rails/UniqueValidationWithoutIndex:
-  Exclude: 
+  Exclude:
     - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - 'rakelib/decision_review_repl.rb'
