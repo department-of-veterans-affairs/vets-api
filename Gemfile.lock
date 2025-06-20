@@ -386,7 +386,7 @@ GEM
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
-    diff-lcs (1.6.1)
+    diff-lcs (1.6.2)
     docile (1.4.0)
     dogstatsd-ruby (5.6.6)
     domain_name (0.6.20240107)
@@ -651,10 +651,10 @@ GEM
       base64
     jwt (2.10.1)
       base64
-    karafka-core (2.5.1)
+    karafka-core (2.5.2)
       karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.19.4)
+    karafka-rdkafka (0.19.5)
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -782,7 +782,7 @@ GEM
     openssl (3.3.0-java)
       jruby-openssl (~> 0.14)
     operating_hours (0.1.0)
-    optimist (3.2.0)
+    optimist (3.2.1)
     os (1.1.4)
     ostruct (0.6.1)
     ox (2.14.23)
@@ -1118,7 +1118,7 @@ GEM
       activerecord (>= 7)
     strscan (3.1.5)
     strscan (3.1.5-java)
-    super_diff (0.15.0)
+    super_diff (0.16.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
