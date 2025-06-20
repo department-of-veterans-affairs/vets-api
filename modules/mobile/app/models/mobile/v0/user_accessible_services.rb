@@ -21,7 +21,7 @@ module Mobile
         @service_auth_map ||= {
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
-          claims: flagged_access?(:mobile_lighthouse_claims, { lighthouse: :access? }, { evss: :access? }),
+          claims: access?(lighthouse: :access?),
           decisionLetters: access?(bgs: :access?),
           directDepositBenefits: access?(lighthouse: :mobile_access?),
           directDepositBenefitsUpdate: access?(lighthouse: :mobile_access?),

@@ -10,7 +10,6 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
     Sidekiq::Job.clear_all
     token = 'abcdefghijklmnop'
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-    Flipper.enable(:mobile_lighthouse_claims)
   end
 
   describe '.perform_async' do
