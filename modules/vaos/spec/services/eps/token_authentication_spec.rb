@@ -9,8 +9,8 @@ class EpsTestTokenService < VAOS::SessionService
   include Common::Client::Concerns::Monitoring
 
   # Define needed Redis configuration
-  STATSD_KEY_PREFIX = 'api.eps.test'
-  REDIS_TOKEN_KEY = 'eps-test-access-token'
+  STATSD_KEY_PREFIX = 'api.eps'
+  REDIS_TOKEN_KEY = 'eps-access-token'
   REDIS_TOKEN_TTL = 840
 
   attr_reader :config, :settings, :user
@@ -22,18 +22,18 @@ class EpsTestTokenService < VAOS::SessionService
     @config = OpenStruct.new(
       access_token_url: 'https://login.wellhive.com/oauth2/default/v1/token',
       grant_type: 'client_credentials',
-      scopes: 'care-nav',
+      scopes: 'eps.scope',
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       request_types: [:post],
-      base_path: 'https://eps-test.example.com',
-      service_name: 'EPSTestService'
+      base_path: 'https://eps.example.com',
+      service_name: 'EpsService'
     )
 
     @settings = OpenStruct.new(
       key_path: Rails.root.join('modules', 'vaos', 'spec', 'fixtures', 'test_key.pem').to_s,
-      client_id: 'test-client-id',
-      kid: 'test-key-id',
-      audience_claim_url: 'https://test.example.com/token'
+      client_id: 'eps-client-id',
+      kid: 'eps-key-id',
+      audience_claim_url: 'https://eps.example.com/token'
     )
   end
 
@@ -46,7 +46,7 @@ class EpsTestTokenService < VAOS::SessionService
 
   # Override jwt_wrapper to return a stub that always returns a test signature
   def jwt_wrapper
-    @jwt_wrapper ||= OpenStruct.new(sign_assertion: 'test-jwt-assertion')
+    @jwt_wrapper ||= OpenStruct.new(sign_assertion: 'eps-jwt-assertion')
   end
 
   # Setup a connection to fetch the token
@@ -84,13 +84,47 @@ RSpec.describe Eps::TokenAuthentication do
     RequestStore.store['request_id'] = request_id
   end
 
-  describe '#headers' do
-    it 'returns headers with authorization token' do
+  describe '#headers_with_correlation_id' do
+    let(:logger) { instance_double(Logger) }
+
+    before do
+      allow(Rails).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:info)
+    end
+
+    it 'returns headers with authorization token, request ID, and correlation ID' do
       VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
-        expect(subject.headers).to eq(
+        headers = subject.headers_with_correlation_id
+
+        expect(headers).to include(
           'Authorization' => 'Bearer test-access-token',
           'Content-Type' => 'application/json',
           'X-Request-ID' => request_id
+        )
+        expect(headers).to have_key('X-Correlation-ID')
+        expect(headers['X-Correlation-ID']).to match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/)
+      end
+    end
+
+    it 'generates a unique correlation ID for each call' do
+      VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+        headers1 = subject.headers_with_correlation_id
+        headers2 = subject.headers_with_correlation_id
+
+        expect(headers1['X-Correlation-ID']).not_to eq(headers2['X-Correlation-ID'])
+      end
+    end
+
+    it 'logs the correlation ID and request ID' do
+      VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+        subject.headers_with_correlation_id
+
+        expect(logger).to have_received(:info).with(
+          hash_including(
+            message: 'EPS API Call',
+            correlation_id: match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/),
+            request_id:
+          )
         )
       end
     end
@@ -109,39 +143,17 @@ RSpec.describe Eps::TokenAuthentication do
     end
 
     it 'reuses cached token' do
-      Rails.cache.write(EpsTestTokenService::REDIS_TOKEN_KEY, 'cached-token')
-      expect(subject.token).to eq('cached-token')
+      Rails.cache.write(EpsTestTokenService::REDIS_TOKEN_KEY, 'cached-eps-token')
+      expect(subject.token).to eq('cached-eps-token')
     end
   end
 
   describe '#get_token' do
-    it 'makes a POST request to fetch token with parameters in URL' do
-      # Test the approach of appending parameters to URL
-      service = token_service
-
-      # Using allow_any_instance_of instead of stubbing subject directly
-      allow_any_instance_of(EpsTestTokenService).to receive(:perform) do |_, method, url, body, headers|
-        expect(method).to eq(:post)
-        expect(url).to include('?grant_type=client_credentials')
-        expect(url).to include('scope=care-nav')
-
-        client_assertion_type_param = 'client_assertion_type=urn%3Aietf%3Aparams%3Aoauth'
-        expect(url).to include(client_assertion_type_param)
-
-        expect(url).to include('client_assertion=test-jwt-assertion')
-        expect(body).to eq('') # Empty string body
-        expect(headers).to include('Content-Type' => 'application/x-www-form-urlencoded')
-        expect(headers).to include('kid' => 'test-key-id')
-
-        # Return a mock response
-        OpenStruct.new(
-          status: 200,
-          body: { access_token: 'test-access-token', expires_in: 3600 }
-        )
+    it 'makes a POST request to fetch token' do
+      VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+        response = subject.get_token
+        expect(response.body[:access_token]).to eq('test-access-token')
       end
-
-      response = service.get_token
-      expect(response.body[:access_token]).to eq('test-access-token')
     end
 
     it 'handles token request failures' do
@@ -157,14 +169,14 @@ RSpec.describe Eps::TokenAuthentication do
       params_string = subject.send(:token_params_for_url)
       expect(params_string).to be_a(String)
       expect(params_string).to include('grant_type=client_credentials')
-      expect(params_string).to include('scope=care-nav')
+      expect(params_string).to include('scope=eps.scope')
 
       # Break up the long line
       auth_type_param = 'client_assertion_type='
       encoded_value = 'urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer'
       expect(params_string).to include("#{auth_type_param}#{encoded_value}")
 
-      expect(params_string).to include('client_assertion=test-jwt-assertion')
+      expect(params_string).to include('client_assertion=eps-jwt-assertion')
     end
 
     it 'properly URL-encodes special characters' do
@@ -182,19 +194,18 @@ RSpec.describe Eps::TokenAuthentication do
     it 'returns headers for token request' do
       headers = subject.send(:token_request_headers_for_curl)
       expect(headers).to include('Content-Type' => 'application/x-www-form-urlencoded')
-      expect(headers).to include('kid' => 'test-key-id')
+      expect(headers).to include('kid' => 'eps-key-id')
     end
   end
 
   describe '#parse_token_response' do
     context 'with valid response' do
       it 'returns the access token' do
-        response = OpenStruct.new(
-          body: { access_token: 'test-access-token', expires_in: 3600 }
-        )
-
-        token = subject.send(:parse_token_response, response)
-        expect(token).to eq('test-access-token')
+        VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+          response = subject.get_token
+          token = subject.send(:parse_token_response, response)
+          expect(token).to eq('test-access-token')
+        end
       end
     end
 
@@ -218,7 +229,7 @@ RSpec.describe Eps::TokenAuthentication do
     it 'returns a jwt wrapper instance' do
       jwt_wrapper = subject.send(:jwt_wrapper)
       expect(jwt_wrapper).to respond_to(:sign_assertion)
-      expect(jwt_wrapper.sign_assertion).to eq('test-jwt-assertion')
+      expect(jwt_wrapper.sign_assertion).to eq('eps-jwt-assertion')
     end
   end
 end
