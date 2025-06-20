@@ -185,7 +185,6 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
       it 'matches the letter beneficiary schema' do
         VCR.use_cassette('evss/letters/beneficiary_veteran') do
           get '/mobile/v0/letters/beneficiary', headers: sis_headers
-          puts response.body
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('letter_beneficiary', strict: true)
         end
