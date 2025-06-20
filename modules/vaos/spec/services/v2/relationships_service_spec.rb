@@ -13,7 +13,7 @@ describe VAOS::V2::RelationshipsService do
     it 'raises a backend exception' do
       VCR.use_cassette('vaos/v2/relationships/get_relationships_500',
                        match_requests_on: %i[method path query]) do
-        expect { subject.get_patient_relationships('primaryCare', '100') }.to raise_error(
+        expect { subject.get_patient_relationships('primaryCare', '100', nil) }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
       end
