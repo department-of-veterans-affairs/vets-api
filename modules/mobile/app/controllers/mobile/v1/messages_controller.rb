@@ -5,7 +5,7 @@ module Mobile
     class MessagesController < MessagingController
       def thread
         message_id = params[:id]
-        resource = client.get_messages_for_thread(message_id)
+        resource = client.get_messages_for_thread(message_id).sort_by(&:sent_date)
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
         if ActiveModel::Type::Boolean.new.cast(params[:excludeProvidedMessage])

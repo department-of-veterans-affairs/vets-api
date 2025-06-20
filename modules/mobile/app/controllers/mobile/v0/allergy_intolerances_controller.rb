@@ -13,7 +13,7 @@ module Mobile
                                  Mobile::V0::Adapters::LegacyAllergyIntolerance.new.parse(response.body['entry'])
                                end
 
-        render json: AllergyIntoleranceSerializer.new(allergy_intolerances)
+        render json: AllergyIntoleranceSerializer.new(allergy_intolerances.sort_by(&:recordedDate))
       end
 
       private

@@ -4,7 +4,7 @@ module Mobile
   module V0
     class FoldersController < MessagingController
       def index
-        resource = client.get_folders(@current_user.uuid, use_cache?)
+        resource = client.get_folders(@current_user.uuid, use_cache?).sort_by(&:name)
         links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         options = { meta: resource.metadata, links: }
