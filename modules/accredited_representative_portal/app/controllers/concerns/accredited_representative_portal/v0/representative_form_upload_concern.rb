@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
         guids << submit_params[:confirmationCode] if submit_params[:confirmationCode].present?
 
         if submit_params[:supportingDocuments].is_a?(Array)
-          guids += submit_params[:supportingDocuments].map { |doc| doc[:confirmationCode] }.compact
+          guids += submit_params[:supportingDocuments].pluck(:confirmationCode).compact
         end
 
         guids
@@ -101,7 +101,7 @@ module AccreditedRepresentativePortal
           param_filters = [
             :formName,
             :confirmationCode,
-            { supportingDocuments: [:name, :confirmationCode, :size, :isEncrypted] },
+            { supportingDocuments: %i[name confirmationCode size isEncrypted] },
             { formData: [
               :veteranSsn,
               :postalCode,
@@ -132,7 +132,7 @@ module AccreditedRepresentativePortal
             param_filters = [
               :confirmation_code,
               :form_name,
-              { supporting_documents: [:name, :confirmation_code, :size, :is_encrypted] },
+              { supporting_documents: %i[name confirmation_code size is_encrypted] },
               { form_data: [
                 :veteran_ssn,
                 :postal_code,
