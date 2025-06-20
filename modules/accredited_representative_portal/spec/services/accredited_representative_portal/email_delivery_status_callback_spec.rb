@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EmailDeliveryStatusCallback do
+RSpec.describe AccreditedRepresentativePortal::EmailDeliveryStatusCallback do
   let(:base_metadata) do
     {
       'form_number' => 'Form Number',
