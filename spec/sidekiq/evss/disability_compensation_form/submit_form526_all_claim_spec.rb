@@ -489,6 +489,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect_retryable_error(Common::Exceptions::UpstreamUnprocessableEntity)
         end
 
+        it 'retries with a Net::ReadTimeout Error' do
+          error = Net::ReadTimeout.new('#<TCPSocket:(closed)>')
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
         it 'does not retry UnprocessableEntity errors with "pointer" defined' do
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
                                   'detail' => 'The claim failed to establish',

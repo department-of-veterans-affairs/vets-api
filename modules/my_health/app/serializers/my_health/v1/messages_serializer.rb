@@ -19,6 +19,7 @@ module MyHealth
       attribute :triage_group_name
       attribute :proxy_sender_name
       attribute :suggested_name_display
+      attribute :is_oh_message
 
       link :self do |object|
         MyHealth::UrlHelper.new.v1_message_url(object.id)
