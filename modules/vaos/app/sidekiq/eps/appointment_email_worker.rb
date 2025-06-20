@@ -45,30 +45,13 @@ module Eps
     private
 
     def send_notification_email(appointment_data:, user_uuid:, appointment_id_last4:, error:)
-      notify_client = VaNotify::Service.new(
-        Settings.vanotify.services.va_gov.api_key,
-        build_callback_options(user_uuid, appointment_id_last4)
-      )
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
 
       notify_client.send_email(
         email_address: appointment_data[:email],
         template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
         personalisation: { 'error' => error }
       )
-    end
-
-    def build_callback_options(user_uuid, appointment_id_last4)
-      {
-        callback_klass: 'Eps::AppointmentNotificationCallback',
-        callback_metadata: {
-          user_uuid:,
-          appointment_id_last4:,
-          statsd_tags: {
-            'service' => 'vaos',
-            'function' => 'appointment-status-notification'
-          }
-        }
-      }
     end
 
     def fetch_appointment_data(user_uuid, appointment_id_last4)
