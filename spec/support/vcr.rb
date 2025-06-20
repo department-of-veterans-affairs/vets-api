@@ -81,6 +81,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>') do
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
   end
+  c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM>') { Settings.hca.endpoint }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

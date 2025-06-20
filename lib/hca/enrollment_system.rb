@@ -703,7 +703,7 @@ module HCA
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
-        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
+        'acaIndicator' => false
       }
 
       return_val.delete('ethnicity') if return_val['ethnicity'].nil?
