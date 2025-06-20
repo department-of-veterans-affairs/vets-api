@@ -810,7 +810,7 @@ maintenance:
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: PGT74RC
     mhv: PP2ZZ2V
     mhv_meds: ~
     mhv_mr: ~
@@ -823,7 +823,6 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
-    staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
     travel_pay: ~
@@ -1185,6 +1184,7 @@ saml:
   key_path: ~
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
@@ -1274,6 +1274,7 @@ va_forms:
     channel_id: ~
     enabled: ~
 va_mobile:
+  claims_path: /services/claims/v2/veterans
   key_path: "/fake/client/key/path"
   mock: false
   patients_path: /vaos/v1/patients

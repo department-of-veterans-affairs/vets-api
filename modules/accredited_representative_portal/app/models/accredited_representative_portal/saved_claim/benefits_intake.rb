@@ -13,6 +13,7 @@ module AccreditedRepresentativePortal
         #
         def define_claim_type(form_id:, business_line:)
           Class.new(self) do
+            const_set(:FORM_ID, form_id)
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
 
