@@ -14,7 +14,7 @@ module Eps
       query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
       response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
-                         request_headers)
+                         request_headers_with_correlation_id)
 
       OpenStruct.new(response.body)
     end
@@ -26,7 +26,7 @@ module Eps
     #
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
-                         {}, request_headers)
+                         {}, request_headers_with_correlation_id)
 
       appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
@@ -40,7 +40,8 @@ module Eps
     #
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
+                         { patientId: patient_id, referral: { referralNumber: referral_id } },
+                         request_headers_with_correlation_id)
 
       OpenStruct.new(response.body)
     end
@@ -81,7 +82,8 @@ module Eps
       appointment_last4 = appointment_id.to_s.last(4)
       Eps::EpsAppointmentWorker.perform_async(user.uuid, appointment_last4)
 
-      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
+      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload,
+                         request_headers_with_correlation_id)
 
       OpenStruct.new(response.body)
     end
