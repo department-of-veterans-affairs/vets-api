@@ -7,6 +7,9 @@ module TravelPay
       @user = user
     end
 
+    DEFAULT_PAGE_SIZE = 3
+    DEFAULT_PAGE_NUMBER = 1
+
     def get_claims(params = {})
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims(veis_token, btsss_token)
@@ -15,6 +18,14 @@ module TravelPay
       claims = filter_by_date(params['appt_datetime'], raw_claims)
 
       {
+        metadata: {
+          'status' => faraday_response.body['statusCode'],
+          'success' => faraday_response.body['success'],
+          'message' => faraday_response.body['message'],
+          'pageNumber' => faraday_response.body['pageNumber'],
+          'pageSize' => faraday_response.body['pageSize'],
+          'totalRecordCount' => faraday_response.body['totalRecordCount']
+        },
         data: claims.map do |sc|
           sc['claimStatus'] = sc['claimStatus'].underscore.humanize
           sc
@@ -25,28 +36,26 @@ module TravelPay
     def get_claims_by_date_range(params = {})
       validate_date_params(params['start_date'], params['end_date'])
 
+      params['page_size'] = params['page_size'] || DEFAULT_PAGE_SIZE
+
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
+      all_claims = loop_and_paginate_claims(params, veis_token, btsss_token)
 
-      if faraday_response.body['data']
-        raw_claims = faraday_response.body['data'].deep_dup
-
-        {
-          metadata: {
-            'status' => faraday_response.body['statusCode'],
-            'success' => faraday_response.body['success'],
-            'message' => faraday_response.body['message']
-          },
-          data: raw_claims&.map do |sc|
-            sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-            sc
-          end
-        }
-      end
-      # Because we're appending this to the Appointments object, we need to not just throw an exception
-      # TODO: Integrate error handling from the token client through every subsequent client/service
-    rescue Faraday::Error
-      nil
+      {
+        metadata: {
+          # TODO: Determine if we need these metadata fields
+          # 'status' => faraday_response.body['statusCode'],
+          # 'success' => faraday_response.body['success'],
+          # 'message' => faraday_response.body['message'],
+          # 'pageNumber' => faraday_response.body['pageNumber'],
+          # 'pageSize' => faraday_response.body['pageSize'],
+          'totalRecordCount' => all_claims[:total_record_count]
+        },
+        data: all_claims[:data]&.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+          sc
+        end
+      }
     end
 
     # Retrieves expanded claim details with additional fields
@@ -158,6 +167,29 @@ module TravelPay
         end
       end
       documents
+    end
+
+    def loop_and_paginate_claims(params, veis_token, btsss_token)
+      page_number = 1
+      all_claims = []
+      total_record_count = 0
+
+      loop do
+        client_params = params.merge!({ 'page_number' => page_number })
+        faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
+        total_record_count = faraday_response.body['totalRecordCount'] unless page_number > 1
+
+        break unless faraday_response.body['statusCode'] == 200
+
+        claims_page = faraday_response.body['data'].deep_dup
+        all_claims.concat(claims_page)
+
+        break if all_claims.size >= total_record_count
+
+        page_number += 1
+      end
+
+      { data: all_claims, total_record_count: }
     end
 
     def include_documents?
