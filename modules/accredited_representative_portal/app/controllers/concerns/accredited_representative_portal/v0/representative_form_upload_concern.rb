@@ -7,10 +7,6 @@ module AccreditedRepresentativePortal
 
       private
 
-      ##
-      # TODO: Client will need to send us multiple attachment guids for multi-
-      # form upload.
-      #
       def attachment_guids
         [submit_params[:confirmationCode]]
       end
