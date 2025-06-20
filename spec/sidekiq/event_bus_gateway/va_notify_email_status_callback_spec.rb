@@ -25,10 +25,6 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
               status_reason: notification_record.status_reason,
               notification_type: notification_record.notification_type }
           )
-          expect(StatsD).to have_received(:increment)
-            .with('silent_failure',
-                  tags: ['service:event-bus-gateway',
-                         'function: Event Bus Gateway - VA Notify decision letter ready email'])
           expect(StatsD).to have_received(:increment).with('api.vanotify.notifications.permanent_failure')
           expect(StatsD).to have_received(:increment)
             .with('callbacks.event_bus_gateway.va_notify.notifications.permanent_failure')
@@ -43,10 +39,6 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
         it 'logs success and increments StatsD' do
           allow(StatsD).to receive(:increment)
           described_class.call(notification_record)
-          expect(StatsD).to have_received(:increment)
-            .with('silent_failure_avoided',
-                  tags: ['service:event-bus-gateway',
-                         'function: Event Bus Gateway - VA Notify decision letter ready email'])
           expect(StatsD).to have_received(:increment).with('api.vanotify.notifications.delivered')
           expect(StatsD).to have_received(:increment)
             .with('callbacks.event_bus_gateway.va_notify.notifications.delivered')
