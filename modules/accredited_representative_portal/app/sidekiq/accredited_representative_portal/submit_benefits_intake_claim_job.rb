@@ -8,8 +8,8 @@ module AccreditedRepresentativePortal
       ::BenefitsIntake::Metadata.generate(
         veteran.dig('name', 'first'),
         veteran.dig('name', 'last'),
-        veteran['vaFileNumber'] || veteran['ssn'],
-        veteran.dig('address', 'zipCode'),
+        veteran['ssn'],
+        veteran['postalCode'],
         "#{@claim.class} va.gov",
         @claim.form_id,
         @claim.business_line
