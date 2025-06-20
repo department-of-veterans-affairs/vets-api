@@ -1106,8 +1106,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               response_obj = JSON.parse(response.body)
               expect(response).to have_http_status(:conflict)
               error = response_obj['errors'][0]
-              expect(error['title']).to eql('Appointment submission failed')
-              expect(error['detail']).to eql('An error occurred: conflict')
+              expect(error['title']).to eql('Appointment creation failed')
+              expect(error['detail']).to eql('Could not create appointment')
             end
           end
         end
