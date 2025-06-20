@@ -356,7 +356,7 @@ module PdfFill
         signature_date = @form_data['signatureDate']
         expand_signature(@form_data['veteranFullName'], signature_date)
         @form_data['printedName'] = @form_data['signature']
-        @form_data['signature'] = "/es/ #{@form_data['signature']}"
+        @form_data['signature'] = "#{@form_data['signature']} - signed by digital authentication to api.va.gov"
 
         expand_claimant_address
 
