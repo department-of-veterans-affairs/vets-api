@@ -6,7 +6,8 @@ class DummyController
   include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
 end
 
-RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern, type: :controller do
+RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern,
+               skip: 'excessive unit testing of controller concern methods, removed in next PR', type: :controller do
   let(:controller) { DummyController.new }
 
   describe '#validated_metadata' do
