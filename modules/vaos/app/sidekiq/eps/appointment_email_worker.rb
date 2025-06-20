@@ -63,7 +63,8 @@ module Eps
 
       appointment_data
     rescue ArgumentError => e
-      message = "Eps::AppointmentEmailJob #{e.message}: User UUID: #{user_uuid} - Appointment ID: #{appointment_id_last4}"
+      message = "Eps::AppointmentEmailJob #{e.message}: " \
+                "User UUID: #{user_uuid} - Appointment ID: #{appointment_id_last4}"
       self.class.log_failure(error: e, message:, user_uuid:, appointment_id_last4:, permanent: true)
       nil
     end
