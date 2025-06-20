@@ -114,7 +114,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when forcing updates' do
       it 'skips saving API counts' do
-        job.perform(['claims_agent'])
+        job.perform(['agents'])
         expect(entity_counts).not_to have_received(:save_api_counts)
       end
     end

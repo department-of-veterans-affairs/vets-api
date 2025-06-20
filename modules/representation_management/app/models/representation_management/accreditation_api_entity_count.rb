@@ -6,7 +6,7 @@ module RepresentationManagement
   class AccreditationApiEntityCount < ApplicationRecord
     self.table_name = 'accreditation_api_entity_counts'
 
-    TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
+    TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES.map(&:to_sym).freeze
     # The total number of representatives and organizations parsed from the GCLAWS API
     # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
