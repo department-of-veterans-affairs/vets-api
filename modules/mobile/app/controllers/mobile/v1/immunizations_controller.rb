@@ -36,7 +36,8 @@ module Mobile
           Mobile::V0::Immunization.set_cached(@current_user, immunizations)
         end
 
-        immunizations.sort_by(&:date)
+        # Handle nil dates by sorting at the end of the list
+        immunizations.sort_by { |item| item.date || '3000-01-01' }
       end
     end
   end
