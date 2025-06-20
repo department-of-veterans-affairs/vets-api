@@ -114,7 +114,8 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(
-          'api.vaos.appointment_status_check.failure', tags: ["user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
+          'api.vaos.appointment_status_check.failure',
+          tags: ["user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
         )
         worker.perform(user.uuid, appointment_id_last4)
       end
