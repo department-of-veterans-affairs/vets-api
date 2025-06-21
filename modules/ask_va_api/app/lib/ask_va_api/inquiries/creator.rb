@@ -60,6 +60,7 @@ module AskVAApi
           payload = build_payload(inquiry_params)
           # put safe_fields in span for better observability
           span.set_tag('inquiry_context', safe_fields)
+          span.set_tag('LevelOfAuthentication', payload[:LevelOfAuthentication]) if payload.key?(:LevelOfAuthentication)
           post_data(payload)
         rescue => e
           span.set_error(e)
