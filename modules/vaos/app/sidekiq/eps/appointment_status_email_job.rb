@@ -22,7 +22,8 @@ module Eps
       user_uuid = msg['args'][0]
       appointment_id_last4 = msg['args'][1]
 
-      message = "Eps::AppointmentStatusEmailJob retries exhausted: #{error_class} - #{error_message}"
+      message = 'Eps::AppointmentStatusEmailJob retries exhausted: ' \
+                "#{error_class} - #{error_message}"
       log_failure(error: ex, message:, user_uuid:, appointment_id_last4:, permanent: true)
     end
 
@@ -71,13 +72,16 @@ module Eps
 
     def handle_exception(error:, user_uuid:, appointment_id_last4:)
       if error.respond_to?(:status_code) && error.status_code >= 400 && error.status_code < 500
-        message = "Eps::AppointmentStatusEmailJob upstream error - will not retry: #{error.status_code} - #{error.message}"
+        message = 'Eps::AppointmentStatusEmailJob upstream error - will not retry: ' \
+                  "#{error.status_code} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: true)
       elsif error.respond_to?(:status_code)
-        message = "Eps::AppointmentStatusEmailJob upstream error - will retry: #{error.status_code} - #{error.message}"
+        message = 'Eps::AppointmentStatusEmailJob upstream error - will retry: ' \
+                  "#{error.status_code} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: false)
       else
-        message = "Eps::AppointmentStatusEmailJob unexpected error: #{error.class.name} - #{error.message}"
+        message = 'Eps::AppointmentStatusEmailJob unexpected error: ' \
+                  "#{error.class.name} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: true)
       end
     end
