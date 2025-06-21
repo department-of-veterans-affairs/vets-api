@@ -195,7 +195,7 @@ describe Eps::AppointmentService do
           email: user.va_profile_email
         )
 
-        expect(Eps::EpsAppointmentWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusJob).to receive(:perform_async).with(
           user.account_uuid,
           appointment_id.last(4)
         )
