@@ -577,7 +577,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
         end
       end
 
-      it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/auth', { params: { inquiry: {} } }
+      it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/auth',
+                      { params: { inquiry: {} } }
       context 'when submitting education benefits inquiry' do
         let(:education_inquiry_params) do
           inquiry_params.deep_dup.tap do |params|
@@ -631,15 +632,34 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
         end
       end
 
-      context 'when submitting VR&E inquiry without authentication' do
-        let(:vre_inquiry_params) do
-          inquiry_params.deep_dup.tap do |params|
+      context 'topic-specific validation tests' do
+        it 'returns proper JSON error for regular education benefits topics' do
+          regular_edu_params = inquiry_params.deep_dup.tap do |params|
             params[:inquiry][:select_category] = 'Education benefits and work study'
-            params[:inquiry][:select_topic] = 'Veteran Readiness and Employment (Chapter 31)'
+            params[:inquiry][:select_topic] = 'Montgomery GI Bill'
           end
+
+          post inquiry_path, params: regular_edu_params
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response['error']).to include('Unauthenticated Education inquiry submitted')
         end
 
-        it 'allows VR&E inquiries when unauthenticated' do
+        it 'returns proper JSON error for Transfer of benefits topic' do
+          transfer_params = inquiry_params.deep_dup.tap do |params|
+            params[:inquiry][:select_category] = 'Education benefits and work study'
+            params[:inquiry][:select_topic] = 'Transfer of benefits'
+          end
+
+          post inquiry_path, params: transfer_params
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response['error']).to include('Unauthenticated Education inquiry submitted')
+        end
+
+        it 'returns success JSON for VR&E (Chapter 31) topic - confirming exception' do
           allow_any_instance_of(Crm::Service).to receive(:call)
             .and_return({
                           Data: { Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1' },
@@ -649,9 +669,38 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                           MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
                         })
 
-          post inquiry_path, params: vre_inquiry_params
+          vre_params = inquiry_params.deep_dup.tap do |params|
+            params[:inquiry][:select_category] = 'Education benefits and work study'
+            params[:inquiry][:select_topic] = 'Veteran Readiness and Employment (Chapter 31)'
+          end
+
+          post inquiry_path, params: vre_params
 
           expect(response).to have_http_status(:created)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response['Id']).to eq('530d56a8-affd-ee11-a1fe-001dd8094ff1')
+        end
+
+        it 'allows other categories without education restrictions' do
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .and_return({
+                          Data: { Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1' },
+                          Message: '',
+                          ExceptionOccurred: false,
+                          ExceptionMessage: '',
+                          MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                        })
+
+          other_category_params = inquiry_params.deep_dup.tap do |params|
+            params[:inquiry][:select_category] = 'Health care'
+            params[:inquiry][:select_topic] = 'Any health topic'
+          end
+
+          post inquiry_path, params: other_category_params
+
+          expect(response).to have_http_status(:created)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response['Id']).to eq('530d56a8-affd-ee11-a1fe-001dd8094ff1')
         end
       end
     end

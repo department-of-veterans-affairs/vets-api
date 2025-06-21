@@ -183,5 +183,81 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
         expect(result[:WhoWasTheirCounselor]).to eq('Joe Smith')
       end
     end
+
+    # VR&E (Chapter 31) should be allowed even when unauthenticated
+    context 'when user is nil and inquiry is VR&E (Chapter 31) under Education category' do
+      let(:authorized_user) { nil }
+      let(:params) do
+        {
+          category_id: '75524deb-d864-eb11-bb24-000d3a579c45',
+          contact_preference: 'Email',
+          email_address: 'test@test.com',
+          phone_number: '3039751100',
+          question: 'VR&E question',
+          relationship_to_veteran: "I'm the Veteran",
+          select_category: 'Education benefits and work study',
+          select_topic: 'Veteran Readiness and Employment (Chapter 31)',
+          subject: 'VR&E inquiry',
+          topic_id: 'b18831a7-8276-ef11-a671-001dd8097cca',
+          who_is_your_question_about: 'Myself',
+          about_yourself: {
+            first: 'Test',
+            last: 'User',
+            social_or_service_num: { ssn: '123456789' },
+            date_of_birth: '1990-01-01'
+          },
+          about_the_veteran: { social_or_service_num: {} },
+          about_the_family_member: { social_or_service_num: {} },
+          files: [{ file_name: nil, file_content: nil }]
+        }
+      end
+
+      it 'does NOT raise InquiryPayloadError for unauthenticated VR&E inquiries' do
+        expect { builder.call }.not_to raise_error
+      end
+
+      it 'does NOT log warning message for unauthenticated VR&E inquiries' do
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          anything
+        )
+
+        builder.call
+      end
+
+      it 'successfully builds payload for unauthenticated VR&E inquiries' do
+        result = builder.call
+        expect(result).to be_a(Hash)
+        expect(result[:LevelOfAuthentication]).to eq('722310000')
+      end
+    end
+
+    context 'when user is authenticated and inquiry is about VR&E (Chapter 31)' do
+      let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '234', edipi: '123') }
+      let(:params) do
+        i_am_veteran_edu[:inquiry].merge(
+          select_topic: 'Veteran Readiness and Employment (Chapter 31)'
+        )
+      end
+
+      it 'does not raise InquiryPayloadError for authenticated VR&E inquiries' do
+        expect { builder.call }.not_to raise_error
+      end
+
+      it 'does not set LevelOfAuthentication to UNAUTHENTICATED for authenticated VR&E users' do
+        result = builder.call
+        expect(result[:LevelOfAuthentication]).not_to eq('722310000')
+        expect(result[:LevelOfAuthentication]).to be_present
+      end
+
+      it 'does not log warning message for authenticated VR&E inquiries' do
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          any_args
+        )
+
+        builder.call
+      end
+    end
   end
 end
