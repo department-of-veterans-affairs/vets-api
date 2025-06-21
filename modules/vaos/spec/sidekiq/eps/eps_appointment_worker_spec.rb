@@ -28,7 +28,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
     )
 
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
-    allow(Eps::AppointmentEmailWorker).to receive(:perform_async)
+    allow(Eps::AppointmentStatusEmailWorker).to receive(:perform_async)
   end
 
   after do
@@ -59,7 +59,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusEmailWorker).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
           'Could not complete booking'
@@ -76,7 +76,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusEmailWorker).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
           'Could not verify the booking status of your submitted appointment, please contact support'
@@ -93,7 +93,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(Eps::AppointmentEmailWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusEmailWorker).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
           'Could not verify the booking status of your submitted appointment, please contact support'

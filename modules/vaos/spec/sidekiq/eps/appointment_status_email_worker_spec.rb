@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Eps::AppointmentEmailWorker, type: :job do
+RSpec.describe Eps::AppointmentStatusEmailWorker, type: :job do
   let(:user_uuid) { 'user123' }
   let(:appointment_id) { '12345' }
   let(:appointment_id_last4) { '2345' }

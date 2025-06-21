@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module Eps
-  class AppointmentEmailWorker
+  class AppointmentStatusEmailWorker
     include Sidekiq::Job
     include SentryLogging
     sidekiq_options retry: 13
-    STATSD_KEY = 'api.vaos.appointment_status_notification'
+    STATSD_KEY = 'api.vaos.appointment_status_email_worker'
 
     def perform(user_uuid, appointment_id_last4, error = nil)
       appointment_data = fetch_appointment_data(user_uuid, appointment_id_last4)

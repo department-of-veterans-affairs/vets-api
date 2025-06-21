@@ -99,7 +99,7 @@ module Eps
     # @param email [String] the email address to send the message to
     # @param error [String, nil] the error message (default: nil)
     def send_vanotify_message(error: nil)
-      Eps::AppointmentEmailWorker.perform_async(@user_uuid, @appointment_id_last4, error)
+      Eps::AppointmentStatusEmailWorker.perform_async(@user_uuid, @appointment_id_last4, error)
     end
   end
 end
