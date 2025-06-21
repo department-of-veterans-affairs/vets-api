@@ -98,7 +98,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
       it 'logs a warning message with inquiry context before raising error' do
         expect(Rails.logger).to receive(:warn).with(
           'Unauthenticated Education inquiry submitted',
-          inquiry_context: {
+          inquiry: {
             category: 'Education benefits and work study',
             topic: 'Transfer of benefits'
           }

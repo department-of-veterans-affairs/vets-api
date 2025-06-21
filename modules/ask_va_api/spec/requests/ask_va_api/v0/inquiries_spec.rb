@@ -622,7 +622,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
         it 'logs warning for unauthenticated education inquiry' do
           expect(Rails.logger).to receive(:warn).with(
             'Unauthenticated Education inquiry submitted',
-            inquiry_context: {
+            inquiry: {
               category: 'Education benefits and work study',
               topic: 'Montgomery GI Bill'
             }

@@ -103,7 +103,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
 
         # Verify safe fields don't contain PII
-        expect(span).to receive(:set_tag).with('inquiry_context', anything) do |_key, value|
+        expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
           expect(value.keys).not_to include(:icn, :ssn, :social_security_number, :date_of_birth)
           expect(value.values.join).not_to match(/\d{3}-\d{2}-\d{4}/) # SSN pattern
           expect(value.values.join).not_to match(/\d{9}/) # ICN pattern
@@ -115,9 +115,10 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
       it 'traces the call with Datadog and sets appropriate tags' do
         expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
+        allow(span).to receive(:set_tag)
         expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
         expect(span).to receive(:set_tag).with('user.loa', anything)
-        expect(span).to receive(:set_tag).with('inquiry_context', anything)
+        expect(span).to receive(:set_tag).with('inquiry', anything)
 
         creator.call(inquiry_params: inquiry_params[:inquiry])
       end
@@ -178,13 +179,13 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         }
       end
 
-      it 'only includes SAFE_INQUIRY_FIELDS in inquiry_context tag' do
+      it 'only includes SAFE_INQUIRY_FIELDS in inquiry tag' do
         allow(service).to receive(:call).and_return({
                                                       Data: { InquiryNumber: 'test-123' }
                                                     })
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry_context', {
+        expect(span).to receive(:set_tag).with('inquiry', {
                                                  select_category: 'Health care',
                                                  select_topic: 'Safe topic'
                                                })
@@ -194,13 +195,13 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         creator.call(inquiry_params: unsafe_params)
       end
 
-      it 'filters out all unsafe fields from inquiry_context' do
+      it 'filters out all unsafe fields from inquiry tag' do
         allow(service).to receive(:call).and_return({
                                                       Data: { InquiryNumber: 'test-123' }
                                                     })
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry_context', anything) do |_key, value|
+        expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
           # Ensure no PII fields are present
           unsafe_fields = %i[icn ssn social_security_number date_of_birth some_unsafe_field]
           expect(value.keys & unsafe_fields).to be_empty
@@ -237,9 +238,10 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
       it 'sets error on Datadog span when exception occurs' do
         expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
+        allow(span).to receive(:set_tag)
         expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
         expect(span).to receive(:set_tag).with('user.loa', anything)
-        expect(span).to receive(:set_tag).with('inquiry_context', anything)
+        expect(span).to receive(:set_tag).with('inquiry', anything)
         expect(span).to receive(:set_error).with(anything)
 
         expect { creator.call(inquiry_params: inquiry_params[:inquiry]) }.to raise_error(
@@ -267,7 +269,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         allow(service).to receive(:call).and_return({ Data: { InquiryNumber: 'test-123' } })
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry_context', {})
+        expect(span).to receive(:set_tag).with('inquiry', {})
         allow(span).to receive(:set_tag) # for other tags
         allow(span).to receive(:set_error) # in case of errors
 
@@ -283,7 +285,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         allow(service).to receive(:call).and_return({ Data: { InquiryNumber: 'test-123' } })
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry_context', {})
+        expect(span).to receive(:set_tag).with('inquiry', {})
         allow(span).to receive(:set_tag) # for other tags
         allow(span).to receive(:set_error) # in case of errors
 
@@ -323,7 +325,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
       it 'sets inquiry context without PII' do
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry_context', anything) do |_key, value|
+        expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
           # Focused PII validation
           unsafe_fields = %i[icn ssn social_security_number date_of_birth]
           expect(value.keys & unsafe_fields).to be_empty

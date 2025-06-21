@@ -44,7 +44,7 @@ module AskVAApi
 
           if user.nil? && inquiry_details_obj.education_benefits?
             Rails.logger.warn('Unauthenticated Education inquiry submitted',
-                              inquiry_context: {
+                              inquiry: {
                                 category: inquiry_details_obj.category,
                                 topic: inquiry_details_obj.topic
                               })
