@@ -2,17 +2,17 @@
 
 module Eps
   ##
-  # EpsAppointmentWorker is responsible for handling the appointment processing
+  # EpsAppointmentJob is responsible for handling the appointment processing
   # and retrying the job if the appointment is not finished.
   #
   # It includes the Sidekiq::Worker module to leverage Sidekiq's background job
   # processing capabilities.
   #
-  # The worker retries the job up to MAX_RETRIES times if the appointment is in
+  # The job retries up to MAX_RETRIES times if the appointment is in
   # a pending state. If the maximum retries are reached, it sends a failure message.
-  # EpsAppointmentWorker is responsible for handling the appointment processing
+  # EpsAppointmentJob is responsible for handling the appointment processing
   # and retrying the job if the appointment is not finished.
-  class EpsAppointmentWorker
+  class AppointmentStatusJob
     include Sidekiq::Worker
 
     STATSD_PREFIX = 'api.vaos.appointment_status_check'
@@ -52,7 +52,7 @@ module Eps
     end
 
     def log_missing_redis_data(appointment_data)
-      Rails.logger.error('EpsAppointmentWorker missing or incomplete Redis data',
+      Rails.logger.error('EpsAppointmentJob missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
                            appointment_data: }.to_json)
       StatsD.increment("#{STATSD_PREFIX}.failure",
@@ -65,7 +65,7 @@ module Eps
         response = service.get_appointment(appointment_id:)
         handle_appointment_response(response, retry_count)
       rescue
-        Rails.logger.error('EpsAppointmentWorker failed to get appointment status',
+        Rails.logger.error('EpsAppointmentJob failed to get appointment status',
                            { user_uuid: @user_uuid,
                              appointment_id_last4: @appointment_id_last4,
                              appointment_id: })
@@ -99,7 +99,7 @@ module Eps
     # @param email [String] the email address to send the message to
     # @param error [String, nil] the error message (default: nil)
     def send_vanotify_message(error: nil)
-      Eps::AppointmentStatusEmailWorker.perform_async(@user_uuid, @appointment_id_last4, error)
+      Eps::AppointmentStatusEmailJob.perform_async(@user_uuid, @appointment_id_last4, error)
     end
   end
 end

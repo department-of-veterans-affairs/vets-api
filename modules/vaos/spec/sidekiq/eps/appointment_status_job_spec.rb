@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_notify'
 
-RSpec.describe Eps::EpsAppointmentWorker, type: :job do
+RSpec.describe Eps::AppointmentStatusJob, type: :job do
   subject(:worker) { described_class.new }
 
   let(:user) { build(:user, :loa3, vet360_id: '12345') }
@@ -28,7 +28,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
     )
 
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
-    allow(Eps::AppointmentStatusEmailWorker).to receive(:perform_async)
+    allow(Eps::AppointmentStatusEmailJob).to receive(:perform_async)
   end
 
   after do
@@ -59,12 +59,12 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(Eps::AppointmentStatusEmailWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
           'Could not complete booking'
         )
-        worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
+        worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
     end
 
@@ -76,12 +76,12 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(Eps::AppointmentStatusEmailWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
           'Could not verify the booking status of your submitted appointment, please contact support'
         )
-        worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
+        worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
     end
 
@@ -93,12 +93,12 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        expect(Eps::AppointmentStatusEmailWorker).to receive(:perform_async).with(
+        expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
           'Could not verify the booking status of your submitted appointment, please contact support'
         )
-        worker.perform(user.uuid, appointment_id_last4, Eps::EpsAppointmentWorker::MAX_RETRIES)
+        worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
     end
 
@@ -110,7 +110,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
 
       it 'logs error and returns early' do
         expect(Rails.logger).to receive(:error).with(
-          'EpsAppointmentWorker missing or incomplete Redis data',
+          'EpsAppointmentJob missing or incomplete Redis data',
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(
