@@ -502,17 +502,12 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       JSON.parse(data, symbolize_names: true)
     end
     let(:safe_fields) do
-      %i[category_id
-         contact_preference
-         family_members_location_of_residence
+      %i[contact_preference
          is_question_about_veteran_or_someone_else
          more_about_your_relationship_to_veteran
          relationship_to_veteran
          select_category
          select_topic
-         subtopic_id
-         topic_id
-         veterans_postal_code
          who_is_your_question_about]
     end
 
@@ -583,6 +578,82 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/auth', { params: { inquiry: {} } }
+      context 'when submitting education benefits inquiry' do
+        let(:education_inquiry_params) do
+          inquiry_params.deep_dup.tap do |params|
+            params[:inquiry][:select_category] = 'Education benefits and work study'
+            params[:inquiry][:select_topic] = 'Montgomery GI Bill'
+          end
+        end
+
+        it 'successfully creates education benefits inquiry when authenticated' do
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .and_return({
+                          Data: { Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1' },
+                          Message: '',
+                          ExceptionOccurred: false,
+                          ExceptionMessage: '',
+                          MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                        })
+
+          sign_in(authorized_user)
+          post '/ask_va_api/v0/inquiries/auth', params: education_inquiry_params
+
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      context 'when submitting education benefits inquiry without authentication' do
+        let(:education_inquiry_params) do
+          inquiry_params.deep_dup.tap do |params|
+            params[:inquiry][:select_category] = 'Education benefits and work study'
+            params[:inquiry][:select_topic] = 'Montgomery GI Bill'
+          end
+        end
+
+        it 'rejects education benefits inquiry when unauthenticated' do
+          post inquiry_path, params: education_inquiry_params
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['error']).to include('Unauthenticated Education inquiry submitted')
+        end
+
+        it 'logs warning for unauthenticated education inquiry' do
+          expect(Rails.logger).to receive(:warn).with(
+            'Unauthenticated Education inquiry submitted',
+            inquiry_context: {
+              category: 'Education benefits and work study',
+              topic: 'Montgomery GI Bill'
+            }
+          )
+
+          post inquiry_path, params: education_inquiry_params
+        end
+      end
+
+      context 'when submitting VR&E inquiry without authentication' do
+        let(:vre_inquiry_params) do
+          inquiry_params.deep_dup.tap do |params|
+            params[:inquiry][:select_category] = 'Education benefits and work study'
+            params[:inquiry][:select_topic] = 'Veteran Readiness and Employment (Chapter 31)'
+          end
+        end
+
+        it 'allows VR&E inquiries when unauthenticated' do
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .and_return({
+                          Data: { Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1' },
+                          Message: '',
+                          ExceptionOccurred: false,
+                          ExceptionMessage: '',
+                          MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                        })
+
+          post inquiry_path, params: vre_inquiry_params
+
+          expect(response).to have_http_status(:created)
+        end
+      end
     end
 
     context 'POST #unauth_create' do

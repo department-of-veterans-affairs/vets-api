@@ -63,7 +63,7 @@ module AskVAApi
           post_data(payload)
         rescue => e
           span.set_error(e)
-          raise InquiriesCreatorError, "InquiriesCreatorError: #{e.message}"
+          raise InquiriesCreatorError.new("InquiriesCreatorError: #{e.message}", context: { safe_fields: })
         end
       end
 
