@@ -2,7 +2,7 @@
 
 module Eps
   ##
-  # EpsAppointmentJob is responsible for handling the appointment processing
+  # Eps::AppointmentJob is responsible for handling the appointment processing
   # and retrying the job if the appointment is not finished.
   #
   # It includes the Sidekiq::Worker module to leverage Sidekiq's background job
