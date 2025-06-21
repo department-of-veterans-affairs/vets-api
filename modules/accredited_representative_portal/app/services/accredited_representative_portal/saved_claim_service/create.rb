@@ -25,7 +25,8 @@ module AccreditedRepresentativePortal
           type.new.tap do |saved_claim|
             saved_claim.form = metadata.to_json
 
-            organize_attachments!(attachment_guids).tap do |attachments|
+            form_id = saved_claim.class::PROPER_FORM_ID
+            organize_attachments!(form_id, attachment_guids).tap do |attachments|
               saved_claim.form_attachment = attachments[:form]
 
               attachments[:documentations].each do |attachment|
@@ -35,7 +36,7 @@ module AccreditedRepresentativePortal
 
             create!(saved_claim, claimant_representative)
 
-            SubmitBenefitsIntakeClaimJob.perform_async(
+            SubmitBenefitsIntakeClaimJob.new.perform(
               saved_claim.id
             )
           end
@@ -65,16 +66,25 @@ module AccreditedRepresentativePortal
         # I.e., number of types & no re-parenting. Ideally something more atomic
         # with no gap between checking and persisting.
         #
-        def organize_attachments!(guids)
-          attachments =
-            PersistentAttachment.where(guid: guids).to_a
+        def organize_attachments!(form_id, guids) # rubocop:disable Metrics/MethodLength
+          groups = Hash.new { |h, k| h[k] = [] }
+          attachments = PersistentAttachment.where(guid: guids).to_a
 
-          attachments.none?(&:saved_claim_id) or
-            raise WrongAttachmentsError, <<~MSG.squish
-              This attachment already belongs to a claim
-            MSG
+          attachments.each do |attachment|
+            attachment.saved_claim_id.blank? or
+              raise WrongAttachmentsError, <<~MSG.squish
+                This attachment already belongs to a claim
+              MSG
 
-          groups = attachments.group_by(&:class)
+            attachment.form_id == form_id or
+              raise WrongAttachmentsError, <<~MSG.squish
+                This attachment is for the wrong claim type
+              MSG
+
+            groups[attachment.class] <<
+              attachment
+          end
+
           forms = groups.delete(PersistentAttachments::VAForm).to_a
           documentations = groups.delete(PersistentAttachments::VAFormDocumentation).to_a
 

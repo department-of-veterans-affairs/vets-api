@@ -4,7 +4,6 @@ module AccreditedRepresentativePortal
   class SavedClaimClaimantRepresentativeSerializer < ApplicationSerializer
     STATUSES = {
       'pending' => 'awaiting_receipt',
-      'submitted' => 'awaiting_receipt',
       'failure' => 'processing_error',
       'vbms' => 'received',
       'manually' => 'received'

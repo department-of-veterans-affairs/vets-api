@@ -24,7 +24,7 @@ module DebtsApi
       private
 
       def process_submission
-        service = DigitalDisputeSubmissionService.new(submission_params[:files])
+        service = DigitalDisputeSubmissionService.new(current_user, submission_params[:files])
         service.call
       end
 

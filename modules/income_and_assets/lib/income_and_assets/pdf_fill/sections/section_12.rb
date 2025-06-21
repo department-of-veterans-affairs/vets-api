@@ -24,7 +24,10 @@ module IncomeAndAssets
             question_num: 12,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship12[#{ITERATOR}]",
@@ -88,7 +91,10 @@ module IncomeAndAssets
             question_num: 12,
             question_suffix: '(5)',
             question_text: 'This income will not resume',
-            question_label: 'Payment Will Not Resume'
+            question_label: 'Payment Will Not Resume',
+            format_options: {
+              humanize: true
+            }
           },
           # Q6
           'waivedGrossMonthlyIncome' => {

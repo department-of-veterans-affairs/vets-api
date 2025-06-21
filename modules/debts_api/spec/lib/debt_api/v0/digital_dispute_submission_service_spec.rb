@@ -13,11 +13,29 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
   let(:image_file) do
     fixture_file_upload('doctors-note.png', 'image/png')
   end
+  let(:user) { build(:user, :loa3) }
 
   describe '#call' do
     context 'with valid files' do
-      it 'returns success result for single PDF file' do
-        service = described_class.new([pdf_file_one])
+      it 'sends expected payload with correct structure' do
+        expect_any_instance_of(described_class).to receive(:perform).with(
+          :post,
+          'dispute-debt',
+          satisfy do |payload|
+            expect(payload[:file_number]).to eq(user.ssn)
+
+            expect(payload[:dispute_pdfs].size).to eq(1)
+            pdf = payload[:dispute_pdfs].first
+
+            expect(pdf[:file_name]).to eq('tester.pdf')
+            expect(pdf[:file_contents]).to be_a(String)
+            expect(Base64.decode64(pdf[:file_contents])).to include('%PDF')
+
+            true
+          end
+        ).and_return(true)
+
+        service = described_class.new(user, [pdf_file_one])
         result = service.call
 
         expect(result[:success]).to be true
@@ -25,7 +43,22 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       end
 
       it 'returns success result for multiple PDF files' do
-        service = described_class.new([pdf_file_one, pdf_file_two])
+        expect_any_instance_of(described_class).to receive(:perform).with(
+          :post,
+          'dispute-debt',
+          satisfy do |payload|
+            next false unless payload[:file_number] == user.ssn
+            next false unless payload[:dispute_pdfs].size == 2
+
+            payload[:dispute_pdfs].all? do |pdf|
+              pdf[:file_name].end_with?('.pdf') &&
+                pdf[:file_contents].is_a?(String) &&
+                Base64.decode64(pdf[:file_contents]).include?('%PDF')
+            end
+          end
+        )
+
+        service = described_class.new(user, [pdf_file_one, pdf_file_two])
         result = service.call
 
         expect(result[:success]).to be true
@@ -35,7 +68,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
 
     context 'with invalid input' do
       it 'returns failure when no files provided' do
-        service = described_class.new(nil)
+        service = described_class.new(user, nil)
         result = service.call
 
         expect(result[:success]).to be false
@@ -43,7 +76,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       end
 
       it 'returns failure when empty array provided' do
-        service = described_class.new([])
+        service = described_class.new(user, [])
         result = service.call
 
         expect(result[:success]).to be false
@@ -51,7 +84,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       end
 
       it 'returns failure for non-PDF files' do
-        service = described_class.new([image_file])
+        service = described_class.new(user, [image_file])
         result = service.call
 
         expect(result[:success]).to be false
@@ -59,7 +92,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       end
 
       it 'returns failure for mixed file types' do
-        service = described_class.new([pdf_file_one, image_file])
+        service = described_class.new(user, [pdf_file_one, image_file])
         result = service.call
 
         expect(result[:success]).to be false
@@ -69,7 +102,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       it 'returns failure for oversized files' do
         allow(pdf_file_one).to receive(:size).and_return(2.megabytes)
 
-        service = described_class.new([pdf_file_one])
+        service = described_class.new(user, [pdf_file_one])
         result = service.call
 
         expect(result[:success]).to be false
@@ -79,7 +112,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       it 'returns multiple errors for multiple invalid files' do
         allow(pdf_file_one).to receive(:size).and_return(2.megabytes)
 
-        service = described_class.new([pdf_file_one, image_file])
+        service = described_class.new(user, [pdf_file_one, image_file])
         result = service.call
 
         expect(result[:success]).to be false
@@ -94,7 +127,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
           .to receive(:validate_files_present)
           .and_raise(StandardError.new('Unexpected error'))
 
-        service = described_class.new([pdf_file_one])
+        service = described_class.new(user, [pdf_file_one])
         result = service.call
 
         expect(result[:success]).to be false
@@ -105,21 +138,21 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
 
   describe '#sanitize_filename' do
     it 'removes extra dots from filename' do
-      service = described_class.new([pdf_file_one])
+      service = described_class.new(user, [pdf_file_one])
       result = service.send(:sanitize_filename, 'test.file.name.pdf')
 
       expect(result).to eq('testfilename.pdf')
     end
 
     it 'replaces colons with underscores' do
-      service = described_class.new([pdf_file_one])
+      service = described_class.new(user, [pdf_file_one])
       result = service.send(:sanitize_filename, 'test:file:name.pdf')
 
       expect(result).to eq('test_file_name.pdf')
     end
 
     it 'handles filenames with directory paths' do
-      service = described_class.new([pdf_file_one])
+      service = described_class.new(user, [pdf_file_one])
       result = service.send(:sanitize_filename, '/path/to/file.pdf')
 
       expect(result).to eq('file.pdf')

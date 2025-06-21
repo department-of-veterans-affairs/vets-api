@@ -114,6 +114,12 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+  - :method: :post
+    :path: "/api/v1/digital-services/dispute-debt"
+    :file_path: "debt_management_center/digital_dispute/create"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'fileNumber":"(\w+)"'
 
 - :name: 'VBS'
   :base_uri: <%= "#{URI(Settings.mcp.vbs_v2.url).host}:#{URI(Settings.mcp.vbs_v2.url).port}" %>

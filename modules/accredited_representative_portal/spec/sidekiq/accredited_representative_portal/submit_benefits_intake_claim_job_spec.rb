@@ -12,12 +12,10 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
       JSON.parse(fixture)
     end
 
-  subject(:perform) { described_class.new.perform(claim.id) }
-
-  let(:claim) do
+  subject(:perform) do
     attachments = [
-      create(:persistent_attachment_va_form),
-      create(:persistent_attachment_va_form_documentation)
+      create(:persistent_attachment_va_form, form_id: '21-686c'),
+      create(:persistent_attachment_va_form_documentation, form_id: '21-686c')
     ]
 
     AccreditedRepresentativePortal::SavedClaimService::Create.perform(

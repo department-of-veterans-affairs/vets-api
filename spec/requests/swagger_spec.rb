@@ -14,6 +14,7 @@ require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
+require 'debts_api/v0/digital_dispute_submission_service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -583,6 +584,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'validates the route' do
+          allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:call).and_return(
+            { success: true, message: 'Digital dispute submission received successfully' }
+          )
           expect(subject).to validate(
             :post,
             '/debts_api/v0/digital_disputes',
