@@ -2,7 +2,7 @@
 
 module Eps
   ##
-  # Eps::AppointmentJob is responsible for handling the appointment processing
+  # Eps::AppointmentStatusJob is responsible for handling the appointment processing
   # and retrying the job if the appointment is not finished.
   #
   # It includes the Sidekiq::Worker module to leverage Sidekiq's background job
@@ -10,8 +10,8 @@ module Eps
   #
   # The job retries up to MAX_RETRIES times if the appointment is in
   # a pending state. If the maximum retries are reached, it sends a failure message.
-  # EpsAppointmentJob is responsible for handling the appointment processing
-  # and retrying the job if the appointment is not finished.
+  # Checks the status of the submitted appointment and sends a notification email if the
+  # retries are exhausted.
   class AppointmentStatusJob
     include Sidekiq::Worker
 
