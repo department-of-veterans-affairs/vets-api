@@ -11,7 +11,7 @@ module Eps
     # Cache keys and namespaces
     CACHE_KEY = 'vaos_eps_appointment'
     CACHE_NAMESPACE = 'eps-appointments'
-    CACHE_TTL = 24.hours
+    CACHE_TTL = 26.hours
 
     # Initializes the RedisClient with settings.
     #
