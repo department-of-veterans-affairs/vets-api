@@ -42,7 +42,7 @@ module AskVAApi
           # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
           Rails.logger.info("User LOA: #{user&.loa&.fetch(:current, nil)}") if user.present?
 
-          if user.nil? && inquiry_details_obj.education_benefits?
+          if user.nil? && inquiry_details_obj.inquiry_education_related?
             Rails.logger.warn('Unauthenticated Education inquiry submitted',
                               inquiry: {
                                 category: inquiry_details_obj.category,
