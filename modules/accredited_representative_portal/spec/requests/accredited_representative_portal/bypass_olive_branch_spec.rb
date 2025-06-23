@@ -36,6 +36,7 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     end
   end
 
+  # Staging path includes an extra hash EX: '//accredited_representative_portal'
   context 'when the request is for an accredited representative portal route staging' do
     let(:path_prefix) { '//accredited_representative_portal' }
 
