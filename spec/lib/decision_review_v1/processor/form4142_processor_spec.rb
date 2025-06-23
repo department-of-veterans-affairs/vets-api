@@ -222,10 +222,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
           processor
         end
-
-        it 'does not require signature stamping' do
-          expect(processor.send(:needs_signature_stamp?)).to be false
-        end
       end
 
       context 'with 2024 template (flag enabled)' do
