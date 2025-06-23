@@ -21,13 +21,13 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
       ptcpnt_id: '600140899',
       related_to_vet: 'Y',
       relationship: 'Spouse',
-      ssn: '222883214',
+      ssnLastFour: '3214',
       veteran_indicator: 'N'
     }] }
   end
   let(:veteran_information) do
     { 'fullName' => { 'first' => 'Abraham', 'last' => 'Lincoln', 'suffix' => 'Jr.' },
-      'ssn' => '796111863', 'birthDate' => '1809-02-12' }
+      'ssnLastFour' => '1863', 'birthDate' => '1809-02-12' }
   end
   let(:contact_information) do
     { 'veteranAddress' => {
@@ -46,7 +46,7 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
     [{
       'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
       'dateOfBirth' => '1960-02-01',
-      'ssn' => '222883214',
+      'ssnLastFour' => '3214',
       'age' => 59,
       'relationshipToVeteran' => 'Spouse'
     }]
