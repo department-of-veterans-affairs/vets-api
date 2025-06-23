@@ -6,10 +6,10 @@ require 'decision_review_v1/utilities/constants'
 module DecisionReviewV1
   module Processor
     class Form4142Processor < Processors::BaseForm4142Processor
-      def initialize(form_data:, submission_id: nil, validate: true)
+      def initialize(form_data:, submission_id: nil)
         @submission = Form526Submission.find_by(id: submission_id)
         @form = set_signature_date(form_data)
-        super(validate:) # Pass validate flag to parent
+        super()
       end
 
       protected
