@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/ppiu/service'
-require 'disability_compensation/factories/api_provider_factory'
 require 'vets/model'
 
 module VA0994
@@ -43,7 +42,7 @@ class FormProfiles::VA0994 < FormProfile
     raw_account = response.responses.first&.payment_account
 
     if raw_account
-      VA10297::FormPaymentAccountInformation.new(
+      VA0994::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
         account_number: mask(raw_account&.account_number),
         routing_number: mask(raw_account&.financial_institution_routing_number),
