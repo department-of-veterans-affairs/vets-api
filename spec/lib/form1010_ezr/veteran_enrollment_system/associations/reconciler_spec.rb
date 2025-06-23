@@ -41,6 +41,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
               'middle' => 'MIDDLEECA',
               'last' => 'LASTECA'
             },
+            'relationType' => 'BROTHER',
             'deleteIndicator' => true
           }
         )
