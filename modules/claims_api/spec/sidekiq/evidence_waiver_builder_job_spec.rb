@@ -68,4 +68,55 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
       subject.new.perform(ews.id)
     end
   end
+
+  describe 'logging during job execution' do
+    before do
+      allow_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_return('/tmp/test.pdf')
+      allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return({ success: true })
+      allow_any_instance_of(
+        ClaimsApi::EvidenceWaiverDocumentService
+      ).to receive(:create_upload).and_return({ success: true })
+      allow(ClaimsApi::EwsUpdater).to receive(:perform_async)
+    end
+
+    context 'when job executes successfully' do
+      it 'logs completion messages' do
+        allow(ClaimsApi::Logger).to receive(:log)
+
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'EWS_builder',
+          evidence_waiver_submission_id: ews.id,
+          claim_id: ews.claim_id,
+          method: :perform,
+          detail: 'Successfully uploaded benefits doc.'
+        ).at_least(:once)
+
+        subject.new.perform(ews.id)
+      end
+    end
+
+    context 'when job fails with exception' do
+      before do
+        allow_any_instance_of(
+          ClaimsApi::EvidenceWaiver
+        ).to receive(:construct).and_raise(StandardError.new('Test error'))
+      end
+
+      it 'logs the failure and re-raises the exception' do
+        allow(ClaimsApi::Logger).to receive(:log)
+
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'EWS_builder',
+          evidence_waiver_submission_id: ews.id,
+          claim_id: ews.claim_id,
+          method: :perform,
+          detail: 'Job failed.',
+          error: 'Test error',
+          retry: true
+        ).at_least(:once)
+
+        expect { subject.new.perform(ews.id) }.to raise_error(StandardError, 'Test error')
+      end
+    end
+  end
 end

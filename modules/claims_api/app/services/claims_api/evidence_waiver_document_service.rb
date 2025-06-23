@@ -7,13 +7,22 @@ module ClaimsApi
 
     def create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
       unless File.exist? pdf_path
-        ClaimsApi::Logger.log(LOG_TAG, detail: "Error creating upload doc: #{pdf_path} doesn't exist,
-                                                    claim_id: #{claim.claim_id}")
-        raise Errno::ENOENT, pdf_path
+        error_message = 'Evidence waiver PDF document not found for upload to Benefits Documents | ' \
+                        "ews_id: #{claim&.id} | claim_id: #{claim&.claim_id}"
+        ClaimsApi::Logger.log(LOG_TAG, detail: error_message)
+        raise Errno::ENOENT, error_message
       end
 
       body = generate_body(claim:, doc_type:, pdf_path:, ptcpnt_vet_id:)
-      ClaimsApi::BD.new.upload_document(identifier: claim.claim_id, doc_type_name: '5103', body:)
+      result = ClaimsApi::BD.new.upload_document(identifier: claim.claim_id, doc_type_name: FORM_SUFFIX, body:)
+
+      ClaimsApi::Logger.log(LOG_TAG, ews_id: claim.id, claim_id: claim.claim_id,
+                                     detail: 'Document upload to BD successful.')
+      result
+    rescue => e
+      ClaimsApi::Logger.log(LOG_TAG, ews_id: claim.id, claim_id: claim.claim_id,
+                                     detail: 'Document upload to BD failed.', error: e.message)
+      raise e
     end
 
     private
