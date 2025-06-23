@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   module V0
     class InProgressFormsController < ApplicationController
       skip_after_action :verify_pundit_authorization
+      before_action :feature_enabled
 
       def show
         form = find_form
@@ -29,6 +30,11 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      # Checks if the feature flag accredited_representative_portal_form_21a is enabled or not
+      def feature_enabled
+        routing_error unless Flipper.enabled?(:accredited_representative_portal_form_21a)
+      end
 
       def find_form
         InProgressForm.form_for_user(params[:id], @current_user)
