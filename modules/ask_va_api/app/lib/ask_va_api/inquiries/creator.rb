@@ -56,25 +56,16 @@ module AskVAApi
           safe_fields = log_safe_fields_from_inquiry(inquiry_params)
           span.set_tag('user.isAuthenticated', user.present?)
           span.set_tag('user.loa', user&.loa&.fetch(:current, nil))
-
           payload = build_payload(inquiry_params)
-          # put safe_fields in span for better observability
           span.set_tag('inquiry', safe_fields)
           if payload.key?(:LevelOfAuthentication)
-            span.set_tag('Crm.LevelOfAuthentication',
-                         payload[:LevelOfAuthentication])
+            span.set_tag('Crm.LevelOfAuthentication', payload[:LevelOfAuthentication])
           end
           post_data(payload)
         rescue => e
           span.set_error(e)
           safe_fields = log_safe_fields_from_inquiry(inquiry_params)
-          # Raise with error context for downstream logging/rendering
-          raise InquiriesCreatorError.new(
-            "InquiriesCreatorError: #{e.message}",
-            context: {
-              safe_fields:
-            }
-          )
+          raise InquiriesCreatorError.new("InquiriesCreatorError: #{e.message}", context: { safe_fields: })
         end
       end
 
