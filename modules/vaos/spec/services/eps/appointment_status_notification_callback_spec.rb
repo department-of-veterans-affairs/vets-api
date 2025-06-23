@@ -259,21 +259,5 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
     end
   end
 
-  describe '.classify_failure_type' do
-    it 'classifies permanent-failure correctly' do
-      expect(described_class.send(:classify_failure_type, 'permanent-failure')).to eq('permanent')
-    end
 
-    it 'classifies temporary-failure correctly' do
-      expect(described_class.send(:classify_failure_type, 'temporary-failure')).to eq('temporary')
-    end
-
-    it 'classifies technical-failure correctly' do
-      expect(described_class.send(:classify_failure_type, 'technical-failure')).to eq('technical')
-    end
-
-    it 'classifies unknown statuses as unknown' do
-      expect(described_class.send(:classify_failure_type, 'weird-status')).to eq('unknown')
-    end
-  end
 end

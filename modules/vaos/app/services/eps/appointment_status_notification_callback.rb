@@ -8,6 +8,12 @@ module Eps
   # through StatsD metrics and structured logging.
   class AppointmentStatusNotificationCallback
     STATSD_KEY = 'api.vaos.appointment_status_notification'
+    FAILURE_STATUSES = %w[permanent-failure temporary-failure technical-failure].freeze
+    FAILURE_TYPE_MAP = {
+      'permanent-failure' => 'permanent',
+      'temporary-failure' => 'temporary',
+      'technical-failure' => 'technical'
+    }.freeze
 
     # Main callback entry point called by VA Notify
     #
@@ -69,11 +75,12 @@ module Eps
     # @return [void]
     def self.handle_notification_status(notification, base_data)
       tags = build_statsd_tags(base_data)
+      status = notification.status&.downcase
 
-      case notification.status
+      case status.downcase
       when 'delivered'
         handle_success(base_data, tags)
-      when 'permanent-failure', 'temporary-failure', 'technical-failure'
+      when *FAILURE_STATUSES
         handle_failure(notification, base_data, tags)
       else
         handle_unknown_status(notification, base_data, tags)
@@ -102,9 +109,10 @@ module Eps
     def self.handle_failure(notification, base_data, tags)
       StatsD.increment("#{STATSD_KEY}.failure", tags:)
 
+      failure_type = FAILURE_TYPE_MAP[notification.status&.downcase] || 'unknown'
       failure_data = base_data.merge(
         status_reason: notification.status_reason,
-        failure_type: classify_failure_type(notification.status)
+        failure_type:
       )
 
       Rails.logger.error(
@@ -130,23 +138,6 @@ module Eps
         'Eps::AppointmentNotificationCallback received unknown status',
         unknown_data
       )
-    end
-
-    # Classify failure types for better observability
-    #
-    # @param status [String] The notification status
-    # @return [String] The classified failure type
-    def self.classify_failure_type(status)
-      case status
-      when 'permanent-failure'
-        'permanent'
-      when 'temporary-failure'
-        'temporary'
-      when 'technical-failure'
-        'technical'
-      else
-        'unknown'
-      end
     end
 
     # Handle missing notification object
