@@ -862,7 +862,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    csp_uuid: logingov_uuid,
+                    user_uuid: logingov_uuid,
                     authentication_time:
                   }
                 end
@@ -1034,7 +1034,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    csp_uuid: idme_uuid,
+                    user_uuid: idme_uuid,
                     authentication_time:
                   }
                 end
@@ -1168,7 +1168,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  csp_uuid: backing_idme_uuid,
+                  user_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1317,7 +1317,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  csp_uuid: backing_idme_uuid,
+                  user_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1481,7 +1481,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let(:user_verification) { create(:user_verification) }
     let(:user_verification_id) { user_verification.id }
-    let!(:user) { create(:user, :loa3, uuid: user_uuid) }
+    let!(:user) { create(:user, :loa3, user_verification:, user_account: user_verification.user_account) }
     let(:user_uuid) { user_verification.credential_identifier }
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
@@ -2570,15 +2570,15 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'POST revoke' do
     subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
-    let!(:user) { create(:user, uuid: user_uuid) }
-    let(:user_uuid) { user_verification.user_account.id }
+    let!(:user) { create(:user) }
+    let(:user_uuid) { user.uuid }
     let(:refresh_token_param) { { refresh_token: } }
     let(:refresh_token) { 'example-refresh-token' }
     let(:anti_csrf_token_param) { { anti_csrf_token: } }
     let(:anti_csrf_token) { 'example-anti-csrf-token' }
     let(:enable_anti_csrf) { false }
-    let(:user_verification) { create(:user_verification) }
-    let(:user_account) { user_verification.user_account }
+    let(:user_verification) { user.user_verification }
+    let(:user_account) { user.user_account }
     let(:validated_credential) do
       create(:validated_credential, user_verification:, client_config:)
     end

@@ -4,7 +4,7 @@ require 'saml/url_service'
 
 FactoryBot.define do
   factory :user, class: 'User' do
-    uuid { user_verification.user_account.id }
+    uuid { user_verification.credential_identifier }
     last_signed_in { Time.now.utc }
     fingerprint { '111.111.1.1' }
     session_handle { SecureRandom.hex }

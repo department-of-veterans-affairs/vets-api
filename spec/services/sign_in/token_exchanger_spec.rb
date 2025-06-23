@@ -165,7 +165,7 @@ RSpec.describe SignIn::TokenExchanger, type: :model do
                     let(:expected_refresh_creation) { current_session.refresh_creation }
                     let(:expected_audience) { SignIn::ClientConfig.where(shared_sessions: true).pluck(:client_id) }
                     let(:expected_device_secret_hash) { nil }
-                    let(:expected_user_uuid) { current_session.user_verification.user_account.id }
+                    let(:expected_user_uuid) { current_session.user_verification.credential_identifier }
 
                     before do
                       Timecop.freeze(Time.zone.now.floor)
