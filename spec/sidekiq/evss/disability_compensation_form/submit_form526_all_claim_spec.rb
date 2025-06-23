@@ -495,6 +495,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect_retryable_error(error)
         end
 
+        it 'retries with a Faraday::TimeoutError Error' do
+          error = Faraday::TimeoutError.new
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
+        it 'retries with a Common::Exceptions::Timeout Error' do
+          error = Common::Exceptions::Timeout.new('Timeout error')
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
         it 'does not retry UnprocessableEntity errors with "pointer" defined' do
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
                                   'detail' => 'The claim failed to establish',

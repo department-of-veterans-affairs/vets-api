@@ -24,7 +24,10 @@ module IncomeAndAssets
             question_num: 11,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Recipient Relationship'
+            question_label: 'Recipient Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship11[#{ITERATOR}]",
@@ -66,7 +69,10 @@ module IncomeAndAssets
             question_num: 11,
             question_suffix: '(5)',
             question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED',
-            question_label: 'Income Frequency'
+            question_label: 'Income Frequency',
+            format_options: {
+              humanize: true
+            }
           },
           # Q6
           'incomeLastReceivedDate' => {

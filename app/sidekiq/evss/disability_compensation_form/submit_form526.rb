@@ -191,7 +191,7 @@ module EVSS
              Common::Exceptions::Unauthorized, # 401 (UnauthorizedError?)
              # 422 (UpstreamUnprocessableEntity, i.e. EVSS container validation)
              Common::Exceptions::UpstreamUnprocessableEntity,
-             Net::ReadTimeout, # Any forms of timeout errors
+             Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError, # Any forms of timeout errors
              Common::Exceptions::TooManyRequests, # 429
              Common::Exceptions::ClientDisconnected, # 499
              Common::Exceptions::ExternalServerInternalServerError, # 500
