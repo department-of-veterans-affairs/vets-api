@@ -100,7 +100,7 @@ module Eps
     # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
-      query_params = { npi:, isSelfSchedulable: false }
+      query_params = { npi:, isSelfSchedulable: true }
       response = perform(:get, "/#{config.base_path}/provider-services", query_params,
                          request_headers_with_correlation_id)
 
