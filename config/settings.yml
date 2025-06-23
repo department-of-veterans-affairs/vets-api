@@ -17,7 +17,6 @@ argocd:
     api_key: <%= ENV['argocd__slack__api_key'] %>
 ask_va_api:
   crm_api:
-    aaa: <%= ENV['ask_va_api__crm_api__aaa'] %>
     auth_url: <%= ENV['ask_va_api__crm_api__auth_url'] %>
     base_url: <%= ENV['ask_va_api__crm_api__base_url'] %>
     client_id: <%= ENV['ask_va_api__crm_api__client_id'] %>

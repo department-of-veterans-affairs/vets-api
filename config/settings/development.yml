@@ -17,7 +17,6 @@ argocd:
     api_key: ~
 ask_va_api:
   crm_api:
-    auth_url: https://login.microsoftonline.us
     base_url: https://dev.integration.d365.va.gov
     client_id: client_id
     client_secret: secret
