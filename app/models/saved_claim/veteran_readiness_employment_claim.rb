@@ -4,7 +4,7 @@ require 'sentry_logging'
 require 'res/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
-  include Vets::SharedLogging
+  # include Vets::SharedLogging
 
   FORM = '28-1900'
   FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
@@ -75,7 +75,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   }.freeze
 
   after_initialize do
-    self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
+    if form.present?
+      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
+    end
   end
 
   def initialize(args)
