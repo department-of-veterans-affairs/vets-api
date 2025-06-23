@@ -20,7 +20,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
   end
 
-  let(:user_account) { create(:user_account, icn: '123498767V234859') }
+  let(:user_account) { create(:user_account, :legacy_icn) }
   let(:user) { create(:user, :loa3, icn: user_account.icn) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)

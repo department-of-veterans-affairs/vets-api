@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_discovery/service'
 
 RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
   let(:service_instance) { instance_double(BenefitsDiscovery::Service) }
   let(:eligible_benefits) do
     {

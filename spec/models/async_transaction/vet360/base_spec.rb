@@ -251,7 +251,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     end
 
     describe '.start v2' do
-      let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+      let(:user) { build(:user, :loa3, :legacy_icn) }
 
       let(:address) { build(:va_profile_v3_address, source_system_user: user.icn) }
 

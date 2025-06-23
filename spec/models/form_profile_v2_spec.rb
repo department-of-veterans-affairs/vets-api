@@ -16,8 +16,8 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:user) do
-    build(:user, :loa3, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', icn: '123498767V234859', suffix: 'Jr.',
-                        address: build(:va_profile_v3_address), vet360_id: '1')
+    build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
+                                     address: build(:va_profile_v3_address), vet360_id: '1')
   end
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
@@ -1533,8 +1533,8 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:va_profile_v3_address),
-                                vet360_id: '1781151')
+            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_v3_address),
+                                             vet360_id: '1781151')
           end
 
           before do

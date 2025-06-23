@@ -8,7 +8,7 @@ RSpec.describe 'V0::Profile::PreferredNames', feature: :personal_info,
                                               type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3, icn: '123498767V234859', idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+  let(:user) { build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:time) { Time.zone.local(2022, 4, 8, 15, 9, 23) }
 

@@ -133,8 +133,7 @@ FactoryBot.define do
     end
 
     callback(:after_build, :after_stub, :after_create) do |user, t|
-      user_identity = create(:user_identity,
-                             t.user_identity)
+      user_identity = create(:user_identity, t.user_identity)
       user.instance_variable_set(:@identity, user_identity)
       user.instance_variable_set(:@needs_accepted_terms_of_use, t.needs_accepted_terms_of_use)
       stub_mpi(t.mpi_profile) unless t.stub_mpi == false
@@ -158,6 +157,10 @@ FactoryBot.define do
       mhv_account_type { nil }
       va_patient { nil }
       loa { nil }
+    end
+
+    trait :legacy_icn do
+      icn { '123498767V234859' }
     end
 
     trait :dependent do

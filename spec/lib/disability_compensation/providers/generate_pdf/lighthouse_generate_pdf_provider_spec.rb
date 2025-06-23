@@ -10,7 +10,7 @@ RSpec.describe LighthouseGeneratePdfProvider do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:user) { create(:user, :loa3, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :legacy_icn) }
   let(:saved_claim) { create(:va526ez) }
   let(:user_account) { user.user_account }
 

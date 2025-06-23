@@ -6,7 +6,7 @@ require 'va_profile/v2/contact_information/service'
 describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
-  let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+  let(:user) { build(:user, :loa3, :legacy_icn) }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)

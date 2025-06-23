@@ -7,7 +7,7 @@ require 'saved_claim/coe_claim'
 describe LGY::Service do
   subject { described_class.new(edipi: user.edipi, icn: user.icn) }
 
-  let(:user) { create(:evss_user, :loa3, icn: '123498767V234859') }
+  let(:user) { create(:evss_user, :loa3, :legacy_icn) }
   let(:coe_claim) { create(:coe_claim) }
 
   describe '#get_determination' do

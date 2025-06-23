@@ -524,7 +524,7 @@ RSpec.describe ApplicationController, type: :controller do
   describe '#sso_logging_info' do
     subject { get :test_logging }
 
-    let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+    let(:user) { build(:user, :loa3, :legacy_icn) }
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
     let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
     let(:request_host) { Settings.hostname }
