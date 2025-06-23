@@ -9,7 +9,7 @@ namespace :persistent_attachment_remediation do
       exit 1
     end
 
-    claim = SavedClaim.unscoped.find_by(id: claim_id)
+    claim = SavedClaim.find_by(id: claim_id)
     unless claim
       puts "SavedClaim with id #{claim_id} not found."
       exit 1
@@ -36,7 +36,7 @@ namespace :persistent_attachment_remediation do
 
     # Find all PersistentAttachments for those GUIDs
     attachments = PersistentAttachment.where(guid: expected_guids)
-    should_delete = false
+    delete_claim = false
 
     attachments.each do |attachment|
       # Test decryption by accessing the file_data
@@ -44,19 +44,21 @@ namespace :persistent_attachment_remediation do
         attachment.file_data # triggers decryption
       rescue => e
         puts "Attachment #{attachment.id} failed to decrypt: #{e.class}"
-        should_delete = true
+        attachment.destroy!
+        delete_claim = true
         break
       end
 
       # Check if saved_claim_id is nil
       if attachment.saved_claim_id.nil?
         puts "Attachment #{attachment.id} has nil saved_claim_id."
-        should_delete = true
+        attachment.destroy!
+        delete_claim = true
         break
       end
     end
 
-    if should_delete
+    if delete_claim
       puts "Deleting SavedClaim #{claim.id} and its attachments."
       claim.destroy!
     else
