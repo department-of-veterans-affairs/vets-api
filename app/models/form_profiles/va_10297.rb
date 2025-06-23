@@ -45,7 +45,7 @@ class FormProfiles::VA10297 < FormProfile
     raw_account = response.responses.first&.payment_account
 
     if raw_account
-      VA0994::FormPaymentAccountInformation.new(
+      VA10297::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
         account_number: mask(raw_account&.account_number),
         routing_number: mask(raw_account&.financial_institution_routing_number),
@@ -55,7 +55,7 @@ class FormProfiles::VA10297 < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "FormProfiles::VA0994 Failed to retrieve PPIU data: #{e.message}"
+    Rails.logger.error "FormProfiles::VA10297 Failed to retrieve PPIU data: #{e.message}"
     {}
   end
 
