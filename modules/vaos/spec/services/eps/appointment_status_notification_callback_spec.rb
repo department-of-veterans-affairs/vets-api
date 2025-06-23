@@ -258,6 +258,4 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
       end
     end
   end
-
-
 end

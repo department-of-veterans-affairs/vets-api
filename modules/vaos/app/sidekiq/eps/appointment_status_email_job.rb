@@ -111,8 +111,8 @@ module Eps
       callback_options = {
         callback_klass: 'Eps::AppointmentStatusNotificationCallback',
         callback_metadata: {
-          user_uuid: user_uuid,
-          appointment_id_last4: appointment_id_last4,
+          user_uuid:,
+          appointment_id_last4:,
           statsd_tags: {
             service: 'vaos',
             function: 'appointment_submission_failure_notification'
