@@ -4,6 +4,7 @@ Mobile::Engine.routes.draw do
   get '/', to: 'discovery#welcome'
 
   namespace :v0 do
+    get '/feature-toggles', to: 'feature_toggles#index'
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/appointments', to: 'appointments#index'
     put '/appointments/cancel/:id', to: 'appointments#cancel'
