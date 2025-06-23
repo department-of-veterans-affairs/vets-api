@@ -17,13 +17,11 @@ namespace :persistent_attachment_remediation do
 
     # If the claim is a type-casted STI base class, try the module-specific classes
     if claim && ['SavedClaim::Burial', 'SavedClaim::Pensions'].include?(claim.type)
-      claim =
-        case claim.type
-        when 'SavedClaim::Burial'
-          Burials::SavedClaim.find_by(id: claim_id)
-        when 'SavedClaim::Pensions'
-          Pensions::SavedClaim.find_by(id: claim_id)
-        end
+      type_map = {
+        'SavedClaim::Burial' => Burials::SavedClaim,
+        'SavedClaim::Pensions' => Pensions::SavedClaim
+      }
+      claim = claim.becomes(type_map[claim.type])
     end
 
     # Gather expected attachment GUIDs from the claim's form data
