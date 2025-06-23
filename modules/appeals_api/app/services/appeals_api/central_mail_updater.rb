@@ -64,8 +64,9 @@ module AppealsApi
 
       central_mail_response = CentralMail::Service.new.status(appeals.pluck(:id))
       unless central_mail_response.success?
-        Rails.logger.warn('Error getting status from Central Mail API".',
-                          { central_mail_status: central_mail_response.status, central_mail_body: central_mail_response.body })
+        Rails.logger.warn('Error getting status from Central Mail API.',
+                          { central_mail_status: central_mail_response.status,
+                            central_mail_body: central_mail_response.body })
         raise Common::Exceptions::BadGateway
       end
 

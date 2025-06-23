@@ -86,7 +86,8 @@ describe AppealsApi::CentralMailUpdater do
         .to raise_error(Common::Exceptions::BadGateway)
 
       expect(Rails.logger).to have_received(:warn)
-        .with("Error getting status from EMMS API. EMMS Status: 'error status', EMMMS Body: 'error body'")
+        .with('Error getting status from Central Mail API.',
+              {central_mail_status: 'error status', central_mail_body: 'error body'})
     end
   end
 
@@ -219,7 +220,7 @@ describe AppealsApi::CentralMailUpdater do
         expect { subject.call([appeal_1]) }
           .to raise_error(Common::Exceptions::BadGateway)
         expect(Rails.logger).to have_received(:warn)
-          .with('Unknown status value from EMMS API. EMMS Status: SOME_UNKNOWN_STATUS')
+          .with('Unknown status value from Central Mail API.', {:central_mail_status=>'SOME_UNKNOWN_STATUS'})
       end
     end
 
