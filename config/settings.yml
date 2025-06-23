@@ -260,6 +260,8 @@ decision_review:
     url: <%= ENV['decision_review__v1__url'] %>
 dependents:
   prefill: true
+dependents_verification:
+  prefill: true
 dgi:
   jwt:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
@@ -781,6 +783,7 @@ maintenance:
     caseflow: <%= ENV['maintenance__services__caseflow'] %>
     cie: <%= ENV['maintenance__services__cie'] %>
     coe: <%= ENV['maintenance__services__coe'] %>
+    decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
@@ -799,7 +802,7 @@ maintenance:
     lighthouse_direct_deposit: <%= ENV['maintenance__services__lighthouse_direct_deposit'] %>
     lighthouse_vshe: <%= ENV['maintenance__services__lighthouse_vshe'] %>
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: <%= ENV['maintenance__services__mdot'] %>
     mhv: <%= ENV['maintenance__services__mhv'] %>
     mhv_meds: <%= ENV['maintenance__services__mhv_meds'] %>
     mhv_mr: <%= ENV['maintenance__services__mhv_mr'] %>
@@ -812,7 +815,6 @@ maintenance:
     search: PRG8HJI
     ssoe: <%= ENV['maintenance__services__ssoe'] %>
     ssoe_oauth: <%= ENV['maintenance__services__ssoe_oauth'] %>
-    staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
     travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
@@ -1163,6 +1165,7 @@ saml:
   key_path: ~
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: <%= ENV['search__access_key'] %>
@@ -1252,6 +1255,7 @@ va_forms:
     channel_id: <%= ENV['va_forms__slack__channel_id'] %>
     enabled: <%= ENV['va_forms__slack__enabled'] %>
 va_mobile:
+  claims_path: /services/claims/v2/veterans
   key_path: <%= ENV['va_mobile__key_path'] %>
   mock: <%= ENV['va_mobile__mock'] %>
   patients_path: /vaos/v1/patients

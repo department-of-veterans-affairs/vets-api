@@ -22,7 +22,10 @@ module IncomeAndAssets
             question_num: 10,
             question_suffix: '(1)',
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN",
-            question_label: 'Asset Owner Relationship'
+            question_label: 'Asset Owner Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRelationshipType' => {
             key: "F[0].OtherRelationship10[#{ITERATOR}]",

@@ -31,8 +31,8 @@ module Processors
     # @return [Pathname] the generated PDF path
     # @return [Hash] the generated request body
 
-    def initialize(validate: true)
-      validate_form4142 if validate
+    def initialize
+      validate_form4142
       @pdf_path = generate_stamp_pdf
       @request_body = {
         'document' => to_faraday_upload,
@@ -42,16 +42,16 @@ module Processors
 
     # Invokes Filler ancillary form method to generate PDF document
     # Then calls method PDFUtilities::DatestampPdf to stamp the document.
-    # Its stamps once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
-    # and second time to stamp with text "FDC Reviewed - Vets.gov Submission" at the top of each page
-    # and third time to stamp the signature on the first page if needed.
+    # It stamps the signature first, followed by the VA.gov watermark the
+    # submission date at the bottom of the last page
+    # and finally the datestamp box.
     # @return [Pathname] the stamped PDF path
 
     def generate_stamp_pdf
       base_pdf = fill_form_template
       signed_pdf = add_signature_stamp(base_pdf)
       timestamped_pdf = add_vagov_timestamp(signed_pdf)
-      add_vagov_submission_label(timestamped_pdf)
+      submission_date_stamp(timestamped_pdf)
     end
 
     protected
@@ -102,7 +102,7 @@ module Processors
         x: 50,
         y: 560,
         text_only: true,
-        size: 10,
+        size: 8,
         page_number: 1,
         template: pdf,
         multistamp: true,
@@ -112,19 +112,49 @@ module Processors
 
     def add_vagov_timestamp(pdf)
       PDFUtilities::DatestampPdf.new(pdf).run(
-        text: 'VA.gov',
-        x: 5,
-        y: 5,
-        timestamp: submission_date
+        text: va_gov_watermark_text,
+        text_only: true,
+        size: 8,
+        x: 155,
+        y: 10,
+        timestamp: ''
       )
     end
 
-    def add_vagov_submission_label(pdf)
+    def submission_date_stamp(pdf)
+      if selected_form_class_id == FORM_CLASS_ID_2024
+        stamp_2024_form_pages(pdf)
+      else
+        # 2018 Version of 4142
+        stamp_legacy_form_page(pdf)
+      end
+    end
+
+    def stamp_2024_form_pages(pdf)
+      stamped_pdf = stamp_page(pdf, page: 0, x: 460, y: 715)
+      stamp_page(stamped_pdf, page: 3, x: 450, y: 718)
+    end
+
+    def stamp_legacy_form_page(pdf)
+      stamp_page(pdf, page: 2, x: 445, y: 715)
+    end
+
+    def stamp_page(pdf, page:, x:, y:)
+      stamped_pdf = apply_stamp_line(pdf, 'Application Submitted:', page, x, y)
+      apply_stamp_line(stamped_pdf, format_date(submission_date), page, x - 2, y - 10)
+    end
+
+    def apply_stamp_line(pdf, text, page, x, y)
       PDFUtilities::DatestampPdf.new(pdf).run(
-        text: 'VA.gov Submission',
-        x: 510,
-        y: 775,
-        text_only: true
+        text:,
+        text_only: true,
+        size: 8,
+        x:,
+        y:,
+        timestamp: '',
+        page_number: page,
+        multistamp: true,
+        template: pdf
       )
     end
 
@@ -170,9 +200,14 @@ module Processors
       return unless form_data['signatureDate'].present? && form_data['veteranFullName'].present?
 
       full_name = form_data['veteranFullName']
-
       name = [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
-      "/es/ #{name}"
+
+      "#{name} - signed by digital authentication to api.va.gov"
+    end
+
+    def va_gov_watermark_text
+      "Signed electronically and submitted via VA.gov at #{format_date(submission_date)}. " \
+        'Signee signed with an identity-verified account.'
     end
 
     def set_signature_date(incoming_data)
@@ -181,6 +216,10 @@ module Processors
 
     def received_date
       submission_date.strftime(SIGNATURE_TIMESTAMP_FORMAT)
+    end
+
+    def format_date(date)
+      date.in_time_zone('UTC').strftime('%H:%M UTC %Y-%m-%d')
     end
 
     def us_country_code?(country_code)
