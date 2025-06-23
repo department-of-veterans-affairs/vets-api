@@ -15,6 +15,11 @@ module Eps
   class AppointmentStatusEmailJob
     include Sidekiq::Job
     include SentryLogging
+
+    # 14 retries to span approximately 25 hours, this is to allow for unexpected outage of the
+    # external messaging service. If the service is down for more than 25 hours, the job will
+    # be sent to the dead queue where it can be manually retried once it is confirmed the service
+    # is back up.
     sidekiq_options retry: 14
     STATSD_KEY = 'api.vaos.appointment_status_email_job'
 
