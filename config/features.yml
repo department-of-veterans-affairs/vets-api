@@ -15,6 +15,9 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  this_is_only_a_test_two:
+    actor_type: user
+    description: Used in feature toggle specs.
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -43,6 +46,9 @@ features:
     actor_type: user
     description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_email_delivery_callback:
+    actor_type: user
+    description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -114,6 +120,9 @@ features:
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
+  bgs_param_logging_enabled:
+    actor_type: user
+    description: Enables logging of BGS parameters (filtered in production)
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
@@ -244,6 +253,9 @@ features:
   champva_old_records_cleanup_job:
     actor_type: user
     description: Enables the job to cleanup old IVC CHAMPVA form records
+  champva_enable_claim_resubmit_question:
+    actor_type: user
+    description: Enables the claim resubmission screener question page on form 10-7959a
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -2237,9 +2249,6 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
-  debt_deduction_code_filtering:
-    actor_type: user
-    description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
