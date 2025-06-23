@@ -80,7 +80,7 @@ module AccreditedRepresentativePortal
 
         attachment = service.perform(
           model_klass, file: params[:file], form_id:
-          SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID
+          SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
         )
 
         json = serializer_klass.new(attachment).as_json

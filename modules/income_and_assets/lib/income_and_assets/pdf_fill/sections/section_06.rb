@@ -26,7 +26,10 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship6[#{ITERATOR}]",
@@ -118,7 +121,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(6)',
             question_text: 'CAN THIS ASSET BE SOLD?',
-            question_label: 'Can Be Sold'
+            question_label: 'Can Be Sold',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # Q7
           'mitigatingCircumstances' => {
