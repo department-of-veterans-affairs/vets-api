@@ -15,17 +15,41 @@ module Swagger
 
           parameter :authorization
           parameter do
-            key :name, 'appt_datetime'
+            key :name, 'start_date'
             key :in, :query
-            key :description, 'Filter claim by appt datetimes. Invalid dates return all claims.'
-            key :required, false
+            key :description, 'Start date for retrieving claims.'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'end_date'
+            key :in, :query
+            key :description, 'End date for retrieving claims.'
+            key :required, true
             key :type, :string
           end
 
           response 200 do
-            key :description, 'Successfully retrieved claims for a user'
+            key :description, 'Successfully retrieved claims for a user with pagination information'
+
             schema do
-              key :$ref, :TravelPayClaims
+              property :data do
+                key :type, :array
+                items do
+                  key :$ref, :TravelPayClaimSummary
+                end
+              end
+              property :metadata do
+                key :type, :object
+                # TODO: Determine if we need the rest of these metadata fields
+                # property :status, type: :integer, example: 200
+                # property :success, type: :boolean, example: true
+                # property :message, type: :string, example: 'Data retrieved successfully'
+                # property :pageNumber, type: :integer, example: 1
+                # property :pageSize, type: :integer, example: 10
+                property :totalRecordCount, type: :integer, example: 100
+              end
             end
           end
 
