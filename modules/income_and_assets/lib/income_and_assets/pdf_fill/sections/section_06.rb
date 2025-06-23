@@ -26,7 +26,10 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship6[#{ITERATOR}]",
@@ -53,7 +56,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(3)',
             question_text: 'SPECIFY HOW INCOME IS GENERATED',
-            question_label: 'Income Generation Method'
+            question_label: 'Income Generation Method',
+            format_options: {
+              humanize: {
+                'MINERALS_LUMBER' => 'Minerals / Lumber'
+                # All other values are humanized versions of IncomeAndAssets::Constants::INCOME_GENERATION_TYPES
+              }
+            }
           },
           'otherIncomeType' => {
             limit: 73,
@@ -112,7 +121,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(6)',
             question_text: 'CAN THIS ASSET BE SOLD?',
-            question_label: 'Can Be Sold'
+            question_label: 'Can Be Sold',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # Q7
           'mitigatingCircumstances' => {

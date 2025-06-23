@@ -34,7 +34,6 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
               'country' => 'MEX',
               'postalCode' => '21231'
             },
-            'alternatePhone' => '2699352134',
             'contactType' => 'Emergency Contact',
             'fullName' => {
               'first' => 'FIRSTECA',

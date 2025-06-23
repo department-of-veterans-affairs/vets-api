@@ -80,7 +80,8 @@ module BenefitsIntake
 
     # process a set of pending attempts
     #
-    # @param pending_attempts [Array<Lighthouse::SubmissionAttempt>] list of pending attempts to process
+    # @param pending_attempts [Array<Lighthouse::SubmissionAttempt + Lighthouse::SubmissionAttempts>]
+    # list of pending attempts to process
     def batch_process
       return if @pending_attempts.blank?
 

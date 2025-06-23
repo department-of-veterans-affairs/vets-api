@@ -17,6 +17,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       expect(Rails.logger).not_to receive(:info)
       expect(Rails.logger).not_to receive(:error)
       expect(Lighthouse::SubmissionAttempt).not_to receive(:where)
+      expect(Lighthouse::SubmissionAttempt).not_to receive(:where)
       expect(BenefitsIntake::Service).not_to receive(:new)
       job.perform
     end

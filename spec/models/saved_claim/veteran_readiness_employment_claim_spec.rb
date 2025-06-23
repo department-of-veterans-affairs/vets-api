@@ -28,7 +28,29 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
   end
 
-  ['old form', 'new form'].each do |form_type|
+  %w[v1 v2].each do |form_type|
+    describe '#form_id' do
+      context "with #{form_type}" do
+        let(:claim) { create_claim(form_type) }
+
+        it 'returns the correct form ID' do
+          expect(claim.form_id).to eq(form_type == 'v1' ? '28-1900' : '28-1900-V2')
+        end
+      end
+    end
+
+    describe '#after_create_metrics' do
+      let(:claim) { create_claim(form_type) }
+
+      it 'increments StatsD saved_claim.create' do
+        allow(StatsD).to receive(:increment)
+        claim.save!
+
+        tags = form_type == 'v1' ? ['form_id:28-1900'] : ['form_id:28-1900-V2']
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+      end
+    end
+
     describe '#add_claimant_info' do
       context "with #{form_type}" do
         let(:claim) { create_claim(form_type) }
@@ -55,7 +77,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             'dob' => '1986-05-06'
           }
           expect(claim.parsed_form['veteranInformation']).to include(
-            form_type == 'old form' ? old_form_data : new_form_data
+            form_type == 'v1' ? old_form_data : new_form_data
           )
           expect(claim.parsed_form['veteranInformation']).to include(*claimant_keys)
         end
@@ -72,7 +94,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
 
     describe '#send_to_vre' do
-      context "with #{form_type}" do
+      context "with #{form_type} form" do
         let(:claim) { create_claim(form_type) }
 
         it 'propagates errors from send_to_lighthouse!' do
@@ -229,10 +251,301 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
       end
     end
+
+    context 'when first name is invalid' do
+      it 'fails validation' do
+        claim = build(:veteran_readiness_employment_claim, first: '')
+
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
+      end
+    end
+  end
+
+  describe '#check_form_v2_validations' do
+    ['', [], nil, {}].each do |address|
+      context "with empty #{address} input" do
+        let(:claim) { build(:new_veteran_readiness_employment_claim) }
+
+        describe 'address validation' do
+          it 'accepts empty address format as not required' do
+            claim_data = JSON.parse(claim.form)
+            claim_data['veteranAddress'] = address
+            claim_data['newAddress'] = address
+            claim.form = claim_data.to_json
+            expect(claim).to be_valid
+          end
+        end
+      end
+    end
+
+    context 'when address is not empty' do
+      let(:claim) { build(:new_veteran_readiness_employment_claim) }
+
+      it 'passes validation with only street and city' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'street' => '123 Main St',
+          'city' => 'Anytown'
+        }
+        claim_data['newAddress'] = {
+          'street' => '456 Elm St',
+          'city' => 'Othertown'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).to be_valid
+      end
+
+      it 'passes validation when only one address object is present' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'street' => '123 Main St',
+          'city' => 'Anytown'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).to be_valid
+      end
+
+      it 'fails validation when one address object is missing street' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'country' => 'USA',
+          'city' => 'Anytown',
+          'state' => 'NY',
+          'postalCode' => '12345'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranAddress/street')
+      end
+
+      it 'fails validation when street is missing' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'country' => 'USA',
+          'city' => 'Anytown',
+          'state' => 'NY',
+          'postalCode' => '12345'
+        }
+        claim_data['newAddress'] = {
+          'country' => 'USA',
+          'city' => 'Othertown',
+          'state' => 'CA',
+          'postalCode' => '67890'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranAddress/street')
+        expect(claim.errors.attribute_names).to include(:'/newAddress/street')
+      end
+
+      it 'fails validation when city is missing' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'country' => 'USA',
+          'street' => '123 Main St',
+          'state' => 'NY',
+          'postalCode' => '12345'
+        }
+        claim_data['newAddress'] = {
+          'country' => 'USA',
+          'street' => '456 Elm St',
+          'state' => 'CA',
+          'postalCode' => '67890'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranAddress/city')
+        expect(claim.errors.attribute_names).to include(:'/newAddress/city')
+      end
+
+      it 'fails validation when fileds are longer than allowed' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress'] = {
+          'country' => 'USA',
+          'city' => 'A' * 101,
+          'street' => '123 Main St',
+          'state' => 'N' * 101,
+          'postalCode' => '12345'
+        }
+        claim_data['newAddress'] = {
+          'country' => 'USA',
+          'city' => 'O' * 101,
+          'street' => '456 Elm St',
+          'state' => 'C' * 101,
+          'postalCode' => '67890'
+        }
+        claim.form = claim_data.to_json
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranAddress/city')
+        expect(claim.errors.attribute_names).to include(:'/veteranAddress/state')
+        expect(claim.errors.attribute_names).to include(:'/newAddress/city')
+        expect(claim.errors.attribute_names).to include(:'/newAddress/state')
+      end
+
+      # ['1', '123456', '123456789', 'a' * 5].each do |postal_code|
+      #   context 'postal code is not XXXXX or XXXXX-XXXX format' do
+      #     it 'fails validation' do
+      #       claim = build(:new_veteran_readiness_employment_claim, postal_code:)
+
+      #       expect(claim).not_to be_valid
+      #       expect(claim.errors.attribute_names).to include(:'/veteranAddress/postalCode')
+      #       expect(claim.errors.attribute_names).to include(:'/veteranAddress/postalCode')
+      #     end
+      #   end
+      # end
+    end
+
+    ['USA', 'United States'].each do |country|
+      context "with #{country} format" do
+        let(:claim) { build(:new_veteran_readiness_employment_claim, country:) }
+
+        describe 'country validation' do
+          it 'accepts valid country format' do
+            expect(claim).to be_valid
+          end
+
+          it 'validates other fields independently of country format' do
+            claim_data = JSON.parse(claim.form)
+            claim_data['veteranInformation']['fullName'] = {} # Invalid name
+            claim.form = claim_data.to_json
+
+            expect(claim).not_to be_valid
+            expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
+            expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/last')
+          end
+        end
+      end
+    end
+
+    ['', ' ', nil].each do |invalid_input|
+      context 'when required field is empty' do
+        it 'fails validation' do
+          claim = build(:new_veteran_readiness_employment_claim, email: invalid_input, is_moving: invalid_input,
+                                                                 years_of_ed: invalid_input, first: invalid_input,
+                                                                 last: invalid_input, dob: invalid_input)
+
+          expect(claim).not_to be_valid
+          expect(claim.errors.attribute_names).to include(:'/email')
+          expect(claim.errors.attribute_names).to include(:'/isMoving')
+          expect(claim.errors.attribute_names).to include(:'/yearsOfEducation')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/last')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/dob')
+        end
+      end
+    end
+
+    [0, true, ['data']].each do |invalid_type|
+      context "when string field receives #{invalid_type} data type" do
+        it 'fails validation' do
+          claim = build(:new_veteran_readiness_employment_claim, main_phone: invalid_type, cell_phone: invalid_type,
+                                                                 international_number: invalid_type,
+                                                                 email: invalid_type, years_of_ed: invalid_type,
+                                                                 first: invalid_type, middle: invalid_type,
+                                                                 last: invalid_type, dob: invalid_type)
+
+          expect(claim).not_to be_valid
+          expect(claim.errors.attribute_names).to include(:'/mainPhone')
+          expect(claim.errors.attribute_names).to include(:'/cellPhone')
+          expect(claim.errors.attribute_names).to include(:'/internationalNumber')
+          expect(claim.errors.attribute_names).to include(:'/email')
+          expect(claim.errors.attribute_names).to include(:'/yearsOfEducation')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/middle')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/last')
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/dob')
+        end
+      end
+    end
+
+    ['true', 1, 0, [], nil].each do |invalid_type|
+      context "when isMoving receives #{invalid_type} data type" do
+        it 'fails validation' do
+          claim = build(:new_veteran_readiness_employment_claim, is_moving: invalid_type)
+
+          expect(claim).not_to be_valid
+          expect(claim.errors.attribute_names).to include(:'/isMoving')
+        end
+      end
+    end
+
+    context 'when name field is allowed length' do
+      it 'passes validation' do
+        name = 'a' * 30
+        claim = build(:new_veteran_readiness_employment_claim, first: name, middle: name, last: name)
+        expect(claim).to be_valid
+      end
+    end
+
+    context 'when name field is too long' do
+      it 'fails validation' do
+        long_name = 'a' * 31
+        claim = build(:new_veteran_readiness_employment_claim, first: long_name, middle: long_name, last: long_name)
+
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
+        expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/middle')
+        expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/last')
+      end
+    end
+
+    context 'when email field is allowed length' do
+      it 'passes validation' do
+        email = "#{'a' * 244}@example.com"
+        claim = build(:new_veteran_readiness_employment_claim, email:)
+        expect(claim).to be_valid
+      end
+    end
+
+    context 'when email field is too long' do
+      it 'fails validation' do
+        email = "#{'a' * 245}@example.com"
+        claim = build(:new_veteran_readiness_employment_claim, email:)
+
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/email')
+      end
+    end
+
+    ['email.com', '@email.com', 'email', '@.com'].each do |email|
+      context 'when email field is not properly formatted' do
+        it 'fails validation' do
+          claim = build(:new_veteran_readiness_employment_claim, email:)
+
+          expect(claim).not_to be_valid
+          expect(claim.errors.attribute_names).to include(:'/email')
+        end
+      end
+    end
+
+    ['1', '123456789', '12345678901', 'a' * 10].each do |invalid_phone|
+      context 'when phone field is not 10 digits' do
+        it 'fails validation' do
+          claim = build(:new_veteran_readiness_employment_claim, main_phone: invalid_phone,
+                                                                 cell_phone: invalid_phone)
+
+          expect(claim).not_to be_valid
+          expect(claim.errors.attribute_names).to include(:'/mainPhone')
+          expect(claim.errors.attribute_names).to include(:'/cellPhone')
+        end
+      end
+    end
+
+    %w[10-30-1990 30-10-1990 90-10-30 1990-10-1 1990-9-9].each do |invalid_dob|
+      context 'when dob field does not match YYYY-MM-DD format' do
+        it 'fails validation' do
+          claim = build(:new_veteran_readiness_employment_claim, dob: invalid_dob)
+
+          expect(claim).not_to be_valid
+          expect(claim.errors.attribute_names).to include(:'/veteranInformation/dob')
+        end
+      end
+    end
   end
 
   def create_claim(form_type)
-    if form_type == 'old form'
+    if form_type == 'v1'
       create(:veteran_readiness_employment_claim)
     else
       create(:new_veteran_readiness_employment_claim)

@@ -9,6 +9,24 @@ class PersistentAttachments::ClaimEvidence < PersistentAttachment
   # Leverages the Shrine gem library to provide file attachment functionality for this model.
   include ::ClaimDocumentation::Uploader::Attachment.new(:file)
 
+  self.inheritance_column = :_type_disabled
+
+  # We want to override the `Type` behaviors for backwards compatability
+  default_scope -> { where(type: 'PersistentAttachments::PensionBurial') }, all_queries: true
+
+  ##
+  # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+  # ***********************************************************************************
+  # Note: This CAN NOT be removed as long as there are existing records of this type. *
+  # ***********************************************************************************
+  #
+  def kms_encryption_context
+    {
+      model_name: 'PersistentAttachments::PensionBurial',
+      model_id: id
+    }
+  end
+
   before_destroy(:delete_file)
 
   # Determines whether stamped PDF validation is required for the attachment.

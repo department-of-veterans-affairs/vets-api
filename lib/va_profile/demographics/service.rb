@@ -87,7 +87,7 @@ module VAProfile
         DemographicResponse.from(
           status:,
           body:,
-          id: @user.account_id,
+          id: @user.user_account_uuid,
           type: 'mvi_models_mvi_profiles',
           gender: @user.gender_mpi,
           birth_date: @user.birth_date_mpi
