@@ -11,7 +11,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
   let(:primary_next_of_kin) do
     associations.select { |association| association['contactType'] == 'Primary Next of Kin' }
   end
-  let(:associations_with_missing_role_and_name) do
+  let(:associations_with_missing_fields) do
     associations.map do |association|
       association.dup.tap do |dup_association|
         dup_association.delete('role')
@@ -66,7 +66,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
       it 'raises an error' do
         expect {
           described_class.new(
-            associations_with_missing_role_and_name,
+            associations_with_missing_fields,
             associations
           ).reconcile_associations
         }.to raise_error(StandardError, "VES association is missing the following field(s): role, name, relationship")
