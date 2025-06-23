@@ -7,26 +7,32 @@ module TravelPay
       @user = user
     end
 
-    DEFAULT_PAGE_SIZE = 3
+    DEFAULT_PAGE_SIZE = 50
     DEFAULT_PAGE_NUMBER = 1
 
-    def get_claims(params = {})
+    # TODO: We might not need this method anymore if we shift to always getting a date range
+    def get_claims
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims(veis_token, btsss_token)
+      faraday_response = client.get_claims(veis_token, btsss_token, {
+                                             'page_size' => DEFAULT_PAGE_SIZE
+                                           })
       raw_claims = faraday_response.body['data'].deep_dup
 
-      claims = filter_by_date(params['appt_datetime'], raw_claims)
+      # This was used prior to the date range method being implemented
+      # claims = filter_by_date(params['appt_datetime'], raw_claims)
 
       {
         metadata: {
-          'status' => faraday_response.body['statusCode'],
-          'success' => faraday_response.body['success'],
-          'message' => faraday_response.body['message'],
-          'pageNumber' => faraday_response.body['pageNumber'],
-          'pageSize' => faraday_response.body['pageSize'],
+          # TODO: Determine if we need these metadata fields
+
+          # 'status' => faraday_response.body['statusCode'],
+          # 'success' => faraday_response.body['success'],
+          # 'message' => faraday_response.body['message'],
+          # 'pageNumber' => faraday_response.body['pageNumber'],
+          # 'pageSize' => faraday_response.body['pageSize'],
           'totalRecordCount' => faraday_response.body['totalRecordCount']
         },
-        data: claims.map do |sc|
+        data: raw_claims.map do |sc|
           sc['claimStatus'] = sc['claimStatus'].underscore.humanize
           sc
         end
