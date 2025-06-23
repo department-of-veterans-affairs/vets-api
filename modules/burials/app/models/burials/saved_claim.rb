@@ -9,8 +9,17 @@ module Burials
   #
   # todo: migrate encryption to Burials::SavedClaim, remove inheritance and encryption shim
   class SavedClaim < ::SavedClaim
+    # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
+    self.inheritance_column = :_type_disabled
+
+    # We want to override the `Type` behaviors for backwards compatability
+    default_scope -> { where(type: 'SavedClaim::Burial') }, all_queries: true
+
     ##
     # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+    # ***********************************************************************************
+    # Note: This CAN NOT be removed as long as there are existing records of this type. *
+    # ***********************************************************************************
     #
     def kms_encryption_context
       {

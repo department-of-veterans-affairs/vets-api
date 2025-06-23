@@ -43,6 +43,9 @@ features:
     actor_type: user
     description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_email_delivery_callback:
+    actor_type: user
+    description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -1689,6 +1692,9 @@ features:
   show_new_schedule_view_appointments_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
+  show_preneed_mulesoft_integration:
+    actor_type: user
+    description: Show the va.gov to mulsoft work for Pre-Need form.
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
@@ -2234,9 +2240,6 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
-  debt_deduction_code_filtering:
-    actor_type: user
-    description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.

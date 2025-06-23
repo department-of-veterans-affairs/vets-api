@@ -251,6 +251,85 @@ describe IvcChampva::VesDataFormatter do
       expect(res.sponsor.address.city).to eq('NA')
       expect(res.sponsor.address.zip_code).to eq('NA')
     end
+
+    describe 'USA addresses' do
+      it 'formats USA address with state and zipCode fields' do
+        @parsed_form_data_copy['veteran']['address'] = {
+          'country' => 'USA',
+          'street_combined' => '123 Main St',
+          'city' => 'Springfield',
+          'state' => 'IL',
+          'postal_code' => '62701'
+        }
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.sponsor.address.to_hash
+
+        expect(address_hash[:streetAddress]).to eq('123 Main St')
+        expect(address_hash[:city]).to eq('Springfield')
+        expect(address_hash[:state]).to eq('IL')
+        expect(address_hash[:zipCode]).to eq('62701')
+        expect(address_hash[:country]).to be_nil
+        expect(address_hash[:province]).to be_nil
+        expect(address_hash[:postalCode]).to be_nil
+      end
+    end
+
+    describe 'international addresses' do
+      it 'formats international address with country, province, and postalCode fields' do
+        @parsed_form_data_copy['veteran']['address'] = {
+          'country' => 'CANADA',
+          'street_combined' => '456 1st Ave',
+          'city' => 'Toronto',
+          'state' => 'ON',
+          'postal_code' => 'M5V 3A4'
+        }
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.sponsor.address.to_hash
+
+        expect(address_hash[:streetAddress]).to eq('456 1st Ave')
+        expect(address_hash[:city]).to eq('Toronto')
+        expect(address_hash[:country]).to eq('CANADA')
+        expect(address_hash[:province]).to eq('ON')
+        expect(address_hash[:postalCode]).to eq('M5V 3A4')
+        expect(address_hash[:state]).to be_nil
+        expect(address_hash[:zipCode]).to be_nil
+      end
+
+      it 'validates international address requires country' do
+        @parsed_form_data_copy['veteran']['address'] = {
+          'country' => 'CANADA',
+          'street_combined' => '456 1st Ave',
+          'city' => 'Toronto',
+          'state' => 'ON',
+          'postal_code' => 'M5V 3A4'
+        }
+        # Remove country after mapping but before validation
+        @parsed_form_data_copy['veteran']['address']['country'] = ''
+
+        expect do
+          IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        end.to raise_error(ArgumentError, 'sponsor country is an empty string')
+      end
+
+      it 'allows international address without province and postal code' do
+        @parsed_form_data_copy['veteran']['address'] = {
+          'country' => 'FRANCE',
+          'street_combined' => '123 Rue de la Paix',
+          'city' => 'Paris',
+          'state' => nil,
+          'postal_code' => nil
+        }
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.sponsor.address.to_hash
+
+        expect(address_hash[:country]).to eq('FRANCE')
+        expect(address_hash[:province]).to be_nil
+        expect(address_hash[:postalCode]).to be_nil
+      end
+    end
   end
 
   describe 'sponsor date of birth' do
@@ -364,6 +443,112 @@ describe IvcChampva::VesDataFormatter do
       phone = { phone_number: '11231231234' } # 11 digits
 
       expect(IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')).to eq(phone)
+    end
+  end
+
+  describe 'beneficiary addresses' do
+    describe 'USA addresses' do
+      it 'formats USA beneficiary address with state and zipCode fields' do
+        @parsed_form_data_copy['applicants'][0]['applicant_address'] = {
+          'country' => 'USA',
+          'street_combined' => '789 Oak Rd',
+          'city' => 'Madison',
+          'state' => 'WI',
+          'postal_code' => '53706'
+        }
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.beneficiaries.first.address.to_hash
+
+        expect(address_hash[:streetAddress]).to eq('789 Oak Rd')
+        expect(address_hash[:city]).to eq('Madison')
+        expect(address_hash[:state]).to eq('WI')
+        expect(address_hash[:zipCode]).to eq('53706')
+        expect(address_hash[:country]).to be_nil
+        expect(address_hash[:province]).to be_nil
+        expect(address_hash[:postalCode]).to be_nil
+      end
+    end
+
+    describe 'international addresses' do
+      it 'formats international beneficiary address with country, province, and postalCode fields' do
+        @parsed_form_data_copy['applicants'][0]['applicant_address'] = {
+          'country' => 'GERMANY',
+          'street_combined' => '10 Hauptstraße',
+          'city' => 'Berlin',
+          'state' => 'BE',
+          'postal_code' => '10115'
+        }
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.beneficiaries.first.address.to_hash
+
+        expect(address_hash[:streetAddress]).to eq('10 Hauptstraße')
+        expect(address_hash[:city]).to eq('Berlin')
+        expect(address_hash[:country]).to eq('GERMANY')
+        expect(address_hash[:province]).to eq('BE')
+        expect(address_hash[:postalCode]).to eq('10115')
+        expect(address_hash[:state]).to be_nil
+        expect(address_hash[:zipCode]).to be_nil
+      end
+
+      it 'validates international beneficiary address requires country' do
+        @parsed_form_data_copy['applicants'][0]['applicant_address'] = {
+          'country' => '',
+          'street_combined' => '10 Hauptstraße',
+          'city' => 'Berlin',
+          'state' => 'BE',
+          'postal_code' => '10115'
+        }
+
+        expect do
+          IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        end.to raise_error(ArgumentError, 'beneficiary country is an empty string')
+      end
+    end
+  end
+
+  describe 'certification addresses' do
+    describe 'USA addresses' do
+      it 'formats USA certification address with state and zipCode fields' do
+        @parsed_form_data_copy['certification']['country'] = 'USA'
+        @parsed_form_data_copy['certification']['street_address'] = '321 Pine St'
+        @parsed_form_data_copy['certification']['city'] = 'Austin'
+        @parsed_form_data_copy['certification']['state'] = 'TX'
+        @parsed_form_data_copy['certification']['postal_code'] = '78701'
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.certification.address.to_hash
+
+        expect(address_hash[:streetAddress]).to eq('321 Pine St')
+        expect(address_hash[:city]).to eq('Austin')
+        expect(address_hash[:state]).to eq('TX')
+        expect(address_hash[:zipCode]).to eq('78701')
+        expect(address_hash[:country]).to be_nil
+        expect(address_hash[:province]).to be_nil
+        expect(address_hash[:postalCode]).to be_nil
+      end
+    end
+
+    describe 'international addresses' do
+      it 'formats international certification address with country, province, and postalCode fields' do
+        @parsed_form_data_copy['certification']['country'] = 'JAPAN'
+        @parsed_form_data_copy['certification']['street_address'] = '1-1-1 Shibuya'
+        @parsed_form_data_copy['certification']['city'] = 'Tokyo'
+        @parsed_form_data_copy['certification']['state'] = 'Tokyo'
+        @parsed_form_data_copy['certification']['postal_code'] = '150-0002'
+
+        res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+        address_hash = res.certification.address.to_hash
+
+        expect(address_hash[:streetAddress]).to eq('1-1-1 Shibuya')
+        expect(address_hash[:city]).to eq('Tokyo')
+        expect(address_hash[:country]).to eq('JAPAN')
+        expect(address_hash[:province]).to eq('Tokyo')
+        expect(address_hash[:postalCode]).to eq('150-0002')
+        expect(address_hash[:state]).to be_nil
+        expect(address_hash[:zipCode]).to be_nil
+      end
     end
   end
 end
