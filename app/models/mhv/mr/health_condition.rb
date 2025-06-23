@@ -16,6 +16,8 @@ module MHV
       attribute :facility,  String
       attribute :comments,  String, array: true
 
+      default_sort_by date: :desc
+
       def self.map_fhir(fhir)
         facility_ref  = fhir.recorder&.extension&.first&.valueReference&.reference
         provider_ref  = fhir.recorder&.reference

@@ -2,7 +2,6 @@
 
 # run this by starting a rails console and running: require_relative 'rakelib/decision_review_repl'
 
-# rubocop:disable Lint/ShadowingOuterLocalVariable
 # rubocop:disable Style/MultilineBlockChain
 
 require_relative 'piilog_repl/piilog_helpers'

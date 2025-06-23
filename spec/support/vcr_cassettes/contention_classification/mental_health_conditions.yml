@@ -1,0 +1,88 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <CONTENTION_CLASSIFICATION_API_URL>expanded-contention-classification
+    body:
+      encoding: UTF-8
+      string: '{"claim_id":85,"form526_submission_id":85,"contentions":[{"contention_text":"PTSD (post traumatic stress disorder)","contention_type":"NEW"},{"contention_text":"Anxiety","contention_type":"INCREASE","diagnostic_code":9400},{"contention_text":"Some condition that cant be classified because of free text","contention_type":"NEW"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 13 Jun 2025 21:26:25 GMT
+      Server:
+      - uvicorn
+      Content-Length:
+      - '385'
+      Content-Type:
+      - application/json
+      X-Process-Time:
+      - '0.0009109973907470703'
+    body:
+      encoding: UTF-8
+      string: '{"contentions":[{"classification_code":8989,"classification_name":"Mental
+        Disorders","diagnostic_code":9411,"contention_type":"NEW"},{"classification_code":8989,"classification_name":"Mental
+        Disorders","diagnostic_code":9400,"contention_type":"INCREASE"}],"claim_id":85,"form526_submission_id":85,"is_fully_classified":true,"num_processed_contentions":2,"num_classified_contentions":2}'
+  recorded_at: Fri, 13 Jun 2025 21:26:25 GMT
+- request:
+    method: post
+    uri: https://viccs-api-test.ibm-intelligent-automation.com/pca/api/test/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=openid&client_id=va_gov_test&client_<DMC_TOKEN>=<LIGHTHOUSE_API_KEY>
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 13 Jun 2025 21:26:26 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '98'
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-store
+      Pragma:
+      - no-cache
+      Referrer-Policy:
+      - no-referrer
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Apigw-Requestid:
+      - MHycciJOPHMEJrg=
+    body:
+      encoding: UTF-8
+      string: '{"error":"unauthorized_client","error_description":"Invalid client
+        or Invalid client credentials"}'
+  recorded_at: Fri, 13 Jun 2025 21:26:26 GMT
+recorded_with: VCR 6.3.1
