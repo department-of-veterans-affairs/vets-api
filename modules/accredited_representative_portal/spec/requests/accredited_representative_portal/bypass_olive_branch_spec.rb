@@ -36,6 +36,16 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     end
   end
 
+  context 'when the request is for an accredited representative portal route staging' do
+    let(:path_prefix) { '//accredited_representative_portal' }
+
+    it 'bypasses OliveBranch processing' do
+      expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+      expect(OliveBranch::Transformations).not_to receive(:transform)
+      subject
+    end
+  end
+
   context 'when the request is for a normal route' do
     let(:path_prefix) { '' }
 

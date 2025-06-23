@@ -28,7 +28,9 @@ module AccreditedRepresentativePortal
     ARP_PATH_INFO_PREFIX = '/accredited_representative_portal'
 
     def exclude_arp_route?(env)
-      env['PATH_INFO'].to_s.start_with?(ARP_PATH_INFO_PREFIX)
+      # Have to add Rack::Utils.clean_path_info() because the Staging path
+      # includes an extra hash EX: '//accredited_representative_portal'
+      Rack::Utils.clean_path_info(env['PATH_INFO']).to_s.start_with?(ARP_PATH_INFO_PREFIX)
     end
   end
 end
