@@ -36,8 +36,7 @@ module Eps
     # @return [void]
     #
     def perform(user_uuid, appointment_id_last4, error = nil)
-      appointment_data = fetch_appointment_data(user_uuid, appointment_id_last4)
-      email = appointment_data[:email]
+      email = fetch_email(user_uuid, appointment_id_last4)
       return unless email
 
       send_notification_email(email:, user_uuid:, appointment_id_last4:, error:)
@@ -100,8 +99,11 @@ module Eps
     #
     # Uses the VA Notify service to send a templated email notification about
     # appointment processing failures to the user's registered email address.
+    # Includes callback configuration for delivery status tracking.
     #
-    # @param appointment_data [Hash] Hash containing appointment information including :email
+    # @param email [String] The email address to send the notification to
+    # @param user_uuid [String] The UUID of the user associated with the appointment
+    # @param appointment_id_last4 [String] The last 4 digits of the appointment ID
     # @param error [String, nil] Error message to include in the email template
     # @return [void]
     #
@@ -128,24 +130,26 @@ module Eps
     end
 
     ##
-    # Fetches appointment data from Redis using the provided user UUID and appointment ID.
+    # Fetches the email address from Redis using the provided user UUID and appointment ID.
     #
-    # Retrieves cached appointment information from Redis and validates that required
-    # data (appointment ID and email) are present. Handles missing data scenarios
-    # by logging permanent failures.
+    # Retrieves cached appointment information from Redis and extracts the email address.
+    # Validates that both the appointment data and email are present. Handles missing
+    # data scenarios by logging permanent failures.
     #
     # @param user_uuid [String] The UUID of the user associated with the appointment
     # @param appointment_id_last4 [String] The last 4 digits of the appointment ID
-    # @return [Hash, nil] Appointment data hash if successful, nil if data is missing or invalid
+    # @return [String, nil] Email address if successful, nil if data is missing or invalid
     #
-    def fetch_appointment_data(user_uuid, appointment_id_last4)
+    def fetch_email(user_uuid, appointment_id_last4)
       redis_client = Eps::RedisClient.new
       appointment_data = redis_client.fetch_appointment_data(uuid: user_uuid, appointment_id: appointment_id_last4)
 
-      raise ArgumentError, 'missing appointment id' if appointment_data.nil?
-      raise ArgumentError, 'missing email' if appointment_data[:email].blank?
+      raise ArgumentError, 'missing appointment data' if appointment_data.nil?
 
-      appointment_data
+      email = appointment_data[:email]
+      raise ArgumentError, 'missing email' if email.blank?
+
+      email
     rescue ArgumentError => e
       message = "Eps::AppointmentStatusEmailJob #{e.message}: " \
                 "User UUID: #{user_uuid} - Appointment ID: #{appointment_id_last4}"

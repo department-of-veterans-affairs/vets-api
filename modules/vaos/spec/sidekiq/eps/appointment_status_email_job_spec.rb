@@ -80,7 +80,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         subject.perform(user_uuid, appointment_id_last4, error_message)
 
         expect(Rails.logger).to have_received(:error).with(
-          /missing appointment id/,
+          /missing appointment data/,
           { user_uuid:, appointment_id_last4: }
         )
         allow(va_notify_service).to receive(:send_email)
