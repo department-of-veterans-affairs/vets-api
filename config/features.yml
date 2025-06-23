@@ -250,6 +250,9 @@ features:
   champva_old_records_cleanup_job:
     actor_type: user
     description: Enables the job to cleanup old IVC CHAMPVA form records
+  champva_enable_claim_resubmit_question:
+    actor_type: user
+    description: Enables the claim resubmission screener question page on form 10-7959a
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
