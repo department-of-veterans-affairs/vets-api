@@ -37,7 +37,7 @@ describe SignIn::UserInfoController do
     context 'when the client_id is in the list of valid clients' do
       let(:expected_user_info_json) do
         {
-          sub: user_account.id,
+          sub: credential_uuid,
           credential_uuid:,
           icn:,
           sec_id:,

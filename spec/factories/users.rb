@@ -10,7 +10,7 @@ FactoryBot.define do
     session_handle { SecureRandom.hex }
     transient do
       icn do
-        digits = Faker::Number.number(digits: 16)
+        digits = Faker::Number.number(digits: 16).to_s
         "#{digits[0..9]}V#{digits[10..]}"
       end
       user_account { create(:user_account, icn:) }
