@@ -135,25 +135,22 @@ module RepresentationManagement
       end
     end
 
-    def raw_address_for_agent(agent)
+    def raw_address_from_entity(entity, extra_fields = {})
       {
-        address_line1: agent['workAddress1'],
-        address_line2: agent['workAddress2'],
-        address_line3: agent['workAddress3'],
-        zip_code: agent['workZip'],
-        work_country: agent['workCountry']
-      }.transform_keys(&:to_s)
+        address_line1: entity['workAddress1'],
+        address_line2: entity['workAddress2'],
+        address_line3: entity['workAddress3'],
+        zip_code: entity['workZip']
+      }.merge(extra_fields.transform_values { |key| entity[key] })
+        .transform_keys(&:to_s)
+    end
+
+    def raw_address_for_agent(agent)
+      raw_address_from_entity(agent, work_country: 'workCountry')
     end
 
     def raw_address_for_attorney(attorney)
-      {
-        address_line1: attorney['workAddress1'],
-        address_line2: attorney['workAddress2'],
-        address_line3: attorney['workAddress3'],
-        city: attorney['workCity'],
-        state_code: attorney['workState'],
-        zip_code: attorney['workZip']
-      }.transform_keys(&:to_s)
+      raw_address_from_entity(attorney, city: 'workCity', state_code: 'workState')
     end
 
     def update_agents
