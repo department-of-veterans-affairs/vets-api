@@ -88,7 +88,7 @@ module Form1010Ezr
           missing_fields = []
           missing_fields << 'role' if association['role'].blank?
           missing_fields << 'name' if association['name'].blank?
-          missing_fields << 'relationship' if handle_relationship(association).blank?
+          missing_fields << 'relationship' if handle_relation_type(association).blank?
 
           return if missing_fields.empty?
 
