@@ -115,7 +115,7 @@ class Form0781StateSnapshotJob
       saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
     ).where('submitted_claim_id IS NOT NULL OR backup_submitted_claim_id IS NOT NULL').pluck(:id)
   end
-  
+
   def old_0781_failed_submissions
     Form526Submission.where(
       saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
