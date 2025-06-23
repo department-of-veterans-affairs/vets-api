@@ -53,8 +53,6 @@ module AccreditedRepresentativePortal
       nil
     end
 
-    private
-
     def registrations
       @email.present? or
         raise ArgumentError, 'Must set user email'
@@ -75,6 +73,8 @@ module AccreditedRepresentativePortal
         )
       end
     end
+
+    private
 
     def map_user_type(user_type)
       case user_type
