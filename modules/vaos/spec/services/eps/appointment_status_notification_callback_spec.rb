@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Eps::AppointmentNotificationCallback, type: :service do
+RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
   let(:notification_id) { 'abc123-def456-ghi789' }
   let(:user_uuid) { '12345678-1234-1234-1234-123456789012' }
   let(:appointment_id_last4) { '7890' }

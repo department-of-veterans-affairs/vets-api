@@ -6,7 +6,7 @@ module Eps
   #
   # This callback tracks delivery success/failure and provides observability
   # through StatsD metrics and structured logging.
-  class AppointmentNotificationCallback
+  class AppointmentStatusNotificationCallback
     STATSD_KEY = 'api.vaos.appointment_status_notification'
 
     # Main callback entry point called by VA Notify
