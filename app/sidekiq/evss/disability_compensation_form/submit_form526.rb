@@ -192,6 +192,7 @@ module EVSS
              # 422 (UpstreamUnprocessableEntity, i.e. EVSS container validation)
              Common::Exceptions::UpstreamUnprocessableEntity,
              Net::ReadTimeout, # Any forms of timeout errors
+             Faraday::TimeoutError, # Any forms of timeout errors
              Common::Exceptions::TooManyRequests, # 429
              Common::Exceptions::ClientDisconnected, # 499
              Common::Exceptions::ExternalServerInternalServerError, # 500
