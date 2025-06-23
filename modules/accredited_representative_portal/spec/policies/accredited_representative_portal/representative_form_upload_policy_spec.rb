@@ -4,10 +4,11 @@ require 'rails_helper'
 
 module AccreditedRepresentativePortal
   RSpec.describe RepresentativeFormUploadPolicy, type: :policy do
-    subject(:policy) { described_class.new(user, '123498767V234859') }
+    subject(:policy) { described_class.new(user, claimant_representative) }
 
     let(:user) { create(:representative_user) }
     let(:power_of_attorney_holders) { [] }
+    let(:claimant_representative) { nil }
 
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
@@ -21,27 +22,20 @@ module AccreditedRepresentativePortal
     end
 
     describe '#submit?' do
-      context 'when user has no POA holders' do
+      context 'when user has no common POA holder with claimant' do
         it 'denies access' do
           expect(policy.submit?).to be false
         end
       end
 
-      context 'when user has at least one POA holder but does not accept digital POAs' do
-        let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                     can_accept_digital_poa_requests: false)]
-        end
-
-        it 'denies access' do
-          expect(policy.submit?).to be false
-        end
-      end
-
-      context 'when user has at least one POA holder that accepts digital POAs' do
-        let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                     can_accept_digital_poa_requests: true)]
+      context 'when user has one common POA holder with claimant' do
+        let(:claimant_representative) do
+          ClaimantRepresentative.new(
+            claimant_id: nil,
+            power_of_attorney_holder_type: nil,
+            power_of_attorney_holder_poa_code: nil,
+            accredited_individual_registration_number: nil
+          )
         end
 
         it 'allows access' do
@@ -61,7 +55,7 @@ module AccreditedRepresentativePortal
         context 'when user has at least one POA holder' do
           let(:power_of_attorney_holders) do
             [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                       can_accept_digital_poa_requests: false)]
+                                       can_accept_digital_poa_requests: nil)]
           end
 
           it 'allows access' do
