@@ -9,7 +9,7 @@ namespace :persistent_attachment_remediation do
       exit 1
     end
 
-    claim = SavedClaim.find_by(id: claim_id)
+    claim = SavedClaim.find(claim_id)
     unless claim
       puts "SavedClaim with id #{claim_id} not found."
       exit 1
