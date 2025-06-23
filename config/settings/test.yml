@@ -27,6 +27,7 @@ ask_va_api:
     service_name: VEIS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
+    enabled: false
   prefill: true
 authorization_server_scopes_api:
   auth_server:
