@@ -229,6 +229,7 @@ module BGSV2
 
     def log_and_return(params)
       if Flipper.enabled?(:bgs_param_logging_enabled)
+        # using Settings.vsp_environment to determine environment to filter in
         filtered_env = %w[test production].include?(Settings.vsp_environment)
         # Filter sensitive parameters in production or test environment
         logged_params = filtered_env ? ParameterFilterHelper.filter_params(params) : params
