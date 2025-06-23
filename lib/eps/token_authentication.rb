@@ -19,8 +19,8 @@ module Eps
         {
           'Authorization' => "Bearer #{token}",
           'Content-Type' => 'application/json',
-          'X-Request-ID' => RequestStore.store['request_id'],
-          'X-Correlation-ID' => correlation_id
+          'X-Request-ID' => correlation_id,
+          'X-Parent-Request-ID' => RequestStore.store['request_id']
         }
       end
 

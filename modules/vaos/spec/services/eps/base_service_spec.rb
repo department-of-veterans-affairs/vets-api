@@ -54,8 +54,8 @@ describe Eps::BaseService do
         allow(service).to receive(:headers_with_correlation_id).and_return({
                                                                              'Authorization' => 'Bearer test-token',
                                                                              'Content-Type' => 'application/json',
-                                                                             'X-Request-ID' => request_id,
-                                                                             'X-Correlation-ID' => 'test-correlation-id'
+                                                                             'X-Request-ID' => 'test-correlation-id',
+                                                                             'X-Parent-Request-ID' => request_id
                                                                            })
       end
 
@@ -69,8 +69,8 @@ describe Eps::BaseService do
         expect(headers).to eq({
                                 'Authorization' => 'Bearer test-token',
                                 'Content-Type' => 'application/json',
-                                'X-Request-ID' => request_id,
-                                'X-Correlation-ID' => 'test-correlation-id'
+                                'X-Request-ID' => 'test-correlation-id',
+                                'X-Parent-Request-ID' => request_id
                               })
       end
     end

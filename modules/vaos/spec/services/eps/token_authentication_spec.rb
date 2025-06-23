@@ -92,17 +92,17 @@ RSpec.describe Eps::TokenAuthentication do
       allow(logger).to receive(:info)
     end
 
-    it 'returns headers with authorization token, request ID, and correlation ID' do
+    it 'returns headers with authorization token, request ID, and parent request ID' do
       VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
         headers = subject.headers_with_correlation_id
 
         expect(headers).to include(
           'Authorization' => 'Bearer test-access-token',
           'Content-Type' => 'application/json',
-          'X-Request-ID' => request_id
+          'X-Parent-Request-ID' => request_id
         )
-        expect(headers).to have_key('X-Correlation-ID')
-        expect(headers['X-Correlation-ID']).to match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/)
+        expect(headers).to have_key('X-Request-ID')
+        expect(headers['X-Request-ID']).to match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/)
       end
     end
 
@@ -111,7 +111,7 @@ RSpec.describe Eps::TokenAuthentication do
         headers1 = subject.headers_with_correlation_id
         headers2 = subject.headers_with_correlation_id
 
-        expect(headers1['X-Correlation-ID']).not_to eq(headers2['X-Correlation-ID'])
+        expect(headers1['X-Request-ID']).not_to eq(headers2['X-Request-ID'])
       end
     end
 
