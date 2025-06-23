@@ -145,12 +145,15 @@ module Eps
     # a final state (either completed or booked). This is used to decide whether
     # to continue retrying or consider the appointment successfully processed.
     #
+    # The method performs case-insensitive string comparisons to handle variations
+    # in response formatting from external systems and safely handles nil values.
+    #
     # @param response [Object] The response object from the appointment service containing
     #   state and appointmentDetails information
     # @return [Boolean] true if the appointment is finished (completed or booked), false otherwise
     #
     def appointment_finished?(response)
-      response.state == 'completed' || response.appointmentDetails&.status == 'booked'
+      response.state&.downcase == 'completed' || response.appointmentDetails&.status&.downcase == 'booked'
     end
 
     ##
