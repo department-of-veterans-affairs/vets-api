@@ -12,6 +12,7 @@ accredited_representative_portal:
       repo: department-of-veterans-affairs/va.gov-team-sensitive
 adapted_housing:
   prefill: true
+  enabled: false
 argocd:
   slack:
     api_key: <%= ENV['argocd__slack__api_key'] %>
