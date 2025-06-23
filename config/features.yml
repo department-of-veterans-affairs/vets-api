@@ -18,6 +18,9 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  this_is_only_a_test_three:
+    actor_type: user
+    description: testing workflow.
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
