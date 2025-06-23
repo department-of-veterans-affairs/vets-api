@@ -2,16 +2,23 @@
 
 module Eps
   ##
-  # Eps::AppointmentStatusJob is responsible for handling the appointment processing
-  # and retrying the job if the appointment is not finished.
+  # Sidekiq job responsible for checking appointment processing status and handling retries.
   #
-  # It includes the Sidekiq::Worker module to leverage Sidekiq's background job
-  # processing capabilities.
+  # This job monitors submitted appointments to ensure they complete successfully.
+  # It periodically checks the appointment status and retries up to MAX_RETRIES times
+  # if the appointment is still in a pending state. If maximum retries are reached
+  # or an error occurs, it triggers an email notification to the user via the
+  # AppointmentStatusEmailJob.
   #
-  # The job retries up to MAX_RETRIES times if the appointment is in
-  # a pending state. If the maximum retries are reached, it sends a failure message.
-  # Checks the status of the submitted appointment and sends a notification email if the
-  # retries are exhausted.
+  # The job implements a polling mechanism with exponential backoff to check
+  # appointment completion status from the EPS (Enterprise Person Service).
+  #
+  # @example Enqueue the job
+  #   Eps::AppointmentStatusJob.perform_async(user_uuid, appointment_id_last4)
+  #
+  # @example Enqueue with custom retry count
+  #   Eps::AppointmentStatusJob.perform_async(user_uuid, appointment_id_last4, 1)
+  #
   class AppointmentStatusJob
     include Sidekiq::Worker
 
@@ -19,11 +26,17 @@ module Eps
     MAX_RETRIES = 3
 
     ##
-    # Performs the job to process the appointment.
+    # Main job execution method that processes appointment status checking.
     #
-    # @param appointment_id [String] the ID of the appointment to process
-    # @param user [User] the user associated with the appointment
-    # @param retry_count [Integer] the current retry count (default: 0)
+    # Fetches appointment data from Redis, validates it, and then checks the
+    # appointment status via the EPS service. Implements retry logic for
+    # pending appointments and error handling for failed operations.
+    #
+    # @param user_uuid [String] The UUID of the user associated with the appointment
+    # @param appointment_id_last4 [String] The last 4 digits of the appointment ID for identification
+    # @param retry_count [Integer] The current retry attempt count (default: 0)
+    # @return [void]
+    #
     def perform(user_uuid, appointment_id_last4, retry_count = 0)
       @user_uuid = user_uuid
       @appointment_id_last4 = appointment_id_last4
@@ -39,6 +52,15 @@ module Eps
 
     private
 
+    ##
+    # Fetches and validates appointment data from Redis cache.
+    #
+    # Retrieves cached appointment information and ensures all required fields
+    # (appointment_id and email) are present. Logs errors and metrics for
+    # missing or incomplete data scenarios.
+    #
+    # @return [Hash, nil] Appointment data hash if valid, nil if missing or invalid
+    #
     def fetch_and_validate_appointment_data
       redis_client = Eps::RedisClient.new
       appointment_data = redis_client.fetch_appointment_data(uuid: @user_uuid, appointment_id: @appointment_id_last4)
@@ -51,6 +73,15 @@ module Eps
       appointment_data
     end
 
+    ##
+    # Logs missing or incomplete Redis data with appropriate error tracking.
+    #
+    # Records detailed error information to Rails logger and increments StatsD
+    # failure metrics when appointment data is missing or incomplete in Redis cache.
+    #
+    # @param appointment_data [Hash, nil] The appointment data that was retrieved (may be nil or incomplete)
+    # @return [void]
+    #
     def log_missing_redis_data(appointment_data)
       Rails.logger.error('EpsAppointmentJob missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
@@ -59,6 +90,18 @@ module Eps
                        tags: ["user_uuid: #{@user_uuid}", "appointment_id_last4: #{@appointment_id_last4}"])
     end
 
+    ##
+    # Processes appointment status checking with comprehensive error handling.
+    #
+    # Calls the EPS appointment service to check the current status of the appointment.
+    # Handles service responses and any exceptions that may occur during the API call.
+    # Triggers email notifications for service failures.
+    #
+    # @param user [User] The user object associated with the appointment
+    # @param appointment_id [String] The full appointment ID to check
+    # @param retry_count [Integer] Current retry attempt number
+    # @return [void]
+    #
     def process_appointment_status(user, appointment_id, retry_count)
       service = Eps::AppointmentService.new(user)
       begin
@@ -74,6 +117,17 @@ module Eps
       end
     end
 
+    ##
+    # Handles appointment service response and determines next action.
+    #
+    # Analyzes the appointment response to determine if the appointment is complete,
+    # needs more time to process (retry), or has exceeded maximum retry attempts.
+    # Implements the retry logic with scheduled delays and failure notifications.
+    #
+    # @param response [Object] The response object from the EPS appointment service
+    # @param retry_count [Integer] Current retry attempt number
+    # @return [void]
+    #
     def handle_appointment_response(response, retry_count)
       if appointment_finished?(response)
         # Appointment finished successfully, do nothing
@@ -85,19 +139,30 @@ module Eps
     end
 
     ##
-    # Checks if the appointment is finished.
+    # Determines if an appointment has completed processing.
     #
-    # @param response [Object] the response object from the appointment service
-    # @return [Boolean] true if the appointment is finished, false otherwise
+    # Checks the appointment response to determine if the appointment has reached
+    # a final state (either completed or booked). This is used to decide whether
+    # to continue retrying or consider the appointment successfully processed.
+    #
+    # @param response [Object] The response object from the appointment service containing
+    #   state and appointmentDetails information
+    # @return [Boolean] true if the appointment is finished (completed or booked), false otherwise
+    #
     def appointment_finished?(response)
       response.state == 'completed' || response.appointmentDetails&.status == 'booked'
     end
 
     ##
-    # Sends a failure message via VANotify::EmailJob with callback handling.
+    # Triggers email notification for appointment processing failures.
     #
-    # @param email [String] the email address to send the message to
-    # @param error [String, nil] the error message (default: nil)
+    # Enqueues an AppointmentStatusEmailJob to send failure notification emails
+    # to users when appointment processing fails or exceeds maximum retry attempts.
+    # This provides users with timely feedback about appointment booking issues.
+    #
+    # @param error [String, nil] The error message to include in the notification email (default: nil)
+    # @return [void]
+    #
     def send_vanotify_message(error: nil)
       Eps::AppointmentStatusEmailJob.perform_async(@user_uuid, @appointment_id_last4, error)
     end
