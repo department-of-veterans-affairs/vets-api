@@ -229,7 +229,7 @@ module BGSV2
 
     def log_and_return(params)
       if Flipper.enabled?(:bgs_param_logging_enabled)
-        filtered_env = ['test', 'production'].include?(Settings.vsp_environment)
+        filtered_env = %w[test production].include?(Settings.vsp_environment)
         # Filter sensitive parameters in production or test environment
         logged_params = filtered_env ? ParameterFilterHelper.filter_params(params) : params
         Rails.logger.info('[BGSV2::Service] log_and_return called', { params: logged_params })
