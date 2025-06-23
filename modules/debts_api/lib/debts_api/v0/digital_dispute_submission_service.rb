@@ -87,7 +87,7 @@ module DebtsApi
       end
 
       def failure_result(error)
-        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace.join("\n")}")
+        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace&.join("\n")}")
         case error
         when NoFilesProvidedError
           {
