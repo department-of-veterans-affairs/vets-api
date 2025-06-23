@@ -15,7 +15,6 @@ module DebtsApi
       configuration DebtManagementCenter::DebtsConfiguration
 
       def initialize(user, files)
-        binding.pry
         super(user)
         @files = files
       end
@@ -61,7 +60,6 @@ module DebtsApi
       end
 
       def validate_files_present
-        binding.pry
         if files.blank? || !files.is_a?(Array) || files.empty?
           raise NoFilesProvidedError,
                 'at least one file is required'
