@@ -31,6 +31,12 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
     Rails.cache.clear
   end
 
+  describe 'configuration' do
+    it 'has 14 retries to span approximately 25 hours' do
+      expect(described_class.sidekiq_options['retry']).to eq(14)
+    end
+  end
+
   describe '#perform' do
     context 'when successful' do
       before { allow(va_notify_service).to receive(:send_email) }

@@ -15,7 +15,7 @@ module Eps
   class AppointmentStatusEmailJob
     include Sidekiq::Job
     include SentryLogging
-    sidekiq_options retry: 13
+    sidekiq_options retry: 14
     STATSD_KEY = 'api.vaos.appointment_status_email_job'
 
     ##
