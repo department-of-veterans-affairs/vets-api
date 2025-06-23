@@ -8,6 +8,10 @@ module IncomeAndAssets
   module BenefitsIntake
     # @see BenefitsIntake::SubmissionHandler::SavedClaim
     class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
+      # Retrieves all pending Lighthouse::SubmissionAttempt records associated with submissions
+      # where the form_id is '21P-0969'.
+      #
+      # @return [ActiveRecord::Relation] a relation containing pending submission attempts for form '21P-530EZ'
       def self.pending_attempts
         Lighthouse::SubmissionAttempt.joins(:submission).where(status: 'pending',
                                                                'lighthouse_submissions.form_id' => '21P-0969')
