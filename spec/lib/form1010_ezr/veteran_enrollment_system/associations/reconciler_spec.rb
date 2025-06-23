@@ -64,15 +64,18 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
       end
 
       it 'raises an error' do
-        expect {
+        expect do
           described_class.new(
             associations_with_missing_fields,
             associations
           ).reconcile_associations
-        }.to raise_error(StandardError, "VES association is missing the following field(s): role, name, relationship")
+        end.to raise_error(
+          StandardError,
+          'VES association is missing the following field(s): role, name, relationship'
+          )
         expect(Rails.logger).to have_received(:error).with(
-          "Error transforming VES association: VES association is missing " \
-          "the following field(s): role, name, relationship"
+          'Error transforming VES association: VES association is missing ' \
+          'the following field(s): role, name, relationship'
         )
       end
     end

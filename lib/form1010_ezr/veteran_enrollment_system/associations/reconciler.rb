@@ -55,7 +55,7 @@ module Form1010Ezr
         # Transform the VES Associations API data to match the EZR 'nextOfKins' and 'emergencyContacts' schemas.
         def transform_ves_association(association)
           validate_required_fields!(association)
-          
+
           transformed_association = build_transformed_association(association)
           fill_association_full_name_from_ves_association(transformed_association, association)
 
