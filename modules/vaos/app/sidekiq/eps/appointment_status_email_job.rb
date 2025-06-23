@@ -37,9 +37,10 @@ module Eps
     #
     def perform(user_uuid, appointment_id_last4, error = nil)
       appointment_data = fetch_appointment_data(user_uuid, appointment_id_last4)
-      return unless appointment_data
+      email = appointment_data[:email]
+      return unless email
 
-      send_notification_email(appointment_data:, error:)
+      send_notification_email(email:, user_uuid:, appointment_id_last4:, error:)
     rescue => e
       handle_exception(error: e, user_uuid:, appointment_id_last4:)
     end
@@ -104,11 +105,23 @@ module Eps
     # @param error [String, nil] Error message to include in the email template
     # @return [void]
     #
-    def send_notification_email(appointment_data:, error:)
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+    def send_notification_email(email:, user_uuid:, appointment_id_last4:, error:)
+      callback_options = {
+        callback_klass: 'Eps::AppointmentStatusNotificationCallback',
+        callback_metadata: {
+          user_uuid: user_uuid,
+          appointment_id_last4: appointment_id_last4,
+          statsd_tags: {
+            service: 'vaos',
+            function: 'appointment_submission_failure_notification'
+          }
+        }
+      }
+
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options)
 
       notify_client.send_email(
-        email_address: appointment_data[:email],
+        email_address: email,
         template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
         personalisation: { 'error' => error }
       )
