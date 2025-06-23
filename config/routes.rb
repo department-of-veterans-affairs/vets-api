@@ -331,6 +331,7 @@ Rails.application.routes.draw do
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 
     get 'banners', to: 'banners#by_path'
+    post 'datadog_action', to: 'datadog_action#create'
   end
   # end /v0
 
@@ -400,6 +401,7 @@ Rails.application.routes.draw do
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
+  mount MedicalExpenseReports::Engine, at: '/medical_expense_reports'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount IncomeLimits::Engine, at: '/income_limits'

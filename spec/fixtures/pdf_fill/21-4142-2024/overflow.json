@@ -30,7 +30,6 @@
       "providerFacilityAddress": {
         "country": "USA",
         "street": "123 Main St",
-        "street2": "A",
         "city": "Baltimore",
         "state": "MD",
         "postalCode": "21201"
@@ -45,7 +44,6 @@
       "providerFacilityAddress": {
         "country": "USA",
         "street": "1234 Fake St",
-        "street2": "1",
         "city": "Chicago",
         "state": "IL",
         "postalCode": "60601"
@@ -60,7 +58,7 @@
       "providerFacilityAddress": {
         "country": "USA",
         "street": "789 Pine Avenue",
-        "street2": "D",
+        "street2": "Apt D",
         "city": "New York",
         "state": "NY",
         "postalCode": "10001"

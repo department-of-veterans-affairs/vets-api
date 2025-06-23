@@ -27,26 +27,12 @@ class User < Common::RedisStore
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
-  attribute :account_uuid, String
-  attribute :account_id, Integer
   attribute :user_account_uuid, String
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
   attribute :session_handle, String
-
-  def account
-    @account ||= Identity::AccountCreator.new(self).call
-  end
-
-  def account_uuid
-    @account_uuid ||= account&.uuid
-  end
-
-  def account_id
-    @account_id ||= account&.id
-  end
 
   def initial_sign_in
     user_account.created_at
@@ -159,8 +145,8 @@ class User < Common::RedisStore
     mpi_mhv_correlation_id if active_mhv_ids&.one?
   end
 
-  def mhv_user_account
-    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only: true).perform
+  def mhv_user_account(from_cache_only: true)
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only:).perform
   rescue => e
     log_mhv_user_account_error(e.message)
     nil
@@ -467,7 +453,7 @@ class User < Common::RedisStore
   end
 
   def flipper_id
-    email&.downcase || account_uuid
+    email&.downcase || user_account_uuid
   end
 
   def relationships
