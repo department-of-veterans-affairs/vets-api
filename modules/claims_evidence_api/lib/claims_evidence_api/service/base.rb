@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/configuration'
-require 'claims_evidence_api/exception'
+require 'claims_evidence_api/exceptions'
 require 'common/client/base'
 
 module ClaimsEvidenceApi

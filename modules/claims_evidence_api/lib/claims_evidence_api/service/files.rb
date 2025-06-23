@@ -14,6 +14,12 @@ module ClaimsEvidenceApi
 
       end
 
+      def read(uuid)
+      end
+
+      def update(uuid, payload)
+      end
+
     end
 
     # end Service
