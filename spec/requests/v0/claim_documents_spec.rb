@@ -24,7 +24,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-        expect(PersistentAttachment.last).to be_a(PersistentAttachments::ClaimEvidence)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-        expect(PersistentAttachment.last).to be_a(PersistentAttachments::ClaimEvidence)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
       end
     end
 

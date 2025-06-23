@@ -16,7 +16,7 @@
     "country": "USA"
   },
   "isMedicaidEligible": true,
-  "isEssentialAcaCoverage": true,
+  "isEssentialAcaCoverage": false,
   "vaMedicalFacility": "520GA",
   "maritalStatus": "Never Married",
   "isEnrolledMedicarePartA": false,

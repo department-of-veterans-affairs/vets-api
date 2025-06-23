@@ -70,7 +70,7 @@
   "isNativeHawaiianOrOtherPacificIslander": true,
   "isWhite": true,
   "hasDemographicNoAnswer": true,
-  "isEssentialAcaCoverage": true,
+  "isEssentialAcaCoverage": false,
   "vaMedicalFacility": "520GA",
   "wantsInitialVaContact": true,
   "email": "indiana@jones.com",
