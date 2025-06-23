@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'eps/token_authentication'
+require_relative 'token_authentication'
 
 module Eps
   # Eps::BaseService provides common functionality for making REST API requests
