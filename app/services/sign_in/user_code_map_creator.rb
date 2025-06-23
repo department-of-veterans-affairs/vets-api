@@ -99,6 +99,10 @@ module SignIn
       }
     end
 
+    def user_uuid
+      @user_uuid ||= user_verification.backing_credential_identifier
+    end
+
     def access_token_attributes
       { first_name:,
         last_name:,

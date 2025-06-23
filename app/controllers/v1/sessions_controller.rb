@@ -159,17 +159,28 @@ module V1
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
       mhv_unverified_validation(user_session_form.user)
+      user_verification = create_user_verification(user_session_form.user_identity)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
 
-      if current_user.user_verification.user_account.needs_accepted_terms_of_use?
+      if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url
       end
-      UserAudit.logger.success(event: :sign_in, user_verification: current_user.user_verification)
+      UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
+    end
+
+    def create_user_verification(user_identity)
+      Login::UserVerifier.new(login_type: user_identity.sign_in&.dig(:service_name),
+                              auth_broker: user_identity.sign_in&.dig(:auth_broker),
+                              mhv_uuid: user_identity.mhv_credential_uuid,
+                              idme_uuid: user_identity.idme_uuid,
+                              dslogon_uuid: user_identity.edipi,
+                              logingov_uuid: user_identity.logingov_uuid,
+                              icn: user_identity.icn).perform
     end
 
     def mhv_unverified_validation(user)
