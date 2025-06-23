@@ -29,7 +29,8 @@ module EventBusGateway
     private
 
     def notify_client
-      VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
+      VaNotify::Service.new(NOTIFY_SETTINGS.api_key,
+                            { callback_klass: 'EventBusGateway::VANotifyEmailStatusCallback' })
     end
 
     def get_first_name_from_participant_id(participant_id)

@@ -143,7 +143,7 @@ module CentralMail
     end
 
     def processor
-      @processor ||= EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid, validate: false)
+      @processor ||= EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
     end
 
     def upload_to_api

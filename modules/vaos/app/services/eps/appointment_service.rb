@@ -76,6 +76,7 @@ module Eps
     #
     def submit_appointment(appointment_id, params = {})
       raise ArgumentError, 'appointment_id is required and cannot be blank' if appointment_id.blank?
+      raise ArgumentError, 'Email is required' if user.email.blank?
 
       required_params = %i[network_id provider_service_id slot_ids referral_number]
       missing_params = required_params - params.keys
@@ -84,7 +85,17 @@ module Eps
 
       payload = build_submit_payload(params)
 
-      EpsAppointmentWorker.perform_async(appointment_id, user)
+      # Store appointment data in Redis using the RedisClient
+      redis_client.store_appointment_data(
+        uuid: user.uuid,
+        appointment_id:,
+        email: user.va_profile_email
+      )
+
+      # Enqueue worker with UUID and last 4 of appointment_id
+      appointment_last4 = appointment_id.to_s.last(4)
+      Eps::EpsAppointmentWorker.perform_async(user.uuid, appointment_last4)
+
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
 
       result = OpenStruct.new(response.body)
@@ -144,6 +155,14 @@ module Eps
     # @return [Eps::ProviderService] ProviderService instance
     def provider_services
       @provider_services ||= Eps::ProviderService.new(user)
+    end
+
+    ##
+    # Get instance of RedisClient
+    #
+    # @return [Eps::RedisClient] RedisClient instance
+    def redis_client
+      @redis_client ||= Eps::RedisClient.new
     end
   end
 end
