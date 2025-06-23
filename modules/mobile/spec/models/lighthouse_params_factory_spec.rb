@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Mobile::V0::LighthouseParamsFactory, type: :model do
   describe '#params' do
     context 'with a user' do
-      let(:user) { build(:user, icn: '123498767V234859') }
+      let(:user) { build(:user, :legacy_icn) }
       let(:factory) { Mobile::V0::LighthouseParamsFactory.new(user.icn, :health) }
 
       before do

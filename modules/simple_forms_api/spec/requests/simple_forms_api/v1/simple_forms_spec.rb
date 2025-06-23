@@ -71,7 +71,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         context "for #{form}" do
           if is_authenticated
             before do
-              user = create(:user, icn: '123498767V234859')
+              user = create(:user, :legacy_icn)
               sign_in(user)
               create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
             end
@@ -603,7 +603,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#get_intents_to_file' do
-    let(:user) { create(:user, icn: '123498767V234859') }
+    let(:user) { create(:user, :legacy_icn) }
     let(:mpi_profile) { build(:mpi_profile, participant_id: '123456789') }
 
     before do
@@ -715,7 +715,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   describe 'email confirmations' do
     let(:confirmation_number) { 'some_confirmation_number' }
-    let(:user) { build(:user, icn: '123498767V234859') }
+    let(:user) { build(:user, :legacy_icn) }
 
     before do
       sign_in(user)

@@ -8,7 +8,7 @@ RSpec.describe 'V0::Avs', type: :request do
   end
 
   describe 'GET `index`' do
-    let(:current_user) { build(:user, :loa3, icn: '123498767V234859') }
+    let(:current_user) { build(:user, :loa3, :legacy_icn) }
 
     it 'returns error when stationNo is not given' do
       get '/avs/v0/avs/search?stationNo=&appointmentIen=123456'
