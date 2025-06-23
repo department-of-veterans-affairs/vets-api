@@ -22,7 +22,6 @@ module MyHealth
 
         begin
           response = client.get_immunizations(start_date:, end_date:)
-          # log the request for debugging
           immunizations = Lighthouse::VeteransHealth::Serializers::ImmunizationSerializer
                           .from_fhir_bundle(response.body)
 
