@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'eps/token_authentication'
+require_relative '../../../app/services/eps/token_authentication'
 
 # Test class to include the Eps::TokenAuthentication module
 class EpsTestTokenService < VAOS::SessionService
