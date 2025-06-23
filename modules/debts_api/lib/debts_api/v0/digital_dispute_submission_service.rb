@@ -12,7 +12,10 @@ module DebtsApi
       class FileTooLargeError < StandardError; end
       class NoFilesProvidedError < StandardError; end
 
+      configuration DebtManagementCenter::DebtsConfiguration
+
       def initialize(user, files)
+        binding.pry
         super(user)
         @files = files
       end
@@ -58,6 +61,7 @@ module DebtsApi
       end
 
       def validate_files_present
+        binding.pry
         if files.blank? || !files.is_a?(Array) || files.empty?
           raise NoFilesProvidedError,
                 'at least one file is required'
@@ -85,7 +89,7 @@ module DebtsApi
       end
 
       def failure_result(error)
-        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}")
+        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace.join("\n")}")
         case error
         when NoFilesProvidedError
           {
