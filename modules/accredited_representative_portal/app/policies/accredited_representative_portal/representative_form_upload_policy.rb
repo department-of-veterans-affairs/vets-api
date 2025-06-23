@@ -4,8 +4,6 @@ require 'lighthouse/benefits_claims/service'
 
 module AccreditedRepresentativePortal
   class RepresentativeFormUploadPolicy < ApplicationPolicy
-    include ValidatePowerOfAttorney
-
     def submit?
       @record.present?
     end
