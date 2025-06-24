@@ -392,10 +392,6 @@ Naming/PredicatePrefix:
     - app/models/concerns/kms_encrypted_model_patch.rb
     - app/models/preneeds/burial_form.rb
 
-Rails/UnusedIgnoredColumns:
-  Exclude: 
-    - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
-
 Rails/InverseOf:
   Exclude:
     - modules/income_limits/app/models/std_state.rb
@@ -406,7 +402,3 @@ Rails/InverseOf:
 Lint/DuplicateMethods:
   Exclude:
     - modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb
-
-Rails/UniqueValidationWithoutIndex:
-  Exclude: 
-    - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
