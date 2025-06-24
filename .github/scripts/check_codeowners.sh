@@ -1,57 +1,63 @@
 #!/bin/bash
-
 set -e
 
-# Fetch the latest information from the remote repository
+# Fetch latest master to compare
 git fetch origin master
 
-# Get the SHA of the latest commit on the current branch
+# Get SHAs
 HEAD_SHA=$(git rev-parse HEAD)
-
-# Use the latest commit from the origin/master as the base SHA
 BASE_SHA=$(git rev-parse origin/master)
 
-# Get the list of changed files between the base and head commits
-IFS=$'\n'  # Change IFS to split only on newlines
-CHANGED_FILES=$(git diff --name-only --diff-filter=AMR ${BASE_SHA}...${HEAD_SHA})
-echo "Changed files: $CHANGED_FILES"
+# Get added, modified, renamed files (not deleted)
+IFS=$'\n'
+CHANGED_FILES=$(git diff --name-only --diff-filter=AMR "${BASE_SHA}"..."${HEAD_SHA}")
+echo "Changed files:"
+echo "$CHANGED_FILES"
 
-check_in_codeowners() {
-    local file="$1"
-    while [[ "$file" != '.' && "$file" != '/' ]]; do
-        echo "Checking CODEOWNERS for: $file"
-        # Check for exact match or trailing slash
-        if grep -qE "^\s*${file}(/)?(\s|\$)" .github/CODEOWNERS; then
-            echo "Found in CODEOWNERS: $file"
-            return 0
-        fi
-        # Check for wildcard match
-        if grep -qE "^\s*${file}/\*(\s|\$)" .github/CODEOWNERS; then
-            echo "Found in CODEOWNERS as wildcard: ${file}/*"
-            return 0
-        fi
-        # Move to the parent directory
-        echo "PARENT DIR: Checking CODEOWNERS for: $file"
-        file=$(dirname "$file")
-    done
-    echo "Not found in CODEOWNERS: $file"
-    return 1
+# Sanitize CODEOWNERS rules (remove comments and blank lines)
+mapfile -t CODEOWNERS_RULES < <(grep -v '^\s*#' .github/CODEOWNERS | awk '{print $1}' | grep -v '^\s*$')
+
+# Function to test if file has a specific CODEOWNERS entry
+check_direct_codeowners_entry() {
+  local file="$1"
+
+  for rule in "${CODEOWNERS_RULES[@]}"; do
+    # Convert CODEOWNERS path-style rules to glob patterns
+    rule_pattern="${rule#/}"  # strip leading slash
+    rule_pattern="${rule_pattern//\*/.*}"  # convert * to regex
+
+    # Exact match
+    if [[ "$file" == "$rule" ]]; then
+      echo "✅ Exact match in CODEOWNERS: $rule"
+      return 0
+    fi
+
+    # Directory wildcard match, e.g., app/controllers/*.rb
+    if [[ "$rule" == */* && "$file" =~ ^$rule_pattern$ ]]; then
+      echo "✅ Pattern match in CODEOWNERS: $rule"
+      return 0
+    fi
+  done
+
+  echo "❌ No specific CODEOWNERS entry for: $file"
+  return 1
 }
 
+# Check each changed file
 for FILE in ${CHANGED_FILES}; do
-  # Ignore files starting with a dot
-  if [[ $FILE == .* ]]; then
-    echo "Ignoring file $FILE"
+  # Ignore dotfiles or CODEOWNERS itself
+  if [[ "$FILE" == .* || "$FILE" == ".github/CODEOWNERS" ]]; then
+    echo "Ignoring $FILE"
     continue
   fi
 
-  echo "Checking file: $FILE"
-  if ! check_in_codeowners "$FILE"; then
-    echo "Error: $FILE (or its parent directories) does not have a CODEOWNERS entry."
-    echo "offending_file=$FILE" >> $GITHUB_ENV
+  echo "Checking $FILE..."
+  if ! check_direct_codeowners_entry "$FILE"; then
+    echo "Error: $FILE does not have a direct CODEOWNERS entry."
+    echo "offending_file=$FILE" >> "$GITHUB_ENV"
     exit 1
   fi
 done
 
-echo "All changed files or their parent directories have a CODEOWNERS entry."
-IFS=$' \t\n'  # Reset IFS after the loop
+echo "✅ All changed files have specific CODEOWNERS entries."
+IFS=$' \t\n'  # Reset IFS
