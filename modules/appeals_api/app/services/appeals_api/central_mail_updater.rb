@@ -120,11 +120,6 @@ module AppealsApi
         exception_message: e.message
       }
 
-      # slack_details = {
-      #   exception: e.class.to_s,
-      #   exception_message: e.message
-      # }.merge(details)
-
       Rails.logger.warn('Error updating appeal status', details)
 
       AppealsApi::Slack::Messager.new(details).notify!
