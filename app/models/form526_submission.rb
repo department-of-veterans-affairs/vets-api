@@ -561,19 +561,19 @@ class Form526Submission < ApplicationRecord
     uploads = form[FORM_526_UPLOADS]
     tags = ["form526_submission_id:#{id}"]
     offset = 60.seconds
-    
+
     # Log upload stats
     uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
     StatsD.gauge('form526.uploads.count', uploads.count, tags:)
     StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags:)
-    
+
     # Schedule jobs with appropriate delays
     uniqueness_tracker = {}
     uploads.each do |upload|
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
       delay = offset + (offset * uniqueness_tracker[key])
-      
+
       StatsD.gauge('form526.uploads.delay', delay, tags:)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
       uniqueness_tracker[key] += 5
