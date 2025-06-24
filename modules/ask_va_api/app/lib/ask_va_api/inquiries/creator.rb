@@ -57,7 +57,7 @@ module AskVAApi
           span.set_tag('user.isAuthenticated', user.present?)
           span.set_tag('user.loa', user&.loa&.fetch(:current, nil))
           payload = build_payload(inquiry_params)
-          span.set_tag('inquiry', safe_fields)
+          set_inquiry_tags(span, safe_fields)
           if payload.key?(:LevelOfAuthentication)
             span.set_tag('Crm.LevelOfAuthentication', payload[:LevelOfAuthentication])
           end
@@ -73,6 +73,27 @@ module AskVAApi
 
       def log_safe_fields_from_inquiry(inquiry_params)
         inquiry_params.slice(*SAFE_INQUIRY_FIELDS)
+      end
+
+      def set_inquiry_tags(span, safe_fields)
+        flattened_fields = flatten_to_key_value(safe_fields)
+        flattened_fields.each do |key, value|
+          span.set_tag("inquiry.#{key}", value)
+        end
+      end
+
+      def flatten_to_key_value(hash, parent_key = '')
+        hash.each_with_object({}) do |(key, value), result|
+          new_key = parent_key.empty? ? key.to_s : "#{parent_key}.#{key}"
+
+          case value
+          when Hash then result.merge!(flatten_to_key_value(value, new_key))
+          when Array then value.each_with_index do |item, i|
+            result.merge!(flatten_to_key_value({ i => item }, new_key))
+          end
+          else result[new_key] = value.to_s
+          end
+        end
       end
 
       def default_service
