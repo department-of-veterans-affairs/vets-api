@@ -557,11 +557,10 @@ class Form526Submission < ApplicationRecord
   end
 
   def calc_submit_delays(upload_index, key, uniqueness_tracker)
-    # delay the same amount for each subsequent
+    # each upload needs to delay at least the base amount, from each other upload
     delay_per_upload = (upload_index * UPLOAD_DELAY_BASE)
-    # UPLOAD_DELAY_BASE = basis of how much to delay
     # uniqueness_tracker[key] the value of the key (the factor to multiple the base delay by)
-    # This increments by 5 for each upload with the same name and size
+    # This increments by 5 for each upload with the same name and size (delay 5 units of UPLOAD_DELAY_BASE)
     # We need to subtract 1 from the uniqueness_tracker[key] to account for the first upload
     # and then subtract the upload_index to account for the current upload which is already being summed in by delay_per_upload
     # we take the maximum of 0 and the calculated delay to avoid negative delays
