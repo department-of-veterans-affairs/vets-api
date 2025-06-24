@@ -5,9 +5,10 @@ require 'rails_helper'
 require 'benefits_intake_service/service'
 
 RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
-  subject(:perform) { described_class.perform(file, is_form:) }
+  subject(:perform) { described_class.perform(attachment_klass, file:, form_id:) }
 
-  let(:is_form) { false }
+  let(:attachment_klass) { PersistentAttachments::VAFormDocumentation }
+  let(:form_id) { AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID }
 
   context 'when record invalid' do
     let(:file) do
@@ -17,7 +18,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
 
     it 'raises' do
       expect { perform }.to raise_error(
-        described_class::InvalidFileError
+        described_class::RecordInvalidError
       )
     end
   end
@@ -34,7 +35,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
         receive(:file=)
       )
 
-      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+      allow_any_instance_of(PersistentAttachments::VAFormDocumentation).to(
         receive(:file=)
       )
 
@@ -58,7 +59,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
 
       it 'raises' do
         expect { perform }.to raise_error(
-          described_class::InvalidFileError
+          described_class::UpstreamInvalidError
         )
       end
     end
@@ -72,12 +73,12 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
 
       it 'returns an attachment' do
         expect(perform).to be_a(
-          PersistentAttachments::VAFormAttachment
+          PersistentAttachments::VAFormDocumentation
         )
       end
 
       context 'when attachment is the main form' do
-        let(:is_form) { true }
+        let(:attachment_klass) { PersistentAttachments::VAForm }
 
         it 'returns a VAForm' do
           expect(perform).to be_a(

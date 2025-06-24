@@ -18,8 +18,9 @@ module AccreditedRepresentativePortal
 
       FORM_ID = '21a'
 
-      # Parses the request body and validates the schema before submitting the form.
       # NOTE: The order of before_action calls is important here.
+      before_action :feature_enabled
+      # Parses the request body and validates the schema before submitting the form.
       before_action :parse_request_body, :validate_form, only: [:submit]
 
       # Parses the request body and submits the form.
@@ -42,6 +43,11 @@ module AccreditedRepresentativePortal
         # submitted to this endpoint. That behavior is incorrect and it should be updated in
         # the schema
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
+      end
+
+      # Checks if the feature flag accredited_representative_portal_form_21a is enabled or not
+      def feature_enabled
+        routing_error unless Flipper.enabled?(:accredited_representative_portal_form_21a)
       end
 
       # Parses the raw request body as JSON and assigns it to an instance variable.

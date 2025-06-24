@@ -260,6 +260,8 @@ decision_review:
     url: <%= ENV['decision_review__v1__url'] %>
 dependents:
   prefill: true
+dependents_verification:
+  prefill: true
 dgi:
   jwt:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
@@ -507,6 +509,8 @@ gclaws:
     api_key: <%= ENV['gclaws__accreditation__api_key'] %>
     attorneys:
       url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    icn:
+      url: <%= ENV['gclaws__accreditation__icn__url'] %>
     origin: <%= ENV['gclaws__accreditation__origin'] %>
     representatives:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
@@ -648,6 +652,10 @@ lighthouse:
       use_mocks: <%= ENV['lighthouse__benefits_claims__form526__use_mocks'] %>
     host: <%= ENV['lighthouse__benefits_claims__host'] %>
     use_mocks: <%= ENV['lighthouse__benefits_claims__use_mocks'] %>
+  benefits_discovery:
+    host: <%= ENV['lighthouse__benefits_discovery__host'] %>
+    x_api_key: <%= ENV['lighthouse__benefits_discovery__x_api_key'] %>
+    x_app_id: <%= ENV['lighthouse__benefits_discovery__x_app_id'] %>
   benefits_documents:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__benefits_documents__access_token__aud_claim_url'] %>
@@ -775,6 +783,7 @@ maintenance:
     caseflow: <%= ENV['maintenance__services__caseflow'] %>
     cie: <%= ENV['maintenance__services__cie'] %>
     coe: <%= ENV['maintenance__services__coe'] %>
+    decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
@@ -793,7 +802,7 @@ maintenance:
     lighthouse_direct_deposit: <%= ENV['maintenance__services__lighthouse_direct_deposit'] %>
     lighthouse_vshe: <%= ENV['maintenance__services__lighthouse_vshe'] %>
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: <%= ENV['maintenance__services__mdot'] %>
     mhv: <%= ENV['maintenance__services__mhv'] %>
     mhv_meds: <%= ENV['maintenance__services__mhv_meds'] %>
     mhv_mr: <%= ENV['maintenance__services__mhv_mr'] %>
@@ -806,7 +815,6 @@ maintenance:
     search: PRG8HJI
     ssoe: <%= ENV['maintenance__services__ssoe'] %>
     ssoe_oauth: <%= ENV['maintenance__services__ssoe_oauth'] %>
-    staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
     travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
@@ -902,6 +910,7 @@ mhv:
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
+    x_api_key: <%= ENV['mhv__uhd__x_api_key'] %>
 mhv_mobile:
   rx:
     app_token: <%= ENV['mhv_mobile__rx__app_token'] %>
@@ -1156,6 +1165,7 @@ saml:
   key_path: ~
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: <%= ENV['search__access_key'] %>
@@ -1245,6 +1255,7 @@ va_forms:
     channel_id: <%= ENV['va_forms__slack__channel_id'] %>
     enabled: <%= ENV['va_forms__slack__enabled'] %>
 va_mobile:
+  claims_path: /services/claims/v2/veterans
   key_path: <%= ENV['va_mobile__key_path'] %>
   mock: <%= ENV['va_mobile__mock'] %>
   patients_path: /vaos/v1/patients
@@ -1746,15 +1757,7 @@ virtual_agent:
   cxdw_client_secret: <%= ENV['virtual_agent__cxdw_client_secret'] %>
   cxdw_dataverse_uri: <%= ENV['virtual_agent__cxdw_dataverse_uri'] %>
   cxdw_table_prefix: <%= ENV['virtual_agent__cxdw_table_prefix'] %>
-  lighthouse_api_key: <%= ENV['virtual_agent__lighthouse_api_key'] %>
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: <%= ENV['virtual_agent__speech_token_request_uri'] %>
-  speech_token_subscription_key: <%= ENV['virtual_agent__speech_token_subscription_key'] %>
-  webchat_pva2_secret: <%= ENV['virtual_agent__webchat_pva2_secret'] %>
   webchat_root_bot_secret: <%= ENV['virtual_agent__webchat_root_bot_secret'] %>
-  webchat_secret: <%= ENV['virtual_agent__webchat_secret'] %>
-  webchat_secret_msft: <%= ENV['virtual_agent__webchat_secret_msft'] %>
-  webchat_secret_nlu: <%= ENV['virtual_agent__webchat_secret_nlu'] %>
 virtual_hosts: <%= ENV['virtual_hosts'] %>
 vre_counseling:
   prefill: true

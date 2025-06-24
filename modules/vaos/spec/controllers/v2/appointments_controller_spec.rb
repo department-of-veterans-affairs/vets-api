@@ -39,8 +39,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       expect(controller.send(:appointment_error_status, 'bad-request')).to eq(:bad_request)
     end
 
-    it 'returns :internal_server_error for internal-error error' do
-      expect(controller.send(:appointment_error_status, 'internal-error')).to eq(:internal_server_error)
+    it 'returns :bad_gateway for internal-error error' do
+      expect(controller.send(:appointment_error_status, 'internal-error')).to eq(:bad_gateway)
     end
 
     it 'returns :unprocessable_entity for other errors' do
@@ -51,12 +51,12 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
   end
 
-  describe '#appointment_error_response' do
+  describe '#submission_error_response' do
     let(:controller) { described_class.new }
 
     it 'returns a properly formatted error response with the error code' do
       error_code = 'test-error'
-      response = controller.send(:appointment_error_response, error_code)
+      response = controller.send(:submission_error_response, error_code)
 
       expect(response).to be_a(Hash)
       expect(response[:errors]).to be_an(Array)
@@ -78,8 +78,12 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         slot_id: 'SLOT123'
       }
     end
+    let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
     before do
+      allow(Rails).to receive(:cache).and_return(memory_store)
+      Rails.cache.clear
+
       allow(controller).to receive_messages(
         eps_appointment_service:,
         submit_params:,
@@ -87,58 +91,51 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       )
       allow(controller).to receive(:render)
       allow(StatsD).to receive(:increment)
+      allow(StatsD).to receive(:measure)
       allow(Rails.logger).to receive(:info)
     end
 
     context 'when appointment creation succeeds' do
       let(:appointment) { OpenStruct.new(id: 'APPT123') }
+      let(:current_user) { OpenStruct.new(icn: '123V456') }
+      let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
+        allow(controller).to receive_messages(current_user:, ccra_referral_service:)
       end
 
-      it 'renders created status with appointment id' do
-        controller.submit_referral_appointment
+      it 'renders created status with appointment id and logs duration' do
+        Timecop.freeze(Time.current) do
+          booking_start_time = Time.current.to_f - 5
+          allow(ccra_referral_service).to receive(:get_booking_start_time)
+            .with(submit_params[:referral_number], current_user.icn)
+            .and_return(booking_start_time)
 
-        expect(controller).to have_received(:render).with(
-          json: { data: { id: 'APPT123' } },
-          status: :created
-        )
-        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success')
-      end
-    end
+          controller.submit_referral_appointment
 
-    context 'when appointment has no id' do
-      let(:appointment) { OpenStruct.new }
-
-      before do
-        allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
-        allow(controller).to receive(:appt_creation_failed_error).and_return({ errors: [{ title: 'Error' }] })
-      end
-
-      it 'renders unprocessable_entity status with error' do
-        controller.submit_referral_appointment
-
-        expect(controller).to have_received(:render).with(
-          json: { errors: [{ title: 'Error' }] },
-          status: :unprocessable_entity
-        )
-        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure')
+          expect(controller).to have_received(:render).with(
+            json: { data: { id: 'APPT123' } },
+            status: :created
+          )
+          expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success')
+          expect(StatsD).to have_received(:measure).with(
+            described_class::APPT_CREATION_DURATION_METRIC,
+            5000
+          )
+        end
       end
     end
 
     context 'when appointment has an error field' do
-      let(:appointment) { OpenStruct.new(id: 'APPT123', error: 'conflict') }
+      let(:appointment) { { error: 'conflict' } }
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
-        allow(controller).to receive_messages(
-          appointment_error_status: :conflict,
-          appointment_error_response: { errors: [{ detail: 'Error' }] }
-        )
+        allow(controller).to receive(:submission_error_response).and_return({ errors: [{ detail: 'Error' }] })
       end
 
-      it 'renders appropriate error status with error response' do
+      it 'renders conflict status with error response' do
         controller.submit_referral_appointment
 
         expect(controller).to have_received(:render).with(
@@ -147,6 +144,22 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         )
         expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure',
                                                          tags: ['error_type:conflict'])
+      end
+    end
+
+    context 'when an exception is raised' do
+      let(:error) { StandardError.new('Service unavailable') }
+
+      before do
+        allow(eps_appointment_service).to receive(:submit_appointment).and_raise(error)
+        allow(controller).to receive(:handle_appointment_creation_error)
+      end
+
+      it 'calls handle_appointment_creation_error' do
+        controller.submit_referral_appointment
+
+        expect(controller).to have_received(:handle_appointment_creation_error).with(error)
+        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure')
       end
     end
   end

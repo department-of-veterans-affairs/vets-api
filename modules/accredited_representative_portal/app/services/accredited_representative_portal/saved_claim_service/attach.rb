@@ -1,22 +1,35 @@
 # frozen_string_literal: true
 
+require 'benefits_intake_service/service'
+
 module AccreditedRepresentativePortal
   module SavedClaimService
     module Attach
       Error = Class.new(RuntimeError)
-      InvalidFileError = Class.new(Error)
+      UnknownError = Class.new(Error)
+      UpstreamInvalidError = Class.new(Error)
+
+      class RecordInvalidError < Error
+        attr_reader :record
+
+        def initialize(record)
+          @record = record
+          message = @record.errors.full_messages.join(', ')
+          super(message)
+        end
+      end
 
       class << self
-        def perform(file, is_form:)
-          klass =
-            if is_form
-              PersistentAttachments::VAForm
-            else
-              PersistentAttachments::VAFormAttachment
-            end
-
-          klass.new.tap do |attachment|
+        def perform(attachment_klass, file:, form_id:)
+          attachment_klass.new.tap do |attachment|
+            ##
+            # Must assign `form_id` _before_ assigning `file` so that the
+            # validations of `file` that occur upon assignment are run relative
+            # to the appropriate `form_id`.
+            #
+            attachment.form_id = form_id
             attachment.file = file
+
             validate_record!(attachment)
             validate_upstream!(attachment)
 
@@ -25,12 +38,12 @@ module AccreditedRepresentativePortal
 
         ##
         # Expose a discrete set of known exceptions. Expose any remaining with a
-        # catch-all exception.
+        # catch-all unknown exception.
         #
-        rescue InvalidFileError
+        rescue RecordInvalidError, UpstreamInvalidError
           raise
         rescue
-          raise Error
+          raise UnknownError
         end
 
         private
@@ -38,27 +51,20 @@ module AccreditedRepresentativePortal
         def validate_record!(attachment)
           attachment.validate!
         rescue ActiveRecord::RecordInvalid => e
-          ##
-          # Present `ActiveRecord::RecordInvalid` as an `InvalidFileError` only
-          # if `file` is the only attribute in violation (likely(?) due to
-          # `shrine` validations).
-          #
-          e.record.errors.details.keys == [:file] and
-            raise InvalidFileError
-
-          raise
+          raise RecordInvalidError, e.record
         end
 
         ##
         # Duplicates the validations that run on attachments during ultimate
-        # claim submission, less the stamping that is applied first.
+        # claim submission, less the stamping that is applied first. Should
+        # we check the stamped version instead?
         #
         def validate_upstream!(attachment)
           BenefitsIntakeService::Service.new.valid_document?(
             document: attachment.to_pdf
           )
-        rescue BenefitsIntakeService::Service::InvalidDocumentError
-          raise InvalidFileError
+        rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+          raise UpstreamInvalidError, e.message
         end
       end
     end

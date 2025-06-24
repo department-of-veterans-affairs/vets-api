@@ -21,15 +21,14 @@ module ClaimsApi
                 last_name: request['vetLastName']
               },
               claimant: {
-                first_name: request.dig('claimant', 'firstName'),
-                middle_name: request.dig('claimant', 'middleName'),
-                last_name: request.dig('claimant', 'lastName')
+                first_name: request['claimantFirstName'],
+                last_name: request['claimantLastName']
               },
               address: {
-                city: request.dig('claimant', 'address', 'city'),
-                state_code: request.dig('claimant', 'address', 'stateCode'),
-                zip_code: request.dig('claimant', 'address', 'zipCode'),
-                countryCode: request.dig('claimant', 'address', 'countryCode')
+                city: request['claimantCity'],
+                state_code: request['claimantState'],
+                zip_code: request['claimantZip'],
+                countryCode: request['claimantCountry']
               },
               representative: {
                 poa_code: request['poaCode']
