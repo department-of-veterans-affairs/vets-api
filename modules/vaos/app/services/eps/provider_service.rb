@@ -8,18 +8,22 @@ module Eps
     # @return OpenStruct response from EPS provider endpoint
     #
     def get_provider_service(provider_id:)
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
-                         {}, request_headers)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
+                           {}, request_headers)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     def get_provider_services_by_ids(provider_ids:)
-      query_object_array = provider_ids.map { |id| "id=#{id}" }
-      response = perform(:get, "/#{config.base_path}/provider-services",
-                         query_object_array, request_headers)
+      with_monitoring do
+        query_object_array = provider_ids.map { |id| "id=#{id}" }
+        response = perform(:get, "/#{config.base_path}/provider-services",
+                           query_object_array, request_headers)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -28,9 +32,11 @@ module Eps
     # @return OpenStruct response from EPS networks endpoint
     #
     def get_networks
-      response = perform(:get, "/#{config.base_path}/networks", {}, request_headers)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/networks", {}, request_headers)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -41,14 +47,16 @@ module Eps
     # @return OpenStruct response from EPS drive times endpoint
     #
     def get_drive_times(destinations:, origin:)
-      payload = {
-        destinations:,
-        origin:
-      }
+      with_monitoring do
+        payload = {
+          destinations:,
+          origin:
+        }
 
-      response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers)
+        response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -70,22 +78,24 @@ module Eps
     # @return [OpenStruct] Response containing available slots
     #
     def get_provider_slots(provider_id, opts = {})
-      raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
+      with_monitoring do
+        raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
 
-      params = if opts[:nextToken]
-                 { nextToken: opts[:nextToken] }
-               else
-                 required_params = %i[appointmentTypeId startOnOrAfter startBefore]
-                 missing_params = required_params - opts.keys
+        params = if opts[:nextToken]
+                   { nextToken: opts[:nextToken] }
+                 else
+                   required_params = %i[appointmentTypeId startOnOrAfter startBefore]
+                   missing_params = required_params - opts.keys
 
-                 raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+                   raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
 
-                 opts
-               end
+                   opts
+                 end
 
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, request_headers)
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, request_headers)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -99,29 +109,31 @@ module Eps
     # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
-      query_params = { npi:, isSelfSchedulable: true }
-      response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
+      with_monitoring do
+        query_params = { npi:, isSelfSchedulable: true }
+        response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
 
-      return nil if response.body[:provider_services].blank?
+        return nil if response.body[:provider_services].blank?
 
-      # Step 1: Filter providers by specialty only
-      specialty_matches = response.body[:provider_services].select do |provider|
-        specialty_matches?(provider, specialty)
+        # Step 1: Filter providers by specialty only
+        specialty_matches = response.body[:provider_services].select do |provider|
+          specialty_matches?(provider, specialty)
+        end
+
+        return nil if specialty_matches.empty?
+
+        # Step 2: Filter specialty matches by address
+        address_match = specialty_matches.find do |provider|
+          address_matches?(provider, address)
+        end
+
+        if address_match.nil?
+          Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI #{npi}")
+        end
+
+        # Return address match if found, otherwise nil (avoid false positives)
+        address_match&.then { |provider| OpenStruct.new(provider) }
       end
-
-      return nil if specialty_matches.empty?
-
-      # Step 2: Filter specialty matches by address
-      address_match = specialty_matches.find do |provider|
-        address_matches?(provider, address)
-      end
-
-      if address_match.nil?
-        Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI #{npi}")
-      end
-
-      # Return address match if found, otherwise nil (avoid false positives)
-      address_match&.then { |provider| OpenStruct.new(provider) }
     end
 
     private

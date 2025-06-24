@@ -13,10 +13,11 @@ module Eps
     def get_appointment(appointment_id:, retrieve_latest_details: false)
       query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
-      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
-                         request_headers)
-
-      OpenStruct.new(response.body)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
+                          request_headers)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -25,24 +26,29 @@ module Eps
     # @return OpenStruct response from EPS appointments endpoint
     #
     def get_appointments
-      response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
-                         {}, request_headers)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
+                           {}, request_headers)
 
-      appointments = response.body[:appointments]
-      merged_appointments = merge_provider_data_with_appointments(appointments)
-      OpenStruct.new(data: merged_appointments)
+        appointments = response.body[:appointments]
+        merged_appointments = merge_provider_data_with_appointments(appointments)
+
+        OpenStruct.new(data: merged_appointments)
+      end
     end
 
     ##
     # Create draft appointment in EPS
     #
+    # @param referral_id [String] The referral ID
     # @return OpenStruct response from EPS create draft appointment endpoint
     #
     def create_draft_appointment(referral_id:)
-      response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
-
-      OpenStruct.new(response.body)
+      with_monitoring do
+        response = perform(:post, "/#{config.base_path}/appointments",
+                           { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -81,9 +87,10 @@ module Eps
       appointment_last4 = appointment_id.to_s.last(4)
       Eps::EpsAppointmentWorker.perform_async(user.uuid, appointment_last4)
 
-      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
-
-      OpenStruct.new(response.body)
+      with_monitoring do
+        response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
+        OpenStruct.new(response.body)
+      end
     end
 
     private
