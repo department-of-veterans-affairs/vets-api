@@ -114,7 +114,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when forcing updates' do
       it 'skips saving API counts' do
-        job.perform(['claims_agent'])
+        job.perform(['agents'])
         expect(entity_counts).not_to have_received(:save_api_counts)
       end
     end
@@ -186,6 +186,24 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
           expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
             .with(individual_type: 'claims_agent', ogc_id: '123')
         end
+      end
+    end
+
+    context 'when both counts are invalid' do
+      before do
+        allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(false)
+      end
+
+      it 'logs errors for both counts and skips updates' do
+        expect(Rails.logger).to receive(:error).with(/decreased by more than/).twice
+        job.perform
+
+        # Verify no records were processed
+        expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
+          .with(individual_type: 'claims_agent', ogc_id: '123')
+        expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
+          .with(individual_type: 'attorney', ogc_id: '789')
       end
     end
   end
@@ -527,6 +545,80 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect(Rails.logger).to have_received(:error)
           .with("#{error_text_heading} #{error_text_message}")
       end
+    end
+  end
+
+  describe '#validate_agent_addresses' do
+    before do
+      # Set up the instance variable that the method will use
+      agent_data = [
+        { id: 1, address: { address_line1: '123 Main St' } },
+        { id: 2, address: { address_line1: '456 Oak Ave' } }
+      ]
+      job.instance_variable_set(:@agent_json_for_address_validation, agent_data)
+    end
+
+    it 'queues address validation jobs for agents' do
+      # Verify that the job is scheduled with the correct parameters
+      expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
+        .with(0.minutes, job.instance_variable_get(:@agent_json_for_address_validation).to_json)
+
+      # Call the method
+      job.send(:validate_agent_addresses)
+    end
+
+    it 'sets the batch description to agent-specific text' do
+      # Verify the batch gets the right description
+      expect(batch).to receive(:description=)
+        .with('Batching agent address updates from GCLAWS Accreditation API')
+
+      job.send(:validate_agent_addresses)
+    end
+
+    it 'does nothing when there are no agent addresses to validate' do
+      job.instance_variable_set(:@agent_json_for_address_validation, [])
+
+      # Should not create a batch
+      expect(Sidekiq::Batch).not_to receive(:new)
+
+      job.send(:validate_agent_addresses)
+    end
+  end
+
+  describe '#validate_attorney_addresses' do
+    before do
+      # Set up the instance variable that the method will use
+      attorney_data = [
+        { id: 3, address: { address_line1: '789 Pine St', city: 'Anytown' } },
+        { id: 4, address: { address_line1: '321 Elm St', city: 'Somewhere' } }
+      ]
+      job.instance_variable_set(:@attorney_json_for_address_validation, attorney_data)
+    end
+
+    it 'queues address validation jobs for attorneys' do
+      # Verify that the job is scheduled with the correct parameters
+      expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
+        .with(0.minutes, job.instance_variable_get(:@attorney_json_for_address_validation).to_json)
+
+      # Call the method
+      job.send(:validate_attorney_addresses)
+    end
+
+    it 'sets the batch description to attorney-specific text' do
+      # Verify the batch gets the right description
+      expect(batch).to receive(:description=)
+        .with('Batching attorney address updates from GCLAWS Accreditation API')
+
+      job.send(:validate_attorney_addresses)
+    end
+
+    it 'does nothing when there are no attorney addresses to validate' do
+      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+
+      # Should not create a batch
+      expect(Sidekiq::Batch).not_to receive(:new)
+
+      job.send(:validate_attorney_addresses)
     end
   end
 
