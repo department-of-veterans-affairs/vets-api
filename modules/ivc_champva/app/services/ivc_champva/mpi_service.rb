@@ -52,7 +52,7 @@ module IvcChampva
         person_type:
       }
     rescue => e
-      Rails.logger.error "Error extracting user attributes for #{person_type}: #{e.message}"
+      Rails.logger.error "Error extracting user attributes for #{person_type}: #{e.class.name}"
       nil
     end
 
@@ -63,14 +63,14 @@ module IvcChampva
         @monitor.track_mpi_profile_found(user_attributes[:person_type])
         response.profile
       else
-        @monitor.track_mpi_profile_not_found(user_attributes[:person_type], response.error&.message)
+        @monitor.track_mpi_profile_not_found(user_attributes[:person_type], 'MPI::Response::Error')
         nil
       end
-    rescue MPI::Errors::RecordNotFound => e
-      @monitor.track_mpi_profile_not_found(user_attributes[:person_type], e.message)
+    rescue MPI::Errors::RecordNotFound
+      @monitor.track_mpi_profile_not_found(user_attributes[:person_type], 'MPI::Errors::RecordNotFound')
       nil
     rescue MPI::Errors::FailedRequestError, StandardError => e
-      @monitor.track_mpi_service_error(user_attributes[:person_type], e.message)
+      @monitor.track_mpi_service_error(user_attributes[:person_type], e.class.name)
       nil
     end
 
