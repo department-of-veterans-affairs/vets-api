@@ -13,39 +13,26 @@ module PdfFill
     BODY_FOOTER_GAP = 27
 
     class Question
-      attr_accessor :section_index, :overflow
+      attr_accessor :section_index, :overflow, :config
 
-      def initialize(question_text, metadata, question_key = nil)
+      def initialize(question_text, metadata, config = nil)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
         @show_suffix = metadata[:show_suffix] || false
-        @question_key = question_key
+        @config = config
       end
 
       def numbered_label_markup
-        config = find_config_for_number
-        hide_number = config&.dig(:hide_question_num) || false
-
+        hide_number = @config&.dig(:hide_question_num) || false
         return "<h3>#{@text}</h3>" if hide_number || @number.blank?
 
         show_suffix = @subquestions.first&.dig(:metadata, :show_suffix)
         suffix = @subquestions.first&.dig(:metadata, :question_suffix)
         suffix_part = show_suffix && suffix.present? ? suffix.to_s.downcase : ''
         "<h3>#{@number}#{suffix_part}. #{@text}</h3>"
-      end
-
-      def find_config_for_number
-        return nil unless defined?(@question_key) && @question_key
-
-        config = @question_key.find { |q| q[:question_number].to_s.downcase == @number.to_s.downcase }
-        if !config && @number && @subquestions.first&.dig(:metadata, :question_suffix)
-          combined = "#{@number}#{@subquestions.first[:metadata][:question_suffix]}".downcase
-          config = @question_key.find { |q| q[:question_number].to_s.downcase == combined }
-        end
-        config
       end
 
       def add_text(value, metadata)
@@ -210,8 +197,8 @@ module PdfFill
     class CheckedDescriptionQuestion < Question
       attr_reader :description, :additional_info
 
-      def initialize(question_text, metadata, question_key = nil)
-        super(question_text, metadata, question_key)
+      def initialize(question_text, metadata, config = nil)
+        super(question_text, metadata, config)
         @description = nil
         @additional_info = nil
         @checked = false
@@ -272,8 +259,8 @@ module PdfFill
     class ListQuestion < Question
       attr_reader :items, :item_label
 
-      def initialize(question_text, metadata, question_key = nil)
-        super(question_text, metadata, question_key)
+      def initialize(question_text, metadata, config = nil)
+        super(question_text, metadata, config)
         @item_label = metadata[:item_label]
         @items = []
         @format_options = metadata[:format_options] || {}
@@ -286,9 +273,9 @@ module PdfFill
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
           @items[i] = if metadata[:question_type] == 'checked_description'
-                        CheckedDescriptionQuestion.new(nil, metadata, @question_key)
+                        CheckedDescriptionQuestion.new(nil, metadata, @config)
                       else
-                        Question.new(nil, metadata, @question_key)
+                        Question.new(nil, metadata, @config)
                       end
         end
 
@@ -383,36 +370,35 @@ module PdfFill
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
 
-      question_config = get_question_config(metadata)
-      question_text = question_config&.dig(:question_text)
-      question_number = question_config&.dig(:question_number)
-
-      @questions[question_number] = get_question(question_text, metadata) if @questions[question_number].blank?
-
+      config = find_question_config(metadata)
+      if config && @questions[config[:question_number]].blank?
+        @questions[config[:question_number]] = get_question(config[:question_text], metadata, config)
+      end
       value = apply_humanization(value, metadata[:format_options])
-      @questions[question_number].add_text(value, metadata)
+      @questions[config ? config[:question_number] : metadata[:question_num]]&.add_text(value, metadata)
     end
 
-    def get_question_config(metadata)
+    def get_question(question_text, metadata, config = nil)
+      config ||= find_question_config(metadata)
+      if metadata[:i].blank?
+        case metadata[:question_type]
+        when 'free_text'
+          FreeTextQuestion.new(question_text, metadata, config)
+        when 'checked_description'
+          CheckedDescriptionQuestion.new(question_text, metadata, config)
+        else
+          Question.new(question_text, metadata, config)
+        end
+      else
+        ListQuestion.new(question_text, metadata, config)
+      end
+    end
+
+    def find_question_config(metadata)
       @question_key.find do |q|
         q[:question_number].to_s.downcase == "#{metadata[:question_num]}#{metadata[:question_suffix]}".downcase
       end || @question_key.find do |q|
         q[:question_number].to_s.downcase == metadata[:question_num].to_s.downcase
-      end
-    end
-
-    def get_question(question_text, metadata)
-      if metadata[:i].blank?
-        case metadata[:question_type]
-        when 'free_text'
-          FreeTextQuestion.new(question_text, metadata, @question_key)
-        when 'checked_description'
-          CheckedDescriptionQuestion.new(question_text, metadata, @question_key)
-        else
-          Question.new(question_text, metadata, @question_key)
-        end
-      else
-        ListQuestion.new(question_text, metadata, @question_key)
       end
     end
 
@@ -430,9 +416,14 @@ module PdfFill
 
     def sort_generate_blocks
       populate_section_indices!
-      @questions.keys.sort_by { |q| [q[/\d+(?:\.\d+)?/].to_f, q[/[A-Za-z]+/] || ''] } # Sort by number and suffix
-                .map { |key| @questions[key] } # Get the questions
-                .filter(&:overflow) # Only include questions that have overflow
+      @questions.values
+                .select(&:overflow)
+                .sort_by do |question|
+        idx = @question_key.find_index do |q|
+          q[:question_number].to_s.downcase == question.instance_variable_get(:@number).to_s.downcase
+        end
+        idx || 9999
+      end
     end
 
     def measure_section_header_height(temp_pdf, section_index)

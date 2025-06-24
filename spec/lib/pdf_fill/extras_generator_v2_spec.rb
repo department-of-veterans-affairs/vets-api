@@ -29,14 +29,14 @@ describe PdfFill::ExtrasGeneratorV2 do
     describe '#numbered_label_markup' do
       context 'when show_suffix is true' do
         it 'appends suffix to question number when there is a single subquestion' do
-          config = [{ question_number: '5a', question_text: 'Test Question' }]
+          config = { question_number: '5a', question_text: 'Test Question' }
           question = described_class.new('Test Question', { question_num: '5a' }, config)
           question.add_text('Value', {})
           expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
         end
 
         it 'does not append suffix when there are multiple subquestions' do
-          config = [{ question_number: '5', question_text: 'Test Question' }]
+          config = { question_number: '5', question_text: 'Test Question' }
           question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value1', { question_suffix: 'A' })
           question.add_text('Value2', { question_suffix: 'B' })
@@ -45,7 +45,7 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
 
         it 'handles nil suffix gracefully' do
-          config = [{ question_number: '5', question_text: 'Test Question' }]
+          config = { question_number: '5', question_text: 'Test Question' }
           question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value', {})
 
@@ -55,7 +55,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when show_suffix is false' do
         it 'does not append suffix to question number' do
-          config = [{ question_number: '5', question_text: 'Test Question' }]
+          config = { question_number: '5', question_text: 'Test Question' }
           question = described_class.new('Test Question', { question_num: '5', show_suffix: false }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
@@ -65,7 +65,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when number is not an integer' do
         it 'includes the prefix for non-integer question numbers' do
-          config = [{ question_number: '5.2', question_text: 'Test Question' }]
+          config = { question_number: '5.2', question_text: 'Test Question' }
           question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
@@ -75,7 +75,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when question_number and question_num are both string "10c"' do
         it 'renders 10c. for string match' do
-          config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)' }]
+          config = { question_number: '10c', question_text: 'Additional Behavioral Change(s)' }
           question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
           question.add_text('Value', {})
           expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
@@ -83,14 +83,14 @@ describe PdfFill::ExtrasGeneratorV2 do
       end
 
       it 'falls back to just question_number when display_suffix is missing' do
-        config = [{ question_number: '11.5', question_text: 'Police report location(s)' }]
+        config = { question_number: '11.5', question_text: 'Police report location(s)' }
         question = described_class.new('Police report location(s)', { question_num: '11.5' }, config)
         question.add_text('Value', {})
         expect(question.numbered_label_markup).to eq('<h3>11.5. Police report location(s)</h3>')
       end
 
       it 'falls back to just number if no config match' do
-        config = [{ question_number: '99', question_text: 'Non-matching' }]
+        config = { question_number: '99', question_text: 'Non-matching' }
         question = described_class.new('Test Question', { question_num: '100' }, config)
         question.add_text('Value', {})
         expect(question.numbered_label_markup).to eq('<h3>100. Test Question</h3>')
@@ -98,8 +98,8 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when hide_question_num is true in config' do
         it 'does not display the question number in the label' do
-          config = [{ question_number: '10c', question_text: 'Additional Behavioral Change(s)',
-                      hide_question_num: true }]
+          config = { question_number: '10c', question_text: 'Additional Behavioral Change(s)',
+                     hide_question_num: true }
           question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
           question.add_text('Value', {})
           expect(question.numbered_label_markup).to eq('<h3>Additional Behavioral Change(s)</h3>')
