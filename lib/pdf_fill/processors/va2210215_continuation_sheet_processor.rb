@@ -106,9 +106,7 @@ module PdfFill
       end
 
       def cleanup_temporary_files
-        @pdf_files.each do |file|
-          FileUtils.rm_f(file)
-        end
+        FileUtils.rm_f(@pdf_files)
       end
 
       def remaining_programs

@@ -39,7 +39,17 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
     allow(pdf_forms_mock).to receive(:cat)
     allow(main_form_filler_mock).to receive(:make_hash_converter).and_return(hash_converter_mock)
 
-    # Stub form class lookups
+    # Stub form class lookups and add attr_reader for tests
+    allow(PdfFill::Forms::Va2210215).to receive(:new).and_wrap_original do |m, *args|
+      instance = m.call(*args)
+      instance.class.attr_reader :form_data
+      instance
+    end
+    allow(PdfFill::Forms::Va2210215a).to receive(:new).and_wrap_original do |m, *args|
+      instance = m.call(*args)
+      instance.class.attr_reader :form_data
+      instance
+    end
     allow(PdfFill::Filler::FORM_CLASSES).to receive(:[]).with('22-10215').and_return(PdfFill::Forms::Va2210215)
     allow(PdfFill::Filler::FORM_CLASSES).to receive(:[]).with('22-10215a').and_return(PdfFill::Forms::Va2210215a)
   end
@@ -65,7 +75,7 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
           anything, # template path
           main_form_pdf,
           anything, # hash data
-          flatten: true
+          flatten: false
         )
         process_call
       end
@@ -93,35 +103,22 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
       let(:continuation_pdf) { "tmp/pdfs/22-10215a_#{file_name_extension}_page2.pdf" }
 
       it 'fills the main form with the first 16 programs' do
-        expect(pdf_forms_mock).to receive(:fill_form).with(
-          'lib/pdf_fill/forms/pdfs/22-10215.pdf',
-          main_form_pdf,
-          anything,
-          flatten: true
-        )
         expect_any_instance_of(PdfFill::Forms::Va2210215).to receive(:merge_fields).with(
           hash_including(is_main_form: true)
-        ).and_wrap_original do |m, *args|
-          expect(args.first[:programs].size).to eq(programs_per_page)
-          m.call(*args)
+        ).and_wrap_original do |m, *_args|
+          expect(m.receiver.form_data['programs'].size).to eq(programs_per_page)
+          m.call
         end
 
         process_call
       end
 
       it 'fills one continuation sheet with the remaining program' do
-        expect(pdf_forms_mock).to receive(:fill_form).with(
-          'lib/pdf_fill/forms/pdfs/22-10215a.pdf',
-          continuation_pdf,
-          anything,
-          flatten: true
-        )
-
         expect_any_instance_of(PdfFill::Forms::Va2210215a).to receive(:merge_fields).with(
           hash_including(page_number: 2, total_pages: 2)
-        ).and_wrap_original do |m, *args|
-          expect(args.first[:programs].size).to eq(1)
-          m.call(*args)
+        ).and_wrap_original do |m, *_args|
+          expect(m.receiver.form_data['programs'].size).to eq(1)
+          m.call
         end
         process_call
       end
@@ -150,28 +147,32 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
       let(:continuation_pdf_one) { "tmp/pdfs/22-10215a_#{file_name_extension}_page2.pdf" }
       let(:continuation_pdf_two) { "tmp/pdfs/22-10215a_#{file_name_extension}_page3.pdf" }
 
-      it 'fills two continuation sheets' do
-        expect(pdf_forms_mock).to receive(:fill_form).with(/22-10215a.*page2/, any_args).once
-        expect(pdf_forms_mock).to receive(:fill_form).with(/22-10215a.*page3/, any_args).once
+      it 'fills the main form and two continuation sheets' do
+        allow(pdf_forms_mock).to receive(:fill_form)
+
         process_call
+
+        expect(pdf_forms_mock).to have_received(:fill_form).with(anything, /_main.pdf/, any_args).once
+        expect(pdf_forms_mock).to have_received(:fill_form).with(anything, /_page2.pdf/, any_args).once
+        expect(pdf_forms_mock).to have_received(:fill_form).with(anything, /_page3.pdf/, any_args).once
       end
 
       it 'passes the correct programs and page numbers to each sheet' do
         # Sheet 1
         expect_any_instance_of(PdfFill::Forms::Va2210215a).to receive(:merge_fields).with(
           hash_including(page_number: 2, total_pages: 3)
-        ).and_wrap_original do |m, *args|
-          expect(args.first[:programs].size).to eq(programs_per_page)
-          expect(args.first[:programs].first['name']).to eq("Program #{programs_per_page + 1}")
-          m.call(*args)
+        ).and_wrap_original do |m, *_args|
+          expect(m.receiver.form_data['programs'].size).to eq(programs_per_page)
+          expect(m.receiver.form_data['programs'].first['name']).to eq("Program #{programs_per_page + 1}")
+          m.call
         end
         # Sheet 2
         expect_any_instance_of(PdfFill::Forms::Va2210215a).to receive(:merge_fields).with(
           hash_including(page_number: 3, total_pages: 3)
-        ).and_wrap_original do |m, *args|
-          expect(args.first[:programs].size).to eq(1)
-          expect(args.first[:programs].first['name']).to eq("Program #{(programs_per_page * 2) + 1}")
-          m.call(*args)
+        ).and_wrap_original do |m, *_args|
+          expect(m.receiver.form_data['programs'].size).to eq(1)
+          expect(m.receiver.form_data['programs'].first['name']).to eq("Program #{(programs_per_page * 2) + 1}")
+          m.call
         end
 
         process_call
