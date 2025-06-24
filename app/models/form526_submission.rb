@@ -171,10 +171,8 @@ class Form526Submission < ApplicationRecord
     name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
-    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
-      middle: nil,
-      last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil }
+    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize, middle: nil,
+      last: auth_headers&.dig('va_eauth_lastName')&.capitalize, suffix: nil }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
@@ -523,13 +521,7 @@ class Form526Submission < ApplicationRecord
     response_struct = Struct.new(:status, :body)
     mock_response = response_struct.new(status || 609, nil)
 
-    mock_response.body = {
-      'errors' => [
-        {
-          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
-        }
-      ]
-    }
+    mock_response.body = { 'errors' => [{ 'title' => "Response Status Code '#{mock_response.status}' - #{error}" }] }
 
     @lighthouse_validation_response = mock_response
   end
@@ -564,12 +556,28 @@ class Form526Submission < ApplicationRecord
   end
 
   def submit_uploads
-    # Put uploads on a one minute delay because of shared workload with EVSS
     uploads = form[FORM_526_UPLOADS]
-    delay = 60.seconds
-    uploads.each do |upload|
+    tags = ["form_id:#{FORM_526}", "submission_id:#{id}"]
+
+    # Send the count of uploads to StatsD, happens before return to capture claims with no uploads
+    StatsD.gauge('form526.uploads.count', uploads.count, tags:)
+    return if uploads.blank?
+
+    # This happens only when there is 1+ uploads, otherwise will error out
+    uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
+    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags:)
+
+    offset = 60.seconds
+    uniqueness_tracker = {}
+
+    uploads.each_with_index do |upload, i|
+      key = "#{upload['name']}_#{upload['size']}"
+      uniqueness_tracker[key] ||= 1
+      delay = offset + (i * offset) + [0, (offset * (uniqueness_tracker[key] - 1 - i))].max
+
+      StatsD.gauge('form526.uploads.delay', delay, tags:)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
-      delay += 15.seconds
+      uniqueness_tracker[key] += 5
     end
   end
 
