@@ -53,7 +53,10 @@ module AccreditedRepresentativePortal
       end
 
       def scope_includes
-        [{ saved_claim: %i[lighthouse_submissions persistent_attachments] }]
+        [{ saved_claim: [
+          { form_submissions: :form_submission_attempts },
+          %i[form_attachment persistent_attachments]
+        ] }]
       end
     end
   end

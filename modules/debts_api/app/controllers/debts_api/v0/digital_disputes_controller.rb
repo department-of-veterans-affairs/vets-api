@@ -5,7 +5,7 @@ require 'debts_api/v0/digital_dispute_submission_service'
 module DebtsApi
   module V0
     class DigitalDisputesController < ApplicationController
-      service_tag 'financial-report'
+      service_tag 'debt-resolution'
 
       def create
         StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.initiated")
@@ -24,7 +24,7 @@ module DebtsApi
       private
 
       def process_submission
-        service = DigitalDisputeSubmissionService.new(submission_params[:files])
+        service = DigitalDisputeSubmissionService.new(current_user, submission_params[:files])
         service.call
       end
 
