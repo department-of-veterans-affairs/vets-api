@@ -5,8 +5,7 @@ require_relative '../../../app/services/ivc_champva/mpi_service'
 require_relative '../../../lib/ivc_champva/monitor'
 
 RSpec.describe IvcChampva::MpiService do
-  let(:form_id) { 'vha_10_10d' }
-  let(:service) { described_class.new(form_id) }
+  let(:service) { described_class.new }
   let(:mock_mpi_service) { instance_double(MPI::Service) }
   let(:mock_monitor) { instance_double(IvcChampva::Monitor) }
 

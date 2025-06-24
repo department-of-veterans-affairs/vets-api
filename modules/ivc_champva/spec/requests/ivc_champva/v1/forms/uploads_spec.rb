@@ -1046,7 +1046,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       it 'calls MpiService.validate_profiles' do
         controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
 
-        expect(IvcChampva::MpiService).to have_received(:new).with('vha_10_10d')
+        expect(IvcChampva::MpiService).to have_received(:new).with(no_args)
         expect(mock_mpi_service).to have_received(:validate_profiles).with(parsed_form_data)
       end
     end

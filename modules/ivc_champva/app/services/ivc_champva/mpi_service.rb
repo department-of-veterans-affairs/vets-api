@@ -4,9 +4,8 @@ require 'mpi/service'
 
 module IvcChampva
   class MpiService
-    def initialize(form_id = nil)
+    def initialize
       @mpi_service = MPI::Service.new
-      @form_id = form_id
       @monitor = IvcChampva::Monitor.new
     end
 
@@ -61,17 +60,17 @@ module IvcChampva
       response = get_mpi_profile(user_attributes)
 
       if response.ok?
-        @monitor.track_mpi_profile_found(user_attributes[:person_type], @form_id)
+        @monitor.track_mpi_profile_found(user_attributes[:person_type])
         response.profile
       else
-        @monitor.track_mpi_profile_not_found(user_attributes[:person_type], @form_id, response.error&.message)
+        @monitor.track_mpi_profile_not_found(user_attributes[:person_type], response.error&.message)
         nil
       end
     rescue MPI::Errors::RecordNotFound => e
-      @monitor.track_mpi_profile_not_found(user_attributes[:person_type], @form_id, e.message)
+      @monitor.track_mpi_profile_not_found(user_attributes[:person_type], e.message)
       nil
     rescue MPI::Errors::FailedRequestError, StandardError => e
-      @monitor.track_mpi_service_error(user_attributes[:person_type], @form_id, e.message)
+      @monitor.track_mpi_service_error(user_attributes[:person_type], e.message)
       nil
     end
 

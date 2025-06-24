@@ -173,13 +173,11 @@ module IvcChampva
     # Logs when an MPI profile is successfully found
     #
     # @param [String] person_type Type of person ('applicant' or 'veteran')
-    # @param [String] form_id The form ID being processed
-    def track_mpi_profile_found(person_type, form_id)
+    def track_mpi_profile_found(person_type)
       additional_context = {
-        person_type:,
-        form_id:
+        person_type:
       }
-      track_request('info', "IVC ChampVA Forms - MPI profile found for #{person_type} on #{form_id}",
+      track_request('info', "IVC ChampVA Forms - MPI profile found for #{person_type}",
                     "#{STATS_KEY}.mpi_profile.found",
                     call_location: caller_locations.first, **additional_context)
     end
@@ -188,15 +186,13 @@ module IvcChampva
     # Logs when an MPI profile is not found
     #
     # @param [String] person_type Type of person ('applicant' or 'veteran')
-    # @param [String] form_id The form ID being processed
     # @param [String] error_message Optional error message from MPI service
-    def track_mpi_profile_not_found(person_type, form_id, error_message = nil)
+    def track_mpi_profile_not_found(person_type, error_message = nil)
       additional_context = {
         person_type:,
-        form_id:,
         error_message:
       }.compact
-      track_request('warn', "IVC ChampVA Forms - MPI profile not found for #{person_type} on #{form_id}",
+      track_request('warn', "IVC ChampVA Forms - MPI profile not found for #{person_type}",
                     "#{STATS_KEY}.mpi_profile.not_found",
                     call_location: caller_locations.first, **additional_context)
     end
@@ -205,15 +201,13 @@ module IvcChampva
     # Logs when an MPI service call fails
     #
     # @param [String] person_type Type of person ('applicant' or 'veteran')
-    # @param [String] form_id The form ID being processed
     # @param [String] error_message Error message from MPI service
-    def track_mpi_service_error(person_type, form_id, error_message)
+    def track_mpi_service_error(person_type, error_message)
       additional_context = {
         person_type:,
-        form_id:,
         error_message:
       }
-      track_request('error', "IVC ChampVA Forms - MPI service error for #{person_type} on #{form_id}: #{error_message}",
+      track_request('error', "IVC ChampVA Forms - MPI service error for #{person_type}: #{error_message}",
                     "#{STATS_KEY}.mpi_profile.error",
                     call_location: caller_locations.first, **additional_context)
     end
