@@ -51,9 +51,13 @@ module PdfFill
 
       def generate_main_form
         main_form_path = "#{@folder}/22-10215_#{@file_name_extension}_main.pdf"
+        
+        main_form_data = @form_data.merge('programs' => @programs.first(PROGRAMS_PER_PAGE))
+        main_form_data['checkbox'] = 'X'
+
         fill_pdf_form(
           form_id: '22-10215',
-          form_data: @form_data.merge('programs' => @programs.first(PROGRAMS_PER_PAGE)),
+          form_data: main_form_data,
           output_path: main_form_path,
           template_path: MAIN_FORM_PDF_PATH,
           is_main_form: true

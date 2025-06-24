@@ -153,13 +153,6 @@ module PdfFill
           official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
         end
 
-        # For overflow scenarios, limit programs to first 16 only and set checkbox
-        if options[:is_main_form] && form_data['programs'] && form_data['programs'].length > 16
-          form_data['programs'] = form_data['programs'].first(16)
-          # Set checkbox to indicate extensions are attached
-          form_data['checkbox'] = 'X'
-        end
-
         # Process programs array - add programDateOfCalculation for each valid row
         if form_data['programs'] && form_data['institutionDetails'] &&
            form_data['institutionDetails']['dateOfCalculations']
