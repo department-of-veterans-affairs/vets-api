@@ -6,7 +6,7 @@ require 'pdf_fill/filler' # The main filler module is the delegate for make_hash
 
 describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
   # Mock all external dependencies to isolate the processor logic
-  let(:pdf_forms_mock) { instance_double(PdfForms) }
+  let(:pdf_forms_mock) { double('PdfForms') }
   let(:file_utils_mock) { class_double(FileUtils) }
   let(:main_form_filler_mock) { PdfFill::Filler }
   let(:hash_converter_mock) do
@@ -118,7 +118,7 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
         )
 
         expect_any_instance_of(PdfFill::Forms::Va2210215a).to receive(:merge_fields).with(
-          hash_including(page_number: 2, total_pages: 2) # This tests the buggy `total_pages_count`
+          hash_including(page_number: 2, total_pages: 2)
         ).and_wrap_original do |m, *args|
           expect(args.first[:programs].size).to eq(1)
           m.call(*args)
@@ -159,7 +159,7 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
       it 'passes the correct programs and page numbers to each sheet' do
         # Sheet 1
         expect_any_instance_of(PdfFill::Forms::Va2210215a).to receive(:merge_fields).with(
-          hash_including(page_number: 2, total_pages: 3) # This tests the buggy `total_pages_count`
+          hash_including(page_number: 2, total_pages: 3)
         ).and_wrap_original do |m, *args|
           expect(args.first[:programs].size).to eq(programs_per_page)
           expect(args.first[:programs].first['name']).to eq("Program #{programs_per_page + 1}")
@@ -167,7 +167,7 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
         end
         # Sheet 2
         expect_any_instance_of(PdfFill::Forms::Va2210215a).to receive(:merge_fields).with(
-          hash_including(page_number: 3, total_pages: 3) # This tests the buggy `total_pages_count`
+          hash_including(page_number: 3, total_pages: 3)
         ).and_wrap_original do |m, *args|
           expect(args.first[:programs].size).to eq(1)
           expect(args.first[:programs].first['name']).to eq("Program #{(programs_per_page * 2) + 1}")

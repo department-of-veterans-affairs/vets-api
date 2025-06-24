@@ -116,7 +116,7 @@ module PdfFill
       end
 
       def total_pages_count
-        1 + ((remaining_programs.length - 1).to_f / PROGRAMS_PER_PAGE).ceil
+        1 + (remaining_programs.length.to_f / PROGRAMS_PER_PAGE).ceil
       end
 
       def log_completion(_final_file_path)
