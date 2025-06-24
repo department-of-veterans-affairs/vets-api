@@ -3,28 +3,33 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
+  def address_attributes
+    {
+      address_line1: '123 East Main St',
+      address_line2: 'Suite 1',
+      address_line3: 'Address Line 3',
+      city: 'My City',
+      state_code: 'ZZ',
+      zip_code: '12345',
+      zip_suffix: '6789',
+      country_code_iso3: 'USA',
+      country_name: 'United States of America',
+      province: 'A Province',
+      international_postal_code: '12345',
+      address_type: 'DOMESTIC'
+    }
+  end
+
   def create_accredited_individual
     create(:accredited_individual,
-           id:,
-           first_name: 'Bob',
-           last_name: 'Law',
-           address_line1: '123 East Main St',
-           address_line2: 'Suite 1',
-           address_line3: 'Address Line 3',
-           address_type: 'DOMESTIC',
-           city: 'My City',
-           country_name: 'United States of America',
-           country_code_iso3: 'USA',
-           province: 'A Province',
-           international_postal_code: '12345',
-           state_code: 'ZZ',
-           zip_code: '12345',
-           zip_suffix: '6789',
-           lat: '39',
-           long: '-75',
-           email: 'email@example.com',
-           location: 'POINT(-75 39)',
-           phone: '111-111-1111')
+           { id:,
+             first_name: 'Bob',
+             last_name: 'Law',
+             lat: '39',
+             long: '-75',
+             email: 'email@example.com',
+             location: 'POINT(-75 39)',
+             phone: '111-111-1111' }.merge(address_attributes))
   end
   describe '#perform' do
     let(:json_data) do
@@ -100,7 +105,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          "RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
+          'RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: ' \
+          "unexpected character: 'invalid json' at line 1 column 1"
         )
 
         subject.perform(invalid_json_data)
@@ -112,7 +118,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          a_string_matching(/RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: Couldn't find AccreditedIndividual with 'id'=not_found/)
+          'RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: ' \
+          "Couldn't find AccreditedIndividual with 'id'=not_found"
         )
 
         subject.perform(json_data)
@@ -388,26 +395,14 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
   describe 'V3/AddressValidation' do
     def create_accredited_individual
       create(:accredited_individual,
-             id:,
-             first_name: 'Bob',
-             last_name: 'Law',
-             address_line1: '123 East Main St',
-             address_line2: 'Suite 1',
-             address_line3: 'Address Line 3',
-             address_type: 'DOMESTIC',
-             city: 'My City',
-             country_name: 'United States of America',
-             country_code_iso3: 'USA',
-             province: 'A Province',
-             international_postal_code: '12345',
-             state_code: 'ZZ',
-             zip_code: '12345',
-             zip_suffix: '6789',
-             lat: '39',
-             long: '-75',
-             email: 'email@example.com',
-             location: 'POINT(-75 39)',
-             phone: '111-111-1111')
+             { id:,
+               first_name: 'Bob',
+               last_name: 'Law',
+               lat: '39',
+               long: '-75',
+               email: 'email@example.com',
+               location: 'POINT(-75 39)',
+               phone: '111-111-1111' }.merge(address_attributes))
     end
     describe '#perform V3/AddressValidation' do
       let(:json_data) do
@@ -479,7 +474,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            "RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
+            'RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: ' \
+            "'invalid json' at line 1 column 1"
           )
 
           subject.perform(invalid_json_data)
@@ -491,7 +487,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            a_string_matching(/RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: Couldn't find AccreditedIndividual with 'id'=not_found/)
+            'RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: ' \
+            "Couldn't find AccreditedIndividual with 'id'=not_found"
           )
 
           subject.perform(json_data)
