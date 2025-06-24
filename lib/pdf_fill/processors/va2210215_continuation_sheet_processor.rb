@@ -51,7 +51,7 @@ module PdfFill
 
       def generate_main_form
         main_form_path = "#{@folder}/22-10215_#{@file_name_extension}_main.pdf"
-        
+
         main_form_data = @form_data.merge('programs' => @programs.first(PROGRAMS_PER_PAGE))
         main_form_data['checkbox'] = 'X'
 

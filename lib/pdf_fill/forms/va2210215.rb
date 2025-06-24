@@ -143,7 +143,7 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields(options = {})
+      def merge_fields(_options = {})
         # Deep copy to avoid modifying original data
         form_data = JSON.parse(JSON.generate(@form_data))
 
