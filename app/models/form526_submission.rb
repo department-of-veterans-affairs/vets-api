@@ -557,7 +557,7 @@ class Form526Submission < ApplicationRecord
 
   def submit_uploads
     uploads = form[FORM_526_UPLOADS]
-    tags = ["form526_submission_id:#{id}"]
+    tags = ["form_id:#{FORM_526}","submission_id:#{id}"]
     offset = 60.seconds
 
     # Log upload stats
