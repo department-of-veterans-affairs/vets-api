@@ -198,7 +198,7 @@ module PdfFill
     #
     # @return [String] The path to the combined PDF form.
     #
-    def process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options = {})
+    def process_form_with_continuation_sheets(_form_id, form_data, _form_class, file_name_extension, fill_options = {})
       processor = PdfFill::Processors::VA2210215ContinuationSheetProcessor.new(
         form_data,
         file_name_extension,
