@@ -51,25 +51,50 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         )
       end
 
-      it 'initializes VaNotify service with callback options' do
-        expected_callback_options = {
-          callback_klass: 'Eps::AppointmentStatusNotificationCallback',
-          callback_metadata: {
-            user_uuid:,
-            appointment_id_last4:,
-            statsd_tags: {
-              service: 'vaos',
-              function: 'appointment_submission_failure_notification'
+      context 'when vaos_appointment_notification_callback feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vaos_appointment_notification_callback)
+            .and_return(true)
+        end
+
+        it 'initializes VaNotify service with callback options' do
+          expected_callback_options = {
+            callback_klass: 'Eps::AppointmentStatusNotificationCallback',
+            callback_metadata: {
+              user_uuid:,
+              appointment_id_last4:,
+              statsd_tags: {
+                service: 'vaos',
+                function: 'appointment_submission_failure_notification'
+              }
             }
           }
-        }
 
-        subject.perform(user_uuid, appointment_id_last4, error_message)
+          subject.perform(user_uuid, appointment_id_last4, error_message)
 
-        expect(VaNotify::Service).to have_received(:new).with(
-          Settings.vanotify.services.va_gov.api_key,
-          expected_callback_options
-        )
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.va_gov.api_key,
+            expected_callback_options
+          )
+        end
+      end
+
+      context 'when vaos_appointment_notification_callback feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vaos_appointment_notification_callback)
+            .and_return(false)
+        end
+
+        it 'initializes VaNotify service without callback options' do
+          subject.perform(user_uuid, appointment_id_last4, error_message)
+
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.va_gov.api_key,
+            nil
+          )
+        end
       end
     end
 

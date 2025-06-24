@@ -108,19 +108,7 @@ module Eps
     # @return [void]
     #
     def send_notification_email(email:, user_uuid:, appointment_id_last4:, error:)
-      callback_options = {
-        callback_klass: 'Eps::AppointmentStatusNotificationCallback',
-        callback_metadata: {
-          user_uuid:,
-          appointment_id_last4:,
-          statsd_tags: {
-            service: 'vaos',
-            function: 'appointment_submission_failure_notification'
-          }
-        }
-      }
-
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options)
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, email_callback_options(user_uuid, appointment_id_last4))
 
       notify_client.send_email(
         email_address: email,
@@ -185,6 +173,22 @@ module Eps
                   "#{error.class.name} - #{error.message}"
         self.class.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: true)
       end
+    end
+
+    def email_callback_options(user_uuid, appointment_id_last4)
+      return unless Flipper.enabled?(:vaos_appointment_notification_callback)
+
+      {
+        callback_klass: 'Eps::AppointmentStatusNotificationCallback',
+        callback_metadata: {
+          user_uuid:,
+          appointment_id_last4:,
+          statsd_tags: {
+            service: 'vaos',
+            function: 'appointment_submission_failure_notification'
+          }
+        }
+      }
     end
   end
 end
