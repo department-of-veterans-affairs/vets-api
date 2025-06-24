@@ -569,11 +569,11 @@ class Form526Submission < ApplicationRecord
     uploads = form[FORM_526_UPLOADS]
     delay = 60.seconds
     uploads.each do |upload|
-      key = "#{upload['name']-upload['size']}"
+      key = (upload['name'] - upload['size']).to_s
       uniqueness_tracker[key] ||= 1
       delay += 60.seconds * uniqness_tracker[key]
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
-      uniqness_tracker[key] += 5      
+      uniqness_tracker[key] += 5
     end
   end
 
