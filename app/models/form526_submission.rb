@@ -74,6 +74,7 @@ class Form526Submission < ApplicationRecord
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
   ZSF_DD_TAG_SERVICE = 'disability-application'
+  UPLOAD_DELAY_BASE = 60.seconds
 
   # the keys of the Toxic Exposure details for each section
   TOXIC_EXPOSURE_DETAILS_MAPPING = {
@@ -555,6 +556,20 @@ class Form526Submission < ApplicationRecord
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
+  def calc_submit_delays(upload_index, key, uniqueness_tracker)
+    # delay the same amount for each subsequent
+    delay_per_upload = (upload_index * UPLOAD_DELAY_BASE)
+    # UPLOAD_DELAY_BASE = basis of how much to delay
+    # uniqueness_tracker[key] the value of the key (the factor to multiple the base delay by)
+    # This increments by 5 for each upload with the same name and size
+    # We need to subtract 1 from the uniqueness_tracker[key] to account for the first upload
+    # and then subtract the upload_index to account for the current upload which is already being summed in by delay_per_upload
+    # we take the maximum of 0 and the calculated delay to avoid negative delays
+    dup_delay = [0, (UPLOAD_DELAY_BASE * (uniqueness_tracker[key] - 1 - upload_index))].max
+    # final amount to delay
+    UPLOAD_DELAY_BASE + delay_per_upload + dup_delay
+  end
+
   def submit_uploads
     uploads = form[FORM_526_UPLOADS]
     tags = ["form_id:#{FORM_526}", "submission_id:#{id}"]
@@ -567,14 +582,11 @@ class Form526Submission < ApplicationRecord
     uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
     StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags:)
 
-    offset = 60.seconds
     uniqueness_tracker = {}
-
-    uploads.each_with_index do |upload, i|
+    uploads.each_with_index do |upload, upload_index|
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
-      delay = offset + (i * offset) + [0, (offset * (uniqueness_tracker[key] - 1 - i))].max
-
+      delay = calc_submit_delays(upload_index, key, uniqueness_tracker)
       StatsD.gauge('form526.uploads.delay', delay, tags:)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
       uniqueness_tracker[key] += 5
