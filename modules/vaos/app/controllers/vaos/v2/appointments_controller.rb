@@ -76,18 +76,18 @@ module VAOS
         begin
           response_data = process_draft_appointment(referral_id, referral_consult_id)
           if response_data[:success]
-            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC)
+            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
             ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
             render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
           else
-            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
             render json: response_data[:json], status: response_data[:status]
           end
         rescue Redis::BaseError => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
           handle_redis_error(e)
         rescue => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
           handle_appointment_creation_error(e)
         end
       end
@@ -124,16 +124,17 @@ module VAOS
         )
 
         if appointment[:error]
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC,
+                           tags: ["error_type:#{appointment[:error]}", 'Community Care Appointments'])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         log_referral_booking_duration(params[:referral_number])
 
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
         handle_appointment_creation_error(e)
       end
 
@@ -811,7 +812,7 @@ module VAOS
         return unless start_time
 
         duration_ms = ((Time.current.to_f - start_time) * 1000).round
-        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms)
+        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms, tags: ['Community Care Appointments'])
       end
     end
   end
