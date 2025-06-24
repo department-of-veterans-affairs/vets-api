@@ -557,16 +557,19 @@ class Form526Submission < ApplicationRecord
 
   def submit_uploads
     uploads = form[FORM_526_UPLOADS]
-    tags = ["form_id:#{FORM_526}","submission_id:#{id}"]
-    offset = 60.seconds
+    tags = ["form_id:#{FORM_526}", "submission_id:#{id}"]
 
-    # Log upload stats
-    uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
+    # Send the count of uploads to StatsD, happens before return to capture claims with no uploads
     StatsD.gauge('form526.uploads.count', uploads.count, tags:)
+    return if uploads.blank?
+
+    # This happens only when there is 1+ uploads, otherwise will error out
+    uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
     StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags:)
 
-    # Schedule jobs with appropriate delays
+    offset = 60.seconds
     uniqueness_tracker = {}
+
     uploads.each do |upload|
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
