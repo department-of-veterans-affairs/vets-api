@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Representatives::Update do
+RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
   def create_accredited_individual
     create(:accredited_individual,
            first_name: 'Bob',
@@ -99,7 +99,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          "Representatives::Update: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
+          "RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
         )
 
         subject.perform(invalid_json_data)
@@ -111,7 +111,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          a_string_matching(/Representatives::Update:.*not_found.*Representative not found/)
+          a_string_matching(/RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: Couldn't find AccreditedIndividual with 'id'=not_found/)
         )
 
         subject.perform(json_data)
@@ -477,7 +477,7 @@ RSpec.describe Representatives::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            "Representatives::Update: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
+            "RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
           )
 
           subject.perform(invalid_json_data)
@@ -489,7 +489,7 @@ RSpec.describe Representatives::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            a_string_matching(/Representatives::Update:.*not_found.*Representative not found/)
+            a_string_matching(/RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: Couldn't find AccreditedIndividual with 'id'=not_found/)
           )
 
           subject.perform(json_data)
