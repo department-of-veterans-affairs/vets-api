@@ -220,7 +220,7 @@ module VBADocuments
         self.code = 'DOC202'
         self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
-        Rails.logger.warn('Unknown status value from EMMS API.', { guid:, central_mail_status: status })
+        Rails.logger.warn('Unknown status value from Central Mail API.', { guid:, central_mail_status: status })
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
     end
