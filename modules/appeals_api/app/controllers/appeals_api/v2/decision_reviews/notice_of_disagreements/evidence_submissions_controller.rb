@@ -80,7 +80,7 @@ module AppealsApi::V2
         end
 
         def log_error(error_detail)
-          Rails.logger.warn('NOD Evidence Submission Validation Error', 
+          Rails.logger.warn('NOD Evidence Submission Validation Error',
                             { error_message: EvidenceSubmissionRequestValidatorError.new(error_detail).message })
 
           error_detail
