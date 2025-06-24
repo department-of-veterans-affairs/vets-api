@@ -41,6 +41,16 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
         subject
       end
     end
+
+    context 'when the request is for a normal route' do
+      let(:path_prefix) { '' }
+
+      it 'applies OliveBranch processing' do
+        expect(OliveBranch::Transformations).to receive(:underscore_params)
+        expect(OliveBranch::Transformations).to receive(:transform)
+        subject
+      end
+    end
   end
 
   context 'the request is in developement and accredited_representative_portal_normalize_path is enabled' do
@@ -55,6 +65,16 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
       it 'bypasses OliveBranch processing' do
         expect(OliveBranch::Transformations).not_to receive(:underscore_params)
         expect(OliveBranch::Transformations).not_to receive(:transform)
+        subject
+      end
+    end
+
+    context 'when the request is for a normal route' do
+      let(:path_prefix) { '' }
+
+      it 'applies OliveBranch processing' do
+        expect(OliveBranch::Transformations).to receive(:underscore_params)
+        expect(OliveBranch::Transformations).to receive(:transform)
         subject
       end
     end
@@ -78,6 +98,16 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
         subject
       end
     end
+
+    context 'when the request is for a normal route' do
+      let(:path_prefix) { '' }
+
+      it 'applies OliveBranch processing' do
+        expect(OliveBranch::Transformations).to receive(:underscore_params)
+        expect(OliveBranch::Transformations).to receive(:transform)
+        subject
+      end
+    end
   end
 
   context 'the request is in staging and accredited_representative_portal_normalize_path is enabled' do
@@ -96,15 +126,15 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
         subject
       end
     end
-  end
 
-  context 'when the request is for a normal route' do
-    let(:path_prefix) { '' }
+    context 'when the request is for a normal route' do
+      let(:path_prefix) { '' }
 
-    it 'applies OliveBranch processing' do
-      expect(OliveBranch::Transformations).to receive(:underscore_params)
-      expect(OliveBranch::Transformations).to receive(:transform)
-      subject
+      it 'applies OliveBranch processing' do
+        expect(OliveBranch::Transformations).to receive(:underscore_params)
+        expect(OliveBranch::Transformations).to receive(:transform)
+        subject
+      end
     end
   end
 end
