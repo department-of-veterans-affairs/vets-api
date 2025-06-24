@@ -523,13 +523,7 @@ class Form526Submission < ApplicationRecord
     response_struct = Struct.new(:status, :body)
     mock_response = response_struct.new(status || 609, nil)
 
-    mock_response.body = {
-      'errors' => [
-        {
-          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
-        }
-      ]
-    }
+    mock_response.body = { 'errors' => [{ 'title' => "Response Status Code '#{mock_response.status}' - #{error}" }] }
 
     @lighthouse_validation_response = mock_response
   end
