@@ -46,7 +46,7 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
     [{
       'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
       'dateOfBirth' => '1960-02-01',
-      'ssnLastFour' => '3214',
+      'ssn' => '222883214',
       'age' => 59,
       'relationshipToVeteran' => 'Spouse'
     }]
