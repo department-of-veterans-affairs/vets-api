@@ -45,15 +45,40 @@ RSpec.describe BPDS::Service do
   end
 
   describe '#default_payload' do
-    it 'returns the default payload for a given claim' do
-      expected_payload = {
-        'bpd' => {
-          'sensitivityLevel' => 0,
-          'payloadNamespace' => "urn:vets_api:#{claim.form_id}:#{Settings.bpds.schema_version}",
-          'payload' => claim.parsed_form
+    context 'when a participant id is present' do
+      let(:participant_id) { '133663' }
+      let(:file_number) { nil }
+
+      it 'returns the default payload for a given claim with the participant id' do
+        expected_payload = {
+          'bpd' => {
+            'sensitivityLevel' => 0,
+            'payloadNamespace' => "urn:vets_api:#{claim.form_id}:#{Settings.bpds.schema_version}",
+            'participantId' => participant_id,
+            'fileNumber' => nil,
+            'payload' => claim.parsed_form
+          }
         }
-      }
-      expect(service.send(:default_payload, claim)).to eq(expected_payload)
+        expect(service.send(:default_payload, claim, participant_id, file_number)).to eq(expected_payload)
+      end
+    end
+
+    context 'when a file number is present' do
+      let(:participant_id) { nil }
+      let(:file_number) { '123456789' }
+
+      it 'returns the default payload for a given claim with the file number' do
+        expected_payload = {
+          'bpd' => {
+            'sensitivityLevel' => 0,
+            'payloadNamespace' => "urn:vets_api:#{claim.form_id}:#{Settings.bpds.schema_version}",
+            'participantId' => nil,
+            'fileNumber' => file_number,
+            'payload' => claim.parsed_form
+          }
+        }
+        expect(service.send(:default_payload, claim, participant_id, file_number)).to eq(expected_payload)
+      end
     end
   end
 
