@@ -28,10 +28,18 @@ module AccreditedRepresentativePortal
     ARP_PATH_INFO_PREFIX = '/accredited_representative_portal'
 
     def exclude_arp_route?(env)
-      # Chose the function Rack::Attack::PathNormalizer.normalize_path() since our middlewares
-      # uses this later [here](https://github.com/department-of-veterans-affairs/vets-api/blob/934424f5fe986befc33645cfc7b0a3156f3f7ae3/config/application.rb#L88). 
-      # Need to use this since the Staging path includes an extra hash EX: '//accredited_representative_portal'
-      Rack::Attack::PathNormalizer.normalize_path(env['PATH_INFO']).to_s.start_with?(ARP_PATH_INFO_PREFIX)
+      if env_check && Flipper.enabled?(:accredited_representative_portal_normalize_path)
+        # Chose the function Rack::Attack::PathNormalizer.normalize_path() since our middlewares
+        # uses this later [here](https://github.com/department-of-veterans-affairs/vets-api/blob/934424f5fe986befc33645cfc7b0a3156f3f7ae3/config/application.rb#L88).
+        # Need to use this since the Staging path includes an extra hash EX: '//accredited_representative_portal'
+        Rack::Attack::PathNormalizer.normalize_path(env['PATH_INFO']).to_s.start_with?(ARP_PATH_INFO_PREFIX)
+      else
+        env['PATH_INFO'].to_s.start_with?(ARP_PATH_INFO_PREFIX)
+      end
+    end
+
+    def env_check
+      %w[test localhost development staging].include?(Settings.vsp_environment)
     end
   end
 end

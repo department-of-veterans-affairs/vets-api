@@ -26,24 +26,75 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     Rails.application.reload_routes!
   end
 
-  context 'when the request is for an accredited representative portal route' do
-    let(:path_prefix) { '/accredited_representative_portal' }
+  context 'the request is in developement and accredited_representative_portal_normalize_path is disabled' do
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return('development')
+      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(false)
+    end
 
-    it 'bypasses OliveBranch processing' do
-      expect(OliveBranch::Transformations).not_to receive(:underscore_params)
-      expect(OliveBranch::Transformations).not_to receive(:transform)
-      subject
+    context 'when the request is for an accredited representative portal route' do
+      let(:path_prefix) { '/accredited_representative_portal' }
+
+      it 'bypasses OliveBranch processing' do
+        expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+        expect(OliveBranch::Transformations).not_to receive(:transform)
+        subject
+      end
     end
   end
 
-  # Staging path includes an extra hash EX: '//accredited_representative_portal'
-  context 'when the request is for an accredited representative portal route staging' do
-    let(:path_prefix) { '//accredited_representative_portal' }
+  context 'the request is in developement and accredited_representative_portal_normalize_path is enabled' do
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return('development')
+      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(true)
+    end
 
-    it 'bypasses OliveBranch processing' do
-      expect(OliveBranch::Transformations).not_to receive(:underscore_params)
-      expect(OliveBranch::Transformations).not_to receive(:transform)
-      subject
+    context 'when the request is for an accredited representative portal route' do
+      let(:path_prefix) { '/accredited_representative_portal' }
+
+      it 'bypasses OliveBranch processing' do
+        expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+        expect(OliveBranch::Transformations).not_to receive(:transform)
+        subject
+      end
+    end
+  end
+
+  context 'the request is in staging and accredited_representative_portal_normalize_path is disabled' do
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return('staging')
+      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(false)
+    end
+
+    # Staging path includes an extra hash EX: '//accredited_representative_portal'
+    context 'when the request is for an accredited representative portal route' do
+      let(:path_prefix) { '//accredited_representative_portal' }
+
+      it 'bypasses OliveBranch processing' do
+        # This is true becuase the Staging path includes an extra hash EX: '//accredited_representative_portal'
+        # and when not normalized the exra hash is not removed.
+        expect(OliveBranch::Transformations).to receive(:underscore_params)
+        expect(OliveBranch::Transformations).to receive(:transform)
+        subject
+      end
+    end
+  end
+
+  context 'the request is in staging and accredited_representative_portal_normalize_path is enabled' do
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return('staging')
+      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(true)
+    end
+
+    # Staging path includes an extra hash EX: '//accredited_representative_portal'
+    context 'when the request is for an accredited representative portal route' do
+      let(:path_prefix) { '//accredited_representative_portal' }
+
+      it 'bypasses OliveBranch processing' do
+        expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+        expect(OliveBranch::Transformations).not_to receive(:transform)
+        subject
+      end
     end
   end
 
