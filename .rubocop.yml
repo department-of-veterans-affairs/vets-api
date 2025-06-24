@@ -415,3 +415,7 @@ Rails/UniqueValidationWithoutIndex:
 Lint/ShadowingOuterLocalVariable:
   Exclude:
     - 'rakelib/decision_review_repl.rb'
+
+Style/SafeNavigation:
+  Exclude:
+    - 'modules/mobile/app/models/mobile/v0/adapters/immunizations.rb'
