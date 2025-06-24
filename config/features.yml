@@ -1078,6 +1078,10 @@ features:
     actor_type: user
     description: Control fetching OH allergies data
     enable_in_development: false
+  mhv_accelerated_delivery_vaccines_enabled:
+    actor_type: user
+    description: Control fetching OH vaccine data
+    enable_in_development: false
   mhv_accelerated_delivery_labs_and_tests_enabled:
     actor_type: user
     description: Control fetching lab and test data from UHD (SCDF) service (web)
