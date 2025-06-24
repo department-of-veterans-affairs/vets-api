@@ -11,9 +11,11 @@ module Form1010Ezr
         include HCA::EnrollmentSystem
 
         configuration ::VeteranEnrollmentSystem::Associations::Configuration
+
+        STATSD_KEY_PREFIX = 'api.1010ezr.veteran_enrollment_system.associations'
+
         # Associations API field names that are not nested
         FLAT_FIELDS = %w[
-          alternatePhone
           deleteIndicator
           lastUpdateDate
           primaryPhone
@@ -31,6 +33,14 @@ module Form1010Ezr
           ).reconcile_associations
 
           update_associations(reconciled_associations)
+        rescue => e
+          StatsD.increment("#{STATSD_KEY_PREFIX}.reconcile_and_update_associations.failed")
+          Rails.logger.error(
+            "#{FORM_ID} reconciling and updating associations failed: " \
+            "#{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+          )
+
+          raise e
         end
 
         private
@@ -39,31 +49,6 @@ module Form1010Ezr
           transformed_associations = transform_associations(associations)
 
           super(transformed_associations, '10-10EZR')
-        end
-
-        # We need to reconcile the associations data from VES with the associations data in the submitted form in order
-        # to ensure we are sending the correct data to the Associations API in case any records were deleted.
-        # @return [Array] the reconciled associations data that will be sent to the Associations API
-        def reconcile_associations(ves_associations, form_associations)
-          transformed_ves_associations = transform_ves_associations(ves_associations)
-          # Create a lookup set of contactTypes in the submitted array.
-          # We'll use this to find missing association objects (e.g. associations that were deleted on the frontend)
-          submitted_contact_types = form_associations.map { |obj| obj['contactType']&.downcase }.compact.to_set
-          # Find missing associations based on contactType (case insensitive)
-          missing_associations = transformed_ves_associations.reject do |obj|
-            submitted_contact_types.include?(obj['contactType']&.downcase)
-          end
-
-          return form_associations if missing_associations.empty?
-
-          # Add a deleteIndicator to the missing association objects. The user deleted these associations
-          # on the frontend, so we need to delete them from the Associations API
-          associations_to_delete = missing_associations.map do |obj|
-            obj.merge('deleteIndicator' => true)
-          end
-
-          # Combine submitted array with deleted association objects
-          form_associations + associations_to_delete
         end
 
         # Transform the submitted form data to match the Associations API schema
