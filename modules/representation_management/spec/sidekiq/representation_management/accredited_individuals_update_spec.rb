@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
   def create_accredited_individual
     create(:accredited_individual,
+           id:,
            first_name: 'Bob',
            last_name: 'Law',
            address_line1: '123 East Main St',
@@ -119,7 +120,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
     end
 
     context 'when changing address' do
-      let(:id) { '123abc' }
+      let(:id) { SecureRandom.uuid }
       let!(:representative) { create_accredited_individual }
 
       it 'updates the address' do
@@ -131,7 +132,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
     end
 
     context 'address validation retries' do
-      let(:id) { '123abc' }
+      let(:id) { SecureRandom.uuid }
       let!(:representative) { create_accredited_individual }
       let(:validation_stub) { instance_double(VAProfile::AddressValidation::Service) }
       let(:api_response_with_zero_v2) do
@@ -387,6 +388,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
   describe 'V3/AddressValidation' do
     def create_accredited_individual
       create(:accredited_individual,
+             id:,
              first_name: 'Bob',
              last_name: 'Law',
              address_line1: '123 East Main St',
@@ -497,7 +499,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
       end
 
       context 'when changing the address' do
-        let(:id) { '123abc' }
+        let(:id) { SecureRandom.uuid }
         let!(:representative) { create_accredited_individual }
 
         it 'updates the address' do
@@ -509,7 +511,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
       end
 
       context 'address validation retries' do
-        let(:id) { '123abc' }
+        let(:id) { SecureRandom.uuid }
         let!(:representative) { create_accredited_individual }
         let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
         let(:api_response_with_zero_v3) do
