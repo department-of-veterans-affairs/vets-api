@@ -4,9 +4,6 @@ require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :model do
   let(:model) { create(:accreditation_api_entity_count) }
-  # Using a constant we know exists in the code
-  let(:allowed_types) { %i[agents attorneys representatives veteran_service_organizations] }
-  let(:decrease_threshold) { 0.20 } # Assuming this is the threshold value
 
   before do
     # Mock log_error method to prevent actual logging during tests
@@ -136,7 +133,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
       it 'calls notify_threshold_exceeded by default' do
         model.valid_count?(type)
         expect(model).to have_received(:notify_threshold_exceeded)
-          .with(type, 100, 70, 0.3, decrease_threshold)
+          .with(type, 100, 70, 0.3, described_class::DECREASE_THRESHOLD)
       end
 
       it 'skips notification when notify is false' do
