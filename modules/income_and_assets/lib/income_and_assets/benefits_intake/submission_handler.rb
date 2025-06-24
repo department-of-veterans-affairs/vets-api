@@ -13,8 +13,9 @@ module IncomeAndAssets
       #
       # @return [ActiveRecord::Relation] a relation containing pending submission attempts for form '21P-530EZ'
       def self.pending_attempts
-        Lighthouse::SubmissionAttempt.joins(:submission).where(status: 'pending',
-                                                               'lighthouse_submissions.form_id' => '21P-0969')
+        Lighthouse::SubmissionAttempt.joins(:submission)
+                                     .where(status: 'pending',
+                                            'lighthouse_submissions.form_id' => IncomeAndAssets::FORM_ID)
       end
 
       private

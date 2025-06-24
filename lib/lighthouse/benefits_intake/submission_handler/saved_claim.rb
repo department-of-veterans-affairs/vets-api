@@ -17,9 +17,10 @@ module BenefitsIntake
 
       # Define in subclasses to return a list of pending FormSubmissionAttempts
       # or Lighthouse::SubmissionAttempts.
+      #
+      # @return [Array] an array of pending records
       def self.pending_attempts
-        FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission) +
-          Lighthouse::SubmissionAttempt.where(status: 'pending').includes(:submission)
+        []
       end
 
       # respond to result of a submission status
