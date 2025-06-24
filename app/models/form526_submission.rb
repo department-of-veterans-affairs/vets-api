@@ -570,10 +570,10 @@ class Form526Submission < ApplicationRecord
     offset = 60.seconds
     uniqueness_tracker = {}
 
-    uploads.each do |upload|
+    uploads.each_with_index do |upload, i|
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
-      delay = offset + (offset * (uniqueness_tracker[key] - 1))
+      delay = offset + (i * offset) + [0, (offset * (uniqueness_tracker[key] - 1 - i))].max
 
       StatsD.gauge('form526.uploads.delay', delay, tags:)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
