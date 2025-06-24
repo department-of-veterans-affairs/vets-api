@@ -26,7 +26,7 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     Rails.application.reload_routes!
   end
 
-  context 'the request is in developement and accredited_representative_portal_normalize_path is disabled' do
+  context 'the request is in development and accredited_representative_portal_normalize_path is disabled' do
     before do
       allow(Settings).to receive(:vsp_environment).and_return('development')
       allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(false)
