@@ -117,11 +117,11 @@ RSpec.describe UserSessionForm, type: :model do
           allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
         end
 
-        it 'uses the user account uuid as the user key' do
+        it 'uses the injected identifier as the user key' do
           subject = UserSessionForm.new(saml_response)
           subject.persist
-          expect(User.find(user_account.id)).to be_truthy
-          expect(UserIdentity.find(user_account.id)).to be_truthy
+          expect(User.find(idme_uuid)).to be_truthy
+          expect(UserIdentity.find(idme_uuid)).to be_truthy
         end
 
         it 'adds the identifier to an existing mpi record' do
