@@ -112,6 +112,7 @@ Metrics/ClassLength:
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -387,7 +388,7 @@ Rails/Exit:
     - modules/mobile/lib/scripts/parse_rspec_xml.rb
 
 # kms_encrypted_model_patch is for a gem and the method name shouldn't be changed
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Exclude:
     - app/models/concerns/kms_encrypted_model_patch.rb
     - app/models/preneeds/burial_form.rb
