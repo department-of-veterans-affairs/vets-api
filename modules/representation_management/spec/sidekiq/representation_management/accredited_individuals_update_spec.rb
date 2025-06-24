@@ -3,10 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Representatives::Update do
-  # rubocop:disable Metrics/MethodLength
-  def create_representative
-    create(:representative,
-           representative_id: '123abc',
+  def create_accredited_individual
+    create(:accredited_individual,
            first_name: 'Bob',
            last_name: 'Law',
            address_line1: '123 East Main St',
@@ -25,21 +23,8 @@ RSpec.describe Representatives::Update do
            long: '-75',
            email: 'email@example.com',
            location: 'POINT(-75 39)',
-           phone_number: '111-111-1111')
+           phone: '111-111-1111')
   end
-  # rubocop:enable Metrics/MethodLength
-
-  def create_flagged_records(flag_type)
-    2.times do |n|
-      RepresentationManagement::FlaggedVeteranRepresentativeContactData.create(
-        ip_address: "192.168.1.#{n + 1}",
-        representative_id: '123abc',
-        flag_type:,
-        flagged_value: 'flagged_value'
-      )
-    end
-  end
-
   describe '#perform' do
     let(:json_data) do
       [
@@ -59,11 +44,7 @@ RSpec.describe Representatives::Update do
             country_code_iso3: 'abc'
           },
           email: 'test@example.com',
-          phone_number: '999-999-9999',
-          address_exists:,
-          address_changed:,
-          email_changed:,
-          phone_number_changed:
+          phone: '999-999-9999'
         }
       ].to_json
     end
@@ -127,10 +108,6 @@ RSpec.describe Representatives::Update do
 
     context 'when the representative cannot be found' do
       let(:id) { 'not_found' }
-      let(:address_exists) { false }
-      let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
@@ -141,124 +118,21 @@ RSpec.describe Representatives::Update do
       end
     end
 
-    context 'when address_exists is true and address_changed is true' do
+    context 'when changing address' do
       let(:id) { '123abc' }
-      let(:address_exists) { true }
-      let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
-      let!(:representative) { create_representative }
+      let!(:representative) { create_accredited_individual }
 
-      before do
-        create_flagged_records('address')
-      end
-
-      it 'updates the address and the associated flagged records' do
-        flagged_records =
-          RepresentationManagement::FlaggedVeteranRepresentativeContactData
-          .where(representative_id: id, flag_type: 'address')
-
-        flagged_records.each do |record|
-          expect(record.flagged_value_updated_at).to be_nil
-        end
-
+      it 'updates the address' do
         subject.perform(json_data)
         representative.reload
 
         expect(representative.send('address_line1')).to eq('37N 1st St')
-
-        flagged_records.each do |record|
-          record.reload
-          expect(record.flagged_value_updated_at).not_to be_nil
-        end
       end
-    end
-
-    context 'when address_exists is false and address_changed is true' do
-      let(:id) { '123abc' }
-      let(:address_exists) { false }
-      let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
-      let!(:representative) { create_representative }
-
-      before do
-        create_flagged_records('address')
-      end
-
-      it 'updates the address and the associated flagged records' do
-        flagged_records =
-          RepresentationManagement::FlaggedVeteranRepresentativeContactData
-          .where(representative_id: id, flag_type: 'address')
-
-        flagged_records.each do |record|
-          expect(record.flagged_value_updated_at).to be_nil
-        end
-
-        subject.perform(json_data)
-        representative.reload
-
-        expect(representative.send('address_line1')).to eq('37N 1st St')
-
-        flagged_records.each do |record|
-          record.reload
-          expect(record.flagged_value_updated_at).not_to be_nil
-        end
-      end
-    end
-
-    context 'when address_changed and email_changed is true' do
-      let(:id) { '123abc' }
-      let(:address_exists) { false }
-      let(:address_changed) { true }
-      let(:email_changed) { true }
-      let(:phone_number_changed) { false }
-      let!(:representative) { create_representative }
-
-      before do
-        create_flagged_records('address')
-      end
-
-      it 'updates the address and email and the associated flagged records' do
-        flagged_address_records =
-          RepresentationManagement::FlaggedVeteranRepresentativeContactData
-          .where(representative_id: id, flag_type: 'address')
-        flagged_email_records =
-          RepresentationManagement::FlaggedVeteranRepresentativeContactData
-          .where(representative_id: id, flag_type: 'email')
-        flagged_email_records.each do |record|
-          expect(record.flagged_value_updated_at).to be_nil
-        end
-
-        subject.perform(json_data)
-        representative.reload
-        expect(representative.send('address_line1')).to eq('37N 1st St')
-        expect(representative.send('email')).to eq('test@example.com')
-
-        flagged_address_records + flagged_email_records.each do |record|
-          record.reload
-          expect(record.flagged_value_updated_at).not_to be_nil
-        end
-      end
-    end
-
-    context "when updating a representative's email" do
-      it_behaves_like 'a representative email or phone update process', 'email', :email, 'test@example.com',
-                      'email@example.com'
-    end
-
-    context "when updating a representative's phone number" do
-      it_behaves_like 'a representative email or phone update process', 'phone_number', :phone_number, '999-999-9999',
-                      '111-111-1111'
     end
 
     context 'address validation retries' do
       let(:id) { '123abc' }
-      let(:address_exists) { true }
-      let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
-      let!(:representative) { create_representative }
+      let!(:representative) { create_accredited_individual }
       let(:validation_stub) { instance_double(VAProfile::AddressValidation::Service) }
       let(:api_response_with_zero_v2) do
         {
@@ -511,10 +385,8 @@ RSpec.describe Representatives::Update do
   end
 
   describe 'V3/AddressValidation' do
-    # rubocop:disable Metrics/MethodLength
-    def create_representative
-      create(:representative,
-             representative_id: '123abc',
+    def create_accredited_individual
+      create(:accredited_individual,
              first_name: 'Bob',
              last_name: 'Law',
              address_line1: '123 East Main St',
@@ -533,21 +405,8 @@ RSpec.describe Representatives::Update do
              long: '-75',
              email: 'email@example.com',
              location: 'POINT(-75 39)',
-             phone_number: '111-111-1111')
+             phone: '111-111-1111')
     end
-    # rubocop:enable Metrics/MethodLength
-
-    def create_flagged_records(flag_type)
-      2.times do |n|
-        RepresentationManagement::FlaggedVeteranRepresentativeContactData.create(
-          ip_address: "192.168.1.#{n + 1}",
-          representative_id: '123abc',
-          flag_type:,
-          flagged_value: 'flagged_value'
-        )
-      end
-    end
-
     describe '#perform V3/AddressValidation' do
       let(:json_data) do
         [
@@ -567,11 +426,7 @@ RSpec.describe Representatives::Update do
               country_code_iso3: 'abc'
             },
             email: 'test@example.com',
-            phone_number: '999-999-9999',
-            address_exists:,
-            address_changed:,
-            email_changed:,
-            phone_number_changed:
+            phone: '999-999-9999'
           }
         ].to_json
       end
@@ -631,10 +486,6 @@ RSpec.describe Representatives::Update do
 
       context 'when the representative cannot be found' do
         let(:id) { 'not_found' }
-        let(:address_exists) { false }
-        let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
@@ -645,124 +496,21 @@ RSpec.describe Representatives::Update do
         end
       end
 
-      context 'when address_exists is true and address_changed is true' do
+      context 'when changing the address' do
         let(:id) { '123abc' }
-        let(:address_exists) { true }
-        let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
-        let!(:representative) { create_representative }
+        let!(:representative) { create_accredited_individual }
 
-        before do
-          create_flagged_records('address')
-        end
-
-        it 'updates the address and the associated flagged records' do
-          flagged_records =
-            RepresentationManagement::FlaggedVeteranRepresentativeContactData
-            .where(representative_id: id, flag_type: 'address')
-
-          flagged_records.each do |record|
-            expect(record.flagged_value_updated_at).to be_nil
-          end
-
+        it 'updates the address' do
           subject.perform(json_data)
           representative.reload
 
           expect(representative.send('address_line1')).to eq('37N 1st St')
-
-          flagged_records.each do |record|
-            record.reload
-            expect(record.flagged_value_updated_at).not_to be_nil
-          end
         end
-      end
-
-      context 'when address_exists is false and address_changed is true' do
-        let(:id) { '123abc' }
-        let(:address_exists) { false }
-        let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
-        let!(:representative) { create_representative }
-
-        before do
-          create_flagged_records('address')
-        end
-
-        it 'updates the address and the associated flagged records' do
-          flagged_records =
-            RepresentationManagement::FlaggedVeteranRepresentativeContactData
-            .where(representative_id: id, flag_type: 'address')
-
-          flagged_records.each do |record|
-            expect(record.flagged_value_updated_at).to be_nil
-          end
-
-          subject.perform(json_data)
-          representative.reload
-
-          expect(representative.send('address_line1')).to eq('37N 1st St')
-
-          flagged_records.each do |record|
-            record.reload
-            expect(record.flagged_value_updated_at).not_to be_nil
-          end
-        end
-      end
-
-      context 'when address_changed and email_changed is true' do
-        let(:id) { '123abc' }
-        let(:address_exists) { false }
-        let(:address_changed) { true }
-        let(:email_changed) { true }
-        let(:phone_number_changed) { false }
-        let!(:representative) { create_representative }
-
-        before do
-          create_flagged_records('address')
-        end
-
-        it 'updates the address and email and the associated flagged records' do
-          flagged_address_records =
-            RepresentationManagement::FlaggedVeteranRepresentativeContactData
-            .where(representative_id: id, flag_type: 'address')
-          flagged_email_records =
-            RepresentationManagement::FlaggedVeteranRepresentativeContactData
-            .where(representative_id: id, flag_type: 'email')
-          flagged_email_records.each do |record|
-            expect(record.flagged_value_updated_at).to be_nil
-          end
-
-          subject.perform(json_data)
-          representative.reload
-          expect(representative.send('address_line1')).to eq('37N 1st St')
-          expect(representative.send('email')).to eq('test@example.com')
-
-          flagged_address_records + flagged_email_records.each do |record|
-            record.reload
-            expect(record.flagged_value_updated_at).not_to be_nil
-          end
-        end
-      end
-
-      context "when updating a representative's email" do
-        it_behaves_like 'a representative email or phone update process', 'email', :email, 'test@example.com',
-                        'email@example.com'
-      end
-
-      context "when updating a representative's phone number" do
-        it_behaves_like 'a representative email or phone update process', 'phone_number', :phone_number, '999-999-9999',
-                        '111-111-1111'
       end
 
       context 'address validation retries' do
         let(:id) { '123abc' }
-        let(:address_exists) { true }
-        let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
-        let!(:representative) { create_representative }
+        let!(:representative) { create_accredited_individual }
         let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
         let(:api_response_with_zero_v3) do
           {
