@@ -8,7 +8,7 @@ RSpec.describe BGSDependentsV2::Child do
       'does_child_live_with_you' => true,
       'income_in_last_year' => false,
       'birth_location' => { 'location' => { 'state' => 'NH', 'city' => 'Concord', 'postal_code' => '03301' } },
-      'relationship_to_child' => { 'biological' => true },
+      'is_biological_child' => true,
       'has_child_ever_been_married' => true,
       'marriage_end_date' => '2024-06-01',
       'marriage_end_reason' => 'annulment',
@@ -31,6 +31,7 @@ RSpec.describe BGSDependentsV2::Child do
       'postal_code' => '04102'
     }
   end
+  let(:multiple_children_v2) { build(:dependency_claim_v2) }
 
   context 'with va_dependents_v2 on' do
     before do
@@ -61,6 +62,18 @@ RSpec.describe BGSDependentsV2::Child do
         formatted_info = described_class.new(child_info_v2).format_info
 
         expect(formatted_info).to eq(format_info_output)
+      end
+
+      it 'handles multiple formats of child relationships' do
+        children = multiple_children_v2.parsed_form['dependents_application']['children_to_add'].map do |child_info|
+          described_class.new(child_info).format_info
+        end
+        expect(children).to match([a_hash_including('family_relationship_type' => 'Biological'),
+                                   a_hash_including('family_relationship_type' => 'Stepchild'),
+                                   a_hash_including('family_relationship_type' => 'Adopted Child'),
+                                   a_hash_including('family_relationship_type' => 'Biological'),
+                                   a_hash_including('family_relationship_type' => 'Adopted Child'),
+                                   a_hash_including('family_relationship_type' => 'Biological')])
       end
     end
 
