@@ -55,6 +55,8 @@ module ClaimsApi
     private
 
     def expectation_failed_error?(e)
+      ClaimsApi::Logger.log('claims establisher expectation_failed_error: ', error: e)
+
       error_messages = get_error_message(e)
 
       return error_messages.include?('417') if error_messages.is_a?(String)
