@@ -63,8 +63,14 @@ module Form1010cg
 
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
-      CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+      result = CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
       self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :success, start_time:)
+      Rails.logger.info(
+        "[10-10CG] - CARMA submission complete; claim PDF path length: #{claim_pdf_path.length}",
+        { form: '10-10CG', claim_guid: claim.guid }
+      )
+
+      result
     rescue => e
       self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :failure, start_time:)
       if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
