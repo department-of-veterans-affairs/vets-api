@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_18_203044) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_24_162553) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1618,6 +1618,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_18_203044) do
     t.uuid "logingov_uuid"
     t.text "id_types", default: [], array: true
     t.uuid "user_account_id"
+    t.index ["email"], name: "index_test_user_dashboard_tud_accounts_on_email", unique: true
     t.index ["user_account_id"], name: "index_test_user_dashboard_tud_accounts_on_user_account_id"
   end
 
