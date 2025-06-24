@@ -33,8 +33,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
 
       context 'with a representative belonging to 2 VSOs' do
         before do
-          vso_a = create(:organization, poa: 'PAA')
-          vso_b = create(:organization, poa: 'PBB')
+          vso_a = create(:organization, poa: poa_code_a)
+          vso_b = create(:organization, poa: poa_code_b)
 
           representative =
             create(
@@ -57,6 +57,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           )
         end
 
+        let(:poa_code_a) { '00A' }
+        let(:poa_code_b) { '00B' }
         let(:representative_icn) { Faker::Number.unique.number(digits: 10) }
         let(:representative_email) { Faker::Internet.email }
         let(:claimant_icn) { Faker::Number.unique.number(digits: 10) }
@@ -78,45 +80,57 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
         end
 
         context '`BenefitsClaims::Service` does not raise' do
-          before do
-            allow_any_instance_of(BenefitsClaims::Service).to(
-              receive(:get_power_of_attorney).and_return(
-                JSON.parse(
-                  <<~JSON
-                    {
-                      "data": {
-                        "type": "organization",
-                        "attributes": {
-                          "code": "#{claimant_poa_code}"
-                        }
-                      }
-                    }
-                  JSON
+          context 'and does not return poa data' do
+            before do
+              allow_any_instance_of(BenefitsClaims::Service).to(
+                receive(:get_power_of_attorney).and_return(
+                  { 'data' => {} }
                 )
               )
-            )
-          end
-
-          context 'and a claimant that has poa with one of them' do
-            let(:claimant_poa_code) { 'PAA' }
-
-            it 'returns a `ClaimantRepresentative`' do
-              expect(subject).to have_attributes(
-                claimant_id: be_a(String),
-                accredited_individual_registration_number: be_a(String),
-                power_of_attorney_holder_poa_code: claimant_poa_code,
-                power_of_attorney_holder_type:
-                  AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::
-                    VETERAN_SERVICE_ORGANIZATION
-              )
             end
-          end
-
-          context 'and a claimant that does not have poa with one of them' do
-            let(:claimant_poa_code) { 'ZZZ' }
 
             it 'returns nil' do
               expect(subject).to be_nil
+            end
+          end
+
+          context 'and returns some poa data' do
+            before do
+              allow_any_instance_of(BenefitsClaims::Service).to(
+                receive(:get_power_of_attorney).and_return(
+                  {
+                    'data' => {
+                      'type' => 'organization',
+                      'attributes' => {
+                        'code' => claimant_poa_code
+                      }
+                    }
+                  }
+                )
+              )
+            end
+
+            context 'and a claimant that has poa with one of them' do
+              let(:claimant_poa_code) { poa_code_a }
+
+              it 'returns a `ClaimantRepresentative`' do
+                expect(subject).to have_attributes(
+                  claimant_id: be_a(String),
+                  accredited_individual_registration_number: be_a(String),
+                  power_of_attorney_holder_poa_code: claimant_poa_code,
+                  power_of_attorney_holder_type:
+                    AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::
+                      VETERAN_SERVICE_ORGANIZATION
+                )
+              end
+            end
+
+            context 'and a claimant that does not have poa with one of them' do
+              let(:claimant_poa_code) { 'XYZ' }
+
+              it 'returns nil' do
+                expect(subject).to be_nil
+              end
             end
           end
         end

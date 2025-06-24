@@ -26,21 +26,23 @@ module AccreditedRepresentativePortal
           MSG
         end
 
-        poa_holder = @claimant.power_of_attorney_holder
-        poa_holders = @representative.power_of_attorney_holders
+        @claimant.power_of_attorney_holder.present? or
+          return nil
 
-        poa_holders.each do |h|
-          ##
-          # Might be nice to instead have a `PowerOfAttorneyHolder#==` with a
-          # semantics that matches what is needed here.
-          #
-          next unless h.poa_code == poa_holder.poa_code
-          next unless h.type == poa_holder.type
+        common_poa_holder =
+          @representative.power_of_attorney_holders.find do |h|
+            ##
+            # Might be nice to instead have a `PowerOfAttorneyHolder#==` method
+            # with a semantics that matches what is needed here.
+            #
+            h.poa_code == @claimant.power_of_attorney_holder.poa_code &&
+              h.type == @claimant.power_of_attorney_holder.type
+          end
 
-          return build(h)
-        end
+        common_poa_holder.present? or
+          return nil
 
-        nil
+        build(common_poa_holder)
       rescue
         raise Error
       end
@@ -84,23 +86,27 @@ module AccreditedRepresentativePortal
       delegate :id, to: :identifier
 
       def power_of_attorney_holder
-        @power_of_attorney_holder ||= begin
-          service = BenefitsClaims::Service.new(identifier.icn)
-          response = service.get_power_of_attorney['data']
+        defined?(@power_of_attorney_holder) and
+          return @power_of_attorney_holder
 
-          ##
-          # Also, the API does not fully distinguish types like we do. The value
-          # 'individual' is returned for both claims agents and attorneys.
-          #
-          response['type'] == 'organization' or
-            raise 'Unsupported power of attorney holder type'
+        @power_of_attorney_holder =
+          begin
+            service = BenefitsClaims::Service.new(identifier.icn)
+            response = service.get_power_of_attorney['data'].to_h
 
-          PowerOfAttorneyHolder.new(
-            type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
-            poa_code: response.dig('attributes', 'code'),
-            can_accept_digital_poa_requests: nil
-          )
-        end
+            ##
+            # FYI, the API does not fully distinguish types like we do.
+            # The value 'individual' is returned for both claims agents and
+            # attorneys.
+            #
+            if response['type'] == 'organization'
+              PowerOfAttorneyHolder.new(
+                type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+                poa_code: response.dig('attributes', 'code'),
+                can_accept_digital_poa_requests: nil
+              )
+            end
+          end
       end
 
       private
@@ -124,17 +130,9 @@ module AccreditedRepresentativePortal
 
       delegate(
         :get_registration_number,
+        :power_of_attorney_holders,
         to: :representative_user_account
       )
-
-      def power_of_attorney_holders
-        ##
-        # TODO: Make this method public once the codebase is churning less.
-        #
-        representative_user_account.send(
-          :power_of_attorney_holders
-        )
-      end
 
       private
 

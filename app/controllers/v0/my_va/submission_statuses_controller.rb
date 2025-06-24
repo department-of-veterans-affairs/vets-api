@@ -10,7 +10,7 @@ module V0
       def show
         report = Forms::SubmissionStatuses::Report.new(
           user_account: @current_user.user_account,
-          allowed_forms:
+          allowed_forms: forms_based_on_feature_toggle
         )
 
         result = report.run
@@ -20,8 +20,17 @@ module V0
 
       private
 
-      def allowed_forms
-        %w[20-10206 20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847] + uploadable_forms
+      def restricted_list_of_forms
+        %w[
+          20-10206
+          20-10207
+          21-0845
+          21-0972
+          21-10210
+          21-4142
+          21-4142a
+          21P-0847
+        ] + uploadable_forms
       end
 
       def uploadable_forms
@@ -36,6 +45,19 @@ module V0
 
       def status_from(result)
         result.errors.present? ? 296 : 200
+      end
+
+      def forms_based_on_feature_toggle
+        return nil if display_all_forms?
+
+        restricted_list_of_forms
+      end
+
+      def display_all_forms?
+        Flipper.enabled?(
+          :my_va_display_all_lighthouse_benefits_intake_forms,
+          @current_user
+        )
       end
     end
   end

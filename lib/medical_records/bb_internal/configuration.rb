@@ -70,9 +70,7 @@ module BBInternal
       # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
       # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-      conn.response :raise_custom_error, error_prefix: service_name
       conn.response :mhv_errors
-      conn.response :mhv_xml_html_errors
       conn.response :json_parser
     end
 
@@ -82,6 +80,8 @@ module BBInternal
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         COMMON_STACK.call(conn, service_name)
+        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :mhv_xml_html_errors
         conn.adapter Faraday.default_adapter
       end
     end
