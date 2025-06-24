@@ -567,11 +567,12 @@ class Form526Submission < ApplicationRecord
     # Put uploads on a one minute delay because of shared workload with EVSS
     uniqness_tracker = {}
     uploads = form[FORM_526_UPLOADS]
-    delay = 60.seconds
+    offset = 60.seconds
+    delay = offset
     uploads.each do |upload|
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
-      delay += 60.seconds * uniqness_tracker[key]
+      delay += offset * uniqness_tracker[key]
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
       uniqness_tracker[key] += 5
     end
