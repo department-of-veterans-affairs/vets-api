@@ -557,16 +557,12 @@ class Form526Submission < ApplicationRecord
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
-  def uniq_upload_key(upload)
-    "#{upload['name']}_#{upload['size']}"
-  end
-
   def submit_uploads
     uploads = form[FORM_526_UPLOADS]
     tags = ["form526_submission_id:#{id}"]
     offset = 60.seconds
 
-    uniq_upload_keys = uploads.map { |upload| uniq_upload_key(upload) }.uniq
+    uniq_upload_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
     StatsD.gauge('form526.uploads.count', uploads.count, tags:)
     StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_upload_keys.count, tags:)
 
@@ -574,7 +570,7 @@ class Form526Submission < ApplicationRecord
     delay = offset
 
     uploads.each do |upload|
-      key = uniq_upload_key(upload)
+      key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
       delay += offset * uniqueness_tracker[key]
 
