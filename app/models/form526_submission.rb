@@ -171,10 +171,8 @@ class Form526Submission < ApplicationRecord
     name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
-    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
-      middle: nil,
-      last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil }
+    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize, middle: nil,
+      last: auth_headers&.dig('va_eauth_lastName')&.capitalize, suffix: nil }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
