@@ -570,8 +570,8 @@ RSpec.describe Form1010cg::Service do
           { claim_guid: }
         )
         expect(Rails.logger).to receive(:info).with(
-          '[10-10CG] - CARMA submission complete; claim PDF path length: 68',
-          { form: '10-10CG', claim_guid: }
+          '[10-10CG] - CARMA submission complete',
+          { form: '10-10CG', claim_guid:, claim_pdf_path_length: 68, poa_attachment_path_length: nil }
         )
 
         response = subject
