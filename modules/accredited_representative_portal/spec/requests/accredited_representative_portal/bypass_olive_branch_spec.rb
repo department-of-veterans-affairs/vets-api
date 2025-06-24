@@ -92,7 +92,7 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
 
       it 'bypasses OliveBranch processing' do
         # This is true because the Staging path includes an extra hash EX: '//accredited_representative_portal'
-        # and when not normalized the exra hash is not removed.
+        # and when not normalized the extra hash is not removed.
         expect(OliveBranch::Transformations).to receive(:underscore_params)
         expect(OliveBranch::Transformations).to receive(:transform)
         subject
