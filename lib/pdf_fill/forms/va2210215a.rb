@@ -120,6 +120,20 @@ module PdfFill
             question_text: 'PROGRAM DATE OF CALCULATION'
           }
         },
+        'statementOfTruthSignature' => {
+          key: 'signature',
+          limit: 50,
+          question_num: 8,
+          question_suffix: 'A',
+          question_text: 'STATEMENT OF TRUTH SIGNATURE'
+        },
+        'dateSigned' => {
+          key: 'signedDate',
+          limit: 10,
+          question_num: 9,
+          question_suffix: 'A',
+          question_text: 'DATE SIGNED'
+        },
         'pageNumber' => {
           key: 'pageNumber',
           limit: 20,
@@ -164,7 +178,7 @@ module PdfFill
         # Handle page numbering for continuation sheets
         page_number = options[:page_number] || 1
         total_pages = options[:total_pages] || 1
-        form_data['pageNumber'] = "Page #{page_number} of #{total_pages}"
+        form_data['pageNumber'] = page_number.to_s
         form_data['totalPages'] = total_pages.to_s
 
         form_data

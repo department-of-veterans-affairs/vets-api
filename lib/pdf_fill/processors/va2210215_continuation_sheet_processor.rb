@@ -72,9 +72,7 @@ module PdfFill
       end
 
       def generate_continuation_sheets
-        page_number = 1
-        remaining_programs.each_slice(PROGRAMS_PER_PAGE) do |program_batch|
-          page_number += 1
+        remaining_programs.each_slice(PROGRAMS_PER_PAGE).with_index(1) do |program_batch, page_number|
           continuation_path = "#{@folder}/#{CONTINUATION_SHEET_FORM_ID}_#{@file_name_extension}_page#{page_number}.pdf"
           fill_pdf_form(
             form_id: CONTINUATION_SHEET_FORM_ID,
@@ -120,7 +118,7 @@ module PdfFill
       end
 
       def total_pages_count
-        1 + ((remaining_programs.length - 1).to_f / PROGRAMS_PER_PAGE).ceil
+        (remaining_programs.length / PROGRAMS_PER_PAGE.to_f).ceil
       end
 
       def log_completion(_final_file_path)
