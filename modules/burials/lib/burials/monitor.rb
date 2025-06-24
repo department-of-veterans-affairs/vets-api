@@ -72,5 +72,14 @@ module Burials
     def send_email(claim_id, email_type)
       Burials::NotificationEmail.new(claim_id).deliver(email_type)
     end
+
+    def attachment_key_map
+      {
+        transportationReceipts: :transportation_receipts,
+        deathCertificate: :death_certificate,
+        militarySeparationDocuments: :military_separation_documents,
+        additionalEvidence: :additional_evidence
+      }.freeze
+    end
   end
 end
