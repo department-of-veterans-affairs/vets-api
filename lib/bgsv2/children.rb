@@ -143,7 +143,7 @@ module BGSV2
           first_nm: stepchild_parent['first'],
           last_nm: stepchild_parent['last'],
           brthdy_dt: format_date(child_status['birth_date']),
-          ssn_nbr: child_status['ssn']
+          ssn_nbr: child_status['biological_parent_ssn']
         }
       )
 
@@ -154,7 +154,8 @@ module BGSV2
           family_relationship_type_name: 'Spouse',
           event_date: household_date,
           begin_date: household_date,
-          type: 'stepchild_parent'
+          type: 'stepchild_parent',
+          ssn_nbr: child_status['biological_parent_ssn']
         }
     end
     # rubocop:enable Metrics/MethodLength
