@@ -53,6 +53,10 @@ module BBInternal
       end
     end
 
+    def base_path_non_gateway
+      "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
+    end
+
     ##
     # @return [String] Service name to use in breakers and metrics
     #
@@ -79,6 +83,21 @@ module BBInternal
     #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        COMMON_STACK.call(conn, service_name)
+        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :mhv_xml_html_errors
+        conn.adapter Faraday.default_adapter
+      end
+    end
+
+    ##
+    # Temporary connection that does not use the API Gateway base path. This will be removed once
+    # CCD has been modified to use an S3 bucket.
+    #
+    # @return [Faraday::Connection] a Faraday connection instance
+    #
+    def connection_non_gateway
+      Faraday.new(base_path_non_gateway, headers: base_request_headers, request: request_options) do |conn|
         COMMON_STACK.call(conn, service_name)
         conn.response :raise_custom_error, error_prefix: service_name
         conn.response :mhv_xml_html_errors
