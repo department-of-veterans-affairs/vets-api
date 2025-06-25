@@ -99,7 +99,7 @@ module Form1010Ezr
           {
             'contactType' => VES_ROLE_MAPPINGS[association['role']],
             'fullName' => {},
-            'relationType' => handle_relation_type(association)
+            'relationship' => handle_relation_type(association)
           }
         end
       end

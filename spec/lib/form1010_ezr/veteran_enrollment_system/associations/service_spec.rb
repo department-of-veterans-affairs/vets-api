@@ -173,17 +173,16 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       end
     end
 
-    # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
-    # deleting associations works as expected
-    it 'reconciles and deletes associations', run_at: 'Tue, 17 Jun 2025 20:39:10 GMT' do
+    it 'reconciles and deletes associations', run_at: 'Wed, 25 Jun 2025 20:21:08 GMT' do
       VCR.use_cassette(
         'form1010_ezr/veteran_enrollment_system/associations/delete_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
+        # We're only sending the Primary Next of Kin, so the other associations should be deleted
         response =
-          described_class.new(user).reconcile_and_update_associations(associations_with_delete_indicators)
+          described_class.new(user).reconcile_and_update_associations(primary_next_of_kin)
 
-        expect_successful_response_output(response, '2025-06-17T20:39:10Z')
+        expect_successful_response_output(response, '2025-06-25T20:21:08Z')
       end
     end
 
@@ -269,17 +268,17 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         end
 
         it 'increments StatsD, logs a failure message, and raises an exception',
-           run_at: 'Tue, 17 Jun 2025 21:08:29 GMT' do
+           run_at: 'Wed, 25 Jun 2025 22:21:23 GMT' do
           VCR.use_cassette(
             'form1010_ezr/veteran_enrollment_system/associations/bad_request',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
             failure_message =
-              'associations[0].role: Role is required, associations[2].role: Role is required, ' \
-              'associations[0].relationType: Relation type is required, associations[3].role: Role is required, ' \
-              'associations[2].relationType: Relation type is required, associations[1].role: Role is required, ' \
-              'associations[1].relationType: Relation type is required, associations[3].relationType: Relation type ' \
-              'is required'
+              'associations[2].relationType: Relation type is required, associations[1].relationType: ' \
+              'Relation type is required, associations[1].role: Role is required, associations[0].relationType: ' \
+              'Relation type is required, associations[0].role: Role is required, associations[2].role: Role is ' \
+              'required, associations[3].relationType: Relation type is required, associations[3].role: Role is ' \
+              'required'
 
             expect { described_class.new(user).reconcile_and_update_associations(associations_with_missing_fields) }
               .to raise_error do |e|
