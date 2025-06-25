@@ -32,20 +32,17 @@ RSpec.describe Form1010cg::DeleteOldUploadsJob do
   end
 
   describe '#perform' do
-    let(:now) { DateTime.now }
+    it 'deletes attachments created more than 30 days ago' do
+      now = DateTime.now
 
-    let!(:attachment_1) { create(:form1010cg_attachment, :with_attachment, created_at: now - 31.days) }
-    let!(:attachment_2) { create(:form1010cg_attachment, :with_attachment, created_at: now - 32.days) }
-    let!(:attachment_3) { create(:form1010cg_attachment, :with_attachment, created_at: now - 29.days) }
+      attachment_1 = create(:form1010cg_attachment, :with_attachment, created_at: now - 31.days)
+      attachment_2 = create(:form1010cg_attachment, :with_attachment, created_at: now - 32.days)
+      attachment_3 = create(:form1010cg_attachment, :with_attachment, created_at: now - 29.days)
 
-    before do
       allow_any_instance_of(FormAttachment).to receive(:get_file).and_return(double(delete: true))
-
       allow(attachment_1).to receive(:destroy!).and_return(true)
       allow(attachment_2).to receive(:destroy!).and_return(true)
-    end
 
-    it 'deletes attachments created more than 30 days ago' do
       subject.perform
 
       expect { attachment_1.reload }.to raise_error(ActiveRecord::RecordNotFound)
