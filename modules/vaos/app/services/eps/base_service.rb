@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'eps/token_authentication'
+require_relative 'token_authentication'
 
 module Eps
   # Eps::BaseService provides common functionality for making REST API requests
@@ -59,13 +59,13 @@ module Eps
     private
 
     ##
-    # Get appropriate headers based on whether mocks are enabled. With Betamocks we
-    # bypass the need to request tokens.
+    # Get appropriate headers with correlation ID based on whether mocks are enabled.
+    # With Betamocks we bypass the need to request tokens and correlation IDs.
     #
-    # @return [Hash] Headers for the request or empty hash if mocks are enabled
+    # @return [Hash] Headers with correlation ID for the request or empty hash if mocks are enabled
     #
-    def request_headers
-      config.mock_enabled? ? {} : headers
+    def request_headers_with_correlation_id
+      config.mock_enabled? ? {} : headers_with_correlation_id
     end
 
     ##

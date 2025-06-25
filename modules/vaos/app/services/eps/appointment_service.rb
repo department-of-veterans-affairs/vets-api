@@ -15,7 +15,7 @@ module Eps
       query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
       response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
-                         request_headers)
+                         request_headers_with_correlation_id)
 
       result = OpenStruct.new(response.body)
 
@@ -32,7 +32,7 @@ module Eps
     #
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
-                         {}, request_headers)
+                         {}, request_headers_with_correlation_id)
 
       # Check for error field in successful responses using reusable helper
       check_for_eps_error!(response.body, response, 'get_appointments')
@@ -49,7 +49,8 @@ module Eps
     #
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
+                         { patientId: patient_id, referral: { referralNumber: referral_id } },
+                         request_headers_with_correlation_id)
 
       result = OpenStruct.new(response.body)
 
@@ -96,7 +97,8 @@ module Eps
       appointment_last4 = appointment_id.to_s.last(4)
       Eps::AppointmentStatusJob.perform_async(user.uuid, appointment_last4)
 
-      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
+      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload,
+                         request_headers_with_correlation_id)
 
       result = OpenStruct.new(response.body)
 
