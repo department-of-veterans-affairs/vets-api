@@ -141,7 +141,7 @@ module Logging
           errors: claim&.errors&.errors
         )
 
-        handle_bad_attachments(claim, in_progress_form)
+        handle_bad_attachments(claim, in_progress_form) if Flipper.enabled?(:monitor_process_attachments_sanitizer)
       end
 
       ##

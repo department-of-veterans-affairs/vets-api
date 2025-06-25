@@ -143,6 +143,7 @@ RSpec.describe Pensions::Monitor do
       end
 
       it 'removes bad attachments and updates the in_progress_form' do
+        allow(Flipper).to receive(:enabled?).with(:monitor_process_attachments_sanitizer).and_return(true)
         bad_attachment = PersistentAttachment.create!(saved_claim_id: claim.id)
 
         form_data = {

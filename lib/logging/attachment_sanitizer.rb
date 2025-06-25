@@ -23,7 +23,7 @@ module Logging
       end
 
       in_progress_form.update!(form_data: Common::HashHelpers.deep_to_h(form_data).to_json)
-      send_email(claim.id, '') # TODO: Need email_type
+      send_email(claim.id, :bad_attachments)
     rescue => e
       submit_event(
         :error,

@@ -73,6 +73,9 @@ module Burials
       Burials::NotificationEmail.new(claim_id).deliver(email_type)
     end
 
+    ##
+    # Provides a mapping from claim attachment keys (as used in claim models)
+    # to in-progress form keys (as used in InProgressForm#form_data) for Burials
     def attachment_key_map
       {
         transportationReceipts: :transportation_receipts,
