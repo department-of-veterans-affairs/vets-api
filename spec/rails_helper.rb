@@ -186,6 +186,7 @@ RSpec.configure do |config|
   config.include RequestHelper, type: :request
 
   config.include StatsD::Instrument::Matchers
+  config.include ActiveSupport::TestCase::FixtureSupport
 
   config.before :each, type: :controller do
     request.host = Settings.hostname
