@@ -108,7 +108,8 @@ module Eps
     # @return [void]
     #
     def send_notification_email(email:, user_uuid:, appointment_id_last4:, error:)
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, email_callback_options(user_uuid, appointment_id_last4))
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key,
+                                            email_callback_options(user_uuid, appointment_id_last4))
 
       notify_client.send_email(
         email_address: email,
