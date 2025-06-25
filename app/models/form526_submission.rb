@@ -556,16 +556,20 @@ class Form526Submission < ApplicationRecord
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
+  # This method calculates the delay for each upload based on its index in the uploads array.
+  # The delay is calculated to ensure that uploads are staggered and not sent all at once.
+  # Duplicate uploads (uploads with the same key) will have an additional delay.
+  #
+  # @param upload_index [Integer] the index of the upload in the uploads array
+  # @param key [String] a unique key for the upload, based on its name and size
+  # @param uniqueness_tracker [Hash] a hash to track the number of times each unique upload has been seen
+  # @return [Integer] the total delay in seconds for this upload
+  #
   def calc_submit_delays(upload_index, key, uniqueness_tracker)
-    # each upload needs to delay at least the base amount, from each other upload
-    delay_per_upload = (upload_index * UPLOAD_DELAY_BASE)
-    # uniqueness_tracker[key] the value of the key (the factor to multiple the base delay by)
-    # This increments by 5 for each upload with the same name and size (delay 5 units of UPLOAD_DELAY_BASE)
-    # We need to subtract 1 from the uniqueness_tracker[key] to account for the first upload
-    # and then subtract the upload_index to account for the current upload which is already being summed in by delay_per_upload
-    # we take the maximum of 0 and the calculated delay to avoid negative delays
+    delay_per_upload = (upload_index * UPLOAD_DELAY_BASE) # staggered delay based on index
+    # If the upload is a duplicate, add an additional delay based on how many times it has been seen
     dup_delay = [0, (UPLOAD_DELAY_BASE * (uniqueness_tracker[key] - 1 - upload_index))].max
-    # final amount to delay
+    # Final amount to delay
     UPLOAD_DELAY_BASE + delay_per_upload + dup_delay
   end
 
