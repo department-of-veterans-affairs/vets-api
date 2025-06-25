@@ -87,7 +87,10 @@ module Eps
                    required_params = %i[appointmentTypeId startOnOrAfter startBefore]
                    missing_params = required_params - opts.keys
 
-                   raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+                   if missing_params.any?
+                     raise ArgumentError,
+                           "Missing required parameters: #{missing_params.join(', ')}"
+                   end
 
                    opts
                  end
