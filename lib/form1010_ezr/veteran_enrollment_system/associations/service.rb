@@ -62,7 +62,7 @@ module Form1010Ezr
 
           transform_flat_fields(association, transformed_association)
           # This is a required field in the Associations API for insert/update, but not for delete
-          unless transformed_association['deleteIndicator'].present?
+          if transformed_association['deleteIndicator'].blank?
             transformed_association['lastUpdateDate'] = Time.current.iso8601
           end
 
