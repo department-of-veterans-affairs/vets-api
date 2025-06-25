@@ -522,7 +522,7 @@ module VAOS
           )
         end
 
-        appointment_type_id = provider.appointment_types.first.id
+        appointment_type_id = provider.appointment_types.first[:id]
         eps_provider_service.get_provider_slots(
           provider.id,
           {
