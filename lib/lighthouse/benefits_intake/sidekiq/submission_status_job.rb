@@ -9,6 +9,7 @@ module BenefitsIntake
     include Sidekiq::Job
 
     sidekiq_options retry: false
+    attr_reader :pending_attempts
 
     STATS_KEY = 'api.benefits_intake.submission_status'
     STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
@@ -53,7 +54,7 @@ module BenefitsIntake
 
       log(:info, 'started')
 
-      @pending_attempts ||= pending_submission_attempts(form_id)
+      @pending_attempts = pending_submission_attempts(form_id)
 
       batch_process
 
@@ -80,14 +81,13 @@ module BenefitsIntake
 
     # process a set of pending attempts
     #
-    # @param pending_attempts [Array<Lighthouse::SubmissionAttempt + Lighthouse::SubmissionAttempts>]
     # list of pending attempts to process
     def batch_process
-      return if @pending_attempts.blank?
+      return if pending_attempts.blank?
 
       intake_service = BenefitsIntake::Service.new
 
-      @pending_attempts.each_slice(batch_size) do |batch|
+      pending_attempts.each_slice(batch_size) do |batch|
         batch_uuids = batch.map(&:benefits_intake_uuid)
         log(:info, 'processing batch', batch_uuids:)
 
@@ -104,7 +104,7 @@ module BenefitsIntake
 
     # retrieve all pending attempts for the specified form_id
     #
-    # @param form_id [String] the form ID to filter attempts by, or nil for all forms
+    # @param form_type [String] the form ID to filter attempts by, or nil for all forms
     #
     # @return [Array<Lighthouse::SubmissionAttempt and/or FormSubmissionAttempt>] list of
     # pending attempts for the specified form
@@ -131,7 +131,7 @@ module BenefitsIntake
     # mapping of benefits_intake_uuid to Lighthouse::SubmissionAttempt
     # improves lookup during processing
     def pending_attempts_hash
-      @pah ||= @pending_attempts.index_by(&:benefits_intake_uuid)
+      @pah ||= pending_attempts.index_by(&:benefits_intake_uuid)
     end
 
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
