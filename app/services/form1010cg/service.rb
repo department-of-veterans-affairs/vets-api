@@ -159,8 +159,8 @@ module Form1010cg
 
     private
 
-    def log_submission_complete(guid, claim_pdf_path, poa_attachment_path, result)
-      attachment_data = (result.dig('record', 'results') || []).map do |attachment|
+    def log_submission_complete(guid, claim_pdf_path, poa_attachment_path, response_data)
+      attachment_data = (response_data.dig('record', 'results') || []).map do |attachment|
         {
           reference_id: attachment['referenceId'] || '',
           id: attachment['id'] || ''
@@ -175,8 +175,8 @@ module Form1010cg
           claim_pdf_path_length: claim_pdf_path&.length,
           poa_attachment_path_length: poa_attachment_path&.length,
           carma_case: {
-            created_at: result.dig('data', 'carmacase', 'createdAt') || '',
-            id: result.dig('data', 'carmacase', 'id') || '',
+            created_at: response_data.dig('data', 'carmacase', 'createdAt') || '',
+            id: response_data.dig('data', 'carmacase', 'id') || '',
             attachments: attachment_data
           }
 
