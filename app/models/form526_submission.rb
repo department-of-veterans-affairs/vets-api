@@ -575,15 +575,15 @@ class Form526Submission < ApplicationRecord
 
   def submit_uploads
     uploads = form[FORM_526_UPLOADS]
-    tags = ["form_id:#{FORM_526}"]
+    statsd_tags = ["form_id:#{FORM_526}"]
 
     # Send the count of uploads to StatsD, happens before return to capture claims with no uploads
-    StatsD.gauge('form526.uploads.count', uploads.count, tags: tags)
+    StatsD.gauge('form526.uploads.count', uploads.count, tags: statsd_tags)
     return if uploads.blank?
 
     # This happens only when there is 1+ uploads, otherwise will error out
     uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
-    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags: tags)
+    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags: statsd_tags)
 
     uniqueness_tracker = {}
     uploads.each_with_index do |upload, upload_index|
