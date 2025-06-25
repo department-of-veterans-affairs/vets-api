@@ -67,7 +67,7 @@ module Form1010Ezr
           end
 
           # Remove blank values
-          Common::HashHelpers.deep_remove_blanks(transformed_association).reject { |_, v| v.blank? }
+          Common::HashHelpers.deep_remove_blanks(transformed_association).compact_blank
         end
 
         def transform_associations(associations)
