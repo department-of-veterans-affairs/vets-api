@@ -651,13 +651,10 @@ module Burials
 
           @form_data.delete(location)
 
-          if location == 'atHome'
-            # This section is formatted in a wonky way to make the linter happy
-            location_of_death['location'] = 'nursingHomePaid' if home_hospice_care && home_hospice_care_after_discharge
-            if !home_hospice_care || !home_hospice_care_after_discharge
-              location_of_death['location'] =
-                'nursingHomeUnpaid'
-            end
+          if location == 'atHome' && home_hospice_care && home_hospice_care_after_discharge
+            location_of_death['location'] = 'nursingHomePaid'
+          elsif location == 'atHome' && !(home_hospice_care && home_hospice_care_after_discharge)
+            location_of_death['location'] = 'nursingHomeUnpaid'
           end
 
           expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
