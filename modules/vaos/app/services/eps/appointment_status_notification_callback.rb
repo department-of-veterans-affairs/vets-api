@@ -40,12 +40,14 @@ module Eps
       # Log warning if metadata is missing or incomplete
       if metadata.empty? || metadata['user_uuid'].blank? || metadata['appointment_id_last4'].blank?
         Rails.logger.warn(
-          'Eps::AppointmentNotificationCallback received missing or incomplete metadata',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback received missing or incomplete metadata',
           notification_id: notification.notification_id,
           metadata_present: !metadata.empty?,
           user_uuid_present: metadata['user_uuid'].present?,
-          appointment_id_present: metadata['appointment_id_last4'].present?
+          appointment_id_present: metadata['appointment_id_last4'].present?,
+          status: notification.status
         )
+        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments', "user_uuid:#{metadata['user_uuid']}", "appointment_id_last4:#{metadata['appointment_id_last4']}"])
       end
 
       metadata
@@ -79,25 +81,12 @@ module Eps
 
       case status.downcase
       when 'delivered'
-        handle_success(base_data, tags)
+        StatsD.increment("#{STATSD_KEY}.success", tags:)
       when *FAILURE_STATUSES
         handle_failure(notification, base_data, tags)
       else
         handle_unknown_status(notification, base_data, tags)
       end
-    end
-
-    # Handle successful delivery
-    #
-    # @param base_data [Hash] Base data for logging and metrics
-    # @param tags [Array<String>] StatsD tags
-    # @return [void]
-    def self.handle_success(base_data, tags)
-      StatsD.increment("#{STATSD_KEY}.success", tags:)
-      Rails.logger.info(
-        'Eps::AppointmentNotificationCallback delivered successfully',
-        base_data.except(:status)
-      )
     end
 
     # Handle delivery failures
@@ -116,7 +105,7 @@ module Eps
       )
 
       Rails.logger.error(
-        'Eps::AppointmentNotificationCallback delivery failed',
+        'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
         failure_data
       )
     end
@@ -135,7 +124,7 @@ module Eps
       )
 
       Rails.logger.warn(
-        'Eps::AppointmentNotificationCallback received unknown status',
+        'Community Care Appointments: Eps::AppointmentNotificationCallback received unknown status',
         unknown_data
       )
     end
@@ -146,7 +135,7 @@ module Eps
     def self.handle_missing_notification
       StatsD.increment("#{STATSD_KEY}.missing_notification")
       Rails.logger.error(
-        'Eps::AppointmentNotificationCallback called with nil notification object'
+        'Community Care Appointments: Eps::AppointmentNotificationCallback called with nil notification object'
       )
     end
 
@@ -166,7 +155,7 @@ module Eps
         appointment_id_last4: notification&.callback_metadata&.dig('appointment_id_last4') || 'missing'
       }
 
-      Rails.logger.error('Eps::AppointmentNotificationCallback error processing callback', error_data)
+      Rails.logger.error('Community Care Appointments: Eps::AppointmentNotificationCallback error processing callback', error_data)
     end
 
     # Build StatsD tags for metrics
@@ -175,6 +164,7 @@ module Eps
     # @return [Array<String>] Array of StatsD tags
     def self.build_statsd_tags(base_data)
       [
+        'Community Care Appointments',
         "user_uuid:#{base_data[:user_uuid]}",
         "appointment_id_last4:#{base_data[:appointment_id_last4]}"
       ]
