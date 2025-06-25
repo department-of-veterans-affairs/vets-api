@@ -66,8 +66,7 @@ RSpec.describe 'V0::Avs', type: :request do
   end
 
   describe 'GET `show`' do
-    icn = '123498767V234859'
-    let(:current_user) { build(:user, :loa3, icn:) }
+    let(:current_user) { build(:user, :loa3, :legacy_icn) }
 
     it 'returns error when sid format is incorrect' do
       get '/avs/v0/avs/1234567890'

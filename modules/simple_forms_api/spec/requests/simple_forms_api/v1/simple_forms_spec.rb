@@ -35,6 +35,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   let(:pdf_url) { 'https://s3.com/presigned-goodness' }
   let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
   let(:lighthouse_service) { instance_double(BenefitsIntake::Service) }
+  let(:user) { create(:user, :legacy_icn, participant_id:) }
+  let(:participant_id) { 'some-participant-id' }
 
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
@@ -130,10 +132,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'request with intent to file' do
         context 'authenticated but without participant_id' do
+          let(:participant_id) { nil }
+
           before do
-            sign_in
-            allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
-            allow_any_instance_of(User).to receive(:participant_id).and_return(nil)
+            sign_in(user)
             allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
 
@@ -263,8 +265,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'LOA3 authenticated' do
         before do
-          sign_in
-          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          sign_in(user)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
 
@@ -337,8 +338,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'authenticated' do
         before do
-          sign_in
-          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          sign_in(user)
           allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         end
@@ -603,8 +603,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#get_intents_to_file' do
-    let(:user) { create(:user, :legacy_icn) }
-    let(:mpi_profile) { build(:mpi_profile, participant_id: '123456789') }
+    let(:participant_id) { '123456789' }
+    let(:mpi_profile) { build(:mpi_profile, participant_id:) }
 
     before do
       VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
@@ -715,7 +715,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   describe 'email confirmations' do
     let(:confirmation_number) { 'some_confirmation_number' }
-    let(:user) { build(:user, :legacy_icn) }
 
     before do
       sign_in(user)
