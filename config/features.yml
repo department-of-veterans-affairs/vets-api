@@ -15,6 +15,9 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  this_is_only_a_test_two:
+    actor_type: user
+    description: Used in feature toggle specs.
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -27,6 +30,13 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
+  accredited_representative_portal_normalize_path:
+    actor_type: user
+    description: >
+      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to 
+      use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
+      NOTE: This should only be enabled in localhost and staging.
+    enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
     description: Enables the people search of the accredited representative portal
@@ -38,7 +48,8 @@ features:
     actor_type: user
     description: >
       When enabled, shows form 21a in the accredited representative portal.
-      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
+    enable_in_development: true
   accredited_representative_portal_submissions:
     actor_type: user
     description: Enables the form submissions view in the accredited representative portal
@@ -117,6 +128,9 @@ features:
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
+  bgs_param_logging_enabled:
+    actor_type: user
+    description: Enables logging of BGS parameters (filtered in production)
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
@@ -208,6 +222,10 @@ features:
     actor_type: user
     description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
+  ezr_spouse_confirmation_flow_enabled:
+    actor_type: user
+    description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -247,6 +265,9 @@ features:
   champva_old_records_cleanup_job:
     actor_type: user
     description: Enables the job to cleanup old IVC CHAMPVA form records
+  champva_enable_claim_resubmit_question:
+    actor_type: user
+    description: Enables the claim resubmission screener question page on form 10-7959a
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1184,6 +1205,14 @@ features:
   mhv_medical_records_display_vitals:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
+    enable_in_development: true
+  mhv_medical_records_migrate_ccd_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the CCD endpoints
+    enable_in_development: true
+  mhv_medical_records_migrate_dicom_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the DICOM endpoint
     enable_in_development: true
   mhv_medical_records_migrate_to_api_gateway:
     actor_type: user
@@ -2259,3 +2288,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: When enabled, allows past visit filtering for Mental Health
+  is_dgib_call_only:
+    actor_type: user
+    description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+    

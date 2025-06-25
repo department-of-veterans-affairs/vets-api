@@ -505,18 +505,28 @@ module VAOS
       #
       # @param referral [ReferralDetail] The referral object containing:
       #   - `provider_npi` [String] The provider's NPI.
-      #   - `appointment_type_id` [String] The appointment type.
       #   - `referral_date` [String] The earliest appointment date (ISO 8601).
       #   - `expiration_date` [String] The latest appointment date (ISO 8601).
-      # @param provider_id [String] The provider's ID.
+      # @param provider [Object] The provider object.
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral, provider_id)
+      def fetch_provider_slots(referral, provider)
+        # Validate provider appointment types data before accessing it
+        if provider.appointment_types.blank?
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_APPOINTMENT_TYPES_MISSING',
+            {},
+            502,
+            'Provider appointment types data is not available'
+          )
+        end
+
+        appointment_type_id = provider.appointment_types.first[:id]
         eps_provider_service.get_provider_slots(
-          provider_id,
+          provider.id,
           {
-            appointmentTypeId: referral.appointment_type_id,
+            appointmentTypeId: appointment_type_id,
             startOnOrAfter: Date.parse(referral.referral_date).to_time.utc.iso8601,
             startBefore: Date.parse(referral.expiration_date).to_time.utc.iso8601
           }
@@ -611,7 +621,6 @@ module VAOS
 
         required_attributes = {
           'provider_npi' => referral.provider_npi,
-          'appointment_type_id' => referral.appointment_type_id,
           'referral_date' => referral.referral_date,
           'expiration_date' => referral.expiration_date
         }
@@ -780,7 +789,7 @@ module VAOS
                                  address: referral.treating_facility_address)
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
-        slots = fetch_provider_slots(referral, provider.id)
+        slots = fetch_provider_slots(referral, provider)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
         drive_time = fetch_drive_times(provider)
 

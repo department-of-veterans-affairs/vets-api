@@ -1240,7 +1240,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         referral_number: 'ref-123',
         referral_consult_id: '123-123456',
         npi:,
-        appointment_type_id:,
         start_date:,
         end_date:,
         treating_facility_address: address
@@ -1258,7 +1257,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       instance_double(Ccra::ReferralDetail,
                       provider_specialty: specialty,
                       referral_number: 'ref-123',
-                      appointment_type_id:,
                       expiration_date: end_date,
                       provider_npi: npi,
                       referral_date: start_date,
@@ -1585,7 +1583,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             referral_data = {
               referral_number: 'ref-124',
               npi:,
-              appointment_type_id:,
               start_date:,
               end_date:
             }
@@ -1593,7 +1590,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             # Set up the test referral for this test case
             specific_referral_detail = instance_double(Ccra::ReferralDetail,
                                                        referral_number: referral_data[:referral_number],
-                                                       appointment_type_id: referral_data[:appointment_type_id],
                                                        expiration_date: referral_data[:end_date],
                                                        provider_npi: referral_data[:npi],
                                                        referral_date: referral_data[:start_date])
@@ -1650,7 +1646,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           referral_data = {
             referral_number: 'ref-126',
             npi:,
-            appointment_type_id:,
             start_date:,
             end_date:
           }
@@ -1658,7 +1653,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           # Set up the test referral for this test case
           ref126_detail = instance_double(Ccra::ReferralDetail,
                                           referral_number: referral_data[:referral_number],
-                                          appointment_type_id: referral_data[:appointment_type_id],
                                           expiration_date: referral_data[:end_date],
                                           provider_npi: referral_data[:npi],
                                           referral_date: referral_data[:start_date])
