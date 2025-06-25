@@ -33,23 +33,23 @@ RSpec.describe Form1010cg::DeleteOldUploadsJob do
 
   describe '#perform' do
     it 'deletes attachments created more than 30 days ago' do
-      now = DateTime.now
+      Timecop.freeze(DateTime.new(2025, 6, 25)) do
+        now = DateTime.now
 
-      old_attachment = create(:form1010cg_attachment, :with_attachment, created_at: now - 31.days)
-      older_attachment = create(:form1010cg_attachment, :with_attachment, created_at: now - 32.days)
-      newer_attachment = create(:form1010cg_attachment, :with_attachment, created_at: now - 29.days)
+        old_attachment = create(:form1010cg_attachment, :with_attachment, created_at: now - 31.days)
+        older_attachment = create(:form1010cg_attachment, :with_attachment, created_at: now - 32.days)
+        newer_attachment = create(:form1010cg_attachment, :with_attachment, created_at: now - 29.days)
 
-      allow_any_instance_of(FormAttachment).to receive(:get_file).and_return(double(delete: true))
-      allow(old_attachment).to receive(:destroy!).and_return(true)
-      allow(older_attachment).to receive(:destroy!).and_return(true)
+        allow_any_instance_of(Form1010cg::Attachment).to receive(:get_file).and_return(double(delete: true))
 
-      subject.perform
+        subject.perform
 
-      expect { old_attachment.reload }.to raise_error(ActiveRecord::RecordNotFound)
-      expect { older_attachment.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { old_attachment.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { older_attachment.reload }.to raise_error(ActiveRecord::RecordNotFound)
 
-      expect(Form1010cg::Attachment.all).to eq([newer_attachment])
-      expect(Form1010cg::Attachment.count).to eq(1)
+        expect(Form1010cg::Attachment.all).to eq([newer_attachment])
+        expect(Form1010cg::Attachment.count).to eq(1)
+      end
     end
   end
 end
