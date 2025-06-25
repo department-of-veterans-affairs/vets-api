@@ -7,7 +7,7 @@ describe Eps::BaseService do
 
   let(:user) { double('User', account_uuid: '1234', icn: user_icn) }
   let(:service) { described_class.new(user) }
-  let(:config) { instance_double(Eps::Configuration) }
+  let(:config) { instance_double(Eps::Configuration, api_url: 'https://api.wellhive.com', base_path: 'api/v1') }
   let(:request_id) { '123456-abcdef' }
   let(:memory_store) { ActiveSupport::Cache::MemoryStore.new }
 
