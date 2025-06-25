@@ -559,7 +559,7 @@ module VAOS
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error(
-          "Community Care Appointments Error - VAOS: Error retrieving AVS link: " \
+          'Community Care Appointments Error - VAOS: Error retrieving AVS link: ' \
           "#{e.class}, #{e.message} \n   #{err_stack}"
         )
         appt[:avs_path] = AVS_ERROR_MESSAGE
