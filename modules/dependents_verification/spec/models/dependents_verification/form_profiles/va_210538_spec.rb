@@ -21,7 +21,7 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
       ptcpnt_id: '600140899',
       related_to_vet: 'Y',
       relationship: 'Spouse',
-      ssnLastFour: '3214',
+      ssn: '222883214',
       veteran_indicator: 'N'
     }] }
   end
