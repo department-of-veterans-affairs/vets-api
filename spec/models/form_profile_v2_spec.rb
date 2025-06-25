@@ -348,6 +348,24 @@ RSpec.describe FormProfile, type: :model do
       'emailAddress' => user.va_profile_email
     }
   end
+  let(:v22_10297_expected) do
+    {
+      'activeDuty' => false,
+      'mailingAddress' => address,
+      'applicantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'applicantGender' => user.gender,
+      'dayTimePhone' => us_phone,
+      'nightTimePhone' => mobile_phone,
+      'dateOfBirth' => user.birth_date,
+      'applicantSocialSecurityNumber' => user.ssn,
+      'emailAddress' => user.va_profile_email
+    }
+  end
   let(:v22_1990_n_expected) do
     {
       'toursOfDuty' => tours_of_duty,
@@ -1374,6 +1392,51 @@ RSpec.describe FormProfile, type: :model do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
                   expect_prefilled('22-0994')
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'with VA Profile prefill for 10297' do
+        before do
+          expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                             .and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 10297' do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                           allow_playback_repeats: true) do
+            expect_prefilled('22-10297')
+          end
+        end
+      end
+
+      context 'with VA Profile and ppiu prefill for 10297' do
+        before do
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('usyergd')
+          can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                             .and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10297_expected['bankAccount'] = {
+            'bankAccountNumber' => '******7890',
+            'bankAccountType' => 'Checking',
+            'bankName' => 'WELLS FARGO BANK',
+            'bankRoutingNumber' => '*****0503'
+          }
+        end
+
+        it 'prefills 10297 with VA Profile and payment information' do
+          VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                                 allow_playback_repeats: true) do
+                  expect_prefilled('22-10297')
                 end
               end
             end
