@@ -1254,7 +1254,7 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
-  mhv_medical_records_immunizations_v2_enabled:
+  mhv_accelerated_delivery_vaccines_enabled:
     actor_type: user
     description: Enables/disables the new immunizations v2 endpoint that uses LH as a datasource and aligns with data model that the mobile app uses
     enable_in_development: false

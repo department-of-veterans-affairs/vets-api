@@ -12,7 +12,7 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       STATSD_KEY_PREFIX = 'api.my_health.immunizations'
-      FEATURE_TOGGLE = 'mhv_medical_records_immunizations_v2_enabled'
+      FEATURE_TOGGLE = 'mhv_accelerated_delivery_vaccines_enabled'
 
       before_action :check_feature_toggle
 
