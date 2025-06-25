@@ -14,6 +14,7 @@ require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
+require 'debts_api/v0/digital_dispute_submission_service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -583,6 +584,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'validates the route' do
+          allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:call).and_return(
+            { success: true, message: 'Digital dispute submission received successfully' }
+          )
           expect(subject).to validate(
             :post,
             '/debts_api/v0/digital_disputes',
@@ -3549,6 +3553,22 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 200, headers)
         end
       end
+    end
+  end
+
+  describe 'DatadogAction endpoint' do
+    it 'records a front-end metric and returns 204 No Content' do
+      body = {
+        'metric' => DatadogMetrics::ALLOWLIST.first, # e.g. 'labs_and_tests_list'
+        'tags' => []
+      }
+
+      expect(subject).to validate(
+        :post,
+        '/v0/datadog_action',
+        204,
+        '_data' => body
+      )
     end
   end
 

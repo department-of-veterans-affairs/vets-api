@@ -63,10 +63,22 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaim::BenefitsIntake, type:
     end
   end
 
-  describe 'business_line' do
-    it 'is is defined correctly' do
-      expect(claim.business_line).to eq(
-        'COMPENSATION'
+  describe 'constants' do
+    it 'has BUSINESS_LINE defined correctly' do
+      expect(claim.class::BUSINESS_LINE).to eq(
+        'CMP'
+      )
+    end
+
+    it 'has PROPER_FORM_ID defined correctly' do
+      expect(claim.class::PROPER_FORM_ID).to eq(
+        '21-686c'
+      )
+    end
+
+    it 'has FORM_ID defined correctly' do
+      expect(claim.class::FORM_ID).to eq(
+        '21-686C_BENEFITS-INTAKE'
       )
     end
   end
