@@ -47,7 +47,14 @@ module Eps
           appointment_id_present: metadata['appointment_id_last4'].present?,
           status: notification.status
         )
-        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments', "user_uuid:#{metadata['user_uuid']}", "appointment_id_last4:#{metadata['appointment_id_last4']}"])
+        StatsD.increment(
+          "#{STATSD_KEY}.missing_metadata",
+          tags: [
+            'Community Care Appointments',
+            "user_uuid:#{metadata['user_uuid']}",
+            "appointment_id_last4:#{metadata['appointment_id_last4']}"
+          ]
+        )
       end
 
       metadata
@@ -155,7 +162,10 @@ module Eps
         appointment_id_last4: notification&.callback_metadata&.dig('appointment_id_last4') || 'missing'
       }
 
-      Rails.logger.error('Community Care Appointments: Eps::AppointmentNotificationCallback error processing callback', error_data)
+      Rails.logger.error(
+        'Community Care Appointments: Eps::AppointmentNotificationCallback error processing callback',
+        error_data
+      )
     end
 
     # Build StatsD tags for metrics
