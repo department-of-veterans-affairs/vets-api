@@ -95,7 +95,8 @@ Rails.application.reloader.to_prepare do
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
     UnifiedHealthData::Configuration.instance.breakers_service,
-    MDOT::Configuration.instance.breakers_service
+    MDOT::Configuration.instance.breakers_service,
+    Mulesoft::PreNeed::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
