@@ -1646,7 +1646,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               instance_double(Ccra::ReferralDetail,
                               referral_number: 'ref-126',
                               category_of_care: 'UROLOGY',
-                              appointment_type_id:,
                               expiration_date: end_date,
                               provider_npi: npi,
                               referral_date: start_date,
