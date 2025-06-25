@@ -71,7 +71,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(labs.first.attributes.test_code).to eq('CH')
         end
       end
-      
+
       context 'when MB Flipper is enabled' do
         it 'would return MB test codes if present in the data' do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
@@ -109,7 +109,7 @@ describe UnifiedHealthData::Service, type: :service do
       result = service.send(:filter_records, records)
       expect(result).to eq([record_ch, record_mb])
     end
-    
+
     it 'returns only MB records when only MB flag is enabled' do
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
@@ -117,7 +117,7 @@ describe UnifiedHealthData::Service, type: :service do
       result = service.send(:filter_records, records)
       expect(result).to eq([record_mb])
     end
-    
+
     it 'returns all records when all flags are enabled' do
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
