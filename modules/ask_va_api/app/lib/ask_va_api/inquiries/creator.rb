@@ -56,8 +56,9 @@ module AskVAApi
           safe_fields = log_safe_fields_from_inquiry(inquiry_params)
           span.set_tag('user.isAuthenticated', user.present?)
           span.set_tag('user.loa', user&.loa&.fetch(:current, nil))
-          payload = build_payload(inquiry_params)
+          # move before building payload to catch which fields are causing an error
           span.set_tag('inquiry', safe_fields)
+          payload = build_payload(inquiry_params)
           if payload.key?(:LevelOfAuthentication)
             span.set_tag('Crm.LevelOfAuthentication', payload[:LevelOfAuthentication])
           end
@@ -72,7 +73,8 @@ module AskVAApi
       private
 
       def log_safe_fields_from_inquiry(inquiry_params)
-        inquiry_params.slice(*SAFE_INQUIRY_FIELDS)
+        # Logs suggest there may be an issue with inquiry_params. Be safe
+        (inquiry_params || {}).slice(*SAFE_INQUIRY_FIELDS)
       end
 
       def default_service
