@@ -26,10 +26,7 @@ module AskVAApi
       ENDPOINT = 'inquiries/new'
       SAFE_INQUIRY_FIELDS = %i[
         about_your_relationship_to_family_member
-        category_id
         contact_preference
-        family_members_location_of_residence
-        family_member_postal_code
         is_question_about_veteran_or_someone_else
         more_about_your_relationship_to_veteran
         relationship_to_veteran
@@ -37,13 +34,8 @@ module AskVAApi
         select_category
         select_subtopic
         select_topic
-        state_of_property
-        subtopic_id
         their_relationship_to_veteran
         they_have_relationship_not_listed
-        topic_id
-        veterans_postal_code
-        veterans_location_of_residence
         who_is_your_question_about
         your_location_of_residence
         your_role
@@ -58,23 +50,29 @@ module AskVAApi
       end
 
       def call(inquiry_params:)
-        payload = build_payload(inquiry_params)
-        post_data(payload)
-      rescue => e
-        safe_fields = log_safe_fields_from_inquiry(inquiry_params)
-        # Raise with error context for downstream logging/rendering
-        raise InquiriesCreatorError.new(
-          "InquiriesCreatorError: #{e.message}",
-          context: {
-            safe_fields:
-          }
-        )
+        # Directly coupling to Datadog::Trace is a bad idea, but this is a targetted change.
+        # This is a temporary solution to avoid the need for a full refactor of Logservice.
+        Datadog::Tracing.trace('ask_va_api.inquiries.creator.call') do |span|
+          safe_fields = log_safe_fields_from_inquiry(inquiry_params)
+          span.set_tag('user.isAuthenticated', user.present?)
+          span.set_tag('user.loa', user&.loa&.fetch(:current, nil))
+          payload = build_payload(inquiry_params)
+          span.set_tag('inquiry', safe_fields)
+          if payload.key?(:LevelOfAuthentication)
+            span.set_tag('Crm.LevelOfAuthentication', payload[:LevelOfAuthentication])
+          end
+          post_data(payload)
+        rescue => e
+          span.set_error(e)
+          raise InquiriesCreatorError.new("InquiriesCreatorError: #{e.message}", context: { safe_fields: })
+        end
       end
 
       private
 
       def log_safe_fields_from_inquiry(inquiry_params)
-        inquiry_params.slice(*SAFE_INQUIRY_FIELDS)
+        # Logs suggest there may be an issue with inquiry_params.
+        (inquiry_params || {}).slice(*SAFE_INQUIRY_FIELDS)
       end
 
       def default_service

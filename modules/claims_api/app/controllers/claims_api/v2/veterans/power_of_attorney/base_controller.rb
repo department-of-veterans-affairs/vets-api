@@ -82,11 +82,14 @@ module ClaimsApi
         end
 
         def attributes
+          base = form_attributes.key?('serviceOrganization') ? 'serviceOrganization' : 'representative'
+          new_poa_code = form_attributes.dig(base, 'poaCode')
+
           {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: set_auth_headers,
             form_data: form_attributes,
-            current_poa: current_poa_code,
+            current_poa: new_poa_code,
             header_hash:
           }
         end
