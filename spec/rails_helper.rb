@@ -122,7 +122,7 @@ end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_paths = Array(Rails.root / 'spec/fixtures')
+  # config.fixture_paths = Array(Rails.root / 'spec/fixtures')
 
   config.include(ValidationHelpers, type: :model)
   %i[controller model].each do |type|
@@ -186,7 +186,6 @@ RSpec.configure do |config|
   config.include RequestHelper, type: :request
 
   config.include StatsD::Instrument::Matchers
-  config.include ActiveSupport::TestCase::FixtureSupport
 
   config.before :each, type: :controller do
     request.host = Settings.hostname
