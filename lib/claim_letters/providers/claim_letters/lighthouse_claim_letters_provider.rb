@@ -61,8 +61,8 @@ class LighthouseClaimLettersProvider
                     end
     filename = ClaimLetters::Utils::LetterTransformer.filename_with_date(received_date)
 
-    # Force the response body to binary encoding before yielding
-    binary_data = res.body.force_encoding('BINARY')
+    # Duplicate the response body before forcing encoding to handle frozen strings
+    binary_data = res.body.dup.force_encoding('BINARY')
     yield binary_data, 'application/pdf', 'attachment', filename
   end
 
