@@ -12,10 +12,6 @@ PDFTK is currently used in PdfFill::Filler and other modules for PDF manipulatio
 
 PDFTK is no longer actively maintained, and multiple teams have already been transitioning various PDF related functionality to HexaPDF.
 
-`lib/pdf_fill/filler.rb` would need to be refactored to use HexaPDF
-`lib/pdf_fill/forms/va21p527ez.rb` would be the form key value pair that needs to be registered
-`lib/pdf_fill/forms/pdfs/21P-527EZ.pdf` would be the form template that needs to be registered
-
 A direct cutover from PDFTK to HexaPDF is not recommended due to forms being maintained by different teams. To mitigate any issues, Flipper feature flags can be used to control the rollout of the HexaPDF implementation.
 
 ## Decision
