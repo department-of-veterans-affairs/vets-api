@@ -40,20 +40,22 @@ describe UnifiedHealthData::Service, type: :service do
                                            parse_response_body: labs_response)
       end
 
-      context 'when Flipper is enabled for both codes' do
+      context 'when Flipper is enabled for all codes' do
         it 'returns labs/tests' do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(2)
           expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP')
         end
       end
 
-      context 'when Flipper is disabled for both codes' do
+      context 'when Flipper is disabled for all codes' do
         it 'filters out labs/tests' do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs).to be_empty
         end
@@ -63,9 +65,20 @@ describe UnifiedHealthData::Service, type: :service do
         it 'returns only enabled test codes' do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(1)
           expect(labs.first.attributes.test_code).to eq('CH')
+        end
+      end
+      
+      context 'when MB Flipper is enabled' do
+        it 'would return MB test codes if present in the data' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+          expect(labs).to be_empty # No MB records in the test data
         end
       end
     end
@@ -86,13 +99,31 @@ describe UnifiedHealthData::Service, type: :service do
   describe '#filter_records' do
     let(:record_ch) { double(attributes: double(test_code: 'CH')) }
     let(:record_sp) { double(attributes: double(test_code: 'SP')) }
-    let(:records) { [record_ch, record_sp] }
+    let(:record_mb) { double(attributes: double(test_code: 'MB')) }
+    let(:records) { [record_ch, record_sp, record_mb] }
 
     it 'returns only records with enabled Flipper flags' do
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
       result = service.send(:filter_records, records)
-      expect(result).to eq([record_ch])
+      expect(result).to eq([record_ch, record_mb])
+    end
+    
+    it 'returns only MB records when only MB flag is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+      result = service.send(:filter_records, records)
+      expect(result).to eq([record_mb])
+    end
+    
+    it 'returns all records when all flags are enabled' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+      result = service.send(:filter_records, records)
+      expect(result).to eq([record_ch, record_sp, record_mb])
     end
   end
 

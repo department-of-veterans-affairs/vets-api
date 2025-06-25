@@ -24,6 +24,14 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_sp_response.json'
     ).read)
   end
+  let(:mb_flipper) { :mhv_accelerated_delivery_uhd_mb_enabled }
+  let(:mb_response) do
+    JSON.parse(Rails.root.join(
+      'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_mb_response.json'
+    ).read)
+  rescue Errno::ENOENT
+    {} # Return empty hash if the fixture doesn't exist yet
+  end
 
   describe 'GET /mobile/v1/health/labs-and-tests' do
     context 'happy path' do
@@ -31,6 +39,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -53,6 +62,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -74,6 +84,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -107,6 +118,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       before do
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
         allow(Rails.logger).to receive(:error)
         VCR.use_cassette(labs_attachment_cassette) do
           get path, headers: sis_headers, params: default_params
