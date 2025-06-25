@@ -30,6 +30,13 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
+  accredited_representative_portal_normalize_path:
+    actor_type: user
+    description: >
+      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to 
+      use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
+      NOTE: This should only be enabled in localhost and staging.
+    enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
     description: Enables the people search of the accredited representative portal
@@ -41,7 +48,8 @@ features:
     actor_type: user
     description: >
       When enabled, shows form 21a in the accredited representative portal.
-      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
+    enable_in_development: true
   accredited_representative_portal_submissions:
     actor_type: user
     description: Enables the form submissions view in the accredited representative portal
@@ -1198,6 +1206,14 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_migrate_ccd_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the CCD endpoints
+    enable_in_development: true
+  mhv_medical_records_migrate_dicom_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the DICOM endpoint
+    enable_in_development: true
   mhv_medical_records_migrate_to_api_gateway:
     actor_type: user
     description: Enables the switch to the new MHV API Gateway endpoints
@@ -2272,3 +2288,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: When enabled, allows past visit filtering for Mental Health
+  is_dgib_call_only:
+    actor_type: user
+    description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+    

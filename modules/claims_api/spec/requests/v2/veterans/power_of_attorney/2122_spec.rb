@@ -54,7 +54,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
           context 'when valid' do
             it 'returns a 202' do
               mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
                 allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
@@ -111,7 +111,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   it 'returns a 202 when no zipCode is included in the veteran data' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-                        expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                        allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                           .and_return(bgs_poa)
                         allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
@@ -285,7 +285,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
             it 'returns a success response' do
               mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
                 allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
@@ -396,7 +396,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'returns a 202 with no zipCode' do
                 VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                   mock_ccg(scopes) do |auth_header|
-                    expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                    allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                       .and_return(bgs_poa)
                     allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
@@ -419,7 +419,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'allows an empty string' do
                 data[:data][:attributes][:veteran][:email] = ''
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
@@ -433,7 +433,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it "allows a valid 'normal' looking email" do
                 data[:data][:attributes][:veteran][:email] = 'valid@email.com'
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
@@ -491,7 +491,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
         context 'POA organization' do
           it 'returns a 202 response when successful' do
             mock_ccg_for_fine_grained_scope(poa_scopes) do |auth_header|
-              expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+              allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
@@ -520,7 +520,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
         it 'returns the last one with a 202 response' do
           mock_ccg(scopes) do |auth_header|
-            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+            allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
               .and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })

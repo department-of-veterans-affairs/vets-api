@@ -1240,7 +1240,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         referral_number: 'ref-123',
         referral_consult_id: '123-123456',
         npi:,
-        appointment_type_id:,
         start_date:,
         end_date:,
         treating_facility_address: address

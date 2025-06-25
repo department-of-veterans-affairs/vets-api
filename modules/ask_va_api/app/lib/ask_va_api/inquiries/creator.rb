@@ -64,7 +64,6 @@ module AskVAApi
           post_data(payload)
         rescue => e
           span.set_error(e)
-          safe_fields = log_safe_fields_from_inquiry(inquiry_params)
           raise InquiriesCreatorError.new("InquiriesCreatorError: #{e.message}", context: { safe_fields: })
         end
       end
@@ -72,7 +71,8 @@ module AskVAApi
       private
 
       def log_safe_fields_from_inquiry(inquiry_params)
-        inquiry_params.slice(*SAFE_INQUIRY_FIELDS)
+        # Logs suggest there may be an issue with inquiry_params.
+        (inquiry_params || {}).slice(*SAFE_INQUIRY_FIELDS)
       end
 
       def default_service

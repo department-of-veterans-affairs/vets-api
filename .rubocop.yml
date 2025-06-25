@@ -112,6 +112,7 @@ Metrics/ClassLength:
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -393,7 +394,7 @@ Naming/PredicatePrefix:
     - app/models/preneeds/burial_form.rb
 
 Rails/UnusedIgnoredColumns:
-  Exclude: 
+  Exclude:
     - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
 
 Rails/InverseOf:
@@ -408,5 +409,13 @@ Lint/DuplicateMethods:
     - modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb
 
 Rails/UniqueValidationWithoutIndex:
-  Exclude: 
+  Exclude:
     - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - 'rakelib/decision_review_repl.rb'
+
+Style/SafeNavigation:
+  Exclude:
+    - 'modules/mobile/app/models/mobile/v0/adapters/immunizations.rb'
