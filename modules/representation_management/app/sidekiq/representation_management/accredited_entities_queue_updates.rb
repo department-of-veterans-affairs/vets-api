@@ -13,15 +13,18 @@ module RepresentationManagement
       @force_update_types = force_update_types
       @agent_responses = []
       @attorney_responses = []
+      @org_responses = []
       @agent_ids = []
       @attorney_ids = []
       @agent_json_for_address_validation = []
       @attorney_json_for_address_validation = []
+      @org_json_for_address_validation = []
       @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
 
       @entity_counts.save_api_counts unless @force_update_types.any?
       process_agents
       process_attorneys
+      process_orgs_and_reps
       delete_old_accredited_individuals
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
