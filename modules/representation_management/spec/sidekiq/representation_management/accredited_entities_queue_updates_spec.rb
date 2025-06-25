@@ -56,8 +56,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       # Only stub external dependencies
       allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
       allow(entity_counts).to receive(:save_api_counts)
-      allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(true)
-      allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with('agents').and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(true)
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
@@ -121,7 +121,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when agent count is invalid' do
       before do
-        allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with('agents').and_return(false)
       end
 
       it 'logs an error and skips agent updates' do
@@ -156,7 +156,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when attorney count is invalid' do
       before do
-        allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(false)
       end
 
       it 'logs an error and skips attorney updates' do
@@ -191,8 +191,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when both counts are invalid' do
       before do
-        allow(entity_counts).to receive(:valid_count?).with(:agents).and_return(false)
-        allow(entity_counts).to receive(:valid_count?).with(:attorneys).and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with('agents').and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(false)
       end
 
       it 'logs errors for both counts and skips updates' do
