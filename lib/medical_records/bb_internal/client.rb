@@ -163,7 +163,7 @@ module BBInternal
     #
     def get_dicom(id, header_callback, yielder)
       study_id = get_study_id_from_cache(id)
-      uri = URI.join(config.base_path,
+      uri = URI.join(config.base_path_non_gateway,
                      "bluebutton/studyjob/zip/stream/#{session.patient_id}/studyidUrn/#{study_id}")
       streaming_get(uri, token_headers, header_callback, yielder)
     end
@@ -188,7 +188,11 @@ module BBInternal
     def get_download_ccd(date)
       modified_headers = token_headers.dup
       modified_headers['Accept'] = 'application/xml'
-      response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, modified_headers)
+      response = config.connection_non_gateway.get(
+        "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML",
+        nil,
+        modified_headers
+      )
       response.body
     end
 
