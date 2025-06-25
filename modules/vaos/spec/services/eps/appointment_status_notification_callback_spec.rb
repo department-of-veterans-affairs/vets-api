@@ -43,18 +43,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.success",
-          tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"]
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          'Eps::AppointmentNotificationCallback delivered successfully',
-          {
-            notification_id:,
-            user_uuid:,
-            appointment_id_last4:,
-            created_at:,
-            sent_at:,
-            completed_at:
-          }
+          tags: statsd_tags
         )
         expect(Rails.logger).not_to have_received(:error)
       end
@@ -68,10 +57,10 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"]
+          tags: statsd_tags
         )
         expect(Rails.logger).to have_received(:error).with(
-          'Eps::AppointmentNotificationCallback delivery failed',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
           {
             notification_id:,
             user_uuid:,
@@ -96,10 +85,10 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"]
+          tags: statsd_tags
         )
         expect(Rails.logger).to have_received(:error).with(
-          'Eps::AppointmentNotificationCallback delivery failed',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
           hash_including(failure_type: 'temporary')
         )
       end
@@ -113,10 +102,10 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"]
+          tags: statsd_tags
         )
         expect(Rails.logger).to have_received(:error).with(
-          'Eps::AppointmentNotificationCallback delivery failed',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
           hash_including(failure_type: 'technical')
         )
       end
@@ -130,10 +119,10 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.unknown_status",
-          tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"]
+          tags: statsd_tags
         )
         expect(Rails.logger).to have_received(:warn).with(
-          'Eps::AppointmentNotificationCallback received unknown status',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback received unknown status',
           {
             notification_id:,
             user_uuid:,
@@ -156,17 +145,18 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
         described_class.call(notification)
 
         expect(Rails.logger).to have_received(:warn).with(
-          'Eps::AppointmentNotificationCallback received missing or incomplete metadata',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback received missing or incomplete metadata',
           {
             notification_id:,
             metadata_present: false,
             user_uuid_present: false,
-            appointment_id_present: false
+            appointment_id_present: false,
+            status: 'permanent-failure'
           }
         )
 
         expect(Rails.logger).to have_received(:error).with(
-          'Eps::AppointmentNotificationCallback delivery failed',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
           {
             notification_id:,
             user_uuid: 'missing',
@@ -182,38 +172,46 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ['user_uuid:missing', 'appointment_id_last4:missing']
+          tags: ['Community Care Appointments', 'user_uuid:missing', 'appointment_id_last4:missing']
         )
       end
     end
 
     context 'when callback_metadata is incomplete' do
-      let(:status) { 'delivered' }
+      let(:status) { 'permanent-failure' }
       let(:callback_metadata) { { 'user_uuid' => user_uuid } } # missing appointment_id_last4
 
       it 'logs warning about incomplete metadata' do
         described_class.call(notification)
 
         expect(Rails.logger).to have_received(:warn).with(
-          'Eps::AppointmentNotificationCallback received missing or incomplete metadata',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback received missing or incomplete metadata',
           {
             notification_id:,
             metadata_present: true,
             user_uuid_present: true,
-            appointment_id_present: false
+            appointment_id_present: false,
+            status: 'permanent-failure'
           }
         )
 
-        expect(Rails.logger).to have_received(:info).with(
-          'Eps::AppointmentNotificationCallback delivered successfully',
+        expect(Rails.logger).to have_received(:error).with(
+          'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
           {
             notification_id:,
             user_uuid:,
             appointment_id_last4: 'missing',
             created_at:,
             sent_at:,
-            completed_at:
+            completed_at:,
+            status: 'permanent-failure',
+            status_reason: 'Test reason',
+            failure_type: 'permanent'
           }
+        )
+        expect(StatsD).to have_received(:increment).with(
+          "#{described_class::STATSD_KEY}.failure",
+          tags: ['Community Care Appointments', "user_uuid:#{user_uuid}", 'appointment_id_last4:missing']
         )
       end
     end
@@ -226,7 +224,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
           "#{described_class::STATSD_KEY}.missing_notification"
         )
         expect(Rails.logger).to have_received(:error).with(
-          'Eps::AppointmentNotificationCallback called with nil notification object'
+          'Community Care Appointments: Eps::AppointmentNotificationCallback called with nil notification object'
         )
       end
     end
@@ -246,7 +244,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
           "#{described_class::STATSD_KEY}.callback_error"
         )
         expect(Rails.logger).to have_received(:error).with(
-          'Eps::AppointmentNotificationCallback error processing callback',
+          'Community Care Appointments: Eps::AppointmentNotificationCallback error processing callback',
           {
             error_class: 'StandardError',
             error_message: 'Something went wrong',
@@ -257,5 +255,13 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
         )
       end
     end
+  end
+
+  def statsd_tags
+    [
+      'Community Care Appointments',
+      "user_uuid:#{user_uuid}",
+      "appointment_id_last4:#{appointment_id_last4}"
+    ]
   end
 end
