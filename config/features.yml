@@ -652,6 +652,10 @@ features:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
     enable_in_development: true
+  disability_526_show_confirmation_review:
+    actor_type: user
+    description: enables showing a review section on the 526 confirmation page
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
