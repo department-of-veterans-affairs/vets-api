@@ -1027,10 +1027,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:parsed_form_data) do
       JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
     end
-    let(:mock_mpi_service) { instance_double(IvcChampva::MpiService) }
+    let(:mock_mpi_service) { instance_double(IvcChampva::MPIService) }
 
     before do
-      allow(IvcChampva::MpiService).to receive(:new).and_return(mock_mpi_service)
+      allow(IvcChampva::MPIService).to receive(:new).and_return(mock_mpi_service)
       allow(mock_mpi_service).to receive(:validate_profiles)
       allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
     end
@@ -1045,7 +1045,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       it 'calls MpiService.validate_profiles' do
         controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
 
-        expect(IvcChampva::MpiService).to have_received(:new).with(no_args)
+        expect(IvcChampva::MPIService).to have_received(:new).with(no_args)
         expect(mock_mpi_service).to have_received(:validate_profiles).with(parsed_form_data)
       end
     end
@@ -1060,7 +1060,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       it 'does not call MpiService.validate_profiles' do
         controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
 
-        expect(IvcChampva::MpiService).not_to have_received(:new)
+        expect(IvcChampva::MPIService).not_to have_received(:new)
         expect(mock_mpi_service).not_to have_received(:validate_profiles)
       end
     end
@@ -1075,7 +1075,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       it 'does not call MpiService.validate_profiles' do
         controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_7959c')
 
-        expect(IvcChampva::MpiService).not_to have_received(:new)
+        expect(IvcChampva::MPIService).not_to have_received(:new)
         expect(mock_mpi_service).not_to have_received(:validate_profiles)
       end
     end

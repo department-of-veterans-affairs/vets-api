@@ -3,7 +3,7 @@
 require 'mpi/service'
 
 module IvcChampva
-  class MpiService
+  class MPIService
     def initialize
       @mpi_service = MPI::Service.new
       @monitor = IvcChampva::Monitor.new

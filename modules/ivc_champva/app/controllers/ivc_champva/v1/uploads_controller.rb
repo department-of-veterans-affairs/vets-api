@@ -51,7 +51,7 @@ module IvcChampva
         if Flipper.enabled?(:champva_mpi_validation, @current_user) && form_id == 'vha_10_10d'
           begin
             # Query MPI and log validation results for veteran and beneficiaries on 10-10D submissions
-            IvcChampva::MpiService.new.validate_profiles(parsed_form_data)
+            IvcChampva::MPIService.new.validate_profiles(parsed_form_data)
           rescue => e
             Rails.logger.error "Error validating MPI profiles: #{e.message}"
           end
