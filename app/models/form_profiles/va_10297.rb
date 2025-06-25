@@ -21,7 +21,10 @@ class FormProfiles::VA10297 < FormProfile
 
   def prefill
     @payment_information = initialize_payment_information
-    super
+    result = super
+    result[:form_data]['applicantFullName'].delete('suffix') # no name suffix needed in this schema
+
+    result
   end
 
   def metadata

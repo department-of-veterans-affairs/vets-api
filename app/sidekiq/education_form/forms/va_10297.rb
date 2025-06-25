@@ -12,10 +12,11 @@ module EducationForm::Forms
 
     HIGH_TECH_AREA_NAMES = {
       computerProgramming: 'Computer programming',
-      dataProcessing: 'Data processing',
       computerSoftware: 'Computer software',
+      mediaApplication: 'Media application',
+      dataProcessing: 'Data processing',
       informationSciences: 'Information sciences',
-      mediaApplication: 'Media application'
+      somethingElse: 'Other'
     }.freeze
 
     SALARY_TEXT = {
@@ -27,14 +28,12 @@ module EducationForm::Forms
     }.freeze
 
     EDUCATION_TEXT = {
-      some_high_school: 'Some High School',
-      high_school_diploma_or_GED: 'High school diploma or GED',
-      some_college: 'Some college',
-      associates_degree: 'Associate’s degree',
-      bachelors_degree: 'Bachelor’s degree',
-      masters_degree: 'Master’s degree',
-      doctoral_degree: 'Doctoral degree',
-      other: 'Other'
+      HS: 'High school',
+      AD: 'Associate’s degree',
+      BD: 'Bachelor’s degree',
+      MD: 'Master’s degree',
+      DD: 'Doctoral degree',
+      NA: 'Other'
     }.freeze
 
     COURSE_TYPE_TEXT = {
@@ -48,7 +47,7 @@ module EducationForm::Forms
     end
 
     def applicant_ssn
-      @applicant.applicantSocialSecurityNumber
+      @applicant.applicantFileNumber
     end
 
     def new_bank_info?
@@ -81,26 +80,8 @@ module EducationForm::Forms
       end
     end
 
-    def location
-      return '' if @applicant.vetTecProgramLocations.blank?
-
-      "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
-    end
-
-    def high_tech_area_names
-      return 'N/A' unless @applicant.currentHighTechnologyEmployment
-      return '' if @applicant.highTechnologyEmploymentTypes.blank?
-
-      areas = []
-      @applicant.highTechnologyEmploymentTypes.each do |area|
-        areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
-      end
-      areas.join("\n")
-    end
-
     def education_level_name
       return '' if @applicant.highestLevelofEducation.blank?
-      return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
 
       EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
     end
@@ -111,47 +92,48 @@ module EducationForm::Forms
       COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
+    def high_tech_area_name
+      return '' if @applicant.technologyAreaOfFocus.blank?
+
+      HIGH_TECH_AREA_NAMES[@applicant.technologyAreaOfFocus.to_sym]
+    end
+
     def salary_text
-      return 'N/A' unless @applicant.currentHighTechnologyEmployment
+      return 'N/A' unless @applicant.isEmployed && @applicant.isInTechnologyIndustry
       return '' if @applicant.currentSalary.blank?
 
       SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
 
     def get_program_block(program)
-      city = program.courseType == 'online' && program.location&.city.blank? ? 'N/A' : program.location&.city
-      state = program.courseType == 'online' && program.location&.state.blank? ? 'N/A' : program.location&.state
-
+      program.providerAddress
       [
         ["\n  Provider name: ", program.providerName].join,
-        ["\n  Program name: ", program.programName].join,
-        ["\n  Course type: ", course_type_name(program.courseType)].join,
         "\n  Location:",
-        ["\n    City: ", city].join,
-        ["\n    State: ", state].join,
-        ["\n  Planned start date: ", program.plannedStartDate].join
+        ["\n    City: ", program.providerAddress.city].join,
+        ["\n    State: ", program.providerAddress.state].join
       ].join
     end
 
     def program_text
-      return '' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
-      return 'N/A' if @applicant.hasSelectedPrograms.blank?
+      return '' if @applicant.hitechVetsPrograms&.programs.blank?
 
       program_blocks = []
-      @applicant.vetTecPrograms.each do |program|
+      @applicant.hitechVetsPrograms.programs.each do |program|
         program_blocks.push(get_program_block(program))
       end
+      program_blocks.push(["\n  Planned start date: ", @applicant.hitechVetsPrograms.plannedStartDate].join)
+
       program_blocks.join("\n")
     end
 
-    def full_address_with_street3(address, indent: false)
+    def full_address_with_street2(address, indent: false)
       return '' if address.nil?
 
       seperator = indent ? "\n        " : "\n"
       [
         address.street,
         address.street2,
-        address.street3,
         [address.city, address.state, address.postalCode].compact.join(', '),
         address.country
       ].compact.join(seperator).upcase
