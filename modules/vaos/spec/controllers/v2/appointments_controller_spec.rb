@@ -294,8 +294,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
           'provider123',
           hash_including(
             appointmentTypeId: 'type123',
-            startOnOrAfter: a_string_starting_with('2024-01-01T'),
-            startBefore: a_string_starting_with('2024-12-31T')
+            startOnOrAfter: '2024-01-01T00:00:00Z',
+            startBefore: '2024-12-31T00:00:00Z'
           )
         )
         expect(result).to eq(expected_slots)
