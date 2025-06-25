@@ -34,7 +34,7 @@ module Mobile
         def sort_by_date_and_group_name(vaccine_map)
           vaccine_map.sort_by do |immunization|
             date_sort_key1 = immunization[:date] ? 0 : 1 # used to keep nil dates at end of list
-            date_sort_key2 = immunization[:date] ? -immunization[:date].to_i : nil # rubocop:disable Style/SafeNavigation
+            date_sort_key2 = immunization[:date] ? -immunization[:date].to_i : nil
             group_sort_key1 = immunization[:group_name] ? 0 : 1 # used to keep nil group_names at the end of the list
             group_sort_key2 = immunization[:group_name]
 
