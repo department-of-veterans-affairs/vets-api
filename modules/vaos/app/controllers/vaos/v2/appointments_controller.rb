@@ -712,7 +712,9 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
-        Rails.logger.error("Community Care Appointments Error - Appointment creation error: #{e.class.name}: #{e.message}")
+        Rails.logger.error(
+          "Community Care Appointments Error - Appointment creation error: #{e.class.name}: #{e.message}"
+        )
         original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
         render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)

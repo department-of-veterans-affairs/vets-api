@@ -15,7 +15,7 @@ module Eps
 
       with_monitoring do
         response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
-                          request_headers)
+                           request_headers)
         OpenStruct.new(response.body)
       end
     end
@@ -77,18 +77,19 @@ module Eps
       payload = build_submit_payload(params)
 
       # Store appointment data in Redis using the RedisClient
-      redis_client.store_appointment_data(
-        uuid: user.uuid,
-        appointment_id:,
-        email: user.va_profile_email
-      )
+      redis_client.store_appointment_data(uuid: user.uuid, appointment_id:, email: user.va_profile_email)
 
       # Enqueue worker with UUID and last 4 of appointment_id
       appointment_last4 = appointment_id.to_s.last(4)
       Eps::EpsAppointmentWorker.perform_async(user.uuid, appointment_last4)
 
       with_monitoring do
-        response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
+        response = perform(
+          :post,
+          "/#{config.base_path}/appointments/#{appointment_id}/submit",
+          payload,
+          request_headers
+        )
         OpenStruct.new(response.body)
       end
     end

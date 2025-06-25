@@ -118,7 +118,9 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
             json: { data: { id: 'APPT123' } },
             status: :created
           )
-          expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success', tags: ['Community Care Appointments'])
+          expect(StatsD).to have_received(:increment).with(
+            'api.vaos.appointment_creation.success', tags: ['Community Care Appointments']
+          )
           expect(StatsD).to have_received(:measure).with(
             described_class::APPT_CREATION_DURATION_METRIC,
             5000,
@@ -160,7 +162,9 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         controller.submit_referral_appointment
 
         expect(controller).to have_received(:handle_appointment_creation_error).with(error)
-        expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure', tags: ['Community Care Appointments'])
+        expect(StatsD).to have_received(:increment).with(
+          'api.vaos.appointment_creation.failure', tags: ['Community Care Appointments']
+        )
       end
     end
   end
