@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'ves_api/client'
-require_relative '../../../../../app/services/ivc_champva/mpi_service'
 
 RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   # forms_numbers_and_classes is a hash that maps form numbers if they have attachments

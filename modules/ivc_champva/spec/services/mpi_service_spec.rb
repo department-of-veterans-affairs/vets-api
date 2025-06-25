@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../app/services/ivc_champva/mpi_service'
-require_relative '../../../lib/ivc_champva/monitor'
+require_relative '../../lib/ivc_champva/monitor'
+require_relative '../../app/services/ivc_champva/mpi_service'
 
 RSpec.describe IvcChampva::MpiService do
   let(:service) { described_class.new }
