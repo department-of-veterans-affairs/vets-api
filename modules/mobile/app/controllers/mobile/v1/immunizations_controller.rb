@@ -3,6 +3,8 @@
 module Mobile
   module V1
     class ImmunizationsController < ApplicationController
+      FUTURE_DATE = '3000-01-01'
+
       def index
         paginated_immunizations, meta = Mobile::PaginationHelper.paginate(list: immunizations,
                                                                           validated_params: pagination_params)
@@ -37,7 +39,7 @@ module Mobile
         end
 
         # Handle nil dates by sorting at the end of the list
-        immunizations.sort_by { |item| item.date || '3000-01-01' }
+        immunizations.sort_by { |item| item.date || FUTURE_DATE }
       end
     end
   end

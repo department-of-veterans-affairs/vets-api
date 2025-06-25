@@ -3,16 +3,20 @@
 module Mobile
   module V1
     class MessagesController < MessagingController
+      FUTURE_DATE = '3000-01-01'
+
       def thread
         message_id = params[:id]
-        resource = client.get_messages_for_thread(message_id).sort_by(&:sent_date)
+        resource = client.get_messages_for_thread(message_id)
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
         if ActiveModel::Type::Boolean.new.cast(params[:excludeProvidedMessage])
           resource.records = resource.records.filter { |m| m.message_id.to_s != params[:id] }
         end
         resource.metadata.merge!(message_counts(resource))
-        render json: Mobile::V1::MessagesSerializer.new(resource.records, { meta: resource.metadata })
+        render json: Mobile::V1::MessagesSerializer.new(resource.records.sort_by do |record|
+          record.sent_date || FUTURE_DATE
+        end, { meta: resource.metadata })
       end
 
       private

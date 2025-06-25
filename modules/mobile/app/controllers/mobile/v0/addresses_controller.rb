@@ -34,7 +34,8 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
         response = validation_service.address_suggestions(validated_address_params).as_json
-        suggested_addresses = response.dig('response', 'addresses').map do |a|
+        address_list = response.dig('response', 'addresses').sort_by { _1.dig('address_meta_data', 'confidence_score') }
+        suggested_addresses = address_list.map do |a|
           address = a['address'].symbolize_keys
           validation_key = response['response']['override_validation_key'] ||
                            response['response']['validation_key']

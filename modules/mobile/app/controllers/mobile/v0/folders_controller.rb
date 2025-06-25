@@ -4,11 +4,11 @@ module Mobile
   module V0
     class FoldersController < MessagingController
       def index
-        resource = client.get_folders(@current_user.uuid, use_cache?).sort_by(&:name)
+        resource = client.get_folders(@current_user.uuid, use_cache?)
         links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         options = { meta: resource.metadata, links: }
-        render json: Mobile::V0::FolderSerializer.new(resource.data, options)
+        render json: Mobile::V0::FolderSerializer.new(resource.data.sort_by(&:name), options)
       end
 
       def show
