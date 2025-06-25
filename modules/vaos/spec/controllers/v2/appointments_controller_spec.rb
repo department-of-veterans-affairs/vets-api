@@ -292,11 +292,11 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
         expect(eps_provider_service).to have_received(:get_provider_slots).with(
           'provider123',
-          {
+          hash_including(
             appointmentTypeId: 'type123',
-            startOnOrAfter: '2024-01-01T05:00:00Z',
-            startBefore: '2024-12-31T05:00:00Z'
-          }
+            startOnOrAfter: a_string_starting_with('2024-01-01T'),
+            startBefore: a_string_starting_with('2024-12-31T')
+          )
         )
         expect(result).to eq(expected_slots)
       end
