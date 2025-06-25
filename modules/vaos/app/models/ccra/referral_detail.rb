@@ -170,7 +170,7 @@ module Ccra
         instance.attributes = attributes
         instance
       rescue JSON::ParserError => e
-        Rails.logger.error("Error parsing ReferralDetail from JSON: #{e.message}")
+        Rails.logger.error("Community Care Appointments Error - Error parsing ReferralDetail from JSON: #{e.class.name}: #{e.message}")
         nil
       end
     end

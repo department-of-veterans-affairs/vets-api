@@ -205,7 +205,7 @@ describe Ccra::ReferralService do
           .with(referral_number:)
           .and_return(nil)
 
-        expect(Rails.logger).to receive(:warn).with('Referral booking start time not found.')
+        expect(Rails.logger).to receive(:warn).with('Community Care Appointments Error - Referral booking start time not found.')
         result = subject.get_booking_start_time(id, icn)
         expect(result).to be_nil
       end

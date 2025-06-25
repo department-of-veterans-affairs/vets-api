@@ -53,7 +53,7 @@ module Eps
     end
 
     def log_missing_redis_data(appointment_data)
-      Rails.logger.error('EpsAppointmentWorker missing or incomplete Redis data',
+      Rails.logger.error('Community Care Appointments Error - EpsAppointmentWorker missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
                            appointment_data: }.to_json)
       StatsD.increment("#{STATSD_PREFIX}.failure", tags: ["user_uuid: #{@user_uuid}"])

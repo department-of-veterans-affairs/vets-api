@@ -120,7 +120,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
 
       it 'logs error and returns early' do
         expect(Rails.logger).to receive(:error).with(
-          'EpsAppointmentWorker missing or incomplete Redis data',
+          'Community Care Appointments Error - EpsAppointmentWorker missing or incomplete Redis data',
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(

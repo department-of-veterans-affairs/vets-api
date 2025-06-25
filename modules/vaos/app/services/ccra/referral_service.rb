@@ -79,7 +79,7 @@ module Ccra
       return nil unless referral_number
 
       start_time = referral_cache.fetch_booking_start_time(referral_number:)
-      Rails.logger.warn('Referral booking start time not found.') unless start_time
+      Rails.logger.warn('Community Care Appointments Error - Referral booking start time not found.') unless start_time
       start_time
     end
 
