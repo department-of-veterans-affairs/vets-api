@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: f96038b25951566414a85fb074c89099d8b18c12
+  revision: 1fb30c7180b05de632da278420b95e0322f6cb44
   branch: master
   specs:
-    vets_json_schema (24.16.3)
+    vets_json_schema (24.17.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -460,7 +460,7 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
-    faraday-retry (2.3.1)
+    faraday-retry (2.3.2)
       faraday (~> 2.0)
     faraday-typhoeus (1.1.0)
       faraday (~> 2.0)
@@ -999,7 +999,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.76.1)
+    rubocop (1.77.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1007,7 +1007,7 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.45.0, < 2.0)
+      rubocop-ast (>= 1.45.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
     rubocop-ast (1.45.1)
@@ -1033,9 +1033,10 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
       rubocop-rspec (~> 3.5)
-    rubocop-thread_safety (0.7.2)
+    rubocop-thread_safety (0.7.3)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
+      rubocop-ast (>= 1.44.0, < 2.0)
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby-saml (1.18.0)

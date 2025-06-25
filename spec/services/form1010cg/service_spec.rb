@@ -528,8 +528,10 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'success' do
+      let(:expected_response) { double(:expected_response) }
+
       before do
-        allow(mule_soft_client).to receive(:create_submission_v2)
+        allow(mule_soft_client).to receive(:create_submission_v2) { expected_response }
       end
 
       it 'submits to mulesoft' do
@@ -541,9 +543,25 @@ RSpec.describe Form1010cg::Service do
         expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
           **expected_arguments
         )
+        claim_guid = claim_with_mpi_veteran.guid
+        expect(Rails.logger).to receive(:info).with('[Form 10-10CG] MPI Profile found for Veteran', { claim_guid: })
+        expect(Rails.logger).to receive(:info).with(
+          '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver',
+          { claim_guid: }
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One',
+          { claim_guid: }
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[10-10CG] - CARMA submission complete',
+          { form: '10-10CG', claim_guid:, claim_pdf_path_length: 68, poa_attachment_path_length: nil }
+        )
 
-        subject
+        response = subject
+
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+        expect(response).to be(expected_response)
       end
 
       context 'with a poa attachment' do
