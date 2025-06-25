@@ -1206,6 +1206,14 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_migrate_ccd_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the CCD endpoints
+    enable_in_development: true
+  mhv_medical_records_migrate_dicom_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the DICOM endpoint
+    enable_in_development: true
   mhv_medical_records_migrate_to_api_gateway:
     actor_type: user
     description: Enables the switch to the new MHV API Gateway endpoints
