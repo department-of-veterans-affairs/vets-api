@@ -531,6 +531,9 @@ module VAOS
             startBefore: Date.parse(referral.expiration_date).to_time.utc.iso8601
           }
         )
+      rescue ArgumentError
+        Rails.logger.error('Error fetching provider slots')
+        nil
       end
 
       def fetch_drive_times(provider)
