@@ -1,6 +1,7 @@
 # All lines should be added in alphabetical order (using sort -u)
 .devcontainer/ @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 .github/ @department-of-veterans-affairs/backend-review-group
+.github/CODEOWNERS @department-of-veterans-affairs/backend-review-group
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
