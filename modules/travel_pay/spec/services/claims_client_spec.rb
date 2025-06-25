@@ -165,7 +165,12 @@ describe TravelPay::ClaimsClient do
         [
           200,
           {},
-          {
+          { 'totalRecordCount' => 2,
+            'statusCode' => 200,
+            'success' => true,
+            'pageNumber' => 1,
+            'pageSize' => 50,
+            'message' => 'Successfully retrieved claims',
             'data' => [
               {
                 'id' => 'uuid1',
@@ -185,8 +190,7 @@ describe TravelPay::ClaimsClient do
                 'createdOn' => '2024-01-22T21:22:34.465Z',
                 'modifiedOn' => '2024-02-01T00:00:00.0Z'
               }
-            ]
-          }
+            ] }
         ]
       end
 
@@ -198,6 +202,7 @@ describe TravelPay::ClaimsClient do
                                                     end_date: '2024-02-01T16:45:34.465Z',
                                                     page_number: 1,
                                                     page_size: 50 })
+      expect(claims_response.body['totalRecordCount']).to eq(claims_response.body['data'].size)
       actual_ids = claims_response.body['data'].pluck('id')
 
       expect(StatsD).to have_received(:measure)

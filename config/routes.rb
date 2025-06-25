@@ -331,6 +331,7 @@ Rails.application.routes.draw do
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 
     get 'banners', to: 'banners#by_path'
+    post 'datadog_action', to: 'datadog_action#create'
   end
   # end /v0
 
@@ -368,6 +369,8 @@ Rails.application.routes.draw do
         resources :lacs, only: %i[index show], defaults: { format: :json }
         resources :exams, only: %i[index show], defaults: { format: :json }
       end
+
+      resources :version_public_exports, path: :public_exports, only: :show, defaults: { format: :json }
     end
 
     resource :post911_gi_bill_status, only: [:show]

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/models/shared_examples/submission_attempt'
 
 RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
-  it { is_expected.to validate_presence_of :submission }
+  it_behaves_like 'a SubmissionAttempt model'
 
   describe 'associations' do
     it {
@@ -11,18 +12,6 @@ RSpec.describe Lighthouse::SubmissionAttempt, type: :model do
                                                .with_foreign_key(:lighthouse_submission_id)
                                                .inverse_of(:submission_attempts)
     }
-
-    it { is_expected.to have_one(:saved_claim).through(:submission) }
-  end
-
-  describe 'encrypted attributes' do
-    it 'responds to encrypted fields' do
-      subject = described_class.new
-      expect(subject).to respond_to(:reference_data)
-      expect(subject).to respond_to(:metadata)
-      expect(subject).to respond_to(:error_message)
-      expect(subject).to respond_to(:response)
-    end
   end
 
   describe 'status transition methods' do

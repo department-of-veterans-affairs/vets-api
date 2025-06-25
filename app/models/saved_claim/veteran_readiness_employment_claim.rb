@@ -4,7 +4,7 @@ require 'sentry_logging'
 require 'res/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
-  include SentryLogging
+  include Vets::SharedLogging
 
   FORM = '28-1900'
   FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
@@ -74,8 +74,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
-  before_create do
-    self.form_id = parsed_form['useEva'].present? ? self.class::FORM : '28-1900-V2'
+  after_initialize do
+    if form.present?
+      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
+    end
   end
 
   def initialize(args)
@@ -241,7 +243,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
-    if parsed_form['useEva'].present?
+    if form_id == self.class::FORM
       validate_form_v1
     else
       validate_form_v2
@@ -411,6 +413,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                          veteranInformation/fullName/last veteranInformation/dob]
     required_fields.each do |field|
       value = parsed_form.dig(*field.split('/'))
+      value = value.to_s if [true, false].include?(value)
       errors.add("/#{field}", 'is required') if value.blank?
     end
   end
@@ -420,7 +423,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                        veteranInformation/fullName/middle veteranInformation/fullName/last veteranInformation/dob]
     string_fields.each do |field|
       value = parsed_form.dig(*field.split('/'))
-      errors.add("/#{field}", 'must be a string') unless value.is_a?(String)
+      errors.add("/#{field}", 'must be a string') if value.present? && !value.is_a?(String)
     end
   end
 
@@ -436,8 +439,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def validate_is_moving
-    value = parsed_form['isMoving']
-    errors.add('/isMoving', 'must be a boolean') unless value.is_a?(TrueClass) || value.is_a?(FalseClass)
+    errors.add('/isMoving', 'must be a boolean') unless [true, false].include?(parsed_form['isMoving'])
   end
 
   def validate_email
@@ -453,7 +455,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def validate_phone_numbers
     phone_fields = %w[mainPhone cellPhone]
     phone_fields.each do |field|
-      value = parsed_form.dig(*field.split('/'))
+      value = parsed_form[field]
       if value.present? && value.is_a?(String) && !value.match?(/^\d{10}$/)
         errors.add("/#{field}", 'must be a valid phone number with 10 digits only')
       end
@@ -472,7 +474,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def validate_addresses
     address_fields = %w[newAddress veteranAddress]
     address_fields.each do |field|
-      address = parsed_form.dig(*field.split('/'))
+      address = parsed_form[field]
       next if address.blank? || !address.is_a?(Hash)
 
       %w[country street city state postalCode].each do |sub_field|
@@ -481,8 +483,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           errors.add("/#{field}/#{sub_field}", 'is required')
         elsif !value.is_a?(String) && value.present?
           errors.add("/#{field}/#{sub_field}", 'must be a string')
-        elsif sub_field == 'postalCode' && value.present? && !value.match?(/^\d{5}(-\d{4})?$/)
-          errors.add("/#{field}/#{sub_field}", 'must be a valid postal code in XXXXX or XXXXX-XXXX format')
+        # elsif sub_field == 'postalCode' && value.present? && !value.match?(/^\d{5}(-\d{4})?$/)
+        #   errors.add("/#{field}/#{sub_field}", 'must be a valid postal code in XXXXX or XXXXX-XXXX format')
         elsif %w[state city].include?(sub_field) && value.present? && value.length > 100
           errors.add("/#{field}/#{sub_field}", 'must be 100 characters or less')
         end
