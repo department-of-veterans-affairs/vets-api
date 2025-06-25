@@ -1898,7 +1898,7 @@ describe '#submit_uploads' do
   let(:form526_submission) do
     Form526Submission.new(
       id: 123,
-      form_json: form_json
+      form_json:
     )
   end
 
@@ -1926,12 +1926,14 @@ describe '#submit_uploads' do
   context 'when uploads are present' do
     it 'sends the count of uploads to StatsD' do
       form526_submission.submit_uploads
-      expect(StatsD).to have_received(:gauge).with('form526.uploads.count', 3, tags: ["form_id:#{Form526Submission::FORM_526}"])
+      expect(StatsD).to have_received(:gauge).with('form526.uploads.count', 3,
+                                                   tags: ["form_id:#{Form526Submission::FORM_526}"])
     end
 
     it 'sends the count of duplicate uploads to StatsD' do
       form526_submission.submit_uploads
-      expect(StatsD).to have_received(:gauge).with('form526.uploads.duplicates', 1, tags: ["form_id:#{Form526Submission::FORM_526}"])
+      expect(StatsD).to have_received(:gauge).with('form526.uploads.duplicates', 1,
+                                                   tags: ["form_id:#{Form526Submission::FORM_526}"])
     end
 
     it 'queues a job for each upload with the correct delay' do
@@ -1955,7 +1957,8 @@ describe '#submit_uploads' do
     it 'sends the count of uploads to StatsD and returns early' do
       expect(EVSS::DisabilityCompensationForm::SubmitUploads).not_to receive(:perform_in)
       form526_submission.submit_uploads
-      expect(StatsD).to have_received(:gauge).with('form526.uploads.count', 0, tags: ["form_id:#{Form526Submission::FORM_526}"])
+      expect(StatsD).to have_received(:gauge).with('form526.uploads.count', 0,
+                                                   tags: ["form_id:#{Form526Submission::FORM_526}"])
     end
   end
 end
