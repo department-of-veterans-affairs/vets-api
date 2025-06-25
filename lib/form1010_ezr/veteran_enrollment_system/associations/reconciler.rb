@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/hash_helpers'
+
 module Form1010Ezr
   module VeteranEnrollmentSystem
     module Associations
@@ -59,7 +61,7 @@ module Form1010Ezr
           transformed_association = build_transformed_association(association)
           fill_association_full_name_from_ves_association(transformed_association, association)
 
-          Common::HashHelpers.deep_compact(transformed_association)
+          Common::HashHelpers.deep_remove_blanks(transformed_association).compact_blank
         rescue => e
           Rails.logger.error("Error transforming VES association: #{e.message}")
           raise e
@@ -75,20 +77,20 @@ module Form1010Ezr
           end
         end
 
-        # There are instances where a VES association may have a 'relationship' field instead of a 'relationType' field
-        def handle_relation_type(association)
-          relation_type = association['relationType'] || association['relationship']
+        # There are instances where a VES association may have a 'relationship' field
+        def handle_relationship(association)
+          relationship = association['relationship'] || association['relationType']
 
-          return relation_type if relation_type.blank?
+          return relationship if relationship.blank?
 
-          relation_type.gsub(/_/, ' ').split.join(' ')
+          relationship.gsub(/_/, ' ').split.join(' ')
         end
 
         def validate_required_fields!(association)
           missing_fields = []
           missing_fields << 'role' if association['role'].blank?
           missing_fields << 'name' if association['name'].blank?
-          missing_fields << 'relationship' if handle_relation_type(association).blank?
+          missing_fields << 'relationship' if handle_relationship(association).blank?
 
           return if missing_fields.empty?
 
@@ -99,7 +101,7 @@ module Form1010Ezr
           {
             'contactType' => VES_ROLE_MAPPINGS[association['role']],
             'fullName' => {},
-            'relationship' => handle_relation_type(association)
+            'relationship' => handle_relationship(association)
           }
         end
       end
