@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'pdf_fill/forms/va2210215a'
 
 describe PdfFill::Forms::Va2210215a do
+  subject { described_class.new(form_data) }
+
   let(:form_data) do
     {
       'certifyingOfficial' => {
@@ -29,8 +31,6 @@ describe PdfFill::Forms::Va2210215a do
       total_pages: 5
     }
   end
-
-  subject { described_class.new(form_data) }
 
   describe '#merge_fields' do
     it 'merges the fields correctly' do

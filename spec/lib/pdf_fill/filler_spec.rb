@@ -61,7 +61,8 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[22-10215a].each do |form_id|
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 21-0538 26-1880 5655
+       22-10216 22-10215 22-10215a].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
         form_types << ['overflow', true] if form_id == '21-0781V2'
@@ -101,24 +102,6 @@ describe PdfFill::Filler, type: :model do
               expect(file_path).to match_pdf_fields(fixture_pdf)
 
               File.delete(file_path)
-            end
-          end
-        end
-
-        if form_id == '22-10215'
-          context 'when the form has more than 16 programs' do
-            let(:form_data_with_overflow) do
-              data = get_fixture("pdf_fill/#{form_id}/simple")
-              data['programs'] = (1..20).map { |i| { 'name' => "Program #{i}" } }
-              data
-            end
-            let(:processor_mock) { instance_double(PdfFill::Processors::VA2210215ContinuationSheetProcessor) }
-
-            it 'calls the continuation sheet processor' do
-              expect(PdfFill::Processors::VA2210215ContinuationSheetProcessor).to receive(:new).and_return(processor_mock)
-              expect(processor_mock).to receive(:process)
-
-              described_class.fill_ancillary_form(form_data_with_overflow, 'test-claim-id', form_id)
             end
           end
         end
