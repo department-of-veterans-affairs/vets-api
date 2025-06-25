@@ -590,7 +590,7 @@ class Form526Submission < ApplicationRecord
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
       delay = calc_submit_delays(upload_index, key, uniqueness_tracker)
-      StatsD.gauge('form526.uploads.delay', delay, tags:)
+      StatsD.gauge('form526.uploads.delay', delay, tags: statsd_tags)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
       uniqueness_tracker[key] += 5
     end
