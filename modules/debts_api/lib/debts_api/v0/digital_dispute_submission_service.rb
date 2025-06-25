@@ -12,6 +12,8 @@ module DebtsApi
       class FileTooLargeError < StandardError; end
       class NoFilesProvidedError < StandardError; end
 
+      configuration DebtManagementCenter::DebtsConfiguration
+
       def initialize(user, files)
         super(user)
         @files = files
@@ -85,7 +87,7 @@ module DebtsApi
       end
 
       def failure_result(error)
-        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}")
+        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace&.join("\n")}")
         case error
         when NoFilesProvidedError
           {
