@@ -16,12 +16,14 @@ class LighthouseClaimLettersProvider
     @user = user
     @allowed_doctypes = allowed_doctypes || ClaimLetters::DoctypeService.allowed_for_user(user)
     @service = BenefitsDocuments::Service.new(user)
+    @letters_metadata_cache = nil
   end
 
   # transforms the letters for web client
   def get_letters
     response = get_letters_allowed_doc_types
-    transform_claim_letters(response.body['data'])
+    @letters_metadata_cache = response.body['data'] # Cache the metadata
+    transform_claim_letters(@letters_metadata_cache)
   end
 
   # sends back only the raw response body from Lighthouse with the allowed doc_types set
@@ -34,14 +36,34 @@ class LighthouseClaimLettersProvider
   end
 
   def get_letter(document_uuid)
+    # Get the metadata for the letter
+    metadata = fetch_letter_metadata(document_uuid)
+
+    # If no metadata found, raise an error or handle gracefully
+    unless metadata
+      Rails.logger.error("No metadata found for document_uuid: #{document_uuid}")
+      raise Common::Exceptions::RecordNotFound, "Letter metadata not found for document_uuid: #{document_uuid}"
+    end
+
+    # Download the actual letter content
     res = @service.claim_letter_download(
       document_uuid:,
       file_number:,
       participant_id: @user.participant_id
     )
-    # TODO: #102839 need metadata from Lighthouse for the filename...
-    filename = ClaimLetters::Utils::LetterTransformer.filename_with_date(DateTime.now)
-    yield res.body, 'application/pdf', 'attachment', filename
+
+    # Use the receivedAt date from metadata for the filename
+    received_date = if metadata['receivedAt']
+                      parsed_date = Time.zone.parse(metadata['receivedAt'])
+                      parsed_date || DateTime.now # Fall back if parsing returns nil
+                    else
+                      DateTime.now
+                    end
+    filename = ClaimLetters::Utils::LetterTransformer.filename_with_date(received_date)
+
+    # Force the response body to binary encoding before yielding
+    binary_data = res.body.force_encoding('BINARY')
+    yield binary_data, 'application/pdf', 'attachment', filename
   end
 
   private
@@ -51,6 +73,21 @@ class LighthouseClaimLettersProvider
     # only use file_number if participant_id is not available
     # it needs to be nil/null or else Lighthouse will reject the request for using both
     ClaimLetters::Utils::UserHelper.file_number(@user) if @user.participant_id.blank?
+  end
+
+  def fetch_letter_metadata(document_uuid)
+    # Use cached data if available, otherwise fetch it
+    letters_data = @letters_metadata_cache || fetch_letters_data
+
+    documents = letters_data&.dig('documents') || []
+
+    # Find the document with matching UUID
+    documents.find { |doc| doc['documentUuid'] == document_uuid }
+  end
+
+  def fetch_letters_data
+    response = get_letters_allowed_doc_types
+    @letters_metadata_cache = response.body['data']
   end
 
   def transform_claim_letters(data)

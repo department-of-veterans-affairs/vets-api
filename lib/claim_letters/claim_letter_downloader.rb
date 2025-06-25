@@ -26,7 +26,6 @@ module ClaimStatusTool
       else
         res = ClaimLetterTestData::TEST_DATA
       end
-
       format_letter_data(res)
     rescue VBMS::FilenumberDoesNotExist
       []
@@ -35,6 +34,7 @@ module ClaimStatusTool
     end
 
     def get_letter(document_id)
+      # metadata about the letter
       letter_details = get_letter_details(document_id)
 
       if letter_details.nil? || filter_letters(letter_details).nil?
