@@ -3,13 +3,13 @@
 require 'veteran_enrollment_system/associations/service'
 require 'veteran_enrollment_system/associations/configuration'
 require 'form1010_ezr/veteran_enrollment_system/associations/reconciler'
+require 'common/hash_helpers'
 
 module Form1010Ezr
   module VeteranEnrollmentSystem
     module Associations
       class Service < ::VeteranEnrollmentSystem::Associations::Service
         include HCA::EnrollmentSystem
-        include Common::HashHelpers
 
         configuration ::VeteranEnrollmentSystem::Associations::Configuration
 
@@ -67,7 +67,7 @@ module Form1010Ezr
           end
 
           # Remove blank values
-          deep_remove_blanks(transformed_association).reject { |_, v| v.blank? }
+          Common::HashHelpers.deep_remove_blanks(transformed_association).reject { |_, v| v.blank? }
         end
 
         def transform_associations(associations)
