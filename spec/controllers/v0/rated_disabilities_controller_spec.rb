@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::RatedDisabilitiesController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
   before do
     sign_in_as(user)
