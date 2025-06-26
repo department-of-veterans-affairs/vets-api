@@ -1392,10 +1392,6 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
-  monitor_process_attachments_sanitizer:
-    actor_type: user
-    description: Logs process attachment errors and removes bad persistent attachments
-    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -1428,6 +1424,9 @@ features:
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  pension_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -2088,6 +2087,9 @@ features:
   burial_submitted_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Burial Submission in Progress email notification
+  burial_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2127,6 +2129,9 @@ features:
   income_and_assets_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  income_and_assets_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic

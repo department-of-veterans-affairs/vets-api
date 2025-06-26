@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 require 'common/hash_helpers'
+require 'logging/monitor'
 
-module Logging
-  # Monitor class for cleaning up persistent attachments
-  module AttachmentSanitizer
+module PersistentAttachments
+  ##
+  # Sanitizes attachments for claims and in-progress forms.
+  # This module provides methods to handle bad attachments by decrypting them,
+  # destroying those that cannot be decrypted, and updating the form data accordingly.
+  class Sanitizer
     ##
     # Handles bad attachments for a claim and in-progress form.
     # Iterates over each attachment key, attempts to decrypt attachments,
@@ -13,7 +17,7 @@ module Logging
     #
     # @param claim [SavedClaim]
     # @param in_progress_form [InProgressForm]
-    def handle_bad_attachments(claim, in_progress_form)
+    def sanitize_attachments(claim, in_progress_form)
       form_data = JSON.parse(in_progress_form.form_data, object_class: OpenStruct)
 
       if claim.respond_to?(:attachment_keys) && claim.respond_to?(:open_struct_form)
@@ -23,15 +27,16 @@ module Logging
       end
 
       in_progress_form.update!(form_data: Common::HashHelpers.deep_to_h(form_data).to_json)
-      send_email(claim.id, :bad_attachments)
+      send_email(claim)
     rescue => e
-      submit_event(
+      additional_context = { claim:, in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
+                             message: e&.message }
+      Logging::Monitor.new('vets-api-service').track_request(
         :error,
-        "#{message_prefix} handle bad attachments error",
-        "#{claim_stats_key}.handle_bad_attachments_error",
-        claim:,
-        in_progress_form_id: in_progress_form&.id,
-        errors: e.message
+        'PersistentAttachments::Sanitizer sanitize attachments error',
+        'api.persistent_attachments.sanitize_attachments_error',
+        call_location: caller_locations.first,
+        **additional_context
       )
     end
 
@@ -50,9 +55,18 @@ module Logging
         attachment.file_data # triggers decryption
       rescue
         attachment.destroy!
-        form_key = attachment_key_map[key] || key
+        form_key = claim.respond_to?(:attachment_key_map) ? (claim.attachment_key_map[key] || key) : key
         form_data.send(form_key).reject! { |att| att.confirmationCode == attachment.guid }
       end
+    end
+
+    # Sends a notification email related to a claim event.
+    # Subclasses can override this method to provide custom email functionality
+    #
+    # @param claim [SavedClaim]
+    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
+    def send_email(claim)
+      claim.send_email(claim&.id, :persistent_attachment_error) if claim.respond_to?(:send_email)
     end
   end
 end

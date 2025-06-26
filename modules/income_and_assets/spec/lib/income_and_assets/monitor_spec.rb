@@ -183,35 +183,6 @@ RSpec.describe IncomeAndAssets::Monitor do
         )
         monitor.track_process_attachment_error(ipf, claim, current_user)
       end
-
-      it 'removes bad attachments and updates the in_progress_form' do
-        allow(Flipper).to receive(:enabled?).with(:monitor_process_attachments_sanitizer).and_return(true)
-        bad_attachment = PersistentAttachment.create!(saved_claim_id: claim.id)
-
-        form_data = {
-          files: [{ 'confirmationCode' => bad_attachment.guid }]
-        }
-        ipf.update!(form_data: form_data.to_json)
-
-        # Update the claim to have the bad_guid in its attachment_keys and open_struct_form
-        allow(claim).to receive_messages(
-          attachment_keys: [:files],
-          open_struct_form: OpenStruct.new(files: [OpenStruct.new(confirmationCode: bad_attachment.guid)])
-        )
-
-        # Mock file_data to raise an error for this attachment
-        allow_any_instance_of(PersistentAttachment).to receive(:file_data).and_raise(StandardError, 'decryption failed')
-
-        # Stub send_email to avoid actual email sending
-        allow(monitor).to receive(:send_email)
-
-        expect do
-          monitor.track_process_attachment_error(ipf, claim, current_user)
-        end.to change { PersistentAttachment.where(id: bad_attachment.id).count }.from(1).to(0)
-
-        # Reload ipf and check that the bad attachment was removed from form_data
-        expect(JSON.parse(ipf.form_data)['files']).to be_empty
-      end
     end
 
     describe '#track_submission_begun' do
@@ -335,7 +306,7 @@ RSpec.describe IncomeAndAssets::Monitor do
             tags: monitor.tags
           }
 
-          expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+          expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim).and_return notification
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(

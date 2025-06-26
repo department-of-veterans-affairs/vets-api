@@ -4,6 +4,7 @@ require 'kafka/concerns/kafka'
 require 'pensions/benefits_intake/submit_claim_job'
 require 'pensions/monitor'
 require 'bpds/sidekiq/submit_to_bpds_job'
+require 'persistent_attachments/sanitizer'
 
 module Pensions
   module V0
@@ -98,7 +99,10 @@ module Pensions
         claim.process_attachments!
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
-        claim.destroy! # Handle deletion of the claim if attachments processing fails
+        if Flipper.enabled?(:pension_persistent_attachment_error_email_notification)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
         raise e
       end
 

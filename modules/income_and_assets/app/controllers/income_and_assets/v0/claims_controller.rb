@@ -2,6 +2,7 @@
 
 require 'income_and_assets/benefits_intake/submit_claim_job'
 require 'income_and_assets/monitor'
+require 'persistent_attachments/sanitizer'
 
 module IncomeAndAssets
   module V0
@@ -79,7 +80,10 @@ module IncomeAndAssets
         claim.process_attachments!
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
-        claim.destroy! # Handle deletion of the claim if attachments processing fails
+        if Flipper.enabled?(:income_and_assets_persistent_attachment_error_email_notification)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
         raise e
       end
 

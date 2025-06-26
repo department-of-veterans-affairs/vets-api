@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'logging/attachment_sanitizer'
 module Logging
   module Controller
     # Monitor class for tracking claim controller events
     module Monitor
-      include Logging::AttachmentSanitizer
       ##
       # log GET 404 from controller
       # @see ClaimsController
@@ -140,26 +138,6 @@ module Logging
           in_progress_form_id: in_progress_form&.id,
           errors: claim&.errors&.errors
         )
-
-        handle_bad_attachments(claim, in_progress_form) if Flipper.enabled?(:monitor_process_attachments_sanitizer)
-      end
-
-      ##
-      # Provides a default mapping from claim attachment keys (as used in claim models)
-      # to in-progress form keys (as used in InProgressForm#form_data).
-      #
-      # This method is intended to be overridden in subclasses or including modules
-      # (such as Burials::Monitor) where the mapping between claim attachment keys
-      # and in-progress form keys differs from the default.
-      #
-      # By default, it returns an empty hash, meaning no mapping is applied.
-      # This allows the attachment sanitizer and related utilities to safely call
-      # `attachment_key_map` without raising errors, and enables flexible extension
-      # for claim types with custom key mappings.
-      #
-      # @return [Hash] mapping of claim attachment keys to in-progress form keys
-      def attachment_key_map
-        {}
       end
     end
   end

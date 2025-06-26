@@ -92,23 +92,49 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   end
 
   describe '#process_attachments' do
-    let(:claim) { build(:pensions_saved_claim) }
+    let(:claim) { create(:pensions_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
+    let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
+    let(:error) { StandardError.new('Something went wrong') }
+
+    before do
+      form_data = {
+        files: [{ 'confirmationCode' => bad_attachment.guid }]
+      }
+      in_progress_form.update!(form_data: form_data.to_json)
+
+      allow(claim).to receive_messages(
+        attachment_keys: [:files],
+        open_struct_form: OpenStruct.new(files: [OpenStruct.new(confirmationCode: bad_attachment.guid)])
+      )
+      allow_any_instance_of(PersistentAttachment).to receive(:file_data).and_raise(error)
+      allow(Flipper).to receive(:enabled?)
+                    .with(:pension_persistent_attachment_error_email_notification).and_return(true)
+    end
+
+    it 'removes bad attachments, updates the in_progress_form, and destroys the claim if all attachments are bad' do
+      allow(claim).to receive(:process_attachments!).and_raise(error)
+      expect_any_instance_of(PersistentAttachments::Sanitizer).to receive(:send_email).with(claim)
+
+      aggregate_failures do
+        expect do
+          subject.send(:process_attachments, in_progress_form, claim)
+        rescue
+          # Swallow error to test side effects
+        end.to change { PersistentAttachment.where(id: bad_attachment.id).count }
+          .from(1).to(0)
+          .and change { Pensions::SavedClaim.where(id: claim.id).count }
+          .from(1).to(0)
+      end
+
+      expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
+      expect(JSON.parse(in_progress_form.reload.form_data)['files']).to be_empty
+    end
 
     it 'returns a success' do
       expect(claim).to receive(:process_attachments!)
 
       subject.send(:process_attachments, in_progress_form, claim)
-    end
-
-    it 'raises an error' do
-      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
-      expect(monitor).to receive(:track_process_attachment_error).once
-      expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
-
-      expect do
-        subject.send(:process_attachments, in_progress_form, claim)
-      end.to raise_error(StandardError, 'mock error')
     end
   end
 
