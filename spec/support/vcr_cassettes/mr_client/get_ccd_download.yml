@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/v1/bluebutton/healthsummary/2025-05-06T09:26:08.000-0400/fileFormat/XML/ccdType/XML"
+      uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/healthsummary/2025-05-06T09:26:08.000-0400/fileFormat/XML/ccdType/XML"
       body:
         encoding: US-ASCII
         string: ""

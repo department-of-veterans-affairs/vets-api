@@ -80,20 +80,6 @@
                 null
               ]
             },
-            "user_account": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                }
-              }
-            },
             "account": {
               "type": "object",
               "required": [
@@ -101,6 +87,20 @@
               ],
               "properties": {
                 "account_uuid": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                }
+              }
+            },
+            "user_account": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
                   "type": [
                     "string",
                     null

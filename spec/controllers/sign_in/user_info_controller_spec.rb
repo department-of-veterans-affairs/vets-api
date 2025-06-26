@@ -3,13 +3,17 @@
 require 'rails_helper'
 
 describe SignIn::UserInfoController do
-  let!(:client_config) { create(:client_config, client_id:) }
-  let!(:session) { create(:oauth_session, client_id:) }
-  let!(:user_credential_email) do
-    create(:user_credential_email, user_verification: session.user_verification, credential_email: email)
+  let(:user_account) { create(:user_account, icn:) }
+  let(:user_verification) { create(:idme_user_verification, idme_uuid: credential_uuid, user_account:) }
+  let!(:user) do
+    create(:user, user_account:, user_verification:, icn:, idme_uuid: credential_uuid, sec_id:, first_name:,
+                  last_name:, mpi_profile:)
   end
-
-  let!(:user) { create(:user, uuid: credential_uuid, idme_uuid: credential_uuid, mpi_profile:) }
+  let!(:client_config) { create(:client_config, client_id:) }
+  let!(:session) { create(:oauth_session, client_id:, user_account:, user_verification:) }
+  let!(:user_credential_email) do
+    create(:user_credential_email, user_verification:, credential_email: email)
+  end
   let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:, given_names: [first_name], family_name: last_name) }
 
   let(:credential_uuid) { 'some-uuid' }

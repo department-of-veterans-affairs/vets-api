@@ -116,25 +116,9 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the Form1010cg::Attachment is found' do
-        let(:attachment) { build(:form1010cg_attachment, guid: poa_attachment_guid) }
-        let(:vcr_options) do
-          {
-            record: :none,
-            allow_unused_http_interactions: false,
-            match_requests_on: %i[method host body]
-          }
-        end
+        let(:attachment) { build(:form1010cg_attachment, :with_attachment, guid: poa_attachment_guid) }
 
         before do
-          VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note_jpg", vcr_options) do
-            attachment.set_file_data!(
-              Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.jpg'),
-                'image/jpg'
-              )
-            )
-          end
-
           attachment.save!
           expect_any_instance_of(attachment.class).to receive(:to_local_file).and_return(poa_attachment_path)
         end
