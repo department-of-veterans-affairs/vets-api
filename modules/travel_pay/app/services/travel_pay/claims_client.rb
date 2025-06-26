@@ -11,12 +11,14 @@ module TravelPay
     #
     # @return [TravelPay::Claim]
     #
-    def get_claims(veis_token, btsss_token)
+    def get_claims(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
+      url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
+
       log_to_statsd('claims', 'get_all') do
-        connection(server_url: btsss_url).get('api/v2/claims') do |req|
+        connection(server_url: btsss_url).get("api/v2/claims?#{url_params.to_query}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id

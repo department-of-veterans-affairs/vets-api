@@ -8,6 +8,12 @@ describe TravelPay::ClaimsService do
     let(:user) { build(:user) }
     let(:claims_data) do
       {
+        'statusCode' => 200,
+        'message' => 'Data retrieved successfully.',
+        'success' => true,
+        'pageNumber' => 1,
+        'pageSize' => 50,
+        'totalRecordCount' => 4,
         'data' => [
           {
             'id' => 'uuid1',
@@ -69,41 +75,41 @@ describe TravelPay::ClaimsService do
     it 'returns sorted and parsed claims' do
       expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
 
-      claims = @service.get_claims
+      claims = @service.get_claims({})
       actual_statuses = claims[:data].pluck('claimStatus')
 
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
-    context 'filter by appt date' do
-      it 'returns claims that match appt date if specified' do
-        claims = @service.get_claims({ 'appt_datetime' => '2024-01-01' })
+    # context 'filter by appt date' do
+    #   it 'returns claims that match appt date if specified' do
+    #     claims = @service.get_claims({ 'appt_datetime' => '2024-01-01' })
 
-        expect(claims.count).to equal(1)
-      end
+    #     expect(claims.count).to equal(1)
+    #   end
 
-      it 'returns 0 claims if appt date does not match' do
-        claims = @service.get_claims({ 'appt_datetime' => '1700-01-01' })
+    #   it 'returns 0 claims if appt date does not match' do
+    #     claims = @service.get_claims({ 'appt_datetime' => '1700-01-01' })
 
-        expect(claims[:data].count).to equal(0)
-      end
+    #     expect(claims[:data].count).to equal(0)
+    #   end
 
-      it 'returns all claims if appt date is invalid' do
-        claims = @service.get_claims({ 'appt_datetime' => 'banana' })
+    #   it 'returns all claims if appt date is invalid' do
+    #     claims = @service.get_claims({ 'appt_datetime' => 'banana' })
 
-        expect(claims[:data].count).to equal(claims_data['data'].count)
-      end
+    #     expect(claims[:data].count).to equal(claims_data['data'].count)
+    #   end
 
-      it 'returns all claims if appt date is not specified' do
-        claims_empty_date = @service.get_claims({ 'appt_datetime' => '' })
-        claims_nil_date = @service.get_claims({ 'appt_datetime' => 'banana' })
-        claims_no_param = @service.get_claims
+    #   it 'returns all claims if appt date is not specified' do
+    #     claims_empty_date = @service.get_claims({ 'appt_datetime' => '' })
+    #     claims_nil_date = @service.get_claims({ 'appt_datetime' => 'banana' })
+    #     claims_no_param = @service.get_claims
 
-        expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
-        expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
-        expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
-      end
-    end
+    #     expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
+    #     expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
+    #     expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
+    #   end
+    # end
   end
 
   context 'get claim details' do
@@ -388,9 +394,13 @@ describe TravelPay::ClaimsService do
 
     let(:claims_error_response) do
       Faraday::Response.new(
-        body: {
-          error: 'Generic error.'
-        }
+        response_body: {
+          'statusCode' => 500,
+          'message' => 'An error occurred while processing your request.',
+          'success' => false,
+          'error' => 'Generic error.'
+        },
+        status: 500
       )
     end
 
@@ -402,31 +412,32 @@ describe TravelPay::ClaimsService do
     end
 
     it 'paginates and returns claims that are in the specified date range' do
+      expected_ids = %w[uuid1 uuid2 uuid3]
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z',
-                'page_size' => 1,
-                'page_number' => 1
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 1
               })
         .and_return(claims_by_date_response1)
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z',
-                'page_size' => 1,
-                'page_number' => 2
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 2
               })
         .and_return(claims_by_date_response2)
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z',
-                'page_size' => 1,
-                'page_number' => 3
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 3
               })
         .and_return(claims_by_date_response3)
 
@@ -436,6 +447,7 @@ describe TravelPay::ClaimsService do
                                                            'page_size' => 1
                                                          })
 
+      expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
     end
@@ -464,7 +476,7 @@ describe TravelPay::ClaimsService do
           { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' }
         )
       end
-        .to raise_error(ArgumentError, /Invalid date/i)
+        .to raise_error(ArgumentError, /no time information/i)
     end
 
     it 'returns success but empty array if no claims found' do
@@ -481,25 +493,65 @@ describe TravelPay::ClaimsService do
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(0)
     end
 
+    it 'raises an exception if error and no claims returned' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 1
+              })
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'Unauthorized.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
+
+      expect do
+        @service.get_claims_by_date_range({
+                                            'start_date' => '2024-01-01T16:45:34Z',
+                                            'end_date' => '2024-03-01T16:45:34Z',
+                                            'page_size' => 1
+                                          })
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
     it 'returns partial success if some claims returned' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z',
-                'page_size' => 1,
-                'page_number' => 1
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 1
               })
         .and_return(claims_by_date_response1)
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z',
-                'page_size' => 1,
-                'page_number' => 2
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 2
               })
-        .and_return(claims_error_response)
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'Unauthorized.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
 
       claims_by_date = @service.get_claims_by_date_range({
                                                            'start_date' => '2024-01-01T16:45:34Z',

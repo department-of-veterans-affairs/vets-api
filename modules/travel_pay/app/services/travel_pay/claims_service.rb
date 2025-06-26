@@ -10,26 +10,23 @@ module TravelPay
     DEFAULT_PAGE_SIZE = 50
     DEFAULT_PAGE_NUMBER = 1
 
-    # TODO: We might not need this method anymore if we shift to always getting a date range
-    def get_claims
+    def get_claims(params)
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims(veis_token, btsss_token, {
-                                             'page_size' => DEFAULT_PAGE_SIZE
+                                             page_size: params['page_size'] || DEFAULT_PAGE_SIZE,
+                                             page_number: params['page_number'] || DEFAULT_PAGE_NUMBER
                                            })
       raw_claims = faraday_response.body['data'].deep_dup
 
-      # This was used prior to the date range method being implemented
-      # claims = filter_by_date(params['appt_datetime'], raw_claims)
-
       {
         metadata: {
-          # TODO: Determine if we need these metadata fields
+          # TODO: Determine if we need these additional metadata fields
 
           # 'status' => faraday_response.body['statusCode'],
           # 'success' => faraday_response.body['success'],
           # 'message' => faraday_response.body['message'],
-          # 'pageNumber' => faraday_response.body['pageNumber'],
-          # 'pageSize' => faraday_response.body['pageSize'],
+          'pageNumber' => faraday_response.body['pageNumber'],
+          'pageSize' => faraday_response.body['pageSize'],
           'totalRecordCount' => faraday_response.body['totalRecordCount']
         },
         data: raw_claims.map do |sc|
@@ -40,16 +37,20 @@ module TravelPay
     end
 
     def get_claims_by_date_range(params = {})
-      validate_date_params(params['start_date'], params['end_date'])
+      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
 
-      params['page_size'] = params['page_size'] || DEFAULT_PAGE_SIZE
+      loop_params = {
+        page_size: params['page_size'] || DEFAULT_PAGE_SIZE
+      }.merge!(date_range)
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      all_claims = loop_and_paginate_claims(params, veis_token, btsss_token)
+      all_claims = loop_and_paginate_claims(loop_params, veis_token, btsss_token)
 
       {
         metadata: {
-          # TODO: Determine if we need these metadata fields
+          # TODO: Determine if we need these additional metadata fields
+
           # 'status' => faraday_response.body['statusCode'],
           # 'success' => faraday_response.body['success'],
           # 'message' => faraday_response.body['message'],
@@ -175,13 +176,15 @@ module TravelPay
       documents
     end
 
-    def loop_and_paginate_claims(params, veis_token, btsss_token)
+    # Disabled method length for now due to error handling adding extra lines
+    # Once we refactor all Travel Pay services for better error handling we can adjust the length here
+    def loop_and_paginate_claims(params, veis_token, btsss_token) # rubocop:disable Metrics/MethodLength
       page_number = 1
       all_claims = []
       total_record_count = 0
 
       loop do
-        client_params = params.merge!({ 'page_number' => page_number })
+        client_params = params.merge!({ page_number: })
         faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
         total_record_count = faraday_response.body['totalRecordCount'] unless page_number > 1
 
@@ -196,6 +199,15 @@ module TravelPay
       end
 
       { data: all_claims, total_record_count: }
+    rescue => e
+      if all_claims.empty?
+        Rails.logger.error(message: "#{e}. Could not retrieve claims by date range.")
+        # TODO: replace this with the actual error
+        raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Could not retrieve claims.')
+      else
+        Rails.logger.error(message: "#{e}. Retrieved some claims, page 1 - page #{page_number}.")
+        { data: all_claims, total_record_count: }
+      end
     end
 
     def include_documents?
