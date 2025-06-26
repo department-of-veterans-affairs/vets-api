@@ -59,9 +59,9 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     @current_user.present?
   end
 
-  def load_user(skip_terms_check: false)
+  def load_user(skip_terms_check: false, skip_expiration_check: false)
     if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
-      super()
+      super(skip_expiration_check:)
     else
       set_session_object
       set_current_user(skip_terms_check)
