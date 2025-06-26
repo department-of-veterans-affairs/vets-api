@@ -3,10 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe Users::Profile do
-  let(:user) { build(:user, :accountable) }
-  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+  let!(:user_verification) { create(:user_verification) }
+  let(:user_account) { user_verification.user_account }
+  let(:user) do
+    build(:user, :accountable, user_account:, icn: user_account.icn, user_verification:,
+                               idme_uuid: user_verification.idme_uuid)
+  end
   let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
-  let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
+  let!(:in_progress_form_user_account) { create(:in_progress_form, user_account:) }
 
   describe '.initialize' do
     let(:users_profile) { Users::Profile.new(user) }
