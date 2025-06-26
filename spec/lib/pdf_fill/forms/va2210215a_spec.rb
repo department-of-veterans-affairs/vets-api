@@ -59,5 +59,15 @@ describe PdfFill::Forms::Va2210215a do
       expect(merged_data['pageNumber']).to eq('1')
       expect(merged_data['totalPages']).to eq('1')
     end
+
+    it 'does not error if institutionDetails is missing' do
+      form_data.delete('institutionDetails')
+      expect { subject.merge_fields(options) }.not_to raise_error
+    end
+
+    it 'does not error if programs is missing' do
+      form_data.delete('programs')
+      expect { subject.merge_fields(options) }.not_to raise_error
+    end
   end
 end

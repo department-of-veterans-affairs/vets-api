@@ -50,6 +50,11 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
   describe '#process' do
     subject(:process_call) { processor.process }
 
+    before do
+      # Mock logger to test log_completion
+      allow(Rails.logger).to receive(:info)
+    end
+
     it 'creates the target directory for temporary PDFs' do
       expect(file_utils_mock).to receive(:mkdir_p).with('tmp/pdfs')
       process_call
@@ -57,6 +62,18 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
 
     it 'returns the path to the final combined PDF' do
       expect(process_call).to eq(final_pdf_path)
+    end
+
+    it 'calls the logger with completion details' do
+      process_call
+      expect(Rails.logger).to have_received(:info).with(
+        'PdfFill done with continuation sheets',
+        hash_including(
+          form_id: '22-10215',
+          total_pages: 0,
+          total_programs: programs_per_page
+        )
+      )
     end
 
     context 'when there are 16 programs (no overflow)' do
@@ -74,6 +91,18 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
           expect(m.receiver.form_data['checkbox']).to eq('X')
           m.call
         end
+        process_call
+      end
+    end
+
+    context 'when there are no programs' do
+      let(:programs) { [] }
+      let(:main_form_pdf) { "tmp/pdfs/22-10215_#{file_name_extension}_main.pdf" }
+
+      it 'generates only the main form and does not create continuation sheets' do
+        expect(pdf_forms_mock).to receive(:fill_form).once
+        expect(file_utils_mock).not_to receive(:cp)
+        expect(pdf_forms_mock).to receive(:cat).with(main_form_pdf, final_pdf_path)
         process_call
       end
     end
