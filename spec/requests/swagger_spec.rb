@@ -3240,7 +3240,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'claim letters' do
       it 'retrieves a list of claim letters metadata' do
-        allow(Flipper).to receive(:enabled?).with(:cst_claim_letters_use_lighthouse_api_provider).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:cst_claim_letters_use_lighthouse_api_provider, anything).and_return(false)
         # Response comes from fixture: spec/fixtures/claim_letter/claim_letter_list.json
         expect(subject).to validate(:get, '/v0/claim_letters', 200, headers)
         expect(subject).to validate(:get, '/v0/claim_letters', 401)

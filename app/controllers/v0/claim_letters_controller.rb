@@ -25,7 +25,7 @@ module V0
     private
 
     def service
-      if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider)
+      if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
         return @service ||= LighthouseClaimLettersProvider.new(@current_user)
       end
 
