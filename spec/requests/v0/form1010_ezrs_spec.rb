@@ -52,6 +52,7 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
             }
           )
         end
+
         let(:params) do
           { form: }
         end
