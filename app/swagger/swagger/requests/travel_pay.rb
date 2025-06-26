@@ -15,19 +15,19 @@ module Swagger
 
           parameter :authorization
           parameter do
-            key :name, 'start_date'
+            key :name, 'page_number'
             key :in, :query
-            key :description, 'Start date for retrieving claims.'
-            key :required, true
-            key :type, :string
+            key :description, 'The page to retrieve. Defaults to 1.'
+            key :required, false
+            key :type, :integer
           end
 
           parameter do
-            key :name, 'end_date'
+            key :name, 'page_size'
             key :in, :query
-            key :description, 'End date for retrieving claims.'
-            key :required, true
-            key :type, :string
+            key :description, 'The page size to retrieve. Defaults to 50.'
+            key :required, false
+            key :type, :number
           end
 
           response 200 do
@@ -46,8 +46,8 @@ module Swagger
                 # property :status, type: :integer, example: 200
                 # property :success, type: :boolean, example: true
                 # property :message, type: :string, example: 'Data retrieved successfully'
-                # property :pageNumber, type: :integer, example: 1
-                # property :pageSize, type: :integer, example: 10
+                property :pageNumber, type: :integer, example: 1
+                property :pageSize, type: :integer, example: 10
                 property :totalRecordCount, type: :integer, example: 100
               end
             end
