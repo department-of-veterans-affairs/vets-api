@@ -2570,8 +2570,8 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'POST revoke' do
     subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
-    let!(:user) { create(:user, uuid: user_uuid) }
-    let(:user_uuid) { user_verification.user_account.id }
+    let!(:user) { create(:user) }
+    let(:user_uuid) { user.uuid }
     let(:refresh_token_param) { { refresh_token: } }
     let(:refresh_token) { 'example-refresh-token' }
     let(:anti_csrf_token_param) { { anti_csrf_token: } }
