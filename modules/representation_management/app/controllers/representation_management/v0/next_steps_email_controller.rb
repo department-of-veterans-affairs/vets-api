@@ -18,6 +18,7 @@ module RepresentationManagement
           VANotify::EmailJob.perform_async(
             data.email_address,
             template_id,
+            nil,
             email_personalisation(data),
             email_callback_options(data)
           )
