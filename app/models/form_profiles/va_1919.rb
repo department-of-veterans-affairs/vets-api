@@ -8,4 +8,4 @@ class FormProfiles::VA1919 < FormProfile
       returnUrl: '/applicant/information'
     }
   end
-end 
+end

@@ -36,4 +36,4 @@ module EducationForm::Forms
       'V1919'
     end
   end
-end 
+end
