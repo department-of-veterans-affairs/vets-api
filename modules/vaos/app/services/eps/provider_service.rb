@@ -129,7 +129,7 @@ module Eps
         end
 
         if address_match.nil?
-          Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI #{npi}")
+          Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI")
         end
 
         # Return address match if found, otherwise nil (avoid false positives)

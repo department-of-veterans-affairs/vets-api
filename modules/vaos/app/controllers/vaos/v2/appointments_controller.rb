@@ -523,7 +523,7 @@ module VAOS
           }
         )
       rescue ArgumentError
-        Rails.logger.error('Error fetching provider slots')
+        Rails.logger.error('Community Care Appointments: Error fetching provider slots')
         nil
       end
 
@@ -643,7 +643,7 @@ module VAOS
       # @return [void]
       # @see Redis::BaseError
       def handle_redis_error(error)
-        Rails.logger.error("Community Care Appointments: Redis error: #{error.message}")
+        Rails.logger.error("Community Care Appointments: #{error.class}}")
         render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
@@ -748,7 +748,7 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
-        Rails.logger.error("Community Care Appointments: Appointment creation error: #{e.class} - #{e.message}")
+        Rails.logger.error("Community Care Appointments: Appointment creation error: #{e.class}")
         original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
         render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
