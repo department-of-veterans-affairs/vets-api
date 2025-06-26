@@ -187,6 +187,11 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when no error occurs' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(false)
+        end
+
         it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',

@@ -49,6 +49,8 @@ module Form1010Ezr
         def update_associations(associations)
           transformed_associations = transform_associations(associations)
 
+          Rails.logger.info("transformed_associations: #{transformed_associations}")
+
           super(transformed_associations, '10-10EZR')
         end
 
