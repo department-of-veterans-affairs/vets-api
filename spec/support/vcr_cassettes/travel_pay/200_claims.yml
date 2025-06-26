@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v2/claims/search-by-appointment-date
+    uri: https://btsss.gov/api/v2/claims
     body:
       encoding: US-ASCII
       string: ''
@@ -204,6 +204,8 @@ http_interactions:
       string: '{
         "totalRecordCount": 3,
         "statusCode": "200",
+        "pageNumber": 1,
+        "pageSize": 50,
         "success": true,
         "message": "Successfully retrieved claims",
         "data": [
