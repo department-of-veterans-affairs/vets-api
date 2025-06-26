@@ -71,7 +71,7 @@ module SignIn
     end
 
     def create_new_access_token
-      ServiceAccountAccessToken.new(service_account_id: service_account_id || issuer,
+      ServiceAccountAccessToken.new(service_account_id:,
                                     audience:,
                                     scopes:,
                                     user_attributes:,
@@ -104,7 +104,8 @@ module SignIn
     end
 
     def service_account_id
-      @service_account_id ||= decoded_assertion_without_validation.service_account_id
+      @service_account_id ||= decoded_assertion_without_validation.service_account_id ||
+                              decoded_assertion_without_validation.iss
     end
 
     def scopes
@@ -140,9 +141,7 @@ module SignIn
     end
 
     def service_account_config
-      @service_account_config ||= ServiceAccountConfig.find_by(
-        service_account_id: service_account_id || decoded_assertion_without_validation.iss
-      )
+      @service_account_config ||= ServiceAccountConfig.find_by(service_account_id:)
     end
 
     def jwt_decode(with_validation: true)
