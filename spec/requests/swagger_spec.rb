@@ -371,29 +371,22 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           )
         end
 
-        it 'handles success', skip: 'VCR failures' do
-          VCR.use_cassette 's3/object/put/834d9f51-d0c7-4dc2-9f2e-9b722db98069/doctors-note.pdf', {
-            record: :none,
-            allow_unused_http_interactions: false,
-            match_requests_on: %i[method host]
-          } do
-            expect(SecureRandom).to receive(:uuid).and_return(
-              '834d9f51-d0c7-4dc2-9f2e-9b722db98069'
-            )
+        it 'handles success' do
+          form_attachment = build(:form1010cg_attachment, :with_attachment)
 
-            allow(SecureRandom).to receive(:uuid).and_call_original
+          allow_any_instance_of(FormAttachmentCreate).to receive(:save_attachment_to_cloud!).and_return(true)
+          allow_any_instance_of(FormAttachmentCreate).to receive(:form_attachment).and_return(form_attachment)
 
-            expect(subject).to validate(
-              :post,
-              '/v0/form1010cg/attachments',
-              200,
-              '_data' => {
-                'attachment' => {
-                  'file_data' => fixture_file_upload('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
-                }
+          expect(subject).to validate(
+            :post,
+            '/v0/form1010cg/attachments',
+            200,
+            '_data' => {
+              'attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
               }
-            )
-          end
+            }
+          )
         end
       end
 
@@ -3595,9 +3588,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/sign_in/authorize')
       subject.untested_mappings.delete('/v0/sign_in/callback')
       subject.untested_mappings.delete('/v0/sign_in/logout')
-
-      # Skip this flakey test for now
-      subject.untested_mappings.delete('/v0/form1010cg/attachments')
 
       expect(subject).to validate_all_paths
     end
