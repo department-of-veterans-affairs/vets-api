@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base'
+require 'claims_evidence_api/service/base'
 
 module ClaimsEvidenceApi
   module Service
@@ -10,17 +10,7 @@ module ClaimsEvidenceApi
 
       def create(file_path, provider_data:)
         headers = {'X-Folder-URI': x_folder_uri}
-
-        file_name = File.basename(file_path)
-        mime_type = Marcel::MimeType.for(file_path)
-
-        params = {
-          payload: {
-            contentName: file_name,
-            providerData: provider_data
-          },
-          file: Faraday::UploadIO.new(file_path, mime_type, file_name)
-        }
+        params = post_params(file_path, provider_data)
 
         perform :post, 'files', params, headers
       end
@@ -37,7 +27,14 @@ module ClaimsEvidenceApi
 
       def overwrite(uuid, file_path, provider_data:)
         headers = {'X-Folder-URI': x_folder_uri}
+        params = post_params(file_path, provider_data)
 
+        perform :post, "files/#{uuid}", params, headers
+      end
+
+      private
+
+      def post_params(file_path, provider_data)
         file_name = File.basename(file_path)
         mime_type = Marcel::MimeType.for(file_path)
 
@@ -48,10 +45,9 @@ module ClaimsEvidenceApi
           },
           file: Faraday::UploadIO.new(file_path, mime_type, file_name)
         }
-
-        perform :post, "files/#{uuid}", params, headers
       end
 
+      # end Files
     end
 
     # end Service

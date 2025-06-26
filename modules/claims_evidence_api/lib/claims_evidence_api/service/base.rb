@@ -20,6 +20,12 @@ module ClaimsEvidenceApi
 
       attr_reader :x_folder_uri
 
+      def x_folder_uri=(folder_identifier)
+        folder_identifier = ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
+        folder_type, identifier_type, id = folder_identifier.split(':', 3)
+        x_folder_uri_set(folder_type, identifier_type, id)
+      end
+
       # The Folder identifier to associate with a request
       # > Header Format: folder-type:identifier-type:ID
       # > Valid Folder-Types:

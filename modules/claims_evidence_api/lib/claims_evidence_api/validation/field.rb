@@ -48,6 +48,10 @@ module ClaimsEvidenceApi
         raise ArgumentError, "#{value} does not match #{regex}" unless regex.match?(value)
       end
 
+      def enum(accepted, value)
+        raise ArgumentError, "#{value} must be one of #{accepted}" unless accepted.include?(value)
+      end
+
       def transform_value(value)
         case type
         when :string

@@ -32,6 +32,7 @@ class ClaimsEvidenceApi::Submission < Submission
 
   # retrieve the header value from encrypted reference_data
   def x_folder_uri
+    self.reference_data ||= {}
     reference_data['x_folder_uri']
   end
 
@@ -48,10 +49,8 @@ class ClaimsEvidenceApi::Submission < Submission
   # * PERSON - Allows: PARTICIPANT_ID, SEARCH
   # eg. VETERAN:FILENUMBER:987267855
   def x_folder_uri_set(folder_type, identifier_type, id)
-    # TODO: validate arguments
-
     data = reference_data || {}
-    data['x_folder_uri'] = "#{folder_type}:#{identifier_type}:#{id}"
+    data['x_folder_uri'] = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
 
     self.reference_data = data
 
