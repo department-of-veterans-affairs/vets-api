@@ -74,7 +74,7 @@ describe TravelPay::TokenClient do
     let(:assertion) do
       {
         'iss' => 'https://www.example.com',
-        'sub' => user.email,
+        'sub' => user.user_account_uuid,
         'aud' => 'https://www.example.com/v0/sign_in/token',
         'iat' => 1_634_745_556,
         'exp' => 1_634_745_856,
