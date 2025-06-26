@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
   let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
   let(:claim_id) { 600_383_363 } # This is the claim in the vcr cassettes that we are using
 

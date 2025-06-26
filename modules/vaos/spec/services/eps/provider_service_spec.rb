@@ -7,11 +7,12 @@ describe Eps::ProviderService do
 
   let(:user) { double('User', account_uuid: '1234') }
   let(:config) { instance_double(Eps::Configuration) }
-  let(:headers) { { 'Authorization' => 'Bearer token123' } }
+  let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
 
   before do
     allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
-    allow(service).to receive_messages(config:, headers:)
+    allow(service).to receive_messages(config:)
+    allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)

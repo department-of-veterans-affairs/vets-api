@@ -262,6 +262,9 @@ features:
   champva_fmp_single_file_upload:
     actor_type: user
     description: Enables the ability to upload a single merged PDF file for FMP claims
+  champva_mpi_validation:
+    actor_type: user
+    description: Enables MPI veteran and benefificiary validation for IVC CHAMPVA form submissions
   champva_old_records_cleanup_job:
     actor_type: user
     description: Enables the job to cleanup old IVC CHAMPVA form records
@@ -893,6 +896,10 @@ features:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
     enable_in_development: true
+  form10297_confirmation_email:
+    actor_type: user
+    description: Enables form 10297 email submission confirmation (VaNotify)
+    enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
     description: Enables form 26-4555 email submission confirmation (VaNotify)
@@ -1206,6 +1213,14 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_migrate_ccd_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the CCD endpoints
+    enable_in_development: true
+  mhv_medical_records_migrate_dicom_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the DICOM endpoint
+    enable_in_development: true
   mhv_medical_records_migrate_to_api_gateway:
     actor_type: user
     description: Enables the switch to the new MHV API Gateway endpoints
@@ -1278,6 +1293,10 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
+  mhv_accelerated_delivery_vaccines_enabled:
+    actor_type: user
+    description: Enables/disables the new immunizations v2 endpoint that uses LH as a datasource and aligns with data model that the mobile app uses
+    enable_in_development: false
   mhv_medical_records_support_new_model_lab_test:
     actor_type: user
     description: Enables/disables the use of pre-transformed lab/test objects

@@ -15,7 +15,10 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1') }
+  let(:user) do
+    build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
+                                     address: build(:va_profile_v3_address), vet360_id: '1')
+  end
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
@@ -331,6 +334,24 @@ RSpec.describe FormProfile, type: :model do
     }
   end
   let(:v22_0994_expected) do
+    {
+      'activeDuty' => false,
+      'mailingAddress' => address,
+      'applicantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'applicantGender' => user.gender,
+      'dayTimePhone' => us_phone,
+      'nightTimePhone' => mobile_phone,
+      'dateOfBirth' => user.birth_date,
+      'applicantSocialSecurityNumber' => user.ssn,
+      'emailAddress' => user.va_profile_email
+    }
+  end
+  let(:v22_10297_expected) do
     {
       'activeDuty' => false,
       'mailingAddress' => address,
@@ -1381,6 +1402,14 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with VA Profile prefill for 10297' do
+        it 'prefills 10297' # pending until schema is available
+      end
+
+      context 'with VA Profile and ppiu prefill for 10297' do
+        it 'prefills 10297 with VA Profile and payment information' # pending until schema is available
+      end
+
       context 'with VA Profile prefill for 0873' do
         let(:info) do
           {
@@ -1530,8 +1559,8 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:va_profile_v3_address),
-                                vet360_id: '1781151')
+            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_v3_address),
+                                             vet360_id: '1781151')
           end
 
           before do

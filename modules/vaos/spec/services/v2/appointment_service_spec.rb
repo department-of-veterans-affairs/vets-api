@@ -2004,7 +2004,7 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_avs_link' do
-    let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+    let(:user) { build(:user, :loa3, :legacy_icn) }
     let(:expected_avs_link) do
       '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
     end

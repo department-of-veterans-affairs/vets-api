@@ -27,6 +27,12 @@ RSpec.describe Eps::RedisClient do
       client.store_appointment_data(uuid:, appointment_id:, email:)
     end
 
+    describe 'configuration' do
+      it 'has 26 hour TTL to exceed retry duration' do
+        expect(described_class::CACHE_TTL).to eq(26.hours)
+      end
+    end
+
     context 'with missing parameters' do
       it 'raises ArgumentError when uuid is missing' do
         expect { client.store_appointment_data(uuid: nil, appointment_id:, email:) }
