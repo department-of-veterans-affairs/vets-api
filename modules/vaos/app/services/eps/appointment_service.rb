@@ -14,15 +14,16 @@ module Eps
     def get_appointment(appointment_id:, retrieve_latest_details: false)
       query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
-      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
-                         request_headers_with_correlation_id)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
+                           request_headers_with_correlation_id)
+        result = OpenStruct.new(response.body)
 
-      result = OpenStruct.new(response.body)
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(result, response, 'get_appointment')
 
-      # Check for error field in successful responses using reusable helper
-      check_for_eps_error!(result, response, 'get_appointment')
-
-      result
+        result
+      end
     end
 
     ##
@@ -31,15 +32,17 @@ module Eps
     # @return OpenStruct response from EPS appointments endpoint
     #
     def get_appointments
-      response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, request_headers_with_correlation_id)
 
-      # Check for error field in successful responses using reusable helper
-      check_for_eps_error!(response.body, response, 'get_appointments')
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(response.body, response, 'get_appointments')
 
-      appointments = response.body[:appointments]
-      merged_appointments = merge_provider_data_with_appointments(appointments)
-      OpenStruct.new(data: merged_appointments)
+        appointments = response.body[:appointments]
+        merged_appointments = merge_provider_data_with_appointments(appointments)
+        OpenStruct.new(data: merged_appointments)
+      end
     end
 
     ##
@@ -48,16 +51,18 @@ module Eps
     # @return OpenStruct response from EPS create draft appointment endpoint
     #
     def create_draft_appointment(referral_id:)
-      response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referral: { referralNumber: referral_id } },
-                         request_headers_with_correlation_id)
+      with_monitoring do
+        response = perform(:post, "/#{config.base_path}/appointments",
+                           { patientId: patient_id, referral: { referralNumber: referral_id } },
+                           request_headers_with_correlation_id)
 
-      result = OpenStruct.new(response.body)
+        result = OpenStruct.new(response.body)
 
-      # Check for error field in successful responses using reusable helper
-      check_for_eps_error!(result, response, 'create_draft_appointment')
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(result, response, 'create_draft_appointment')
 
-      result
+        result
+      end
     end
 
     ##
@@ -97,15 +102,17 @@ module Eps
       appointment_last4 = appointment_id.to_s.last(4)
       Eps::AppointmentStatusJob.perform_async(user.uuid, appointment_last4)
 
-      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload,
-                         request_headers_with_correlation_id)
+      with_monitoring do
+        response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload,
+                           request_headers_with_correlation_id)
 
-      result = OpenStruct.new(response.body)
+        result = OpenStruct.new(response.body)
 
-      # Check for error field in successful responses using reusable helper
-      check_for_eps_error!(result, response, 'submit_appointment')
+        # Check for error field in successful responses using reusable helper
+        check_for_eps_error!(result, response, 'submit_appointment')
 
-      result
+        result
+      end
     end
 
     private

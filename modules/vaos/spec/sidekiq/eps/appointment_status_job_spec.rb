@@ -110,12 +110,12 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
       it 'logs error and returns early' do
         expect(Rails.logger).to receive(:error).with(
-          'EpsAppointmentJob missing or incomplete Redis data',
+          'Community Care Appointments: EpsAppointmentJob missing or incomplete Redis data',
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(
-          'api.vaos.appointment_status_check.failure',
-          tags: ["user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
+          "#{described_class::STATSD_PREFIX}.failure",
+          tags: ['Community Care Appointments', "user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
         )
         worker.perform(user.uuid, appointment_id_last4)
       end
