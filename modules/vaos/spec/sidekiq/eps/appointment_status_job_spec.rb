@@ -115,7 +115,9 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
         )
         expect(StatsD).to receive(:increment).with(
           "#{described_class::STATSD_PREFIX}.failure",
-          tags: ['Community Care Appointments', "user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
+          tags: ['Community Care Appointments',
+                 "user_uuid: #{user.uuid}",
+                 "appointment_id_last4: #{appointment_id_last4}"]
         )
         worker.perform(user.uuid, appointment_id_last4)
       end

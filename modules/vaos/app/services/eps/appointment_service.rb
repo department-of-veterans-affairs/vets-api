@@ -34,7 +34,7 @@ module Eps
     def get_appointments
       with_monitoring do
         response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
-                         {}, request_headers_with_correlation_id)
+                           {}, request_headers_with_correlation_id)
 
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(response.body, response, 'get_appointments')
