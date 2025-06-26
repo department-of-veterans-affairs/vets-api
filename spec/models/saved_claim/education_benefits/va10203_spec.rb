@@ -7,7 +7,6 @@ require 'feature_flipper'
 RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   let(:instance) { build(:va10203, education_benefits_claim: create(:education_benefits_claim)) }
   let(:user) { create(:user) }
-  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original

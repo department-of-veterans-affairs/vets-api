@@ -155,7 +155,7 @@ class UserSessionForm
   private
 
   def log_existing_user_warning(saml_uuid, saml_icn)
-    message = "Couldn't locate exiting user after MFA establishment"
+    message = "Couldn't locate existing user after MFA establishment"
     log_message_to_sentry(message, :warn, { saml_uuid:, saml_icn: })
   end
 end

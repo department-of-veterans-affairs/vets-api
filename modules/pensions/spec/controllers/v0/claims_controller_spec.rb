@@ -141,7 +141,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
         expect(bpds_monitor).not_to receive(:track_get_user_identifier_file_number_result)
         expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
-          .with(identifier: current_user.icn, identifier_type: MPI::Constants::ICN)
+          .with(identifier: user.icn, identifier_type: MPI::Constants::ICN)
           .and_return(mpi_response)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload).once
 
