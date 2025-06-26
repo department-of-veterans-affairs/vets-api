@@ -28,7 +28,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
   end
 
   let(:claimant_id) { 1 }
-  let(:user) { build(:user, :loa3, user_details) }
+  let(:user) { build(:user, :loa3, :legacy_icn, user_details) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:faraday_response) { double('faraday_connection') }
 

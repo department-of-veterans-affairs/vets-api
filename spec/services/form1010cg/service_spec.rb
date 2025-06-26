@@ -116,25 +116,9 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the Form1010cg::Attachment is found' do
-        let(:attachment) { build(:form1010cg_attachment, guid: poa_attachment_guid) }
-        let(:vcr_options) do
-          {
-            record: :none,
-            allow_unused_http_interactions: false,
-            match_requests_on: %i[method host body]
-          }
-        end
+        let(:attachment) { build(:form1010cg_attachment, :with_attachment, guid: poa_attachment_guid) }
 
         before do
-          VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note_jpg", vcr_options) do
-            attachment.set_file_data!(
-              Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.jpg'),
-                'image/jpg'
-              )
-            )
-          end
-
           attachment.save!
           expect_any_instance_of(attachment.class).to receive(:to_local_file).and_return(poa_attachment_path)
         end
@@ -544,8 +528,10 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'success' do
+      let(:expected_response) { double(:expected_response) }
+
       before do
-        allow(mule_soft_client).to receive(:create_submission_v2)
+        allow(mule_soft_client).to receive(:create_submission_v2) { expected_response }
       end
 
       it 'submits to mulesoft' do
@@ -557,9 +543,25 @@ RSpec.describe Form1010cg::Service do
         expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
           **expected_arguments
         )
+        claim_guid = claim_with_mpi_veteran.guid
+        expect(Rails.logger).to receive(:info).with('[Form 10-10CG] MPI Profile found for Veteran', { claim_guid: })
+        expect(Rails.logger).to receive(:info).with(
+          '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver',
+          { claim_guid: }
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One',
+          { claim_guid: }
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[10-10CG] - CARMA submission complete',
+          { form: '10-10CG', claim_guid:, claim_pdf_path_length: 68, poa_attachment_path_length: nil }
+        )
 
-        subject
+        response = subject
+
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+        expect(response).to be(expected_response)
       end
 
       context 'with a poa attachment' do

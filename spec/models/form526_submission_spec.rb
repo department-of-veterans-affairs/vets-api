@@ -16,13 +16,11 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user_account) { create(:user_account) }
+  let(:user_account) { user.user_account }
   let(:user) do
-    create(:user, :loa3, first_name: 'Beyonce',
-                         last_name: 'Knowles',
-                         icn: user_account.icn,
-                         idme_uuid: SecureRandom.uuid)
+    create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', icn:)
   end
+  let(:icn) { 'some-icn' }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -927,6 +925,57 @@ RSpec.describe Form526Submission do
   describe '#perform_ancillary_jobs_handler' do
     let(:status) { OpenStruct.new(parent_bid: SecureRandom.hex(8)) }
 
+    context 'with 1 duplicate uploads' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_duplicate_uploads.json')
+      end
+
+      it 'queues 3 jobs with 1 duplicate at the right delay' do
+        # 3 files with 1 duplicate
+        # Should queue 3 jobs
+        # Job1 at 60 seconds
+        # Job2 at 360 seconds
+        # Job3 at 180 seconds
+        Timecop.freeze(Time.zone.now) do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
+          expect do
+            subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+          end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+          expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
+            (h['at'] - Time.now.to_i).floor(0)
+          end).to eq([60, 360, 180])
+        end
+      end
+    end
+
+    context 'with many duplicate uploads' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_many_duplicate_uploads.json')
+      end
+
+      it 'queues jobs with many duplicates at the right delay' do
+        Timecop.freeze(Time.zone.now) do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
+          expect do
+            subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+          end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(7)
+          expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
+            (h['at'] - Time.now.to_i).floor(0)
+          end).to eq([
+                       60, # original file, 60s
+                       360, # dup, plus 300s
+                       660, # dup, plus 300s
+                       960, # dup, plus 300s
+                       1260, # dup, plus 300s
+                       1560, # dup, plus 300s
+                       420 # not a dup, (index+1 * 60)s
+                     ])
+        end
+      end
+    end
+
     context 'with an ancillary job' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
@@ -938,6 +987,19 @@ RSpec.describe Form526Submission do
         expect do
           subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+      end
+
+      it 'queues 3 jobs with no duplicates at the right delay' do
+        Timecop.freeze(Time.zone.now) do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
+          expect do
+            subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+          end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+          expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
+            (h['at'] - Time.now.to_i).round(0)
+          end).to eq([60, 120, 180])
+        end
       end
 
       it 'warns when there are multiple successful submit526 jobs' do
@@ -1350,9 +1412,7 @@ RSpec.describe Form526Submission do
   describe '#disabilities_not_service_connected?' do
     subject { form_526_submission.disabilities_not_service_connected? }
 
-    before { create(:idme_user_verification, idme_uuid: user.idme_uuid, user_account:) }
-
-    let(:user_account) { create(:user_account, icn: '123498767V234859') }
+    let(:icn) { '123498767V234859' }
     let(:form_526_submission) do
       Form526Submission.create(
         user_uuid: user.uuid,
