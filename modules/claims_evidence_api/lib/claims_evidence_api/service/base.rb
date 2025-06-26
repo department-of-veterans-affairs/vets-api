@@ -15,12 +15,9 @@ module ClaimsEvidenceApi
     class Base < Common::Client::Base
       configuration ClaimsEvidenceApi::Configuration
 
-      include ClaimsEvidenceAPI::Exceptions
+      include ClaimsEvidenceApi::Exceptions
 
-      # retrieve the header value
-      def x_folder_uri?
-        @x_folder_uri
-      end
+      attr_reader :x_folder_uri
 
       # The Folder identifier to associate with a request
       # > Header Format: folder-type:identifier-type:ID
@@ -34,9 +31,9 @@ module ClaimsEvidenceApi
       # @param id [String] ID
       #
       # @return [String] combined identifer to be used in the request header
-      def x_folder_uri(folder_type, identifier_type, id)
+      def x_folder_uri_set(folder_type, identifier_type, id)
         # TODO: validate arguments
-        @x_folder_uri = "#{type}:#{identifier}:#{id}"
+        @x_folder_uri = "#{folder_type}:#{identifier_type}:#{id}"
       end
     end
 

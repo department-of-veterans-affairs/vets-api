@@ -8,16 +8,48 @@ module ClaimsEvidenceApi
     # Files API
     class Files < Base
 
-      def create(file_path, payload)
-        raise UndefinedXFolderURI unless x_folder_uri?
-        raise FileNotFound unless File.exist?(pdf_path)
+      def create(file_path, provider_data:)
+        headers = {'X-Folder-URI': x_folder_uri}
 
+        file_name = File.basename(file_path)
+        mime_type = Marcel::MimeType.for(file_path)
+
+        params = {
+          payload: {
+            contentName: file_name,
+            providerData: provider_data
+          },
+          file: Faraday::UploadIO.new(file_path, mime_type, file_name)
+        }
+
+        perform :post, 'files', params, headers
+      end
+      alias upload create
+
+      def read(uuid, include_raw_text: false)
+        perform :get, "files/#{uuid}?includeRawTextData=#{include_raw_text}", {}, {}
+      end
+      alias retrieve read
+
+      def update(uuid, provider_data:)
+        perform :put, "files/#{uuid}", provider_data.to_json, {}
       end
 
-      def read(uuid)
-      end
+      def overwrite(uuid, file_path, provider_data:)
+        headers = {'X-Folder-URI': x_folder_uri}
 
-      def update(uuid, payload)
+        file_name = File.basename(file_path)
+        mime_type = Marcel::MimeType.for(file_path)
+
+        params = {
+          payload: {
+            contentName: file_name,
+            providerData: provider_data
+          },
+          file: Faraday::UploadIO.new(file_path, mime_type, file_name)
+        }
+
+        perform :post, "files/#{uuid}", params, headers
       end
 
     end
