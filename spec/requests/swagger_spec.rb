@@ -1270,7 +1270,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'intent to file' do
-      let(:mhv_user) { create(:user, :loa3) }
+      let(:mhv_user) { create(:user, :loa3, :legacy_icn) }
 
       before do
         Flipper.disable('disability_compensation_production_tester')
@@ -1557,10 +1557,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     context '/v0/user endpoint with some external service errors' do
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
-
-      before do
-        create(:user_verification, idme_uuid: user.idme_uuid)
-      end
 
       it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
@@ -1865,7 +1861,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'profiles', :skip_va_profile_user do
-      let(:mhv_user) { create(:user, :loa3) }
+      let(:mhv_user) { create(:user, :loa3, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
       it 'supports getting service history data' do
         expect(subject).to validate(:get, '/v0/profile/service_history', 401)
@@ -2359,14 +2355,14 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'contact infromation v2', :skip_vet360 do
+    describe 'contact information v2', :skip_vet360 do
       before do
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       end
 
       describe 'profiles v2', :initiate_vaprofile, :skip_vet360 do
-        let(:mhv_user) { build(:user, :loa3) }
+        let(:mhv_user) { build(:user, :loa3, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         before do
           sign_in_as(mhv_user)
@@ -2640,7 +2636,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       describe 'profile/status v2', :initiate_vaprofile, :skip_vet360 do
-        let(:user) { build(:user, :loa3) }
+        let(:user) { build(:user, :loa3, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', stub_mpi: false) }
 
         before do
           sign_in_as(user)
@@ -2650,8 +2646,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           transaction = create(
             :va_profile_address_transaction,
             transaction_id: '0ea91332-4713-4008-bd57-40541ee8d4d4',
-            user_uuid: user.uuid
+            user_uuid: user.uuid,
+            user_account_id: user.user_account_uuid
           )
+
           expect(subject).to validate(
             :get,
             '/v0/profile/status/{transaction_id}',
@@ -2725,7 +2723,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'profile/connected_applications' do
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-      let(:user) { create(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
+      let(:user) { create(:user, :loa3, :legacy_icn) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, token, true) } } }
 
       before do
@@ -3243,7 +3241,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       # The vcr_cassettes used in spec/requests/v0/lgy_coe_request_spec.rb
       # rely on this specific user's edipi and icn, and we are using those
       # cassettes below.
-      let(:mhv_user) { create(:evss_user, :loa3) }
+      let(:mhv_user) { create(:evss_user, :loa3, :legacy_icn, edipi: '1007697216') }
 
       describe 'GET /v0/coe/status' do
         it 'validates the route' do
