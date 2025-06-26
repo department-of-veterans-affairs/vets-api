@@ -7,7 +7,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
   # setting the client only once for this test set, as it mimics how it's
   # used in the Sidekiq worker disability_compensation_fast_track_job.rb
 
-  before(:all) do
+  before(:each) do
     @client = Lighthouse::VeteransHealth::Client.new(12_345)
   end
 
@@ -74,10 +74,6 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         let(:params_hash) do
           { patient: @client.instance_variable_get(:@icn),
             _count: 100 }
-        end
-
-        before do
-          allow(@client).to receive(:perform_get).and_call_original
         end
 
         it 'invokes the Lighthouse Veterans Health API MedicationRequest endpoint' do
