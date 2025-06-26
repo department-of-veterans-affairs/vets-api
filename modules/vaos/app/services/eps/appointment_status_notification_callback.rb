@@ -47,8 +47,7 @@ module Eps
           appointment_id_present: metadata['appointment_id_last4'].present?,
           status: notification.status
         )
-        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments']
-)
+        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments'])
       end
 
       metadata
