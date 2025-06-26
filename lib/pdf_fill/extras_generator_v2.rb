@@ -13,9 +13,9 @@ module PdfFill
     BODY_FOOTER_GAP = 27
 
     class Question
-      attr_accessor :section_index, :overflow, :config
+      attr_accessor :section_index, :overflow, :config, :index
 
-      def initialize(question_text, metadata, config = nil)
+      def initialize(question_text, metadata, config = nil, index = nil)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
@@ -23,10 +23,11 @@ module PdfFill
         @overflow = false
         @show_suffix = metadata[:show_suffix] || false
         @config = config
+        @index = index
       end
 
       def numbered_label_markup
-        hide_number = @config&.dig(:hide_question_num) || false
+        hide_number = config&.dig(:hide_question_num) || false
         return "<h3>#{@text}</h3>" if hide_number || @number.blank?
 
         show_suffix = @subquestions.first&.dig(:metadata, :show_suffix)
@@ -197,8 +198,8 @@ module PdfFill
     class CheckedDescriptionQuestion < Question
       attr_reader :description, :additional_info
 
-      def initialize(question_text, metadata, config = nil)
-        super(question_text, metadata, config)
+      def initialize(question_text, metadata, config = nil, index = nil)
+        super
         @description = nil
         @additional_info = nil
         @checked = false
@@ -259,8 +260,8 @@ module PdfFill
     class ListQuestion < Question
       attr_reader :items, :item_label
 
-      def initialize(question_text, metadata, config = nil)
-        super(question_text, metadata, config)
+      def initialize(question_text, metadata, config = nil, index = nil)
+        super
         @item_label = metadata[:item_label]
         @items = []
         @format_options = metadata[:format_options] || {}
@@ -273,9 +274,9 @@ module PdfFill
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
           @items[i] = if metadata[:question_type] == 'checked_description'
-                        CheckedDescriptionQuestion.new(nil, metadata, @config)
+                        CheckedDescriptionQuestion.new(nil, metadata, config, index)
                       else
-                        Question.new(nil, metadata, @config)
+                        Question.new(nil, metadata, config, index)
                       end
         end
 
@@ -370,36 +371,51 @@ module PdfFill
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
 
-      config = find_question_config(metadata)
-      if config && @questions[config[:question_number]].blank?
-        @questions[config[:question_number]] = get_question(config[:question_text], metadata, config)
+      question_index = find_question_index(metadata)
+      return unless question_index
+
+      config = @question_key[question_index]
+      question_num = config[:question_number]
+
+      if @questions[question_num].blank?
+        @questions[question_num] = get_question(config[:question_text], metadata, config, question_index)
       end
+
       value = apply_humanization(value, metadata[:format_options])
-      @questions[config ? config[:question_number] : metadata[:question_num]]&.add_text(value, metadata)
+      @questions[question_num]&.add_text(value, metadata)
     end
 
-    def get_question(question_text, metadata, config = nil)
-      config ||= find_question_config(metadata)
+    def get_question(question_text, metadata, config = nil, index = nil)
       if metadata[:i].blank?
         case metadata[:question_type]
         when 'free_text'
-          FreeTextQuestion.new(question_text, metadata, config)
+          FreeTextQuestion.new(question_text, metadata, config, index)
         when 'checked_description'
-          CheckedDescriptionQuestion.new(question_text, metadata, config)
+          CheckedDescriptionQuestion.new(question_text, metadata, config, index)
         else
-          Question.new(question_text, metadata, config)
+          Question.new(question_text, metadata, config, index)
         end
       else
-        ListQuestion.new(question_text, metadata, config)
+        ListQuestion.new(question_text, metadata, config, index)
       end
     end
 
-    def find_question_config(metadata)
-      @question_key.find do |q|
-        q[:question_number].to_s.downcase == "#{metadata[:question_num]}#{metadata[:question_suffix]}".downcase
-      end || @question_key.find do |q|
-        q[:question_number].to_s.downcase == metadata[:question_num].to_s.downcase
+    def find_question_index(metadata)
+      question_num = metadata[:question_num].to_s.downcase
+      suffix = metadata[:question_suffix].to_s.downcase
+      full_question_key = "#{question_num}#{suffix}".downcase
+
+      # First try to find exact match with suffix
+      exact_match = @question_key.each_with_index.find do |q, index|
+        q[:question_number].to_s.downcase == full_question_key
       end
+
+      return exact_match.last if exact_match
+
+      # Fall back to match without suffix
+      @question_key.each_with_index.find do |q, index|
+        q[:question_number].to_s.downcase == question_num
+      end&.last
     end
 
     def populate_section_indices!
@@ -418,12 +434,7 @@ module PdfFill
       populate_section_indices!
       @questions.values
                 .select(&:overflow)
-                .sort_by do |question|
-        idx = @question_key.find_index do |q|
-          q[:question_number].to_s.downcase == question.instance_variable_get(:@number).to_s.downcase
-        end
-        idx || 9999
-      end
+                .sort_by(&:index)
     end
 
     def measure_section_header_height(temp_pdf, section_index)
