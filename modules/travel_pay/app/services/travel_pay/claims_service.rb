@@ -159,10 +159,12 @@ module TravelPay
     end
 
     def get_date_range(params)
+      # if we get one date, we need both dates
       if params['start_date'] || params['end_date']
         date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
         date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
       else
+        # if no dates are provided, default to 3 months ago - today
         date_range = {
           start_date: DateUtils.strip_timezone(3.months.ago).iso8601,
           end_date: DateUtils.strip_timezone(Time.zone.now).iso8601
