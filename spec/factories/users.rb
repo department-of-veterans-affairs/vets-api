@@ -4,11 +4,17 @@ require 'saml/url_service'
 
 FactoryBot.define do
   factory :user, class: 'User' do
-    uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+    uuid { user_verification.credential_identifier }
     last_signed_in { Time.now.utc }
     fingerprint { '111.111.1.1' }
     session_handle { SecureRandom.hex }
     transient do
+      icn do
+        digits = Faker::Number.number(digits: 16).to_s
+        "#{digits[0..9]}V#{digits[10..]}"
+      end
+      user_account { create(:user_account, icn:) }
+      user_verification { create(:user_verification, user_account:, idme_uuid:, logingov_uuid:) }
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
       first_name { 'abraham' }
@@ -18,13 +24,12 @@ FactoryBot.define do
       preferred_name { 'abe' }
       birth_date { '1809-02-12' }
       ssn { '796111863' }
-      idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      idme_uuid { Faker::Alphanumeric.alphanumeric(number: 32) }
       logingov_uuid { nil }
       verified_at { nil }
       sec_id { '123498767' }
       participant_id { Faker::Number.number(digits: 8) }
       birls_id { Faker::Number.number(digits: 9) }
-      icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
       mhv_ids { [mhv_credential_uuid] }
@@ -128,8 +133,7 @@ FactoryBot.define do
     end
 
     callback(:after_build, :after_stub, :after_create) do |user, t|
-      user_identity = create(:user_identity,
-                             t.user_identity)
+      user_identity = create(:user_identity, t.user_identity)
       user.instance_variable_set(:@identity, user_identity)
       user.instance_variable_set(:@needs_accepted_terms_of_use, t.needs_accepted_terms_of_use)
       stub_mpi(t.mpi_profile) unless t.stub_mpi == false
@@ -138,7 +142,6 @@ FactoryBot.define do
     # This is used by the response_builder helper to build a user from saml attributes
     trait :response_builder do
       authn_context { nil }
-      uuid { nil }
       last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
       mhv_last_signed_in { Faker::Time.between(from: 1.week.ago, to: 1.minute.ago) }
       email { nil }
@@ -154,6 +157,10 @@ FactoryBot.define do
       mhv_account_type { nil }
       va_patient { nil }
       loa { nil }
+    end
+
+    trait :legacy_icn do
+      icn { '123498767V234859' }
     end
 
     trait :dependent do
@@ -468,15 +475,12 @@ FactoryBot.define do
 
     trait :with_terms_of_use_agreement do
       after(:build) do |user, _context|
-        verification = create(:idme_user_verification, idme_uuid: user.idme_uuid)
-        create(:terms_of_use_agreement, user_account: verification.user_account)
+        create(:terms_of_use_agreement, user_account: user.user_account)
       end
     end
 
     trait :idme_lock do
-      after(:build) do |user, _context|
-        create(:idme_user_verification, idme_uuid: user.idme_uuid, locked: true)
-      end
+      user_verification { create(:idme_user_verification, user_account:, idme_uuid:, logingov_uuid:, locked: true) }
     end
   end
 end
