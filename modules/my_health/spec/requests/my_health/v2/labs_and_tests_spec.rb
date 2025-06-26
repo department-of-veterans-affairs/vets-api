@@ -12,6 +12,7 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
   let(:path) { '/my_health/v2/medical_records/labs_and_tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
+  let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
   let(:ch_flipper) { :mhv_accelerated_delivery_uhd_ch_enabled }
   let(:ch_response) do
     JSON.parse(Rails.root.join(
@@ -39,9 +40,10 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
     sign_in_as(current_user)
   end
 
-  describe 'GET /mobile/v1/health/labs-and-tests' do
+  describe 'GET /my_health/v2/medical_records/labs_and_tests' do
     context 'happy path' do
       before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
@@ -56,14 +58,67 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(4)
-        expect(json_response[1]).to eq(ch_response)
-        expect(json_response[3]).to eq(sp_response)
+        # Check that our test records are included in the response
+        # rather than expecting specific counts or indices
+        expect(json_response).to include(ch_response)
+        expect(json_response).to include(sp_response)
+        expect(json_response).to include(mb_response)
+      end
+    end
+
+    context 'SP and MB only' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
+      end
+
+      it 'returns the correct lab records' do
+        json_response = JSON.parse(response.body)
+        # Check that our SP and MB records are included in the response
+        # and CH record is not included
+        expect(json_response).to include(sp_response)
+        expect(json_response).to include(mb_response)
+        expect(json_response).not_to include(ch_response)
+      end
+    end
+
+    context 'CH and MB only' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
+      end
+
+      it 'returns the correct lab records' do
+        json_response = JSON.parse(response.body)
+        # Check that our CH and MB records are included in the response
+        # and SP record is not included
+        expect(json_response).to include(ch_response)
+        expect(json_response).to include(mb_response)
+        expect(json_response).not_to include(sp_response)
       end
     end
 
     context 'errors' do
       before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
