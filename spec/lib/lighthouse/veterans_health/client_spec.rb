@@ -7,7 +7,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
   # setting the client only once for this test set, as it mimics how it's
   # used in the Sidekiq worker disability_compensation_fast_track_job.rb
 
-  before(:each) do
+  before do
     @client = Lighthouse::VeteransHealth::Client.new(12_345)
   end
 
