@@ -351,7 +351,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       it 'logs error and returns nil' do
         result = controller.send(:fetch_provider_slots, referral, provider)
 
-        expect(Rails.logger).to have_received(:error).with('Error fetching provider slots')
+        expect(Rails.logger).to have_received(:error).with('Community Care Appointments: Error fetching provider slots')
         expect(result).to be_nil
       end
     end
