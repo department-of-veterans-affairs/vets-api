@@ -73,7 +73,7 @@ module IncomeAndAssets
       def process_and_upload_to_lighthouse(in_progress_form, claim)
         claim.process_attachments!
 
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform(claim.id, current_user&.user_account_uuid)
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
         raise e
