@@ -33,7 +33,7 @@ FactoryBot.define do
 
     after(:build) do
       stub_mpi(
-        build(
+        FactoryBot.build(
           :mpi_profile,
           icn: '24811694708759028',
           edipi: '1005079124',
@@ -56,7 +56,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             icn: '24811694708759028',
             edipi: nil,
@@ -77,7 +77,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             icn: '24811694708759028',
             edipi: nil,
@@ -98,7 +98,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             icn: '24811694708759028',
             edipi: '1005079124',
@@ -119,7 +119,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             icn: '24811694708759028',
             edipi: '1005079124',
@@ -165,7 +165,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             icn: '24811694708759028',
             edipi: '1005079124',
@@ -186,7 +186,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             vha_facility_ids: {}
           )
@@ -207,7 +207,7 @@ FactoryBot.define do
 
       after(:build) do |_user, evaluator|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             vha_facility_ids: evaluator.facility_ids,
             cerner_facility_ids: evaluator.cerner_facility_ids
