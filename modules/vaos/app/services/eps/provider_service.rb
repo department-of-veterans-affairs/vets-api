@@ -56,37 +56,25 @@ module Eps
     #
     # @param provider_id [String] The unique identifier of the provider
     # @param opts [Hash] Optional parameters for the request
-    # @option opts [String] :nextToken Token for pagination of results
-    # @option opts [String] :appointmentTypeId Required if nextToken is not provided. The type of appointment
-    # @option opts [String] :startOnOrAfter Required if nextToken is not provided. Start of the time range
-    #   (ISO 8601 format)
-    # @option opts [String] :startBefore Required if nextToken is not provided. End of the time range
-    #   (ISO 8601 format)
+    # @option opts [String] :appointmentTypeId Required. The type of appointment
+    # @option opts [String] :startOnOrAfter Required. Start of the time range (ISO 8601 format)
+    # @option opts [String] :startBefore Required. End of the time range (ISO 8601 format)
     # @option opts [Hash] Additional optional parameters will be passed through to the request
     #
-    # @raise [ArgumentError] If nextToken is not provided and any of appointmentTypeId, startOnOrAfter, or
-    #   startBefore are missing
+    # @raise [ArgumentError] If any of appointmentTypeId, startOnOrAfter, or startBefore are missing
     #
-    # @return [OpenStruct] Response containing available slots
+    # @return [OpenStruct] Response containing all available slots from all pages
     #
     def get_provider_slots(provider_id, opts = {})
       raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
 
-      params = if opts[:nextToken]
-                 { nextToken: opts[:nextToken] }
-               else
-                 required_params = %i[appointmentTypeId startOnOrAfter startBefore]
-                 missing_params = required_params - opts.keys
+      all_slots, combined_response = paginate_provider_slots(provider_id, opts)
 
-                 raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+      combined_response[:slots] = all_slots
+      combined_response[:count] = all_slots.length
+      combined_response.delete(:next_token)
 
-                 opts
-               end
-
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
-                         request_headers_with_correlation_id)
-
-      OpenStruct.new(response.body)
+      OpenStruct.new(combined_response)
     end
 
     ##
@@ -127,6 +115,74 @@ module Eps
     end
 
     private
+
+    ##
+    # Paginates through all provider slots with timeout protection
+    #
+    # @param provider_id [String] The provider identifier
+    # @param opts [Hash] Initial request options
+    # @return [Array] Array containing all slots and the combined response structure
+    #
+    def paginate_provider_slots(provider_id, opts)
+      all_slots = []
+      next_token = nil
+      combined_response = nil
+      start_time = Time.current
+
+      loop do
+        check_pagination_timeout(start_time, provider_id)
+
+        params = build_slot_params(next_token, opts)
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
+                           request_headers_with_correlation_id)
+
+        current_response = response.body
+        combined_response ||= current_response.dup.tap { |r| r[:slots] = [] }
+
+        all_slots.concat(current_response[:slots]) if current_response[:slots].present?
+
+        next_token = current_response[:next_token]
+        break if next_token.blank? || current_response[:slots].blank?
+      end
+
+      [all_slots, combined_response]
+    end
+
+    ##
+    # Checks if pagination has exceeded the timeout limit
+    #
+    # @param start_time [Time] When pagination started
+    # @param provider_id [String] Provider identifier for error logging
+    # @raise [Common::Exceptions::BackendServiceException] If timeout exceeded
+    #
+    def check_pagination_timeout(start_time, provider_id)
+      timeout_seconds = 10
+      return unless Time.current - start_time > timeout_seconds
+
+      Rails.logger.error("Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}")
+      raise Common::Exceptions::BackendServiceException.new(
+        'PROVIDER_SLOTS_TIMEOUT',
+        source: self.class.to_s
+      )
+    end
+
+    ##
+    # Builds parameters for slot request based on token availability
+    #
+    # @param next_token [String] Token for pagination
+    # @param opts [Hash] Original request options
+    # @return [Hash] Parameters for the API request
+    #
+    def build_slot_params(next_token, opts)
+      return { nextToken: next_token } if next_token
+
+      required_params = %i[appointmentTypeId startOnOrAfter startBefore]
+      missing_params = required_params - opts.keys
+
+      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+
+      opts
+    end
 
     ##
     # Check if provider's specialty matches the requested specialty (case-insensitive)
