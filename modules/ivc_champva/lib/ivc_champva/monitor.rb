@@ -168,5 +168,48 @@ module IvcChampva
                       call_location: caller_locations.first, **additional_context)
       end
     end
+
+    ##
+    # Logs when an MPI profile is successfully found
+    #
+    # @param [String] person_type Type of person ('applicant' or 'veteran')
+    def track_mpi_profile_found(person_type)
+      additional_context = {
+        person_type:
+      }
+      track_request('info', "IVC ChampVA Forms - MPI profile found for #{person_type}",
+                    "#{STATS_KEY}.mpi_profile.found",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Logs when an MPI profile is not found
+    #
+    # @param [String] person_type Type of person ('applicant' or 'veteran')
+    # @param [String] error_type Optional error type/class for debugging (no PII)
+    def track_mpi_profile_not_found(person_type, error_type = nil)
+      additional_context = {
+        person_type:,
+        error_type:
+      }.compact
+      track_request('warn', "IVC ChampVA Forms - MPI profile not found for #{person_type}",
+                    "#{STATS_KEY}.mpi_profile.not_found",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Logs when an MPI service call fails
+    #
+    # @param [String] person_type Type of person ('applicant' or 'veteran')
+    # @param [String] error_type Optional error type/class for debugging (no PII)
+    def track_mpi_service_error(person_type, error_type = nil)
+      additional_context = {
+        person_type:,
+        error_type:
+      }.compact
+      track_request('error', "IVC ChampVA Forms - MPI service error for #{person_type}",
+                    "#{STATS_KEY}.mpi_profile.error",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end
