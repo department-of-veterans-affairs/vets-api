@@ -274,6 +274,42 @@ RSpec.describe LighthouseClaimLettersProvider do
         end.to raise_error(Common::Exceptions::RecordNotFound)
       end
     end
+
+    context 'when response data is missing documents key' do
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            # No 'documents' key at all
+            'some_other_field' => 'value'
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      before do
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+      end
+
+      it 'returns an empty array without raising an error' do
+        letters = provider.get_letters
+
+        expect(letters).to eq([])
+        expect(letters).to be_an(Array)
+      end
+
+      it 'still calls the service with correct parameters' do
+        provider.get_letters
+
+        expect(mock_service).to have_received(:claim_letters_search).with(
+          doc_type_ids: kind_of(Array),
+          file_number: nil,
+          participant_id: current_user.participant_id
+        )
+      end
+    end
   end
 
   describe '#fetch_letter_metadata' do

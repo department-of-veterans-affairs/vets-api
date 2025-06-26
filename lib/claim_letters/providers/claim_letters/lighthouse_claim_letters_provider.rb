@@ -79,7 +79,7 @@ class LighthouseClaimLettersProvider
     # Use cached data if available, otherwise fetch it
     letters_data = @letters_metadata_cache || fetch_letters_data
 
-    documents = letters_data&.dig('documents') || []
+    documents = get_documents(letters_data)
 
     # Find the document with matching UUID
     documents.find { |doc| doc['documentUuid'] == document_uuid }
@@ -91,7 +91,9 @@ class LighthouseClaimLettersProvider
   end
 
   def transform_claim_letters(data)
-    claim_letters = data['documents'].map do |letter|
+    documents = get_documents(data)
+
+    claim_letters = documents.map do |letter|
       claim_letter_response(letter)
     end
 
@@ -128,5 +130,20 @@ class LighthouseClaimLettersProvider
       restricted: false,
       upload_date:
     )
+  end
+
+  def get_documents(data)
+    # Handle nil or non-hash data
+    return [] unless data.is_a?(Hash)
+
+    # if there are no letters for a user, Lighthouse will not send a "documents" attribute in the response.
+    documents = data.fetch('documents', [])
+
+    Rails.logger.warn(
+      'No claim letters data found for user',
+      {user_uuid: @user.uuid,}
+    ) if documents.count < 1
+
+    documents
   end
 end
