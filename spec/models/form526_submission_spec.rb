@@ -997,7 +997,7 @@ RSpec.describe Form526Submission do
             subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
           end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
           expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
-            (h['at'] - Time.now.to_i).round(0)
+            (h['at'] - Time.now.to_i).floor(0)
           end).to eq([60, 120, 180])
         end
       end
