@@ -38,7 +38,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           params[:next_steps_email][:email_address],
           'appoint_a_representative_confirmation_email_template_id', # This is the actual value from the settings file
-          nil,
           {
             # The first_name is the only key here that has an underscore.
             # That is intentional.  All the keys here match the keys in the
@@ -50,6 +49,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           },
+          'fake_secret',
           { callback_klass: 'AccreditedRepresentativePortal::EmailDeliveryStatusCallback',
             callback_metadata: {
               form_number: 'Form Number',
@@ -71,7 +71,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           params[:next_steps_email][:email_address],
           'appoint_a_representative_confirmation_email_template_id',
-          nil,
           {
             'first_name' => 'First',
             'form name' => 'Form Name',
@@ -80,6 +79,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           },
+          'fake_secret',
           nil
         )
 
