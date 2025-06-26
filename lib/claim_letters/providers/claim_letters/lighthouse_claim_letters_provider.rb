@@ -139,10 +139,12 @@ class LighthouseClaimLettersProvider
     # if there are no letters for a user, Lighthouse will not send a "documents" attribute in the response.
     documents = data.fetch('documents', [])
 
-    Rails.logger.warn(
-      'No claim letters data found for user',
-      {user_uuid: @user.uuid,}
-    ) if documents.count < 1
+    if documents.count < 1
+      Rails.logger.warn(
+        'No claim letters data found for user',
+        { user_uuid: @user.uuid }
+      )
+    end
 
     documents
   end
