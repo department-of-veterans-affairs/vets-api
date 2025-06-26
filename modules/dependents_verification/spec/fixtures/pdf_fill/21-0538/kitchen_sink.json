@@ -23,6 +23,7 @@
                 "postalCode": "12345-1234",
                 "country": "USA"
             }
-        }
+        },
+        "hasDependentsStatusChanged": "Y"
     }
 }
