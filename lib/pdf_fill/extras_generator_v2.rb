@@ -406,14 +406,14 @@ module PdfFill
       full_question_key = "#{question_num}#{suffix}".downcase
 
       # First try to find exact match with suffix
-      exact_match = @question_key.each_with_index.find do |q, index|
+      exact_match = @question_key.each_with_index.find do |q, _index|
         q[:question_number].to_s.downcase == full_question_key
       end
 
       return exact_match.last if exact_match
 
       # Fall back to match without suffix
-      @question_key.each_with_index.find do |q, index|
+      @question_key.each_with_index.find do |q, _index|
         q[:question_number].to_s.downcase == question_num
       end&.last
     end
