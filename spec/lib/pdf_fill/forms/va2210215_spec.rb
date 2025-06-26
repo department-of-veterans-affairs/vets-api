@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'pdf_fill/forms/va2210215'
 
 describe PdfFill::Forms::Va2210215 do
+  subject { described_class.new(form_data) }
+
   let(:form_data) do
     {
       'certifyingOfficial' => {
@@ -16,8 +18,6 @@ describe PdfFill::Forms::Va2210215 do
       'programs' => [{ 'name' => 'My Program' }]
     }
   end
-
-  subject { described_class.new(form_data) }
 
   describe '#merge_fields' do
     it 'merges the certifying official and program data correctly' do
