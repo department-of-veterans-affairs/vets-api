@@ -61,7 +61,9 @@ module Pensions
         # Submit to BPDS if the feature is enabled
         process_and_upload_to_bpds(claim)
 
-        process_and_upload_to_lighthouse(in_progress_form, claim)
+        process_attachments(in_progress_form, claim)
+
+        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -86,16 +88,17 @@ module Pensions
         )
       end
 
-      # link the form to the uploaded attachments and perform submission job
+      ##
+      # Processes attachments for the claim
       #
-      # @param in_progress_form [InProgressForm]
-      # @param claim [Pensions::SavedClaim]
-      def process_and_upload_to_lighthouse(in_progress_form, claim)
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
+      def process_attachments(in_progress_form, claim)
         claim.process_attachments!
-
-        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        claim.destroy! # Handle deletion of the claim if attachments processing fails
         raise e
       end
 

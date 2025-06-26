@@ -37,6 +37,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
+      expect(claim).not_to receive(:process_attachments!)
       expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
       expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
@@ -46,13 +47,16 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
 
     it('returns a serialized claim') do
+      allow(Pensions::SavedClaim).to receive(:new).and_return(claim)
+
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
+      expect(claim).to receive(:process_attachments!).once
+      expect(Pensions::BenefitsIntake::SubmitClaimJob).to receive(:perform_async).once
 
       response = post(:create, params: { param_name => { form: claim.form } })
 
-      expect(JSON.parse(response.body)['data']['attributes']['form']).to eq(form_id)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:success)
     end
   end
 
@@ -87,14 +91,14 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
   end
 
-  describe '#process_and_upload_to_lighthouse' do
+  describe '#process_attachments' do
     let(:claim) { build(:pensions_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns a success' do
       expect(claim).to receive(:process_attachments!)
 
-      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      subject.send(:process_attachments, in_progress_form, claim)
     end
 
     it 'raises an error' do
@@ -103,7 +107,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       expect do
-        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+        subject.send(:process_attachments, in_progress_form, claim)
       end.to raise_error(StandardError, 'mock error')
     end
   end

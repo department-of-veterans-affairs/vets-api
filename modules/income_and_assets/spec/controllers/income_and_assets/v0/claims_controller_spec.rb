@@ -29,6 +29,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
       expect(monitor).to receive(:track_create_validation_error).once
+      expect(claim).not_to receive(:process_attachments!)
       expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
@@ -37,8 +38,11 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     end
 
     it('returns a serialized claim') do
+      allow(IncomeAndAssets::SavedClaim).to receive(:new).and_return(claim)
+
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
+      expect(claim).to receive(:process_attachments!).once
       expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
@@ -78,14 +82,14 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     end
   end
 
-  describe '#process_and_upload_to_lighthouse' do
+  describe '#process_attachments' do
     let(:claim) { build(:income_and_assets_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns a success' do
       expect(claim).to receive(:process_attachments!)
 
-      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      subject.send(:process_attachments, in_progress_form, claim)
     end
 
     it 'raises an error' do
@@ -94,7 +98,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
       expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       expect do
-        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+        subject.send(:process_attachments, in_progress_form, claim)
       end.to raise_error(StandardError, 'mock error')
     end
   end
