@@ -458,7 +458,7 @@ describe TravelPay::ClaimsService do
                 end_date: '2024-04-01T00:00:00Z',
                 page_size: 50,
                 page_number: 1
-              }).once # since the default page size is > claims, it should not loop and only call client once
+              }).once # since the default page size is > claims, it should not loop and only call the client once
 
       claims_by_date = @service.get_claims_by_date_range({})
 

@@ -29,6 +29,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response).to have_http_status(:ok)
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
+          claim_meta = JSON.parse(response.body)['metadata']
+          expect(claim_meta['pageSize']).to eq(50)
+          expect(claim_meta['pageNumber']).to eq(1)
+          expect(claim_meta['totalRecordCount']).to eq(3)
 
           expect(claim_ids).to eq(expected_claim_ids)
         end
@@ -41,6 +45,13 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           get '/travel_pay/v0/claims', params:, headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response).to have_http_status(:ok)
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
+          claim_meta = JSON.parse(response.body)['metadata']
+          # the VCR cassette has 50 and 1 hardcoded for this return value
+          # so we're just checking that it exists, not validating that the value matches what we passed in
+          expect(claim_meta['pageSize']).to eq(50)
+          expect(claim_meta['pageNumber']).to eq(1)
+
+          expect(claim_meta['totalRecordCount']).to eq(3)
 
           expect(claim_ids).to eq(expected_claim_ids)
         end
