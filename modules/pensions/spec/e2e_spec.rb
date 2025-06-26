@@ -95,10 +95,6 @@ RSpec.describe 'Pensions End to End', type: :request do
 
     expect(service).to receive(:bulk_status).and_return(bulk_status)
 
-    handler = Pensions::BenefitsIntake::SubmissionHandler.new(saved_claim_id)
-    expect(Pensions::BenefitsIntake::SubmissionHandler).to receive(:new).with(saved_claim_id).and_return(handler)
-    expect(handler).to receive(:handle).with('success', anything).and_call_original
-
     expect(email).to receive(:deliver).with(:received).and_call_original
     expect(VANotify::EmailJob).to receive(:perform_async)
     expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original

@@ -258,7 +258,7 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_message) { 'Attribute mismatch, ssn in credential does not match MPI attribute' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
           let(:expected_error_context) do
-            { csp_uuid: csp_id,
+            { credential_uuid: csp_id,
               icn:,
               type: user_attributes[:sign_in][:service_name] }
           end

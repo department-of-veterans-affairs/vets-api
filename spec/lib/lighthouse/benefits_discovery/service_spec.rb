@@ -6,7 +6,7 @@ require 'lighthouse/benefits_discovery/service'
 RSpec.describe BenefitsDiscovery::Service do
   subject { BenefitsDiscovery::Service.new }
 
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
   before do
     allow_any_instance_of(BenefitsDiscovery::Params).to receive(:prepared_params).and_return(params)

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::Chatbot::TokenController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
   describe '#create' do
     context 'when external service is healthy' do

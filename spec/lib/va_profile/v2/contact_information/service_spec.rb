@@ -6,7 +6,7 @@ require 'va_profile/v2/contact_information/service'
 describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, :legacy_icn) }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
@@ -142,14 +142,14 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#put_email when vet360_id is null' do
-    let(:verified_user) { build(:user, :loa3, vet360_id: nil) }
-
     let(:email) do
       build(
         :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  source_system_user: verified_user.icn
+                                  source_system_user: user.icn
       )
     end
+
+    before { allow(user).to receive(:vet360_id).and_return(nil) }
 
     context 'when successful' do
       it 'creates an old_email record' do

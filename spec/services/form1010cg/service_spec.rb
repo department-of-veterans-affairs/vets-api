@@ -116,25 +116,9 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the Form1010cg::Attachment is found' do
-        let(:attachment) { build(:form1010cg_attachment, guid: poa_attachment_guid) }
-        let(:vcr_options) do
-          {
-            record: :none,
-            allow_unused_http_interactions: false,
-            match_requests_on: %i[method host body]
-          }
-        end
+        let(:attachment) { build(:form1010cg_attachment, :with_attachment, guid: poa_attachment_guid) }
 
         before do
-          VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note_jpg", vcr_options) do
-            attachment.set_file_data!(
-              Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.jpg'),
-                'image/jpg'
-              )
-            )
-          end
-
           attachment.save!
           expect_any_instance_of(attachment.class).to receive(:to_local_file).and_return(poa_attachment_path)
         end
@@ -544,10 +528,31 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'success' do
-      let(:expected_response) { double(:expected_response) }
+      let(:mulesoft_response) do
+        {
+          'data' => {
+            'carmacase' => {
+              'createdAt' => '2025-06-25 10:34:09',
+              'id' => 'aB9SK0000001VTB0A2'
+            }
+          },
+          'record' => {
+            'hasErrors' => false,
+            'results' =>
+           [
+             {
+               'referenceId' => '1010CG',
+               'title' => '10-10CG_Jane Doe_Doe_06-25-2025',
+               'id' => '068SK000003EGmLYAW',
+               'errors' => []
+             }
+           ]
+          }
+        }
+      end
 
       before do
-        allow(mule_soft_client).to receive(:create_submission_v2) { expected_response }
+        allow(mule_soft_client).to receive(:create_submission_v2) { mulesoft_response }
       end
 
       it 'submits to mulesoft' do
@@ -571,13 +576,28 @@ RSpec.describe Form1010cg::Service do
         )
         expect(Rails.logger).to receive(:info).with(
           '[10-10CG] - CARMA submission complete',
-          { form: '10-10CG', claim_guid:, claim_pdf_path_length: 68, poa_attachment_path_length: nil }
+          {
+            form: '10-10CG',
+            claim_guid:,
+            claim_pdf_path_length: 68,
+            poa_attachment_path_length: nil,
+            carma_case: {
+              created_at: '2025-06-25 10:34:09',
+              id: 'aB9SK0000001VTB0A2',
+              attachments: [
+                {
+                  id: '068SK000003EGmLYAW',
+                  reference_id: '1010CG'
+                }
+              ]
+            }
+          }
         )
 
         response = subject
 
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
-        expect(response).to be(expected_response)
+        expect(response).to be(mulesoft_response)
       end
 
       context 'with a poa attachment' do

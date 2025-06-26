@@ -238,7 +238,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       end
 
       context 'when user object birth_date is nil' do
-        let!(:user) { sis_user(birth_date: nil) }
+        let!(:user) { sis_user(birth_date: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         before do
           VCR.use_cassette('mobile/payment_information/payment_information') do
@@ -447,7 +447,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       end
 
       context 'when user does not have a vet360_id' do
-        let!(:user) { sis_user(vet360_id: nil) }
+        let!(:user) { sis_user(vet360_id: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)

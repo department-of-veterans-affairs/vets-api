@@ -19,6 +19,7 @@ module RepresentationManagement
             data.email_address,
             template_id,
             email_personalisation(data),
+            Settings.vanotify.services.va_gov.api_key,
             email_callback_options(data)
           )
           render json: { message: 'Email enqueued' }, status: :ok

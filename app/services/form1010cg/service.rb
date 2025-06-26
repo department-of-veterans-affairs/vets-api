@@ -65,7 +65,7 @@ module Form1010cg
 
       result = CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
       self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :success, start_time:)
-      log_submission_complete(claim.guid, claim_pdf_path, poa_attachment_path)
+      log_submission_complete(claim.guid, claim_pdf_path, poa_attachment_path, result)
 
       result
     rescue => e
@@ -159,14 +159,27 @@ module Form1010cg
 
     private
 
-    def log_submission_complete(guid, claim_pdf_path, poa_attachment_path)
+    def log_submission_complete(guid, claim_pdf_path, poa_attachment_path, response_data)
+      attachment_data = (response_data.dig('record', 'results') || []).map do |attachment|
+        {
+          reference_id: attachment['referenceId'] || '',
+          id: attachment['id'] || ''
+        }
+      end
+
       Rails.logger.info(
         '[10-10CG] - CARMA submission complete',
         {
           form: '10-10CG',
           claim_guid: guid,
           claim_pdf_path_length: claim_pdf_path&.length,
-          poa_attachment_path_length: poa_attachment_path&.length
+          poa_attachment_path_length: poa_attachment_path&.length,
+          carma_case: {
+            created_at: response_data.dig('data', 'carmacase', 'createdAt') || '',
+            id: response_data.dig('data', 'carmacase', 'id') || '',
+            attachments: attachment_data
+          }
+
         }
       )
     end

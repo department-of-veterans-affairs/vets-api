@@ -640,6 +640,9 @@ module Burials
           location_of_death = @form_data['locationOfDeath']
           return if location_of_death.blank?
 
+          home_hospice_care = @form_data['homeHospiceCare']
+          home_hospice_care_after_discharge = @form_data['homeHospiceCareAfterDischarge']
+
           location = location_of_death['location']
           options = @form_data[location]
           if options.present? && location != 'other'
@@ -648,7 +651,11 @@ module Burials
 
           @form_data.delete(location)
 
-          location_of_death['location'] = 'nursingHomeUnpaid' if location == 'atHome'
+          if location == 'atHome' && home_hospice_care && home_hospice_care_after_discharge
+            location_of_death['location'] = 'nursingHomePaid'
+          elsif location == 'atHome' && !(home_hospice_care && home_hospice_care_after_discharge)
+            location_of_death['location'] = 'nursingHomeUnpaid'
+          end
 
           expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
         end

@@ -24,7 +24,7 @@ module AccreditedRepresentativePortal
     attribute :form_type, &:display_form_id
 
     attribute :packet do |object|
-      object.persistent_attachments.size > 1
+      object.persistent_attachments.any?
     end
 
     attribute :confirmation_number, &:guid

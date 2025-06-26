@@ -80,6 +80,40 @@ describe Burials::PdfFill::Forms::Va21p530ez do
       end
     end
 
+    context 'with a location of death of home hospice care after discharge' do
+      let(:form_data) do
+        {
+          'locationOfDeath' => {
+            'location' => 'atHome'
+          },
+          'homeHospiceCare' => true,
+          'homeHospiceCareAfterDischarge' => true
+        }
+      end
+
+      it 'returns the directly mapped location' do
+        subject
+        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomePaid' => 'On' })
+      end
+    end
+
+    context 'with a location of death of home hospice care (not after discharge)' do
+      let(:form_data) do
+        {
+          'locationOfDeath' => {
+            'location' => 'atHome'
+          },
+          'homeHospiceCare' => true,
+          'homeHospiceCareAfterDischarge' => false
+        }
+      end
+
+      it 'returns the directly mapped location' do
+        subject
+        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
+      end
+    end
+
     context 'with a regular location of death in new format' do
       let(:form_data) do
         {
@@ -105,7 +139,9 @@ describe Burials::PdfFill::Forms::Va21p530ez do
         {
           'locationOfDeath' => {
             'location' => 'atHome'
-          }
+          },
+          'homeHospiceCare' => false,
+          'homeHospiceCareAfterDischarge' => false
         }
       end
 
