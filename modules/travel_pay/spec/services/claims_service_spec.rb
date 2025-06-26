@@ -81,35 +81,25 @@ describe TravelPay::ClaimsService do
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
-    # context 'filter by appt date' do
-    #   it 'returns claims that match appt date if specified' do
-    #     claims = @service.get_claims({ 'appt_datetime' => '2024-01-01' })
+    it 'passes default params' do
+      expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
+      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token], tokens[:btsss_token],
+                                                                                   { page_size: 50, page_number: 1 })
+      claims = @service.get_claims({})
+      actual_statuses = claims[:data].pluck('claimStatus')
 
-    #     expect(claims.count).to equal(1)
-    #   end
+      expect(actual_statuses).to match_array(expected_statuses)
+    end
 
-    #   it 'returns 0 claims if appt date does not match' do
-    #     claims = @service.get_claims({ 'appt_datetime' => '1700-01-01' })
+    it 'passes params that were given' do
+      expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
+      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token], tokens[:btsss_token],
+                                                                                   { page_size: 10, page_number: 2 })
+      claims = @service.get_claims({ 'page_size' => 10, 'page_number' => 2 })
+      actual_statuses = claims[:data].pluck('claimStatus')
 
-    #     expect(claims[:data].count).to equal(0)
-    #   end
-
-    #   it 'returns all claims if appt date is invalid' do
-    #     claims = @service.get_claims({ 'appt_datetime' => 'banana' })
-
-    #     expect(claims[:data].count).to equal(claims_data['data'].count)
-    #   end
-
-    #   it 'returns all claims if appt date is not specified' do
-    #     claims_empty_date = @service.get_claims({ 'appt_datetime' => '' })
-    #     claims_nil_date = @service.get_claims({ 'appt_datetime' => 'banana' })
-    #     claims_no_param = @service.get_claims
-
-    #     expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
-    #     expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
-    #     expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
-    #   end
-    # end
+      expect(actual_statuses).to match_array(expected_statuses)
+    end
   end
 
   context 'get claim details' do
