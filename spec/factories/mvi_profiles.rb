@@ -45,7 +45,7 @@ FactoryBot.define do
     birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
     deceased_date { nil }
     ssn { Faker::IdNumber.valid.delete('-') }
-    address { build(:mpi_profile_address) }
+    address { FactoryBot.build(:mpi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     person_types { ['PAT'] }
     full_mvi_ids {
@@ -139,7 +139,7 @@ FactoryBot.define do
       end
 
       trait :with_relationship do
-        relationships { [build(:mpi_profile_relationship)] }
+        relationships { [FactoryBot.build(:mpi_profile_relationship)] }
       end
 
       trait :missing_attrs do
@@ -166,7 +166,7 @@ FactoryBot.define do
         family_name { 'Ranger' }
         suffix { nil }
         ssn { '111223333' }
-        address { build(:mpi_profile_address_springfield) }
+        address { FactoryBot.build(:mpi_profile_address_springfield) }
         home_phone { '1112223333 p1' }
         icn { '12345678901234567' }
         sec_id { '0001234567' }
@@ -184,7 +184,7 @@ FactoryBot.define do
       end
 
       trait :address_austin do
-        address { build(:mpi_profile_address_austin) }
+        address { FactoryBot.build(:mpi_profile_address_austin) }
       end
     end
   end
