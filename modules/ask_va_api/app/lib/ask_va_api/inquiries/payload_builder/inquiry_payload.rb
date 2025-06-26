@@ -37,17 +37,17 @@ module AskVAApi
             DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
-          Rails.logger.info("Level of Authentication: #{inquiry_details[:level_of_authentication]}")
+          context = {
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            user_loa: user&.loa&.fetch(:current, nil),
+            category: inquiry_details_obj.category,
+            topic: inquiry_details_obj.topic,
+            user_is_authenticated: user.present?
+          }
 
-          # Also log user's LOA if available (to verify that it didn't get downgraded for any reason)
-          Rails.logger.info("User LOA: #{user&.loa&.fetch(:current, nil)}") if user.present?
+          Rails.logger.info('Education Inquiry Context', context)
 
           if user.nil? && inquiry_details_obj.inquiry_education_related?
-            Rails.logger.warn('Unauthenticated Education inquiry submitted',
-                              inquiry: {
-                                category: inquiry_details_obj.category,
-                                topic: inquiry_details_obj.topic
-                              })
             raise InquiryPayloadError, 'Unauthenticated Education inquiry submitted'
           end
 
