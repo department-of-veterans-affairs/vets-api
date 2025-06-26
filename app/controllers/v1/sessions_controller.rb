@@ -163,12 +163,13 @@ module V1
       set_cookies
       after_login_actions
 
-      if current_user.user_verification.user_account.needs_accepted_terms_of_use?
+      user_verification = current_user.user_verification
+      if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url
       end
-      UserAudit.logger.success(event: :sign_in, user_verification: current_user.user_verification)
+      UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
     end
 
