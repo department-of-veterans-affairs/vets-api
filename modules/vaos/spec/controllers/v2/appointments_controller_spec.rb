@@ -162,6 +162,29 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure')
       end
     end
+
+    context 'when patient attributes are empty' do
+      let(:appointment) { OpenStruct.new(id: 'APPT123') }
+
+      before do
+        allow(eps_appointment_service).to receive(:submit_appointment).and_return(appointment)
+        allow(controller).to receive(:patient_attributes).and_return({})
+      end
+
+      it 'does not include additional_patient_attributes in the service call' do
+        controller.submit_referral_appointment
+
+        expect(eps_appointment_service).to have_received(:submit_appointment).with(
+          submit_params[:id],
+          {
+            referral_number: submit_params[:referral_number],
+            network_id: submit_params[:network_id],
+            provider_service_id: submit_params[:provider_service_id],
+            slot_ids: [submit_params[:slot_id]]
+          }
+        )
+      end
+    end
   end
 
   describe '#get_provider_appointment_type_id' do
