@@ -37,8 +37,7 @@ module TravelPay
     end
 
     def get_claims_by_date_range(params = {})
-      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
-      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+      date_range = get_date_range(params)
 
       loop_params = {
         page_size: params['page_size'] || DEFAULT_PAGE_SIZE
@@ -157,6 +156,19 @@ module TravelPay
       "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
       raise ArgumentError,
             message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+    end
+
+    def get_date_range(params)
+      if params['start_date'] || params['end_date']
+        date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+        date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+      else
+        date_range = {
+          start_date: DateUtils.strip_timezone(3.months.ago).iso8601,
+          end_date: DateUtils.strip_timezone(Time.zone.now).iso8601
+        }
+      end
+      date_range
     end
 
     def get_document_summaries(veis_token, btsss_token, claim_id)

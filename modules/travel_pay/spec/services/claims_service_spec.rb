@@ -384,15 +384,15 @@ describe TravelPay::ClaimsService do
       )
     end
 
-    let(:claims_error_response) do
+    let(:claims_all_response) do
       Faraday::Response.new(
-        response_body: {
-          'statusCode' => 500,
-          'message' => 'An error occurred while processing your request.',
-          'success' => false,
-          'error' => 'Generic error.'
-        },
-        status: 500
+        body: {
+          'statusCode' => 200,
+          'message' => 'No claims found.',
+          'success' => true,
+          'totalRecordCount' => 3,
+          'data' => claims_by_date_data
+        }
       )
     end
 
@@ -438,6 +438,29 @@ describe TravelPay::ClaimsService do
                                                            'end_date' => '2024-03-01T16:45:34Z',
                                                            'page_size' => 1
                                                          })
+
+      expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
+      expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
+      expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
+    end
+
+    it 'uses all defaults if no params are passed in' do
+      Timecop.freeze(DateTime.new(2024, 4, 1).utc)
+      expected_ids = %w[uuid1 uuid2 uuid3]
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(claims_all_response)
+
+      expect_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T00:00:00Z',
+                end_date: '2024-04-01T00:00:00Z',
+                page_size: 50,
+                page_number: 1
+              }).once # since the default page size is > claims, it should not loop and only call client once
+
+      claims_by_date = @service.get_claims_by_date_range({})
 
       expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
