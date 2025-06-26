@@ -83,7 +83,8 @@ describe TravelPay::ClaimsService do
 
     it 'passes default params' do
       expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
-      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token], tokens[:btsss_token],
+      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token],
+                                                                                   tokens[:btsss_token],
                                                                                    { page_size: 50, page_number: 1 })
       claims = @service.get_claims({})
       actual_statuses = claims[:data].pluck('claimStatus')
@@ -93,7 +94,8 @@ describe TravelPay::ClaimsService do
 
     it 'passes params that were given' do
       expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
-      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token], tokens[:btsss_token],
+      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token],
+                                                                                   tokens[:btsss_token],
                                                                                    { page_size: 10, page_number: 2 })
       claims = @service.get_claims({ 'page_size' => 10, 'page_number' => 2 })
       actual_statuses = claims[:data].pluck('claimStatus')
