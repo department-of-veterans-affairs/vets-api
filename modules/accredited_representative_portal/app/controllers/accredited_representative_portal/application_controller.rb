@@ -31,7 +31,7 @@ module AccreditedRepresentativePortal
     private
 
     def deny_access_unless_686c_enabled
-      routing_error unless Flipper.enabled?(:accredited_representative_portal_686c, @current_user)
+      routing_error unless Flipper.enabled?(:accredited_representative_portal_submissions, @current_user)
     end
 
     def track_unique_session

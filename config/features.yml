@@ -2295,6 +2295,3 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
-  accredited_representative_portal_686c:
-    actor_type: user
-    description: Enables the 686c submission in the Accredited Representative Portal
