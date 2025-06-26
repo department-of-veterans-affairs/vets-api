@@ -1127,9 +1127,6 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           before do
             allow_any_instance_of(UserAccount).to receive(:id).and_return('invalid')
-          end
-
-          before do
             allow(User).to receive(:find).with(user.uuid).and_return(loa1_user)
             allow(User).to receive(:find).with('invalid').and_return(nil)
           end
