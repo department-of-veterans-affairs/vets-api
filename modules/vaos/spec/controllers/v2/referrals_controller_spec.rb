@@ -233,7 +233,8 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
       end
 
       it 'increments the referral detail page access metric' do
-        expect(StatsD).to receive(:increment).with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC)
+        expect(StatsD).to receive(:increment).with(described_class::REFERRAL_DETAIL_VIEW_METRIC,
+                                                   tags: ['Community Care Appointments'])
         expect(StatsD).to receive(:increment).with('api.rack.request', any_args)
 
         get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"

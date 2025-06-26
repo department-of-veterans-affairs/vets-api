@@ -636,7 +636,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
-          expect(User.find(loa1_user.uuid)).not_to be_nil
+          expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
           call_endpoint
           expect(response.location).to eq(expected_redirect_url)
@@ -644,7 +644,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
-          expect(User.find(loa1_user.uuid)).to be_nil
+          expect(User.find(loa1_user.user_account.id)).to be_nil
         end
 
         context 'when agreements_declined is true' do
@@ -653,14 +653,14 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
             verify_session_cookie
-            expect(User.find(loa1_user.uuid)).not_to be_nil
+            expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
             call_endpoint
             expect(response.location).to eq(expected_redirect_url)
 
             expect(Session.find(token)).to be_nil
             expect(session).to be_empty
-            expect(User.find(loa1_user.uuid)).to be_nil
+            expect(User.find(loa1_user.user_account.id)).to be_nil
           end
         end
       end
@@ -1122,10 +1122,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
           let(:loa3_user) { build(:user, :loa3, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
           let(:saml_user_attributes) do
-            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
+            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(mhv_icn: '11111111111'))
           end
 
           before do
+            allow_any_instance_of(UserAccount).to receive(:id).and_return('invalid')
             allow(User).to receive(:find).with(user.uuid).and_return(loa1_user)
             allow(User).to receive(:find).with('invalid').and_return(nil)
           end
