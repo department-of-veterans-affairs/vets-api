@@ -33,8 +33,6 @@ module Form1010Ezr
             form_associations
           ).reconcile_associations
 
-          Rails.logger.info("reconciled_associations: #{reconciled_associations}")
-
           update_associations(reconciled_associations)
         rescue => e
           StatsD.increment("#{STATSD_KEY_PREFIX}.reconcile_and_update_associations.failed")
@@ -50,8 +48,6 @@ module Form1010Ezr
 
         def update_associations(associations)
           transformed_associations = transform_associations(associations)
-
-          Rails.logger.info("transformed_associations: #{transformed_associations}")
 
           super(transformed_associations, '10-10EZR')
         end

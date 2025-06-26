@@ -103,8 +103,6 @@ module Common
       def perform(method, path, params, headers = nil, options = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
 
-        Rails.logger.info("perform: #{method}, #{path}, #{params}, #{headers}, #{options}")
-
         send(method, path, params || {}, headers || {}, options || {})
       end
 
