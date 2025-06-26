@@ -74,7 +74,10 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
       it 'logs and returns a bad request' do
         expect(Rails.logger).to receive(:error).with(
-          a_string_including("Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}.")
+          a_string_including(
+            'Form21aController: Invalid JSON in request body for user with' \
+            " user_uuid=#{representative_user.uuid}."
+          )
         )
 
         make_post_request
@@ -92,7 +95,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
       it 'logs and returns a bad request' do
         expect(Rails.logger).to receive(:error).with(
-          a_string_including("Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}")
+          a_string_including(
+            "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}"
+          )
         )
 
         make_post_request
