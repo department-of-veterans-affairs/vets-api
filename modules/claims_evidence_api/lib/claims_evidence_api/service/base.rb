@@ -2,6 +2,7 @@
 
 require 'claims_evidence_api/configuration'
 require 'claims_evidence_api/exceptions'
+require 'claims_evidence_api/x_folder_uri'
 require 'common/client/base'
 
 module ClaimsEvidenceApi
@@ -32,8 +33,7 @@ module ClaimsEvidenceApi
       #
       # @return [String] combined identifer to be used in the request header
       def x_folder_uri_set(folder_type, identifier_type, id)
-        # TODO: validate arguments
-        @x_folder_uri = "#{folder_type}:#{identifier_type}:#{id}"
+        @x_folder_uri = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
       end
     end
 

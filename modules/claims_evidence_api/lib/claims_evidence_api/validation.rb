@@ -5,7 +5,7 @@ require_relative 'validation/field'
 module ClaimsEvidenceApi
   module Validation
     def validate_field(value, type:, **validations)
-      BaseField.new(type:, **validations).validate(value)
+      ClaimsEvidenceApi::Validation::BaseField.new(type:, **validations).validate(value)
     end
 
     # end Validations

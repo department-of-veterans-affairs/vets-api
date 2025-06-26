@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/x_folder_uri'
+
 # Representation of a submission to ClaimsEvidence API
 # https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload
 #
@@ -34,6 +36,7 @@ class ClaimsEvidenceApi::Submission < Submission
   end
 
   def x_folder_uri=(folder_identifier)
+    folder_identifier = ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
     folder_type, identifier_type, id = folder_identifier.split(':', 3)
     x_folder_uri_set(folder_type, identifier_type, id)
   end
@@ -48,7 +51,7 @@ class ClaimsEvidenceApi::Submission < Submission
     # TODO: validate arguments
 
     data = reference_data || {}
-    data['x_folder_uri'] = "#{type}:#{identifier}:#{id}"
+    data['x_folder_uri'] = "#{folder_type}:#{identifier_type}:#{id}"
 
     self.reference_data = data
 
