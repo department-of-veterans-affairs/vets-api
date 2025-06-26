@@ -74,8 +74,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
-  before_create do
-    self.form_id = parsed_form['useEva'].present? ? self.class::FORM : '28-1900-V2'
+  after_initialize do
+    if form.present?
+      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
+    end
   end
 
   def initialize(args)
@@ -241,7 +243,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
-    if parsed_form['useEva'].present?
+    if form_id == self.class::FORM
       validate_form_v1
     else
       validate_form_v2
@@ -411,7 +413,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                          veteranInformation/fullName/last veteranInformation/dob]
     required_fields.each do |field|
       value = parsed_form.dig(*field.split('/'))
-      value = value.to_s unless [true, false].include?(value)
+      value = value.to_s if [true, false].include?(value)
       errors.add("/#{field}", 'is required') if value.blank?
     end
   end

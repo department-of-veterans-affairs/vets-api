@@ -38,6 +38,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           params[:next_steps_email][:email_address],
           'appoint_a_representative_confirmation_email_template_id', # This is the actual value from the settings file
+          nil,
           {
             # The first_name is the only key here that has an underscore.
             # That is intentional.  All the keys here match the keys in the
@@ -48,8 +49,40 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative type' => 'attorney',
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
-          }
+          },
+          { callback_klass: 'AccreditedRepresentativePortal::EmailDeliveryStatusCallback',
+            callback_metadata: {
+              form_number: 'Form Number',
+              statsd_tags: {
+                service: 'representation-management',
+                function: 'appoint_a_representative_confirmation_email'
+              }
+            } }
         )
+        post(base_path, params:)
+      end
+
+      it 'does not pass callback options when' \
+         'accredited_representative_portal_email_delivery_callback feature flag is disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_email_delivery_callback)
+          .and_return(false)
+
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          params[:next_steps_email][:email_address],
+          'appoint_a_representative_confirmation_email_template_id',
+          nil,
+          {
+            'first_name' => 'First',
+            'form name' => 'Form Name',
+            'form number' => 'Form Number',
+            'representative type' => 'attorney',
+            'representative name' => 'Bob Law',
+            'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
+          },
+          nil
+        )
+
         post(base_path, params:)
       end
     end

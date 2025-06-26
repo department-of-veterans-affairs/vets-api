@@ -23,13 +23,13 @@ module BGSV2
     def create_proc(proc_state: 'Started')
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
-          {
+          log_and_return({
             vnp_proc_type_cd: 'DEPCHG',
             vnp_proc_state_type_cd: proc_state,
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
             submtd_dt: Time.current.iso8601
-          }.merge(bgs_auth)
+          }.merge(bgs_auth))
         )
       end
     end
@@ -47,7 +47,7 @@ module BGSV2
       log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
-          { vnp_proc_id:, form_type_cd: form_type_code }.merge(bgs_auth)
+          log_and_return({ vnp_proc_id:, form_type_cd: form_type_code }.merge(bgs_auth))
         )
       end
     end
@@ -55,14 +55,14 @@ module BGSV2
     def update_proc(proc_id, proc_state: 'Ready')
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_update(
-          {
+          log_and_return({
             vnp_proc_id: proc_id,
             vnp_proc_type_cd: 'DEPCHG',
             vnp_proc_state_type_cd: proc_state,
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
             submtd_dt: Time.current.iso8601
-          }.merge(bgs_auth)
+          }.merge(bgs_auth))
         )
       end
     end
@@ -70,26 +70,26 @@ module BGSV2
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt.vnp_ptcpnt_create(
-          {
+          log_and_return({
             vnp_proc_id: proc_id,
             ptcpnt_type_nm: 'Person',
             corp_ptcpnt_id:,
             ssn: @user.ssn
-          }.merge(bgs_auth)
+          }.merge(bgs_auth))
         )
       end
     end
 
     def create_person(person_params)
       with_multiple_attempts_enabled do
-        service.vnp_person.vnp_person_create(person_params.merge(bgs_auth))
+        service.vnp_person.vnp_person_create(log_and_return(person_params.merge(bgs_auth)))
       end
     end
 
     def create_address(address_params)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
-          address_params.merge(bgs_auth)
+          log_and_return(address_params.merge(bgs_auth))
         )
       end
     end
@@ -97,32 +97,35 @@ module BGSV2
     def create_phone(proc_id, participant_id, payload)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
-          {
-            vnp_proc_id: proc_id,
-            vnp_ptcpnt_id: participant_id,
-            phone_type_nm: 'Daytime',
-            phone_nbr: payload['phone_number'],
-            efctv_dt: Time.current.iso8601
-          }.merge(bgs_auth)
+          log_and_return(
+            {
+              vnp_proc_id: proc_id,
+              vnp_ptcpnt_id: participant_id,
+              phone_type_nm: 'Daytime',
+              phone_nbr: payload['phone_number'],
+              efctv_dt: Time.current.iso8601
+            }
+          .merge(bgs_auth)
+          )
         )
       end
     end
 
     def create_child_school(child_school_params)
       with_multiple_attempts_enabled do
-        service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
+        service.vnp_child_school.child_school_create(log_and_return(child_school_params.merge(bgs_auth)))
       end
     end
 
     def create_child_student(child_student_params)
       with_multiple_attempts_enabled do
-        service.vnp_child_student.child_student_create(child_student_params.merge(bgs_auth))
+        service.vnp_child_student.child_student_create(log_and_return(child_student_params.merge(bgs_auth)))
       end
     end
 
     def create_relationship(relationship_params)
       with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
+        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(log_and_return(relationship_params.merge(bgs_auth)))
       end
     end
 
@@ -134,6 +137,7 @@ module BGSV2
       }
 
       increment_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
+      log_and_return(increment_params)
       with_multiple_attempts_enabled do
         service.share_data.find_benefit_claim_type_increment(**increment_params)
       end
@@ -141,26 +145,27 @@ module BGSV2
 
     def vnp_create_benefit_claim(vnp_benefit_params)
       with_multiple_attempts_enabled do
-        service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
+        service.vnp_bnft_claim.vnp_bnft_claim_create(log_and_return(vnp_benefit_params.merge(bgs_auth)))
       end
     end
 
     def vnp_benefit_claim_update(vnp_benefit_params)
       with_multiple_attempts_enabled do
-        service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
+        service.vnp_bnft_claim.vnp_bnft_claim_update(log_and_return(vnp_benefit_params.merge(bgs_auth)))
       end
     end
 
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
-        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'MANUAL_VAGOV', vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth)
+        log_and_return({ vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'MANUAL_VAGOV',
+                         vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth))
       )
     rescue => e
       notify_of_service_exception(e, __method__)
     end
 
     def insert_benefit_claim(benefit_claim_params)
-      service.claims.insert_benefit_claim(benefit_claim_params)
+      service.claims.insert_benefit_claim(log_and_return(benefit_claim_params))
     end
 
     def bgs_auth
@@ -220,6 +225,20 @@ module BGSV2
         external_uid: @user.icn || @user.uuid,
         external_key: @user.common_name || @user.email
       )
+    end
+
+    def log_and_return(params)
+      if Flipper.enabled?(:bgs_param_logging_enabled)
+        # using Settings.vsp_environment to determine environment to filter in
+        filtered_env = %w[test production].include?(Settings.vsp_environment)
+        # Filter sensitive parameters in production or test environment
+        logged_params = filtered_env ? ParameterFilterHelper.filter_params(params) : params
+        Rails.logger.info('[BGSV2::Service] log_and_return called', { params: logged_params })
+      end
+      params
+    rescue => e
+      Rails.logger.error('[BGSV2::Service] log_and_return error', { error: e.message })
+      params
     end
   end
 end
