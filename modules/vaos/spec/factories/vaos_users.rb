@@ -29,7 +29,7 @@ FactoryBot.modify do
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |user, _t|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             given_names: %w[Judy Snow],
             family_name: 'Morrison',
@@ -86,7 +86,7 @@ FactoryBot.modify do
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |user, _t|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             given_names: %w[Jacqueline Kain],
             family_name: 'Morgan',

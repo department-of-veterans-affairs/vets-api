@@ -10,7 +10,7 @@ FactoryBot.define do
         claimant { resolution.power_of_attorney_request.claimant }
       end
 
-      superseding_power_of_attorney_request { build(:power_of_attorney_request, claimant:) }
+      superseding_power_of_attorney_request { FactoryBot.build(:power_of_attorney_request, claimant:) }
       type { AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal::Types::REPLACEMENT }
     end
   end

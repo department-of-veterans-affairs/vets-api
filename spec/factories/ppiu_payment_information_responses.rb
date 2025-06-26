@@ -8,9 +8,9 @@ FactoryBot.define do
   end
 
   factory :payment_information, class: 'EVSS::PPIU::PaymentInformation' do
-    control_information { build(:ppiu_control_information) }
-    payment_account { build(:ppiu_payment_account) }
-    payment_address { build(:ppiu_payment_address) }
+    control_information { FactoryBot.build(:ppiu_control_information) }
+    payment_account { FactoryBot.build(:ppiu_payment_account) }
+    payment_address { FactoryBot.build(:ppiu_payment_address) }
     payment_type { 'CNP' }
 
     initialize_with { new(attributes) }

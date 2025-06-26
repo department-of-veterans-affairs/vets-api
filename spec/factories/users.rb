@@ -119,11 +119,11 @@ FactoryBot.define do
                            vha_facility_ids:,
                            vha_facility_hash:,
                            vet360_id: }
-        build(:mpi_profile, mpi_attributes)
+        FactoryBot.build(:mpi_profile, mpi_attributes)
       end
 
       mhv_user_account do
-        build(:mhv_user_account)
+        FactoryBot.build(:mhv_user_account)
       end
     end
 
@@ -282,7 +282,7 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile_response,
             :with_relationship,
             person_types: ['DEP']
@@ -296,7 +296,7 @@ FactoryBot.define do
 
       after(:build) do |_t|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile_response,
             :with_relationship
           )

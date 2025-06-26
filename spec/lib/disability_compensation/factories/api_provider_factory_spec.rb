@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe ApiProviderFactory do
-  let(:current_user) { build(:user, :loa3) }
+  let(:current_user) { FactoryBot.build(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(current_user).add_headers(EVSS::AuthHeaders.new(current_user).to_h)
   end
