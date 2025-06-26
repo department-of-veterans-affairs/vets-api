@@ -47,14 +47,8 @@ module Eps
           appointment_id_present: metadata['appointment_id_last4'].present?,
           status: notification.status
         )
-        StatsD.increment(
-          "#{STATSD_KEY}.missing_metadata",
-          tags: [
-            'Community Care Appointments',
-            "user_uuid:#{metadata['user_uuid']}",
-            "appointment_id_last4:#{metadata['appointment_id_last4']}"
-          ]
-        )
+        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments']
+)
       end
 
       metadata
@@ -83,16 +77,15 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_notification_status(notification, base_data)
-      tags = build_statsd_tags(base_data)
       status = notification.status&.downcase
 
       case status.downcase
       when 'delivered'
-        StatsD.increment("#{STATSD_KEY}.success", tags:)
+        StatsD.increment("#{STATSD_KEY}.success", tags: ['Community Care Appointments'])
       when *FAILURE_STATUSES
-        handle_failure(notification, base_data, tags)
+        handle_failure(notification, base_data)
       else
-        handle_unknown_status(notification, base_data, tags)
+        handle_unknown_status(notification, base_data)
       end
     end
 
@@ -100,10 +93,9 @@ module Eps
     #
     # @param notification [VANotify::Notification] The notification object
     # @param base_data [Hash] Base data for logging and metrics
-    # @param tags [Array<String>] StatsD tags
     # @return [void]
-    def self.handle_failure(notification, base_data, tags)
-      StatsD.increment("#{STATSD_KEY}.failure", tags:)
+    def self.handle_failure(notification, base_data)
+      StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
 
       failure_type = FAILURE_TYPE_MAP[notification.status&.downcase] || 'unknown'
       failure_data = base_data.merge(
@@ -121,10 +113,9 @@ module Eps
     #
     # @param notification [VANotify::Notification] The notification object
     # @param base_data [Hash] Base data for logging and metrics
-    # @param tags [Array<String>] StatsD tags
     # @return [void]
-    def self.handle_unknown_status(notification, base_data, tags)
-      StatsD.increment("#{STATSD_KEY}.unknown_status", tags:)
+    def self.handle_unknown_status(notification, base_data)
+      StatsD.increment("#{STATSD_KEY}.unknown_status", tags: ['Community Care Appointments'])
 
       unknown_data = base_data.merge(
         status_reason: notification.status_reason
