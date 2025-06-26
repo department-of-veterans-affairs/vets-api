@@ -144,20 +144,6 @@ module TravelPay
       claims
     end
 
-    def validate_date_params(start_date, end_date)
-      if start_date && end_date
-        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
-      else
-        raise ArgumentError,
-              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
-      end
-    rescue Date::Error => e
-      Rails.logger.debug(message:
-      "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
-      raise ArgumentError,
-            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
-    end
-
     def get_date_range(params)
       # if we get one date, we need both dates
       if params['start_date'] || params['end_date']
