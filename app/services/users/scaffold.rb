@@ -8,7 +8,7 @@ module Users
   # and `status` second.
   #
   # rubocop:disable Style/StructInheritance
-  class Scaffold < Struct.new(:errors, :status, :services, :user_account, :account, :profile, :va_profile,
+  class Scaffold < Struct.new(:errors, :status, :services, :user_account, :profile, :va_profile,
                               :veteran_status, :in_progress_forms, :prefills_available, :vet360_contact_information,
                               :session, :onboarding)
   end
