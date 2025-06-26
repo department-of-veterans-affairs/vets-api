@@ -78,6 +78,8 @@ module VeteranEnrollmentSystem
       def update_associations(associations, form_id)
         reordered_associations = reorder_associations(associations)
 
+        Rails.logger.info("reordered_associations: #{reordered_associations}")
+
         with_monitoring do
           response = perform(
             :put,
