@@ -113,16 +113,16 @@ module VAOS
       # @raise [StandardError] For any unexpected errors during submission
       #
       def submit_referral_appointment
-        patient_attrs = patient_attributes(submit_params)
-        appointment = eps_appointment_service.submit_appointment(
-          params[:id],
-          { referral_number: submit_params[:referral_number],
-            network_id: submit_params[:network_id],
-            provider_service_id: submit_params[:provider_service_id],
-            slot_ids: [submit_params[:slot_id]] }.tap do |attrs|
-            attrs[:additional_patient_attributes] = patient_attrs if patient_attrs.present?
-          end
-        )
+        submit_args = { referral_number: submit_params[:referral_number],
+                        network_id: submit_params[:network_id],
+                        provider_service_id: submit_params[:provider_service_id],
+                        slot_ids: [submit_params[:slot_id]] }
+
+        if patient_attributes(submit_params).present?
+          submit_args[:additional_patient_attributes] = patient_attributes(submit_params)
+        end
+
+        appointment = eps_appointment_service.submit_appointment(submit_params[:id], submit_args)
 
         if appointment[:error]
           StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
