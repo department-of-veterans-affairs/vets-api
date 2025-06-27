@@ -110,7 +110,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         )
         allow(va_notify_service).to receive(:send_email)
         expect(va_notify_service).not_to have_received(:send_email)
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
 
@@ -130,7 +130,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         )
         allow(va_notify_service).to receive(:send_email)
         expect(va_notify_service).not_to have_received(:send_email)
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
 
@@ -146,7 +146,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
           /upstream error - will not retry: 400/,
           { user_uuid:, appointment_id_last4: }
         )
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
 
@@ -179,7 +179,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
           /unexpected error: StandardError/,
           { user_uuid:, appointment_id_last4: }
         )
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
   end
@@ -201,11 +201,11 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         /retries exhausted: VANotify::Error - Service unavailable/,
         { user_uuid:, appointment_id_last4: }
       )
-      check_statsd_failure_increment(user_uuid, appointment_id_last4)
+      check_statsd_failure_increment
     end
   end
 
-  def check_statsd_failure_increment(uuid, last4)
+  def check_statsd_failure_increment
     expect(StatsD).to have_received(:increment).with(
       "#{described_class::STATSD_KEY}.failure",
       tags: ['Community Care Appointments']
