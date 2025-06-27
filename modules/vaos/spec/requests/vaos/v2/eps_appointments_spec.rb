@@ -63,6 +63,12 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
               VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
+                # expect(StatsD).to receive(:increment).with(
+                #   'api.vaos.eps_appointment_detail.access',
+                #   tags: ['Community Care Appointments']
+                # ).and_call_original
+                allow(StatsD).to receive(:increment).and_call_original
+
                 get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
                 expect(response).to have_http_status(:success)

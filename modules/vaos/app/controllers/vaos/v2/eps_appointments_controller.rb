@@ -3,7 +3,11 @@
 module VAOS
   module V2
     class EpsAppointmentsController < VAOS::BaseController
+      STATSD_KEY = 'api.vaos.eps_appointment_detail.access'
+
       def show
+        StatsD.increment(STATSD_KEY, tags: ['Community Care Appointments'])
+
         appointment = appointment_service.get_appointment(
           appointment_id: eps_appointment_id,
           retrieve_latest_details: true
