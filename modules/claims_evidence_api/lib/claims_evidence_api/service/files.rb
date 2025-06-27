@@ -12,7 +12,7 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def upload(file_path, provider_data:)
-        headers = { 'X-Folder-URI': x_folder_uri }
+        headers = { 'X-Folder-URI' => x_folder_uri }
         params = post_params(file_path, provider_data)
 
         perform :post, 'files', params, headers
@@ -40,7 +40,7 @@ module ClaimsEvidenceApi
       # @param provider_data [Hash] metadata to be associated with the file
       def update(uuid, provider_data:)
         # TODO: validate provider data; future pr
-        perform :put, "files/#{uuid}/data", provider_data.to_json, {}
+        perform :put, "files/#{uuid}/data", provider_data, {}
       end
 
       # POST overwrite a file in a vbms folder, but retain the uuid
@@ -49,7 +49,7 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def overwrite(uuid, file_path, provider_data:)
-        headers = { 'X-Folder-URI': x_folder_uri }
+        headers = { 'X-Folder-URI' => x_folder_uri }
         params = post_params(file_path, provider_data)
 
         perform :post, "files/#{uuid}", params, headers

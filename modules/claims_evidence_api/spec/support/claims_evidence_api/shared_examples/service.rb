@@ -5,7 +5,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
     it 'accepts separate arguments' do
       subject = described_class.new
 
-      args = ['VETERAN', 'FILENUMBER', '987267855']
+      args = %w[VETERAN FILENUMBER 987267855]
       x_folder_uri = subject.x_folder_uri_set(*args)
       expect(x_folder_uri).to eq subject.x_folder_uri
       expect(x_folder_uri).to eq args.join(':')
@@ -15,7 +15,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
       subject = described_class.new
 
       fid = 'VETERAN:FILENUMBER:987267855'
-      x_folder_uri = subject.x_folder_uri = fid
+      subject.x_folder_uri = fid
       expect(fid).to eq subject.x_folder_uri
     end
   end

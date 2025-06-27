@@ -17,7 +17,7 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
     it 'accepts separate arguments' do
       expect(submission.reference_data).to be_nil
 
-      args = ['VETERAN', 'FILENUMBER', '987267855']
+      args = %w[VETERAN FILENUMBER 987267855]
       x_folder_uri = submission.x_folder_uri_set(*args)
       expect(x_folder_uri).to eq submission.x_folder_uri
       expect(x_folder_uri).to eq args.join(':')
@@ -27,7 +27,7 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
       expect(submission.reference_data).to be_nil
 
       fid = 'VETERAN:FILENUMBER:987267855'
-      x_folder_uri = submission.x_folder_uri = fid
+      submission.x_folder_uri = fid
       expect(fid).to eq submission.x_folder_uri
     end
   end

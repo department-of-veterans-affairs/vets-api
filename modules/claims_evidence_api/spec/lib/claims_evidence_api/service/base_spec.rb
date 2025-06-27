@@ -6,7 +6,6 @@ require 'claims_evidence_api/service/base'
 
 require_relative '../../../support/claims_evidence_api/shared_examples/service'
 
-
 RSpec.describe ClaimsEvidenceApi::Service::Base do
   let(:service) { described_class.new }
 
