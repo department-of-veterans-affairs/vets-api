@@ -70,7 +70,26 @@ module Eps
     def get_provider_slots(provider_id, opts = {})
       raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
 
-      all_slots, combined_response = paginate_provider_slots(provider_id, opts)
+      all_slots = []
+      next_token = nil
+      combined_response = nil
+      start_time = Time.current
+
+      loop do
+        check_pagination_timeout(start_time, provider_id)
+
+        params = build_slot_params(next_token, opts)
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
+                           request_headers_with_correlation_id)
+
+        current_response = response.body
+        combined_response ||= current_response.dup.tap { |r| r[:slots] = [] }
+
+        all_slots.concat(current_response[:slots]) if current_response[:slots].present?
+
+        next_token = current_response[:next_token]
+        break if next_token.blank? || current_response[:slots].blank?
+      end
 
       combined_response[:slots] = all_slots
       combined_response[:count] = all_slots.length
@@ -117,38 +136,6 @@ module Eps
     end
 
     private
-
-    ##
-    # Paginates through all provider slots with timeout protection
-    #
-    # @param provider_id [String] The provider identifier
-    # @param opts [Hash] Initial request options
-    # @return [Array] Array containing all slots and the combined response structure
-    #
-    def paginate_provider_slots(provider_id, opts)
-      all_slots = []
-      next_token = nil
-      combined_response = nil
-      start_time = Time.current
-
-      loop do
-        check_pagination_timeout(start_time, provider_id)
-
-        params = build_slot_params(next_token, opts)
-        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
-                           request_headers_with_correlation_id)
-
-        current_response = response.body
-        combined_response ||= current_response.dup.tap { |r| r[:slots] = [] }
-
-        all_slots.concat(current_response[:slots]) if current_response[:slots].present?
-
-        next_token = current_response[:next_token]
-        break if next_token.blank? || current_response[:slots].blank?
-      end
-
-      [all_slots, combined_response]
-    end
 
     ##
     # Checks if pagination has exceeded the timeout limit
