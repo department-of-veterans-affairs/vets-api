@@ -82,7 +82,6 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         expect(json_response).to include(sp_response)
         expect(json_response).not_to include(ch_response)
         expect(json_response).not_to include(mb_response)
-        
       end
     end
 
@@ -111,7 +110,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
     end
 
-        context 'MB only' do
+    context 'MB only' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
@@ -130,7 +129,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         json_response = JSON.parse(response.body)['data']
         # Check that our MB record is included in the response
         # and SP record is not included
-      
+
         expect(json_response).to include(mb_response)
         expect(json_response).not_to include(sp_response)
         expect(json_response).not_to include(ch_response)
