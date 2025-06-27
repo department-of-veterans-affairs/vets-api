@@ -64,7 +64,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -80,6 +80,8 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         # and CH record is not included
         expect(json_response).to include(sp_response)
         expect(json_response).not_to include(ch_response)
+        expect(json_response).not_to include(mb_response)
+        
       end
     end
 
@@ -104,6 +106,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         # and SP record is not included
         expect(json_response).to include(ch_response)
         expect(json_response).not_to include(sp_response)
+        expect(json_response).not_to include(mb_response)
       end
     end
 
