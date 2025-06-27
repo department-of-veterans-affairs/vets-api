@@ -74,6 +74,7 @@ class Form526Submission < ApplicationRecord
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
   ZSF_DD_TAG_SERVICE = 'disability-application'
+  UPLOAD_DELAY_BASE = 60.seconds
 
   # the keys of the Toxic Exposure details for each section
   TOXIC_EXPOSURE_DETAILS_MAPPING = {
@@ -555,27 +556,41 @@ class Form526Submission < ApplicationRecord
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
+  # This method calculates the delay for each upload based on its index in the uploads array.
+  # The delay is calculated to ensure that uploads are staggered and not sent all at once.
+  # Duplicate uploads (uploads with the same key) will have an additional delay.
+  #
+  # @param upload_index [Integer] the index of the upload in the uploads array
+  # @param key [String] a unique key for the upload, based on its name and size
+  # @param uniqueness_tracker [Hash] a hash to track the number of times each unique upload has been seen
+  # @return [Integer] the total delay in seconds for this upload
+  #
+  def calc_submit_delays(upload_index, key, uniqueness_tracker)
+    delay_per_upload = (upload_index * UPLOAD_DELAY_BASE) # staggered delay based on index
+    # If the upload is a duplicate, add an additional delay based on how many times it has been seen
+    dup_delay = [0, (UPLOAD_DELAY_BASE * (uniqueness_tracker[key] - 1 - upload_index))].max
+    # Final amount to delay
+    UPLOAD_DELAY_BASE + delay_per_upload + dup_delay
+  end
+
   def submit_uploads
     uploads = form[FORM_526_UPLOADS]
-    tags = ["form_id:#{FORM_526}", "submission_id:#{id}"]
+    statsd_tags = ["form_id:#{FORM_526}"]
 
     # Send the count of uploads to StatsD, happens before return to capture claims with no uploads
-    StatsD.gauge('form526.uploads.count', uploads.count, tags:)
+    StatsD.gauge('form526.uploads.count', uploads.count, tags: statsd_tags)
     return if uploads.blank?
 
     # This happens only when there is 1+ uploads, otherwise will error out
     uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
-    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags:)
+    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags: statsd_tags)
 
-    offset = 60.seconds
     uniqueness_tracker = {}
-
-    uploads.each_with_index do |upload, i|
+    uploads.each_with_index do |upload, upload_index|
       key = "#{upload['name']}_#{upload['size']}"
       uniqueness_tracker[key] ||= 1
-      delay = offset + (i * offset) + [0, (offset * (uniqueness_tracker[key] - 1 - i))].max
-
-      StatsD.gauge('form526.uploads.delay', delay, tags:)
+      delay = calc_submit_delays(upload_index, key, uniqueness_tracker)
+      StatsD.gauge('form526.uploads.delay', delay, tags: statsd_tags)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
       uniqueness_tracker[key] += 5
     end
