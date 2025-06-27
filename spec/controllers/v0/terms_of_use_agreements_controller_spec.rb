@@ -4,11 +4,11 @@ require 'rails_helper'
 
 RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   let(:user) { create(:user) }
-  let(:user_account) { create(:user_account, icn:) }
+  let(:user_account) { user.user_account }
   let(:icn) { user.icn }
   let(:first_name) { user.first_name }
   let(:last_name) { user.last_name }
-  let!(:user_verification) { create(:user_verification, user_account:, idme_uuid: user.uuid) }
+  let!(:user_verification) { user.user_verification }
   let(:agreement_version) { 'v1' }
   let(:terms_code) { nil }
   let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
