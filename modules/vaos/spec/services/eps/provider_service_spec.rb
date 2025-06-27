@@ -113,14 +113,6 @@ describe Eps::ProviderService do
   describe 'get_drive_times' do
     let(:config) { instance_double(Eps::Configuration) }
     let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
-
-    before do
-      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
-                                        request_types: %i[get put post delete])
-      allow(service).to receive_messages(config:)
-      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
-    end
-
     let(:destinations) do
       {
         'provider-123' => {
@@ -134,6 +126,13 @@ describe Eps::ProviderService do
         latitude: 40.7589,
         longitude: -73.9851
       }
+    end
+
+    before do
+      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                        request_types: %i[get put post delete])
+      allow(service).to receive_messages(config:)
+      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
     end
 
     context 'when the request is successful' do

@@ -72,7 +72,6 @@ module Eps
 
       all_slots = []
       next_token = nil
-      combined_response = nil
       start_time = Time.current
 
       loop do
@@ -83,7 +82,6 @@ module Eps
                            request_headers_with_correlation_id)
 
         current_response = response.body
-        combined_response ||= current_response.dup.tap { |r| r[:slots] = [] }
 
         all_slots.concat(current_response[:slots]) if current_response[:slots].present?
 
@@ -91,10 +89,7 @@ module Eps
         break if next_token.blank? || current_response[:slots].blank?
       end
 
-      combined_response[:slots] = all_slots
-      combined_response[:count] = all_slots.length
-      combined_response.delete(:next_token)
-
+      combined_response = { slots: all_slots, count: all_slots.length }
       OpenStruct.new(combined_response)
     end
 
@@ -148,7 +143,9 @@ module Eps
       timeout_seconds = PAGINATION_TIMEOUT_SECONDS
       return unless Time.current - start_time > timeout_seconds
 
-      Rails.logger.error("Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}")
+      Rails.logger.error(
+        "Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}"
+      )
       raise Common::Exceptions::BackendServiceException.new(
         'PROVIDER_SLOTS_TIMEOUT',
         source: self.class.to_s
