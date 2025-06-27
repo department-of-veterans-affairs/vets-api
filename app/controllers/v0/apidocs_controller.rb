@@ -165,6 +165,7 @@ module V0
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::MyVA::SubmissionStatuses,
       Swagger::Requests::IncomeAndAssetsClaims,
+      Swagger::Requests::PensionClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Profile,
