@@ -391,23 +391,8 @@ module SM
     #
     def post_create_message_with_lg_attachments(args = {})
       validate_create_context(args)
-
-      uploads = args.delete(:uploads)
-      raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
-
-      # Parallel upload of attachments
-      require 'concurrent-ruby'
-      futures = uploads.map do |file|
-        Concurrent::Promises.future { build_lg_attachment(file) }
-      end
-      lg_attachments = Concurrent::Promises.zip(*futures).value!
-
-      # Build multipart payload
       Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
-      payload = form_large_attachment_payload(args[:message], lg_attachments)
-      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
-      json = perform(:post, 'message/attach', payload, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      create_message_with_lg_attachments_request('message/attach', args)
     end
 
     ##
@@ -437,23 +422,8 @@ module SM
     #
     def post_create_message_reply_with_lg_attachment(id, args = {})
       validate_reply_context(args)
-
-      uploads = args.delete(:uploads)
-      raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
-
-      # Parallel upload of attachments
-      require 'concurrent-ruby'
-      futures = uploads.map do |file|
-        Concurrent::Promises.future { build_lg_attachment(file) }
-      end
-      lg_attachments = Concurrent::Promises.zip(*futures).value!
-
-      # Build multipart payload
       Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
-      payload = form_large_attachment_payload(args[:message], lg_attachments)
-      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
-      json = perform(:post, "message/#{id}/reply/attach", payload, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
     end
 
     ##
@@ -513,7 +483,7 @@ module SM
     ##
     # Retrieve a message attachment
     # Endpoint returns either a binary file response or a AWS S3 URL depending on attachment upload method.
-    # If the response is a URL, it will fetch the file from that URL.This is useful for large attachments that exceed the
+    # If the response is a URL, it will fetch the file from that URL.
     # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
@@ -525,7 +495,8 @@ module SM
       response = perform(:get, path, nil, token_headers)
       data = response.body[:data] if response.body.is_a?(Hash)
 
-      if data.is_a?(String) && data.match?(%r{^https?://})  # If response body is a string and looks like a URL, fetch the file from the URL
+      # If response body is a string and looks like a URL, fetch the file from the URL
+      if data.is_a?(String) && data.match?(%r{^https?://})
         url = data
         uri = URI.parse(url)
         file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -537,8 +508,9 @@ module SM
         end
         filename = uri.path.split('/').last
         { body: file_response.body, filename: }
-      else # Default: treat as binary file response
-        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '') 
+      else
+        # Default: treat as binary file response
+        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
         { body: response.body, filename: }
       end
     end
@@ -747,6 +719,22 @@ module SM
           'application/json'
         )
       }
+    end
+
+    def create_message_with_lg_attachments_request(path, args)
+      uploads = args.delete(:uploads)
+      raise Common::Exceptions::ValidationErrors, 'uploads must be an array' unless uploads.is_a?(Array)
+
+      # Parallel upload of attachments
+      require 'concurrent-ruby'
+      futures = uploads.map { |file| Concurrent::Promises.future { build_lg_attachment(file) } }
+      lg_attachments = Concurrent::Promises.zip(*futures).value!
+
+      # Build multipart payload
+      payload = form_large_attachment_payload(args[:message], lg_attachments)
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
+      json = perform(:post, path, payload, custom_headers).body
+      Message.new(json[:data].merge(json[:metadata]))
     end
 
     ##
