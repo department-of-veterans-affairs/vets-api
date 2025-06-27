@@ -7,7 +7,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
   # setting the client only once for this test set, as it mimics how it's
   # used in the Sidekiq worker disability_compensation_fast_track_job.rb
 
-  before(:all) do
+  before do
     @client = Lighthouse::VeteransHealth::Client.new(12_345)
   end
 
@@ -79,7 +79,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         it 'invokes the Lighthouse Veterans Health API MedicationRequest endpoint' do
           expect_any_instance_of(
             Lighthouse::VeteransHealth::Client
-          ).to receive(:perform_get).with(diagnostic_report_api_path, params_hash).and_call_original
+          ).to receive(:perform_get).with(diagnostic_report_api_path, **params_hash).and_call_original
           @client.list_diagnostic_reports(count: 100)
         end
 
@@ -145,7 +145,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         it 'invokes the Lighthouse Veterans Health API Observation endpoint' do
           expect_any_instance_of(Lighthouse::VeteransHealth::Client).to receive(
             :perform_get
-          ).with(observations_api_path, params_hash).and_call_original
+          ).with(observations_api_path, **params_hash).and_call_original
           @client.list_bp_observations
         end
 
@@ -164,7 +164,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         it 'invokes the Lighthouse Veterans Health API MedicationRequest endpoint' do
           expect_any_instance_of(
             Lighthouse::VeteransHealth::Client
-          ).to receive(:perform_get).with(medications_api_path, params_hash).and_call_original
+          ).to receive(:perform_get).with(medications_api_path, **params_hash).and_call_original
           @client.list_medication_requests
         end
 
@@ -226,7 +226,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         it 'invokes the Lighthouse Veterans Health API Condition endpoint' do
           expect_any_instance_of(
             Lighthouse::VeteransHealth::Client
-          ).to receive(:perform_get).with(conditions_api_path, params_hash).and_call_original
+          ).to receive(:perform_get).with(conditions_api_path, **params_hash).and_call_original
           @client.list_conditions
         end
 
