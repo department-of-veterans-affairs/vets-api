@@ -1881,6 +1881,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for for converting the start & end times in slots fetch to UTC.
+  vaos_appointment_notification_callback:
+    actor_type: user
+    enable_in_development: true
+    description: Enables custom email delivery callback for VAOS appointment status notifications
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
