@@ -78,7 +78,7 @@ describe UnifiedHealthData::Service, type: :service do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs).to eq(1)
+          expect(labs.size).to eq(1)
         end
       end
     end
