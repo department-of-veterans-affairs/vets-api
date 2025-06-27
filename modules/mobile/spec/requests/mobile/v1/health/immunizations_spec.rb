@@ -38,7 +38,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
           end
-          expect(response.parsed_body['data'][0]['relationships']).to eq(
+          elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2022-03-13T09:59:25Z' }
+          expect(elem['relationships']).to eq(
             {
               'location' => {
                 'data' => nil,
@@ -54,7 +55,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
       context 'for items that do have a location' do
         it 'has a relationship' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 11 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 1 } }
           end
           expect(response.parsed_body['data'][0]['relationships']).to eq(
             {
@@ -100,7 +101,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
       end
 
       it 'returns nil for blank notes' do
-        expect(response.parsed_body['data'][2]['attributes']['note']).to be_nil
+        elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2009-03-19T12:24:55Z' }
+        expect(elem['attributes']['note']).to be_nil
       end
 
       it 'returns nil for null notes' do
@@ -108,7 +110,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
       end
 
       it 'returns a value for notes that have a value' do
-        expect(response.parsed_body['data'][0]['attributes']['note']).to eq(
+        elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2011-03-31T12:24:55Z' }
+        expect(elem['attributes']['note']).to eq(
           'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.'
         )
       end
@@ -214,7 +217,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
       context 'when an immunization group name is not COVID-19 and there is no manufacturer provided' do
         it 'sets manufacturer to nil' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 11 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 1 } }
           end
 
           expect(response.parsed_body['data'][0]['attributes']).to eq(
@@ -241,7 +244,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
         ids = response.parsed_body['data'].pluck('id')
 
         # these are the last ten records in the vcr cassette
-        expected_ids = %w[I2-QGX75BMCEGXFC57E47NAWSKSBE000000
+        expected_ids = %w[I2-DVLM364Y226KFCCINORJP7MP5A000000
                           I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000
                           I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000
                           I2-7JXLIQNPFQ6UNKAHYRLOGQBDOM000000
@@ -262,8 +265,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
 
         ids = response.parsed_body['data'].pluck('id')
 
-        # these are the fifth and sixth from last records in the vcr cassette
-        expect(ids).to eq(%w[I2-XTVY4IDSEUWVYC25SST25RG5KU000000 I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000])
+        # these are the fifth and sixth from last records in the vcr cassette after sorting
+        expect(ids).to eq(%w[I2-ZADCZ325X75FWLZPJA7P2HZEQA000000 I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000])
       end
     end
 
@@ -363,14 +366,20 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
       end
 
       context 'date is missing' do
-        it 'returns missing date items at end of list' do
+        before do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations_date_missing',
                            match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
           end
+        end
+
+        it 'matches expected schema' do
           assert_schema_conform(200)
+        end
+
+        it 'returns missing date items at end of list' do
           ordered_dates = response.parsed_body['data'].map { |i| i['attributes']['date'] }
-          expect(ordered_dates).to eq(['2016-04-28T12:24:55Z', '2016-04-28T12:24:55Z', '2010-03-25T12:24:55Z', nil])
+          expect(ordered_dates).to eq(['2010-03-25T12:24:55Z', '2016-04-28T12:24:55Z', '2016-04-28T12:24:55Z', nil])
         end
       end
 
@@ -388,7 +397,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
 
         context '2 vaccine codes exists' do
           it 'returns second coding display' do
-            expect(response.parsed_body['data'][0]['attributes']).to eq(
+            elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2023-03-13T09:59:25Z' }
+            expect(elem['attributes']).to eq(
               { 'cvxCode' => 140,
                 'date' => '2023-03-13T09:59:25Z',
                 'doseNumber' => 'Series 1',
@@ -404,7 +414,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
 
         context 'only 1 vaccine code exists' do
           it 'returns first coding display' do
-            expect(response.parsed_body['data'][1]['attributes']).to eq(
+            elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2022-03-13T09:59:25Z' }
+            expect(elem['attributes']).to eq(
               { 'cvxCode' => 140,
                 'date' => '2022-03-13T09:59:25Z',
                 'doseNumber' => 'Series 1',
