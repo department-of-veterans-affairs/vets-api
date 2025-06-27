@@ -31,13 +31,16 @@ module AskVAApi
           payload = {
             AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
-            CaregiverZipCode: nil, ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference] || 'Email'),
+            CaregiverZipCode: nil, ContactMethod: @translator.call(:response_type,
+                                                                   inquiry_params[:contact_preference] || 'Email'),
             DependentDOB: family_member_field(:date_of_birth), DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
           context = {
-            level_of_authentication: inquiry_details[:level_of_authentication], user_loa: user&.loa&.fetch(:current, nil),
-            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic, user_is_authenticated: user.present?
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            user_loa: user&.loa&.fetch(:current, nil),
+            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic,
+            user_is_authenticated: user.present?
           }
           Rails.logger.info('Education Inquiry Context', context)
           if user.nil? && inquiry_details_obj.inquiry_education_related?
