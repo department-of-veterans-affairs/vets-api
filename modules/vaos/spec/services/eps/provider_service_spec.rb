@@ -557,7 +557,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /No address match found among 1 provider\(s\) for NPI #{npi}/
+            /No address match found among 1 provider\(s\) for NPI/
           )
         end
       end
@@ -824,7 +824,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /No address match found among 2 provider\(s\) for NPI #{npi}/
+            /No address match found among 2 provider\(s\) for NPI/
           )
         end
       end

@@ -1158,7 +1158,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 end
 
                 expect(StatsD).to have_received(:measure).with(described_class::APPT_CREATION_DURATION_METRIC,
-                                                               kind_of(Numeric))
+                                                               kind_of(Numeric),
+                                                               tags: ['Community Care Appointments'])
               end
             end
           end
