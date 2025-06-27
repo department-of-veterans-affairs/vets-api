@@ -2330,11 +2330,18 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    it 'is vaInPerson for nil vvsKind' do
-      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+    it 'is vaInPerson for nil vvsKind and false vvsVistaVideoAppt' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoFalse).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPerson')
+    end
+
+    it 'is vaVideoCareAtHome for nil vvsKind and true vvsVistaVideoAppt' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoTrue).attributes
+      appt[:telehealth][:vvs_kind] = nil
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtHome')
     end
 
     it 'is nil for unrecognized vvsKind' do
