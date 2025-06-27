@@ -69,11 +69,11 @@ module IvcChampva
         end
 
         def extract_provider_name(text)
-          # Look for provider patterns - often after "Provider:" or "Dr." or before "NPI"
+          # Look for provider patterns
           provider_patterns = [
-            /provider[:\s]+([A-Za-z\s,\.]+)/i,
-            /dr\.?\s+([A-Za-z\s,\.]+)/i,
-            /([A-Za-z\s,\.]+)\s+(?:npi|claim)/i
+            /provider[:\s]{1,3}([A-Za-z][A-Za-z\s,\.]{0,48}[A-Za-z])/i,
+            /dr\.?\s{1,3}([A-Za-z][A-Za-z\s,\.]{0,48}[A-Za-z])/i,
+            /([A-Za-z][A-Za-z\s,\.]{0,48}[A-Za-z])\s{1,5}(?:npi|claim)/i
           ]
 
           provider_patterns.each do |pattern|
@@ -109,10 +109,10 @@ module IvcChampva
         end
 
         def extract_amount_paid(text)
-          # Look for currency amounts
+          # Look for currency amounts - limit the character class repetition
           amount_patterns = [
-            /(?:paid|amount)[:\s]*\$?(\d+\.?\d*)/i,
-            /\$(\d+\.?\d*)/
+            /(?:paid|amount)[:\s]{0,5}\$?(\d{1,10}\.?\d{0,2})/i,
+            /\$(\d{1,10}\.?\d{0,2})/
           ]
 
           amount_patterns.each do |pattern|
