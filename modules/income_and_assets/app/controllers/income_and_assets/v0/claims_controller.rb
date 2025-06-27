@@ -2,6 +2,7 @@
 
 require 'income_and_assets/benefits_intake/submit_claim_job'
 require 'income_and_assets/monitor'
+require 'persistent_attachments/sanitizer'
 
 module IncomeAndAssets
   module V0
@@ -48,7 +49,9 @@ module IncomeAndAssets
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_lighthouse(in_progress_form, claim)
+        process_attachments(in_progress_form, claim)
+
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form&.id, claim, current_user)
 
@@ -67,15 +70,20 @@ module IncomeAndAssets
                                                                     current_user)
       end
 
-      # send this Income and Assets Evidence claim to the Lighthouse Benefit Intake API
+      ##
+      # Processes attachments for the claim
       #
-      # @see https://developer.va.gov/explore/api/benefits-intake/docs
-      def process_and_upload_to_lighthouse(in_progress_form, claim)
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
+      def process_attachments(in_progress_form, claim)
         claim.process_attachments!
-
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        if Flipper.enabled?(:income_and_assets_persistent_attachment_error_email_notification)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
         raise e
       end
 

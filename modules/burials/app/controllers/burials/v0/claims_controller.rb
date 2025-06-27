@@ -3,6 +3,7 @@
 require 'burials/benefits_intake/submit_claim_job'
 require 'burials/monitor'
 require 'common/exceptions/validation_errors'
+require 'persistent_attachments/sanitizer'
 
 module Burials
   module V0
@@ -53,7 +54,9 @@ module Burials
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_lighthouse(in_progress_form, claim)
+        process_attachments(in_progress_form, claim)
+
+        Burials::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -84,17 +87,19 @@ module Burials
       end
 
       ##
-      # Processes attachments for the claim and initiates an async task for intake processing
+      # Processes attachments for the claim
       #
       # @param in_progress_form [Object]
       # @param claim
       # @raise [Exception]
-      def process_and_upload_to_lighthouse(in_progress_form, claim)
+      def process_attachments(in_progress_form, claim)
         claim.process_attachments!
-
-        Burials::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        if Flipper.enabled?(:burial_persistent_attachment_error_email_notification)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
         raise e
       end
 

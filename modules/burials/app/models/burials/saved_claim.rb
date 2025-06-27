@@ -58,6 +58,18 @@ module Burials
     end
 
     ##
+    # Provides a mapping from claim attachment keys (as used in claim models)
+    # to in-progress form keys (as used in InProgressForm#form_data) for Burials
+    def attachment_key_map
+      {
+        transportationReceipts: :transportation_receipts,
+        deathCertificate: :death_certificate,
+        militarySeparationDocuments: :military_separation_documents,
+        additionalEvidence: :additional_evidence
+      }.freeze
+    end
+
+    ##
     # Parse claimant's email address from the parsed_form.
     #
     # @return [String, nil]
@@ -119,6 +131,13 @@ module Burials
       claimed << 'Plot Allowance' if parsed_form['plotAllowance']
       claimed << 'Transportation' if parsed_form['transportation']
       claimed
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(claim_id, email_type)
+      Burials::NotificationEmail.new(claim_id).deliver(email_type)
     end
   end
 end
