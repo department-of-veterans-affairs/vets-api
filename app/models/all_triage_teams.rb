@@ -25,6 +25,7 @@ class AllTriageTeams
   attribute :sub_group_type_enum_val, String
   attribute :group_type_patient_display, String
   attribute :sub_group_type_patient_display, String
+  attribute :oh_triage_group, Bool, default: false
 
   default_sort_by name: :asc
 end
