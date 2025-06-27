@@ -20,11 +20,6 @@ module TravelPay
 
       {
         metadata: {
-          # TODO: Determine if we need these additional metadata fields
-
-          # 'status' => faraday_response.body['statusCode'],
-          # 'success' => faraday_response.body['success'],
-          # 'message' => faraday_response.body['message'],
           'pageNumber' => faraday_response.body['pageNumber'],
           'pageSize' => faraday_response.body['pageSize'],
           'totalRecordCount' => faraday_response.body['totalRecordCount']
@@ -44,21 +39,15 @@ module TravelPay
       }.merge!(date_range)
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      # TODO: add timing for looping
-      # #start timer
-
+      start_time = Time.current
       all_claims = loop_and_paginate_claims(loop_params, veis_token, btsss_token)
-      # end timer
+      elapsed_time = Time.current - start_time
+      Rails.logger.info(message: "Looped through claims in #{elapsed_time} seconds.")
 
       {
         metadata: {
-          # TODO: Determine if we need these additional metadata fields
-
           'status' => all_claims[:status], # for partial content == 206
-          # 'success' => faraday_response.body['success'],
-          # 'message' => faraday_response.body['message'],
-          'pageNumber' => all_claims[:page_number], # partial, got through page 2, so pick up on page 3
-          # 'pageSize' => faraday_response.body['pageSize'],
+          'pageNumber' => all_claims[:page_number], # i.e., we got through page 2, so pick up on page 3
           'totalRecordCount' => all_claims[:total_record_count]
         },
         data: all_claims[:data]&.map do |sc|

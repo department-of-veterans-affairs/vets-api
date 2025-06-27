@@ -401,6 +401,8 @@ describe TravelPay::ClaimsService do
     before do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
       @service = TravelPay::ClaimsService.new(auth_manager, user)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
     end
 
     it 'paginates and returns claims that are in the specified date range' do
@@ -439,6 +441,9 @@ describe TravelPay::ClaimsService do
                                                            'page_size' => 1
                                                          })
 
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through claims in/i
+      )
       expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
@@ -540,6 +545,9 @@ describe TravelPay::ClaimsService do
                                             'page_size' => 1
                                           })
       end.to raise_error(Common::Exceptions::BackendServiceException)
+      expect(Rails.logger).to have_received(:error).with(
+        message: /Could not retrieve claims by date range/i
+      )
     end
 
     it 'returns partial success if some claims returned' do
@@ -577,6 +585,9 @@ describe TravelPay::ClaimsService do
                                                            'end_date' => '2024-03-01T16:45:34Z',
                                                            'page_size' => 1
                                                          })
+      expect(Rails.logger).to have_received(:error).with(
+        message: /Retrieved some claims/i
+      )
       expect(claims_by_date[:data].count).to equal(1)
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
       expect(claims_by_date[:metadata]['pageNumber']).to equal(1)
