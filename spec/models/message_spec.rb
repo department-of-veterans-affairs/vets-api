@@ -73,9 +73,9 @@ RSpec.describe Message do
           end
 
           it 'requires that there be no more than 4 uploads' do
-            message = build(:message, uploads: [file1, file2, file3, file4, file5])
+            message = build(:message, uploads: [file1, file2, file3, file4, file6])
             expect(message).not_to be_valid
-            expect(message.errors[:uploads]).to include('has too many files (maximum is 4 files)')
+            expect(message.errors[:base]).to include('Total file count exceeds 4 files')
           end
 
           it 'requires that upload file size not exceed 6 MB for any one file' do
@@ -149,7 +149,7 @@ RSpec.describe Message do
     it 'validates file count limit (default 4)' do
       message = build(:message, uploads: [file1, file2, file3, file4, file5])
       expect(message).not_to be_valid
-      expect(message.errors[:base]).to include('Total file count exceeds 4.0 files)')
+      expect(message.errors[:base]).to include('Total file count exceeds 4 files')
     end
 
     it 'validates total upload size limit (default 10MB)' do
@@ -165,7 +165,7 @@ RSpec.describe Message do
       allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(true)
       message = build(:message, uploads: Array.new(11) { file1 })
       expect(message).not_to be_valid
-      expect(message.errors[:base]).to include('Total file count exceeds 10.0 files)')
+      expect(message.errors[:base]).to include('Total file count exceeds 10 files')
 
       big_file = instance_double(upload_class, original_filename: 'big.jpg', size: 26.megabytes)
       allow(big_file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)

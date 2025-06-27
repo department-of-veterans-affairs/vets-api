@@ -35,8 +35,6 @@ require 'vets/model'
 #   @return [Array[Attachment]] an array of Attachments
 #
 class Message
-  MAX_TOTAL_FILE_COUNT = Flipper.enabled?(:mhv_secure_messaging_large_attachments) ? 10.0 : 4.0
-  MAX_TOTAL_FILE_SIZE_MB = Flipper.enabled?(:mhv_secure_messaging_large_attachments) ? 25.0 : 10.0
   MAX_SINGLE_FILE_SIZE_MB = 6.0
 
   include Vets::Model
@@ -123,9 +121,9 @@ class Message
   end
 
   def total_upload_size_validation
-    return unless total_upload_size > MAX_TOTAL_FILE_SIZE_MB.megabytes
+    return unless total_upload_size > max_total_file_size.megabytes
 
-    errors.add(:base, "Total size of uploads exceeds #{MAX_TOTAL_FILE_SIZE_MB} MB")
+    errors.add(:base, "Total size of uploads exceeds #{max_total_file_size} MB")
   end
 
   def each_upload_size_validation
@@ -137,8 +135,16 @@ class Message
   end
 
   def total_file_count_validation
-    return unless uploads.length > MAX_TOTAL_FILE_COUNT
+    return unless uploads.length > max_total_file_count
 
-    errors.add(:base, "Total file count exceeds #{MAX_TOTAL_FILE_COUNT} files)")
+    errors.add(:base, "Total file count exceeds #{max_total_file_count} files")
+  end
+
+  def max_total_file_count
+    Flipper.enabled?(:mhv_secure_messaging_large_attachments) ? 10 : 4
+  end
+
+  def max_total_file_size
+    Flipper.enabled?(:mhv_secure_messaging_large_attachments) ? 25.0 : 10.0
   end
 end
