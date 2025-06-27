@@ -27,7 +27,12 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = parse_labs(combined_records)
-        filter_records(parsed_records)
+        filtered_records = filter_records(parsed_records)
+        
+        # Log test code distribution after filtering is applied
+        log_test_code_distribution(parsed_records)
+        
+        filtered_records
       end
     end
 
@@ -55,6 +60,10 @@ module UnifiedHealthData
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
         when 'SP'
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+        when 'MB'
+          Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+        else
+          false # Reject any other test codes for now, but we'll log them for analysis
         end
       end
     end
@@ -418,6 +427,37 @@ module UnifiedHealthData
       else
         record['resource']['code'] ? record['resource']['code']['text'] : ''
       end
+    end
+
+    # Logs the distribution of test codes found in the records for analytics purposes
+    # This helps identify which test codes are common and might be worth filtering in
+    def log_test_code_distribution(records)
+      # Count occurrence of each test code
+      test_code_counts = Hash.new(0)
+      records.each do |record|
+        test_code = record.attributes.test_code
+        test_code_counts[test_code] += 1 if test_code.present?
+      end
+      
+      # Only log if we have test codes
+      return if test_code_counts.empty?
+      
+      # Sort by frequency (descending)
+      sorted_counts = test_code_counts.sort_by { |_, count| -count }
+      
+      # Format for logging - code:count pairs
+      code_count_pairs = sorted_counts.map { |code, count| "#{code}:#{count}" }
+      
+      # Log the distribution with useful context but no PII
+      Rails.logger.info(
+        {
+          message: 'UHD test code distribution',
+          test_code_distribution: code_count_pairs.join(','),
+          total_codes: sorted_counts.size,
+          total_records: records.size,
+          service: 'unified_health_data'
+        }
+      )
     end
   end
 end

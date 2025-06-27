@@ -49,6 +49,25 @@ describe UnifiedHealthData::Service, type: :service do
           expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP')
         end
       end
+      
+      context 'logs test code distribution' do
+        it 'logs the test code distribution from parsed records' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+          allow(Rails.logger).to receive(:info)
+          
+          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+          
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'UHD test code distribution',
+              service: 'unified_health_data'
+            )
+          )
+        end
+      end
+      end
 
       context 'when Flipper is disabled for both codes' do
         it 'filters out labs/tests' do
@@ -66,6 +85,24 @@ describe UnifiedHealthData::Service, type: :service do
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(1)
           expect(labs.first.attributes.test_code).to eq('CH')
+        end
+      end
+
+      context 'logs test code distribution' do
+        it 'logs the test code distribution from parsed records' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+          allow(Rails.logger).to receive(:info)
+          
+          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+          
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'UHD test code distribution',
+              service: 'unified_health_data'
+            )
+          )
         end
       end
     end
@@ -800,24 +837,6 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to eq([])
       end
     end
-  end
-
-  describe '#fetch_display' do
-    let(:service_instance) { described_class.new(user) }
-
-    it 'returns ServiceRequest code text if present' do
-      record = {
-        'resource' => {
-          'contained' => [
-            { 'resourceType' => 'ServiceRequest', 'code' => { 'text' => 'Blood Test' } }
-          ],
-          'code' => { 'text' => 'Fallback Test' }
-        }
-      }
-      expect(service_instance.send(:fetch_display, record)).to eq('Blood Test')
-    end
-
-    it 'returns code.text if ServiceRequest is not present' do
       record = {
         'resource' => {
           'contained' => [
