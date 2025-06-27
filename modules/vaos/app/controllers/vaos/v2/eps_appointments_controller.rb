@@ -6,7 +6,6 @@ module VAOS
       STATSD_KEY = 'api.vaos.eps_appointment_detail.access'
 
       def show
-        StatsD.increment(STATSD_KEY, tags: ['Community Care Appointments'])
 
         appointment = appointment_service.get_appointment(
           appointment_id: eps_appointment_id,
@@ -14,6 +13,7 @@ module VAOS
         )
 
         response_object = assemble_appt_response_object(appointment)
+        StatsD.increment(STATSD_KEY, tags: ['Community Care Appointments'])
         render json: response_object
       end
 
