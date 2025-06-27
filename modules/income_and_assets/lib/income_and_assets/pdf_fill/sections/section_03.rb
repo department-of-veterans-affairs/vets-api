@@ -7,12 +7,17 @@ module IncomeAndAssets
     # Section III: Unassociated Incomes
     class Section3 < Section
       # Section configuration hash
+      #
+      # NOTE: `key` fields should follow the format:
+      #   `<key_prefix><subprefix>.<key>`
+      # Example: 'Section3A.DependentsReceivingIncome'
+      #
       KEY = {
-        # 3a
+        # 3A
         'unassociatedIncome' => {
-          key: 'F[0].Page_4[0].DependentsReceiving3a[0]'
+          key: generate_key('3A', 'DependentsReceivingIncome')
         },
-        # 3b - 3f (only space for five on form)
+        # 3B-F (only space for five on form)
         'unassociatedIncomes' => {
           # Label for each income entry (e.g., 'Income 1')
           item_label: 'Income',
@@ -20,7 +25,7 @@ module IncomeAndAssets
           first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
-            key: "F[0].IncomeRecipients3[#{ITERATOR}]"
+            key: generate_key('3B-F(1)', "IncomeRecipient.Relationship[#{ITERATOR}]")
           },
           'recipientRelationshipOverflow' => {
             question_num: 3,
@@ -32,7 +37,7 @@ module IncomeAndAssets
             }
           },
           'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship3[#{ITERATOR}]",
+            key: generate_key('3B-F(1)', "IncomeRecipient.RelationshipOther[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
@@ -40,7 +45,7 @@ module IncomeAndAssets
           },
           # Q2
           'recipientName' => {
-            key: "F[0].NameofIncomeRecipient3[#{ITERATOR}]",
+            key: generate_key('3B-F(2)', "IncomeRecipient.Name[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(2)',
             question_text:
@@ -49,7 +54,7 @@ module IncomeAndAssets
           },
           # Q3
           'incomeType' => {
-            key: "F[0].TypeOfIncome3[#{ITERATOR}]"
+            key: generate_key('3B-F(3)', "IncomeType[#{ITERATOR}]")
           },
           'incomeTypeOverflow' => {
             question_num: 3,
@@ -61,7 +66,7 @@ module IncomeAndAssets
             }
           },
           'otherIncomeType' => {
-            key: "F[0].OtherIncomeType3[#{ITERATOR}]",
+            key: generate_key('3B-F(3)', "IncomeTypeOther[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(3)(OTHER)',
             question_text: 'SPECIFY THE TYPE OF INCOME',
@@ -70,13 +75,13 @@ module IncomeAndAssets
           # Q4
           'grossMonthlyIncome' => {
             'thousands' => {
-              key: "F[0].GrossMonthlyIncome1_3[#{ITERATOR}]"
+              key: generate_key('3B-F(4)', "GrossMonthlyIncome1[#{ITERATOR}]")
             },
             'dollars' => {
-              key: "F[0].GrossMonthlyIncome2_3[#{ITERATOR}]"
+              key: generate_key('3B-F(4)', "GrossMonthlyIncome2[#{ITERATOR}]")
             },
             'cents' => {
-              key: "F[0].GrossMonthlyIncome3_3[#{ITERATOR}]"
+              key: generate_key('3B-F(4)', "GrossMonthlyIncome3[#{ITERATOR}]")
             }
           },
           'grossMonthlyIncomeOverflow' => {
@@ -88,7 +93,7 @@ module IncomeAndAssets
           },
           # Q5
           'payer' => {
-            key: "F[0].IncomePayer3[#{ITERATOR}]",
+            key: generate_key('3B-F(5)', "IncomePayer[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(5)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',

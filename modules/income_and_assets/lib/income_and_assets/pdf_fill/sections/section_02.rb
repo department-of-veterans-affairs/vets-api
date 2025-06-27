@@ -7,45 +7,50 @@ module IncomeAndAssets
     # Section II: Claimant Information
     class Section2 < Section
       # Section configuration hash
+      #
+      # NOTE: `key` fields should follow the format:
+      #   `<key_prefix><subprefix>.<key>`
+      # Example: 'Section2A.ClaimantnName.First'
+      #
       KEY = {
-        # 2a
+        # 2A
         'claimantFullName' => {
           # form allows up to 39 characters but validation limits to 30,
           # so no overflow is needed
           'first' => {
-            key: 'F[0].Page_4[0].ClaimantsName.First[0]'
+            key: generate_key('A', 'ClaimantName.First')
           },
           'middle' => {
-            key: 'F[0].Page_4[0].ClaimantsName.MI[0]'
+            key: generate_key('A', 'ClaimantName.MI')
           },
           # form allows up to 34 characters but validation limits to 30,
           # so no overflow is needed
           'last' => {
-            key: 'F[0].Page_4[0].ClaimantsName.Last[0]'
+            key: generate_key('A', 'ClaimantName.Last')
           }
         },
-        # 2b
+        # 2B
         'claimantSocialSecurityNumber' => {
-          key: 'F[0].Page_4[0].ClaimantsSSN[0]'
+          key: generate_key('B', 'ClaimantsSSN')
         },
-        # 2c
+        # 2C
         'claimantPhone' => {
-          key: 'F[0].Page_4[0].ClaimantTelephoneNumber[0]'
+          key: generate_key('C', 'ClaimantTelephoneNumber')
         },
-        # 2d
+        # 2D
         'claimantType' => {
-          key: 'F[0].Page_4[0].TypeofClaimant[0]'
+          key: generate_key('D', 'TypeofClaimant')
         },
-        # 2e
+        # 2E
         'incomeNetWorthDateRange' => {
           'from' => {
-            key: 'F[0].Page_4[0].DateStarting[0]'
+            key: generate_key('E', 'DateStarting')
           },
           'to' => {
-            key: 'F[0].Page_4[0].DateEnding[0]'
+            key: generate_key('E', 'DateEnding')
           },
           'useDateReceivedByVA' => {
-            key: 'F[0].Page_4[0].DateReceivedByVA[0]'
+            key: generate_key('E', 'DateReceivedByVA')
           }
         }
       }.freeze
