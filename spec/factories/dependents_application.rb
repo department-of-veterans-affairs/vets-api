@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :dependents_application do
     state { 'pending' }
     user do
-      build(:evss_user)
+      FactoryBot.build(:evss_user)
     end
 
     form {

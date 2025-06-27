@@ -12,7 +12,7 @@ FactoryBot.define do
     end
 
     after(:build) do |resolution, evaluator|
-      resolution.power_of_attorney_request ||= build(
+      resolution.power_of_attorney_request ||= FactoryBot.build(
         :power_of_attorney_request,
         accredited_individual: evaluator.accredited_individual,
         poa_code: evaluator.poa_code
@@ -21,7 +21,7 @@ FactoryBot.define do
 
     trait :with_veteran_claimant do
       after(:build) do |resolution, evaluator|
-        resolution.power_of_attorney_request = build(
+        resolution.power_of_attorney_request = FactoryBot.build(
           :power_of_attorney_request, :with_veteran_claimant,
           accredited_individual: evaluator.accredited_individual,
           poa_code: evaluator.poa_code
@@ -31,7 +31,7 @@ FactoryBot.define do
 
     trait :with_dependent_claimant do
       after(:build) do |resolution, evaluator|
-        resolution.power_of_attorney_request = build(
+        resolution.power_of_attorney_request = FactoryBot.build(
           :power_of_attorney_request, :with_dependent_claimant,
           accredited_individual: evaluator.accredited_individual,
           poa_code: evaluator.poa_code
@@ -42,7 +42,7 @@ FactoryBot.define do
     trait :acceptance do
       after(:build) do |resolution, evaluator|
         resolution.resolving =
-          build(
+          FactoryBot.build(
             :power_of_attorney_request_decision, :acceptance,
             resolution:
           )
@@ -52,7 +52,7 @@ FactoryBot.define do
 
     trait :declination do
       after(:build) do |resolution, evaluator|
-        resolution.resolving = build(
+        resolution.resolving = FactoryBot.build(
           :power_of_attorney_request_decision,
           type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION,
           declination_reason: :NOT_ACCEPTING_CLIENTS,
@@ -65,7 +65,7 @@ FactoryBot.define do
     trait :expiration do
       after(:build) do |resolution, evaluator|
         resolution.resolving =
-          build(
+          FactoryBot.build(
             :power_of_attorney_request_expiration,
             resolution:
           )
@@ -76,7 +76,7 @@ FactoryBot.define do
     trait :replacement do
       after(:build) do |resolution, evaluator|
         resolution.resolving =
-          build(
+          FactoryBot.build(
             :power_of_attorney_request_withdrawal, :replacement,
             resolution:
           )

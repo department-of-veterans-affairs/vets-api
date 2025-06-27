@@ -7,8 +7,8 @@ FactoryBot.define do
 
     after(:build) do |education_benefits_submission|
       # have to do it this way otherwise 2 submissions get created because of education benefits claim callback
-      education_benefits_submission.education_benefits_claim = build(:education_benefits_claim)
-      education_benefits_submission.education_benefits_claim.saved_claim = build(:va1990)
+      education_benefits_submission.education_benefits_claim = FactoryBot.build(:education_benefits_claim)
+      education_benefits_submission.education_benefits_claim.saved_claim = FactoryBot.build(:va1990)
     end
   end
 end

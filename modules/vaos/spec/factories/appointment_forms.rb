@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :appointment_form, class: 'VAOS::AppointmentForm' do
     transient do
-      user { build(:user, :vaos) }
+      user { FactoryBot.build(:user, :vaos) }
     end
 
     initialize_with { new(user, attributes) }
