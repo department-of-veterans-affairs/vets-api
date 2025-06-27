@@ -99,7 +99,9 @@ module AskVAApi
         end
 
         def list_of_attachments
-          return if inquiry_params[:files].first[:file_name].nil?
+          # To try and resolve Exception InquiriesCreatorError: undefined method `[]' for nil
+          return if inquiry_params[:files].blank?
+          return if inquiry_params[:files].first.nil? || inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
             file_name = normalize_file_name(file[:file_name])
