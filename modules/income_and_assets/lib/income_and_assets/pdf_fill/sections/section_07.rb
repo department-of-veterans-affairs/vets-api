@@ -26,7 +26,7 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(1)',
             question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship',
+            question_label: 'Relationship to Veteran',
             format_options: {
               humanize: true
             }
@@ -34,7 +34,7 @@ module IncomeAndAssets
           'otherOriginalOwnerRelationshipType' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)",
             question_label: 'Relationship Type'
           },
@@ -54,7 +54,7 @@ module IncomeAndAssets
           'otherTransferMethod' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
-            question_suffix: '(2)',
+            question_suffix: '(2)(OTHER)',
             question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)',
             question_label: 'Other Transfer Method'
           },
