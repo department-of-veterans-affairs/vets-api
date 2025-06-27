@@ -4,12 +4,10 @@ require 'claims_evidence_api/service/base'
 
 module ClaimsEvidenceApi
   module Service
-
     # Files API
     class Files < Base
-
       def create(file_path, provider_data:)
-        headers = {'X-Folder-URI': x_folder_uri}
+        headers = { 'X-Folder-URI': x_folder_uri }
         params = post_params(file_path, provider_data)
 
         perform :post, 'files', params, headers
@@ -26,7 +24,7 @@ module ClaimsEvidenceApi
       end
 
       def overwrite(uuid, file_path, provider_data:)
-        headers = {'X-Folder-URI': x_folder_uri}
+        headers = { 'X-Folder-URI': x_folder_uri }
         params = post_params(file_path, provider_data)
 
         perform :post, "files/#{uuid}", params, headers
@@ -38,7 +36,7 @@ module ClaimsEvidenceApi
         file_name = File.basename(file_path)
         mime_type = Marcel::MimeType.for(file_path)
 
-        params = {
+        {
           payload: {
             contentName: file_name,
             providerData: provider_data

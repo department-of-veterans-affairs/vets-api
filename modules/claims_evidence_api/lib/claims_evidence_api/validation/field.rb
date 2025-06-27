@@ -3,12 +3,12 @@
 module ClaimsEvidenceApi
   module Validation
     class BaseField
-      TYPES = [:string, :integer, :number, :boolean]
+      TYPES = %i[string integer number boolean].freeze
 
       attr_reader :type, :validations
 
       def initialize(type:, **validations)
-        @type = type.to_s.to_sym
+        @type = type.to_s.downcase.to_sym
         raise ArgumentError unless TYPES.include?(@type)
 
         @validations = validations
@@ -17,7 +17,7 @@ module ClaimsEvidenceApi
       def validate(value)
         value = transform_value(value)
 
-        validations.each { |func, arg| self.send(func, arg, value) }
+        validations.each { |func, arg| send(func, arg, value) }
 
         value
       end
@@ -43,7 +43,7 @@ module ClaimsEvidenceApi
       end
 
       def pattern(regex, value)
-        raise ArgumentError, "`type` must be :string to use pattern" if type != :string
+        raise ArgumentError, '`type` must be :string to use pattern' if type != :string
         raise ArgumentError, "#{value} is not a string" if value.class != String
         raise ArgumentError, "#{value} does not match #{regex}" unless regex.match?(value)
       end
@@ -85,7 +85,7 @@ module ClaimsEvidenceApi
     end
 
     class BooleanField < BaseField
-      def initialize(**validations)
+      def initialize(**_validations)
         super(type: :boolean)
       end
     end
