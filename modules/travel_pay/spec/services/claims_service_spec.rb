@@ -555,7 +555,7 @@ describe TravelPay::ClaimsService do
                                           })
       end.to raise_error(Common::Exceptions::BackendServiceException)
       expect(Rails.logger).to have_received(:error).with(
-        message: /Could not retrieve claims by date range/i
+        message: /Could not retrieve claim/i
       )
     end
 
@@ -595,7 +595,7 @@ describe TravelPay::ClaimsService do
                                                            'page_size' => 1
                                                          })
       expect(Rails.logger).to have_received(:error).with(
-        message: /Retrieved some claims/i
+        message: /Retrieved 1 of 3 claims/i
       )
       expect(Rails.logger).to have_received(:info).with(
         message: /Looped through 1 claims in/i

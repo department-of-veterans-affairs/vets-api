@@ -31,11 +31,12 @@ module TravelPay
       }
     end
 
-    def get_claims_by_date_range(params = {})
+    def get_claims_by_date_range(params = {}) # rubocop:disable Metrics/MethodLength
       date_range = get_date_range(params)
 
       loop_params = {
-        page_size: params['page_size'] || DEFAULT_PAGE_SIZE
+        page_size: params['page_size'] || DEFAULT_PAGE_SIZE,
+        page_number: params['page_number'] || DEFAULT_PAGE_NUMBER
       }.merge!(date_range)
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
@@ -172,11 +173,11 @@ module TravelPay
     # Disabled method length for now due to error handling adding extra lines
     # Once we refactor all Travel Pay services for better error handling we can adjust the length here
     def loop_and_paginate_claims(params, veis_token, btsss_token) # rubocop:disable Metrics/MethodLength
-      page_number = params['page_number'] || 1
+      page_number = params[:page_number]
       all_claims = []
       total_record_count = 0
 
-      client_params = params.merge!({ page_number: })
+      client_params = params.deep_dup
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
       total_record_count = faraday_response.body['totalRecordCount']
       all_claims.concat(faraday_response.body['data'].deep_dup)
@@ -197,7 +198,8 @@ module TravelPay
         # TODO: replace this with the actual error
         raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Could not retrieve claims.')
       else
-        Rails.logger.error(message: "#{e}. Retrieved some claims, page 1 - page #{page_number - 1}.")
+        Rails.logger.error(message:
+        "#{e}. Retrieved #{all_claims.size} of #{total_record_count} claims, ending on page #{page_number - 1}.")
         { data: all_claims, total_record_count:, page_number: page_number - 1, status: 206 }
       end
     end
