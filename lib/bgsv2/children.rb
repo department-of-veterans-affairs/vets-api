@@ -142,7 +142,7 @@ module BGSV2
           vnp_ptcpnt_id: parent[:vnp_ptcpnt_id],
           first_nm: stepchild_parent['first'],
           last_nm: stepchild_parent['last'],
-          brthdy_dt: format_date(child_status['birth_date']),
+          brthdy_dt: format_date(child_status['biological_parent_dob']),
           ssn_nbr: child_status['biological_parent_ssn']
         }
       )
