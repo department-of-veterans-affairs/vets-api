@@ -51,8 +51,9 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)['data']
+        expect(json_response.count).to eq(9)
         # Check that our test records are included in the response
-        # rather than expecting specific counts or indices
+        # rather than expecting specific indices
         expect(json_response).to include(ch_response)
         expect(json_response).to include(sp_response)
         expect(json_response).to include(mb_response)
@@ -107,6 +108,32 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         expect(json_response).to include(ch_response)
         expect(json_response).not_to include(sp_response)
         expect(json_response).not_to include(mb_response)
+      end
+    end
+
+        context 'MB only' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: sis_headers, params: default_params
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
+      end
+
+      it 'returns the correct lab records' do
+        json_response = JSON.parse(response.body)['data']
+        # Check that our MB record is included in the response
+        # and SP record is not included
+      
+        expect(json_response).to include(mb_response)
+        expect(json_response).not_to include(sp_response)
+        expect(json_response).not_to include(ch_response)
       end
     end
 
