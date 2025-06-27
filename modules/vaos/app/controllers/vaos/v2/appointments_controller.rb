@@ -76,18 +76,18 @@ module VAOS
         begin
           response_data = process_draft_appointment(referral_id, referral_consult_id)
           if response_data[:success]
-            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC)
+            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
             ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
             render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
           else
-            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
             render json: response_data[:json], status: response_data[:status]
           end
         rescue Redis::BaseError => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
           handle_redis_error(e)
         rescue => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
           handle_appointment_creation_error(e)
         end
       end
@@ -113,27 +113,29 @@ module VAOS
       # @raise [StandardError] For any unexpected errors during submission
       #
       def submit_referral_appointment
-        params = submit_params
-        appointment = eps_appointment_service.submit_appointment(
-          params[:id],
-          { referral_number: params[:referral_number],
-            network_id: params[:network_id],
-            provider_service_id: params[:provider_service_id],
-            slot_ids: [params[:slot_id]],
-            additional_patient_attributes: patient_attributes(params) }
-        )
+        submit_args = { referral_number: submit_params[:referral_number],
+                        network_id: submit_params[:network_id],
+                        provider_service_id: submit_params[:provider_service_id],
+                        slot_ids: [submit_params[:slot_id]] }
+
+        if patient_attributes(submit_params).present?
+          submit_args[:additional_patient_attributes] = patient_attributes(submit_params)
+        end
+
+        appointment = eps_appointment_service.submit_appointment(submit_params[:id], submit_args)
 
         if appointment[:error]
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC,
+                           tags: ['Community Care Appointments', "error_type:#{appointment[:error]}"])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
-        log_referral_booking_duration(params[:referral_number])
+        log_referral_booking_duration(submit_params[:referral_number])
 
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
         handle_appointment_creation_error(e)
       end
 
@@ -450,7 +452,7 @@ module VAOS
           name: {
             family: params.dig(:name, :family),
             given: params.dig(:name, :given)
-          },
+          }.compact.presence,
           phone: params[:phone_number],
           email: params[:email],
           birth_date: params[:birth_date],
@@ -462,8 +464,8 @@ module VAOS
             country: params.dig(:address, :country),
             postal_code: params.dig(:address, :postal_code),
             type: params.dig(:address, :type)
-          }
-        }
+          }.compact.presence
+        }.compact
       end
 
       ##
@@ -512,6 +514,29 @@ module VAOS
       # @return [Array, nil] Available slots array or nil if error occurs
       #
       def fetch_provider_slots(referral, provider)
+        appointment_type_id = get_provider_appointment_type_id(provider)
+        eps_provider_service.get_provider_slots(
+          provider.id,
+          {
+            appointmentTypeId: appointment_type_id,
+            startOnOrAfter: Date.parse(referral.referral_date).to_time(:utc).iso8601,
+            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
+          }
+        )
+      rescue ArgumentError
+        Rails.logger.error('Community Care Appointments: Error fetching provider slots')
+        nil
+      end
+
+      ##
+      # Retrieves the appointment type ID for the first self-schedulable appointment type.
+      #
+      # @param provider [Object] The provider object containing appointment_types
+      # @return [String] The ID of the first self-schedulable appointment type
+      # @raise [Common::Exceptions::BackendServiceException] If provider appointment types are missing
+      #   or no self-schedulable types are available
+      #
+      def get_provider_appointment_type_id(provider)
         # Validate provider appointment types data before accessing it
         if provider.appointment_types.blank?
           raise Common::Exceptions::BackendServiceException.new(
@@ -522,20 +547,30 @@ module VAOS
           )
         end
 
-        appointment_type_id = provider.appointment_types.first[:id]
-        eps_provider_service.get_provider_slots(
-          provider.id,
-          {
-            appointmentTypeId: appointment_type_id,
-            startOnOrAfter: Date.parse(referral.referral_date).to_time.utc.iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time.utc.iso8601
-          }
-        )
-      rescue ArgumentError
-        Rails.logger.error('Error fetching provider slots')
-        nil
+        # Filter for self-schedulable appointment types
+        self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
+
+        if self_schedulable_types.blank?
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
+            {},
+            502,
+            'No self-schedulable appointment types available for this provider'
+          )
+        end
+
+        self_schedulable_types.first[:id]
       end
 
+      ##
+      # Fetches drive time information from the user's residential address to the provider's location.
+      # Uses the EPS provider service to calculate drive times between the current user's address
+      # and the specified provider's coordinates.
+      #
+      # @param provider [Object] The provider object containing location data with latitude and longitude
+      # @return [Object, nil] Drive time response object from EPS service, or nil if user address
+      #   coordinates are not available
+      #
       def fetch_drive_times(provider)
         user_address = current_user.vet360_contact_info&.residential_address
 
@@ -609,7 +644,7 @@ module VAOS
       # @return [void]
       # @see Redis::BaseError
       def handle_redis_error(error)
-        Rails.logger.error("Redis error: #{error.message}")
+        Rails.logger.error("Community Care Appointments: #{error.class}}")
         render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
@@ -714,6 +749,7 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
+        Rails.logger.error("Community Care Appointments: Appointment creation error: #{e.class}")
         original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
         render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
@@ -814,7 +850,7 @@ module VAOS
         return unless start_time
 
         duration_ms = ((Time.current.to_f - start_time) * 1000).round
-        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms)
+        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms, tags: ['Community Care Appointments'])
       end
     end
   end
