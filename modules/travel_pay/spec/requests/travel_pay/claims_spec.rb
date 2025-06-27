@@ -50,6 +50,24 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           expect(claim_ids).to eq(expected_claim_ids)
         end
       end
+
+      # 206_search_claims_partial_response
+      it 'responds with 206 when part of the claim retrieval fails' do
+        params = { 'start_date' => '2025-03-01T00.00.00Z', 'end_date' => '2025-01-01T00.00.00Z' }
+
+        VCR.use_cassette('travel_pay/206_search_claims_partial_response', match_requests_on: %i[method path]) do
+          get '/travel_pay/v0/claims', params:, headers: { 'Authorization' => 'Bearer vagov_token' }
+          expect(response).to have_http_status(:partial_content)
+          claim_ids = JSON.parse(response.body)['data'].pluck('id')
+          claim_meta = JSON.parse(response.body)['metadata']
+
+          expect(claim_meta['totalRecordCount']).to eq(3)
+          expect(claim_meta['pageNumber']).to eq(2)
+          expect(claim_meta['status']).to eq(206)
+
+          expect(claim_ids.size).to eq(2)
+        end
+      end
     end
   end
 

@@ -44,16 +44,20 @@ module TravelPay
       }.merge!(date_range)
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
+      # TODO: add timing for looping
+      # #start timer
+
       all_claims = loop_and_paginate_claims(loop_params, veis_token, btsss_token)
+      # end timer
 
       {
         metadata: {
           # TODO: Determine if we need these additional metadata fields
 
-          # 'status' => faraday_response.body['statusCode'],
+          'status' => all_claims[:status], # for partial content == 206
           # 'success' => faraday_response.body['success'],
           # 'message' => faraday_response.body['message'],
-          # 'pageNumber' => faraday_response.body['pageNumber'],
+          'pageNumber' => all_claims[:page_number], # partial, got through page 2, so pick up on page 3
           # 'pageSize' => faraday_response.body['pageSize'],
           'totalRecordCount' => all_claims[:total_record_count]
         },
@@ -179,34 +183,33 @@ module TravelPay
     # Disabled method length for now due to error handling adding extra lines
     # Once we refactor all Travel Pay services for better error handling we can adjust the length here
     def loop_and_paginate_claims(params, veis_token, btsss_token) # rubocop:disable Metrics/MethodLength
-      page_number = 1
+      page_number = params['page_number'] || 1
       all_claims = []
       total_record_count = 0
 
-      loop do
-        client_params = params.merge!({ page_number: })
-        faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
-        total_record_count = faraday_response.body['totalRecordCount'] unless page_number > 1
+      client_params = params.merge!({ page_number: })
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
+      total_record_count = faraday_response.body['totalRecordCount']
+      all_claims.concat(faraday_response.body['data'].deep_dup)
 
-        break unless faraday_response.body['statusCode'] == 200
-
-        claims_page = faraday_response.body['data'].deep_dup
-        all_claims.concat(claims_page)
-
-        break if all_claims.size >= total_record_count
-
+      while all_claims.length < total_record_count
         page_number += 1
+
+        client_params[:page_number] = page_number
+        faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
+
+        all_claims.concat(faraday_response.body['data'])
       end
 
-      { data: all_claims, total_record_count: }
+      { data: all_claims, total_record_count:, page_number:, status: 200 }
     rescue => e
       if all_claims.empty?
         Rails.logger.error(message: "#{e}. Could not retrieve claims by date range.")
         # TODO: replace this with the actual error
         raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Could not retrieve claims.')
       else
-        Rails.logger.error(message: "#{e}. Retrieved some claims, page 1 - page #{page_number}.")
-        { data: all_claims, total_record_count: }
+        Rails.logger.error(message: "#{e}. Retrieved some claims, page 1 - page #{page_number - 1}.")
+        { data: all_claims, total_record_count:, page_number: page_number - 1, status: 206 }
       end
     end
 

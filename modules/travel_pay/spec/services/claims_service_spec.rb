@@ -442,6 +442,8 @@ describe TravelPay::ClaimsService do
       expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
+      expect(claims_by_date[:metadata]['status']).to equal(200)
+      expect(claims_by_date[:metadata]['pageNumber']).to equal(3)
     end
 
     it 'uses all defaults if no params are passed in' do
@@ -465,6 +467,8 @@ describe TravelPay::ClaimsService do
       expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
+      expect(claims_by_date[:metadata]['status']).to equal(200)
+      expect(claims_by_date[:metadata]['pageNumber']).to equal(1)
     end
 
     it 'returns a single claim if dates are the same' do
@@ -575,6 +579,8 @@ describe TravelPay::ClaimsService do
                                                          })
       expect(claims_by_date[:data].count).to equal(1)
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
+      expect(claims_by_date[:metadata]['pageNumber']).to equal(1)
+      expect(claims_by_date[:metadata]['status']).to equal(206)
     end
   end
 

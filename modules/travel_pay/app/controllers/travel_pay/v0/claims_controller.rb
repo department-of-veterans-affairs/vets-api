@@ -7,7 +7,7 @@ module TravelPay
 
       def index
         claims = claims_service.get_claims_by_date_range(params)
-        render json: claims, status: :ok
+        render json: claims, status: claims[:metadata]['status']
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
       rescue Faraday::Error => e

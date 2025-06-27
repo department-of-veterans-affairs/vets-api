@@ -30,6 +30,14 @@ module Swagger
             key :type, :string
           end
 
+          parameter do
+            key :name, 'page_number'
+            key :in, :query
+            key :description, 'Optional page number to start looping on.'
+            key :required, false
+            key :type, :integer
+          end
+
           response 200 do
             key :description, 'Successfully retrieved claims for a user with pagination information'
 
@@ -43,10 +51,10 @@ module Swagger
               property :metadata do
                 key :type, :object
                 # TODO: Determine if we need the rest of these metadata fields
-                # property :status, type: :integer, example: 200
+                property :status, type: :integer, example: 200
                 # property :success, type: :boolean, example: true
                 # property :message, type: :string, example: 'Data retrieved successfully'
-                # property :pageNumber, type: :integer, example: 1
+                property :pageNumber, type: :integer, example: 1
                 # property :pageSize, type: :integer, example: 10
                 property :totalRecordCount, type: :integer, example: 85
               end
