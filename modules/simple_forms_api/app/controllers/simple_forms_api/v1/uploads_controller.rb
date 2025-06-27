@@ -151,13 +151,11 @@ module SimpleFormsApi
         )
 
         if status == 200
-          begin
-            send_confirmation_email(parsed_form_data, confirmation_number)
-          rescue => e
-            Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
-          end
+          send_confirmation_email_safely(parsed_form_data, confirmation_number)
 
           presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+
+          form.add_vsi_flash if form.respond_to?(:add_vsi_flash) && params[:form_number] == '20-10207'
         end
 
         build_response(confirmation_number, presigned_s3_url, status)
@@ -352,6 +350,12 @@ module SimpleFormsApi
           user: @current_user
         )
         notification_email.send
+      end
+
+      def send_confirmation_email_safely(parsed_form_data, confirmation_number)
+        send_confirmation_email(parsed_form_data, confirmation_number)
+      rescue => e
+        Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
       end
     end
   end
