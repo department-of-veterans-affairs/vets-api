@@ -442,7 +442,7 @@ describe TravelPay::ClaimsService do
                                                          })
 
       expect(Rails.logger).to have_received(:info).with(
-        message: /Looped through claims in/i
+        message: /Looped through 3 claims in/i
       )
       expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
@@ -474,6 +474,9 @@ describe TravelPay::ClaimsService do
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
       expect(claims_by_date[:metadata]['status']).to equal(200)
       expect(claims_by_date[:metadata]['pageNumber']).to equal(1)
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 3 claims in/i
+      )
     end
 
     it 'returns a single claim if dates are the same' do
@@ -487,6 +490,9 @@ describe TravelPay::ClaimsService do
                                                          })
 
       expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 1 claims in/i
+      )
     end
 
     it 'throws an Argument exception if both start and end dates are not provided' do
@@ -515,6 +521,9 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(0)
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(0)
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 0 claims in/i
+      )
     end
 
     it 'raises an exception if error and no claims returned' do
@@ -587,6 +596,9 @@ describe TravelPay::ClaimsService do
                                                          })
       expect(Rails.logger).to have_received(:error).with(
         message: /Retrieved some claims/i
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 1 claims in/i
       )
       expect(claims_by_date[:data].count).to equal(1)
       expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)

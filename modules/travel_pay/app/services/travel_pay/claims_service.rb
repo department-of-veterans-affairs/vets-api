@@ -42,7 +42,7 @@ module TravelPay
       start_time = Time.current
       all_claims = loop_and_paginate_claims(loop_params, veis_token, btsss_token)
       elapsed_time = Time.current - start_time
-      Rails.logger.info(message: "Looped through claims in #{elapsed_time} seconds.")
+      Rails.logger.info(message: "Looped through #{all_claims[:data].size} claims in #{elapsed_time} seconds.")
 
       {
         metadata: {
