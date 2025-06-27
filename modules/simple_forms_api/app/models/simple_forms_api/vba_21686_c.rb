@@ -15,7 +15,7 @@ module SimpleFormsApi
 
     def submission_date_stamps(timestamp = Time.current)
       [
-        date_box_stamp(710, 'Submitted Via: Authorized Representative'),
+        date_box_stamp(710, 'Submitted Via: Accredited Representative'),
         date_box_stamp(695, 'Portal on VA.gov'),
         date_box_stamp(680, "#{timestamp.utc.strftime('%I:%M %p')} UTC #{timestamp.utc.strftime('%Y-%m-%d')}"),
         date_box_stamp(665, 'Signee signed with an identity-verified'),
