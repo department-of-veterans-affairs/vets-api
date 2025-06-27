@@ -7,7 +7,7 @@ class SavedClaim::EducationBenefits::VA10297 < SavedClaim::EducationBenefits
     return unless Flipper.enabled?(:form10297_confirmation_email)
 
     parsed_form_data ||= JSON.parse(form)
-    email = parsed_form_data['emailAddress']
+    email = parsed_form_data['contactInfo']['emailAddress']
 
     return if email.blank?
 
@@ -17,11 +17,7 @@ class SavedClaim::EducationBenefits::VA10297 < SavedClaim::EducationBenefits
   private
 
   def send_confirmation_email(parsed_form_data, email)
-    email_template = if parsed_form_data['appliedForVaEducationBenefits']
-                       Settings.vanotify.services.va_gov.template_id.form10297_confirmation_email
-                     else
-                       Settings.vanotify.services.va_gov.template_id.form10297_extra_action_confirmation_email
-                     end
+    email_template = Settings.vanotify.services.va_gov.template_id.form10297_confirmation_email
 
     VANotify::EmailJob.perform_async(
       email,
