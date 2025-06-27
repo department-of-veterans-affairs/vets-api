@@ -2,7 +2,7 @@
 
 module Eps
   class ProviderService < BaseService
-    PAGINATION_TIMEOUT_SECONDS = 60
+    PAGINATION_TIMEOUT_SECONDS = 45
 
     ##
     # Get provider data from EPS
