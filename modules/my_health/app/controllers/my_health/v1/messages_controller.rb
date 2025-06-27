@@ -134,7 +134,7 @@ module MyHealth
       end
 
       def any_file_too_large
-        Array(@upload_params[:uploads]).any? { |upload| upload.size > 4.megabytes }
+        Array(@upload_params[:uploads]).any? { |upload| upload.size > 6.megabytes }
       end
 
       def total_size_too_large
