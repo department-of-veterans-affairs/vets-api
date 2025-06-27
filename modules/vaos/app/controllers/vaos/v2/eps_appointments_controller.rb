@@ -6,7 +6,6 @@ module VAOS
       STATSD_KEY = 'api.vaos.eps_appointment_detail.access'
 
       def show
-
         appointment = appointment_service.get_appointment(
           appointment_id: eps_appointment_id,
           retrieve_latest_details: true
