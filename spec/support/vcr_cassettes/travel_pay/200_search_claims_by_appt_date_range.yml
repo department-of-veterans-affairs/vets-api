@@ -98,9 +98,12 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{
-       "statusCode": 200,
-        "message": "nice job everyone",
+        "totalRecordCount": 3,
+        "statusCode": 200,
+        "pageNumber": 1,
+        "pageSize": 50,
         "success": true,
+        "message": "nice job everyone",
         "data": [
           {
             "id": "claim_id_1",

@@ -15,17 +15,45 @@ module Swagger
 
           parameter :authorization
           parameter do
-            key :name, 'appt_datetime'
+            key :name, 'start_date'
             key :in, :query
-            key :description, 'Filter claim by appt datetimes. Invalid dates return all claims.'
+            key :description, 'The start date of the date range. Defaults to 3 months ago.'
             key :required, false
             key :type, :string
           end
 
+          parameter do
+            key :name, 'end_date'
+            key :in, :query
+            key :description, 'The end date of the date range. Defaults to today.'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'page_number'
+            key :in, :query
+            key :description, 'Page number to start pagination on. Defaults to 1.'
+            key :required, false
+            key :type, :integer
+          end
+
           response 200 do
-            key :description, 'Successfully retrieved claims for a user'
+            key :description, 'Successfully retrieved claims for a user with pagination information'
+
             schema do
-              key :$ref, :TravelPayClaims
+              property :data do
+                key :type, :array
+                items do
+                  key :$ref, :TravelPayClaimSummary
+                end
+              end
+              property :metadata do
+                key :type, :object
+                property :status, type: :integer, example: 200
+                property :pageNumber, type: :integer, example: 1
+                property :totalRecordCount, type: :integer, example: 85
+              end
             end
           end
 
