@@ -59,6 +59,10 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
           "#{described_class::STATSD_KEY}.failure",
           tags: ['Community Care Appointments']
         )
+        expect(StatsD).to have_received(:increment).with(
+          described_class::STATSD_NOTIFY_SILENT_FAILURE,
+          tags: described_class::STATSD_CC_SILENT_FAILURE_TAGS
+        )
         expect(Rails.logger).to have_received(:error).with(
           'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
           {

@@ -22,6 +22,11 @@ module Eps
     # is back up.
     sidekiq_options retry: 14
     STATSD_KEY = 'api.vaos.appointment_status_email_job'
+    STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
+    STATSD_CC_SILENT_FAILURE_TAGS = [
+      'service:vaos',
+      'function: Community Care Appointment Status Notification Failure'
+    ].freeze
 
     ##
     # Main job execution method that processes appointment status email notifications.
@@ -87,6 +92,7 @@ module Eps
       if permanent
         StatsD.increment("#{STATSD_KEY}.failure",
                          tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"])
+        StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
       else
         raise error
       end
