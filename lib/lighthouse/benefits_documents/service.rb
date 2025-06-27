@@ -62,6 +62,12 @@ module BenefitsDocuments
       handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/download')
     end
 
+    def validate_claimant_can_upload(document_data)
+      config.claimant_can_upload_document(document_data)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/documents/validate/claimant')
+    end
+
     private
 
     def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength
@@ -80,6 +86,8 @@ module BenefitsDocuments
       Rails.logger.info('participant_id present?', @user.participant_id.present?)
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
+      validate_claimant_can_upload(document_data)
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
