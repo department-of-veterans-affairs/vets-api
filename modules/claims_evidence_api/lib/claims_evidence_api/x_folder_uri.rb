@@ -12,6 +12,9 @@ module ClaimsEvidenceApi
     # validate, conform, and create the identifier to be used
     # @see TYPES
     #
+    # Header Format: folder-type:identifier-type:ID
+    # eg. VETERAN:FILENUMBER:987267855
+    #
     # @param folder_type [String] the folder type
     # @param identifier_type [String] the identifier type
     # @param id [String|Number] the identifier type value
@@ -36,8 +39,6 @@ module ClaimsEvidenceApi
       folder_type, identifier_type, id = folder_identifier.split(':', 3)
       generate(folder_type, identifier_type, id)
     end
-
-    private
 
     # validate the folder_type
     #

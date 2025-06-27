@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'validation/field'
+require 'claims_evidence_api/validation/field'
+require 'claims_evidence_api/x_folder_uri'
 
 module ClaimsEvidenceApi
-  # base validation module
+  # Validations to be used with ClaimsEvidence API requests
   module Validation
+    # ClaimsEvidenceApi::XFolderUri#validate
+    def validate_folder_identifier(folder_identifier)
+      ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
+    end
+
     # validate a field value against a set of validations
     # @see ClaimsEvidenceApi::Validation::BaseField
     #
@@ -23,7 +29,7 @@ module ClaimsEvidenceApi
       ClaimsEvidenceApi::Validation::BaseField.new(type:, **validations).validate(value)
     end
 
-    # end Validations
+    # end Validation
   end
 
   # end ClaimsEvidenceApi

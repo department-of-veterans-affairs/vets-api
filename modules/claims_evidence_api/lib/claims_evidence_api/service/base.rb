@@ -19,24 +19,15 @@ module ClaimsEvidenceApi
 
       attr_reader :x_folder_uri
 
+      # directly assign a folder identifier; value is split and sent through #x_folder_uri_set
       def x_folder_uri=(folder_identifier)
         folder_identifier = ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
         folder_type, identifier_type, id = folder_identifier.split(':', 3)
         x_folder_uri_set(folder_type, identifier_type, id)
       end
 
-      # The Folder identifier to associate with a request
-      # > Header Format: folder-type:identifier-type:ID
-      # > Valid Folder-Types:
-      # > * VETERAN - Allows: FILENUMBER, SSN, PARTICIPANT_ID, SEARCH, ICN and EDIPI
-      # > * PERSON - Allows: PARTICIPANT_ID, SEARCH
-      # > eg. VETERAN:FILENUMBER:987267855
-      #
-      # @param folder_type [String] folder-type
-      # @param identifier_type [String] indentifier-type; dependent on folder-type
-      # @param id [String] ID
-      #
-      # @return [String] combined identifer to be used in the request header
+      # set the folder identifier that the file will be associated to
+      # @see ClaimsEvidenceApi::XFolderUri#generate
       def x_folder_uri_set(folder_type, identifier_type, id)
         @x_folder_uri = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
       end
