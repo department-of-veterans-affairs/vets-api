@@ -313,4 +313,33 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       end
     end
   end
+
+  describe '#add_vsi_flash' do
+    let(:data) { {} }
+    let(:form) { described_class.new(data) }
+    let(:vsi_service) { instance_double(SimpleFormsApi::VsiFlashService) }
+
+    before do
+      allow(SimpleFormsApi::VsiFlashService).to receive(:new).and_return(vsi_service)
+    end
+
+    it 'returns early when VSI_SI is falsey' do
+      expect(SimpleFormsApi::VsiFlashService).not_to receive(:new)
+      form.add_vsi_flash
+    end
+
+    it 'calls service when VSI_SI is true' do
+      data['other_reasons'] = { 'VSI_SI' => true }
+      expect(vsi_service).to receive(:add_flash_to_bgs)
+      form.add_vsi_flash
+    end
+
+    it 'handles errors gracefully' do
+      data['other_reasons'] = { 'VSI_SI' => true }
+      allow(vsi_service).to receive(:add_flash_to_bgs).and_raise(StandardError, 'BGS error')
+      expect(Rails.logger).to receive(:error).with('Simple forms api - error adding VSI flash',
+                                                   error: instance_of(StandardError))
+      expect { form.add_vsi_flash }.not_to raise_error
+    end
+  end
 end
