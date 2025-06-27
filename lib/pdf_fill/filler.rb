@@ -22,7 +22,10 @@ require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
+require 'pdf_fill/forms/va2210215a'
+require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'utilities/date_parser'
+require 'forwardable'
 
 # rubocop:disable Metrics/ModuleLength
 module PdfFill
@@ -73,7 +76,8 @@ module PdfFill
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-10216' => PdfFill::Forms::Va2210216,
-      '22-10215' => PdfFill::Forms::Va2210215
+      '22-10215' => PdfFill::Forms::Va2210215,
+      '22-10215a' => PdfFill::Forms::Va2210215a
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -147,6 +151,11 @@ module PdfFill
     #
     # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
+      # Handle 22-10215 overflow with continuation sheets
+      if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
+        return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      end
+
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
@@ -177,6 +186,27 @@ module PdfFill
       output
     end
     # rubocop:enable Metrics/MethodLength
+
+    ##
+    # Processes 22-10215 forms with continuation sheets for overflow programs.
+    #
+    # @param form_id [String] The form ID (should be '22-10215').
+    # @param form_data [Hash] The data to fill in the form.
+    # @param form_class [Class] The class associated with the form ID.
+    # @param file_name_extension [String] The file name extension for the output PDF.
+    # @param fill_options [Hash] Options for filling the form.
+    #
+    # @return [String] The path to the combined PDF form.
+    #
+    def process_form_with_continuation_sheets(_form_id, form_data, _form_class, file_name_extension, fill_options = {})
+      processor = PdfFill::Processors::VA2210215ContinuationSheetProcessor.new(
+        form_data,
+        file_name_extension,
+        fill_options,
+        self
+      )
+      processor.process
+    end
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
       extras_generator =
