@@ -90,8 +90,7 @@ module Eps
       )
 
       if permanent
-        StatsD.increment("#{STATSD_KEY}.failure",
-                         tags: ["user_uuid:#{user_uuid}", "appointment_id_last4:#{appointment_id_last4}"])
+        StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
         StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
       else
         raise error

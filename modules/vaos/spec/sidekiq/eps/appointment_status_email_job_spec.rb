@@ -208,7 +208,11 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
   def check_statsd_failure_increment(uuid, last4)
     expect(StatsD).to have_received(:increment).with(
       "#{described_class::STATSD_KEY}.failure",
-      tags: ["user_uuid:#{uuid}", "appointment_id_last4:#{last4}"]
+      tags: ['Community Care Appointments']
+    )
+    expect(StatsD).to have_received(:increment).with(
+      described_class::STATSD_NOTIFY_SILENT_FAILURE,
+      tags: described_class::STATSD_CC_SILENT_FAILURE_TAGS
     )
   end
 end
