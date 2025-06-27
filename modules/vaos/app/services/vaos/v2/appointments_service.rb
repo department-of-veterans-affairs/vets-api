@@ -950,7 +950,8 @@ module VAOS
 
       # This should be called after set_type has been called
       def schedulable?(appointment)
-        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment) || cc?(appointment)
+        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
+        return appointment[:type] == APPOINTMENT_TYPES[:cc_request] if cc?(appointment)
         return true if appointment[:type] == APPOINTMENT_TYPES[:request]
         if appointment[:type] == APPOINTMENT_TYPES[:va] &&
            SCHEDULABLE_SERVICE_TYPES.include?(appointment[:service_type])
