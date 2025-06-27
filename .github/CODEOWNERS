@@ -167,7 +167,7 @@ app/models/audit/ @department-of-veterans-affairs/octo-identity
 app/models/average_days_for_claim_completion.rb @department-of-veterans-affairs/benefits-microservices @department-of-veterans-affairs/backend-review-group
 app/models/bgs_dependents @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/models/bgs_dependents_v2 @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
-app/models/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+app/models/bpds @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 app/models/category.rb @department-of-veterans-affairs/backend-review-group
 app/models/central_mail_claim.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/models/central_mail_submission.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -935,7 +935,7 @@ lib/va_profile/profile/v3/service.rb @department-of-veterans-affairs/vfs-authent
 lib/va1010_forms @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/vbs @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/veteran_enrollment_system @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
-lib/veteran_facing_services @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+lib/veteran_facing_services @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 lib/vetext @department-of-veterans-affairs/mobile-api-team
 lib/vets @department-of-veterans-affairs/backend-review-group
 lib/vic @department-of-veterans-affairs/octo-identity
@@ -952,7 +952,7 @@ modules/apps_api @department-of-veterans-affairs/lighthouse-pivot @department-of
 modules/ask_va_api @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 modules/avs @department-of-veterans-affairs/after-visit-summary @department-of-veterans-affairs/backend-review-group
 modules/banners @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
-modules/burials @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+modules/burials @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
 modules/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 modules/claims_api @department-of-veterans-affairs/lighthouse-dash
 modules/claims_evidence_api @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
@@ -1442,7 +1442,7 @@ spec/models/async_transaction/vet360 @department-of-veterans-affairs/vfs-authent
 spec/models/audit/ @department-of-veterans-affairs/octo-identity
 spec/models/bgs_dependents @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/models/bgs_dependents_v2 @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
-spec/models/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+spec/models/bpds @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 spec/models/category_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/models/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 spec/models/decision_review_notification_audit_log_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
