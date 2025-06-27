@@ -110,7 +110,7 @@ module Eps
         handle_appointment_response(response, retry_count)
       rescue
         Rails.logger.error('Community Care Appointments: EpsAppointmentJob failed to get appointment status',
-                           { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4})
+                           { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4 })
         StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['Community Care Appointments'])
         send_vanotify_message(error: ERROR_MESSAGE)
       end
