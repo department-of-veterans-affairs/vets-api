@@ -67,7 +67,6 @@ describe UnifiedHealthData::Service, type: :service do
           )
         end
       end
-      end
 
       context 'when Flipper is disabled for both codes' do
         it 'filters out labs/tests' do
@@ -830,33 +829,39 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#fetch_combined_records' do
-    context 'when body is nil' do
-      it 'returns an empty array' do
-        result = service.send(:fetch_combined_records, nil)
+    describe '#fetch_combined_records' do
+      context 'when body is nil' do
+        it 'returns an empty array' do
+          result = service.send(:fetch_combined_records, nil)
 
-        expect(result).to eq([])
+          expect(result).to eq([])
+        end
       end
     end
-      record = {
-        'resource' => {
-          'contained' => [
-            { 'resourceType' => 'OtherType' }
-          ],
-          'code' => { 'text' => 'Fallback Test' }
+    
+    describe '#fetch_display' do
+      it 'uses code.text if ServiceRequest is not found' do
+        record = {
+          'resource' => {
+            'contained' => [
+              { 'resourceType' => 'OtherType' }
+            ],
+            'code' => { 'text' => 'Fallback Test' }
+          }
         }
-      }
-      expect(service_instance.send(:fetch_display, record)).to eq('Fallback Test')
-    end
+        expect(service.send(:fetch_display, record)).to eq('Fallback Test')
+      end
 
-    it 'returns empty string if neither ServiceRequest nor code.text is present' do
-      record = {
-        'resource' => {
-          'contained' => [
-            { 'resourceType' => 'OtherType' }
-          ]
+      it 'returns empty string if neither ServiceRequest nor code.text is present' do
+        record = {
+          'resource' => {
+            'contained' => [
+              { 'resourceType' => 'OtherType' }
+            ]
+          }
         }
-      }
-      expect(service_instance.send(:fetch_display, record)).to eq('')
+        expect(service.send(:fetch_display, record)).to eq('')
+      end
     end
   end
 end

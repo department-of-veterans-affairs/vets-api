@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unified_health_data/service'
+require 'unified_health_data/models/lab_or_test'
 
 RSpec.describe UnifiedHealthData::Service do
   describe '#log_test_code_distribution' do
