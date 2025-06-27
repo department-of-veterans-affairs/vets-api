@@ -512,10 +512,8 @@ module SM
 
     ##
     # Retrieve a message attachment
-    # Endpoint returns either a binary file response or a AWS S3 URL
-    # depending on attachment upload method.
-    # If the response is a URL, it will fetch the file from that URL.
-    # This is useful for large attachments that exceed the
+    # Endpoint returns either a binary file response or a AWS S3 URL depending on attachment upload method.
+    # If the response is a URL, it will fetch the file from that URL.This is useful for large attachments that exceed the
     # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
@@ -525,10 +523,9 @@ module SM
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
       response = perform(:get, path, nil, token_headers)
-      data = response.body[:data]
+      data = response.body[:data] if response.body.is_a?(Hash)
 
-      # If response body is a string and looks like a URL, fetch the file from the URL
-      if data.is_a?(String) && data.match?(%r{^https?://})
+      if data.is_a?(String) && data.match?(%r{^https?://})  # If response body is a string and looks like a URL, fetch the file from the URL
         url = data
         uri = URI.parse(url)
         file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -540,9 +537,8 @@ module SM
         end
         filename = uri.path.split('/').last
         { body: file_response.body, filename: }
-      else
-        # Default: treat as binary file response
-        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
+      else # Default: treat as binary file response
+        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '') 
         { body: response.body, filename: }
       end
     end
