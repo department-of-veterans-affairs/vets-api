@@ -113,15 +113,16 @@ module VAOS
       # @raise [StandardError] For any unexpected errors during submission
       #
       def submit_referral_appointment
-        params = submit_params
-        appointment = eps_appointment_service.submit_appointment(
-          params[:id],
-          { referral_number: params[:referral_number],
-            network_id: params[:network_id],
-            provider_service_id: params[:provider_service_id],
-            slot_ids: [params[:slot_id]],
-            additional_patient_attributes: patient_attributes(params) }
-        )
+        submit_args = { referral_number: submit_params[:referral_number],
+                        network_id: submit_params[:network_id],
+                        provider_service_id: submit_params[:provider_service_id],
+                        slot_ids: [submit_params[:slot_id]] }
+
+        if patient_attributes(submit_params).present?
+          submit_args[:additional_patient_attributes] = patient_attributes(submit_params)
+        end
+
+        appointment = eps_appointment_service.submit_appointment(submit_params[:id], submit_args)
 
         if appointment[:error]
           StatsD.increment(APPT_CREATION_FAILURE_METRIC,
@@ -129,7 +130,7 @@ module VAOS
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
-        log_referral_booking_duration(params[:referral_number])
+        log_referral_booking_duration(submit_params[:referral_number])
 
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
         render json: { data: { id: appointment.id } }, status: :created
@@ -451,7 +452,7 @@ module VAOS
           name: {
             family: params.dig(:name, :family),
             given: params.dig(:name, :given)
-          },
+          }.compact.presence,
           phone: params[:phone_number],
           email: params[:email],
           birth_date: params[:birth_date],
@@ -463,8 +464,8 @@ module VAOS
             country: params.dig(:address, :country),
             postal_code: params.dig(:address, :postal_code),
             type: params.dig(:address, :type)
-          }
-        }
+          }.compact.presence
+        }.compact
       end
 
       ##
