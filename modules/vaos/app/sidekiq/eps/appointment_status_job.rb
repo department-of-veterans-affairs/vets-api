@@ -83,11 +83,13 @@ module Eps
     # @return [void]
     #
     def log_missing_redis_data(appointment_data)
-      Rails.logger.error('EpsAppointmentJob missing or incomplete Redis data',
+      Rails.logger.error('Community Care Appointments: EpsAppointmentJob missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
                            appointment_data: }.to_json)
       StatsD.increment("#{STATSD_PREFIX}.failure",
-                       tags: ["user_uuid: #{@user_uuid}", "appointment_id_last4: #{@appointment_id_last4}"])
+                       tags: ['Community Care Appointments',
+                              "user_uuid: #{@user_uuid}",
+                              "appointment_id_last4: #{@appointment_id_last4}"])
     end
 
     ##
@@ -108,7 +110,7 @@ module Eps
         response = service.get_appointment(appointment_id:)
         handle_appointment_response(response, retry_count)
       rescue
-        Rails.logger.error('EpsAppointmentJob failed to get appointment status',
+        Rails.logger.error('Community Care Appointments: EpsAppointmentJob failed to get appointment status',
                            { user_uuid: @user_uuid,
                              appointment_id_last4: @appointment_id_last4,
                              appointment_id: })
