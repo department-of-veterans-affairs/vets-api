@@ -321,7 +321,6 @@ module VAProfile
 
         def get_transaction_status(path, response_class)
           with_monitoring do
-            verify_user!
             raw_response = perform(:get, path)
             VAProfile::Stats.increment_transaction_results(raw_response)
 
