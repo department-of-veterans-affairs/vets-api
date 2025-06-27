@@ -2,8 +2,6 @@
 
 module Eps
   class ProviderService < BaseService
-    PAGINATION_TIMEOUT_SECONDS = 45
-
     ##
     # Get provider data from EPS
     #
@@ -150,7 +148,7 @@ module Eps
     # @raise [Common::Exceptions::BackendServiceException] If timeout exceeded
     #
     def check_pagination_timeout(start_time, provider_id)
-      timeout_seconds = PAGINATION_TIMEOUT_SECONDS
+      timeout_seconds = config.pagination_timeout_seconds
       return unless Time.current - start_time > timeout_seconds
 
       Rails.logger.error(

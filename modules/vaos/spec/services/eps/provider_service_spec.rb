@@ -22,7 +22,8 @@ describe Eps::ProviderService do
 
     before do
       allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
-                                        request_types: %i[get put post delete])
+                                        request_types: %i[get put post delete],
+                                        pagination_timeout_seconds: 45)
       allow(service).to receive_messages(config:)
       allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
     end
@@ -200,7 +201,8 @@ describe Eps::ProviderService do
 
       before do
         allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
-                                          request_types: %i[get put post delete])
+                                          request_types: %i[get put post delete],
+                                          pagination_timeout_seconds: 45)
         allow(service).to receive_messages(config:)
         allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
       end
@@ -230,7 +232,8 @@ describe Eps::ProviderService do
 
       before do
         allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
-                                          request_types: %i[get put post delete])
+                                          request_types: %i[get put post delete],
+                                          pagination_timeout_seconds: 45)
         allow(service).to receive_messages(config:)
         allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
       end
@@ -342,7 +345,8 @@ describe Eps::ProviderService do
 
       before do
         allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
-                                          request_types: %i[get put post delete])
+                                          request_types: %i[get put post delete],
+                                          pagination_timeout_seconds: 45)
         allow(service).to receive_messages(config:)
         allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
