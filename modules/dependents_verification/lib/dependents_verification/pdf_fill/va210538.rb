@@ -4,6 +4,7 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'dependents_verification/pdf_fill/sections/section1'
+require 'dependents_verification/pdf_fill/sections/section2'
 
 module DependentsVerification
   module PdfFill
@@ -21,7 +22,7 @@ module DependentsVerification
       TEMPLATE = DependentsVerification::PDF_PATH
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section1].freeze
+      SECTION_CLASSES = [Section1, Section2].freeze
 
       key = {}
 
