@@ -8,6 +8,11 @@ module Eps
   # through StatsD metrics and structured logging.
   class AppointmentStatusNotificationCallback
     STATSD_KEY = 'api.vaos.appointment_status_notification'
+    STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
+    STATSD_CC_SILENT_FAILURE_TAGS = [
+      'service:vaos',
+      'function: Community Care Appointment Status Notification Failure'
+    ].freeze
     FAILURE_STATUSES = %w[permanent-failure temporary-failure technical-failure].freeze
     FAILURE_TYPE_MAP = {
       'permanent-failure' => 'permanent',
@@ -95,6 +100,7 @@ module Eps
     # @return [void]
     def self.handle_failure(notification, base_data)
       StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
+      StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
 
       failure_type = FAILURE_TYPE_MAP[notification.status&.downcase] || 'unknown'
       failure_data = base_data.merge(
