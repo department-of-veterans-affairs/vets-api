@@ -28,10 +28,10 @@ module UnifiedHealthData
         combined_records = fetch_combined_records(body)
         parsed_records = parse_labs(combined_records)
         filtered_records = filter_records(parsed_records)
-        
+
         # Log test code distribution after filtering is applied
         log_test_code_distribution(parsed_records)
-        
+
         filtered_records
       end
     end
@@ -438,16 +438,16 @@ module UnifiedHealthData
         test_code = record.attributes.test_code
         test_code_counts[test_code] += 1 if test_code.present?
       end
-      
+
       # Only log if we have test codes
       return if test_code_counts.empty?
-      
+
       # Sort by frequency (descending)
       sorted_counts = test_code_counts.sort_by { |_, count| -count }
-      
+
       # Format for logging - code:count pairs
       code_count_pairs = sorted_counts.map { |code, count| "#{code}:#{count}" }
-      
+
       # Log the distribution with useful context but no PII
       Rails.logger.info(
         {

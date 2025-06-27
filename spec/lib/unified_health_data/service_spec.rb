@@ -49,16 +49,16 @@ describe UnifiedHealthData::Service, type: :service do
           expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP')
         end
       end
-      
+
       context 'logs test code distribution' do
         it 'logs the test code distribution from parsed records' do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
           allow(Rails.logger).to receive(:info)
-          
+
           service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          
+
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD test code distribution',
@@ -84,24 +84,6 @@ describe UnifiedHealthData::Service, type: :service do
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(1)
           expect(labs.first.attributes.test_code).to eq('CH')
-        end
-      end
-
-      context 'logs test code distribution' do
-        it 'logs the test code distribution from parsed records' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
-          
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD test code distribution',
-              service: 'unified_health_data'
-            )
-          )
         end
       end
     end
@@ -838,7 +820,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
     end
-    
+
     describe '#fetch_display' do
       it 'uses code.text if ServiceRequest is not found' do
         record = {
