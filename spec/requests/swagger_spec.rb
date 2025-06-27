@@ -3354,7 +3354,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[host path method]) do
+        VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/v0/claims', 200, headers)
         end
       end

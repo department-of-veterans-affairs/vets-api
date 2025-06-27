@@ -25,13 +25,11 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
 
       it 'responds with 200 when no params passed in' do
-        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
+        VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
           get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response).to have_http_status(:ok)
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
           claim_meta = JSON.parse(response.body)['metadata']
-          expect(claim_meta['pageSize']).to eq(50)
-          expect(claim_meta['pageNumber']).to eq(1)
           expect(claim_meta['totalRecordCount']).to eq(3)
 
           expect(claim_ids).to eq(expected_claim_ids)
@@ -39,17 +37,13 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
 
       it 'responds with 200 when page size or page number is passed in' do
-        params = { 'page_size' => 10, 'page_number' => 2 }
+        params = { 'start_date' => '2025-03-01T00.00.00Z', 'end_date' => '2025-01-01T00.00.00Z' }
 
-        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
+        VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
           get '/travel_pay/v0/claims', params:, headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response).to have_http_status(:ok)
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
           claim_meta = JSON.parse(response.body)['metadata']
-          # the VCR cassette has 50 and 1 hardcoded for this return value
-          # so we're just checking that it exists, not validating that the value matches what we passed in
-          expect(claim_meta['pageSize']).to eq(50)
-          expect(claim_meta['pageNumber']).to eq(1)
 
           expect(claim_meta['totalRecordCount']).to eq(3)
 

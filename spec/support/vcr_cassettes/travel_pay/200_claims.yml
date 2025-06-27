@@ -203,7 +203,7 @@ http_interactions:
       encoding: ASCII-8BIT
       string: '{
         "totalRecordCount": 3,
-        "statusCode": "200",
+        "statusCode": 200,
         "pageNumber": 1,
         "pageSize": 50,
         "success": true,
