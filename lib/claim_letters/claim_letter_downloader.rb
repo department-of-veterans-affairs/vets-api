@@ -34,7 +34,6 @@ module ClaimStatusTool
     end
 
     def get_letter(document_id)
-      # metadata about the letter
       letter_details = get_letter_details(document_id)
 
       if letter_details.nil? || filter_letters(letter_details).nil?
