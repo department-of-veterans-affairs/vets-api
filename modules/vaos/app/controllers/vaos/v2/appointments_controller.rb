@@ -830,7 +830,7 @@ module VAOS
 
         slots = fetch_provider_slots(referral, provider)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        # Bypass drive time calculation if EPS mocks are enabled since we can't betamock vets360
+        # Bypass drive time calculation if EPS mocks are enabled since we don't have betamocks for vets360
         drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
 
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }

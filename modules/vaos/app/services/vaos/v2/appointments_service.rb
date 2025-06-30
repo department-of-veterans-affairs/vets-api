@@ -102,7 +102,7 @@ module VAOS
       #   - { exists: true } if an appointment with the given referral exists,
       #   - { exists: false } if no appointment with the referral is found.
       def referral_appointment_already_exists?(referral_id, pagination_params = {})
-        # Bypass VAOS call if EPS mocks are enabled since we can't betamock it
+        # Bypass VAOS call if EPS mocks are enabled since we don't have betamocks for it.
         unless eps_appointments_service.config.mock_enabled?
           vaos_response = get_all_appointments(pagination_params)
           vaos_request_failures = vaos_response[:meta][:failures]
