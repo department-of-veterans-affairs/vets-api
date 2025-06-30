@@ -7,6 +7,7 @@ require 'va_profile/models/v3/validation_address'
 require 'va_profile/v3/address_validation/service'
 
 module RepresentationManagement
+  # This is the second job in a two job process for updating accredited entities.
   # Processes updates for AccreditedIndividual records based on provided JSON data.
   # This class is designed to parse AccreditedIndividual data, validate addresses using an external service,
   # and update records in the database accordingly.
@@ -182,7 +183,8 @@ module RepresentationManagement
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.
     # @param error [Exception] The error string to be logged.
     def log_error(error, send_to_slack: false)
-      message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error}"
+      job_id = self.jid
+      message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error} (Job ID: #{job_id})"
       Rails.logger.error(message)
       @slack_messages << "----- #{message}" if send_to_slack
     end
