@@ -20,7 +20,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
     allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_boa_letters, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent).and_return(false)
     allow(Flipper).to receive(:enabled?)
-      .with(:cst_claim_letters_use_lighthouse_api_provider, anything)
+      .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
       .and_return(false)
   end
 

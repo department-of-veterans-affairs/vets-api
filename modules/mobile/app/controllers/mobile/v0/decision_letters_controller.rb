@@ -41,7 +41,7 @@ module Mobile
       end
 
       def service
-        if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
+        if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider_mobile, @current_user)
           return @service = LighthouseClaimLettersProvider.new(@current_user)
         end
 
