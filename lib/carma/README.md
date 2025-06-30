@@ -1,7 +1,9 @@
 # CARMA
+
 CARMA (Caregiver Record Management Application)
 
 ## Description
+
 CARMA is a Salesforce application that the VA's Caregivers Program uses to track and process 10-10CG submissions.
 
 This library is used to submit valid, online, 10-10CG submissions (CaregiversAssistanceClaim) to CARMA. It includes an HTTP client and models that map to the CARMA domain.
@@ -9,58 +11,23 @@ This library is used to submit valid, online, 10-10CG submissions (CaregiversAss
 ## Design
 
 ### CARMA::Models
+
 Used to hold model objects relating to CARMA's domain. More models can be added as the interface with CARMA grows (i.e. CARMA::Models::Case).
 
 ### CARMA::Client
-This is an http client used to communicate with CARMA. It contains configuration and auth behavior needed to interface with the Salesforce app. This is an extension of our internal Salesforce service (lib/salesforce) which also extends Restforce (a ruby package for interfacing with the Salesforce API).
 
-## Example
+#### CARMA::Client::MuleSoftClient
 
-### Simple Submission (with implicit client)
-```
-claim = CaregiversAssistanceClaim.new
+This is the primary HTTP client used to communicate with CARMA via the MuleSoft API. It handles the submission of 10-10CG data to CARMA and includes monitoring, error handling, and response parsing. The client uses a bearer token for authentication, which is obtained through the `MuleSoftAuthTokenClient`.
 
-submission = CARMA::Models::Submission.from_claim(claim)
-submission.metadata = {
-  veteran: {
-    icn: '1234',
-    is_veteran: true
-  }
-}
+#### CARMA::Client::MuleSoftAuthTokenClient
 
-submission.submit!(CARMA::Client::Client.new)
-```
-
-### Submission with Attachments (with explicit client)
-```
-carma_client  = CARMA::Client::Client.new
-claim         = SavedClaim::CaregiversAssistanceClaim.new
-submission    = CARMA::Models::Submission.from_claim(
-                  claim,
-                  {
-                    veteran: {
-                      icn: '1234',
-                      is_veteran: true
-                    }
-                  }
-                )
-
-submission.submit!(carma_client)
-
-attachments = CARMA::Models::Attachments.new(
-  submission.carma_case_id,
-  claim.veteran_data['fullName']['first'],
-  claim.veteran_data['fullName']['last']
-)
-
-attachments.add('10-10CG', 'tmp/pdfs/10-10CG-claim-guid.pdf')
-attachments.add('POA', 'tmp/pdfs/POA-claim-guid.pdf')
-
-attachments.submit!(carma_client) # Pass the same client used for the submission request, so another auth request isn't made
-```
+This client is responsible for obtaining a bearer token from the MuleSoft API. It uses client credentials (client ID and client secret) to authenticate and retrieve the token, which is then used by the `MuleSoftClient` for API requests.
 
 ## Data Contract
+
 ### Submission Request Body
+
 ```
 {
   data: ref([10-10CG Data Schema](https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/dist/10-10CG-schema.json)) as json,
@@ -74,5 +41,7 @@ attachments.submit!(carma_client) # Pass the same client used for the submission
   }
 }
 ```
+
 #### Additional Constraints
+
 - If Veteran's status cannot be confirmed as true, icn must be sent as null.
