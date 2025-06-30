@@ -68,6 +68,7 @@ gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1
 gem 'csv'
 gem 'datadog'
 gem 'date_validator'
+gem 'docx'
 gem 'dogstatsd-ruby'
 gem 'dry-struct'
 gem 'dry-types'
