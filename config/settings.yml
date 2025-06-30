@@ -1321,8 +1321,8 @@ vanotify:
           flipper_id: income_and_assets_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21p_0969__email__submitted__template_id'] %>
         persistent_attachment_error:
-          flipper_id: income_and_assetsl_persistent_attachment_error_email_notification
-          template_id: <%= ENV['vanotify__services__21p_0969__email__persistent_attachment_error__template_id'] %>
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: vanotify__services__21p_0969__email__persistent_attachment_error__template_id
     21p_527ez: &vanotify_services_pension
       api_key: <%= ENV['vanotify__services__21p_527ez__api_key'] %>
       email:
@@ -1340,7 +1340,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_527ez__email__submitted__template_id'] %>
         persistent_attachment_error:
           flipper_id: pension_persistent_attachment_error_email_notification
-          template_id: <%= ENV['vanotify__services__21p_527ez__email__persistent_attachment_error__template_id'] %>
+          template_id: vanotify__services__21p_527ez__email__persistent_attachment_error__template_id
     21p_530ez: &vanotify_services_burial
       api_key: <%= ENV['vanotify__services__21p_530ez__api_key'] %>
       email:
@@ -1358,7 +1358,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_530ez__email__submitted__template_id'] %>
         persistent_attachment_error:
           flipper_id: burial_persistent_attachment_error_email_notification
-          template_id: <%= ENV['vanotify__services__21p_530ez__email__persistent_attachment_error__template_id'] %>
+          template_id: vanotify__services__21p_530ez__email__persistent_attachment_error__template_id
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
     benefits_decision_review:

@@ -59,14 +59,5 @@ module PersistentAttachments
         form_data.send(form_key).reject! { |att| att.confirmationCode == attachment.guid }
       end
     end
-
-    # Sends a notification email related to a claim event.
-    # Subclasses can override this method to provide custom email functionality
-    #
-    # @param claim [SavedClaim]
-    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
-    def send_email(claim)
-      claim.send_email(claim&.id, :persistent_attachment_error) if claim.respond_to?(:send_email)
-    end
   end
 end

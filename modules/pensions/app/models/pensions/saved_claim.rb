@@ -89,8 +89,8 @@ module Pensions
     ##
     # Class name for notification email
     # @return [Class]
-    def send_email(claim_id, email_type)
-      Pensions::NotificationEmail.new(claim_id).deliver(email_type)
+    def send_email(email_type)
+      Pensions::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

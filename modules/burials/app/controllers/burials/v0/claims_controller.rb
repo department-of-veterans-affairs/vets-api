@@ -96,10 +96,7 @@ module Burials
         claim.process_attachments!
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
-        if Flipper.enabled?(:burial_persistent_attachment_error_email_notification)
-          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
-          claim.destroy! # Handle deletion of the claim if attachments processing fails
-        end
+        sanitize_attachments(claim, in_progress_form)
         raise e
       end
 
@@ -125,6 +122,28 @@ module Burials
         metadata = in_progress_form.metadata
         metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
         in_progress_form.update(metadata:)
+      end
+
+      ##
+      # Sanitizes attachments for a claim and handles persistent attachment errors.
+      #
+      # This method checks a feature flag to determine if
+      # persistent attachment error handling should be enabled. If enabled, it:
+      #   - Calls the PersistentAttachments::Sanitizer to remove bad attachments and update the in_progress_form.
+      #   - Sends a persistent attachment error email notification if the claim supports it.
+      #   - Destroys the claim if attachment processing fails.
+      #
+      # @param claim [Burials::SavedClaim] The claim whose attachments are being sanitized.
+      # @param in_progress_form [InProgressForm] The in-progress form associated with the claim.
+      # @return [void]
+      def sanitize_attachments(claim, in_progress_form)
+        feature_flag = Settings.vanotify.services['21p_530ez'].email.persistent_attachment_error.flipper_id
+
+        if Flipper.enabled?(feature_flag.to_sym)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.send_email(:persistent_attachment_error) if claim.respond_to?(:send_email)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
       end
 
       ##

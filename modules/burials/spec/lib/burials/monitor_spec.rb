@@ -306,7 +306,7 @@ RSpec.describe Burials::Monitor do
             tags: monitor.tags
           }
 
-          expect(Burials::NotificationEmail).to receive(:new).with(claim).and_return notification
+          expect(Burials::NotificationEmail).to receive(:new).with(claim.id).and_return notification
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(
