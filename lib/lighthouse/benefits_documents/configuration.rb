@@ -183,10 +183,11 @@ module BenefitsDocuments
     ##
     # Validates that a claimant (via participant ID) can upload documents of the
     # given document type for the provided claim ID
-    # 
+    #
     # @return [Faraday::Response] response from POST request
     #
-    def claimant_can_upload_document(document_data, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    def claimant_can_upload_document(document_data, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
+                                     options = {})
       headers = { 'Authorization' => "Bearer #{
           access_token(
             lighthouse_client_id,
