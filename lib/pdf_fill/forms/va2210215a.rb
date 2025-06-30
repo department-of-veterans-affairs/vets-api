@@ -2,7 +2,7 @@
 
 module PdfFill
   module Forms
-    class Va2210215 < FormBase
+    class Va2210215a < FormBase
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -134,16 +134,23 @@ module PdfFill
           question_suffix: 'A',
           question_text: 'DATE SIGNED'
         },
-        'checkbox' => {
-          key: 'checkbox',
-          limit: 10,
+        'pageNumber' => {
+          key: 'pageNumber',
+          limit: 20,
           question_num: 10,
           question_suffix: 'A',
-          question_text: 'EXTENSIONS ATTACHED CHECKBOX'
+          question_text: 'PAGE NUMBER'
+        },
+        'totalPages' => {
+          key: 'totalPages',
+          limit: 10,
+          question_num: 11,
+          question_suffix: 'A',
+          question_text: 'TOTAL PAGES'
         }
       }.freeze
 
-      def merge_fields(_options = {})
+      def merge_fields(options = {})
         # Deep copy to avoid modifying original data
         form_data = JSON.parse(JSON.generate(@form_data))
 
@@ -167,6 +174,12 @@ module PdfFill
             end
           end
         end
+
+        # Handle page numbering for continuation sheets
+        page_number = options[:page_number] || 1
+        total_pages = options[:total_pages] || 1
+        form_data['pageNumber'] = page_number.to_s
+        form_data['totalPages'] = total_pages.to_s
 
         form_data
       end
