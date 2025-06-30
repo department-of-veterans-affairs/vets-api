@@ -36,6 +36,20 @@ FactoryBot.define do
         end
       end
     end
+          
+    trait :with_attachments_for_thread do
+      attachment { true }
+      attachments do
+        Array.new(2) do |i|
+          {
+            :attachment_id => 5565677 + i,
+            :attachment_name => "patientAttach#{i.zero? ? '' : i + 1}.jpg",
+            :attachment_size => 18_609 + (i * 1391),
+            :attachment_mime_type => 'image/jpeg'
+          }
+        end
+      end
+    end
 
     factory :message_thread_details, class: 'MessageThreadDetails' do
       message_id { 123 }
