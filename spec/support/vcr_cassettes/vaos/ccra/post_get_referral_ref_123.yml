@@ -1,0 +1,77 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/care-nav-patient-casey/referrals/123-123456"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer fake-access-token
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      CONTENT-TYPE:
+      - application/json
+      CACHE-CONTROL:
+      - no-cache
+      CONTENT-ENCODING:
+      - gzip
+      CONTENT-LENGTH:
+      - '2850'
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:06:42 GMT
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "categoryOfCare": "UROLOGY",
+          "referralNumber": "ref-123",
+          "status": "Pending",
+          "clinicallyIndicatedDate": "2025-01-01",
+          "episodeId": "123456",
+          "providerNpi": "7894563210",
+          "appointmentTypeId": "ov",
+          "referralExpirationDate": "2025-01-03",
+          "referralDate": "2025-01-01",
+          "treatingFacility": "VA Medical Center",
+          "stationId": "528A6",
+          "treatingProviderInfo": {
+            "providerName": "Dr. Test Provider",
+            "providerNpi": "7894563210",
+            "specialty": "UROLOGY"
+          },
+          "referringFacilityInfo": {
+            "facilityName": "Test Referring Facility",
+            "phone": "555-123-0000",
+            "facilityCode": "528A6",
+            "address": {
+              "address1": "123 Test Street",
+              "city": "Test City",
+              "state": "FL",
+              "zipCode": "12345"
+            }
+          },
+          "treatingFacilityInfo": {
+            "facilityName": "Test Treating Facility",
+            "facilityCode": "528A7",
+            "phone": "555-123-4567",
+            "address": {
+              "address1": "2184 E Irlo Bronson",
+              "city": "Kissimmee",
+              "state": "FL",
+              "zipCode": "34744-4415"
+            }
+          },
+          "appointments": []
+        }
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT 

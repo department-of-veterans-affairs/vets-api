@@ -6,7 +6,8 @@ require 'common/client/configuration/rest'
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
-    delegate :access_token_url, :api_url, :base_path, :grant_type, :scopes, :client_assertion_type, to: :settings
+    delegate :access_token_url, :api_url, :base_path, :grant_type, :scopes, :client_assertion_type,
+             :pagination_timeout_seconds, to: :settings
 
     def settings
       Settings.vaos.eps
