@@ -38,6 +38,16 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/form1010_ezrs/download_pdf' do
+        operation :post do
+          key :description, 'Download a pre-filled 10-10EZR PDF form.'
+          key :operationId, 'postForm1010EzrDownloadPdf'
+          key :tags, %w[benefits_forms]
+
+          parameter :authorization
+        end
+      end
+
       swagger_schema :Form1010EzrSubmissionResponse do
         key :required, %i[formSubmissionId timestamp success]
 

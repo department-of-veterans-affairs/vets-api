@@ -9,14 +9,14 @@ module V0
     before_action :record_submission_attempt, only: :create
 
     def create
-      parsed_form = parse_form(params[:form])
-
       result = Form1010Ezr::Service.new(@current_user).submit_form(parsed_form)
 
       clear_saved_form('10-10EZR')
 
       render(json: result)
     end
+
+    def download_pdf; end
 
     private
 
