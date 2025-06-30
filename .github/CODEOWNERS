@@ -427,7 +427,7 @@ app/sidekiq/account_login_statistics_job.rb @department-of-veterans-affairs/octo
 app/sidekiq/benefits_intake_remediation_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
 app/sidekiq/benefits_intake_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/sidekiq/bgs @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
-app/sidekiq/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+app/sidekiq/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 app/sidekiq/central_mail/submit_form4142_job.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/sidekiq/copay_notifications @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/sidekiq/delete_old_pii_logs_job.rb @department-of-veterans-affairs/backend-review-group
@@ -770,7 +770,7 @@ lib/benefits_intake_service @department-of-veterans-affairs/benefits-dependents-
 lib/bgs @department-of-veterans-affairs/backend-review-group
 lib/bgsv2 @department-of-veterans-affairs/backend-review-group
 lib/bid @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
-lib/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+lib/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 lib/carma @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
 lib/central_mail @department-of-veterans-affairs/backend-review-group
@@ -1091,7 +1091,7 @@ spec/factories/ask.rb @department-of-veterans-affairs/backend-review-group
 spec/factories/async_transactions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/attachments.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/backend-review-group
 spec/factories/audit/ @department-of-veterans-affairs/octo-identity
-spec/factories/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+spec/factories/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 spec/factories/burial_claim.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 spec/factories/caregivers_assistance_claim.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 spec/factories/central_mail_submissions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1269,7 +1269,7 @@ spec/lib/benefits_intake_service @department-of-veterans-affairs/backend-review-
 spec/lib/bgs @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/lib/bgsv2 @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/lib/bid @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
-spec/lib/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+spec/lib/bpds department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 spec/lib/breakers @department-of-veterans-affairs/backend-review-group
 spec/lib/carma @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 spec/lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
@@ -1442,7 +1442,7 @@ spec/models/async_transaction/vet360 @department-of-veterans-affairs/vfs-authent
 spec/models/audit/ @department-of-veterans-affairs/octo-identity
 spec/models/bgs_dependents @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/models/bgs_dependents_v2 @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
-spec/models/bpds @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
+spec/models/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 spec/models/category_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/models/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 spec/models/decision_review_notification_audit_log_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
@@ -1683,7 +1683,7 @@ spec/services/users @department-of-veterans-affairs/octo-identity
 spec/sidekiq/account_login_statistics_job_spec.rb @department-of-veterans-affairs/octo-identity
 spec/sidekiq/benefits_intake_status_job_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/bgs @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
-spec/sidekiq/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+spec/sidekiq/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/central_mail/submit_career_counseling_job_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/central_mail/submit_central_form686c_job_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
 spec/sidekiq/central_mail/submit_form4142_job_spec.rb @department-of-veterans-affairs/backend-review-group
