@@ -280,7 +280,7 @@ module PdfFill
         'additionalBehaviorsDetails' => { # question_num: 10C
           key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
           limit: 784,
-          question_num: 10.0, # This is needed to distinguish from the 10B overflow
+          question_num: 10,
           question_suffix: 'C',
           question_text: 'Additional Behavioral Changes',
           show_suffix: true
@@ -570,6 +570,7 @@ module PdfFill
           limit: 50, # TODO: This is a guess.  Need to confirm.
           question_num: 16,
           question_suffix: 'A',
+          question_label: 'Signature',
           question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE'
         },
         'signatureDate' => {
@@ -597,54 +598,59 @@ module PdfFill
             question_text: 'DATE SIGNED. Enter 4 digit Year.',
             hide_from_overflow: true
           }
+        },
+        'signatureDateOverflow' => {
+          question_num: 16,
+          question_suffix: 'B',
+          question_label: 'Date signed'
         }
       }.freeze
       # rubocop:enable Layout/LineLength
 
-      QUESTION_KEY = {
-        1 => 'Veteran/Service member\'s name',
-        2 => 'Social security number',
-        3 => 'VA file number',
-        4 => 'Date of birth',
-        5 => 'Veteran\'s service number',
-        6 => 'Telephone number',
-        7 => 'Email address',
-        8 => 'Type of in-service traumatic event(s)',
-        9 => 'Traumatic event(s) information',
-        10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-        10.0 => 'Additional Behavioral Change(s)',
-        11 => 'Was an official report filed?',
-        11.5 => 'Police report location(s)',
-        12 => 'Possible sources of evidence following the traumatic event(s)',
-        13 => 'Treatment information',
-        14 => 'Remarks',
-        16 => 'Veteran/service member\'s signature'
-      }.freeze
+      QUESTION_KEY = [
+        { question_number: '1', question_text: "Veteran/Service member's name" },
+        { question_number: '2', question_text: 'Social security number' },
+        { question_number: '3', question_text: 'VA file number' },
+        { question_number: '4', question_text: 'Date of birth' },
+        { question_number: '5', question_text: "Veteran's service number" },
+        { question_number: '6', question_text: 'Telephone number' },
+        { question_number: '7', question_text: 'Email address' },
+        { question_number: '8', question_text: 'Type of in-service traumatic event(s)' },
+        { question_number: '9', question_text: 'Traumatic event(s) information' },
+        { question_number: '10', question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)' },
+        { question_number: '10C', question_text: 'Additional Behavioral Change(s)' },
+        { question_number: '11', question_text: 'Was an official report filed?' },
+        { question_number: '11.5', question_text: 'Police report location(s)',  hide_question_num: true },
+        { question_number: '12', question_text: 'Possible sources of evidence following the traumatic event(s)' },
+        { question_number: '13', question_text: 'Treatment information' },
+        { question_number: '14', question_text: 'Remarks' },
+        { question_number: '16', question_text: "Veteran/service member's signature" }
+      ].freeze
 
       SECTIONS = [
         {
-          label: 'Section I: Veteran\'s Identification Information',
-          question_nums: (1..7).to_a
+          label: "Section I: Veteran's Identification Information",
+          question_nums: %w[1 2 3 4 5 6 7]
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
-          question_nums: [8, 9]
+          question_nums: %w[8 9]
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: [10, 10.0, 11, 11.5, 12]
+          question_nums: %w[10 10C 11 11.5 12]
         },
         {
           label: 'Section IV: Treatment Information',
-          question_nums: [13]
+          question_nums: %w[13]
         },
         {
           label: 'Section V: Remarks',
-          question_nums: [14]
+          question_nums: %w[14]
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: [16]
+          question_nums: %w[16]
         }
       ].freeze
 
@@ -669,8 +675,9 @@ module PdfFill
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
-        formatted_date = DateTime.parse(@form_data['signatureDate']).strftime('%Y-%m-%d')
-        @form_data['signatureDate'] = split_date(formatted_date)
+        signature_date = DateTime.parse(@form_data['signatureDate'])
+        @form_data['signatureDate'] = split_date(signature_date.strftime('%Y-%m-%d'))
+        @form_data['signatureDateOverflow'] = signature_date.strftime('%m-%d-%Y')
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data

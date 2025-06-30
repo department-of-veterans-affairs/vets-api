@@ -45,12 +45,8 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   attr_accessor :use_v2
 
   after_initialize do
-    self.form_id = if Flipper.enabled?(:va_dependents_v2)
-                     if use_v2 || form_id == '686C-674-V2'
-                       '686C-674-V2'
-                     else
-                       self.class::FORM.upcase
-                     end
+    self.form_id = if use_v2 || form_id == '686C-674-V2'
+                     '686C-674-V2'
                    else
                      self.class::FORM.upcase
                    end
@@ -178,10 +174,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type:
+      doc_type: doc_type.to_s
     )
 
-    uploader.upload!
+    uploader.upload! unless Rails.env.development?
   end
 
   # temporarily commented out before v2 rolls out. will be updated before v2's release.

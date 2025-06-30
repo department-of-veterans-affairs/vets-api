@@ -84,14 +84,16 @@ module PdfFill
               limit: 10,
               question_num: 7,
               question_suffix: 'B',
-              question_text: 'SUPPORTED STUDENTS'
+              question_text: 'SUPPORTED STUDENTS',
+              transform: ->(value) { value.present? ? format('%.2f', value) : value }
             },
             'nonSupported' => {
               key: 'numNonSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'C',
-              question_text: 'NON-SUPPORTED STUDENTS'
+              question_text: 'NON-SUPPORTED STUDENTS',
+              transform: ->(value) { value.present? ? format('%.2f', value) : value }
             },
             'totalFTE' => {
               key: 'enrolledFTE%iterator%',
@@ -152,11 +154,8 @@ module PdfFill
             # Add programDateOfCalculation to each valid program entry
             program['programDateOfCalculation'] = calculation_date
 
-            if program['fte']
-              program['fte']['totalFTE'] = "#{program['fte']['totalFTE']}%" if program['fte']['totalFTE'].present?
-              if program['fte']['supportedPercentageFTE'].present?
-                program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
-              end
+            if program['fte'] && program['fte']['supportedPercentageFTE'].present?
+              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
             end
           end
         end

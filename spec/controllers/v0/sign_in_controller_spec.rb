@@ -444,6 +444,27 @@ RSpec.describe V0::SignInController, type: :controller do
 
           it_behaves_like 'an idme service interface with appropriate operation'
         end
+
+        context 'and the operation param is verify_cta_authenticated' do
+          let(:operation_value) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is verify_page_authenticated' do
+          let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_AUTHENTICATED }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is verify_page_unauthenticated' do
+          let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_UNAUTHENTICATED }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
       end
 
       shared_context 'an idme service interface with appropriate operation' do
@@ -841,7 +862,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    user_uuid: logingov_uuid,
+                    credential_uuid: logingov_uuid,
                     authentication_time:
                   }
                 end
@@ -1013,7 +1034,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    user_uuid: idme_uuid,
+                    credential_uuid: idme_uuid,
                     authentication_time:
                   }
                 end
@@ -1147,7 +1168,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  user_uuid: backing_idme_uuid,
+                  credential_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1296,7 +1317,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  user_uuid: backing_idme_uuid,
+                  credential_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1460,7 +1481,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let(:user_verification) { create(:user_verification) }
     let(:user_verification_id) { user_verification.id }
-    let!(:user) { create(:user, :loa3, uuid: user_uuid) }
+    let!(:user) { create(:user, :loa3, user_verification:, user_account: user_verification.user_account) }
     let(:user_uuid) { user_verification.credential_identifier }
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
@@ -1492,12 +1513,10 @@ RSpec.describe V0::SignInController, type: :controller do
              authentication:,
              anti_csrf:,
              pkce:,
-             certificates: [client_assertion_certificate],
              enforced_terms:,
              shared_sessions:)
     end
     let(:enforced_terms) { nil }
-    let(:client_assertion_certificate) { nil }
     let(:pkce) { true }
     let(:anti_csrf) { false }
     let(:loa) { nil }
@@ -1584,10 +1603,11 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expiration_time) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.since.to_i }
         let(:created_time) { Time.zone.now.to_i }
         let(:uuid) { 'some-uuid' }
-        let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
         let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
-        let(:assertion_certificate) { File.read(certificate_path) }
-        let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
+        let(:assertion_certificate) do
+          create(:sign_in_certificate, pem: File.read('spec/fixtures/sign_in/sts_client.crt'))
+        end
+        let(:service_account_config) { create(:service_account_config, certs: [assertion_certificate]) }
         let(:assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
         let(:assertion_value) do
           JWT.encode(assertion_payload, private_key, assertion_encode_algorithm)
@@ -1839,6 +1859,16 @@ RSpec.describe V0::SignInController, type: :controller do
               end
 
               context 'and client_assertion is a valid jwt' do
+                let!(:client_config) do
+                  create(:client_config,
+                         authentication:,
+                         anti_csrf:,
+                         pkce:,
+                         enforced_terms:,
+                         shared_sessions:,
+                         certs:)
+                end
+
                 let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
                 let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
                 let(:client_assertion_payload) do
@@ -1859,8 +1889,9 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:client_assertion_value) do
                   JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
                 end
-                let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
-                let(:client_assertion_certificate) { File.read(certificate_path) }
+                let(:certs) do
+                  [create(:sign_in_certificate, pem: File.read('spec/fixtures/sign_in/sample_client.crt'))]
+                end
                 let(:user_verification_id) { user_verification.id }
                 let(:user_verification) { create(:user_verification) }
                 let(:expected_log) { '[SignInService] [V0::SignInController] token' }
@@ -2539,15 +2570,15 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'POST revoke' do
     subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
-    let!(:user) { create(:user, uuid: user_uuid) }
-    let(:user_uuid) { user_verification.credential_identifier }
+    let!(:user) { create(:user) }
+    let(:user_uuid) { user.uuid }
     let(:refresh_token_param) { { refresh_token: } }
     let(:refresh_token) { 'example-refresh-token' }
     let(:anti_csrf_token_param) { { anti_csrf_token: } }
     let(:anti_csrf_token) { 'example-anti-csrf-token' }
     let(:enable_anti_csrf) { false }
-    let(:user_verification) { create(:user_verification) }
-    let(:user_account) { user_verification.user_account }
+    let(:user_verification) { user.user_verification }
+    let(:user_account) { user.user_account }
     let(:validated_credential) do
       create(:validated_credential, user_verification:, client_config:)
     end
@@ -3036,9 +3067,9 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
-      let(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
-      let(:user_account) { user_verification.user_account }
       let(:user) { create(:user, :loa3) }
+      let(:user_verification) { user.user_verification }
+      let(:user_account) { user.user_account }
       let(:user_uuid) { user.uuid }
       let(:oauth_session) { create(:oauth_session, user_account:) }
       let(:access_token_object) do

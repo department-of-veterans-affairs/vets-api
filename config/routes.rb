@@ -54,11 +54,6 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
-    resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
-    resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
-    resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
-
-    get 'virtual_agent/user', to: 'virtual_agent/users#show'
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
@@ -178,11 +173,6 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
-
-    namespace :virtual_agent do
-      get 'claims', to: 'virtual_agent_claim_status#index'
-      get 'claims/:id', to: 'virtual_agent_claim_status#show'
-    end
 
     namespace :chatbot do
       get 'claims', to: 'claim_status#index'
@@ -341,6 +331,7 @@ Rails.application.routes.draw do
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 
     get 'banners', to: 'banners#by_path'
+    post 'datadog_action', to: 'datadog_action#create'
   end
   # end /v0
 
@@ -378,6 +369,8 @@ Rails.application.routes.draw do
         resources :lacs, only: %i[index show], defaults: { format: :json }
         resources :exams, only: %i[index show], defaults: { format: :json }
       end
+
+      resources :version_public_exports, path: :public_exports, only: :show, defaults: { format: :json }
     end
 
     resource :post911_gi_bill_status, only: [:show]
@@ -405,10 +398,12 @@ Rails.application.routes.draw do
   mount CheckIn::Engine, at: '/check_in'
   mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
+  mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
+  mount MedicalExpenseReports::Engine, at: '/medical_expense_reports'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount IncomeLimits::Engine, at: '/income_limits'

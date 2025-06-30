@@ -41,7 +41,7 @@ describe TravelPay::ClaimsClient do
     # GET
     it 'returns response from claims endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('/api/v1.2/claims') do
+      @stubs.get('/api/v2/claims') do
         [
           200,
           {},
@@ -94,7 +94,7 @@ describe TravelPay::ClaimsClient do
 
     it 'returns response from claims/:id endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('/api/v1.2/claims/uuid1') do
+      @stubs.get('/api/v2/claims/uuid1') do
         [
           200,
           {},
@@ -161,11 +161,16 @@ describe TravelPay::ClaimsClient do
 
     it 'returns response from claims/search endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('api/v1.2/claims/search-by-appointment-date') do
+      @stubs.get('api/v2/claims/search-by-appointment-date') do
         [
           200,
           {},
-          {
+          { 'totalRecordCount' => 2,
+            'statusCode' => 200,
+            'success' => true,
+            'pageNumber' => 1,
+            'pageSize' => 50,
+            'message' => 'Successfully retrieved claims',
             'data' => [
               {
                 'id' => 'uuid1',
@@ -185,8 +190,7 @@ describe TravelPay::ClaimsClient do
                 'createdOn' => '2024-01-22T21:22:34.465Z',
                 'modifiedOn' => '2024-02-01T00:00:00.0Z'
               }
-            ]
-          }
+            ] }
         ]
       end
 
@@ -194,8 +198,11 @@ describe TravelPay::ClaimsClient do
 
       client = TravelPay::ClaimsClient.new
       claims_response = client.get_claims_by_date('veis_token', 'btsss_token',
-                                                  { 'start_date' => '2024-01-01T16:45:34.465Z',
-                                                    'end_date' => '2024-02-01T16:45:34.465Z' })
+                                                  { start_date: '2024-01-01T16:45:34.465Z',
+                                                    end_date: '2024-02-01T16:45:34.465Z',
+                                                    page_number: 1,
+                                                    page_size: 50 })
+      expect(claims_response.body['totalRecordCount']).to eq(claims_response.body['data'].size)
       actual_ids = claims_response.body['data'].pluck('id')
 
       expect(StatsD).to have_received(:measure)
@@ -211,7 +218,7 @@ describe TravelPay::ClaimsClient do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
                'claimantType' => 'Veteran' }.to_json
-      @stubs.post('api/v1.2/claims') do
+      @stubs.post('api/v2/claims') do
         [
           200,
           {},
@@ -239,7 +246,7 @@ describe TravelPay::ClaimsClient do
     it 'returns a claim ID from the claims endpoint after submitting a claim' do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 
-      expect_any_instance_of(Faraday::Connection).to receive(:patch).with("api/v1.2/claims/#{claim_id}/submit")
+      expect_any_instance_of(Faraday::Connection).to receive(:patch).with("api/v2/claims/#{claim_id}/submit")
 
       client = TravelPay::ClaimsClient.new
       client.submit_claim('veis_token', 'btsss_token', claim_id)

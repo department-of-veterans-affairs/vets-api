@@ -7,6 +7,7 @@ describe Vye::SundownSweep, type: :worker do
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
+    allow(Vye::CloudTransfer).to receive(:holiday?).and_return(false)
   end
 
   it 'enqueues child jobs' do
@@ -51,14 +52,14 @@ describe Vye::SundownSweep, type: :worker do
       end.to raise_error(Aws::S3::Errors::NoSuchKey)
     end
 
-    it 'throws an exception when access is denied' do
+    it 'does not throw an exception when access is denied' do
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::AccessDenied.new(nil, 'AccessDenied'))
 
       expect(logger).to receive(:error).with(/AccessDenied/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
-      end.to raise_error(Aws::S3::Errors::AccessDenied)
+      end.not_to raise_error(Aws::S3::Errors::AccessDenied)
     end
 
     it 'throws an exception there is an error with the service' do
