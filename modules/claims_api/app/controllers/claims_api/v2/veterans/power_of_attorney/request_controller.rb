@@ -84,18 +84,13 @@ module ClaimsApi
                                                                external_key: Settings.bgs.external_key)
 
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
-          if decision == 'declined'
-            poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
-          end
 
-          first_name = poa_request['claimantFirstName'].presence || poa_request['vetFirstName'] if poa_request
+          handle_declined_decision(ptcpnt_id:, proc_id:, representative_id:, service:) if decision == 'declined'
 
           res = service.update_poa_request(proc_id:, secondary_status: decision,
                                            declined_reason: form_attributes['declinedReason'])
 
           raise Common::Exceptions::Lighthouse::BadGateway if res.blank?
-
-          send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
           service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
           res = service.get_poa_request
@@ -155,6 +150,13 @@ module ClaimsApi
         end
 
         private
+
+        def handle_declined_decision(ptcpnt_id:, proc_id:, representative_id:, service:)
+          poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
+          first_name = poa_request['claimantFirstName'].presence || poa_request['vetFirstName'] if poa_request
+
+          send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+        end
 
         def validate_country_code
           vet_cc = form_attributes.dig('veteran', 'address', 'countryCode')
