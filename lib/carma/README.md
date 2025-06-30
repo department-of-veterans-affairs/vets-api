@@ -14,8 +14,6 @@ This library is used to submit valid, online, 10-10CG submissions (CaregiversAss
 
 Used to hold model objects relating to CARMA's domain. More models can be added as the interface with CARMA grows (i.e. CARMA::Models::Case).
 
-### CARMA::Client
-
 #### CARMA::Client::MuleSoftClient
 
 This is the primary HTTP client used to communicate with CARMA via the MuleSoft API. It handles the submission of 10-10CG data to CARMA and includes monitoring, error handling, and response parsing. The client uses a bearer token for authentication, which is obtained through the `MuleSoftAuthTokenClient`.
