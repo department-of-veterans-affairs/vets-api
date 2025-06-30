@@ -47,6 +47,9 @@ require 'vetext/service'
 require 'veteran_enrollment_system/associations/configuration'
 require 'veteran_enrollment_system/base_configuration'
 require 'unified_health_data/configuration'
+require Rails.root.join('lib', 'mulesoft', 'pre_need', 'configuration')
+
+
 
 Rails.application.reloader.to_prepare do
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
