@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 2f681be9af200b5002cd2573d13e0d2a98d39178
+  revision: 2a9594c68f72ef42d0b6d46b5a42d93d2aee0e09
   branch: master
   specs:
-    vets_json_schema (24.17.1)
+    vets_json_schema (24.17.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -493,7 +493,7 @@ GEM
     fiddle (1.1.8)
     fitbit_api (1.0.0)
       oauth2 (~> 2.0)
-    flipper (1.3.4)
+    flipper (1.3.5)
       concurrent-ruby (< 2)
     flipper-active_record (1.3.4)
       activerecord (>= 4.2, < 9)
@@ -501,9 +501,9 @@ GEM
     flipper-active_support_cache_store (1.3.4)
       activesupport (>= 4.2, < 9)
       flipper (~> 1.3.4)
-    flipper-ui (1.3.4)
+    flipper-ui (1.3.5)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 1.3.4)
+      flipper (~> 1.3.5)
       rack (>= 1.4, < 4)
       rack-protection (>= 1.5.3, < 5.0.0)
       rack-session (>= 1.0.2, < 3.0.0)
@@ -649,7 +649,7 @@ GEM
       activesupport (>= 4.2)
     jwe (1.0.0)
       base64
-    jwt (2.10.1)
+    jwt (2.10.2)
       base64
     karafka-core (2.5.2)
       karafka-rdkafka (>= 0.19.2, < 0.21.0)
