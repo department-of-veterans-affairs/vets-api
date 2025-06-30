@@ -294,7 +294,7 @@ describe Eps::AppointmentService do
         expect(redis_client).to receive(:store_appointment_data).with(
           uuid: user.account_uuid,
           appointment_id:,
-          email: user.va_profile_email
+          email: user.email
         )
 
         expect(Eps::AppointmentStatusJob).to receive(:perform_async).with(

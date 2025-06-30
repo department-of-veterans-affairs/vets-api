@@ -33,6 +33,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     child_marriage
     report_child18_or_older_is_not_attending_school
     add_spouse
+    add_disabled_child
   ].freeze
 
   FORM686 = '21-686c'

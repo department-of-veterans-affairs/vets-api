@@ -95,7 +95,7 @@ module Eps
       redis_client.store_appointment_data(
         uuid: user.uuid,
         appointment_id:,
-        email: user.va_profile_email
+        email: user.email
       )
 
       # Enqueue worker with UUID and last 4 of appointment_id
