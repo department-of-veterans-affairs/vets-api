@@ -31,6 +31,8 @@ module IvcChampva
           # form) without messing with the shared param object across functions
           parsed_form_data = form_data || JSON.parse(params.to_json)
 
+          validate_mpi_profiles(parsed_form_data, form_id)
+
           response = handle_file_uploads_wrapper(form_id, parsed_form_data)
 
           if @current_user && response[:status] == 200
@@ -43,6 +45,17 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      def validate_mpi_profiles(parsed_form_data, form_id)
+        if Flipper.enabled?(:champva_mpi_validation, @current_user) && form_id == 'vha_10_10d'
+          begin
+            # Query MPI and log validation results for veteran and beneficiaries on 10-10D submissions
+            IvcChampva::MPIService.new.validate_profiles(parsed_form_data)
+          rescue => e
+            Rails.logger.error "Error validating MPI profiles: #{e.message}"
+          end
+        end
       end
 
       # This method handles generating OHI forms for all appropriate applicants

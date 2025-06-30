@@ -505,24 +505,70 @@ module VAOS
       #
       # @param referral [ReferralDetail] The referral object containing:
       #   - `provider_npi` [String] The provider's NPI.
-      #   - `appointment_type_id` [String] The appointment type.
       #   - `referral_date` [String] The earliest appointment date (ISO 8601).
       #   - `expiration_date` [String] The latest appointment date (ISO 8601).
-      # @param provider_id [String] The provider's ID.
+      # @param provider [Object] The provider object.
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral, provider_id)
+      def fetch_provider_slots(referral, provider)
+        appointment_type_id = get_provider_appointment_type_id(provider)
         eps_provider_service.get_provider_slots(
-          provider_id,
+          provider.id,
           {
-            appointmentTypeId: referral.appointment_type_id,
-            startOnOrAfter: Date.parse(referral.referral_date).to_time.utc.iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time.utc.iso8601
+            appointmentTypeId: appointment_type_id,
+            startOnOrAfter: Date.parse(referral.referral_date).to_time(:utc).iso8601,
+            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
           }
         )
+      rescue ArgumentError
+        Rails.logger.error('Error fetching provider slots')
+        nil
       end
 
+      ##
+      # Retrieves the appointment type ID for the first self-schedulable appointment type.
+      #
+      # @param provider [Object] The provider object containing appointment_types
+      # @return [String] The ID of the first self-schedulable appointment type
+      # @raise [Common::Exceptions::BackendServiceException] If provider appointment types are missing
+      #   or no self-schedulable types are available
+      #
+      def get_provider_appointment_type_id(provider)
+        # Validate provider appointment types data before accessing it
+        if provider.appointment_types.blank?
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_APPOINTMENT_TYPES_MISSING',
+            {},
+            502,
+            'Provider appointment types data is not available'
+          )
+        end
+
+        # Filter for self-schedulable appointment types
+        self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
+
+        if self_schedulable_types.blank?
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
+            {},
+            502,
+            'No self-schedulable appointment types available for this provider'
+          )
+        end
+
+        self_schedulable_types.first[:id]
+      end
+
+      ##
+      # Fetches drive time information from the user's residential address to the provider's location.
+      # Uses the EPS provider service to calculate drive times between the current user's address
+      # and the specified provider's coordinates.
+      #
+      # @param provider [Object] The provider object containing location data with latitude and longitude
+      # @return [Object, nil] Drive time response object from EPS service, or nil if user address
+      #   coordinates are not available
+      #
       def fetch_drive_times(provider)
         user_address = current_user.vet360_contact_info&.residential_address
 
@@ -611,7 +657,6 @@ module VAOS
 
         required_attributes = {
           'provider_npi' => referral.provider_npi,
-          'appointment_type_id' => referral.appointment_type_id,
           'referral_date' => referral.referral_date,
           'expiration_date' => referral.expiration_date
         }
@@ -780,7 +825,7 @@ module VAOS
                                  address: referral.treating_facility_address)
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
-        slots = fetch_provider_slots(referral, provider.id)
+        slots = fetch_provider_slots(referral, provider)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
         drive_time = fetch_drive_times(provider)
 

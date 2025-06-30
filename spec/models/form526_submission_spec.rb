@@ -16,13 +16,11 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user_account) { create(:user_account) }
+  let(:user_account) { user.user_account }
   let(:user) do
-    create(:user, :loa3, first_name: 'Beyonce',
-                         last_name: 'Knowles',
-                         icn: user_account.icn,
-                         idme_uuid: SecureRandom.uuid)
+    create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', icn:)
   end
+  let(:icn) { 'some-icn' }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -1414,9 +1412,7 @@ RSpec.describe Form526Submission do
   describe '#disabilities_not_service_connected?' do
     subject { form_526_submission.disabilities_not_service_connected? }
 
-    before { create(:idme_user_verification, idme_uuid: user.idme_uuid, user_account:) }
-
-    let(:user_account) { create(:user_account, icn: '123498767V234859') }
+    let(:icn) { '123498767V234859' }
     let(:form_526_submission) do
       Form526Submission.create(
         user_uuid: user.uuid,

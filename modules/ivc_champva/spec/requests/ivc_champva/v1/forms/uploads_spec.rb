@@ -1021,4 +1021,82 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       end
     end
   end
+
+  describe '#validate_mpi_profiles' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_mpi_service) { instance_double(IvcChampva::MPIService) }
+
+    before do
+      allow(IvcChampva::MPIService).to receive(:new).and_return(mock_mpi_service)
+      allow(mock_mpi_service).to receive(:validate_profiles)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when flipper is enabled and form_id is vha_10_10d' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(true)
+      end
+
+      it 'calls MpiService.validate_profiles' do
+        controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
+
+        expect(IvcChampva::MPIService).to have_received(:new).with(no_args)
+        expect(mock_mpi_service).to have_received(:validate_profiles).with(parsed_form_data)
+      end
+    end
+
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(false)
+      end
+
+      it 'does not call MpiService.validate_profiles' do
+        controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
+
+        expect(IvcChampva::MPIService).not_to have_received(:new)
+        expect(mock_mpi_service).not_to have_received(:validate_profiles)
+      end
+    end
+
+    context 'when form_id is not vha_10_10d' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(true)
+      end
+
+      it 'does not call MpiService.validate_profiles' do
+        controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_7959c')
+
+        expect(IvcChampva::MPIService).not_to have_received(:new)
+        expect(mock_mpi_service).not_to have_received(:validate_profiles)
+      end
+    end
+
+    context 'when MpiService raises an error' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(true)
+        allow(mock_mpi_service).to receive(:validate_profiles)
+          .and_raise(StandardError.new('MPI service error'))
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs the error and does not raise' do
+        expect do
+          controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
+        end.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with('Error validating MPI profiles: MPI service error')
+      end
+    end
+  end
 end
