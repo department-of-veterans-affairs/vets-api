@@ -3,6 +3,8 @@
 module AccreditedRepresentativePortal
   module PowerOfAttorneyRequestService
     class Accept
+      ORGANIZATION = PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
+
       class Error < RuntimeError
         attr_reader :status
 
@@ -60,7 +62,12 @@ module AccreditedRepresentativePortal
       def create_acceptance
         PowerOfAttorneyRequestDecision.create_acceptance!(
           creator:,
-          power_of_attorney_request: poa_request
+          power_of_attorney_request: poa_request,
+          power_of_attorney_holder_type: ORGANIZATION,
+          power_of_attorney_holder_poa_code: creator.active_power_of_attorney_holders.select do |h|
+            h.poa_code == poa_request.power_of_attorney_holder_poa_code
+          end.first&.poa_code,
+          accredited_individual_registration_number: creator.get_registration_number(ORGANIZATION)
         )
       end
 

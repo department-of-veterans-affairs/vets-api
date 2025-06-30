@@ -117,9 +117,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
         allow(accept_service).to receive(:call) do
           # Create the decision directly as a side effect
+          organization = AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept::ORGANIZATION
           AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
             creator: test_user.user_account,
-            power_of_attorney_request: poa_request
+            power_of_attorney_request: poa_request,
+            power_of_attorney_holder_type: organization,
+            power_of_attorney_holder_poa_code: test_user.user_account.active_power_of_attorney_holders.select do |h|
+              h.poa_code == poa_request.power_of_attorney_holder_poa_code
+            end.first&.poa_code,
+            accredited_individual_registration_number: test_user.user_account.get_registration_number(organization)
           )
         end
 
