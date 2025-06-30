@@ -11,11 +11,13 @@ module RepresentationManagement
 
     def perform(force_update_types = [])
       @force_update_types = force_update_types
+
       @agent_responses = []
       @attorney_responses = []
       @org_responses = []
       @agent_ids = []
       @attorney_ids = []
+      # @org_ids = []
       @agent_json_for_address_validation = []
       @attorney_json_for_address_validation = []
       @org_json_for_address_validation = []
@@ -116,6 +118,23 @@ module RepresentationManagement
       }
     end
 
+    def notify_if_orgs_or_reps_count_decreased
+      orgs_and_reps = %w[representatives veterans_service_organizations]
+      orgs_and_reps.each do |type|
+        if @entity_counts.valid_count?(type.to_sym, notify: false) || @force_update_types.include?(type)
+          next
+        end 
+        previous_count = @entity_counts.current_db_counts[type.to_sym]
+        new_count = @entity_counts.current_api_counts[type.to_sym]
+        decrease_percentage = (previous_count - new_count).to_f / previous_count
+        if decrease_percentage > DECREASE_THRESHOLD
+          log_error("#{type.humanize} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+        else
+          log_error("#{type.humanize} count is valid - proceeding with update")
+        end
+      end
+    end
+
     def process_agents
       return if @force_update_types.any? && @force_update_types.exclude?('agents')
 
@@ -135,6 +154,38 @@ module RepresentationManagement
         validate_attorney_addresses
       else
         log_error("Attorneys count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+      end
+    end
+
+    def process_orgs_and_reps
+      return if @force_update_types.any? && @force_update_types.exclude?('representatives',
+                                                                         'veterans_service_organizations')
+
+      notify_if_orgs_or_reps_count_decreased
+
+      orgs_and_reps = %w[representatives veterans_service_organizations]
+      orgs_and_reps.each do |type|
+        unless @entity_counts.valid_count?(type.to_sym) || @force_update_types.include?(type)
+          log_error("#{type.humanize} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+        end
+      end
+
+        begin
+          response = client.get_accredited_entities(type:, page: 1)
+          @org_responses << response.body['items']
+          # Placeholder for orgs and reps processing logic
+          # update_orgs_and_reps(response.body['items'])
+        rescue => e
+          log_error("Error fetching #{type} from GCLAWS: #{e.message}")
+        end
+      end
+
+      if @entity_counts.valid_count?(:orgs_and_reps) || @force_update_types.include?('orgs_and_reps')
+        # Placeholder for orgs and reps processing logic
+        # update_orgs_and_reps
+        # validate_org_addresses
+      else
+        log_error("Orgs and Reps count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
       end
     end
 
