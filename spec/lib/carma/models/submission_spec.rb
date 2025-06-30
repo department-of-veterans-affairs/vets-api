@@ -266,27 +266,4 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       )
     end
   end
-
-  describe '#submit!' do
-    let(:submission) do
-      CARMA::Models::Submission.from_claim(
-        build(:caregivers_assistance_claim),
-        {
-          veteran: {
-            icn: 'VET1234',
-            is_veteran: true
-          },
-          primary_caregiver: {
-            icn: 'PC1234'
-          },
-          secondary_caregiver_one: {
-            icn: 'SCO1234'
-          },
-          secondary_caregiver_two: {
-            icn: 'SCT1234'
-          }
-        }
-      )
-    end
-  end
 end
