@@ -649,7 +649,7 @@ GEM
       activesupport (>= 4.2)
     jwe (1.0.0)
       base64
-    jwt (2.10.1)
+    jwt (2.10.2)
       base64
     karafka-core (2.5.2)
       karafka-rdkafka (>= 0.19.2, < 0.21.0)
