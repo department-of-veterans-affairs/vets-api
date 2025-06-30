@@ -10,7 +10,7 @@ describe Eps::AppointmentService do
                    va_profile_email: 'va.profile@example.com')
   end
   let(:config) { instance_double(Eps::Configuration) }
-  let(:headers) { { 'Authorization' => 'Bearer token123' } }
+  let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
   let(:response_headers) { { 'Content-Type' => 'application/json' } }
 
   let(:appointment_id) { 'appointment-123' }
@@ -18,7 +18,8 @@ describe Eps::AppointmentService do
 
   before do
     allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false, api_url: 'https://api.wellhive.com')
-    allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
+    allow_any_instance_of(Eps::BaseService).to receive_messages(config:)
+    allow_any_instance_of(Eps::BaseService).to receive(:request_headers_with_correlation_id).and_return(headers)
   end
 
   describe '#get_appointment' do
@@ -293,7 +294,7 @@ describe Eps::AppointmentService do
         expect(redis_client).to receive(:store_appointment_data).with(
           uuid: user.account_uuid,
           appointment_id:,
-          email: user.va_profile_email
+          email: user.email
         )
 
         expect(Eps::AppointmentStatusJob).to receive(:perform_async).with(

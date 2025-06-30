@@ -4,7 +4,10 @@ require 'rails_helper'
 
 describe TravelPay::AuthManager do
   context 'get_tokens' do
-    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
+    let(:user_account) { create(:user_account) }
+    let(:user_verification) { create(:user_verification, user_account:) }
+    let(:idme_uuid) { user_verification.idme_uuid }
+    let!(:user) { create(:user, :loa3, user_account:, user_verification:, idme_uuid:) }
     let(:tokens) do
       {
         veis_token: 'fake_veis_token',
@@ -58,8 +61,9 @@ describe TravelPay::AuthManager do
         client_number = 123
         service = TravelPay::AuthManager.new(client_number, user)
         response = service.authorize
-        cached_tokens => { veis_token:, btsss_token: }
-        destructured_cached_tokens = { veis_token:, btsss_token: }
+        cached_tokens = Oj.load($redis.get("travel-pay-store:#{user.user_account_uuid}"))
+        destructured_cached_tokens = { veis_token: cached_tokens[:veis_token],
+                                       btsss_token: cached_tokens[:btsss_token] }
         expect(response).to eq(destructured_cached_tokens)
       end
     end

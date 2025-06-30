@@ -59,10 +59,15 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
       end
 
       it 'sends failure message after max retries' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.appointment_status_check.failure',
+          tags: ['Community Care Appointments']
+        )
+
         expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
-          'Could not complete booking'
+          Eps::AppointmentStatusJob::ERROR_MESSAGE
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
@@ -79,7 +84,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
         expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
-          'Could not verify the booking status of your submitted appointment, please contact support'
+          Eps::AppointmentStatusJob::ERROR_MESSAGE
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
@@ -93,10 +98,18 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
       end
 
       it 'sends failure message after max retries' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.appointment_status_check.failure',
+          tags: ['Community Care Appointments']
+        )
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EpsAppointmentJob failed to get appointment status',
+          { user_uuid: user.uuid, appointment_id_last4: }
+        )
         expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
           user.uuid,
           appointment_id_last4,
-          'Could not verify the booking status of your submitted appointment, please contact support'
+          Eps::AppointmentStatusJob::ERROR_MESSAGE
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
@@ -110,12 +123,12 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
       it 'logs error and returns early' do
         expect(Rails.logger).to receive(:error).with(
-          'EpsAppointmentJob missing or incomplete Redis data',
+          'Community Care Appointments: EpsAppointmentJob missing or incomplete Redis data',
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(
           'api.vaos.appointment_status_check.failure',
-          tags: ["user_uuid: #{user.uuid}", "appointment_id_last4: #{appointment_id_last4}"]
+          tags: ['Community Care Appointments']
         )
         worker.perform(user.uuid, appointment_id_last4)
       end

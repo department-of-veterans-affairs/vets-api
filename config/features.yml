@@ -262,6 +262,9 @@ features:
   champva_fmp_single_file_upload:
     actor_type: user
     description: Enables the ability to upload a single merged PDF file for FMP claims
+  champva_mpi_validation:
+    actor_type: user
+    description: Enables MPI veteran and benefificiary validation for IVC CHAMPVA form submissions
   champva_old_records_cleanup_job:
     actor_type: user
     description: Enables the job to cleanup old IVC CHAMPVA form records
@@ -367,6 +370,14 @@ features:
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
+    enable_in_development: true
+  lighthouse_claims_api_v1_enable_FES:
+    actor_type: user
+    description: Use new Form526 Establishment Service (FES) for v1 disability compensation claims
+    enable_in_development: true
+  lighthouse_claims_api_v2_enable_FES:
+    actor_type: user
+    description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -893,6 +904,10 @@ features:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
     enable_in_development: true
+  form10297_confirmation_email:
+    actor_type: user
+    description: Enables form 10297 email submission confirmation (VaNotify)
+    enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
     description: Enables form 26-4555 email submission confirmation (VaNotify)
@@ -1102,6 +1117,10 @@ features:
     actor_type: user
     description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_mb_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_ch_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
@@ -1286,6 +1305,10 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
+  mhv_accelerated_delivery_vaccines_enabled:
+    actor_type: user
+    description: Enables/disables the new immunizations v2 endpoint that uses LH as a datasource and aligns with data model that the mobile app uses
+    enable_in_development: false
   mhv_medical_records_support_new_model_lab_test:
     actor_type: user
     description: Enables/disables the use of pre-transformed lab/test objects
@@ -1862,6 +1885,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for for converting the start & end times in slots fetch to UTC.
+  vaos_appointment_notification_callback:
+    actor_type: user
+    enable_in_development: true
+    description: Enables custom email delivery callback for VAOS appointment status notifications
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -2291,4 +2318,4 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
-    
+
