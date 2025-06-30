@@ -32,6 +32,10 @@ module IncomeAndAssets
       { form_data:, metadata: }
     end
 
+    ##
+    # Retrieves the last four digits of the VA file number or SSN from BGS
+    #
+    # @return [String]
     def va_file_number_last_four
       response = BGS::People::Request.new.find_person_by_participant_id(user:)
       (
