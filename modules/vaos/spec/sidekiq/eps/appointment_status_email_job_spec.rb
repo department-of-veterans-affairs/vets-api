@@ -50,6 +50,52 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
           personalisation: { 'error' => error_message }
         )
       end
+
+      context 'when vaos_appointment_notification_callback feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vaos_appointment_notification_callback)
+            .and_return(true)
+        end
+
+        it 'initializes VaNotify service with callback options' do
+          expected_callback_options = {
+            callback_klass: 'Eps::AppointmentStatusNotificationCallback',
+            callback_metadata: {
+              user_uuid:,
+              appointment_id_last4:,
+              statsd_tags: {
+                service: 'vaos',
+                function: 'appointment_submission_failure_notification'
+              }
+            }
+          }
+
+          subject.perform(user_uuid, appointment_id_last4, error_message)
+
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.va_gov.api_key,
+            expected_callback_options
+          )
+        end
+      end
+
+      context 'when vaos_appointment_notification_callback feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vaos_appointment_notification_callback)
+            .and_return(false)
+        end
+
+        it 'initializes VaNotify service without callback options' do
+          subject.perform(user_uuid, appointment_id_last4, error_message)
+
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.va_gov.api_key,
+            nil
+          )
+        end
+      end
     end
 
     context 'when appointment data is missing from Redis' do
@@ -59,7 +105,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         subject.perform(user_uuid, appointment_id_last4, error_message)
 
         expect(Rails.logger).to have_received(:error).with(
-          /missing appointment id/,
+          /missing appointment data/,
           { user_uuid:, appointment_id_last4: }
         )
         allow(va_notify_service).to receive(:send_email)
