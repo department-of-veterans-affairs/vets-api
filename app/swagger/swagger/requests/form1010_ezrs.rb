@@ -40,6 +40,8 @@ module Swagger
 
       swagger_path '/v0/form1010_ezrs/download_pdf' do
         operation :post do
+          extend Swagger::Responses::AuthenticationError
+          
           key :description, 'Download a pre-filled 10-10EZR PDF form.'
           key :operationId, 'postForm1010EzrDownloadPdf'
           key :tags, %w[benefits_forms]
