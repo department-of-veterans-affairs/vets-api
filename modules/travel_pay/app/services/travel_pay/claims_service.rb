@@ -31,7 +31,7 @@ module TravelPay
       }
     end
 
-    def get_claims_by_date_range(params = {}) # rubocop:disable Metrics/MethodLength
+    def get_claims_by_date_range(params = {})
       date_range = get_date_range(params)
 
       loop_params = {
@@ -45,17 +45,7 @@ module TravelPay
       elapsed_time = Time.current - start_time
       Rails.logger.info(message: "Looped through #{all_claims[:data].size} claims in #{elapsed_time} seconds.")
 
-      {
-        metadata: {
-          'status' => all_claims[:status], # for partial content == 206
-          'pageNumber' => all_claims[:page_number], # i.e., we got through page 2, so pick up on page 3
-          'totalRecordCount' => all_claims[:total_record_count]
-        },
-        data: all_claims[:data]&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-          sc
-        end
-      }
+      build_claims_response(all_claims)
     end
 
     # Retrieves expanded claim details with additional fields
@@ -202,6 +192,20 @@ module TravelPay
         "#{e}. Retrieved #{all_claims.size} of #{total_record_count} claims, ending on page #{page_number - 1}.")
         { data: all_claims, total_record_count:, page_number: page_number - 1, status: 206 }
       end
+    end
+
+    def build_claims_response(all_claims)
+      {
+        metadata: {
+          'status' => all_claims[:status], # for partial content == 206
+          'pageNumber' => all_claims[:page_number], # i.e., we got through page 2, so pick up on page 3
+          'totalRecordCount' => all_claims[:total_record_count]
+        },
+        data: all_claims[:data]&.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+          sc
+        end
+      }
     end
 
     def include_documents?
