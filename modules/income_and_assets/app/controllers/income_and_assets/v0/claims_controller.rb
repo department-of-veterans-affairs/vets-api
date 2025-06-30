@@ -50,12 +50,12 @@ module IncomeAndAssets
 
         process_and_upload_to_lighthouse(in_progress_form, claim)
 
-        monitor.track_create_success(in_progress_form&.id, claim, current_user)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
-        monitor.track_create_error(in_progress_form&.id, claim, current_user, e)
+        monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
       end
 
@@ -63,7 +63,7 @@ module IncomeAndAssets
 
       # Raises an exception if the income and assets flipper flag isn't enabled.
       def check_flipper_flag
-        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_income_and_assets_clarification,
+        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:income_and_assets_form_enabled,
                                                                     current_user)
       end
 
