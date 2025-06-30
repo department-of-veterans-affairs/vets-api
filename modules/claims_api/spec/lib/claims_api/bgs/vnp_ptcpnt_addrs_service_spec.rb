@@ -84,36 +84,4 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       end
     end
   end
-
-  describe 'vnp_ptcpnt_addrs_find_by_primary_key' do
-    let(:options) { {} }
-
-    it 'responds with correct address' do
-      options[:vnp_ptcpnt_addrs_id] = '151270'
-      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/vnp_ptcpnt_addrs_find_by_primary_key') do
-        response = subject.vnp_ptcpnt_addrs_find_by_primary_key(options)
-        expect(response).to include(
-          { vnp_ptcpnt_addrs_id: '151270',
-            efctv_dt: '2020-07-16T18:20:18Z',
-            vnp_ptcpnt_id: '189015',
-            vnp_proc_id: '3860232',
-            addrs_one_txt: '76 Crowther Ave',
-            city_nm: 'Bridgeport',
-            postal_cd: 'CT',
-            ptcpnt_addrs_type_nm: 'Mailing',
-            shared_addrs_ind: 'N',
-            zip_prefix_nbr: '06605' }
-        )
-      end
-    end
-
-    it 'responds appropriately with invalid options' do
-      options[:vnp_ptcpnt_addrs_id] = 'invalid'
-      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/invalid_vnp_ptcpnt_addrs_find_by_primary_key') do
-        expect do
-          subject.vnp_ptcpnt_addrs_find_by_primary_key(options)
-        end.to raise_error(Common::Exceptions::UnprocessableEntity)
-      end
-    end
-  end
 end
