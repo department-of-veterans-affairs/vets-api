@@ -45,20 +45,6 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
     end
   end
 
-  describe '#to_hash' do
-    it 'returns :all attachments as hash' do
-      subject.add('10-10CG', 'tmp/pdfs/10-10CG_12345.pdf')
-      subject.add('POA', 'tmp/pdfs/POA_12345.pdf')
-
-      expect(subject.all[0]).to receive(:to_hash).and_return(:hash_1)
-      expect(subject.all[1]).to receive(:to_hash).and_return(:hash_2)
-
-      result = subject.to_hash
-      expect(result[:data]).to eq(%i[hash_1 hash_2])
-      expect(result[:has_errors]).to be_nil
-    end
-  end
-
   describe '#to_request_payload' do
     it 'raises error when :all is empty' do
       expect { subject.to_request_payload }.to raise_error 'must have at least one attachment'

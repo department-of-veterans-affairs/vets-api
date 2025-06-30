@@ -42,13 +42,6 @@ module CARMA
           'records' => all.map(&:to_request_payload)
         }
       end
-
-      def to_hash
-        {
-          has_errors:,
-          data: all.map(&:to_hash)
-        }
-      end
     end
   end
 end
