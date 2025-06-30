@@ -23,7 +23,8 @@ module DebtsApi
         validate_files_present
         validate_files
 
-        send_to_dmc
+        response = send_to_dmc
+        Rails.logger.info("Digital dispute submission response: #{response.body}")
         in_progress_form&.destroy
         {
           success: true,
@@ -45,11 +46,11 @@ module DebtsApi
 
       def build_payload
         {
-          file_number: @file_number,
-          dispute_pdfs: files.map do |file|
+          fileNumber: @file_number,
+          disputePDFs: files.map do |file|
             {
-              file_name: sanitize_filename(file.original_filename),
-              file_contents: Base64.strict_encode64(file.read)
+              fileName: sanitize_filename(file.original_filename),
+              fileContents: Base64.strict_encode64(file.read)
             }
           end
         }
