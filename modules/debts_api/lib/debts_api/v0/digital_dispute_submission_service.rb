@@ -23,8 +23,8 @@ module DebtsApi
         validate_files_present
         validate_files
 
-        response = send_to_dmc
-        Rails.logger.info("Digital dispute submission response: #{response.body}")
+        send_to_dmc
+
         in_progress_form&.destroy
         {
           success: true,
