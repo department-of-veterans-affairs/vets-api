@@ -41,6 +41,18 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
       end
 
       context 'when no error occurs' do
+        before do
+          allow_any_instance_of(
+            Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+          ).to receive(:reconcile_and_update_associations).and_return(
+            {
+              status: 'success',
+              message: 'All associations were updated successfully',
+              timestamp: Time.current.iso8601
+            }
+          )
+        end
+
         let(:params) do
           { form: }
         end
