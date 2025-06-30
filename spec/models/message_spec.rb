@@ -127,10 +127,6 @@ RSpec.describe Message do
   end
 
   context 'with file upload limits' do
-    # before do
-    #   allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(false)
-    # end
-
     let(:upload_class) { 'ActionDispatch::Http::UploadedFile' }
     let(:file1) { instance_double(upload_class, original_filename: 'file1.jpg', size: 1.megabyte) }
     let(:file2) { instance_double(upload_class, original_filename: 'file2.jpg', size: 2.megabytes) }

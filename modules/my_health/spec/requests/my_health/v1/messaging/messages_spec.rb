@@ -347,5 +347,47 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(response).to have_http_status(:no_content)
       end
     end
+
+    describe 'POST create with large attachments feature flag' do
+      let(:attachment_type) { 'image/jpg' }
+      let(:large_upload) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type) }
+      let(:uploads) { [large_upload] }
+      let(:message_params) { attributes_for(:message, subject: 'Large File', body: 'Test') }
+      let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+      let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(flag_enabled)
+        allow(large_upload).to receive(:size).and_return(file_size)
+        allow_any_instance_of(SM::Client).to receive(:post_create_message_with_lg_attachments).and_call_original
+        allow_any_instance_of(SM::Client).to receive(:post_create_message_with_attachment).and_call_original
+      end
+
+      context 'when Flipper flag is enabled and file is too large' do
+        let(:flag_enabled) { true }
+        let(:file_size) { 7.megabytes }
+
+        it 'uses the large attachments endpoint' do
+          expect_any_instance_of(SM::Client).to receive(:post_create_message_with_lg_attachments).and_call_original
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_large_attachment') do
+            post '/my_health/v1/messaging/messages', params: params_with_attachments
+          end
+          expect(response).to be_successful
+        end
+      end
+
+      context 'when Flipper flag is disabled or file is not too large' do
+        let(:flag_enabled) { false }
+        let(:file_size) { 5.megabytes }
+
+        it 'uses the standard attachments endpoint' do
+          expect_any_instance_of(SM::Client).to receive(:post_create_message_with_attachment).and_call_original
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_standard_attachment') do
+            post '/my_health/v1/messaging/messages', params: params_with_attachments
+          end
+          expect(response).to be_successful
+        end
+      end
+    end
   end
 end
