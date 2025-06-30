@@ -101,7 +101,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
     it 'removes bad attachments, updates the in_progress_form, and destroys the claim if all attachments are bad' do
       allow(claim).to receive(:process_attachments!).and_raise(error)
-      expect_any_instance_of(PersistentAttachments::Sanitizer).to receive(:send_email).with(claim)
+      expect(claim).to receive(:send_email).with(:persistent_attachment_error)
 
       aggregate_failures do
         expect do
