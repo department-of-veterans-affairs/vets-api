@@ -7,6 +7,7 @@ require 'va_profile/models/v3/validation_address'
 require 'va_profile/v3/address_validation/service'
 
 module RepresentationManagement
+  # This is the second job in a two job process for updating accredited entities.
   # Processes updates for AccreditedIndividual records based on provided JSON data.
   # This class is designed to parse AccreditedIndividual data, validate addresses using an external service,
   # and update records in the database accordingly.

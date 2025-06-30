@@ -3,11 +3,13 @@
 require 'sidekiq'
 
 module RepresentationManagement
+  # This is the first job in a two job process for updating accredited entities.
   # Processes and updates accredited entities (agents and attorneys) from the GCLAWS API
   #
   # This Sidekiq job fetches data about accredited agents and attorneys from the GCLAWS API,
   # creates or updates records in the database, validates addresses through the VAProfile
   # address validation service, and removes records that are no longer present in the API.
+  # That address validation is done in the second job, RepresentationManagement::AccreditedIndividualsUpdate.
   #
   # The job includes data validation to prevent large decreases in entity counts, which might
   # indicate data quality issues. This validation can be bypassed for specific entity types
