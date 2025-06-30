@@ -76,6 +76,7 @@ class Form526Submission < ApplicationRecord
   MAX_PENDING_TIME = 3.weeks
   ZSF_DD_TAG_SERVICE = 'disability-application'
   UPLOAD_DELAY_BASE = 60.seconds
+  UNIQUENESS_INCREMENT = 5
 
   # the keys of the Toxic Exposure details for each section
   TOXIC_EXPOSURE_DETAILS_MAPPING = {
@@ -593,7 +594,7 @@ class Form526Submission < ApplicationRecord
       delay = calc_submit_delays(upload_index, key, uniqueness_tracker)
       StatsD.gauge('form526.uploads.delay', delay, tags: statsd_tags)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
-      uniqueness_tracker[key] += 5
+      uniqueness_tracker[key] += UNIQUENESS_INCREMENT
     end
   end
 
