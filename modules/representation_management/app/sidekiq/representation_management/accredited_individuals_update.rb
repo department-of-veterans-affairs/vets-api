@@ -183,8 +183,7 @@ module RepresentationManagement
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.
     # @param error [Exception] The error string to be logged.
     def log_error(error, send_to_slack: false)
-      job_id = self.jid
-      message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error} (Job ID: #{job_id})"
+      message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error}"
       Rails.logger.error(message)
       @slack_messages << "----- #{message}" if send_to_slack
     end
