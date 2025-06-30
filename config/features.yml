@@ -371,6 +371,14 @@ features:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
     enable_in_development: true
+  lighthouse_claims_api_v1_enable_FES:
+    actor_type: user
+    description: Use new Form526 Establishment Service (FES) for v1 disability compensation claims
+    enable_in_development: true
+  lighthouse_claims_api_v2_enable_FES:
+    actor_type: user
+    description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -1108,6 +1116,10 @@ features:
   mhv_accelerated_delivery_uhd_sp_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_mb_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
     enable_in_development: false
   mhv_accelerated_delivery_uhd_ch_enabled:
     actor_type: user
@@ -2306,4 +2318,4 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
-    
+

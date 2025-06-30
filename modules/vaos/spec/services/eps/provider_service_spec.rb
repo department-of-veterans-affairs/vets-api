@@ -4,23 +4,29 @@ require 'rails_helper'
 
 describe Eps::ProviderService do
   let(:service) { described_class.new(user) }
-
   let(:user) { double('User', account_uuid: '1234') }
-  let(:config) { instance_double(Eps::Configuration) }
-  let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
 
   before do
-    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
-    allow(service).to receive_messages(config:)
-    allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)
     allow(Rails.logger).to receive(:public_send)
+    # Bypass token authentication which is tested in another spec
+    allow(Settings.vaos.eps).to receive(:mock).and_return(true)
   end
 
   describe '#get_provider_service' do
     let(:provider_id) { 123 }
+    let(:config) { instance_double(Eps::Configuration) }
+    let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+
+    before do
+      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                        request_types: %i[get put post delete],
+                                        pagination_timeout_seconds: 45)
+      allow(service).to receive_messages(config:)
+      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
+    end
 
     context 'when the request is successful' do
       let(:response) do
@@ -58,6 +64,16 @@ describe Eps::ProviderService do
   end
 
   describe '#get_networks' do
+    let(:config) { instance_double(Eps::Configuration) }
+    let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+
+    before do
+      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                        request_types: %i[get put post delete])
+      allow(service).to receive_messages(config:)
+      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
+    end
+
     context 'when the request is successful' do
       let(:response) do
         double('Response', status: 200, body: { count: 1,
@@ -96,6 +112,8 @@ describe Eps::ProviderService do
   end
 
   describe 'get_drive_times' do
+    let(:config) { instance_double(Eps::Configuration) }
+    let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
     let(:destinations) do
       {
         'provider-123' => {
@@ -109,6 +127,13 @@ describe Eps::ProviderService do
         latitude: 40.7589,
         longitude: -73.9851
       }
+    end
+
+    before do
+      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                        request_types: %i[get put post delete])
+      allow(service).to receive_messages(config:)
+      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
     end
 
     context 'when the request is successful' do
@@ -169,62 +194,50 @@ describe Eps::ProviderService do
         startBefore: '2024-01-02T00:00:00Z'
       }
     end
-    let(:valid_response) do
-      double('Response', status: 200, body: { count: 1,
-                                              slots: [
-                                                { id: 'slot1', providerServiceId: '9mN718pH' },
-                                                { id: 'slot2', providerServiceId: '9mN718pH' }
-                                              ] },
-                         response_headers: { 'Content-Type' => 'application/json' })
-    end
 
     context 'when provider_id is invalid' do
+      let(:config) { instance_double(Eps::Configuration) }
+      let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+
+      before do
+        allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                          request_types: %i[get put post delete],
+                                          pagination_timeout_seconds: 45)
+        allow(service).to receive_messages(config:)
+        allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
+      end
+
       it 'raises ArgumentError when provider_id is nil' do
         expect do
-          service.get_provider_slots(nil, nextToken: 'token123')
+          service.get_provider_slots(nil, required_params)
         end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
       end
 
       it 'raises ArgumentError when provider_id is empty' do
         expect do
-          service.get_provider_slots('', nextToken: 'token123')
+          service.get_provider_slots('', required_params)
         end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
       end
 
       it 'raises ArgumentError when provider_id is blank' do
         expect do
-          service.get_provider_slots('   ', nextToken: 'token123')
+          service.get_provider_slots('   ', required_params)
         end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
       end
     end
 
-    context 'when nextToken is provided' do
-      it 'makes request with nextToken parameter' do
-        next_token = 'token123'
-        response = double('Response', status: 200, body: valid_response.body,
-                                      response_headers: { 'Content-Type' => 'application/json' })
-
-        expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", { nextToken: next_token }, headers)
-          .and_return(response)
-
-        service.get_provider_slots(provider_id, nextToken: next_token)
-      end
-    end
-
-    context 'when required and additional parameters are provided' do
-      it 'makes request with all parameters' do
-        params_with_extra = required_params.merge(appointmentId: 'id123')
-
-        expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params_with_extra, headers)
-          .and_return(valid_response)
-
-        service.get_provider_slots(provider_id, params_with_extra)
-      end
-    end
-
     context 'when required parameters are missing' do
+      let(:config) { instance_double(Eps::Configuration) }
+      let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+
+      before do
+        allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                          request_types: %i[get put post delete],
+                                          pagination_timeout_seconds: 45)
+        allow(service).to receive_messages(config:)
+        allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
+      end
+
       it 'raises ArgumentError when appointmentTypeId is missing' do
         expect do
           service.get_provider_slots(provider_id, required_params.except(:appointmentTypeId))
@@ -250,32 +263,121 @@ describe Eps::ProviderService do
       end
     end
 
-    context 'when required parameters are provided and request is successful' do
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(valid_response)
+    context 'when single page response (no pagination)', :vcr do
+      it 'returns an OpenStruct with all slots and correct count' do
+        VCR.use_cassette('vaos/eps/get_provider_slots/200') do
+          result = service.get_provider_slots('53mL4LAZ', {
+                                                appointmentTypeId: 'ov',
+                                                startOnOrAfter: '2025-01-01T00:00:00Z',
+                                                startBefore: '2025-01-03T00:00:00Z'
+                                              })
+
+          expect(result).to be_a(OpenStruct)
+          expect(result.slots.length).to eq(2)
+          expect(result.count).to eq(2)
+          expect(result.slots.first[:id]).to include('5vuTac8v-practitioner')
+        end
       end
 
-      it 'returns an OpenStruct with the response body' do
-        result = service.get_provider_slots(provider_id, required_params)
+      it 'removes nextToken from response' do
+        VCR.use_cassette('vaos/eps/get_provider_slots/200') do
+          result = service.get_provider_slots('53mL4LAZ', {
+                                                appointmentTypeId: 'ov',
+                                                startOnOrAfter: '2025-01-01T00:00:00Z',
+                                                startBefore: '2025-01-03T00:00:00Z'
+                                              })
 
-        expect(result).to eq(OpenStruct.new(valid_response.body))
+          expect(result.to_h).not_to have_key(:next_token)
+          expect(result.to_h).not_to have_key(:nextToken)
+        end
       end
     end
 
-    context 'when the request fails' do
-      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+    context 'when empty response', :vcr do
+      it 'returns empty slots array with zero count' do
+        VCR.use_cassette('vaos/eps/get_provider_slots/200_no_slots') do
+          result = service.get_provider_slots('9mN718pH', {
+                                                appointmentTypeId: 'ov',
+                                                startOnOrAfter: '2025-01-01T00:00:00Z',
+                                                startBefore: '2025-01-03T00:00:00Z'
+                                              })
+
+          expect(result.slots).to eq([])
+          expect(result.count).to eq(0)
+        end
+      end
+    end
+
+    context 'when pagination timeout occurs' do
+      it 'raises BackendServiceException when timeout exceeded using VCR', :vcr do
+        # Use Timecop to simulate timeout during pagination
+        Timecop.freeze(Time.zone.parse('2024-01-01 12:00:00')) do
+          expect(Rails.logger).to receive(:error)
+
+          # Simulate time advancing during the API call
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform) do
+            Timecop.travel(46.seconds) # Advance time to trigger timeout
+            # Return a response that would normally continue pagination
+            double('Response', body: { slots: [{ id: 'test' }], next_token: 'token123' })
+          end
+
+          VCR.use_cassette('vaos/eps/get_provider_slots/timeout_simulation') do
+            expect do
+              service.get_provider_slots('TIMEOUT_TEST', {
+                                           appointmentTypeId: 'ov',
+                                           startOnOrAfter: '2025-01-01T00:00:00Z',
+                                           startBefore: '2025-01-03T00:00:00Z'
+                                         })
+            end.to raise_error(Common::Exceptions::BackendServiceException) { |error|
+              expect(error.key).to eq('PROVIDER_SLOTS_TIMEOUT')
+            }
+          end
+        end
+      end
+    end
+
+    context 'when API request fails' do
+      let(:config) { instance_double(Eps::Configuration) }
+      let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
       let(:exception) do
-        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+        Common::Exceptions::BackendServiceException.new(nil, {}, 500, 'Unknown service exception')
       end
 
       before do
+        allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                          request_types: %i[get put post delete],
+                                          pagination_timeout_seconds: 45)
+        allow(service).to receive_messages(config:)
+        allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
       end
 
-      it 'raises an error' do
+      it 'raises the original exception' do
         expect do
           service.get_provider_slots(provider_id, required_params)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when multiple page response (with pagination)', :vcr do
+      it 'handles pagination from VCR cassette' do
+        VCR.use_cassette('vaos/eps/get_provider_slots/200_with_pagination') do
+          result = service.get_provider_slots('TEST123', {
+                                                appointmentTypeId: 'ov',
+                                                startOnOrAfter: '2025-01-01T00:00:00Z',
+                                                startBefore: '2025-01-03T00:00:00Z'
+                                              })
+
+          expect(result).to be_a(OpenStruct)
+          expect(result.slots.length).to eq(3)
+          expect(result.count).to eq(3)
+          expect(result.slots.map { |slot| slot[:id] }).to include(
+            'page1-slot1|2025-01-02T09:00:00Z',
+            'page1-slot2|2025-01-02T10:00:00Z',
+            'page2-slot1|2025-01-02T14:00:00Z'
+          )
+          expect(result.to_h).not_to have_key(:next_token)
+        end
       end
     end
   end
@@ -900,7 +1002,6 @@ describe Eps::ProviderService do
               ]
             }
           end
-
           let(:matching_address) do
             {
               street1: '45414-3333 FAKE STREET',
@@ -909,7 +1010,6 @@ describe Eps::ProviderService do
               zip: '12345' # Should match the LAST zip code (12345), not the street number (45414)
             }
           end
-
           let(:response) do
             double('Response', status: 200, body: response_body,
                                response_headers: { 'Content-Type' => 'application/json' })
