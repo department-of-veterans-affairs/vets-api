@@ -8,7 +8,6 @@ module IncomeAndAssets
     #
     # @return [Hash]
     def metadata
-      p 'HEREEREREREREREREERERERRERERERERERERERER'
       {
         version: 0,
         prefill: true,
@@ -31,6 +30,13 @@ module IncomeAndAssets
       form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form_id)
 
       { form_data:, metadata: }
+    end
+
+    def va_file_number_last_four
+      response = BGS::People::Request.new.find_person_by_participant_id(user:)
+      (
+        response.file_number.presence || user.ssn.presence
+      )&.last(4)
     end
   end
 end

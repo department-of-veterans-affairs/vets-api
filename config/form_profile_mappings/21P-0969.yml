@@ -1,2 +1,3 @@
-veteranFullName: [identity_information, full_name]
-veteranSocialSecurityNumber: [identity_information, ssn]
+nonPrefill:
+  veteranSsnLastFour: [identity_information, ssn_last_four]
+  veteranVaFileNumberLastFour: [va_file_number_last_four]
