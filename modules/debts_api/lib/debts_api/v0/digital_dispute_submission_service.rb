@@ -24,7 +24,6 @@ module DebtsApi
         validate_files
 
         send_to_dmc
-
         in_progress_form&.destroy
         {
           success: true,
