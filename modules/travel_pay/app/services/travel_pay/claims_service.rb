@@ -45,7 +45,7 @@ module TravelPay
       elapsed_time = Time.current - start_time
       Rails.logger.info(message: "Looped through #{all_claims[:data].size} claims in #{elapsed_time} seconds.")
 
-      build_claims_response(all_claims)
+      all_claims
     end
 
     # Retrieves expanded claim details with additional fields
@@ -160,9 +160,7 @@ module TravelPay
       documents
     end
 
-    # Disabled method length for now due to error handling adding extra lines
-    # Once we refactor all Travel Pay services for better error handling we can adjust the length here
-    def loop_and_paginate_claims(params, veis_token, btsss_token) # rubocop:disable Metrics/MethodLength
+    def loop_and_paginate_claims(params, veis_token, btsss_token)
       page_number = params[:page_number]
       all_claims = []
       total_record_count = 0
@@ -181,17 +179,10 @@ module TravelPay
         all_claims.concat(faraday_response.body['data'])
       end
 
-      { data: all_claims, total_record_count:, page_number:, status: 200 }
+      build_claims_response({ data: all_claims, total_record_count:, page_number:, status: 200 })
     rescue => e
-      if all_claims.empty?
-        Rails.logger.error(message: "#{e}. Could not retrieve claims by date range.")
-        # TODO: replace this with the actual error
-        raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Could not retrieve claims.')
-      else
-        Rails.logger.error(message:
-        "#{e}. Retrieved #{all_claims.size} of #{total_record_count} claims, ending on page #{page_number - 1}.")
-        { data: all_claims, total_record_count:, page_number: page_number - 1, status: 206 }
-      end
+      rescue_pagination_errors(e, { data: all_claims, total_record_count:,
+                                    page_number: page_number - 1 })
     end
 
     def build_claims_response(all_claims)
@@ -206,6 +197,19 @@ module TravelPay
           sc
         end
       }
+    end
+
+    def rescue_pagination_errors(e, claims)
+      if claims[:data].empty?
+        Rails.logger.error(message: "#{e}. Could not retrieve claims by date range.")
+        # TODO: replace this with the actual error
+        raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Could not retrieve claims.')
+      else
+        claims => { data:, total_record_count:, page_number: }
+        Rails.logger.error(message:
+        "#{e}. Retrieved #{data.size} of #{total_record_count} claims, ending on page #{page_number}.")
+        build_claims_response({ **claims, status: 206 })
+      end
     end
 
     def include_documents?
