@@ -8,18 +8,22 @@ module Eps
     # @return OpenStruct response from EPS provider endpoint
     #
     def get_provider_service(provider_id:)
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
-                         {}, request_headers_with_correlation_id)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
+                           {}, request_headers_with_correlation_id)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     def get_provider_services_by_ids(provider_ids:)
-      query_object_array = provider_ids.map { |id| "id=#{id}" }
-      response = perform(:get, "/#{config.base_path}/provider-services",
-                         query_object_array, request_headers_with_correlation_id)
+      with_monitoring do
+        query_object_array = provider_ids.map { |id| "id=#{id}" }
+        response = perform(:get, "/#{config.base_path}/provider-services",
+                           query_object_array, request_headers_with_correlation_id)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -28,9 +32,11 @@ module Eps
     # @return OpenStruct response from EPS networks endpoint
     #
     def get_networks
-      response = perform(:get, "/#{config.base_path}/networks", {}, request_headers_with_correlation_id)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/networks", {}, request_headers_with_correlation_id)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -41,14 +47,16 @@ module Eps
     # @return OpenStruct response from EPS drive times endpoint
     #
     def get_drive_times(destinations:, origin:)
-      payload = {
-        destinations:,
-        origin:
-      }
+      with_monitoring do
+        payload = {
+          destinations:,
+          origin:
+        }
 
-      response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers_with_correlation_id)
+        response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers_with_correlation_id)
 
-      OpenStruct.new(response.body)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
@@ -56,37 +64,39 @@ module Eps
     #
     # @param provider_id [String] The unique identifier of the provider
     # @param opts [Hash] Optional parameters for the request
-    # @option opts [String] :nextToken Token for pagination of results
-    # @option opts [String] :appointmentTypeId Required if nextToken is not provided. The type of appointment
-    # @option opts [String] :startOnOrAfter Required if nextToken is not provided. Start of the time range
-    #   (ISO 8601 format)
-    # @option opts [String] :startBefore Required if nextToken is not provided. End of the time range
-    #   (ISO 8601 format)
+    # @option opts [String] :appointmentTypeId Required. The type of appointment
+    # @option opts [String] :startOnOrAfter Required. Start of the time range (ISO 8601 format)
+    # @option opts [String] :startBefore Required. End of the time range (ISO 8601 format)
     # @option opts [Hash] Additional optional parameters will be passed through to the request
     #
-    # @raise [ArgumentError] If nextToken is not provided and any of appointmentTypeId, startOnOrAfter, or
-    #   startBefore are missing
+    # @raise [ArgumentError] If any of appointmentTypeId, startOnOrAfter, or startBefore are missing
     #
-    # @return [OpenStruct] Response containing available slots
+    # @return [OpenStruct] Response containing all available slots from all pages
     #
     def get_provider_slots(provider_id, opts = {})
       raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
 
-      params = if opts[:nextToken]
-                 { nextToken: opts[:nextToken] }
-               else
-                 required_params = %i[appointmentTypeId startOnOrAfter startBefore]
-                 missing_params = required_params - opts.keys
+      all_slots = []
+      next_token = nil
+      start_time = Time.current
 
-                 raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+      loop do
+        check_pagination_timeout(start_time, provider_id)
 
-                 opts
-               end
+        params = build_slot_params(next_token, opts)
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
+                           request_headers_with_correlation_id)
 
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
-                         request_headers_with_correlation_id)
+        current_response = response.body
 
-      OpenStruct.new(response.body)
+        all_slots.concat(current_response[:slots]) if current_response[:slots].present?
+
+        next_token = current_response[:next_token]
+        break if next_token.blank? || current_response[:slots].blank?
+      end
+
+      combined_response = { slots: all_slots, count: all_slots.length }
+      OpenStruct.new(combined_response)
     end
 
     ##
@@ -100,33 +110,73 @@ module Eps
     # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
-      query_params = { npi:, isSelfSchedulable: true }
-      response = perform(:get, "/#{config.base_path}/provider-services", query_params,
-                         request_headers_with_correlation_id)
+      with_monitoring do
+        query_params = { npi:, isSelfSchedulable: true }
+        response = perform(:get, "/#{config.base_path}/provider-services", query_params,
+                           request_headers_with_correlation_id)
 
-      return nil if response.body[:provider_services].blank?
+        return nil if response.body[:provider_services].blank?
 
-      # Step 1: Filter providers by specialty only
-      specialty_matches = response.body[:provider_services].select do |provider|
-        specialty_matches?(provider, specialty)
+        # Step 1: Filter providers by specialty only
+        specialty_matches = response.body[:provider_services].select do |provider|
+          specialty_matches?(provider, specialty)
+        end
+
+        return nil if specialty_matches.empty?
+
+        # Step 2: Filter specialty matches by address
+        address_match = specialty_matches.find do |provider|
+          address_matches?(provider, address)
+        end
+
+        if address_match.nil?
+          Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI")
+        end
+
+        # Return address match if found, otherwise nil (avoid false positives)
+        address_match&.then { |provider| OpenStruct.new(provider) }
       end
-
-      return nil if specialty_matches.empty?
-
-      # Step 2: Filter specialty matches by address
-      address_match = specialty_matches.find do |provider|
-        address_matches?(provider, address)
-      end
-
-      if address_match.nil?
-        Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI #{npi}")
-      end
-
-      # Return address match if found, otherwise nil (avoid false positives)
-      address_match&.then { |provider| OpenStruct.new(provider) }
     end
 
     private
+
+    ##
+    # Checks if pagination has exceeded the timeout limit
+    #
+    # @param start_time [Time] When pagination started
+    # @param provider_id [String] Provider identifier for error logging
+    # @raise [Common::Exceptions::BackendServiceException] If timeout exceeded
+    #
+    def check_pagination_timeout(start_time, provider_id)
+      timeout_seconds = config.pagination_timeout_seconds
+      return unless Time.current - start_time > timeout_seconds
+
+      Rails.logger.error(
+        "Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}"
+      )
+      raise Common::Exceptions::BackendServiceException.new(
+        'PROVIDER_SLOTS_TIMEOUT',
+        source: self.class.to_s
+      )
+    end
+
+    ##
+    # Builds parameters for slot request based on token availability
+    #
+    # @param next_token [String] Token for pagination
+    # @param opts [Hash] Original request options
+    # @return [Hash] Parameters for the API request
+    #
+    def build_slot_params(next_token, opts)
+      return { nextToken: next_token } if next_token
+
+      required_params = %i[appointmentTypeId startOnOrAfter startBefore]
+      missing_params = required_params - opts.keys
+
+      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+
+      opts
+    end
 
     ##
     # Check if provider's specialty matches the requested specialty (case-insensitive)
