@@ -130,18 +130,7 @@ module RepresentationManagement
     # @param agent [Hash] Raw agent data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_agent_json(record, agent)
-      agent_raw_address = raw_address_for_agent(agent)
-      {
-        id: record.id,
-        address: {
-          address_pou: 'RESIDENCE/CHOICE',
-          address_line1: agent_raw_address['address_line1'],
-          address_line2: agent_raw_address['address_line2'],
-          address_line3: agent_raw_address['address_line3'],
-          city: nil,
-          zip_code5: agent_raw_address['zip_code']
-        }
-      }
+      individual_entity_json(record, agent, :agent, { city: nil })
     end
 
     # Creates a JSON object for an attorney's address, used for address validation
@@ -151,17 +140,36 @@ module RepresentationManagement
     # @return [Hash] JSON structure for address validation
     def individual_attorney_json(record, attorney)
       attorney_raw_address = raw_address_for_attorney(attorney)
+      individual_entity_json(
+        record,
+        attorney,
+        :attorney,
+        {
+          city: attorney_raw_address['city'],
+          state: { state_code: attorney_raw_address['state_code'] }
+        }
+      )
+    end
+
+    # Base method to create a JSON object for entity address validation
+    #
+    # @param record [AccreditedIndividual] The database record for the entity
+    # @param entity [Hash] Raw entity data from the GCLAWS API
+    # @param entity_type [Symbol] The type of entity (:agent or :attorney)
+    # @param additional_fields [Hash] Additional address fields specific to this entity type
+    # @return [Hash] JSON structure for address validation
+    def individual_entity_json(record, entity, entity_type, additional_fields = {})
+      raw_address = send("raw_address_for_#{entity_type}", entity)
+
       {
         id: record.id,
         address: {
           address_pou: 'RESIDENCE/CHOICE',
-          address_line1: attorney_raw_address['address_line1'],
-          address_line2: attorney_raw_address['address_line2'],
-          address_line3: attorney_raw_address['address_line3'],
-          city: attorney_raw_address['city'],
-          state: { state_code: attorney_raw_address['state_code'] },
-          zip_code5: attorney_raw_address['zip_code']
-        }
+          address_line1: raw_address['address_line1'],
+          address_line2: raw_address['address_line2'],
+          address_line3: raw_address['address_line3'],
+          zip_code5: raw_address['zip_code']
+        }.merge(additional_fields)
       }
     end
 
