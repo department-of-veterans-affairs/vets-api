@@ -716,8 +716,9 @@ namespace :form526 do
     new_return_url = '/new-disabilities/add'
 
     # reduce scope to iterate/check only those created in bug window
+    date_range = Date.parse('2025-06-26').beginning_of_day..Date.parse('2025-06-30').end_of_day
     potentially_affected_forms = InProgressForm.where(form_id: '21-526EZ')
-                                               .where(created_at: Date.parse('2025-06-26')..Date.parse('2025-06-30'))
+                                               .where(created_at: date_range)
     # I think we dont actually care if they have attempted to submit or not, they could still be affected
     # .where("metadata->'submission'->>'has_attempted_submit' = 'true'")
     count = potentially_affected_forms.count
