@@ -140,7 +140,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
@@ -174,7 +174,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
       end
 
@@ -233,7 +233,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
       end
 

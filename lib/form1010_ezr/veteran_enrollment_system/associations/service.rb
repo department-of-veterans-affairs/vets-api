@@ -3,6 +3,7 @@
 require 'veteran_enrollment_system/associations/service'
 require 'veteran_enrollment_system/associations/configuration'
 require 'form1010_ezr/veteran_enrollment_system/associations/reconciler'
+require 'common/hash_helpers'
 
 module Form1010Ezr
   module VeteranEnrollmentSystem
@@ -55,17 +56,18 @@ module Form1010Ezr
         def transform_association(association)
           transformed_association = {}
           # Format the address to match the Associations schema
-          transformed_association['address'] = format_address(association['address']).compact_blank
+          transformed_association['address'] = format_address(association['address'])
           # Format the name to match the Associations schema
-          transformed_association['name'] = convert_full_name_alt(association['fullName']).compact_blank
+          transformed_association['name'] = convert_full_name_alt(association['fullName'])
 
           transform_flat_fields(association, transformed_association)
           # This is a required field in the Associations API for insert/update, but not for delete
-          unless transformed_association['deleteIndicator']
+          if transformed_association['deleteIndicator'].blank?
             transformed_association['lastUpdateDate'] = Time.current.iso8601
           end
 
-          transformed_association
+          # Remove blank values
+          Common::HashHelpers.deep_remove_blanks(transformed_association).compact_blank
         end
 
         def transform_associations(associations)
