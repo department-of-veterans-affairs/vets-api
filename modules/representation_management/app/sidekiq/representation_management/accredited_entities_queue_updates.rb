@@ -119,11 +119,9 @@ module RepresentationManagement
     end
 
     def notify_if_orgs_or_reps_count_decreased
-      orgs_and_reps = %w[representatives veterans_service_organizations]
       orgs_and_reps.each do |type|
-        if @entity_counts.valid_count?(type.to_sym, notify: false) || @force_update_types.include?(type)
-          next
-        end 
+        next if @entity_counts.valid_count?(type.to_sym) || @force_update_types.include?(type)
+
         previous_count = @entity_counts.current_db_counts[type.to_sym]
         new_count = @entity_counts.current_api_counts[type.to_sym]
         decrease_percentage = (previous_count - new_count).to_f / previous_count
@@ -133,6 +131,10 @@ module RepresentationManagement
           log_error("#{type.humanize} count is valid - proceeding with update")
         end
       end
+    end
+
+    def orgs_and_reps
+      %w[representatives veterans_service_organizations]
     end
 
     def process_agents
@@ -158,26 +160,26 @@ module RepresentationManagement
     end
 
     def process_orgs_and_reps
-      return if @force_update_types.any? && @force_update_types.exclude?('representatives',
-                                                                         'veterans_service_organizations')
+      # Check if there are any force update types specified AND
+      # none of them are representatives or veteran_service_organizations
+      return if @force_update_types.any? &&
+                !@force_update_types.intersect?(%w[representatives veterans_service_organizations])
 
       notify_if_orgs_or_reps_count_decreased
 
-      orgs_and_reps = %w[representatives veterans_service_organizations]
       orgs_and_reps.each do |type|
         unless @entity_counts.valid_count?(type.to_sym) || @force_update_types.include?(type)
           log_error("#{type.humanize} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
         end
       end
 
-        begin
-          response = client.get_accredited_entities(type:, page: 1)
-          @org_responses << response.body['items']
-          # Placeholder for orgs and reps processing logic
-          # update_orgs_and_reps(response.body['items'])
-        rescue => e
-          log_error("Error fetching #{type} from GCLAWS: #{e.message}")
-        end
+      begin
+        response = client.get_accredited_entities(type:, page: 1)
+        @org_responses << response.body['items']
+        # Placeholder for orgs and reps processing logic
+        # update_orgs_and_reps(response.body['items'])
+      rescue => e
+        log_error("Error fetching #{type} from GCLAWS: #{e.message}")
       end
 
       if @entity_counts.valid_count?(:orgs_and_reps) || @force_update_types.include?('orgs_and_reps')
