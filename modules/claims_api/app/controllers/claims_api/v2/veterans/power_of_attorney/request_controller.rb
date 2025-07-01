@@ -69,12 +69,7 @@ module ClaimsApi
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
 
-          request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
-          unless request
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-              detail: "Could not find Power of Attorney request with id: #{lighthouse_id}"
-            )
-          end
+          request = find_poa_request!(lighthouse_id)
           proc_id = request.proc_id
           vet_icn = request.veteran_icn
 
@@ -155,6 +150,18 @@ module ClaimsApi
         end
 
         private
+
+        def find_poa_request!(lighthouse_id)
+          request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
+
+          unless request
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney request with id: #{lighthouse_id}"
+            )
+          end
+
+          request
+        end
 
         def validate_country_code
           vet_cc = form_attributes.dig('veteran', 'address', 'countryCode')
