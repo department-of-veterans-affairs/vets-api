@@ -12,15 +12,19 @@ describe CARMA::Client::MuleSoftClient do
 
   describe 'submitting 10-10CG' do
     let(:config) { double('config') }
-    let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
     let(:timeout) { 60 }
+
+    let(:bearer_token) { 'my-bearer-token' }
+    let(:headers) do
+      {
+        'Authorization' => "Bearer #{bearer_token}",
+        'Content-Type' => 'application/json'
+      }
+    end
 
     before do
       allow(client).to receive(:config).and_return(config)
-      allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
-                                        settings: OpenStruct.new(
-                                          async_timeout: timeout
-                                        ))
+      allow(config).to receive_messages(headers:)
     end
 
     describe '#create_submission_v2' do
@@ -36,14 +40,6 @@ describe CARMA::Client::MuleSoftClient do
       end
 
       context 'successfully gets token' do
-        let(:bearer_token) { 'my-bearer-token' }
-        let(:headers) do
-          {
-            'Authorization' => "Bearer #{bearer_token}",
-            'Content-Type' => 'application/json'
-          }
-        end
-
         let(:has_errors) { false }
         let(:results) { {} }
 
@@ -171,17 +167,6 @@ describe CARMA::Client::MuleSoftClient do
               end
             end
           end
-        end
-      end
-
-      context 'error getting token' do
-        it 'logs error' do
-          expect(mulesoft_auth_token_client).to receive(:new_bearer_token)
-            .and_raise(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
-
-          expect do
-            subject
-          end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
         end
       end
     end

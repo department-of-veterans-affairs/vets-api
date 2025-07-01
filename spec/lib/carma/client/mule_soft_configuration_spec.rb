@@ -7,13 +7,24 @@ describe CARMA::Client::MuleSoftConfiguration do
   subject { described_class.instance }
 
   let(:host) { 'https://www.somesite.gov' }
+  let(:bearer_token) { 'test_bearer_token' }
 
   describe 'connection' do
     let(:faraday) { double('Faraday::Connection', options: double('Faraday::Options')) }
 
+    before do
+      allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token)
+        .and_return(bearer_token)
+    end
+
     it 'creates a new Faraday connection with the correct base path' do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
-      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/")
+      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/", {
+                                              headers: { 'Accept' => 'application/json',
+                                                         'Authorization' => "Bearer #{bearer_token}",
+                                                         'Content-Type' => 'application/json',
+                                                         'User-Agent' => 'Vets.gov Agent' }
+                                            })
       subject.connection
     end
 
@@ -34,8 +45,39 @@ describe CARMA::Client::MuleSoftConfiguration do
     expect(subject.service_name).to eq('CARMA::Client::MuleSoftConfiguration')
   end
 
+  describe 'base_request_headers' do
+    let(:base_request_headers) { subject.base_request_headers }
+
+    before do
+      subject.instance_variable_set(:@bearer_token, nil)
+    end
+
+    context 'successfully fetches bearer token' do
+      before do
+        allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token)
+          .and_return(bearer_token)
+      end
+
+      it 'includes the Authorization header with the bearer token' do
+        expect(base_request_headers['Authorization']).to eq("Bearer #{bearer_token}")
+      end
+    end
+
+    context 'error getting bearer token' do
+      before do
+        allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token).and_raise(
+          StandardError, 'Token fetch error'
+        )
+      end
+
+      it 'raises an error when fetching the bearer token fails' do
+        expect { base_request_headers }.to raise_error(StandardError, 'Token fetch error')
+      end
+    end
+  end
+
   describe 'timeout' do
-    subject { super().timeout }
+    let(:timeout) { subject.timeout }
 
     context 'has a configured value' do
       before do
@@ -43,7 +85,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the configured value' do
-        expect(subject).to eq(23)
+        expect(timeout).to eq(23)
       end
     end
 
@@ -53,7 +95,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the default value' do
-        expect(subject).to eq(60)
+        expect(timeout).to eq(60)
       end
     end
   end
