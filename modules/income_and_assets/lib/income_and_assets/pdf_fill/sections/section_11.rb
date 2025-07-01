@@ -24,7 +24,7 @@ module IncomeAndAssets
             question_num: 11,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Recipient Relationship',
+            question_label: 'Relationship to Veteran',
             format_options: {
               humanize: true
             }
@@ -32,9 +32,9 @@ module IncomeAndAssets
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship11[#{ITERATOR}]",
             question_num: 11,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN (OTHER)",
-            question_label: 'Other Relationship'
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {

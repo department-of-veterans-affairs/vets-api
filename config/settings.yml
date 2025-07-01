@@ -1565,6 +1565,7 @@ vaos:
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: <%= ENV['vaos__eps__client_kid'] %>
     mock: <%= ENV['vaos__eps__mock'] %>
+    pagination_timeout_seconds: 45
     scopes: care-nav
   referral:
     encryption:

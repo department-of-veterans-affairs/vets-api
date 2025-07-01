@@ -78,7 +78,7 @@ module TravelPay
 
       {
         'iss' => host,
-        'sub' => user.email,
+        'sub' => user.user_account_uuid,
         'aud' => "#{host}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,

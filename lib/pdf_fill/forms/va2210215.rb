@@ -133,11 +133,19 @@ module PdfFill
           question_num: 9,
           question_suffix: 'A',
           question_text: 'DATE SIGNED'
+        },
+        'checkbox' => {
+          key: 'checkbox',
+          limit: 10,
+          question_num: 10,
+          question_suffix: 'A',
+          question_text: 'EXTENSIONS ATTACHED CHECKBOX'
         }
       }.freeze
 
-      def merge_fields(_)
-        form_data = @form_data
+      def merge_fields(_options = {})
+        # Deep copy to avoid modifying original data
+        form_data = JSON.parse(JSON.generate(@form_data))
 
         # Combine first and last name into fullName
         if form_data['certifyingOfficial']

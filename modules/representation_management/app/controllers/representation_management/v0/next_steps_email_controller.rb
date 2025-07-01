@@ -18,8 +18,8 @@ module RepresentationManagement
           VANotify::EmailJob.perform_async(
             data.email_address,
             template_id,
-            nil,
             email_personalisation(data),
+            Settings.vanotify.services.va_gov.api_key,
             email_callback_options(data)
           )
           render json: { message: 'Email enqueued' }, status: :ok

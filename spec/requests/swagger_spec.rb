@@ -1078,6 +1078,18 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         context 'authenticated' do
+          before do
+            allow_any_instance_of(
+              Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+            ).to receive(:reconcile_and_update_associations).and_return(
+              {
+                status: 'success',
+                message: 'All associations were updated successfully',
+                timestamp: Time.current.iso8601
+              }
+            )
+          end
+
           it 'supports submitting a 1010EZR application', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
             VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
               expect(subject).to validate(

@@ -2584,11 +2584,18 @@ describe VAOS::V2::AppointmentsService do
       expect(subject.send(:schedulable?, appt)).to be(false)
     end
 
-    it 'returns false for cc appointments and requests' do
-      appt = build(:appointment_form_v2, :community_cares_base).attributes
+    it 'returns false for cc appointment' do
+      appt = build(:appointment_form_v2, :community_cares_no_request_dates).attributes
       appt[:id] = '1234'
       subject.send(:set_type, appt)
       expect(subject.send(:schedulable?, appt)).to be(false)
+    end
+
+    it 'returns true for cc request' do
+      appt = build(:appointment_form_v2, :community_cares_base).attributes
+      appt[:id] = '1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(true)
     end
 
     it 'returns true for va requests' do
