@@ -715,6 +715,7 @@ namespace :form526 do
   task in_progress_forms_return_point: :environment do
     new_return_url = '/new-disabilities/add'
 
+    # reduce scope to iterate/check only those created in bug window
     potentially_affected_forms = InProgressForm.where(form_id: '21-526EZ')
                   .where(created_at: Date.parse('2025-06-26')..Date.parse('2025-06-30'))
                   .where("metadata->'submission'->>'has_attempted_submit' = 'true'")
@@ -727,9 +728,15 @@ namespace :form526 do
         id = form.id
         form_parsed = JSON.parse(form.form_data)
         nd = form_parsed.dig("new_disabilities")
+        # skip if no new_disabilities key
         next if nd.nil?
-        is_affected = nd.any? {|d| d.key?('condition') && d.keys.size == 1}
+        # they are affected if the new_disabilities key has a condition key
+        # and the only key in the new_disabilities is condition 
+        # meaning they were not able to enter in the additional required information about the condition
+        is_affected = nd.any? {|d| d.keys.size == 1 && d.key?('condition')}
         if is_affected
+          # reset the return_url to the new value
+          # have to set the whole metadata object 
           form.metadata = form.metadata.merge('return_url' => new_return_url)
           form.save!
           puts "Updated form with ID: #{id}"
