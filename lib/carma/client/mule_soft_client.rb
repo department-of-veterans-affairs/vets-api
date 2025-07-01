@@ -32,7 +32,7 @@ module CARMA
       def perform_post(payload)
         resource = 'v2/application/1010CG/submit'
         with_monitoring do
-          Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
+          Rails.logger.info "[10-10CG] - Submitting to '#{resource}' using bearer token"
 
           response = perform(
             :post,
@@ -68,10 +68,10 @@ module CARMA
       end
 
       def raise_error_unless_success(resource, status)
-        Rails.logger.info "[Form 10-10CG] Submission to '#{resource}' resource resulted in response code #{status}"
+        Rails.logger.info "[10-10CG] - Submission to '#{resource}' resource resulted in response code #{status}"
         return if [200, 201, 202].include? status
 
-        Rails.logger.error "[Form 10-10CG] Submission expected 200 status but received #{status}"
+        Rails.logger.error "[10-10CG] - Submission expected 200 status but received #{status}"
         raise Common::Exceptions::SchemaValidationErrors, ["Expecting 200 status but received #{status}"]
       end
 
@@ -85,7 +85,7 @@ module CARMA
           }
         end
 
-        Rails.logger.error '[Form 10-10CG] response contained attachment errors',
+        Rails.logger.error '[10-10CG] - response contained attachment errors',
                            {
                              created_at: carma_case_metadata['createdAt'] || '',
                              id: carma_case_metadata['id'] || '',

@@ -565,13 +565,13 @@ RSpec.describe Form1010cg::Service do
           **expected_arguments
         )
         claim_guid = claim_with_mpi_veteran.guid
-        expect(Rails.logger).to receive(:info).with('[Form 10-10CG] MPI Profile found for Veteran', { claim_guid: })
+        expect(Rails.logger).to receive(:info).with('[10-10CG] - MPI Profile found for Veteran', { claim_guid: })
         expect(Rails.logger).to receive(:info).with(
-          '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver',
+          '[10-10CG] - MPI Profile search was skipped for Primary Caregiver',
           { claim_guid: }
         )
         expect(Rails.logger).to receive(:info).with(
-          '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One',
+          '[10-10CG] - MPI Profile search was skipped for Secondary Caregiver One',
           { claim_guid: }
         )
         expect(Rails.logger).to receive(:info).with(
