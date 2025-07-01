@@ -143,11 +143,6 @@ module TravelPay
       def fetch_claim_with_decision_reason(cid)
         claim = claims_service.get_claim_details(cid)
 
-        if %w[Denied PartialPayment].include?(claim['claimStatus'])
-          decision_document = find_decision_letter_document(claim)
-          claim['all_denial_reasons'] = get_decision_reason(cid, decision_document['id']) if decision_document
-        end
-
         if claim.nil?
           handle_resource_not_found_error(
             "Claim not found. ID provided: #{cid}",
@@ -162,56 +157,6 @@ module TravelPay
         TravelPay::ServiceError.raise_mapped_error(e)
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, message: e.message
-      end
-
-      def get_decision_reason(cid, did)
-        document_data = documents_service.download_document(cid, did)
-        doc = Docx::Document.open(document_data[:body])
-
-        doc.paragraphs.each_with_index do |paragraph, index|
-          next unless paragraph_is_bold?(paragraph)
-
-          result = check_paragraph_for_decision_reason(paragraph, doc.paragraphs[index + 1])
-          return result if result
-        end
-
-        Rails.logger.error('Target heading not found')
-        nil
-      end
-
-      def check_paragraph_for_decision_reason(paragraph, next_paragraph)
-        return nil unless next_paragraph
-
-        paragraph_text = paragraph.to_s
-
-        if should_check_cfr_for_denial?(paragraph_text, next_paragraph)
-          log_and_return_decision_reason('rejection', next_paragraph)
-        elsif paragraph_text.include?('Partial payment reason')
-          log_and_return_decision_reason('partial payment', next_paragraph)
-        end
-      end
-
-      def should_check_cfr_for_denial?(paragraph_text, next_paragraph)
-        paragraph_text.include?('Denial reason') &&
-          next_paragraph.to_s.match(/Authority \d+ CFR \d+\.\d+/)
-      end
-
-      def log_and_return_decision_reason(reason_type, paragraph)
-        Rails.logger.info("Decision #{reason_type} reason found: \"#{paragraph}\"")
-        paragraph.to_s
-      end
-
-      def paragraph_is_bold?(paragraph)
-        paragraph.runs.any?(&:bold?)
-      end
-
-      def find_decision_letter_document(claim)
-        return nil unless claim&.dig('documents')
-
-        claim['documents'].find do |document|
-          filename = document['filename'] || ''
-          filename.match?(/Decision Letter|Rejection Letter/i)
-        end
       end
     end
   end
