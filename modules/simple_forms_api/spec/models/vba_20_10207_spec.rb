@@ -333,13 +333,5 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       expect(vsi_service).to receive(:add_flash_to_bgs)
       form.add_vsi_flash
     end
-
-    it 'handles errors gracefully' do
-      data['other_reasons'] = { 'VSI_SI' => true }
-      allow(vsi_service).to receive(:add_flash_to_bgs).and_raise(StandardError, 'BGS error')
-      expect(Rails.logger).to receive(:error).with('Simple forms api - error adding VSI flash',
-                                                   error: instance_of(StandardError))
-      expect { form.add_vsi_flash }.not_to raise_error
-    end
   end
 end

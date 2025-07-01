@@ -45,6 +45,30 @@ RSpec.describe SimpleFormsApi::VsiFlashService do
       end
     end
 
+    context 'when flash is added but confirmation fails' do
+      let(:ssn) { '123456789' }
+      let(:form_data) do
+        {
+          'veteran_id' => { 'ssn' => ssn }
+        }
+      end
+
+      before do
+        allow(claimant_service).to receive(:add_flash)
+        allow(claimant_service).to receive(:find_assigned_flashes).and_return(
+          { flashes: [{ flash_name: 'OTHER_FLASH' }] }
+        )
+      end
+
+      it 'logs confirmation failure and returns true' do
+        expect(Rails.logger).to receive(:error).with(
+          'Simple Forms API - Failed to Confirm VSI Flash Addition',
+          { form_id: '20-10207' }
+        )
+        expect(service.add_flash_to_bgs).to be true
+      end
+    end
+
     context 'when service fails' do
       let(:ssn) { '123456789' }
       let(:form_data) do

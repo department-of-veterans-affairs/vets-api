@@ -148,12 +148,8 @@ module SimpleFormsApi
     def add_vsi_flash
       return unless data.dig('other_reasons', 'VSI_SI')
 
-      begin
-        vsi_service = SimpleFormsApi::VsiFlashService.new(data)
-        vsi_service.add_flash_to_bgs
-      rescue => e
-        Rails.logger.error('Simple forms api - error adding VSI flash', error: e)
-      end
+      vsi_service = SimpleFormsApi::VsiFlashService.new(data)
+      vsi_service.add_flash_to_bgs
     end
 
     def get_attachments

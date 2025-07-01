@@ -21,13 +21,13 @@ module SimpleFormsApi
 
       Rails.logger.info(
         'BGS VSI flash added successfully',
-        { flash_name: VSI_FLASH_NAME, ssn: ssn&.last(4) }
+        { flash_name: VSI_FLASH_NAME, form_id: '20-10207' }
       )
       true
     rescue => e
       Rails.logger.error(
-        'Failed to add VSI flash',
-        { error: e.message, flash_name: VSI_FLASH_NAME, ssn: ssn&.last(4) }
+        'Simple Forms API - Failed to Add VSI Flash',
+        { error: e.message, form_id: '20-10207' }
       )
       false
     end
@@ -40,8 +40,8 @@ module SimpleFormsApi
 
       if assigned_flash.blank?
         Rails.logger.error(
-          'Failed to confirm VSI flash addition',
-          { flash_name: VSI_FLASH_NAME, ssn: ssn&.last(4) }
+          'Simple Forms API - Failed to Confirm VSI Flash Addition',
+          { form_id: '20-10207' }
         )
       end
     end
