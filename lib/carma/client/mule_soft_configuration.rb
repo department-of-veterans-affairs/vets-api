@@ -7,6 +7,7 @@ module CARMA
         Faraday.new(base_path) do |conn|
           conn.use(:breakers, service_name:)
           conn.request :instrumentation, name: service_name
+          conn.options.timeout = timeout
           conn.adapter Faraday.default_adapter
         end
       end
@@ -16,9 +17,9 @@ module CARMA
       end
 
       # @return [Integer] Value given by configuration key `form_10_10cg.carma.mulesoft.timeout`
-      # setting. Defaults to 10 if unset.
+      # setting. Defaults to 60 if unset.
       def timeout
-        settings.key?(:timeout) ? settings.timeout : 10
+        settings.key?(:timeout) ? settings.timeout : 60
       end
 
       # @return [Config::Options]

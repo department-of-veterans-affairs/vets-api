@@ -7,20 +7,18 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
   let(:client) { described_class.new }
 
   let(:config) { double('config') }
-  let(:timeout) { 60 }
   let(:settings) do
     OpenStruct.new(
       token_url: 'my/token/url',
       client_id: 'id',
       client_secret: 'secret',
-      auth_token_path: 'auth/token/path',
-      timeout:
+      auth_token_path: 'auth/token/path'
     )
   end
 
   before do
     allow(client).to receive(:config).and_return(config)
-    allow(config).to receive_messages(timeout:, settings:)
+    allow(config).to receive_messages(settings:)
   end
 
   describe '#new_bearer_token' do
@@ -44,8 +42,6 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
       }
     end
 
-    let(:options) { { timeout: } }
-
     let(:token) { 'my-token' }
     let(:response_body) do
       "{\"token_type\":\"Bearer\",\"expires_in\":3600,\"access_token\":\"#{token}\",\"scope\":\"DTCWriteResource\"}"
@@ -59,7 +55,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
           .with(
             :post,
             config.settings.auth_token_path,
-            token_params, token_headers, options
+            token_params, token_headers
           )
           .and_return(mock_token_response)
 
@@ -72,7 +68,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
 
       it 'raises error' do
         expect(client).to receive(:perform)
-          .with(:post, config.settings.auth_token_path, token_params, token_headers, options)
+          .with(:post, config.settings.auth_token_path, token_params, token_headers)
           .and_return(mock_error_token_response)
 
         expect do

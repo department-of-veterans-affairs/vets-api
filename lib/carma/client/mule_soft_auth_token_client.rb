@@ -17,11 +17,12 @@ module CARMA
 
       def new_bearer_token
         with_monitoring do
-          response = perform(:post,
-                             auth_token_path,
-                             params,
-                             token_headers,
-                             { timeout: config.timeout })
+          response = perform(
+            :post,
+            auth_token_path,
+            params,
+            token_headers
+          )
 
           return JSON.parse(response.body)['access_token'] if response.status == 200
 

@@ -68,7 +68,7 @@ describe CARMA::Client::MuleSoftClient do
         before do
           allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
           allow(client).to receive(:perform)
-            .with(:post, resource, payload.to_json, headers, { timeout: })
+            .with(:post, resource, payload.to_json, headers)
             .and_return(mock_response)
         end
 

@@ -9,7 +9,7 @@ describe CARMA::Client::MuleSoftConfiguration do
   let(:host) { 'https://www.somesite.gov' }
 
   describe 'connection' do
-    let(:faraday) { double('Faraday::Connection') }
+    let(:faraday) { double('Faraday::Connection', options: double('Faraday::Options')) }
 
     it 'creates a new Faraday connection with the correct base path' do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
@@ -19,10 +19,12 @@ describe CARMA::Client::MuleSoftConfiguration do
 
     it 'creates the connection' do
       allow(Faraday).to receive(:new).and_yield(faraday)
+      allow(faraday.options).to receive(:timeout=)
 
       expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
       expect(faraday).to receive(:request).once.with(:instrumentation, { name: 'CARMA::Client::MuleSoftConfiguration' })
       expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+      expect(faraday.options).to receive(:timeout=).once.with(subject.timeout)
 
       subject.connection
     end
@@ -51,7 +53,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the default value' do
-        expect(subject).to eq(10)
+        expect(subject).to eq(60)
       end
     end
   end

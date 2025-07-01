@@ -38,8 +38,7 @@ module CARMA
             :post,
             resource,
             get_body(payload),
-            headers,
-            { timeout: config.settings.async_timeout }
+            headers
           )
 
           handle_response(resource, response)
