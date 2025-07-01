@@ -79,9 +79,95 @@ module RepresentationManagement
 
     private
 
-    # @return [RepresentationManagement::GCLAWS::Client] The client for GCLAWS API calls
-    def client
-      RepresentationManagement::GCLAWS::Client
+    # Processes entities of a specific type based on count validation and force update settings
+    #
+    # @param entity_type [String] The type of entity to process ('agents' or 'attorneys')
+    # @return [void]
+    def process_entity_type(entity_type)
+      # Don't process if we are forcing updates for other types
+      return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
+
+      if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
+        if entity_type == 'agents'
+          update_agents
+          validate_agent_addresses
+        else # attorneys
+          update_attorneys
+          validate_attorney_addresses
+        end
+      else
+        entity_display = entity_type.capitalize
+        log_error("#{entity_display} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+      end
+    end
+
+    # Fetches agent data from the GCLAWS API and updates database records
+    #
+    # @return [void]
+    def update_agents
+      update_entities('agents')
+    end
+
+    # Fetches attorney data from the GCLAWS API and updates database records
+    #
+    # @return [void]
+    def update_attorneys
+      update_entities('attorneys')
+    end
+
+    # Generic method to update entities of a specific type
+    #
+    # @param entity_type [String] The type of entity to update ('agents' or 'attorneys')
+    # @return [void]
+    def update_entities(entity_type)
+      config = ENTITY_CONFIG[entity_type]
+      page = 1
+
+      loop do
+        response = client.get_accredited_entities(type: entity_type, page:)
+        entities = response.body['items']
+        break if entities.empty?
+
+        instance_variable_get(config[:responses_var]) << entities
+        entities.each { |entity| handle_entity_record(entity, config) }
+        page += 1
+      end
+    end
+
+    # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
+    #
+    # @return [void]
+    def delete_old_accredited_individuals
+      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids).find_each do |record|
+        record.destroy
+      rescue => e
+        log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+      end
+    end
+
+    # Handle an individual entity
+    #
+    # @param entity [Hash] The entity data from the API
+    # @param config [Hash] Configuration for the entity type
+    # @return [void]
+    def handle_entity_record(entity, config)
+      singular_type = config[:singular_type]
+      entity_hash = send("data_transform_for_#{singular_type}", entity)
+
+      # Find or create record
+      entity_identifier = { individual_type: config[:individual_type], ogc_id: entity['id'] }
+      record = AccreditedIndividual.find_or_create_by(entity_identifier)
+
+      # Check if address validation is needed
+      raw_address = send("raw_address_for_#{singular_type}", entity)
+      if record.raw_address != raw_address
+        json_method = "individual_#{singular_type}_json"
+        instance_variable_get(config[:json_var]) << send(json_method, record, entity)
+      end
+
+      # Update record and store ID
+      record.update(entity_hash)
+      instance_variable_get(config[:ids_var]) << record.id
     end
 
     # Transforms agent data from the GCLAWS API into a format suitable for the AccreditedIndividual model
@@ -133,40 +219,35 @@ module RepresentationManagement
       }.merge(extra_attrs)
     end
 
-    # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
+    # Extracts address data from an entity record with optional extra fields
     #
-    # @return [void]
-    def delete_old_accredited_individuals
-      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids).find_each do |record|
-        record.destroy
-      rescue => e
-        log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
-      end
+    # @param entity [Hash] Raw entity data from the GCLAWS API
+    # @param extra_fields [Hash] Additional fields to include, with mapping to entity keys
+    # @return [Hash] Standardized address data
+    def raw_address_from_entity(entity, extra_fields = {})
+      {
+        address_line1: entity['workAddress1'],
+        address_line2: entity['workAddress2'],
+        address_line3: entity['workAddress3'],
+        zip_code: entity['workZip']
+      }.merge(extra_fields.transform_values { |key| entity[key] })
+        .transform_keys(&:to_s)
     end
 
-    # Handle an individual entity
+    # Creates a standardized address hash for an agent
     #
-    # @param entity [Hash] The entity data from the API
-    # @param config [Hash] Configuration for the entity type
-    # @return [void]
-    def handle_entity_record(entity, config)
-      singular_type = config[:singular_type]
-      entity_hash = send("data_transform_for_#{singular_type}", entity)
+    # @param agent [Hash] Raw agent data from the GCLAWS API
+    # @return [Hash] Standardized address data
+    def raw_address_for_agent(agent)
+      raw_address_from_entity(agent, work_country: 'workCountry')
+    end
 
-      # Find or create record
-      entity_identifier = { individual_type: config[:individual_type], ogc_id: entity['id'] }
-      record = AccreditedIndividual.find_or_create_by(entity_identifier)
-
-      # Check if address validation is needed
-      raw_address = send("raw_address_for_#{singular_type}", entity)
-      if record.raw_address != raw_address
-        json_method = "individual_#{singular_type}_json"
-        instance_variable_get(config[:json_var]) << send(json_method, record, entity)
-      end
-
-      # Update record and store ID
-      record.update(entity_hash)
-      instance_variable_get(config[:ids_var]) << record.id
+    # Creates a standardized address hash for an attorney
+    #
+    # @param attorney [Hash] Raw attorney data from the GCLAWS API
+    # @return [Hash] Standardized address data
+    def raw_address_for_attorney(attorney)
+      raw_address_from_entity(attorney, city: 'workCity', state_code: 'workState')
     end
 
     # Creates a JSON object for an agent's address, used for address validation
@@ -216,92 +297,6 @@ module RepresentationManagement
           zip_code5: raw_address['zip_code']
         }.merge(additional_fields)
       }
-    end
-
-    # Processes entities of a specific type based on count validation and force update settings
-    #
-    # @param entity_type [String] The type of entity to process ('agents' or 'attorneys')
-    # @return [void]
-    def process_entity_type(entity_type)
-      # Don't process if we are forcing updates for other types
-      return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
-
-      if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
-        if entity_type == 'agents'
-          update_agents
-          validate_agent_addresses
-        else # attorneys
-          update_attorneys
-          validate_attorney_addresses
-        end
-      else
-        entity_display = entity_type.capitalize
-        log_error("#{entity_display} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
-      end
-    end
-
-    # Extracts address data from an entity record with optional extra fields
-    #
-    # @param entity [Hash] Raw entity data from the GCLAWS API
-    # @param extra_fields [Hash] Additional fields to include, with mapping to entity keys
-    # @return [Hash] Standardized address data
-    def raw_address_from_entity(entity, extra_fields = {})
-      {
-        address_line1: entity['workAddress1'],
-        address_line2: entity['workAddress2'],
-        address_line3: entity['workAddress3'],
-        zip_code: entity['workZip']
-      }.merge(extra_fields.transform_values { |key| entity[key] })
-        .transform_keys(&:to_s)
-    end
-
-    # Creates a standardized address hash for an agent
-    #
-    # @param agent [Hash] Raw agent data from the GCLAWS API
-    # @return [Hash] Standardized address data
-    def raw_address_for_agent(agent)
-      raw_address_from_entity(agent, work_country: 'workCountry')
-    end
-
-    # Creates a standardized address hash for an attorney
-    #
-    # @param attorney [Hash] Raw attorney data from the GCLAWS API
-    # @return [Hash] Standardized address data
-    def raw_address_for_attorney(attorney)
-      raw_address_from_entity(attorney, city: 'workCity', state_code: 'workState')
-    end
-
-    # Fetches agent data from the GCLAWS API and updates database records
-    #
-    # @return [void]
-    def update_agents
-      update_entities('agents')
-    end
-
-    # Fetches attorney data from the GCLAWS API and updates database records
-    #
-    # @return [void]
-    def update_attorneys
-      update_entities('attorneys')
-    end
-
-    # Generic method to update entities of a specific type
-    #
-    # @param entity_type [String] The type of entity to update ('agents' or 'attorneys')
-    # @return [void]
-    def update_entities(entity_type)
-      config = ENTITY_CONFIG[entity_type]
-      page = 1
-
-      loop do
-        response = client.get_accredited_entities(type: entity_type, page:)
-        entities = response.body['items']
-        break if entities.empty?
-
-        instance_variable_get(config[:responses_var]) << entities
-        entities.each { |entity| handle_entity_record(entity, config) }
-        page += 1
-      end
     end
 
     # Queues address validation jobs for a batch of records
@@ -357,6 +352,11 @@ module RepresentationManagement
         instance_variable_get(json_var),
         description
       )
+    end
+
+    # @return [RepresentationManagement::GCLAWS::Client] The client for GCLAWS API calls
+    def client
+      RepresentationManagement::GCLAWS::Client
     end
 
     # Logs an error message to the Rails logger
