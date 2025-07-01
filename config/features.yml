@@ -2180,6 +2180,11 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
+  travel_pay_claims_management_decision_reason:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the display of decision reason parsed from the decision letter document on the claim details page.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
