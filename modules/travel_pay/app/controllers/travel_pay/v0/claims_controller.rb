@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'docx'
-
 module TravelPay
   module V0
     class ClaimsController < ApplicationController
@@ -23,7 +21,7 @@ module TravelPay
         end
 
         begin
-          claim = fetch_claim_with_decision_reason(params[:id])
+          claim = claims_service.get_claim_details(params[:id])
         rescue Faraday::ResourceNotFound => e
           handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
           return
@@ -138,25 +136,6 @@ module TravelPay
           },
           status: :not_found
         )
-      end
-
-      def fetch_claim_with_decision_reason(cid)
-        claim = claims_service.get_claim_details(cid)
-
-        if claim.nil?
-          handle_resource_not_found_error(
-            "Claim not found. ID provided: #{cid}",
-            nil # correlation_id not available when claim is nil
-          )
-        else
-          claim
-        end
-      rescue Faraday::ResourceNotFound => e
-        handle_resource_not_found_error(e.message, error.response[:request][:headers]['X-Correlation-ID'])
-      rescue Faraday::Error => e
-        TravelPay::ServiceError.raise_mapped_error(e)
-      rescue ArgumentError => e
-        raise Common::Exceptions::BadRequest, message: e.message
       end
     end
   end
