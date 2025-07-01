@@ -13,6 +13,7 @@ require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/source_app_middleware'
 require_relative '../lib/statsd_middleware'
 require_relative '../lib/faraday_adapter_socks/faraday_adapter_socks'
+require_relative '../lib/active_model/pretty_inspect'
 require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems
