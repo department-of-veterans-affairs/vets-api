@@ -510,7 +510,7 @@ describe PdfFill::Forms::Va2141422024 do
 
           Conditions Treated: Hypertension
 
-          Treatment Date Ranges: from: 2010-01-01 to: 2011-01-01
+          Treatment Date Ranges: from: 01-01-2010 to: 01-01-2011
         TEXT
 
         expect(overflow_text1).to include('Provider or Facility Name:')
@@ -518,7 +518,7 @@ describe PdfFill::Forms::Va2141422024 do
         expect(overflow_text1).to include('Address:')
         expect(overflow_text1).to include('Conditions Treated: Hypertension')
         expect(overflow_text1).to include('Treatment Date Ranges:')
-        expect(overflow_text1).to include('from: 2010-01-01 to: 2011-01-01')
+        expect(overflow_text1).to include('from: 01-01-2010 to: 01-01-2011')
 
         # Provider 2: Long address should overflow
         expect(form_data_result['provider2']['completeProviderInfo']).to be_present
@@ -534,7 +534,7 @@ describe PdfFill::Forms::Va2141422024 do
 
           Conditions Treated: Diabetes Type 2
 
-          Treatment Date Ranges: from: 2011-01-01 to: 2012-01-01
+          Treatment Date Ranges: from: 01-01-2011 to: 01-01-2012
         TEXT
 
         expect(overflow_text2).to include('Conditions Treated:')
@@ -650,7 +650,7 @@ describe PdfFill::Forms::Va2141422024 do
     end
   end
 
-  describe '#combine_date_ranges' do
+  describe '#combine_date_ranges_for_pdf' do
     it 'combines multiple date ranges correctly' do
       date_ranges = [
         {
@@ -662,8 +662,8 @@ describe PdfFill::Forms::Va2141422024 do
           'to' => '1987-1-1'
         }
       ]
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
-        "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
+      expect(new_form_class.combine_date_ranges_for_pdf(date_ranges)).to eq(
+        "from: 01-01-1980 to: 01-01-1985\nfrom: 01-01-1986 to: 01-01-1987"
       )
     end
 
@@ -674,14 +674,14 @@ describe PdfFill::Forms::Va2141422024 do
           'to' => '1985-1-1'
         }
       ]
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
-        'from: 1980-1-1 to: 1985-1-1'
+      expect(new_form_class.combine_date_ranges_for_pdf(date_ranges)).to eq(
+        'from: 01-01-1980 to: 01-01-1985'
       )
     end
 
     it 'handles no date ranges' do
       date_ranges = []
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq('')
+      expect(new_form_class.combine_date_ranges_for_pdf(date_ranges)).to eq('')
     end
   end
 end
