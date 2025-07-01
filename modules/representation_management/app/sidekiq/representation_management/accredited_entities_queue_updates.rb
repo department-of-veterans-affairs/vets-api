@@ -32,6 +32,26 @@ module RepresentationManagement
     # Number of records to process in each address validation batch
     SLICE_SIZE = 30
 
+    # Define a configuration map for entity types
+    ENTITY_CONFIG = {
+      'agents' => {
+        singular_type: 'agent',
+        individual_type: 'claims_agent',
+        responses_var: :@agent_responses,
+        ids_var: :@agent_ids,
+        json_var: :@agent_json_for_address_validation,
+        validation_description: 'Batching agent address updates from GCLAWS Accreditation API'
+      },
+      'attorneys' => {
+        singular_type: 'attorney',
+        individual_type: 'attorney',
+        responses_var: :@attorney_responses,
+        ids_var: :@attorney_ids,
+        json_var: :@attorney_json_for_address_validation,
+        validation_description: 'Batching attorney address updates from GCLAWS Accreditation API'
+      }
+    }.freeze
+
     # Main job method that processes accredited entities
     #
     # @param force_update_types [Array<String>] Optional array of entity types to force update
@@ -122,6 +142,31 @@ module RepresentationManagement
       rescue => e
         log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
       end
+    end
+
+    # Handle an individual entity
+    #
+    # @param entity [Hash] The entity data from the API
+    # @param config [Hash] Configuration for the entity type
+    # @return [void]
+    def handle_entity_record(entity, config)
+      singular_type = config[:singular_type]
+      entity_hash = send("data_transform_for_#{singular_type}", entity)
+
+      # Find or create record
+      entity_identifier = { individual_type: config[:individual_type], ogc_id: entity['id'] }
+      record = AccreditedIndividual.find_or_create_by(entity_identifier)
+
+      # Check if address validation is needed
+      raw_address = send("raw_address_for_#{singular_type}", entity)
+      if record.raw_address != raw_address
+        json_method = "individual_#{singular_type}_json"
+        instance_variable_get(config[:json_var]) << send(json_method, record, entity)
+      end
+
+      # Update record and store ID
+      record.update(entity_hash)
+      instance_variable_get(config[:ids_var]) << record.id
     end
 
     # Creates a JSON object for an agent's address, used for address validation
@@ -230,52 +275,31 @@ module RepresentationManagement
     #
     # @return [void]
     def update_agents
-      page = 1
-      loop do
-        response = client.get_accredited_entities(type: 'agents', page:)
-        agents = response.body['items']
-        break if agents.empty?
-
-        @agent_responses << agents
-        agents.each do |agent|
-          agent_hash = data_transform_for_agent(agent)
-          # The agent_identifier is the minimum set of attributes needed to identify an agent.
-          agent_identifier = { individual_type: 'claims_agent', ogc_id: agent['id'] }
-          record = AccreditedIndividual.find_or_create_by(agent_identifier)
-          # Only enqueue address validation if the address has changed
-          if record.raw_address != raw_address_for_agent(agent)
-            @agent_json_for_address_validation << individual_agent_json(record, agent)
-          end
-          record.update(agent_hash)
-          @agent_ids << record.id
-        end
-        page += 1
-      end
+      update_entities('agents')
     end
 
     # Fetches attorney data from the GCLAWS API and updates database records
     #
     # @return [void]
     def update_attorneys
-      page = 1
-      loop do
-        response = client.get_accredited_entities(type: 'attorneys', page:)
-        attorneys = response.body['items']
-        break if attorneys.empty?
+      update_entities('attorneys')
+    end
 
-        @attorney_responses << attorneys
-        attorneys.each do |attorney|
-          attorney_hash = data_transform_for_attorney(attorney)
-          # The attorney_identifier is the minimum set of attributes needed to identify an attorney.
-          attorney_identifier = { individual_type: 'attorney', ogc_id: attorney['id'] }
-          record = AccreditedIndividual.find_or_create_by(attorney_identifier)
-          # Only enqueue address validation if the address has changed
-          if record.raw_address != raw_address_for_attorney(attorney)
-            @attorney_json_for_address_validation << individual_attorney_json(record, attorney)
-          end
-          record.update(attorney_hash)
-          @attorney_ids << record.id
-        end
+    # Generic method to update entities of a specific type
+    #
+    # @param entity_type [String] The type of entity to update ('agents' or 'attorneys')
+    # @return [void]
+    def update_entities(entity_type)
+      config = ENTITY_CONFIG[entity_type]
+      page = 1
+
+      loop do
+        response = client.get_accredited_entities(type: entity_type, page:)
+        entities = response.body['items']
+        break if entities.empty?
+
+        instance_variable_get(config[:responses_var]) << entities
+        entities.each { |entity| handle_entity_record(entity, config) }
         page += 1
       end
     end
@@ -310,17 +334,28 @@ module RepresentationManagement
     #
     # @return [void]
     def validate_agent_addresses
-      validate_addresses(
-        @agent_json_for_address_validation, 'Batching agent address updates from GCLAWS Accreditation API'
-      )
+      validate_entity_addresses('agents')
     end
 
     # Queues address validation jobs for attorneys
     #
     # @return [void]
     def validate_attorney_addresses
+      validate_entity_addresses('attorneys')
+    end
+
+    # Queues address validation jobs for a specific entity type
+    #
+    # @param entity_type [String] The entity type to validate ('agents' or 'attorneys')
+    # @return [void]
+    def validate_entity_addresses(entity_type)
+      config = ENTITY_CONFIG[entity_type]
+      json_var = config[:json_var]
+      description = config[:validation_description]
+
       validate_addresses(
-        @attorney_json_for_address_validation, 'Batching attorney address updates from GCLAWS Accreditation API'
+        instance_variable_get(json_var),
+        description
       )
     end
 
