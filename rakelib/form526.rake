@@ -717,27 +717,28 @@ namespace :form526 do
 
     # reduce scope to iterate/check only those created in bug window
     potentially_affected_forms = InProgressForm.where(form_id: '21-526EZ')
-                  .where(created_at: Date.parse('2025-06-26')..Date.parse('2025-06-30'))
-                  # I think we dont actually care if they have attempted to submit or not, they could still be affected
-                  # .where("metadata->'submission'->>'has_attempted_submit' = 'true'")
+                                               .where(created_at: Date.parse('2025-06-26')..Date.parse('2025-06-30'))
+    # I think we dont actually care if they have attempted to submit or not, they could still be affected
+    # .where("metadata->'submission'->>'has_attempted_submit' = 'true'")
     count = potentially_affected_forms.count
     puts "Found #{count} potentially affected forms."
     if count.zero?
-      puts "Nothing found, done."
+      puts 'Nothing found, done.'
     else
       potentially_affected_forms.each do |form|
         id = form.id
         form_parsed = JSON.parse(form.form_data)
-        nd = form_parsed.dig("new_disabilities")
+        nd = form_parsed['new_disabilities']
         # skip if no new_disabilities key
         next if nd.nil?
+
         # they are affected if the new_disabilities key has a condition key
-        # and the only key in the new_disabilities is condition 
+        # and the only key in the new_disabilities is condition
         # meaning they were not able to enter in the additional required information about the condition
-        is_affected = nd.any? {|d| d.keys.size == 1 && d.key?('condition')}
+        is_affected = nd.any? { |d| d.keys.size == 1 && d.key?('condition') }
         if is_affected
           # reset the return_url to the new value
-          # have to set the whole metadata object 
+          # have to set the whole metadata object
           form.metadata = form.metadata.merge('return_url' => new_return_url)
           form.save!
           puts "Updated form with ID: #{id}"
