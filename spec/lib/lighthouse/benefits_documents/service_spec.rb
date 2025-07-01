@@ -57,7 +57,7 @@ RSpec.describe BenefitsDocuments::Service do
           allow(StatsD).to receive(:increment)
           allow(Rails.logger).to receive(:info)
           allow_any_instance_of(BenefitsDocuments::Configuration)
-            .to(receive(:claimant_can_upload_document).and_return(true))
+            .to receive(:claimant_can_upload_document).and_return(true)
         end
 
         it 'enqueues a job' do
@@ -90,7 +90,7 @@ RSpec.describe BenefitsDocuments::Service do
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
                                                     instance_of(User)).and_return(false)
           allow_any_instance_of(BenefitsDocuments::Configuration)
-            .to(receive(:claimant_can_upload_document).and_return(true))
+            .to receive(:claimant_can_upload_document).and_return(true)
         end
 
         it 'does not record an evidence submission' do
@@ -106,7 +106,7 @@ RSpec.describe BenefitsDocuments::Service do
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
                                                     instance_of(User)).and_return(true)
           allow_any_instance_of(BenefitsDocuments::Configuration)
-            .to(receive(:claimant_can_upload_document).and_return(true))
+            .to receive(:claimant_can_upload_document).and_return(true)
         end
 
         it 'does not enqueue a job' do
