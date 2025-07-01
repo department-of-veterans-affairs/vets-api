@@ -22,12 +22,15 @@ module ClaimsApi
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
       @va_gov_errored_claims = get_filtered_unique_errors # Array of [id, transaction_id]
+      
+      ## do we want update reporting to only show timed out for all types below?
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
                                                    status: 'errored').pluck(:id).uniq
       @errored_ews = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @search_from..@search_to,
                                                                status: 'errored').pluck(:id).uniq
+      ############################################################                                                         
       @environment = Rails.env
       if errored_submissions_exist?
         ClaimsApi::Slack::FailedSubmissionsMessenger.new(

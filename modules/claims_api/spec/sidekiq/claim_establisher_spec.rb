@@ -196,5 +196,19 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
         )
       end
     end
+
+    it 'sends a notification to slack' do
+      msg = { 'args' => [claim.id], 'class' => described_class }
+      messenger = instance_double(ClaimsApi::Slack::FailedSubmissionsMessenger)
+      allow(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new)
+                                                               .with(
+                                                                 errored_va_gov_claims: [[claim.id, claim.transaction_id]],
+                                                                 environment: 'test'
+                                                               )
+                                                               .and_return(messenger)
+      expect(messenger).to receive(:notify!)
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) {}
+    end
   end
 end

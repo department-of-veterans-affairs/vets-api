@@ -7,6 +7,17 @@ require 'evss_service/base'
 
 module ClaimsApi
   class ClaimEstablisher < ClaimsApi::ServiceBase
+    sidekiq_options retry: 7
+
+    sidekiq_retries_exhausted do |msg|
+      auto_claim = ClaimsApi::AutoEstablishedClaim.find(msg['args'].first)
+      messenger = ClaimsApi::Slack::FailedSubmissionsMessenger.new(
+        errored_va_gov_claims: [[auto_claim.id, auto_claim.transaction_id]],
+        environment: Rails.env
+      )
+      messenger.notify!
+    end
+
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 

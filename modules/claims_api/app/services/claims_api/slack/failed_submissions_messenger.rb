@@ -51,12 +51,18 @@ module ClaimsApi
       end
 
       def message_heading
+        text = if @from.present? && @to.present?
+                 "*ERRORED SUBMISSIONS*\n\n#{@from} – #{@to}\nThe following submissions have encountered errors " \
+                   "in *#{@environment}*:"
+               else
+                 "*Failed Submission*\n\nA submission has failed all retries in *#{@environment}*:"
+               end
+
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: "*ERRORED SUBMISSIONS*\n\n#{@from} – #{@to}\nThe following submissions have encountered errors " \
-                  "in *#{@environment}*:"
+            text: text
           }
         }
       end
@@ -85,7 +91,7 @@ module ClaimsApi
 
       def build_error_block(title, errors)
         text = if title == 'Va Gov Disability Compensation'
-                 errors.map { |eid, tid| "CID: #{link_value(eid, :eid)} / TID: #{link_value(tid, :tid)}" }.join("\n")
+                 errors.map { |eid, tid| "CID: #{link_value(eid)} / TID: #{link_value(tid)}" }.join("\n")
                else
                  errors.join("\n")
                end
@@ -99,8 +105,8 @@ module ClaimsApi
         }
       end
 
-      def link_value(id, type = :eid)
-        id = extract_tag_from_whitelist(id) if type == :tid
+      def link_value(id)
+        id = extract_tag_from_whitelist(id)
         return 'N/A' if id.blank?
 
         time_stamps = datadog_timestamps
