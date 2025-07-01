@@ -3,6 +3,7 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+require 'dependents_verification/pdf_fill/sections/section0'
 require 'dependents_verification/pdf_fill/sections/section1'
 require 'dependents_verification/pdf_fill/sections/section2'
 
@@ -22,7 +23,7 @@ module DependentsVerification
       TEMPLATE = DependentsVerification::PDF_PATH
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section1, Section2].freeze
+      SECTION_CLASSES = [Section0, Section1, Section2].freeze
 
       key = {}
 
@@ -38,13 +39,15 @@ module DependentsVerification
       #
       # @return [Hash] the processed form data
       #
-      def merge_fields(_options = {})
+      def merge_fields(options = {})
+        created_at = options[:created_at] if options[:created_at].present?
+        form_data['dateStamp'] = created_at || Time.zone.now
+        #expand_signature(form_data['dependencyVerification']['veteranInformation']['fullName'], created_at&.to_date || Time.zone.today)
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         # Remove the dependencyVerification key from the form data
         # as it is not needed in the final output
         form_data.delete('dependencyVerification')
-
         form_data
       end
     end
