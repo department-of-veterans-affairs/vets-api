@@ -65,16 +65,22 @@ module AccreditedRepresentativePortal
 
       def create_with_resolution!(creator:, type:, power_of_attorney_request:, declination_reason: nil, **attrs)
         PowerOfAttorneyRequestResolution.transaction do
-          decision = build_decision(creator:, type:, declination_reason:)
-          create_resolution(decision:, power_of_attorney_request:, **attrs)
+          ogc_identifiers = attrs.slice(*columns.map(&:name).map(&:to_sym))
+          decision = build_decision(creator:, type:, declination_reason:, **ogc_identifiers)
+          create_resolution(
+            decision:,
+            power_of_attorney_request:,
+            **attrs.slice!(*columns.map(&:name).map(&:to_sym))
+          )
           decision
         end
       rescue => e
         log_error_and_raise(e)
       end
 
-      def build_decision(creator:, type:, declination_reason:)
+      def build_decision(creator:, type:, declination_reason:, **attrs)
         decision = new(type:, creator:)
+        decision.assign_attributes(attrs)
         decision.declination_reason = declination_reason if declination_reason.present?
         decision.save!
         decision
