@@ -82,11 +82,6 @@ module RepresentationManagement
       @current_api_counts ||= get_counts_from_api
     end
 
-    # @return [Hash] The most recent counts from the database for all entity types
-    def current_db_counts
-      @current_db_counts ||= get_counts_from_db
-    end
-
     # Fetches entity counts from the GCLAWS API
     #
     # @return [Hash] A hash mapping entity types to their counts
@@ -99,6 +94,11 @@ module RepresentationManagement
         log_error("Error fetching count for #{type}: #{e.message}")
       end
       counts
+    end
+
+    # @return [Hash] The most recent counts from the database for all entity types
+    def current_db_counts
+      @current_db_counts ||= get_counts_from_db
     end
 
     # Gets the most recent counts from the database, starting with records of this model and falling back to counting
@@ -124,23 +124,7 @@ module RepresentationManagement
       AccreditedIndividual.where(individual_type: type).count
     end
 
-    # Logs an error message to the Rails logger
-    #
-    # @param message [String] The error message to log
-    def log_error(message)
-      Rails.logger.error("RepresentationManagement::AccreditationApiEntityCount error: #{message}")
-    end
-
-    # Sends a notification to the Slack channel
-    #
-    # @param message [String] The message to send to Slack
-    def log_to_slack_threshold_channel(message)
-      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                             channel: '#benefits-representation-management-notifications',
-                                             username: 'RepresentationManagement::AccreditationApiEntityCount')
-      slack_client.notify(message)
-    end
-
+    # Notification and logging methods
     # Notifies stakeholders when an entity count decreases beyond the threshold
     #
     # @param rep_type [Symbol] The entity type that exceeded the threshold
@@ -159,6 +143,23 @@ module RepresentationManagement
       log_to_slack_threshold_channel(message)
       log_error("AccreditationApiEntityCount threshold exceeded for #{rep_type}, previous: #{previous_count}, " \
                 "new: #{new_count}, decrease: #{(decrease_percentage * 100).round(2)}%")
+    end
+
+    # Sends a notification to the Slack channel
+    #
+    # @param message [String] The message to send to Slack
+    def log_to_slack_threshold_channel(message)
+      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                             channel: '#benefits-representation-management-notifications',
+                                             username: 'RepresentationManagement::AccreditationApiEntityCount')
+      slack_client.notify(message)
+    end
+
+    # Logs an error message to the Rails logger
+    #
+    # @param message [String] The error message to log
+    def log_error(message)
+      Rails.logger.error("RepresentationManagement::AccreditationApiEntityCount error: #{message}")
     end
   end
 end
