@@ -64,7 +64,7 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide # rubocop:disable Metrics/MethodLength
+        def decide
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
@@ -152,7 +152,7 @@ module ClaimsApi
 
           send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
         end
-  
+
         def find_poa_request!(lighthouse_id)
           request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
 
