@@ -55,6 +55,8 @@ module UnifiedHealthData
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
         when 'SP'
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+        when 'MB'
+          Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
         end
       end
     end
