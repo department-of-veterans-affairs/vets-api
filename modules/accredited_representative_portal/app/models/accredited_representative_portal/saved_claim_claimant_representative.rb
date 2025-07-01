@@ -18,6 +18,32 @@ module AccreditedRepresentativePortal
       validate: true
     )
 
+    delegate :form_id, :display_form_id, :parsed_form, :claimant_info, :persistent_attachments,
+             :guid, :latest_submission_attempt, to: :saved_claim
+
+    scope :for_power_of_attorney_holders, lambda { |poa_holders|
+      return none if poa_holders.empty?
+
+      prefix = 'power_of_attorney_holder'
+      names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
+      prefixed_names = names.map { |name| :"#{prefix}_#{name}" }
+      values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
+
+      where(prefixed_names => values)
+    }
+
+    scope :sorted_by, lambda { |sort_column, direction|
+      direction = direction&.to_s&.downcase
+      normalized_order = %w[asc desc].include?(direction) ? direction : 'asc'
+
+      case sort_column&.to_s
+      when 'created_at'
+        order(created_at: normalized_order)
+      else
+        raise ArgumentError, "Invalid sort column: #{sort_column}"
+      end
+    }
+
     private
 
     def set_claimant_type

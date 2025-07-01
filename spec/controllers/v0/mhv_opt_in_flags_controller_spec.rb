@@ -12,9 +12,9 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
   end
 
   context 'when logged in' do
-    let(:user_verification) { create(:user_verification) }
-    let(:user_account) { user_verification.user_account }
-    let(:user) { create(:user, icn: user_account.icn) }
+    let(:user) { create(:user) }
+    let(:user_verification) { user.user_verification }
+    let(:user_account) { user.user_account }
     let(:feature) { 'secure_messaging' }
 
     before do

@@ -114,6 +114,12 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+  - :method: :post
+    :path: "/api/v1/digital-services/dispute-debt"
+    :file_path: "debt_management_center/digital_dispute/create"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'fileNumber":"(\w+)"'
 
 - :name: 'VBS'
   :base_uri: <%= "#{URI(Settings.mcp.vbs_v2.url).host}:#{URI(Settings.mcp.vbs_v2.url).port}" %>
@@ -905,6 +911,12 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/Immunization"
+      :file_path: "/lighthouse/veterans_health/Immunization/index"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
     - :method: :get
       :path: "/services/fhir/v0/r4/AllergyIntolerance"
       :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"

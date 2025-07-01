@@ -7,6 +7,7 @@ require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
 require 'hca/overrides_parser'
 require 'va1010_forms/enrollment_system/service'
+require 'form1010_ezr/veteran_enrollment_system/associations/service'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -202,7 +203,6 @@ module Form1010Ezr
 
     def handle_associations(parsed_form)
       form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
-      return parsed_form if form_associations.empty?
 
       Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user).reconcile_and_update_associations(
         form_associations
