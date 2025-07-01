@@ -1333,15 +1333,15 @@ vanotify:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: form0969_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: form0969_persistent_attachment_error_email_template_id
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: form0969_received_email_template_id
         submitted:
           flipper_id: income_and_assets_submitted_email_notification
           template_id: form0969_submitted_email_template_id
-        persistent_attachment_error:
-          flipper_id: income_and_assets_persistent_attachment_error_email_notification
-          template_id: form0969_persistent_attachment_error_email_template_id
     21p_527ez: &vanotify_services_pension
       api_key: fake_secret
       email:
@@ -1351,15 +1351,15 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
         received:
           flipper_id: pension_received_email_notification
           template_id: form527ez_received_email_template_id
         submitted:
           flipper_id: pension_submitted_email_notification
           template_id: form527ez_submitted_email_template_id
-        persistent_attachment_error:
-          flipper_id: pension_persistent_attachment_error_email_notification
-          template_id: form527ez_persistent_attachment_error_email_template_id
     21p_530ez: &vanotify_services_burial
       api_key: fake_secret
       email:
@@ -1369,15 +1369,15 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: burial_claim_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: burial_persistent_attachment_error_email_template_id
         received:
           flipper_id: burial_received_email_notification
           template_id: burial_received_email_template_id
         submitted:
           flipper_id: burial_submitted_email_notification
           template_id: burial_submitted_email_template_id
-        persistent_attachment_error:
-          flipper_id: burial_persistent_attachment_error_email_notification
-          template_id: burial_persistent_attachment_error_email_template_id
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
     benefits_decision_review:
