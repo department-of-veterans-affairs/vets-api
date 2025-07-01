@@ -506,7 +506,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
   end
 
-  describe '#delete_old_accredited_individuals' do
+  describe '#delete_removed_accredited_individuals' do
     let(:agent_id) { 1 }
     let(:attorney_id) { 2 }
     let(:old_record) { instance_double(AccreditedIndividual, id: 3) }
@@ -527,7 +527,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'deletes records not in the agent or attorney ids' do
-      job.send(:delete_old_accredited_individuals)
+      job.send(:delete_removed_accredited_individuals)
       expect(old_record).to have_received(:destroy)
     end
 
@@ -537,7 +537,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       end
 
       it 'logs an error' do
-        job.send(:delete_old_accredited_individuals)
+        job.send(:delete_removed_accredited_individuals)
 
         # Expect the external dependency to be called instead
         error_text_heading = 'RepresentationManagement::AccreditedEntitiesQueueUpdates error:'
