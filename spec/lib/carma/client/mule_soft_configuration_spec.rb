@@ -28,26 +28,6 @@ describe CARMA::Client::MuleSoftConfiguration do
     end
   end
 
-  describe 'id and secret' do
-    before do
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
-    end
-
-    context 'have values' do
-      subject { super().base_request_headers }
-
-      let(:fake_id) { 'BEEFCAFE1234' }
-      let(:fake_secret) { 'C0FFEEFACE4321' }
-
-      describe '#base_request_headers' do
-        it 'contains the configured values' do
-          expect(subject[:client_id]).to eq(fake_id)
-          expect(subject[:client_secret]).to eq(fake_secret)
-        end
-      end
-    end
-  end
-
   it 'returns class name as service_name' do
     expect(subject.service_name).to eq('CARMA::Client::MuleSoftConfiguration')
   end

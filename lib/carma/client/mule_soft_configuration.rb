@@ -3,13 +3,6 @@
 module CARMA
   module Client
     class MuleSoftConfiguration < Common::Client::Configuration::REST
-      def base_request_headers
-        super.merge({
-                      client_id: settings.client_id,
-                      client_secret: settings.client_secret
-                    })
-      end
-
       def connection
         Faraday.new(base_path) do |conn|
           conn.use(:breakers, service_name:)
