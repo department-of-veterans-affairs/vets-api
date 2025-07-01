@@ -27,21 +27,6 @@ describe CARMA::Client::MuleSoftClient do
       subject { client.create_submission_v2(payload) }
 
       let(:resource) { 'v2/application/1010CG/submit' }
-      let(:has_errors) { false }
-      let(:response_body) do
-        {
-          data: {
-            carmacase: {
-              createdAt: '2022-08-04 16:44:37',
-              id: 'aB93S0000000FTqSAM'
-            }
-          },
-          record: {
-            hasErrors: has_errors
-          }
-        }.to_json
-      end
-      let(:mock_success_response) { double('FaradayResponse', status: 201, body: response_body) }
       let(:payload) { {} }
 
       let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
@@ -59,39 +44,132 @@ describe CARMA::Client::MuleSoftClient do
           }
         end
 
+        let(:has_errors) { false }
+        let(:results) { {} }
+
+        let(:response_body) do
+          {
+            data: {
+              carmacase: {
+                createdAt: '2022-08-04 16:44:37',
+                id: 'aB93S0000000FTqSAM'
+              }
+            },
+            record: {
+              hasErrors: has_errors,
+              results:
+            }
+          }.to_json
+        end
+
+        let(:status) { 201 }
+        let(:mock_response) { double('FaradayResponse', status:, body: response_body) }
+
         before do
           allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
-        end
-
-        it 'calls perform with expected params' do
-          expect(client).to receive(:perform)
+          allow(client).to receive(:perform)
             .with(:post, resource, payload.to_json, headers, { timeout: })
-            .and_return(mock_success_response)
-
-          expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
-          expect(Rails.logger).to receive(:info)
-            .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 201")
-          expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
-
-          subject
+            .and_return(mock_response)
         end
 
-        context 'with errors' do
-          let(:has_errors) { true }
-          let(:mock_error_response) { double('FaradayResponse', status: 500, body: response_body) }
+        context 'successful response' do
+          [200, 201, 202].each do |status_code|
+            context "with a #{status_code} status code" do
+              let(:status) { status_code }
+
+              it 'logs submission and response code' do
+                expect(Rails.logger).to receive(:info).with(
+                  "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
+                )
+                expect(Rails.logger).to receive(:info)
+                  .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code #{status}")
+                expect(Sentry).to receive(:set_extras).with(response_body: mock_response.body)
+
+                subject
+              end
+            end
+          end
+        end
+
+        context 'non 200 response' do
+          let(:status) { 500 }
 
           it 'raises SchemaValidationError' do
-            expect(client).to receive(:perform)
-              .with(:post, resource, payload.to_json, headers, { timeout: })
-              .and_return(mock_error_response)
-
             expect(Rails.logger).to receive(:info)
               .with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
             expect(Rails.logger).to receive(:info)
               .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 500")
-            expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
+            expect(Rails.logger).to receive(:error).with(
+              '[Form 10-10CG] Submission expected 200 status but received 500'
+            )
 
             expect { subject }.to raise_error(Common::Exceptions::SchemaValidationErrors)
+          end
+        end
+
+        context 'hasErrors is true' do
+          let(:has_errors) { true }
+
+          context 'hasErrors in response is true' do
+            context 'results is empty' do
+              it 'logs carma response' do
+                expect(Rails.logger).to receive(:error)
+                  .with('[Form 10-10CG] response contained attachment errors',
+                        {
+                          created_at: '2022-08-04 16:44:37',
+                          id: 'aB93S0000000FTqSAM',
+                          attachments: []
+                        })
+                expect { subject }.to raise_error(CARMA::Client::MuleSoftClient::RecordParseError)
+              end
+            end
+
+            context 'results has attachment data' do
+              let(:errors) do
+                [
+                  {
+                    duplicateResult: nil,
+                    message: 'Document Type: bad value for restricted picklist field: invalid',
+                    fields: [
+                      'CARMA_Document_Type__c'
+                    ],
+                    statusCode: 'INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST'
+                  }
+                ]
+              end
+              let(:results) do
+                [
+                  {
+                    referenceId: '1010CG',
+                    title: '10-10CG_Jane Doe_Doe_06-25-2025',
+                    id: nil,
+                    errors:
+                  }
+                ]
+              end
+
+              it 'logs carma response' do
+                expect(Rails.logger).to receive(:error)
+                  .with('[Form 10-10CG] response contained attachment errors',
+                        {
+                          created_at: '2022-08-04 16:44:37',
+                          id: 'aB93S0000000FTqSAM',
+                          attachments: [{
+                            reference_id: '1010CG',
+                            id: '',
+                            errors: [
+                              {
+                                'duplicateResult' => nil,
+                                'message' => 'Document Type: bad value for restricted picklist field: invalid',
+                                'fields' => ['CARMA_Document_Type__c'],
+                                'statusCode' => 'INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST'
+                              }
+                            ]
+                          }]
+                        })
+                expect { subject }.to raise_error(CARMA::Client::MuleSoftClient::RecordParseError)
+              end
+            end
           end
         end
       end
@@ -104,24 +182,6 @@ describe CARMA::Client::MuleSoftClient do
           expect do
             subject
           end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
-        end
-      end
-    end
-  end
-
-  describe '#raise_error_unless_success' do
-    [200, 201, 202].each do |status_code|
-      context "with a #{status_code} status code" do
-        subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
-
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
-
-        it 'logs submission and response code' do
-          expect(Rails.logger).to receive(:info)
-            .with("[Form 10-10CG] Submission to 'my/url' resource resulted in response code #{status_code}")
-          subject
         end
       end
     end
