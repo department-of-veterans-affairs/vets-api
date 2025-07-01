@@ -56,8 +56,8 @@ RSpec.describe BenefitsDocuments::Service do
                                                     instance_of(User)).and_return(false)
           allow(StatsD).to receive(:increment)
           allow(Rails.logger).to receive(:info)
-          allow_any_instance_of(BenefitsDocuments::Configuration)
-            .to receive(:claimant_can_upload_document).and_return(true)
+          allow_any_instance_of(BenefitsDocuments::Service)
+            .to receive(:validate_claimant_can_upload).and_return(true)
         end
 
         it 'enqueues a job' do
