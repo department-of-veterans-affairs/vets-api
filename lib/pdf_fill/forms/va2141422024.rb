@@ -524,7 +524,7 @@ module PdfFill
       def generate_overflow_provider_info(provider)
         # Combine the provider name, address, and treatment dates into a single string for the overflow page
         address = combine_full_address_extras(provider['providerFacilityAddress'])
-        dates = combine_date_ranges_for_pdf(provider['treatmentDateRange'])
+        dates = combine_date_ranges_for_overflow(provider['treatmentDateRange'])
 
         provider_info_text = <<~TEXT.chomp
           Provider or Facility Name: #{provider['providerFacilityName']}
@@ -539,7 +539,7 @@ module PdfFill
         provider['completeProviderInfo'] = [PdfFill::FormValue.new('', provider_info_text)]
       end
 
-      def combine_date_ranges_for_pdf(date_range_array)
+      def combine_date_ranges_for_overflow(date_range_array)
         return if date_range_array.nil?
 
         date_range_array.filter_map do |range|
@@ -552,12 +552,9 @@ module PdfFill
       def format_date_to_pdf(date_string)
         return date_string if date_string.blank?
 
-        begin
-          date = Date.parse(date_string)
-          date.strftime('%m-%d-%Y')
-        rescue Date::Error
-          date_string
-        end
+        # let it raise an error if the date_string is not a valid date
+        date = Date.parse(date_string)
+        date.strftime('%m-%d-%Y')
       end
 
       def expand_providers
