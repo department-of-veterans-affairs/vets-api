@@ -9,6 +9,8 @@ module ClaimsApi
       'Claim could not be established. Retries will fail.'
     ].freeze
 
+    VAGOV_CID = '0oagdm49ygCSJTp8X297'
+
     # rubocop:disable Metrics/MethodLength
     def perform
       return unless allow_processing?
@@ -17,11 +19,7 @@ module ClaimsApi
       @search_from = @search_to - 60.minutes
       @reporting_to = @search_to.in_time_zone('Eastern Time (US & Canada)').strftime('%I:%M%p %Z')
       @reporting_from = @search_from.in_time_zone('Eastern Time (US & Canada)').strftime('%I:%M%p %Z')
-      @errored_claims = ClaimsApi::AutoEstablishedClaim.where(
-        'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
-        'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
-      ).pluck(:id).uniq
-      @va_gov_errored_claims = get_filtered_unique_errors # Array of [id, transaction_id]
+      @unresolved_claims = find_unresolved_errored_claims
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -31,8 +29,7 @@ module ClaimsApi
       @environment = Rails.env
       if errored_submissions_exist?
         ClaimsApi::Slack::FailedSubmissionsMessenger.new(
-          errored_disability_claims: @errored_claims,
-          errored_va_gov_claims: @va_gov_errored_claims,
+          unresolved_errored_claims: @unresolved_claims,
           errored_poa: @errored_poa,
           errored_itf: @errored_itf,
           errored_ews: @errored_ews,
@@ -47,7 +44,7 @@ module ClaimsApi
     private
 
     def errored_submissions_exist?
-      [@errored_claims, @va_gov_errored_claims, @errored_poa, @errored_itf, @errored_ews].any? do |collection|
+      [@unresolved_claims, @errored_poa, @errored_itf, @errored_ews].any? do |collection|
         collection&.count&.positive?
       end
     end
@@ -56,35 +53,53 @@ module ClaimsApi
       Flipper.enabled? :claims_hourly_slack_error_report_enabled
     end
 
-    def get_filtered_unique_errors
-      unique_errors = unique_errors_by_transaction_id
-      filtered_error_ids = []
-
-      unique_errors.each do |ue|
-        filtered_error_ids << [ue[:id], ue[:transaction_id].presence] unless NO_INVESTIGATION_ERROR_TEXT.any? do |text|
-          ue[:evss_response].to_s&.include?(text)
-        end
-      end
-
-      # return signature: [[id, transaction_id],...]
-      filtered_error_ids
+    def transaction_id_extracted(transaction_id)
+      transaction_id&.split(',')&.first&.scan(/[a-zA-Z0-9_-]+/)&.first&.downcase
     end
 
-    def unique_errors_by_transaction_id
-      last_day = ClaimsApi::AutoEstablishedClaim
-                 .where(created_at: 24.hours.ago..1.hour.ago,
-                        status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+    def find_unresolved_errored_claims
+      errored_claims = fetch_errored_claims_in_window
+      return [] if errored_claims.empty?
 
-      last_hour = ClaimsApi::AutoEstablishedClaim
-                  .select('DISTINCT ON(transaction_id) *')
-                  .where(created_at: 1.hour.ago..Time.zone.now,
-                         status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+      errored_transaction_ids = extract_transaction_ids_from_claims(errored_claims)
+      return [] if errored_transaction_ids.empty?
 
-      day_trans_ids = last_day&.pluck(:transaction_id)
+      resolved_transaction_ids = find_resolved_transaction_ids(errored_transaction_ids)
+      unresolved_transaction_ids = errored_transaction_ids - resolved_transaction_ids
 
-      last_hour.find_all do |claim|
-        day_trans_ids.exclude?(claim[:transaction_id])
-      end
+      build_unresolved_claim_context(unresolved_transaction_ids, errored_claims)
+    end
+
+    def fetch_errored_claims_in_window
+      ClaimsApi::AutoEstablishedClaim.where(status: 'errored', created_at: @search_from..@search_to)
+    end
+
+    def extract_transaction_ids_from_claims(claims)
+      claims.map { |c| transaction_id_extracted(c.transaction_id) }.compact.uniq
+    end
+
+    def find_resolved_transaction_ids(errored_ids)
+      conditions_sql = errored_ids.map { 'LOWER(transaction_id) LIKE ?' }.join(' OR ')
+      condition_values = errored_ids.map { |id| "#{id.downcase}%" }
+
+      resolved_claims = ClaimsApi::AutoEstablishedClaim
+                        .where(status: 'established')
+                        .where(conditions_sql, *condition_values)
+                        .pluck(:transaction_id)
+
+      resolved_claims.map { |id| transaction_id_extracted(id) }.compact.uniq
+    end
+
+    def build_unresolved_claim_context(unresolved_ids, errored_claims)
+      unresolved_ids.map do |transaction_id|
+        claim = errored_claims.find { |c| transaction_id_extracted(c.transaction_id) == transaction_id }
+        next if claim.nil?
+
+        {
+          transaction_id:,
+          is_va_gov: claim.cid == VAGOV_CID
+        }
+      end.compact
     end
   end
 end

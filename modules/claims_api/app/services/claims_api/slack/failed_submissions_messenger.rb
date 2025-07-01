@@ -12,8 +12,7 @@ module ClaimsApi
       ].freeze
 
       def initialize(options = {})
-        @errored_disability_claims = options[:errored_disability_claims] # Array of id
-        @errored_va_gov_claims = options[:errored_va_gov_claims] # Array of [id, transaction_id]
+        @unresolved_errored_claims = options[:unresolved_errored_claims]
         @errored_poa = options[:errored_poa] # Array of id
         @errored_itf = options[:errored_itf] # Array of id
         @errored_ews = options[:errored_ews] # Array of id
@@ -36,8 +35,7 @@ module ClaimsApi
         blocks = []
         blocks << message_heading
         title_to_errors = {
-          'Disability Compensation' => @errored_disability_claims,
-          'Va Gov Disability Compensation' => @errored_va_gov_claims,
+          'Unresolved Disability Compensation Submissions' => @unresolved_errored_claims,
           'Power of Attorney' => @errored_poa,
           'Intent to File' => @errored_itf,
           'Evidence Waiver' => @errored_ews
@@ -84,8 +82,11 @@ module ClaimsApi
       end
 
       def build_error_block(title, errors)
-        text = if title == 'Va Gov Disability Compensation'
-                 errors.map { |eid, tid| "CID: #{link_value(eid, :eid)} / TID: #{link_value(tid, :tid)}" }.join("\n")
+        text = if title == 'Unresolved Disability Compensation Submissions'
+                 errors.map do |claim_info|
+                   source = claim_info[:is_va_gov] ? 'VA.gov' : 'Non-VA.gov'
+                   "TID: #{link_value(claim_info[:transaction_id])} | Source: #{source}"
+                 end.join("\n")
                else
                  errors.join("\n")
                end
@@ -101,7 +102,7 @@ module ClaimsApi
 
       def link_value(id, type = :eid)
         id = extract_tag_from_whitelist(id) if type == :tid
-        return 'N/A' if id.blank?
+        return "<https://vagov.ddog-gov.com/logs?query='N/A'|N/A>" if id.blank?
 
         time_stamps = datadog_timestamps
 
