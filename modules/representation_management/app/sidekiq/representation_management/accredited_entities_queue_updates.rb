@@ -50,8 +50,8 @@ module RepresentationManagement
 
       # Don't save fresh API counts if updates are forced
       @entity_counts.save_api_counts unless @force_update_types.any?
-      process_agents
-      process_attorneys
+      process_entity_type('agents')
+      process_entity_type('attorneys')
       delete_old_accredited_individuals
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
@@ -69,24 +69,13 @@ module RepresentationManagement
     # @param agent [Hash] Raw agent data from the GCLAWS API
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_agent(agent)
-      {
-        individual_type: 'claims_agent',
-        registration_number: agent['number'],
-        poa_code: agent['poa'],
-        ogc_id: agent['id'],
-        first_name: agent['firstName'],
-        middle_initial: agent['middleName'].to_s.strip.first,
-        last_name: agent['lastName'],
-        address_line1: agent['workAddress1'],
-        address_line2: agent['workAddress2'],
-        address_line3: agent['workAddress3'],
-        zip_code: agent['workZip'],
-        country_code_iso3: agent['workCountry'],
-        country_name: agent['workCountry'],
-        phone: agent['workPhoneNumber'],
-        email: agent['workEmailAddress'],
-        raw_address: raw_address_for_agent(agent)
-      }
+      data_transform_for_entity(agent, 'claims_agent', {
+                                  country_code_iso3: agent['workCountry'],
+                                  country_name: agent['workCountry'],
+                                  phone: agent['workPhoneNumber'],
+                                  email: agent['workEmailAddress'],
+                                  raw_address: raw_address_for_agent(agent)
+                                })
     end
 
     # Transforms attorney data from the GCLAWS API into a format suitable for the AccreditedIndividual model
@@ -94,23 +83,34 @@ module RepresentationManagement
     # @param attorney [Hash] Raw attorney data from the GCLAWS API
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_attorney(attorney)
+      data_transform_for_entity(attorney, 'attorney', {
+                                  city: attorney['workCity'],
+                                  state_code: attorney['workState'],
+                                  phone: attorney['workNumber'],
+                                  email: attorney['emailAddress']
+                                })
+    end
+
+    # Base transformation method for both agents and attorneys
+    #
+    # @param entity [Hash] Raw entity data from the GCLAWS API
+    # @param entity_type [String] The type of entity ('claims_agent' or 'attorney')
+    # @param extra_attrs [Hash] Additional attributes specific to this entity type
+    # @return [Hash] Transformed data for AccreditedIndividual record
+    def data_transform_for_entity(entity, entity_type, extra_attrs = {})
       {
-        individual_type: 'attorney',
-        registration_number: attorney['number'],
-        poa_code: attorney['poa'],
-        ogc_id: attorney['id'],
-        first_name: attorney['firstName'],
-        middle_initial: attorney['middleName'].to_s.strip.first,
-        last_name: attorney['lastName'],
-        address_line1: attorney['workAddress1'],
-        address_line2: attorney['workAddress2'],
-        address_line3: attorney['workAddress3'],
-        city: attorney['workCity'],
-        state_code: attorney['workState'],
-        zip_code: attorney['workZip'],
-        phone: attorney['workNumber'],
-        email: attorney['emailAddress']
-      }
+        individual_type: entity_type,
+        registration_number: entity['number'],
+        poa_code: entity['poa'],
+        ogc_id: entity['id'],
+        first_name: entity['firstName'],
+        middle_initial: entity['middleName'].to_s.strip.first,
+        last_name: entity['lastName'],
+        address_line1: entity['workAddress1'],
+        address_line2: entity['workAddress2'],
+        address_line3: entity['workAddress3'],
+        zip_code: entity['workZip']
+      }.merge(extra_attrs)
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
@@ -165,33 +165,25 @@ module RepresentationManagement
       }
     end
 
-    # Controls the processing of agents based on count validation and force update settings
+    # Processes entities of a specific type based on count validation and force update settings
     #
+    # @param entity_type [String] The type of entity to process ('agents' or 'attorneys')
     # @return [void]
-    def process_agents
+    def process_entity_type(entity_type)
       # Don't process if we are forcing updates for other types
-      return if @force_update_types.any? && @force_update_types.exclude?('agents')
+      return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
 
-      if @entity_counts.valid_count?('agents') || @force_update_types.include?('agents')
-        update_agents
-        validate_agent_addresses
+      if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
+        if entity_type == 'agents'
+          update_agents
+          validate_agent_addresses
+        else # attorneys
+          update_attorneys
+          validate_attorney_addresses
+        end
       else
-        log_error("Agents count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
-      end
-    end
-
-    # Controls the processing of attorneys based on count validation and force update settings
-    #
-    # @return [void]
-    def process_attorneys
-      # Don't process if we are forcing updates for other types
-      return if @force_update_types.any? && @force_update_types.exclude?('attorneys')
-
-      if @entity_counts.valid_count?('attorneys') || @force_update_types.include?('attorneys')
-        update_attorneys
-        validate_attorney_addresses
-      else
-        log_error("Attorneys count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+        entity_display = entity_type.capitalize
+        log_error("#{entity_display} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
       end
     end
 
