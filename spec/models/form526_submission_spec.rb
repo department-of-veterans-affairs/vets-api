@@ -1540,14 +1540,198 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#submit_uploads' do
-    let(:form526_submission) do
-      Form526Submission.new(
-        id: 123,
-        form_json:
-      )
+  describe '#success_type?' do
+    let(:remediation) do
+      create(:form526_submission_remediation, form526_submission: subject)
     end
 
+    context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns true' do
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when backup_submitted_claim_id is present and backup_submitted_claim_status is accepted' do
+      subject { create(:form526_submission, :backup_path, :backup_accepted) }
+
+      it 'returns true' do
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when the most recent remediation is successful' do
+      it 'returns true' do
+        remediation.update(success: true)
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when none of the success conditions are met' do
+      it 'returns false' do
+        remediation.update(success: false)
+        expect(subject).not_to be_success_type
+      end
+    end
+  end
+
+  describe '#in_process?' do
+    context 'when submitted_claim_id and backup_submitted_claim_status are both nil' do
+      context 'and the record was created within the last 3 days' do
+        it 'returns true' do
+          expect(subject).to be_in_process
+        end
+      end
+
+      context 'and the record was created more than 3 weeks ago' do
+        subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
+
+        it 'returns false' do
+          expect(subject).not_to be_in_process
+        end
+      end
+    end
+
+    context 'when submitted_claim_id is not nil' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns false' do
+        expect(subject).not_to be_in_process
+      end
+    end
+
+    context 'when backup_submitted_claim_status is not nil' do
+      subject { create(:form526_submission, :backup_path, :backup_accepted) }
+
+      it 'returns false' do
+        expect(subject).not_to be_in_process
+      end
+    end
+  end
+
+  describe '#failure_type?' do
+    context 'when the submission is a success type' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns true' do
+        expect(subject).not_to be_failure_type
+      end
+    end
+
+    context 'when the submission is in process' do
+      it 'returns false' do
+        expect(subject).not_to be_failure_type
+      end
+    end
+
+    context 'when the submission is neither a success type nor in process' do
+      subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
+
+      it 'returns true' do
+        expect(subject).to be_failure_type
+      end
+    end
+  end
+
+  describe 'ICN retrieval' do
+    let(:user) { create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    end
+    let(:submission) do
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id)
+    end
+    let!(:form526_submission) { create(:form526_submission) }
+    let(:expected_log_payload) { { user_uuid: user.uuid, submission_id: submission.id } }
+
+    context 'when the submission includes a UserAccount with an ICN, as expected' do
+      it 'uses the submission\'s user account ICN' do
+        submission.user_account = UserAccount.new(icn: '123498767V222222')
+        account = submission.account
+        expect(account.icn).to eq('123498767V222222')
+      end
+    end
+
+    context 'when the submission does not have a UserAccount with an ICN' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:edipi_profile_response) { mpi_profile_response }
+      let(:no_user_account_icn_message) { 'Form526Submission::account - no UserAccount ICN found' }
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(edipi_profile_response)
+      end
+
+      it 'uses the auth_headers EDIPI to look up account information from MPI' do
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        expect(Rails.logger).to receive(:info).with(no_user_account_icn_message, expected_log_payload)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+        account = submission.account
+        expect(account.icn).to eq(mpi_profile.icn)
+      end
+
+      context 'when the MPI lookup by EDIPI fails' do
+        let(:edipi_profile_response) { create(:find_profile_not_found_response) }
+        let(:attributes_profile_response) { mpi_profile_response }
+        let(:no_mpi_by_edipi_message) { 'Form526Submission::account - unable to look up MPI profile with EDIPI' }
+
+        before do
+          allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                     expected_log_payload).and_call_original
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+                                             .and_return(attributes_profile_response)
+        end
+
+        it 'uses the auth_headers user attributes to look up account information from MPI' do
+          submission.user_account = UserAccount.create!(icn: nil)
+          submission.save!
+          expect(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+            first_name: user.first_name,
+            last_name: user.last_name,
+            ssn: user.ssn,
+            birth_date: user.birth_date
+          )
+          account = submission.account
+          expect(account.icn).to eq(mpi_profile.icn)
+        end
+
+        context 'when the MPI lookup by attributes fails' do
+          let(:attributes_profile_response) { create(:find_profile_not_found_response) }
+          let(:no_icn_found_message) { 'Form526Submission::account - no ICN present' }
+
+          before do
+            allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                       expected_log_payload).and_call_original
+            allow(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload).and_call_original
+          end
+
+          it 'does not return a UserAccount with an ICN' do
+            submission.user_account = UserAccount.create!(icn: nil)
+            submission.save!
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+              first_name: user.first_name,
+              last_name: user.last_name,
+              ssn: user.ssn,
+              birth_date: user.birth_date
+            )
+            expect(Rails.logger).to receive(:info).with(no_icn_found_message, expected_log_payload)
+            account = submission.account
+            expect(account.icn).to be_nil
+          end
+        end
+      end
+    end
+  end
+
+  describe '#submit_uploads' do
+    let(:form526_submission) { Form526Submission.new(id: 123, form_json:) }
     let(:uploads) do
       [
         { 'name' => 'file1.pdf', 'size' => 100 },
@@ -1555,7 +1739,6 @@ RSpec.describe Form526Submission do
         { 'name' => 'file1.pdf', 'size' => 100 } # duplicate
       ]
     end
-
     let(:form_json) do
       {
         Form526Submission::FORM_526_UPLOADS => uploads
@@ -1607,354 +1790,163 @@ RSpec.describe Form526Submission do
                                                      tags: ["form_id:#{Form526Submission::FORM_526}"])
       end
     end
+  end
 
-    describe '#success_type?' do
-      let(:remediation) do
-        create(:form526_submission_remediation, form526_submission: subject)
-      end
+  context 'Upload document type metrics logging' do
+    let!(:in_progress_form) do
+      ipf = create(:in_progress_526_form, user_uuid: user.uuid)
+      fd = ipf.form_data
+      fd = JSON.parse(fd)
+      fd['privateMedicalRecordAttachments'] = private_medical_record_attachments
+      fd['additionalDocuments'] = additional_documents
+      ipf.update!(form_data: fd)
+      ipf
+    end
+    let(:private_medical_record_attachments) { [] }
+    let(:additional_documents) { [] }
 
-      context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
-        subject { create(:form526_submission, :with_submitted_claim_id) }
-
-        it 'returns true' do
-          expect(subject).to be_success_type
-        end
-      end
-
-      context 'when backup_submitted_claim_id is present and backup_submitted_claim_status is accepted' do
-        subject { create(:form526_submission, :backup_path, :backup_accepted) }
-
-        it 'returns true' do
-          expect(subject).to be_success_type
-        end
-      end
-
-      context 'when the most recent remediation is successful' do
-        it 'returns true' do
-          remediation.update(success: true)
-          expect(subject).to be_success_type
-        end
-      end
-
-      context 'when none of the success conditions are met' do
-        it 'returns false' do
-          remediation.update(success: false)
-          expect(subject).not_to be_success_type
-        end
-      end
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
     end
 
-    describe '#in_process?' do
-      context 'when submitted_claim_id and backup_submitted_claim_status are both nil' do
-        context 'and the record was created within the last 3 days' do
-          it 'returns true' do
-            expect(subject).to be_in_process
-          end
-        end
+    def expect_log_statement(additional_docs_by_type, private_medical_docs_by_type)
+      return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
 
-        context 'and the record was created more than 3 weeks ago' do
-          subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
-
-          it 'returns false' do
-            expect(subject).not_to be_in_process
-          end
-        end
-      end
-
-      context 'when submitted_claim_id is not nil' do
-        subject { create(:form526_submission, :with_submitted_claim_id) }
-
-        it 'returns false' do
-          expect(subject).not_to be_in_process
-        end
-      end
-
-      context 'when backup_submitted_claim_status is not nil' do
-        subject { create(:form526_submission, :backup_path, :backup_accepted) }
-
-        it 'returns false' do
-          expect(subject).not_to be_in_process
-        end
-      end
+      expect(Rails.logger).to have_received(:info).with(
+        'Form526 evidence document type metrics',
+        {
+          id: subject.id,
+          additional_docs_by_type:,
+          private_medical_docs_by_type:
+        }
+      )
     end
 
-    describe '#failure_type?' do
-      context 'when the submission is a success type' do
-        subject { create(:form526_submission, :with_submitted_claim_id) }
+    def expect_documents_metrics(group_name, docs_by_type)
+      return if docs_by_type.blank?
 
-        it 'returns true' do
-          expect(subject).not_to be_failure_type
-        end
-      end
-
-      context 'when the submission is in process' do
-        it 'returns false' do
-          expect(subject).not_to be_failure_type
-        end
-      end
-
-      context 'when the submission is neither a success type nor in process' do
-        subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
-
-        it 'returns true' do
-          expect(subject).to be_failure_type
-        end
-      end
-    end
-
-    describe 'ICN retrieval' do
-      let(:user) { create(:user, :loa3) }
-      let(:auth_headers) do
-        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-      end
-      let(:submission) do
-        create(:form526_submission,
-               user_uuid: user.uuid,
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id)
-      end
-      let!(:form526_submission) { create(:form526_submission) }
-      let(:expected_log_payload) { { user_uuid: user.uuid, submission_id: submission.id } }
-
-      context 'when the submission includes a UserAccount with an ICN, as expected' do
-        it 'uses the submission\'s user account ICN' do
-          submission.user_account = UserAccount.new(icn: '123498767V222222')
-          account = submission.account
-          expect(account.icn).to eq('123498767V222222')
-        end
-      end
-
-      context 'when the submission does not have a UserAccount with an ICN' do
-        let(:mpi_profile) { build(:mpi_profile) }
-        let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-        let(:edipi_profile_response) { mpi_profile_response }
-        let(:no_user_account_icn_message) { 'Form526Submission::account - no UserAccount ICN found' }
-
-        before do
-          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(edipi_profile_response)
-        end
-
-        it 'uses the auth_headers EDIPI to look up account information from MPI' do
-          submission.user_account = UserAccount.create!(icn: nil)
-          submission.save!
-          expect(Rails.logger).to receive(:info).with(no_user_account_icn_message, expected_log_payload)
-          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
-          account = submission.account
-          expect(account.icn).to eq(mpi_profile.icn)
-        end
-
-        context 'when the MPI lookup by EDIPI fails' do
-          let(:edipi_profile_response) { create(:find_profile_not_found_response) }
-          let(:attributes_profile_response) { mpi_profile_response }
-          let(:no_mpi_by_edipi_message) { 'Form526Submission::account - unable to look up MPI profile with EDIPI' }
-
-          before do
-            allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
-                                                       expected_log_payload).and_call_original
-            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-                                               .and_return(attributes_profile_response)
-          end
-
-          it 'uses the auth_headers user attributes to look up account information from MPI' do
-            submission.user_account = UserAccount.create!(icn: nil)
-            submission.save!
-            expect(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload)
-            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
-              first_name: user.first_name,
-              last_name: user.last_name,
-              ssn: user.ssn,
-              birth_date: user.birth_date
-            )
-            account = submission.account
-            expect(account.icn).to eq(mpi_profile.icn)
-          end
-
-          context 'when the MPI lookup by attributes fails' do
-            let(:attributes_profile_response) { create(:find_profile_not_found_response) }
-            let(:no_icn_found_message) { 'Form526Submission::account - no ICN present' }
-
-            before do
-              allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
-                                                         expected_log_payload).and_call_original
-              allow(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message,
-                                                         expected_log_payload).and_call_original
-            end
-
-            it 'does not return a UserAccount with an ICN' do
-              submission.user_account = UserAccount.create!(icn: nil)
-              submission.save!
-              expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
-              expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
-                first_name: user.first_name,
-                last_name: user.last_name,
-                ssn: user.ssn,
-                birth_date: user.birth_date
-              )
-              expect(Rails.logger).to receive(:info).with(no_icn_found_message, expected_log_payload)
-              account = submission.account
-              expect(account.icn).to be_nil
-            end
-          end
-        end
-      end
-    end
-
-    context 'Upload document type metrics logging' do
-      let!(:in_progress_form) do
-        ipf = create(:in_progress_526_form, user_uuid: user.uuid)
-        fd = ipf.form_data
-        fd = JSON.parse(fd)
-        fd['privateMedicalRecordAttachments'] = private_medical_record_attachments
-        fd['additionalDocuments'] = additional_documents
-        ipf.update!(form_data: fd)
-        ipf
-      end
-      let(:private_medical_record_attachments) { [] }
-      let(:additional_documents) { [] }
-
-      before do
-        allow(StatsD).to receive(:increment)
-        allow(Rails.logger).to receive(:info)
-      end
-
-      def expect_log_statement(additional_docs_by_type, private_medical_docs_by_type)
-        return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
-
-        expect(Rails.logger).to have_received(:info).with(
-          'Form526 evidence document type metrics',
-          {
-            id: subject.id,
-            additional_docs_by_type:,
-            private_medical_docs_by_type:
-          }
+      docs_by_type.each do |type, count|
+        expect(StatsD).to have_received(:increment).with(
+          "worker.document_type_metrics.#{group_name}_document_type",
+          count,
+          tags: ["document_type:#{type}", 'source:form526']
         )
       end
+    end
 
-      def expect_documents_metrics(group_name, docs_by_type)
-        return if docs_by_type.blank?
+    context 'when form data has no documents' do
+      it 'logs empty document type breakdowns' do
+        subject.start
 
-        docs_by_type.each do |type, count|
-          expect(StatsD).to have_received(:increment).with(
-            "worker.document_type_metrics.#{group_name}_document_type",
-            count,
-            tags: ["document_type:#{type}", 'source:form526']
-          )
-        end
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has empty documents element' do
+      let(:additional_documents) { [{}] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has unexpected documents element' do
+      let(:additional_documents) { ["something's up"] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect_log_statement({ 'unknown' => 1 }, {})
+        expect_documents_metrics('additional_documents', { 'unknown' => 1 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
+
+    context 'when form data has additional documents' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type1' },
+          { 'name' => 'doc2', 'attachmentId' => 'type2' },
+          { 'name' => 'doc3', 'attachmentId' => 'type2' }
+        ]
       end
 
-      context 'when form data has no documents' do
-        it 'logs empty document type breakdowns' do
-          subject.start
+      it 'logs document type metrics for additional documents' do
+        subject.start
+        expect_log_statement({ 'type1' => 1, 'type2' => 2 }, {})
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
 
-          expect(Rails.logger).not_to have_received(:info).with(
-            'Form526 evidence document type metrics',
-            anything
-          )
-        end
+    context 'when form data has private medical records' do
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type3' },
+          { 'name' => 'doc2', 'attachmentId' => 'type3' },
+          { 'name' => 'doc3', 'attachmentId' => 'type4' }
+        ]
       end
 
-      context 'when form data has empty documents element' do
-        let(:additional_documents) { [{}] }
+      it 'logs document type metrics for private medical records' do
+        subject.start
+        expect_log_statement({}, { 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', {})
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
+      end
+    end
 
-        it 'logs empty document type breakdowns' do
-          subject.start
-
-          expect(Rails.logger).not_to have_received(:info).with(
-            'Form526 evidence document type metrics',
-            anything
-          )
-        end
+    context 'when form data has both additional documents and private medical records' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type1' },
+          { 'name' => 'doc2', 'attachmentId' => 'type2' },
+          { 'name' => 'doc3', 'attachmentId' => 'type2' }
+        ]
+      end
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc4', 'attachmentId' => 'type3' },
+          { 'name' => 'doc5', 'attachmentId' => 'type3' },
+          { 'name' => 'doc6', 'attachmentId' => 'type4' }
+        ]
       end
 
-      context 'when form data has unexpected documents element' do
-        let(:additional_documents) { ["something's up"] }
+      it 'logs summary metrics with document type breakdowns' do
+        subject.start
+        expect_log_statement({ 'type1' => 1, 'type2' => 2 }, { 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
+      end
+    end
 
-        it 'logs empty document type breakdowns' do
-          subject.start
-
-          expect_log_statement({ 'unknown' => 1 }, {})
-          expect_documents_metrics('additional_documents', { 'unknown' => 1 })
-          expect_documents_metrics('private_medical_record_attachments', {})
-        end
+    context 'when documents have no attachmentId' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1' },
+          { 'name' => 'doc2' }
+        ]
+      end
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc3' }
+        ]
       end
 
-      context 'when form data has additional documents' do
-        let(:additional_documents) do
-          [
-            { 'name' => 'doc1', 'attachmentId' => 'type1' },
-            { 'name' => 'doc2', 'attachmentId' => 'type2' },
-            { 'name' => 'doc3', 'attachmentId' => 'type2' }
-          ]
-        end
-
-        it 'logs document type metrics for additional documents' do
-          subject.start
-          expect_log_statement({ 'type1' => 1, 'type2' => 2 }, {})
-          expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
-          expect_documents_metrics('private_medical_record_attachments', {})
-        end
-      end
-
-      context 'when form data has private medical records' do
-        let(:private_medical_record_attachments) do
-          [
-            { 'name' => 'doc1', 'attachmentId' => 'type3' },
-            { 'name' => 'doc2', 'attachmentId' => 'type3' },
-            { 'name' => 'doc3', 'attachmentId' => 'type4' }
-          ]
-        end
-
-        it 'logs document type metrics for private medical records' do
-          subject.start
-          expect_log_statement({}, { 'type3' => 2, 'type4' => 1 })
-          expect_documents_metrics('additional_documents', {})
-          expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
-        end
-      end
-
-      context 'when form data has both additional documents and private medical records' do
-        let(:additional_documents) do
-          [
-            { 'name' => 'doc1', 'attachmentId' => 'type1' },
-            { 'name' => 'doc2', 'attachmentId' => 'type2' },
-            { 'name' => 'doc3', 'attachmentId' => 'type2' }
-          ]
-        end
-        let(:private_medical_record_attachments) do
-          [
-            { 'name' => 'doc4', 'attachmentId' => 'type3' },
-            { 'name' => 'doc5', 'attachmentId' => 'type3' },
-            { 'name' => 'doc6', 'attachmentId' => 'type4' }
-          ]
-        end
-
-        it 'logs summary metrics with document type breakdowns' do
-          subject.start
-          expect_log_statement({ 'type1' => 1, 'type2' => 2 }, { 'type3' => 2, 'type4' => 1 })
-          expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
-          expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
-        end
-      end
-
-      context 'when documents have no attachmentId' do
-        let(:additional_documents) do
-          [
-            { 'name' => 'doc1' },
-            { 'name' => 'doc2' }
-          ]
-        end
-        let(:private_medical_record_attachments) do
-          [
-            { 'name' => 'doc3' }
-          ]
-        end
-
-        it 'uses "unknown" as the attachment type' do
-          subject.start
-          expect_log_statement({ 'unknown' => 2 }, { 'unknown' => 1 })
-          expect_documents_metrics('additional_documents', { 'unknown' => 2 })
-          expect_documents_metrics('private_medical_record_attachments', { 'unknown' => 1 })
-        end
+      it 'uses "unknown" as the attachment type' do
+        subject.start
+        expect_log_statement({ 'unknown' => 2 }, { 'unknown' => 1 })
+        expect_documents_metrics('additional_documents', { 'unknown' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'unknown' => 1 })
       end
     end
   end
