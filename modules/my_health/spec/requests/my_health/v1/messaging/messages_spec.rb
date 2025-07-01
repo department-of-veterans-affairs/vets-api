@@ -121,7 +121,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       end
       let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
       let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
-      let(:params_with_attachments) { { message: params, uploads: uploads } }
+      let(:params_with_attachments) { { message: params, uploads: } }
 
       context 'message' do
         it 'without attachments' do
@@ -354,7 +354,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       let(:uploads) { [large_upload] }
       let(:message_params) { attributes_for(:message, subject: 'Large File', body: 'Test') }
       let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
-      let(:params_with_attachments) { { message: params, uploads: uploads } }
+      let(:params_with_attachments) { { message: params, uploads: } }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(flag_enabled)
