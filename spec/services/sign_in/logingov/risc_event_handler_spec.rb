@@ -26,6 +26,7 @@ RSpec.describe SignIn::Logingov::RiscEventHandler, type: :service do
     Timecop.freeze(event_occurred_at)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
+    allow(StatsD).to receive(:increment)
   end
 
   after do
@@ -46,11 +47,19 @@ RSpec.describe SignIn::Logingov::RiscEventHandler, type: :service do
           }
         }
       end
+      let(:expected_statsd_key) { 'api.sign_in.logingov.risc_event' }
+      let(:expected_statsd_tags) { ["event_type:#{event_type}"] }
 
       it 'logs the masked risc event receipt' do
         handler.perform
 
         expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+      end
+
+      it 'increments the StatsD metric with the correct tags' do
+        handler.perform
+
+        expect(StatsD).to have_received(:increment).with(expected_statsd_key, tags: expected_statsd_tags)
       end
     end
 
@@ -80,6 +89,14 @@ RSpec.describe SignIn::Logingov::RiscEventHandler, type: :service do
 
         expect(Rails.logger).to have_received(:error).with(expected_log_message,
                                                            { error: error_message }.merge(expected_log_payload))
+      end
+
+      it 'does not increment the StatsD metric' do
+        expect do
+          handler.perform
+        end.to raise_error(SignIn::Errors::LogingovRiscEventHandlerError)
+
+        expect(StatsD).not_to have_received(:increment)
       end
     end
   end
