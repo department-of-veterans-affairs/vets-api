@@ -72,7 +72,7 @@ module RepresentationManagement
       @entity_counts.save_api_counts unless @force_update_types.any?
       process_entity_type('agents')
       process_entity_type('attorneys')
-      delete_old_accredited_individuals
+      delete_removed_accredited_individuals
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
     end
@@ -137,7 +137,7 @@ module RepresentationManagement
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
     #
     # @return [void]
-    def delete_old_accredited_individuals
+    def delete_removed_accredited_individuals
       AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids).find_each do |record|
         record.destroy
       rescue => e
