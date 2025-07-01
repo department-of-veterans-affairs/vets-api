@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_model'
-require 'oj'
-
 module Common
   class RedisModel
     include ActiveModel::Model
