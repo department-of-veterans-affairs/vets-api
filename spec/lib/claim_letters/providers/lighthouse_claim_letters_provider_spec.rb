@@ -552,4 +552,326 @@ RSpec.describe LighthouseClaimLettersProvider do
       )
     end
   end
+
+  describe '#get_letters with LetterTransformer integration' do
+    let(:mock_service) { instance_double(BenefitsDocuments::Service) }
+    let(:allowed_doctypes) { %w[27 184 123] }
+    let(:provider) { described_class.new(current_user, allowed_doctypes) }
+
+    before do
+      allow(BenefitsDocuments::Service).to receive(:new).with(current_user).and_return(mock_service)
+    end
+
+    context 'when filtering BOA documents with nil received_at' do
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            'documents' => [
+              {
+                'docTypeId' => 27, # BOA document
+                'subject' => 'BOA Decision with nil date',
+                'documentUuid' => 'boa-nil-date-uuid',
+                'receivedAt' => nil,
+                'uploadedDateTime' => '2023-06-15T10:30:00Z'
+              },
+              {
+                'docTypeId' => 184,
+                'subject' => 'Regular Document',
+                'documentUuid' => 'regular-doc-uuid',
+                'receivedAt' => '2023-06-15'
+              }
+            ]
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      before do
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+      end
+
+      it 'includes BOA documents with nil received_at dates' do
+        letters = provider.get_letters
+
+        boa_letter = letters.find { |l| l.doc_type == '27' }
+        expect(boa_letter).not_to be_nil
+        expect(boa_letter.subject).to eq('BOA Decision with nil date')
+      end
+    end
+
+    context 'when filtering recent BOA documents' do
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            'documents' => [
+              {
+                'docTypeId' => 27, # BOA document
+                'subject' => 'Recent BOA Decision',
+                'documentUuid' => 'recent-boa-uuid',
+                'receivedAt' => 1.day.ago.iso8601,
+                'uploadedDateTime' => 1.day.ago.iso8601
+              },
+              {
+                'docTypeId' => 27, # BOA document
+                'subject' => 'Old BOA Decision',
+                'documentUuid' => 'old-boa-uuid',
+                'receivedAt' => 3.days.ago.iso8601,
+                'uploadedDateTime' => 3.days.ago.iso8601
+              },
+              {
+                'docTypeId' => 184,
+                'subject' => 'Recent Non-BOA Document',
+                'documentUuid' => 'recent-non-boa-uuid',
+                'receivedAt' => 1.hour.ago.iso8601
+              }
+            ]
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      before do
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+      end
+
+      it 'filters out BOA documents received less than 2 days ago' do
+        letters = provider.get_letters
+
+        # Should not include the recent BOA document
+        recent_boa = letters.find { |l| l.document_id == 'recent-boa-uuid' }
+        expect(recent_boa).to be_nil
+
+        # Should include the old BOA document
+        old_boa = letters.find { |l| l.document_id == 'old-boa-uuid' }
+        expect(old_boa).not_to be_nil
+        expect(old_boa.subject).to eq('Old BOA Decision')
+
+        # Should include recent non-BOA documents
+        non_boa = letters.find { |l| l.document_id == 'recent-non-boa-uuid' }
+        expect(non_boa).not_to be_nil
+      end
+    end
+
+    context 'when handling docTypeId format from Lighthouse' do
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            'documents' => [
+              {
+                'docTypeId' => 999, # Integer not in allowed list
+                'subject' => 'Disallowed Document Type',
+                'documentUuid' => 'disallowed-uuid',
+                'receivedAt' => '2023-06-15'
+              },
+              {
+                'docTypeId' => '184', # String in allowed list
+                'subject' => 'Allowed String DocType',
+                'documentUuid' => 'allowed-string-uuid',
+                'receivedAt' => '2023-06-15'
+              },
+              {
+                'docTypeId' => 184, # Integer in allowed list
+                'subject' => 'Allowed Integer DocType',
+                'documentUuid' => 'allowed-int-uuid',
+                'receivedAt' => '2023-06-15'
+              }
+            ]
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      before do
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+      end
+
+      it 'correctly filters documents based on docTypeId regardless of type' do
+        letters = provider.get_letters
+
+        # Should not include document with docTypeId 999
+        disallowed = letters.find { |l| l.document_id == 'disallowed-uuid' }
+        expect(disallowed).to be_nil
+
+        # Should include both string and integer versions of allowed docTypeId
+        string_type = letters.find { |l| l.document_id == 'allowed-string-uuid' }
+        expect(string_type).not_to be_nil
+
+        int_type = letters.find { |l| l.document_id == 'allowed-int-uuid' }
+        expect(int_type).not_to be_nil
+      end
+    end
+
+    context 'when type_description decoration is applied' do
+      before do
+        stub_const('ClaimLetters::Responses::DOCTYPE_TO_TYPE_DESCRIPTION', {
+                     '27' => 'Board of Appeals Decision Letter',
+                     '184' => 'VA 21-526 Veterans Application'
+                   })
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+      end
+
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            'documents' => [
+              {
+                'docTypeId' => 27,
+                'documentUuid' => 'boa-uuid',
+                'documentTypeLabel' => 'Lighthouse Label for BOA',
+                'receivedAt' => 3.days.ago.iso8601
+              },
+              {
+                'docTypeId' => 999, # Unknown type
+                'documentUuid' => 'unknown-uuid',
+                'documentTypeLabel' => 'Lighthouse Label for Unknown',
+                'receivedAt' => '2023-06-15'
+              }
+            ]
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      let(:provider_with_unknown_type) { described_class.new(current_user, %w[27 999]) }
+
+      it 'uses DOCTYPE_TO_TYPE_DESCRIPTION when available' do
+        letters = provider_with_unknown_type.get_letters
+
+        boa_letter = letters.find { |l| l.doc_type == '27' }
+        expect(boa_letter.type_description).to eq('Board of Appeals Decision Letter')
+      end
+
+      it 'falls back to documentTypeLabel for unknown doc types' do
+        letters = provider_with_unknown_type.get_letters
+
+        unknown_letter = letters.find { |l| l.doc_type == '999' }
+        expect(unknown_letter.type_description).to eq('Lighthouse Label for Unknown')
+      end
+    end
+
+    context 'when handling edge cases in received_at dates' do
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            'documents' => [
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'empty-string-date',
+                'receivedAt' => '',
+                'uploadedDateTime' => '2023-06-15T10:30:00Z'
+              },
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'invalid-date-format',
+                'receivedAt' => 'not-a-date',
+                'uploadedDateTime' => '2023-06-15T10:30:00Z'
+              },
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'valid-date',
+                'receivedAt' => '2023-06-15',
+                'uploadedDateTime' => '2023-06-15T10:30:00Z'
+              }
+            ]
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      before do
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+        allow(Time.zone).to receive(:parse).and_call_original
+        allow(Time.zone).to receive(:parse).with('').and_return(nil)
+        allow(Time.zone).to receive(:parse).with('not-a-date').and_return(nil)
+      end
+
+      it 'handles various date parsing scenarios' do
+        letters = provider.get_letters
+
+        # All documents should be included (nil dates are not filtered)
+        expect(letters.count).to eq(3)
+
+        # Documents with unparseable dates should have nil received_at
+        empty_date_letter = letters.find { |l| l.document_id == 'empty-string-date' }
+        expect(empty_date_letter.received_at).to be_nil
+
+        invalid_date_letter = letters.find { |l| l.document_id == 'invalid-date-format' }
+        expect(invalid_date_letter.received_at).to be_nil
+
+        # Valid date should parse correctly
+        valid_date_letter = letters.find { |l| l.document_id == 'valid-date' }
+        expect(valid_date_letter.received_at).not_to be_nil
+        expect(valid_date_letter.received_at).to be_a(Time)
+      end
+    end
+
+    context 'when sorting by received_at with nil values' do
+      let(:lighthouse_response_body) do
+        {
+          'data' => {
+            'documents' => [
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'oldest',
+                'receivedAt' => '2023-01-01'
+              },
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'nil-date',
+                'receivedAt' => nil
+              },
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'newest',
+                'receivedAt' => '2023-12-01'
+              },
+              {
+                'docTypeId' => 184,
+                'documentUuid' => 'middle',
+                'receivedAt' => '2023-06-15'
+              }
+            ]
+          }
+        }
+      end
+
+      let(:lighthouse_response) do
+        instance_double(Faraday::Response, body: lighthouse_response_body, status: 200)
+      end
+
+      before do
+        allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
+      end
+
+      it 'sorts correctly with nil dates present' do
+        letters = provider.get_letters
+
+        document_ids = letters.map(&:document_id)
+
+        # Most recent first (reverse chronological)
+        expect(document_ids.first).to eq('newest')
+
+        # Nil dates should be sorted to the end (treated as very old dates)
+        expect(document_ids.last).to eq('nil-date')
+
+        # Ensure all documents are included
+        expect(document_ids).to match_array(%w[newest middle oldest nil-date])
+      end
+    end
+  end
 end

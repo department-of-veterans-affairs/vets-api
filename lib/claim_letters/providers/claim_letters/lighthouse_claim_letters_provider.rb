@@ -100,7 +100,8 @@ class LighthouseClaimLettersProvider
     claim_letters
       .select { |d| ClaimLetters::Utils::LetterTransformer.allowed?(d.attributes, @allowed_doctypes) }
       .select { |d| ClaimLetters::Utils::LetterTransformer.filter_boa(d.attributes) }
-      .sort_by(&:received_at)
+      # Handle nil dates by treating them as very old
+      .sort_by { |letter| letter.received_at || Time.zone.local(1900, 1, 1) }
       .reverse
   end
 
