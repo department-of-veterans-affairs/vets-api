@@ -530,6 +530,31 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
       end
     end
+
+    describe 'VSI flash feature flag' do
+      let(:controller) { SimpleFormsApi::V1::UploadsController.new }
+      let(:form) { instance_double(SimpleFormsApi::VBA2010207) }
+      let(:submission) { double(id: 123) }
+      let(:user) { create(:user, :legacy_icn) }
+
+      before do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(form_number: '20-10207'))
+        allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(user)
+        allow(form).to receive(:respond_to?).with(:add_vsi_flash).and_return(true)
+      end
+
+      it 'calls add_vsi_flash when feature flag is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:priority_processing_request_apply_vsi_flash, user).and_return(true)
+        expect(form).to receive(:add_vsi_flash)
+        controller.send(:add_vsi_flash_safely, form, submission)
+      end
+
+      it 'does not call add_vsi_flash when feature flag is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:priority_processing_request_apply_vsi_flash, user).and_return(false)
+        allow(form).to receive(:add_vsi_flash) { raise 'should not be called' }
+        expect { controller.send(:add_vsi_flash_safely, form, submission) }.not_to raise_error
+      end
+    end
   end
 
   describe '#submit_supporting_documents' do

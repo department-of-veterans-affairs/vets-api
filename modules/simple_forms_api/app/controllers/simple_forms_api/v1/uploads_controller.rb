@@ -359,7 +359,7 @@ module SimpleFormsApi
       end
 
       def add_vsi_flash_safely(form, submission)
-        return unless Flipper.enabled?(:vsi_flash_enabled, @current_user)
+        return unless Flipper.enabled?(:priority_processing_request_apply_vsi_flash, @current_user)
 
         form.add_vsi_flash if form.respond_to?(:add_vsi_flash) && params[:form_number] == '20-10207'
       rescue => e

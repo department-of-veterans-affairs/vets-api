@@ -29,7 +29,7 @@ module SimpleFormsApi
         'Simple Forms API - Failed to Add VSI Flash',
         { error: e.message, form_id: '20-10207' }
       )
-      false
+      raise e
     end
 
     private
