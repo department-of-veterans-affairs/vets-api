@@ -16,6 +16,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_allergy).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)

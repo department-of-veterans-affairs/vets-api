@@ -26,9 +26,11 @@ RSpec.describe SignIn::ClientAssertionValidator do
     let(:client_assertion) { JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm) }
     let(:client_assertion_type) { 'some-client-assertion-type' }
     let(:client_id) { client_config.client_id }
-    let(:client_config) { create(:client_config, certificates: [client_assertion_certificate]) }
+    let(:client_config) { create(:client_config, certs: [client_assertion_certificate]) }
     let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
-    let(:client_assertion_certificate) { File.read(certificate_path) }
+    let(:client_assertion_certificate) do
+      create(:sign_in_certificate, pem: File.read(certificate_path))
+    end
 
     context 'when client assertion type does not equal expected value' do
       let(:client_assertion_type) { 'some-client-assertion-type' }

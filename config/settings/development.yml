@@ -260,6 +260,8 @@ decision_review:
     url: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews
 dependents:
   prefill: true
+dependents_verification:
+  prefill: true
 dgi:
   jwt:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
@@ -789,6 +791,7 @@ maintenance:
     caseflow: ~
     cie: ~
     coe: PSY4HU1
+    decision_reviews: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
@@ -807,7 +810,7 @@ maintenance:
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: PGT74RC
     mhv: PP2ZZ2V
     mhv_meds: ~
     mhv_mr: ~
@@ -820,7 +823,6 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
-    staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
     travel_pay: ~
@@ -1182,6 +1184,7 @@ saml:
   key_path: ~
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
@@ -1271,6 +1274,7 @@ va_forms:
     channel_id: ~
     enabled: ~
 va_mobile:
+  claims_path: /services/claims/v2/veterans
   key_path: "/fake/client/key/path"
   mock: false
   patients_path: /vaos/v1/patients
@@ -1571,6 +1575,7 @@ vaos:
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
+    pagination_timeout_seconds: 45
     scopes: care-nav
   referral:
     encryption:
@@ -1774,15 +1779,7 @@ virtual_agent:
   cxdw_client_secret: fake_secret
   cxdw_dataverse_uri: fake_dataverse_uri
   cxdw_table_prefix: fake_table_prefix
-  lighthouse_api_key: fake_api_key
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
-  speech_token_subscription_key: fake_speech_token_subscription_key
-  webchat_pva2_secret: fake_secret
   webchat_root_bot_secret: fake_secret
-  webchat_secret: fake_secret
-  webchat_secret_msft: fake_secret
-  webchat_secret_nlu: fake_secret
 virtual_hosts:
   - 127.0.0.1
   - localhost

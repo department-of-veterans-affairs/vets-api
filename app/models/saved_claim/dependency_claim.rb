@@ -33,6 +33,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     child_marriage
     report_child18_or_older_is_not_attending_school
     add_spouse
+    add_disabled_child
   ].freeze
 
   FORM686 = '21-686c'
@@ -174,7 +175,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type:
+      doc_type: doc_type.to_s
     )
 
     uploader.upload! unless Rails.env.development?

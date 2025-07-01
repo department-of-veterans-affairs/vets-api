@@ -5,8 +5,15 @@ require 'rails_helper'
 describe PersistentAttachmentSerializer, type: :serializer do
   subject { serialize(attachment, serializer_class: described_class) }
 
-  # requires create instead of build for the attached file
-  let(:attachment) { create(:pension_burial) }
+  let(:attachment) do
+    create(:persistent_attachment, guid: 'abc-123-guid').tap do |att|
+      allow(att).to receive_messages(
+        original_filename: 'doctors-note.pdf',
+        size: 4567
+      )
+    end
+  end
+
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
