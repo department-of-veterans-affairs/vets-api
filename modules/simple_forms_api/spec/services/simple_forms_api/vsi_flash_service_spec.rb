@@ -40,8 +40,8 @@ RSpec.describe SimpleFormsApi::VsiFlashService do
         )
       end
 
-      it 'returns true' do
-        expect(service.add_flash_to_bgs).to be true
+      it 'does not raise on success' do
+        expect { service.add_flash_to_bgs }.not_to raise_error
       end
     end
 
@@ -60,12 +60,12 @@ RSpec.describe SimpleFormsApi::VsiFlashService do
         )
       end
 
-      it 'logs confirmation failure and returns true' do
+      it 'logs confirmation failure and does not raise' do
         expect(Rails.logger).to receive(:error).with(
-          'Simple Forms API - Failed to Confirm VSI Flash Addition',
+          'Simple Forms API - VSI Flash Confirmation Failed',
           { form_id: '20-10207' }
         )
-        expect(service.add_flash_to_bgs).to be true
+        expect { service.add_flash_to_bgs }.not_to raise_error
       end
     end
 
@@ -81,8 +81,12 @@ RSpec.describe SimpleFormsApi::VsiFlashService do
         allow(claimant_service).to receive(:add_flash).and_raise(StandardError, 'BGS error')
       end
 
-      it 'returns false' do
-        expect(service.add_flash_to_bgs).to be false
+      it 'logs error and raises exception' do
+        expect(Rails.logger).to receive(:error).with(
+          'Simple Forms API - VSI Flash Error',
+          { error: 'BGS error', form_id: '20-10207' }
+        )
+        expect { service.add_flash_to_bgs }.to raise_error(StandardError, 'BGS error')
       end
     end
   end

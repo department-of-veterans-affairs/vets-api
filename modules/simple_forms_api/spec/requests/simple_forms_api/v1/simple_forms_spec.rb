@@ -545,6 +545,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'calls add_vsi_flash when feature flag is enabled' do
         allow(Flipper).to receive(:enabled?).with(:priority_processing_request_apply_vsi_flash, user).and_return(true)
+        expect(Rails.logger).to receive(:info).with('Simple Forms API - VSI Flash Applied',
+                                                    submission_id: submission.id)
         expect(form).to receive(:add_vsi_flash)
         controller.send(:add_vsi_flash_safely, form, submission)
       end
