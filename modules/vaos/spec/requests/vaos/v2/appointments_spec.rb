@@ -18,6 +18,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
+  after do
+    Rails.cache.clear
+  end
+
   let(:described_class) { VAOS::V2::AppointmentsController }
 
   let(:mock_clinic) do
@@ -1154,7 +1158,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 end
 
                 expect(StatsD).to have_received(:measure).with(described_class::APPT_CREATION_DURATION_METRIC,
-                                                               kind_of(Numeric))
+                                                               kind_of(Numeric),
+                                                               tags: ['Community Care Appointments'])
               end
             end
           end
