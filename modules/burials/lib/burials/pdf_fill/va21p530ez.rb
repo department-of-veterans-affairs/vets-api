@@ -301,8 +301,8 @@ module Burials
             },
             'placeOfEntry' => {
               key: "form1[0].#subform[82].PLACE[#{ITERATOR}]",
-              limit: 14,
-              question_num: 25,
+              limit: 25,
+              question_num: 14,
               question_suffix: 'A(2)',
               question_text: 'ENTERED SERVICE (place)'
             },
