@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 module RepresentationManagement
   # Tracks and validates counts of accredited entities from the GCLAWS API
   #
