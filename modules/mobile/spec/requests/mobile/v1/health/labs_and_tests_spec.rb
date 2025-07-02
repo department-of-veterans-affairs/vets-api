@@ -32,6 +32,14 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
   rescue Errno::ENOENT
     {} # Return empty hash if the fixture doesn't exist yet
   end
+  let(:ra_flipper) { :mhv_accelerated_delivery_uhd_ra_enabled }
+  let(:ra_response) do
+    JSON.parse(Rails.root.join(
+      'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_ra_response.json'
+    ).read)
+  rescue Errno::ENOENT
+    {} # Return empty hash if the fixture doesn't exist yet
+  end
 
   describe 'GET /mobile/v1/health/labs-and-tests' do
     context 'happy path' do
@@ -40,6 +48,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(ra_flipper, instance_of(User)).and_return(true)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -57,6 +66,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         expect(json_response).to include(ch_response)
         expect(json_response).to include(sp_response)
         expect(json_response).to include(mb_response)
+        expect(json_response).to include(ra_response)
       end
     end
 
@@ -133,6 +143,33 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         expect(json_response).to include(mb_response)
         expect(json_response).not_to include(sp_response)
         expect(json_response).not_to include(ch_response)
+      end
+    end
+
+    context 'RA only' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(ra_flipper, instance_of(User)).and_return(true)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: sis_headers, params: default_params
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
+      end
+
+      it 'returns the correct lab records' do
+        json_response = JSON.parse(response.body)['data']
+        # Check that our RA record is included in the response
+        # and other records are not included
+        expect(json_response).to include(ra_response)
+        expect(json_response).not_to include(sp_response)
+        expect(json_response).not_to include(ch_response)
+        expect(json_response).not_to include(mb_response)
       end
     end
 
