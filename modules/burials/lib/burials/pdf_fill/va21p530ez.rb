@@ -669,8 +669,8 @@ module Burials
         # @return [void]
         def expand_cemetery_location
           cemetery_location = @form_data['cemeteryLocation']
-          cemetary_location_question = @form_data['cemetaryLocationQuestion']
-          return unless cemetery_location.present? && cemetary_location_question == 'cemetery'
+          cemetery_location_question = @form_data['cemetaryLocationQuestion']
+          return unless cemetery_location.present? && cemetery_location_question == 'cemetery'
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
@@ -682,8 +682,8 @@ module Burials
         # @return [void]
         def expand_tribal_land_location
           cemetery_location = @form_data['tribalLandLocation']
-          cemetary_location_question = @form_data['cemetaryLocationQuestion']
-          return unless cemetery_location.present? && cemetary_location_question == 'tribalLand'
+          cemetery_location_question = @form_data['cemetaryLocationQuestion']
+          return unless cemetery_location.present? && cemetery_location_question == 'tribalLand'
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
