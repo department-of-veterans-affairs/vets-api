@@ -25,7 +25,8 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, {created_at: Time.utc(2025, 06, 25)})
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
+                                                              { created_at: Time.utc(2025, 6, 25) })
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate

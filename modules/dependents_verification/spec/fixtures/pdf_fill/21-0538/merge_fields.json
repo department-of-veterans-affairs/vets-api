@@ -1,4 +1,7 @@
 {
+    "dateStamp": "Application Submitted on va.gov\n2024-03-21 04:00 AM UTC",
+    "signature": "Jane Maximal",
+    "signatureDate": "2024-03-21",
     "veteranFullName":{
         "first": "Jane",
         "last": "Maximal",
@@ -36,5 +39,11 @@
         "phone_first_three_numbers": "123",
         "phone_last_four_numbers": "4567"
     },
-    "veteranInternationalPhone": "15552229999"
+    "veteranInternationalPhone": "15552229999",
+    "hasDependentsStatusChanged": "0",
+    "signature_date": {
+        "month": "03",
+        "day": "21",
+        "year": "2024"
+    }
 }

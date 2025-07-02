@@ -37,7 +37,6 @@ module DependentsVerification
         form_data['signature_date'] = split_date(form_data['signatureDate'])
         form_data
       end
-
     end
   end
 end

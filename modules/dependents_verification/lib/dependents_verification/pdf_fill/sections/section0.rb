@@ -12,7 +12,7 @@ module DependentsVerification
         # 0
         'dateStamp' => {
           key: key_name('0', 'VaDateStamp')
-        },
+        }
       }.freeze
 
       ##
@@ -23,10 +23,10 @@ module DependentsVerification
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        form_data['dateStamp'] = "Application Submitted on va.gov\n#{I18n.l(form_data['dateStamp'], format: :pdf_stamp_utc)}"
+        form_data['dateStamp'] = "Application Submitted on va.gov\n#{I18n.l(form_data['dateStamp'],
+                                                                            format: :pdf_stamp_utc)}"
         form_data
       end
-
     end
   end
 end

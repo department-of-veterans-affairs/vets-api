@@ -43,7 +43,8 @@ module DependentsVerification
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
         form_data['dateStamp'] = created_at || Time.zone.now
-        expand_signature(form_data['dependencyVerification']['veteranInformation']['fullName'], created_at&.to_date || Time.zone.today)
+        expand_signature(form_data['dependencyVerification']['veteranInformation']['fullName'],
+                         created_at&.to_date || Time.zone.today)
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         # Remove the dependencyVerification key from the form data

@@ -13,7 +13,7 @@ module DependentsVerification
         # 8
         'hasDependentsStatusChanged' => {
           key: key_name('8', 'StatusChange')
-        },
+        }
       }.freeze
 
       ##
@@ -24,8 +24,9 @@ module DependentsVerification
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        form_data['hasDependentsStatusChanged'] = select_radio_button(form_data['dependencyVerification']['hasDependentsStatusChanged'])
-        
+        dependents_status = form_data['dependencyVerification']['hasDependentsStatusChanged']
+        form_data['hasDependentsStatusChanged'] = select_radio_button(dependents_status)
+
         form_data
       end
 
