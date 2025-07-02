@@ -196,8 +196,10 @@ module BenefitsDocuments
       )
     end
 
+    # Need to check that the Submission is pending(?)
+    # Need to loosen the filename check
     def presumed_duplicate?(claim_id, file)
-      user_account = UserAccount.find(@user.user_account_uuid)
+      user_account = UserAccount.find_by(id: @user.user_account_uuid)
       es = EvidenceSubmission.find_by(claim_id:, user_account:)
       return false unless es
 
