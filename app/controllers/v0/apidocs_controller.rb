@@ -85,6 +85,10 @@ module V0
         key :name, 'banners'
         key :description, 'VAMC Situation Update Banners'
       end
+      tag do
+        key :name, 'digital_disputes'
+        key :description, 'Submit digital dispute PDFs to the Debt Management Center and VBS'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -121,6 +125,7 @@ module V0
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::Banners,
+      Swagger::Requests::DatadogAction,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimDocuments,
@@ -130,6 +135,7 @@ module V0
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
+      Swagger::Requests::DigitalDisputes,
       Swagger::Requests::DependentsVerifications,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::DisabilityCompensationInProgressForms,
@@ -159,6 +165,7 @@ module V0
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::MyVA::SubmissionStatuses,
       Swagger::Requests::IncomeAndAssetsClaims,
+      Swagger::Requests::PensionClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Profile,

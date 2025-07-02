@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'debt_management_center/base_service'
+
 module DebtsApi
   module V0
-    class DigitalDisputeSubmissionService
+    class DigitalDisputeSubmissionService < DebtManagementCenter::BaseService
       MAX_FILE_SIZE = 1.megabyte
       ACCEPTED_CONTENT_TYPE = 'application/pdf'
 
@@ -10,7 +12,10 @@ module DebtsApi
       class FileTooLargeError < StandardError; end
       class NoFilesProvidedError < StandardError; end
 
-      def initialize(files)
+      configuration DebtManagementCenter::DebtsConfiguration
+
+      def initialize(user, files)
+        super(user)
         @files = files
       end
 
@@ -18,8 +23,8 @@ module DebtsApi
         validate_files_present
         validate_files
 
-        process_files
-
+        send_to_dmc
+        in_progress_form&.destroy
         {
           success: true,
           message: 'Digital dispute submission received successfully'
@@ -31,6 +36,28 @@ module DebtsApi
       private
 
       attr_reader :files
+
+      def send_to_dmc
+        measure_latency("#{DebtsApi::V0::DigitalDispute::STATS_KEY}.vba.latency") do
+          perform(:post, 'dispute-debt', build_payload)
+        end
+      end
+
+      def build_payload
+        {
+          fileNumber: @file_number,
+          disputePDFs: files.map do |file|
+            {
+              fileName: sanitize_filename(file.original_filename),
+              fileContents: Base64.strict_encode64(file.read)
+            }
+          end
+        }
+      end
+
+      def in_progress_form
+        InProgressForm.form_for_user('DISPUTE-DEBT', @user)
+      end
 
       def validate_files_present
         if files.blank? || !files.is_a?(Array) || files.empty?
@@ -53,12 +80,6 @@ module DebtsApi
         raise InvalidFileTypeError, errors.join(', ') if errors.any?
       end
 
-      def process_files
-        files.each do |file|
-          sanitize_filename(file.original_filename)
-        end
-      end
-
       def sanitize_filename(filename)
         name = File.basename(filename)
         name = name.tr(':', '_')
@@ -66,6 +87,7 @@ module DebtsApi
       end
 
       def failure_result(error)
+        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace&.join("\n")}")
         case error
         when NoFilesProvidedError
           {
