@@ -75,25 +75,24 @@ module ClaimsApi
 
           validate_decide_params!(proc_id:, decision:)
 
-          service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
-                                                               external_key: Settings.bgs.external_key)
+          manage_rep_service = manage_representative_service
 
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
 
-          handle_declined_decision(ptcpnt_id:, proc_id:, representative_id:, service:) if decision == 'declined'
+          if decision == 'declined'
+            handle_declined_decision(ptcpnt_id:, proc_id:, representative_id:,
+                                     service: manage_rep_service)
+          end
 
-          res = service.update_poa_request(proc_id:, secondary_status: decision,
-                                           declined_reason: form_attributes['declinedReason'])
+          manage_representative_update_poa_request(proc_id:, secondary_status: decision,
+                                                   declined_reason: form_attributes['declinedReason'],
+                                                   service: manage_rep_service)
 
-          raise Common::Exceptions::Lighthouse::BadGateway if res.blank?
+          get_poa_response = handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
 
-          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
-          res = service.get_poa_request
-          res['id'] = lighthouse_id
-
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
-                                                                                              root: :data),
-                 status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
+                                                                                         view: :index_or_show,
+                                                                                         root: :data), status: :ok
         end
 
         def create # rubocop:disable Metrics/MethodLength
@@ -145,6 +144,25 @@ module ClaimsApi
         end
 
         private
+
+        def handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
+          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
+          res = service.get_poa_request
+          res['id'] = lighthouse_id
+          res
+        end
+
+        def manage_representative_update_poa_request(proc_id:, secondary_status:, declined_reason:, service:)
+          response = service.update_poa_request(proc_id:, secondary_status:,
+                                                declined_reason:)
+
+          raise Common::Exceptions::Lighthouse::BadGateway if response.blank?
+        end
+
+        def manage_representative_service
+          ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                     external_key: Settings.bgs.external_key)
+        end
 
         def handle_declined_decision(ptcpnt_id:, proc_id:, representative_id:, service:)
           poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
