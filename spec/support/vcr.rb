@@ -56,10 +56,10 @@ VCR.configure do |c|
     Settings.lighthouse.benefits_education.client_id
   end
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_API_KEY>') do
-    Settings.benefits_intake_service.api_key
+    Settings.lighthouse.benefits_intake.api_key
   end
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_URL>') do
-    Settings.benefits_intake_service.url
+    BenefitsIntake::Service.configuration.service_path
   end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
