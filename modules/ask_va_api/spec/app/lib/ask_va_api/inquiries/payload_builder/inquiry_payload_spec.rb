@@ -67,18 +67,32 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
         # Should be some other value for authenticated users
         expect(result[:LevelOfAuthentication]).to be_present
       end
+
+      it 'does not raise InquiryPayloadError for authenticated education inquiries' do
+        expect { builder.call }.not_to raise_error
+      end
+
+      it 'does not log warning message for authenticated education inquiries' do
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          any_args
+        )
+
+        builder.call
+      end
     end
 
-    # According to business requirements, this is an invalid scenario, but the
-    # code currently doesn't handle it properly
-    # In the future this test would be useful to test for a validation exception of some sorts.
+    # According to business requirements, this is an invalid scenario
+    # Unauthenticated education inquiries should raise an error
     context 'when user is nil and inquiry is about Education benefits and work study' do
       let(:authorized_user) { nil }
       let(:params) { i_am_veteran_edu[:inquiry] }
 
-      it 'sets LevelOfAuthentication to (722310000) UNAUTHENTICATED for education benefits inquiries' do
-        result = builder.call
-        expect(result[:LevelOfAuthentication]).to eq('722310000')
+      it 'raises InquiryPayloadError for unauthenticated education benefits inquiries' do
+        expect { builder.call }.to raise_error(
+          AskVAApi::Inquiries::PayloadBuilder::InquiryPayload::InquiryPayloadError,
+          'Unauthenticated Education inquiry submitted'
+        )
       end
     end
 
@@ -152,6 +166,312 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
 
         # Adjust this line based on how and where counselor is mapped in your payload
         expect(result[:WhoWasTheirCounselor]).to eq('Joe Smith')
+      end
+    end
+
+    # VR&E (Chapter 31) should be allowed even when unauthenticated
+    context 'when user is nil and inquiry is VR&E (Chapter 31) under Education category' do
+      let(:authorized_user) { nil }
+      let(:params) do
+        {
+          category_id: '75524deb-d864-eb11-bb24-000d3a579c45',
+          contact_preference: 'Email',
+          email_address: 'test@test.com',
+          phone_number: '3039751100',
+          question: 'VR&E question',
+          relationship_to_veteran: "I'm the Veteran",
+          select_category: 'Education benefits and work study',
+          select_topic: 'Veteran Readiness and Employment (Chapter 31)',
+          subject: 'VR&E inquiry',
+          topic_id: 'b18831a7-8276-ef11-a671-001dd8097cca',
+          who_is_your_question_about: 'Myself',
+          about_yourself: {
+            first: 'Test',
+            last: 'User',
+            social_or_service_num: { ssn: '123456789' },
+            date_of_birth: '1990-01-01'
+          },
+          about_the_veteran: { social_or_service_num: {} },
+          about_the_family_member: { social_or_service_num: {} },
+          files: [{ file_name: nil, file_content: nil }]
+        }
+      end
+
+      it 'does NOT raise InquiryPayloadError for unauthenticated VR&E inquiries' do
+        expect { builder.call }.not_to raise_error
+      end
+
+      it 'does NOT log warning message for unauthenticated VR&E inquiries' do
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          anything
+        )
+
+        builder.call
+      end
+
+      it 'successfully builds payload for unauthenticated VR&E inquiries' do
+        result = builder.call
+        expect(result).to be_a(Hash)
+        expect(result[:LevelOfAuthentication]).to eq('722310000')
+      end
+    end
+
+    context 'when user is authenticated and inquiry is about VR&E (Chapter 31)' do
+      let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '234', edipi: '123') }
+      let(:params) do
+        i_am_veteran_edu[:inquiry].merge(
+          select_topic: 'Veteran Readiness and Employment (Chapter 31)'
+        )
+      end
+
+      it 'does not raise InquiryPayloadError for authenticated VR&E inquiries' do
+        expect { builder.call }.not_to raise_error
+      end
+
+      it 'does not set LevelOfAuthentication to UNAUTHENTICATED for authenticated VR&E users' do
+        result = builder.call
+        expect(result[:LevelOfAuthentication]).not_to eq('722310000')
+        expect(result[:LevelOfAuthentication]).to be_present
+      end
+
+      it 'does not log warning message for authenticated VR&E inquiries' do
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Unauthenticated Education inquiry submitted',
+          any_args
+        )
+
+        builder.call
+      end
+    end
+
+    describe 'authentication requirements for education-related inquiries' do
+      context 'when user is nil (unauthenticated)' do
+        let(:builder) { described_class.new(inquiry_params: params, user: nil) }
+
+        context 'and inquiry is education benefits (requires auth)' do
+          let(:params) do
+            {
+              select_category: 'Education benefits and work study',
+              select_topic: 'Montgomery GI Bill',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+
+          it 'raises InquiryPayloadError' do
+            expect { builder.call }.to raise_error(
+              AskVAApi::Inquiries::PayloadBuilder::InquiryPayload::InquiryPayloadError,
+              'Unauthenticated Education inquiry submitted'
+            )
+          end
+        end
+
+        context 'and inquiry is education benefits outside US (requires auth)' do
+          let(:params) do
+            {
+              select_category: 'Benefits issues outside the U.S.',
+              select_topic: 'Education benefits and work study',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+        end
+
+        context 'and inquiry is VR&E (does NOT require auth)' do
+          let(:params) do
+            {
+              select_category: 'Education benefits and work study',
+              select_topic: 'Veteran Readiness and Employment (Chapter 31)',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+
+          it 'does not raise error and sets UNAUTHENTICATE_ID' do
+            expect(Rails.logger).not_to receive(:warn)
+
+            result = builder.call
+            expect(result[:LevelOfAuthentication]).to eq('722310000') # UNAUTHENTICATE_ID
+          end
+        end
+
+        context 'and inquiry is non-education related' do
+          let(:params) do
+            {
+              select_category: 'Health care',
+              select_topic: 'Audiology and hearing aids',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+
+          it 'does not raise error and sets UNAUTHENTICATE_ID' do
+            expect(Rails.logger).not_to receive(:warn)
+
+            result = builder.call
+            expect(result[:LevelOfAuthentication]).to eq('722310000') # UNAUTHENTICATE_ID
+          end
+        end
+      end
+
+      context 'when user is authenticated' do
+        let(:builder) { described_class.new(inquiry_params: params, user: authorized_user) }
+
+        context 'and inquiry is education benefits' do
+          let(:params) do
+            {
+              select_category: 'Education benefits and work study',
+              select_topic: 'Montgomery GI Bill',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+
+          it 'does not raise error and allows submission' do
+            expect(Rails.logger).not_to receive(:warn)
+
+            result = builder.call
+            expect(result[:LevelOfAuthentication]).to be_present
+            expect(result[:LevelOfAuthentication]).not_to eq('722310000')
+          end
+        end
+
+        context 'and inquiry is education benefits outside US' do
+          let(:params) do
+            {
+              select_category: 'Benefits issues outside the U.S.',
+              select_topic: 'Education benefits and work study',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+
+          it 'does not raise error and allows submission' do
+            expect(Rails.logger).not_to receive(:warn)
+
+            result = builder.call
+            expect(result[:LevelOfAuthentication]).to be_present
+            expect(result[:LevelOfAuthentication]).not_to eq('722310000')
+          end
+        end
+
+        context 'and inquiry is VR&E' do
+          let(:params) do
+            {
+              select_category: 'Education benefits and work study',
+              select_topic: 'Veteran Readiness and Employment (Chapter 31)',
+              contact_preference: 'Email',
+              email_address: 'test@test.com',
+              phone_number: '3039751100',
+              question: 'test question',
+              subject: 'test subject',
+              who_is_your_question_about: 'Myself',
+              relationship_to_veteran: "I'm the Veteran",
+              about_yourself: {
+                first: 'Test',
+                last: 'User',
+                social_or_service_num: { ssn: '123456789' },
+                date_of_birth: '1990-01-01'
+              },
+              about_the_veteran: { social_or_service_num: {} },
+              about_the_family_member: { social_or_service_num: {} },
+              files: [{ file_name: nil, file_content: nil }]
+            }
+          end
+
+          it 'does not raise error and allows submission' do
+            expect(Rails.logger).not_to receive(:warn)
+
+            result = builder.call
+            expect(result[:LevelOfAuthentication]).to be_present
+            expect(result[:LevelOfAuthentication]).not_to eq('722310000')
+          end
+        end
       end
     end
   end

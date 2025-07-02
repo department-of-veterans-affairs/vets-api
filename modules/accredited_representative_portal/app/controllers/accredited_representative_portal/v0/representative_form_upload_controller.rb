@@ -13,6 +13,11 @@ module AccreditedRepresentativePortal
         upload_scanned_form
         upload_supporting_documents
       ]
+      before_action :deny_access_unless_686c_enabled, only: %i[
+        submit
+        upload_scanned_form
+        upload_supporting_documents
+      ]
 
       def submit
         service = SavedClaimService::Create

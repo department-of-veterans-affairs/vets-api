@@ -69,7 +69,7 @@ describe MHVPrescriptionsPolicy do
   end
 
   context 'when Flipper flag is disabled' do
-    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement, va_patient:, authn_context:) }
+    let(:user) { create(:user, :loa3, va_patient:, authn_context:) }
     let(:mhv_account_type) { 'some-mhv-account-type' }
     let(:authn_context) { LOA::IDME_MHV_LOA1 }
     let(:va_patient) { true }
