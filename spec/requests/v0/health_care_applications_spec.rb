@@ -219,6 +219,13 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'POST enrollment_status' do
+    let(:headers) do
+      {
+        'ACCEPT' => 'application/json',
+        'CONTENT_TYPE' => 'application/json'
+      }
+    end
+
     let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
     let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
     let(:success_response) do
@@ -234,19 +241,19 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     end
 
     context 'with user attributes' do
-      let(:user_attributes) do
+      let(:params) do
         {
-          userAttributes: build(:health_care_application).parsed_form.slice(
+          user_attributes: build(:health_care_application).parsed_form.slice(
             'veteranFullName', 'veteranDateOfBirth',
             'veteranSocialSecurityNumber', 'gender'
           )
-        }
+        }.to_json
       end
 
       it 'logs user loa' do
         allow(Sentry).to receive(:set_extras)
         expect(Sentry).to receive(:set_extras).with(user_loa: nil)
-        post(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+        post(enrollment_status_v0_health_care_applications_path, params:, headers:)
       end
 
       it 'returns the enrollment status data' do
@@ -255,7 +262,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           '123', nil
         ).and_return(loa1_response)
 
-        post(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+        post(enrollment_status_v0_health_care_applications_path, params:, headers:)
 
         expect(response.body).to eq(loa1_response.to_json)
       end
@@ -266,7 +273,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             :create_rate_limited_searches
           ).and_raise(RateLimitedSearch::RateLimitedError)
 
-          post(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+          post(enrollment_status_v0_health_care_applications_path, params:, headers:)
           expect(response).to have_http_status(:too_many_requests)
         end
       end
@@ -274,6 +281,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
     context 'with a signed in user' do
       let(:current_user) { build(:user, :loa3) }
+      let(:params) { { userAttributes: build(:health_care_application).parsed_form }.to_json }
 
       before do
         sign_in_as(current_user)
@@ -287,7 +295,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         it 'returns 404' do
           post(
             enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form }
+            params:,
+            headers:
           )
           expect(response).to have_http_status(:not_found)
         end
@@ -301,7 +310,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
           post(
             enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form }
+            params:,
+            headers:
           )
 
           expect(response.body).to eq(success_response.to_json)

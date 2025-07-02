@@ -65,7 +65,12 @@ module V0
           current_user.icn
         else
           Sentry.set_extras(user_loa: current_user&.loa)
-          HealthCareApplication.user_icn(HealthCareApplication.user_attributes(params[:userAttributes]))
+          user_attributes = if params[:user_attributes]
+                              params[:user_attributes].deep_transform_keys! { |key| key.to_s.camelize(:lower).to_sym }
+                            else
+                              params[:userAttributes]
+                            end
+          HealthCareApplication.user_icn(HealthCareApplication.user_attributes(user_attributes))
         end
 
       raise Common::Exceptions::RecordNotFound, nil if icn.blank?
