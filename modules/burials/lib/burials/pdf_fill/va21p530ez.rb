@@ -578,7 +578,7 @@ module Burials
         # @return [Hash]
         def expand_checkbox(value, key)
           {
-            "has#{key}" => !!value == true ? 'On' : nil,
+            "has#{key}" => !value.nil? == true ? 'On' : nil,
             "no#{key}" => !!value == false ? 'On' : nil
           }
         end
@@ -643,7 +643,7 @@ module Burials
         #
         # @return [void]
         def expand_burial_allowance
-          @form_data['hasPreviouslyReceivedAllowance'] = !!@form_data['previouslyReceivedAllowance'] ? 0 : 1
+          @form_data['hasPreviouslyReceivedAllowance'] = @form_data['previouslyReceivedAllowance'].nil? ? 1 : 0
           burial_allowance = @form_data['burialAllowanceRequested']
           return if burial_allowance.blank?
 
@@ -662,8 +662,8 @@ module Burials
         # @return [void]
         def expand_cemetery_location
           cemetery_location = @form_data['cemeteryLocation']
-          cemetaryLocationQuestion = @form_data['cemetaryLocationQuestion']
-          return unless cemetery_location.present? && cemetaryLocationQuestion == 'cemetery'
+          cemetary_location_question = @form_data['cemetaryLocationQuestion']
+          return unless cemetery_location.present? && cemetary_location_question == 'cemetery'
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
@@ -675,8 +675,8 @@ module Burials
         # @return [void]
         def expand_tribal_land_location
           cemetery_location = @form_data['tribalLandLocation']
-          cemetaryLocationQuestion = @form_data['cemetaryLocationQuestion']
-          return unless cemetery_location.present? && cemetaryLocationQuestion == 'tribalLand'
+          cemetary_location_question = @form_data['cemetaryLocationQuestion']
+          return unless cemetery_location.present? && cemetary_location_question == 'tribalLand'
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
@@ -737,7 +737,7 @@ module Burials
           @form_data['hasConfirmation'] = 1
           if @form_data['confirmation'].present?
             confirmation = @form_data['confirmation']
-            @form_data['hasConfirmation'] = !!confirmation['checkBox'] ? 0 : 1
+            @form_data['hasConfirmation'] = confirmation['checkBox'].nil? ? 1 : 0
           end
         end
 
@@ -746,7 +746,6 @@ module Burials
         #
         # @return [void]
         def expand_location_question
-
           cemetery_location = @form_data['cemetaryLocationQuestion'] || 'none'
           @form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
           @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribalLand')
@@ -834,13 +833,11 @@ module Burials
 
           expand_cemetery_location
           expand_tribal_land_location
-          
-          @form_data['hasNationalOrFederal'] = !!@form_data['nationalOrFederal'] ? 0 : 1
+
+          @form_data['hasNationalOrFederal'] = @form_data['nationalOrFederal'].nil? ? 1 : 0
 
           # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
-          @form_data['hasTransportation'] = !!@form_data['transportationExpenses'] ? 0 : 1
-
-
+          @form_data['hasTransportation'] = @form_data['transportationExpenses'].nil? ? 1 : 0
 
           # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
           process_option = @form_data['processOption']
@@ -865,13 +862,13 @@ module Burials
 
           convert_location_of_death
 
-          @form_data['hasGovtContributions'] = !!@form_data['govtContributions'] ? 0 : 1
+          @form_data['hasGovtContributions'] = @form_data['govtContributions'].nil? ? 1 : 0
 
           format_currency_spacing
 
           %w[
             burialExpenseResponsibility
-            plotExpenseResponsibility  
+            plotExpenseResponsibility
             allowanceStatementOfTruth
           ].each do |attr|
             expand_checkbox_in_place(@form_data, attr)
