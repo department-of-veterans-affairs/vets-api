@@ -35,8 +35,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     login_as(representative_user)
 
     allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
-      receive(:perform) do |instance, saved_claim_id|
-        claim = ::SavedClaim.find(saved_claim_id)
+      receive(:perform) do |_instance, saved_claim_id|
+        claim = SavedClaim.find(saved_claim_id)
         claim.form_submissions << create(:form_submission, :pending)
         claim.save!
       end
