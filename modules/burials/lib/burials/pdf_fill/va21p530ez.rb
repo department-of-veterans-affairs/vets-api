@@ -578,19 +578,24 @@ module Burials
         # @return [Hash]
         def expand_checkbox(value, key)
           {
-            "has#{key}" => !value.nil? == true ? 'On' : nil,
-            "no#{key}" => !!value == false ? 'On' : nil
+            "has#{key}" => value == true ? 'On' : nil,
+            "no#{key}" => value == false ? 'On' : nil
           }
         end
 
         ##
         # Expands a checkbox value within a hash and updates it in place
+        # Returns nil if the key is not present in the hash.
+        # This behavior stems from VBA's requirement that boolean values
+        # remain empty on the PDF if not selected on the online form.
         #
         # @param hash [Hash]
         # @param key [String]
         #
         # @return [Hash]
         def expand_checkbox_in_place(hash, key)
+          return nil if hash[key].nil?
+
           hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
         end
 
@@ -643,7 +648,7 @@ module Burials
         #
         # @return [void]
         def expand_burial_allowance
-          @form_data['hasPreviouslyReceivedAllowance'] = @form_data['previouslyReceivedAllowance'].nil? ? 1 : 0
+          @form_data['hasPreviouslyReceivedAllowance'] = select_radio(@form_data['previouslyReceivedAllowance'])
           burial_allowance = @form_data['burialAllowanceRequested']
           return if burial_allowance.blank?
 
@@ -712,6 +717,22 @@ module Burials
         end
 
         ##
+        # Converts a boolean value into a radio selection
+        #
+        # This method returns 0 for true and 1 for false and nil for nil
+        # This behavior stems from VBA's request to keep boolean fields blank
+        # on the PDF if not selected on the online form.
+        #
+        # @param value [Boolean, nil]
+        #
+        # @return [Integer, nil]
+        def select_radio(value)
+          return nil if value.nil?
+
+          value ? 0 : 1
+        end
+
+        ##
         # Expands a value from a hash into a 'checkbox' structure
         #
         # Override for 'On' vs true @see FormHelper
@@ -734,10 +755,9 @@ module Burials
         #
         # @return [void]
         def expand_confirmation_question
-          @form_data['hasConfirmation'] = 1
           if @form_data['confirmation'].present?
             confirmation = @form_data['confirmation']
-            @form_data['hasConfirmation'] = confirmation['checkBox'].nil? ? 1 : 0
+            @form_data['hasConfirmation'] = select_radio(confirmation['checkBox'])
           end
         end
 
@@ -746,7 +766,7 @@ module Burials
         #
         # @return [void]
         def expand_location_question
-          cemetery_location = @form_data['cemetaryLocationQuestion'] || 'none'
+          cemetery_location = @form_data['cemetaryLocationQuestion']
           @form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
           @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribalLand')
           @form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
@@ -834,15 +854,10 @@ module Burials
           expand_cemetery_location
           expand_tribal_land_location
 
-          @form_data['hasNationalOrFederal'] = @form_data['nationalOrFederal'].nil? ? 1 : 0
+          @form_data['hasNationalOrFederal'] = select_radio(@form_data['nationalOrFederal'])
 
           # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
-          @form_data['hasTransportation'] = @form_data['transportationExpenses'].nil? ? 1 : 0
-
-          # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-          process_option = @form_data['processOption']
-          @form_data['hasProcessOption'] = process_option ? 'On' : nil
-          @form_data['noProcessOption'] = process_option ? nil : 'On'
+          @form_data['hasTransportation'] = select_radio(@form_data['transportationExpenses'])
 
           expand_confirmation_question
           set_state_to_no_if_national
@@ -862,14 +877,16 @@ module Burials
 
           convert_location_of_death
 
-          @form_data['hasGovtContributions'] = @form_data['govtContributions'].nil? ? 1 : 0
+          @form_data['hasGovtContributions'] = select_radio(@form_data['govtContributions'])
 
           format_currency_spacing
 
+          # These are boolean values that are set up as checkboxes in the PDF
+          # instead of radio buttons, so we need to process them differently
           %w[
             burialExpenseResponsibility
             plotExpenseResponsibility
-            allowanceStatementOfTruth
+            processOption
           ].each do |attr|
             expand_checkbox_in_place(@form_data, attr)
           end
