@@ -200,10 +200,22 @@ module BenefitsDocuments
     # Need to loosen the filename check
     def presumed_duplicate?(claim_id, file)
       user_account = UserAccount.find_by(id: @user.user_account_uuid)
-      es = EvidenceSubmission.find_by(claim_id:, user_account:)
-      return false unless es
+      es = EvidenceSubmission.where(
+        claim_id:,
+        user_account:,
+        upload_status: [
+          BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
+          BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED],
+          BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+        ]
+      )
+      return false unless es.exists?
 
-      file.original_filename == JSON.parse(es.template_metadata)['personalisation']['file_name']
+      filenames = es.map do |submission|
+        JSON.parse(submission.template_metadata).dig('personalisation', 'file_name')
+      end.compact
+
+      filenames.include?(file.original_filename)
     end
   end
 end
