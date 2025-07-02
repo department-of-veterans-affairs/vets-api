@@ -24,13 +24,14 @@ module SentryControllerLogging
 
   def tags_context
     { controller_name: }.tap do |tags|
-      if current_user.present?
-        sign_in = current_user.respond_to?(:identity) ? current_user.identity.sign_in : current_user.sign_in
+      if current_user.present? && current_user.respond_to?(:identity)
+        sign_in = current_user.identity.sign_in
         tags[:sign_in_method] = sign_in[:service_name]
         # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
         tags[:sign_in_acct_type] = sign_in[:account_type]
       else
         tags[:sign_in_method] = 'not-signed-in'
+        tags[:sign_in_acct_type] = 'N/A'
       end
       tags[:source] = request.headers['Source-App-Name'] if request.headers['Source-App-Name']
     end

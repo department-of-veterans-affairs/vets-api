@@ -51,7 +51,7 @@ module SAML
       def sign_in
         SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
                                   .fetch(:sign_in)
-                                  .merge(account_type:)
+                                  .merge(account_type: 'N/A')
       rescue
         { service_name: 'unknown', account_type: 'N/A' }
       end
@@ -62,22 +62,6 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!; end
-
-      private
-
-      def account_type
-        existing_user_identity? ? existing_user_identity.sign_in[:account_type] : 'N/A'
-      end
-
-      def existing_user_identity
-        return @_existing_user_identity if defined?(@_existing_user_identity)
-
-        @_existing_user_identity = UserIdentity.find(idme_uuid)
-      end
-
-      def existing_user_identity?
-        existing_user_identity.present?
-      end
     end
   end
 end
