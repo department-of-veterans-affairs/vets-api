@@ -3,21 +3,25 @@
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class DecisionHandler
-      def initialize(ptcpnt_id:, proc_id:, representative_id:, service:)
+      def initialize(ptcpnt_id:, proc_id:, representative_id:)
         @ptcpnt_id = ptcpnt_id
         @proc_id = proc_id
         @representative_id = representative_id
-        @service = service
       end
 
       def call
         poa_request = validate_ptcpnt_id!
         first_name = poa_request['claimantFirstName'].presence || poa_request['vetFirstName'] if poa_request
-byebug
-        send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+
+        send_declined_notification(ptcpnt_id: @ptcpnt_id, first_name:, representative_id: @representative_id)
       end
 
       private
+
+      def manage_representative_service
+        ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                   external_key: Settings.bgs.external_key)
+      end
 
       def validate_ptcpnt_id!
         if @ptcpnt_id.blank?
@@ -30,7 +34,7 @@ byebug
             .new('representativeId', detail: 'representativeId is required if decision is declined')
         end
 
-        res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id: @ptcpnt_id)
+        res = manage_representative_service.read_poa_request_by_ptcpnt_id(ptcpnt_id: @ptcpnt_id)
 
         raise ::Common::Exceptions::Lighthouse::BadGateway if res.blank?
 

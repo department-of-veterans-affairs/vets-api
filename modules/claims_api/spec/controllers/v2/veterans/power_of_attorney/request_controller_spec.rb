@@ -388,7 +388,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
 
             decide_request_with(id:, decision:, auth_header:,
-                    representative_id:)
+                                representative_id:)
           end
         end
       end
