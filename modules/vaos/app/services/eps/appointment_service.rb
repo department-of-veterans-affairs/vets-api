@@ -22,6 +22,7 @@ module Eps
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'get_appointment')
 
+        Rails.logger.info('[EPS::AppointmentService#get_appointment] EPS appointment retrieved successfully')
         result
       end
     end
@@ -41,6 +42,7 @@ module Eps
 
         appointments = response.body[:appointments]
         merged_appointments = merge_provider_data_with_appointments(appointments)
+        Rails.logger.info('[EPS::AppointmentService#get_appointments] EPS appointments list retrieved successfully')
         OpenStruct.new(data: merged_appointments)
       end
     end
@@ -61,6 +63,7 @@ module Eps
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'create_draft_appointment')
 
+        Rails.logger.info('[EPS::AppointmentService#create_draft_appointment] EPS draft appointment created successfully')
         result
       end
     end
@@ -111,6 +114,7 @@ module Eps
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'submit_appointment')
 
+        Rails.logger.info('[EPS::AppointmentService#submit_appointment] EPS appointment submitted successfully')
         result
       end
     end
