@@ -5,7 +5,7 @@ http_interactions:
     uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
     body:
       encoding: UTF-8
-      string: '{"appId":"107","appToken":"!!9fXdrg_zvurHXbXphX","subject":"Proxy Client","userType":"SYSTEM"}'
+      string: '{"appId":"1323","appToken":"12345","subject":"Proxy Client","userType":"SYSTEM"}'
     headers:
       User-Agent:
       - "<FARADAY_VERSION>"
