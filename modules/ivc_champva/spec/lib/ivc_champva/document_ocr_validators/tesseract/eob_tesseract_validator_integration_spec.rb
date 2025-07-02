@@ -128,17 +128,13 @@ RSpec.describe 'EobTesseractValidator', type: :integration do
   end
 
   describe 'field extraction accuracy' do
-    it 'extracts expected fields from the sample EOB' do
+    it 'extracts expected fields from SampleEOB.pdf' do
       result = validator.process
       fields = result[:extracted_fields]
 
       # These are fields we expect to find in most EOBs
       found_fields = fields.select { |_key, value| !value.nil? && !value.to_s.empty? }
-
-      puts "Found fields: #{found_fields}"
-
-      # We should find at least some fields in a real EOB document
-      expect(found_fields.size).to be_positive
+      expect(found_fields.keys).to include(:date_of_service, :provider_name, :service_code, :amount_paid)
     end
   end
 end
