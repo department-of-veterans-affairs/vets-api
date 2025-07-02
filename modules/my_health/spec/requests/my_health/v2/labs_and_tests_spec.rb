@@ -9,11 +9,12 @@ require 'date'
 
 RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation, type: :request do
   # Helper method to sort lab records by dateCompleted in descending order (newest first)
+  # Ensure fixture follows the same sorting logic.
   def sort_labs_by_date(labs)
-    return [] if labs.nil? || labs.empty?
-    
+    return [] if labs.blank?
+
     labs.sort_by do |record|
-      date_str = record.dig('dateCompleted') || record.dig('attributes', 'dateCompleted')
+      date_str = record['dateCompleted'] || record.dig('attributes', 'dateCompleted')
       date_str ? DateTime.parse(date_str).to_time.to_i : 0
     end.reverse
   end
@@ -69,10 +70,10 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body) || []
-        
+
         # Use helper method to sort by dateCompleted
         sorted_response = sort_labs_by_date(json_response)
-        
+
         expect(sorted_response.count).to eq(18)
         # Check that our test records are included in the response
         # rather than expecting specific indices
@@ -99,10 +100,10 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body) || []
-        
+
         # Use helper method to sort by dateCompleted
         sorted_response = sort_labs_by_date(json_response)
-        
+
         # Check that our SP and MB records are included in the response
         # and CH record is not included
         expect(sorted_response).to include(sp_response.first)
@@ -128,10 +129,10 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body) || []
-        
+
         # Use helper method to sort by dateCompleted
         sorted_response = sort_labs_by_date(json_response)
-        
+
         # Check that our CH and MB records are included in the response
         # and SP record is not included
         expect(sorted_response).to include(ch_response.first)
