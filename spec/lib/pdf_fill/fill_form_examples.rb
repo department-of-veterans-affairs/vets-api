@@ -52,7 +52,8 @@ RSpec.shared_examples 'a form filler' do |options|
               SavedClaim.find(claim.id)
             else
               claim = create(factory, form: form_data.to_json)
-              claim.tap { |c| c.update(form_id:) }
+              claim.update(form_id:) if claim.has_attribute?(:form_id)
+              claim
             end
           end
 
