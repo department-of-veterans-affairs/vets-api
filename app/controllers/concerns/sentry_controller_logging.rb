@@ -31,7 +31,6 @@ module SentryControllerLogging
         tags[:sign_in_acct_type] = sign_in[:account_type]
       else
         tags[:sign_in_method] = 'not-signed-in'
-        tags[:sign_in_acct_type] = 'N/A'
       end
       tags[:source] = request.headers['Source-App-Name'] if request.headers['Source-App-Name']
     end
