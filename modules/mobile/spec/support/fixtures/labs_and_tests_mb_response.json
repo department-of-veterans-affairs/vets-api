@@ -1,88 +1,410 @@
-{
-  "id": "be9c5f12-c479-482e-9e3c-1efcb05cae75",
-  "type": "DiagnosticReport",
-  "attributes": {
-    "display": "MISC MICRO",
-    "test_code": "MB",
-    "date_completed": "2025-02-27T15:38:48+00:00",
-    "sample_tested": "PLASMA",
-    "encoded_data": "QWNjZXNzaW9uIFtVSURdOiBNSVNDTSAyNSA3IFs0MjI1MDAwMDA3XSAgICBSZWNlaXZlZDogRmViIDI3LCAyMDI1QDExOjM4Q29sbGVjdGlvbiBzYW1wbGU6IEJMT09EICAgICAgICAgICAgICAgQ29sbGVjdGlvbiBkYXRlOiBGZWIgMjcsIDIwMjUgMTE6MzhTaXRlL1NwZWNpbWVuOiBQTEFTTUFQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQQ29tbWVudCBvbiBzcGVjaW1lbjogflRlc3QgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVGVzdChzKSBvcmRlcmVkOiBDVUxUVVJFICYgU1VTQ0VQVElCSUxJVFkuLi4uLi4gY29tcGxldGVkOiBBcHIgMzAsIDIwMjVudWxsKiBCQUNURVJJT0xPR1kgRklOQUwgUkVQT1JUID0+IEFwciAzMCwgMjAyNSAxMjoxMiAgIFRFQ0ggQ09ERTogNTIwNjUwMzM5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLVBlcmZvcm1pbmcgTGFib3JhdG9yeTpCYWN0ZXJpb2xvZ3kgUmVwb3J0IFBlcmZvcm1lZCBCeTogQ0hZU0hSIFRFU1QgTEFCMjM2MCBFIFBFUlNISU5HIEJMVkQgQ0hFWUVOTkUsIEZMIDgyMDAxLTUzNTZudWxs",
-    "location": "CHYSHR TEST LAB",
-    "ordered_by": "MARCI P MCGUIRE",
-    "body_site": "",
-    "observations": [
-      {
-        "test_code": "GRAM STAIN",
-        "value": {
-          "text": "Gram negative cocci found ",
-          "type": "string"
+[
+  {
+    "id": "15248982124",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "Blood Culture",
+      "testCode": "MB",
+      "dateCompleted": "2025-03-13T17:28:00Z",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "Arm, Upper limb structure (body structure)",
+      "observations": [
+        {
+          "testCode": "Blood Culture",
+          "value": {
+            "text": "Many Gram Positive Cocci",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "",
+          "bodySite": "Arm, Upper limb structure (body structure)",
+          "sampleTested": ""
         },
-        "reference_range": "",
-        "status": "final",
-        "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
-        "body_site": "",
-        "sample_tested": ""
-      },
-      {
-        "test_code": "ORGANISM",
-        "value": {
-          "text": "LACTOBACILLUS SP;20 ",
-          "type": "string"
+        {
+          "testCode": "BCGS",
+          "value": {
+            "text": "Many Gram Positive Cocci Acetobacter aceti",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "",
+          "bodySite": "Arm, Upper limb structure (body structure)",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "88186ca6-41ec-4288-8796-520f332c8113",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "MISC MICRO",
+      "testCode": "MB",
+      "dateCompleted": "2025-02-27T15:38:48+00:00",
+      "sampleTested": "PLASMA",
+      "encodedData": "QWNjZXNzaW9uIFtVSURdOiBNSVNDTSAyNSA3IFs0MjI1MDAwMDA3XSAgICBSZWNlaXZlZDogRmViIDI3LCAyMDI1QDExOjM4Q29sbGVjdGlvbiBzYW1wbGU6IEJMT09EICAgICAgICAgICAgICAgQ29sbGVjdGlvbiBkYXRlOiBGZWIgMjcsIDIwMjUgMTE6MzhTaXRlL1NwZWNpbWVuOiBQTEFTTUFQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQQ29tbWVudCBvbiBzcGVjaW1lbjogflRlc3QgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVGVzdChzKSBvcmRlcmVkOiBDVUxUVVJFICYgU1VTQ0VQVElCSUxJVFkuLi4uLi4gY29tcGxldGVkOiBBcHIgMzAsIDIwMjVudWxsKiBCQUNURVJJT0xPR1kgRklOQUwgUkVQT1JUID0+IEFwciAzMCwgMjAyNSAxMjoxMiAgIFRFQ0ggQ09ERTogNTIwNjUwMzM5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLVBlcmZvcm1pbmcgTGFib3JhdG9yeTpCYWN0ZXJpb2xvZ3kgUmVwb3J0IFBlcmZvcm1lZCBCeTogQ0hZU0hSIFRFU1QgTEFCMjM2MCBFIFBFUlNISU5HIEJMVkQgQ0hFWUVOTkUsIEZMIDgyMDAxLTUzNTZudWxs",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "GRAM STAIN",
+          "value": {
+            "text": "Gram negative cocci found ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
         },
-        "reference_range": "",
-        "status": "final",
-        "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
-        "body_site": "",
-        "sample_tested": ""
-      },
-      {
-        "test_code": "MS",
-        "value": {
-          "text": "MS",
-          "type": "string"
+        {
+          "testCode": "ORGANISM",
+          "value": {
+            "text": "LACTOBACILLUS SP;20 ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
         },
-        "reference_range": "",
-        "status": "final",
-        "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
-        "body_site": "",
-        "sample_tested": ""
-      },
-      {
-        "test_code": "MS",
-        "value": {
-          "text": "MS",
-          "type": "string"
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
         },
-        "reference_range": "",
-        "status": "final",
-        "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
-        "body_site": "",
-        "sample_tested": ""
-      },
-      {
-        "test_code": "MS",
-        "value": {
-          "text": "MS",
-          "type": "string"
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
         },
-        "reference_range": "",
-        "status": "final",
-        "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
-        "body_site": "",
-        "sample_tested": ""
-      },
-      {
-        "test_code": "MS",
-        "value": {
-          "text": "MS",
-          "type": "string"
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
         },
-        "reference_range": "",
-        "status": "final",
-        "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
-        "body_site": "",
-        "sample_tested": ""
-      }
-    ]
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "0fa8e904-5385-4bca-a244-ae33c71ec8df",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "MICROBIOLOGY",
+      "testCode": "MB",
+      "dateCompleted": "2025-02-27T15:34:01+00:00",
+      "sampleTested": "BLOOD",
+      "encodedData": "QWNjZXNzaW9uIFtVSURdOiBNSUNSTyAyNSAxMCBbMTIyNTAwMDAxMF0gICBSZWNlaXZlZDogRmViIDI3LCAyMDI1QDExOjM0Q29sbGVjdGlvbiBzYW1wbGU6IEJMT09EICAgICAgICAgICAgICAgQ29sbGVjdGlvbiBkYXRlOiBGZWIgMjcsIDIwMjUgMTE6MzRQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQQ29tbWVudCBvbiBzcGVjaW1lbjogflRlc3QgY29tbWVudCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXN0KHMpIG9yZGVyZWQ6IEJMT09EIENVTFRVUkUuLi4uLi4uLi4uLi4uLi4uLiBjb21wbGV0ZWQ6IEZlYiAyNywgMjAyNSAxMzo1MG51bGwqIEJBQ1RFUklPTE9HWSBGSU5BTCBSRVBPUlQgPT4gRmViIDI3LCAyMDI1IDEzOjUxICAgVEVDSCBDT0RFOiA1MjA2NTAzMzlDVUxUVVJFIFJFU1VMVFM6ICBBQ1RJTk9CQUNJTExVUyBTVUlTIC0gUXVhbnRpdHk6IDUgICAgICAgICAgICAgICAgICAgICAgQ29tbWVudDogVGVzdCBjb21tZW50ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQU5USUJJT1RJQyBTVVNDRVBUSUJJTElUWSBURVNUIFJFU1VMVFM6ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQUNUSU5PQkFDSUxMVVMgU1VJUyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgOkFNUElDSUxMSU4gQU0uLi4uLi4uLi4uLi4uLi4uLiAgSSAgICAgMjUwTUcgUE8gUTYgJC4xMjsxR00gSVYgUTQgJDIuNzBHRU5UTUNOLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gIEkgICAgIDgwTUcgSVYgUTggJC42MzsgMTIwTUcgSVYgUTEyICQuNjMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQmFjdGVyaW9sb2d5IFJlbWFyayhzKTogIFRlc3QgcmVwb3J0IHJlbWFyayAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tUGVyZm9ybWluZyBMYWJvcmF0b3J5OkJhY3RlcmlvbG9neSBSZXBvcnQgUGVyZm9ybWVkIEJ5OiBDSFlTSFIgVEVTVCBMQUIyMzYwIEUgUEVSU0hJTkcgQkxWRCBDSEVZRU5ORSwgRkwgODIwMDEtNTM1Nm51bGw=",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "ORGANISM",
+          "value": {
+            "text": "ACTINOBACILLUS SUIS;5 ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~Test Comments on Specimen: ~Test comment Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Bacteriology Remark(s)",
+          "value": {
+            "text": "Test report remark ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~Test Comments on Specimen: ~Test comment Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Bacteriology Remark(s)",
+          "value": {
+            "text": "remark ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~Test Comments on Specimen: ~Test comment Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "ad76b76e-812d-4cf0-af04-71bafb3c585f",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "MICROBIOLOGY",
+      "testCode": "MB",
+      "dateCompleted": "2025-02-27T15:32:13+00:00",
+      "sampleTested": "BLOOD",
+      "encodedData": "QWNjZXNzaW9uIFtVSURdOiBNSUNSTyAyNSA5IFsxMjI1MDAwMDA5XSAgICBSZWNlaXZlZDogRmViIDI3LCAyMDI1QDExOjMyQ29sbGVjdGlvbiBzYW1wbGU6IEJMT09EICAgICAgICAgICAgICAgQ29sbGVjdGlvbiBkYXRlOiBGZWIgMjcsIDIwMjUgMTE6MzJQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQQ29tbWVudCBvbiBzcGVjaW1lbjogflRlc3QgY29tbWVudCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXN0KHMpIG9yZGVyZWQ6IEJMT09EIENVTFRVUkUuLi4uLi4uLi4uLi4uLi4uLiBjb21wbGV0ZWQ6IEZlYiAyNywgMjAyNSAxMTo1Mm51bGwqIEJBQ1RFUklPTE9HWSBGSU5BTCBSRVBPUlQgPT4gRmViIDI3LCAyMDI1IDEzOjQ5ICAgVEVDSCBDT0RFOiA1MjA2NTAzMzlDVUxUVVJFIFJFU1VMVFM6ICBBQ1RJTk9CQUNJTExVUyBFUVVVTEkgLSBRdWFudGl0eTogNSAgICAgICAgICAgICAgICAgICAgICBDb21tZW50OiBUZXN0IGNvbW1lbnQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBTlRJQklPVElDIFNVU0NFUFRJQklMSVRZIFRFU1QgUkVTVUxUUzogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBQ1RJTk9CQUNJTExVUyBFUVVVTEkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDpBTVBJQ0lMTElOIEFNLi4uLi4uLi4uLi4uLi4uLi4gIFMgICAgIDI1ME1HIFBPIFE2ICQuMTI7MUdNIElWIFE0ICQyLjcwUElQRVJDSUxMSU4gLi4uLi4uLi4uLi4uLi4uLi4uICBSICAgICBaT1NZTiAzLjM3NSBRNiAkMzMuOTI7IDQuNUdNIFE2ICQ0NS4zMkFVR01FTlRJTi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgTVMgICAgMjUwTUcgUE8gUTggJDIuOTU7IDUwME1HIFBPIFE4ICQzLjk5Q0VGQVpPTElOLi4uLi4uLi4uLi4uLi4uLi4uLi4uICBTICAgICAxIEdNIFE4ICQzLjU0OzIgR00gUTggJDcuMDhDRUZUQVpJRElNRS4uLi4uLi4uLi4uLi4uLi4uLi4gIFMgICAgIDEgR00gSVYgUTggJDIxLjM2OyAyIEdNIElWIFE4ICQ0Mi43MkNFRlRSSUFYT05FLi4uLi4uLi4uLi4uLi4uLi4uLiAgUyAgICAgMSBHTSBJViBRMjQgJDE4LjczOzIgR00gSVYgUTI0ICQzNy40NkNFRk9URVRBTi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgUyAgICAgMSBHTSBJViBRMTIgJDEyLjkwOyAyIEdNIElWIFExMiAkMjUuODBDSVBST0ZMT1hBQ0lOIC4uLi4uLi4uLi4uLi4uLi4gIFMgICAgIDUwME1HIFBPIFExMiAkMy4zMjsgNzUwTUcgUE8gUTEyICQzLjY4R0VOVE1DTi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uICBTICAgICA4ME1HIElWIFE4ICQuNjM7IDEyME1HIElWIFExMiAkLjYzQ0hMT1JBTS4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uICBTICAgICAuMjVHTSAtIC43NUdNIElWIFE2ICQuNDQgLSAkMS4zMVRFVFJBQ1lDTElORS4uLi4uLi4uLi4uLi4uLi4uLiAgSSAgICAgMjUwTUcgUE8gUTYgJDAuMTJUUk1TVUxGLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gIFMgICAgIDE2MC84MDAgRFMgUE8gQklEICQuMTA7SVYgUSAxMiAkMi40MElNSVBFTkVNLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgUyAgICAgNTAwTUcgSVYgUTggJDQwLjk3OyA1MDBNRyBJViBRNiAkNTQuNjIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQmFjdGVyaW9sb2d5IFJlbWFyayhzKTogIFRlc3QgcmVwb3J0IHJlbWFyayAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tUGVyZm9ybWluZyBMYWJvcmF0b3J5OkJhY3RlcmlvbG9neSBSZXBvcnQgUGVyZm9ybWVkIEJ5OiBDSFlTSFIgVEVTVCBMQUIyMzYwIEUgUEVSU0hJTkcgQkxWRCBDSEVZRU5ORSwgRkwgODIwMDEtNTM1Nm51bGw=",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "ORGANISM",
+          "value": {
+            "text": "ACTINOBACILLUS EQUULI;5 ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~Test Comments on Specimen: ~Test comment Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~Test Comments on Specimen: ~Test comment Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Bacteriology Remark(s)",
+          "value": {
+            "text": "Test report remark ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~Test Comments on Specimen: ~Test comment Comments on Specimen: ~Test Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "0d474086-bbc1-463b-95d0-1e1eeb649a95",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "MISC MICRO",
+      "testCode": "MB",
+      "dateCompleted": "2025-01-26T20:23:38+00:00",
+      "sampleTested": "BLOOD",
+      "encodedData": "QWNjZXNzaW9uIFtVSURdOiBNSVNDTSAyNSAyIFs0MjI1MDAwMDAyXSAgICBSZWNlaXZlZDogSmFuIDI2LCAyMDI1QDE2OjIzQ29sbGVjdGlvbiBzYW1wbGU6IEJMT09EICAgICAgICAgICAgICAgQ29sbGVjdGlvbiBkYXRlOiBKYW4gMjYsIDIwMjUgMTY6MjNQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQQ29tbWVudCBvbiBzcGVjaW1lbjogflRFU1QgT1JERVIgQ09NTUVURVNUIE9SREVSIENPTU1FTlQgRlJPTSBNQVJDSVQgRlJPTSBNQVJDSSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXN0KHMpIG9yZGVyZWQ6IFBBUkFTSVRFIEVYQU0uLi4uLi4uLi4uLi4uLi4uLiBjb21wbGV0ZWQ6IEphbiAyNiwgMjAyNSAxNjozMW51bGwqIFBBUkFTSVRPTE9HWSBGSU5BTCBSRVBPUlQgPT4gSmFuIDI2LCAyMDI1IDE2OjMzICAgVEVDSCBDT0RFOiA1MjA2NTAzMzlQYXJhc2l0ZTogUExBU01PRElVTSAgICAgICAgICAgICBTdGFnZTogR0FNRVRFUyAgIFF1YW50aXR5OiAxMCAgICBDb21tZW50OiBSZXN1bHRzIGNvbW11bmljYXRlZCB0byBMaW5kYSBCZWVkZSwgRk5QLCBhdCBQYXJhc2l0b2xvZ3kgUmVtYXJrKHMpOiAgUkVQT1JUIFJFTUFSSyBURVNUICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS09LS1QZXJmb3JtaW5nIExhYm9yYXRvcnk6UGFyYXNpdG9sb2d5IFJlcG9ydCBQZXJmb3JtZWQgQnk6IENIWVNIUiBURVNUIExBQjIzNjAgRSBQRVJTSElORyBCTFZEIENIRVlFTk5FLCBGTCA4MjAwMS01MzU2bnVsbA==",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "Parasite",
+          "value": {
+            "text": "PLASMODIUM Stage: GAMETES Quantity: 10 ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Comment",
+          "value": {
+            "text": "Results communicated to Linda Beede, FNP, at ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Parasitology Remark(s)",
+          "value": {
+            "text": "REPORT REMARK TEST ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Bacteriology Remark(s)",
+          "value": {
+            "text": "Test report remark ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "4384b1a8-e034-4eee-9065-33890005bd55",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "MICROBIOLOGY",
+      "testCode": "MB",
+      "dateCompleted": "2025-01-26T20:11:33+00:00",
+      "sampleTested": "BLOOD",
+      "encodedData": "QWNjZXNzaW9uIFtVSURdOiBNSUNSTyAyNSA1IFsxMjI1MDAwMDA1XSAgICBSZWNlaXZlZDogSmFuIDI2LCAyMDI1QDE2OjExQ29sbGVjdGlvbiBzYW1wbGU6IEJMT09EICAgICAgICAgICAgICAgQ29sbGVjdGlvbiBkYXRlOiBKYW4gMjYsIDIwMjUgMTY6MTFQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQQ29tbWVudCBvbiBzcGVjaW1lbjogflRFU1QgT1JERVIgQ09NTUVOVCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXN0KHMpIG9yZGVyZWQ6IEJMT09EIENVTFRVUkUuLi4uLi4uLi4uLi4uLi4uLiBjb21wbGV0ZWQ6IEphbiAyNiwgMjAyNSAxNjoxNW51bGwqIEJBQ1RFUklPTE9HWSBGSU5BTCBSRVBPUlQgPT4gSmFuIDI2LCAyMDI1IDE2OjIwICAgVEVDSCBDT0RFOiA1MjA2NTAzMzlHUkFNIFNUQUlOOiAyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDVUxUVVJFIFJFU1VMVFM6ICBBQ0hPTEVQTEFTTUEgLSBRdWFudGl0eTogNTY2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQU5USUJJT1RJQyBTVVNDRVBUSUJJTElUWSBURVNUIFJFU1VMVFM6ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQUNIT0xFUExBU01BICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA6UEVOSUNJTExJTi4uLi4uLi4uLi4uLi4uLi4uLi4uICBJICAgICAyNTBQTyBRNiQuMDg7IDFNIElWUTQkMi4wNzsgMk0gSVZRNCQ0LjE0TUVUSENMTi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uICBSQ0xJTkRBTS4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uICBNU0dFTlRNQ04uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgUyAgICAgODBNRyBJViBROCAkLjYzOyAxMjBNRyBJViBRMTIgJC42M0NITE9SQU0uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgSSAgICAgLjI1R00gLSAuNzVHTSBJViBRNiAkLjQ0IC0gJDEuMzFWQU5DTUNOLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gIFMgICAgIDUwME1HIElWIFExMiAkNS4xNjsgMSBHTSBJViBRMTIgJDEwLjMyTklUUk9GVVJBTlRPSU4uLi4uLi4uLi4uLi4uLi4uICBNUyAgICAxMDBNRyBQTyBRNiAkMi4yNDsgNTBNRyBQTyBRNiAkMS4yNktBTkFNWUNJTi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgUkJBQ1RSQ04uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgSSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tUGVyZm9ybWluZyBMYWJvcmF0b3J5OkJhY3RlcmlvbG9neSBSZXBvcnQgUGVyZm9ybWVkIEJ5OiBDSFlTSFIgVEVTVCBMQUIyMzYwIEUgUEVSU0hJTkcgQkxWRCBDSEVZRU5ORSwgRkwgODIwMDEtNTM1Nm51bGw=",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "GRAM STAIN",
+          "value": {
+            "text": "2 ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: ~TEST ORDER COMMENT Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "ORGANISM",
+          "value": {
+            "text": "ACHOLEPLASMA;566 ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: ~TEST ORDER COMMENT Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: ~TEST ORDER COMMENT Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: ~TEST ORDER COMMENT Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MS",
+          "value": {
+            "text": "MS",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: ~TEST ORDER COMMENT Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Bacteriology Remark(s)",
+          "value": {
+            "text": "Test report remark ",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Test comment Comments on Specimen: ~TEST ORDER COMMETEST ORDER COMMENT FROM MARCIT FROM MARCI Comments on Specimen: ~Test comment Comments on Specimen: ~ANOTHER TEST ORDER COMMENT FROM MARCI Comments on Specimen: ~TEST ORDER COMMENT Comments on Specimen: comment on specimen for release Comments on Specimen: ~Test comment",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
   }
-}
+]

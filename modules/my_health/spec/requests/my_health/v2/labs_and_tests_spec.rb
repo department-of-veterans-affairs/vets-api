@@ -5,8 +5,18 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
+require 'date'
 
 RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation, type: :request do
+  # Helper method to sort lab records by dateCompleted in descending order (newest first)
+  def sort_labs_by_date(labs)
+    return [] if labs.nil? || labs.empty?
+    
+    labs.sort_by do |record|
+      date_str = record.dig('dateCompleted') || record.dig('attributes', 'dateCompleted')
+      date_str ? DateTime.parse(date_str).to_time.to_i : 0
+    end.reverse
+  end
   let(:user_id) { '11898795' }
   let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }
   let(:path) { '/my_health/v2/medical_records/labs_and_tests' }
@@ -58,13 +68,17 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(9)
+        json_response = JSON.parse(response.body) || []
+        
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+        
+        expect(sorted_response.count).to eq(18)
         # Check that our test records are included in the response
         # rather than expecting specific indices
-        expect(json_response).to include(ch_response)
-        expect(json_response).to include(sp_response)
-        expect(json_response).to include(mb_response)
+        expect(sorted_response).to include(ch_response.first)
+        expect(sorted_response).to include(sp_response.first)
+        expect(sorted_response).to include(mb_response.first)
       end
     end
 
@@ -84,12 +98,16 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
+        json_response = JSON.parse(response.body) || []
+        
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+        
         # Check that our SP and MB records are included in the response
         # and CH record is not included
-        expect(json_response).to include(sp_response)
-        expect(json_response).to include(mb_response)
-        expect(json_response).not_to include(ch_response)
+        expect(sorted_response).to include(sp_response.first)
+        expect(sorted_response).to include(mb_response.first)
+        expect(sorted_response).not_to include(ch_response.first)
       end
     end
 
@@ -109,12 +127,16 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
+        json_response = JSON.parse(response.body) || []
+        
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+        
         # Check that our CH and MB records are included in the response
         # and SP record is not included
-        expect(json_response).to include(ch_response)
-        expect(json_response).to include(mb_response)
-        expect(json_response).not_to include(sp_response)
+        expect(sorted_response).to include(ch_response.first)
+        expect(sorted_response).to include(mb_response.first)
+        expect(sorted_response).not_to include(sp_response.first)
       end
     end
 
