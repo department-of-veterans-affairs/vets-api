@@ -291,7 +291,8 @@ module PdfFill
       end
 
       def merge_address_helpers
-        format_address(@form_data['veteranAddress']) if @form_data['veteranAddress']
+        veteran_address = @form_data.key?('veteranAddress') ? @form_data['veteranAddress'] : {}
+        format_address(veteran_address) unless veteran_address.empty?
         format_address(@form_data['newAddress']) if @form_data['isMoving']
       end
 
