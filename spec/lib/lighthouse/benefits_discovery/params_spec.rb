@@ -6,7 +6,7 @@ require 'lighthouse/benefits_discovery/params'
 RSpec.describe BenefitsDiscovery::Params do
   subject { described_class.new(user.uuid) }
 
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
   before do
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('token')

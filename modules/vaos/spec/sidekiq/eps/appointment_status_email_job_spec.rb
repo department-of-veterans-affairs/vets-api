@@ -50,6 +50,52 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
           personalisation: { 'error' => error_message }
         )
       end
+
+      context 'when vaos_appointment_notification_callback feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vaos_appointment_notification_callback)
+            .and_return(true)
+        end
+
+        it 'initializes VaNotify service with callback options' do
+          expected_callback_options = {
+            callback_klass: 'Eps::AppointmentStatusNotificationCallback',
+            callback_metadata: {
+              user_uuid:,
+              appointment_id_last4:,
+              statsd_tags: {
+                service: 'vaos',
+                function: 'appointment_submission_failure_notification'
+              }
+            }
+          }
+
+          subject.perform(user_uuid, appointment_id_last4, error_message)
+
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.va_gov.api_key,
+            expected_callback_options
+          )
+        end
+      end
+
+      context 'when vaos_appointment_notification_callback feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vaos_appointment_notification_callback)
+            .and_return(false)
+        end
+
+        it 'initializes VaNotify service without callback options' do
+          subject.perform(user_uuid, appointment_id_last4, error_message)
+
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.va_gov.api_key,
+            nil
+          )
+        end
+      end
     end
 
     context 'when appointment data is missing from Redis' do
@@ -59,12 +105,12 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         subject.perform(user_uuid, appointment_id_last4, error_message)
 
         expect(Rails.logger).to have_received(:error).with(
-          /missing appointment id/,
+          /missing appointment data/,
           { user_uuid:, appointment_id_last4: }
         )
         allow(va_notify_service).to receive(:send_email)
         expect(va_notify_service).not_to have_received(:send_email)
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
 
@@ -84,7 +130,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         )
         allow(va_notify_service).to receive(:send_email)
         expect(va_notify_service).not_to have_received(:send_email)
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
 
@@ -100,7 +146,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
           /upstream error - will not retry: 400/,
           { user_uuid:, appointment_id_last4: }
         )
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
 
@@ -133,7 +179,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
           /unexpected error: StandardError/,
           { user_uuid:, appointment_id_last4: }
         )
-        check_statsd_failure_increment(user_uuid, appointment_id_last4)
+        check_statsd_failure_increment
       end
     end
   end
@@ -155,14 +201,18 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
         /retries exhausted: VANotify::Error - Service unavailable/,
         { user_uuid:, appointment_id_last4: }
       )
-      check_statsd_failure_increment(user_uuid, appointment_id_last4)
+      check_statsd_failure_increment
     end
   end
 
-  def check_statsd_failure_increment(uuid, last4)
+  def check_statsd_failure_increment
     expect(StatsD).to have_received(:increment).with(
       "#{described_class::STATSD_KEY}.failure",
-      tags: ["user_uuid:#{uuid}", "appointment_id_last4:#{last4}"]
+      tags: ['Community Care Appointments']
+    )
+    expect(StatsD).to have_received(:increment).with(
+      described_class::STATSD_NOTIFY_SILENT_FAILURE,
+      tags: described_class::STATSD_CC_SILENT_FAILURE_TAGS
     )
   end
 end
