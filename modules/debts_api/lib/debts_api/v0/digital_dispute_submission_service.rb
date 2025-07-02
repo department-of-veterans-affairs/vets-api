@@ -45,11 +45,11 @@ module DebtsApi
 
       def build_payload
         {
-          file_number: @file_number,
-          dispute_pdfs: files.map do |file|
+          fileNumber: @file_number,
+          disputePDFs: files.map do |file|
             {
-              file_name: sanitize_filename(file.original_filename),
-              file_contents: Base64.strict_encode64(file.read)
+              fileName: sanitize_filename(file.original_filename),
+              fileContents: Base64.strict_encode64(file.read)
             }
           end
         }

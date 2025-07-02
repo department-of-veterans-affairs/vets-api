@@ -5,7 +5,7 @@ module Mobile
     module Adapters
       class LegacyAllergyIntolerance
         def parse(allergies_info)
-          Array.wrap(allergies_info).map do |allergy|
+          Array.wrap(allergies_info).sort_by { _1.dig('resource', 'recordedDate') || '3000-01-01' }.map do |allergy|
             allergy_info = allergy['resource']
             Mobile::V0::LegacyAllergyIntolerance.new(
               id: allergy_info['id'],
