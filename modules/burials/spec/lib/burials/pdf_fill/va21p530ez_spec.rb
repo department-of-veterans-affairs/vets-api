@@ -27,19 +27,19 @@ describe Burials::PdfFill::Forms::Va21p530ez do
         [
           true, 'GovtContribution'
         ],
-        { 'hasGovtContribution' => 'YES', 'noGovtContribution' => nil }
+        { 'hasGovtContribution' => 'On', 'noGovtContribution' => nil }
       ],
       [
         [
           false, 'GovtContribution'
         ],
-        { 'hasGovtContribution' => nil, 'noGovtContribution' => 'NO' }
+        { 'hasGovtContribution' => nil, 'noGovtContribution' => 'On' }
       ],
       [
         [
           nil, 'GovtContribution'
         ],
-        { 'hasGovtContribution' => nil, 'noGovtContribution' => nil }
+        { 'hasGovtContribution' => nil, 'noGovtContribution' => 'On' }
       ]
     ]
   )
@@ -184,7 +184,7 @@ describe Burials::PdfFill::Forms::Va21p530ez do
       )
     end
 
-    it 'leaves benefit selections blank on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
+    it 'defaults selections to "No" on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
       unselected_benefits_data = JSON.parse(
         File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json")
       ).except(
