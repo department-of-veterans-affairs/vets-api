@@ -243,7 +243,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     context 'with user attributes' do
       let(:params) do
         {
-          user_attributes: build(:health_care_application).parsed_form.slice(
+          userAttributes: build(:health_care_application).parsed_form.slice(
             'veteranFullName', 'veteranDateOfBirth',
             'veteranSocialSecurityNumber', 'gender'
           )
