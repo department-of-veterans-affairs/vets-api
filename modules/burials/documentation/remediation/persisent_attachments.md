@@ -1,4 +1,4 @@
-# Persisent Attachment Remediation
+# Persistent Attachment Remediation
 
 ## Context
 On 6/11/25 there were changes made to `claim_documents_controller.rb` to remove `PensionBurial` from a conditional in place of a default `ClaimEvidence` model. In doing so,
@@ -10,7 +10,7 @@ In the `benefits-pension-burial-notifications`, if you see something along the l
 
 ### Step 1 - DataDog
 You'll want to locate the claim_id associated with the failing attachment. Navigate to the Burial or Pension Controller dashboard and
-look under "Burial orPensionClaimsController Events". Click one and navgiate in the menu to "Logs". Then click on the one that says
+look under "Burial or PensionClaimsController Events". Click one and navgiate in the menu to "Logs". Then click on the one that says
 "Pensions::Monitor 21P-527EZ process attachment error", this will open up a side window and if you scroll down you'll find the
 claim_id under the payload
 

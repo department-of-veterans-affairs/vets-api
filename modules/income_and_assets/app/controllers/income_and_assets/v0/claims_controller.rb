@@ -113,7 +113,7 @@ module IncomeAndAssets
       #   - Sends a persistent attachment error email notification if the claim supports it.
       #   - Destroys the claim if attachment processing fails.
       #
-      # @param claim [Burials::SavedClaim] The claim whose attachments are being sanitized.
+      # @param claim [IncomeAndAssets::SavedClaim] The claim whose attachments are being sanitized.
       # @param in_progress_form [InProgressForm] The in-progress form associated with the claim.
       # @return [void]
       def sanitize_attachments(claim, in_progress_form)
