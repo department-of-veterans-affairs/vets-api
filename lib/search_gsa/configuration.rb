@@ -27,7 +27,7 @@ module SearchGsa
     end
 
     def service_name
-      'Search/Results'
+      'SearchGsa/Results'
     end
   end
 end
