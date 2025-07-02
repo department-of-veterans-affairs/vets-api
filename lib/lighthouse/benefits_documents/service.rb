@@ -79,6 +79,13 @@ module BenefitsDocuments
       Rails.logger.info('file content type', file&.content_type)
       Rails.logger.info('participant_id present?', @user.participant_id.present?)
 
+      if Flipper.enabled?(:benefits_documents_filter_duplicates) && presumed_duplicate?(claim_id, file)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'Provided document has already been uploaded',
+          source: self.class.name
+        )
+      end
+
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
@@ -187,6 +194,14 @@ module BenefitsDocuments
       Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(
         :cst_synchronous_evidence_uploads, @user
       )
+    end
+
+    def presumed_duplicate?(claim_id, file)
+      user_account = UserAccount.find(@user.user_account_uuid)
+      es = EvidenceSubmission.find_by(claim_id:, user_account:)
+      return false unless es
+
+      file.original_filename == JSON.parse(es.template_metadata)['personalisation']['file_name']
     end
   end
 end
