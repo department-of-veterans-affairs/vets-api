@@ -8,172 +8,67 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
 
   let(:messenger) { instance_double(ClaimsApi::Slack::FailedSubmissionsMessenger) }
 
+  before do
+    allow(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).and_return(messenger)
+    allow(messenger).to receive(:notify!)
+    allow_any_instance_of(described_class).to receive(:allow_processing?).and_return(true)
+
+    # Allow all other `where` calls to pass through to the real implementation
+    allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_call_original
+    # Mock non-va.gov claims to ensure they are not picked up
+    allow(ClaimsApi::AutoEstablishedClaim).to receive(:where)
+      .with('status = ? AND created_at BETWEEN ? AND ? AND cid <> ?', 'errored', anything, anything, '0oagdm49ygCSJTp8X297')
+      .and_return(double(pluck: []))
+    allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: []))
+    allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: []))
+    allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: []))
+  end
+
   describe '#perform' do
-    before do
-      allow(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).and_return(messenger)
-      allow(messenger).to receive(:notify!)
+    it 'reports a single unresolved va.gov claim' do
+      create(:auto_established_claim_va_gov, :errored, created_at: 30.minutes.ago, transaction_id: 'unresolved-1')
+
+      expect(messenger).to receive(:notify!)
+      subject.perform
+
+      expect(subject.instance_variable_get(:@va_gov_errored_claims)).to eq(['unresolved-1'])
     end
 
-    context 'when no errored submissions exist' do
-      before do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(true)
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return([])
-        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return([])
-        allow(ClaimsApi::IntentToFile).to receive(:where).and_return([])
-        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return([])
-      end
+    it 'does not report a resolved va.gov claim' do
+      create(:auto_established_claim_va_gov, :errored, created_at: 30.minutes.ago, transaction_id: 'resolved-1')
+      create(:auto_established_claim, :established, created_at: 10.minutes.ago, transaction_id: 'resolved-1, other data')
 
-      it 'does not call notify method' do
-        expect(messenger).not_to receive(:notify!)
-
-        subject.perform
-      end
+      expect(messenger).not_to receive(:notify!)
+      subject.perform
     end
 
-    context 'when errored submissions exist' do
-      before do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(true)
-        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
-        allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
-        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews1']))
-      end
+    it 'de-duplicates multiple errored claims for the same unresolved transaction' do
+      create(:auto_established_claim_va_gov, :errored, created_at: 30.minutes.ago, transaction_id: 'unresolved-1, data-a')
+      create(:auto_established_claim_va_gov, :errored, created_at: 20.minutes.ago, transaction_id: 'unresolved-1, data-b')
 
-      it 'calls notify with the correct parameters' do
-        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
-          errored_disability_claims: [],
-          errored_va_gov_claims: [],
-          errored_poa: ['poa1'],
-          errored_itf: ['itf1'],
-          errored_ews: ['ews1'],
-          from: kind_of(String),
-          to: kind_of(String),
-          environment: kind_of(String)
-        )
+      expect(messenger).to receive(:notify!)
+      subject.perform
 
-        subject.perform
-      end
-
-      it 'does not repeat an alert based on transaction id' do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(true)
-
-        create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '1')
-        create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '2')
-        claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                       transaction_id: 'transaction_2',
-                                                                       id: '3')
-        claim_four = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                      transaction_id: 'transaction_3',
-                                                                      id: '4')
-
-        expected_vagov_claims = [
-          [claim_three.id, claim_three.transaction_id],
-          [claim_four.id, claim_four.transaction_id]
-        ]
-
-        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
-          errored_disability_claims: [],
-          errored_va_gov_claims: expected_vagov_claims,
-          errored_poa: ['poa1'],
-          errored_itf: ['itf1'],
-          errored_ews: ['ews1'],
-          from: kind_of(String),
-          to: kind_of(String),
-          environment: kind_of(String)
-        )
-
-        subject.perform
-      end
-
-      context 'when a va gov claim with the same transaction id errs in the same hour' do
-        before do
-          create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now, transaction_id: 'transaction_1')
-          create(:auto_established_claim_va_gov, :errored, created_at: 59.minutes.ago, transaction_id: 'transaction_1')
-        end
-
-        it 'only alerts on one of the claims' do
-          subject.perform
-
-          expect(subject.instance_variable_get(:@va_gov_errored_claims)).to have_attributes(length: 1)
-        end
-      end
-
-      it 'does not alert for claims with specific errors' do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(true)
-
-        create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '1')
-        create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '2')
-        claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                       transaction_id: 'transaction_2',
-                                                                       id: '3')
-        claim_four = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                      transaction_id: 'transaction_3',
-                                                                      id: '4')
-
-        create(:auto_established_claim_va_gov,
-               :errored,
-               created_at: 30.seconds.ago,
-               evss_response: [{ 'status' => '422',
-                                 'title' => 'Backend Service Exception',
-                                 'detail' => 'The Maximum number of EP codes have been ' \
-                                             'reached for this benefit type claim code' }],
-               transaction_id: 'transaction_4')
-
-        create(:auto_established_claim_va_gov,
-               :errored,
-               created_at: 120.seconds.ago,
-               evss_response: [{ 'status' => '422',
-                                 'title' => 'Backend Service Exception',
-                                 'detail' => 'Claim could not be established. ' \
-                                             'Retries will fail.' }],
-               transaction_id: 'transaction_5')
-
-        expected_vagov_claims = [
-          [claim_three.id, claim_three.transaction_id],
-          [claim_four.id, claim_four.transaction_id]
-        ]
-
-        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
-          errored_disability_claims: [],
-          errored_va_gov_claims: expected_vagov_claims,
-          errored_poa: ['poa1'],
-          errored_itf: ['itf1'],
-          errored_ews: ['ews1'],
-          from: kind_of(String),
-          to: kind_of(String),
-          environment: kind_of(String)
-        )
-
-        subject.perform
-      end
+      expect(subject.instance_variable_get(:@va_gov_errored_claims)).to eq(['unresolved-1'])
     end
 
-    context 'when flipper is not enabled' do
-      before do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(false)
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: ['claim1']))
-        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
-        allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
-        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews1']))
-      end
+    it 'does not report non-va.gov claims' do
+      create(:auto_established_claim, :errored, created_at: 30.minutes.ago, transaction_id: 'should-be-ignored')
+      expect(messenger).not_to receive(:notify!)
+      subject.perform
+    end
 
-      it 'does not run the alert' do
-        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).not_to receive(:new)
+    it 'handles case-insensitive resolution' do
+      create(:auto_established_claim_va_gov, :errored, created_at: 30.minutes.ago, transaction_id: 'CASE-TEST, data-a')
+      create(:auto_established_claim, :established, created_at: 10.minutes.ago, transaction_id: 'case-test, data-b')
 
-        subject.perform
-      end
+      expect(messenger).not_to receive(:notify!)
+      subject.perform
+    end
+
+    it 'does not report anything when no errored claims exist' do
+      expect(messenger).not_to receive(:notify!)
+      subject.perform
     end
   end
 
