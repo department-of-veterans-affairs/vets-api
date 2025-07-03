@@ -13,7 +13,14 @@ module RepresentationManagement
 
     def save_api_counts
       TYPES.each do |type|
-        send("#{type}=", current_api_counts[type]) if valid_count?(type, notify: false)
+        if valid_count?(type)
+          send("#{type}=", current_api_counts[type])
+        else
+          previous_count = current_db_counts[type]
+          new_count = current_api_counts[type]
+          decrease_percentage = (previous_count - new_count).to_f / previous_count
+          notify_threshold_exceeded(type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD)
+        end
       end
 
       save!
@@ -21,7 +28,7 @@ module RepresentationManagement
       log_error("Error saving API counts: #{e.message}")
     end
 
-    def valid_count?(type, notify: true)
+    def valid_count?(type)
       previous_count = current_db_counts[type]
       new_count = current_api_counts[type]
 
@@ -33,14 +40,7 @@ module RepresentationManagement
 
       # Calculate decrease percentage
       decrease_percentage = (previous_count - new_count).to_f / previous_count
-
-      if decrease_percentage > DECREASE_THRESHOLD
-        # Log to Slack and don't update
-        notify_threshold_exceeded(type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD) if notify
-        false
-      else
-        true
-      end
+      decrease_percentage <= DECREASE_THRESHOLD
     end
 
     def client
