@@ -24,8 +24,9 @@ module SentryControllerLogging
 
   def tags_context
     { controller_name: }.tap do |tags|
-      if current_user.present?
-        sign_in = current_user.respond_to?(:identity) ? current_user.identity.sign_in : current_user.sign_in
+      # Add defensive checks to avoid nil errors
+      if current_user&.identity&.sign_in.present?
+        sign_in = current_user.identity.sign_in
         tags[:sign_in_method] = sign_in[:service_name]
         # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
         tags[:sign_in_acct_type] = sign_in[:account_type]
