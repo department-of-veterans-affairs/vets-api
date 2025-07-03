@@ -17,9 +17,9 @@ module CARMA
       end
 
       # @return [Integer] Value given by configuration key `form_10_10cg.carma.mulesoft.timeout`
-      # setting. Defaults to 60 if unset.
+      # setting. Defaults to 600 if unset.
       def timeout
-        settings.key?(:timeout) ? settings.timeout : 60
+        settings.key?(:timeout) ? settings.timeout : 600
       end
 
       # @return [Config::Options]

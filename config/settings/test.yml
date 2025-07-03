@@ -469,7 +469,6 @@ form_10282:
 form_10_10cg:
   carma:
     mulesoft:
-      async_timeout: 600
       auth:
         auth_token_path: ~
         client_id: ~

@@ -470,7 +470,6 @@ form_10282:
 form_10_10cg:
   carma:
     mulesoft:
-      async_timeout: 600
       auth:
         auth_token_path: ~
         client_id: ~
@@ -481,7 +480,7 @@ form_10_10cg:
       client_id: ~
       client_secret: ~
       host: ~
-      timeout: 30
+      timeout: 600
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
