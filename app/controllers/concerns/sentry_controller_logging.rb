@@ -25,7 +25,7 @@ module SentryControllerLogging
   def tags_context
     { controller_name: }.tap do |tags|
       # Add defensive checks to avoid nil errors
-      sign_in = if current_user&.respond_to?(:identity) && current_user.identity&.sign_in.present?
+      sign_in = if current_user.respond_to(:identity) && current_user.identity&.sign_in.present?
                   current_user.identity.sign_in
                 elsif current_user&.sign_in.present?
                   current_user.sign_in
