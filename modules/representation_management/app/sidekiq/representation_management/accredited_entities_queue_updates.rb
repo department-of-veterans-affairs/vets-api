@@ -112,31 +112,24 @@ module RepresentationManagement
       return if @force_update_types.any? &&
                 !@force_update_types.intersect?(orgs_and_reps)
 
-      # org_valid_count = @entity_counts.valid_count?('veteran_service_organizations')
-      # rep_valid_count = @entity_counts.valid_count?('representatives')
-
-      [org_valid_count, rep_valid_count].each do |type|
-        unless @entity_counts.valid_count?(type.to_sym) || @force_update_types.include?(type)
+      orgs_and_reps.each do |type|
+        unless @entity_counts.valid_count?(type) || @force_update_types.include?(type)
           log_error("#{type.humanize} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
         end
       end
 
-      begin
-        response = client.get_accredited_entities(type:, page: 1)
-        @org_responses << response.body['items']
-        # Placeholder for orgs and reps processing logic
-        # update_orgs_and_reps(response.body['items'])
-      rescue => e
-        log_error("Error fetching #{type} from GCLAWS: #{e.message}")
+      unless orgs_and_reps_both_valid? || @force_update_types.intersect?(orgs_and_reps)
+        log_error('Both Orgs and Reps must have valid counts to process together - skipping update for both')
+        return
       end
 
-      if @entity_counts.valid_count?(:orgs_and_reps) || @force_update_types.include?('orgs_and_reps')
-        # Placeholder for orgs and reps processing logic
-        # update_orgs_and_reps
-        # validate_org_addresses
-      else
-        log_error("Orgs and Reps count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
-      end
+      # Process orgs
+      update_orgs
+      validate_org_addresses
+
+      # Process reps
+      update_reps
+      validate_rep_addresses
     end
 
     # Fetches agent data from the GCLAWS API and updates database records
@@ -399,6 +392,10 @@ module RepresentationManagement
 
     def orgs_and_reps
       %w[representatives veterans_service_organizations]
+    end
+
+    def orgs_and_reps_both_valid?
+      orgs_and_reps.all? { |type| @entity_counts.valid_count?(type) }
     end
 
     # Logs an error message to the Rails logger
