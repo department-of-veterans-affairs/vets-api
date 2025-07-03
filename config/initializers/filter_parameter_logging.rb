@@ -49,6 +49,10 @@ ALLOWLIST = %w[
   call_location
   file
   attachments
+  extra
+  service
+  use_v2
+  line
 ].freeze
 
 Rails.application.config.filter_parameters = [
