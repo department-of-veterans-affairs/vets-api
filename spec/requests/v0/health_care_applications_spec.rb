@@ -100,10 +100,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'GET enrollment_status' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_v2).and_return false
-    end
-
     let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
     let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
     let(:success_response) do
@@ -223,10 +219,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'POST enrollment_status' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_v2).and_return true
-    end
-
     let(:headers) do
       {
         'ACCEPT' => 'application/json',
