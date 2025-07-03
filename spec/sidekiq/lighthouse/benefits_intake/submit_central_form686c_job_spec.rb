@@ -62,6 +62,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
   context 'with va_dependents_v2 disabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
@@ -116,7 +117,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         expect(FormSubmission).to receive(:create).with(
           form_type: '686C-674',
           saved_claim: claim,
-          user_account: nil
+          user_account: user.user_account
         ).and_return(FormSubmission.new)
         expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
                                                                benefits_intake_uuid: 'uuid')
@@ -267,7 +268,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   context 'with va_dependents_v2 enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 
@@ -322,7 +323,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         expect(FormSubmission).to receive(:create).with(
           form_type: '686C-674-V2',
           saved_claim: claim_v2,
-          user_account: nil
+          user_account: user.user_account
         ).and_return(FormSubmission.new)
         expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
                                                                benefits_intake_uuid: 'uuid')

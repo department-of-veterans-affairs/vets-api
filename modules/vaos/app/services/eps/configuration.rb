@@ -6,7 +6,8 @@ require 'common/client/configuration/rest'
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
-    delegate :access_token_url, :api_url, :base_path, :grant_type, :scopes, :client_assertion_type, to: :settings
+    delegate :access_token_url, :api_url, :base_path, :grant_type, :scopes, :client_assertion_type,
+             :pagination_timeout_seconds, to: :settings
 
     def settings
       Settings.vaos.eps
@@ -26,7 +27,7 @@ module Eps
         conn.request :camelcase
         conn.request :json
 
-        # Enable debug logging in development by default
+        # Enable debug logging in development by default, but without response bodies to prevent PII exposure
         if (ENV['VAOS_EPS_DEBUG'] || Rails.env.development?) && !Rails.env.production?
           conn.request(:curl, ::Logger.new($stdout), :warn)
           conn.response(:logger, ::Logger.new($stdout), bodies: true)

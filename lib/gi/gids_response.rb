@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module GI
   class GIDSResponse
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
 
     # @return  [Integer] the response status
     attribute :status, Integer
@@ -20,6 +22,11 @@ module GI
 
     def cache?
       @status == 200
+    end
+
+    def initialize(attributes = {})
+      attributes[:body] = nil if attributes[:body].to_s.empty?
+      super(attributes)
     end
   end
 end

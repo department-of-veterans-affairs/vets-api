@@ -634,8 +634,7 @@ module HCA
         'contactType' => relationship_to_contact_type(contact['contactType']),
         'relationship' => contact['relationship'],
         'address' => format_address(contact['address']),
-        'primaryPhone' => contact['primaryPhone'],
-        'alternatePhone' => contact['alternatePhone']
+        'primaryPhone' => contact['primaryPhone']
       }.merge(convert_full_name_alt(contact['fullName']))
     end
 
@@ -651,7 +650,9 @@ module HCA
       spouse = spouse_to_association(veteran)
 
       # Next of kin and emergency contacts
-      contacts_list = veteran['veteranContacts'] || []
+      next_of_kins = veteran['nextOfKins'] || []
+      emergency_contacts = veteran['emergencyContacts'] || []
+      contacts_list = next_of_kins.concat(emergency_contacts)
       contacts = contacts_list.map do |contact|
         veteran_contacts_to_association(contact)
       end.compact
@@ -701,7 +702,7 @@ module HCA
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
-        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
+        'acaIndicator' => false
       }
 
       return_val.delete('ethnicity') if return_val['ethnicity'].nil?

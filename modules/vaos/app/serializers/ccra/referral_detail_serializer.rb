@@ -23,8 +23,10 @@ module Ccra
     attribute :provider do |referral|
       provider_info = {
         name: referral.provider_name,
+        facility_name: referral.treating_facility_name,
         npi: referral.provider_npi,
-        phone: referral.treating_facility_phone
+        phone: referral.treating_facility_phone,
+        specialty: referral.provider_specialty
       }
 
       # Only add address if it exists and has actual data
@@ -38,7 +40,8 @@ module Ccra
         }
       end
 
-      provider_info
+      # Transform keys to camelCase
+      provider_info.transform_keys { |key| key.to_s.camelize(:lower).to_sym }
     end
 
     # Nested referring facility information

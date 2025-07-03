@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe TravelPay::TokenClient do
-  let(:user) { build(:user) }
+  let(:user) { build(:user, :legacy_icn) }
 
   expected_log_prefix = 'travel_pay.token.response_time'
 
@@ -50,7 +50,7 @@ describe TravelPay::TokenClient do
     end
 
     it 'returns btsss token from proper endpoint' do
-      @stubs.post('api/v1.2/Auth/access-token') do
+      @stubs.post('api/v2/Auth/access-token') do
         [
           200,
           { 'Content-Type': 'application/json' },
@@ -74,7 +74,7 @@ describe TravelPay::TokenClient do
     let(:assertion) do
       {
         'iss' => 'https://www.example.com',
-        'sub' => user.email,
+        'sub' => user.user_account_uuid,
         'aud' => 'https://www.example.com/v0/sign_in/token',
         'iat' => 1_634_745_556,
         'exp' => 1_634_745_856,

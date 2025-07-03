@@ -9,7 +9,7 @@ describe Ccra::ReferralService do
   let(:session_token) { 'fake-session-token' }
   let(:request_id) { 'request-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  let(:redis_client) { instance_double(Eps::RedisClient) }
+  let(:referral_cache) { instance_double(Ccra::RedisClient) }
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return(request_id)
@@ -21,9 +21,14 @@ describe Ccra::ReferralService do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
 
-    # Mock the Redis client
-    allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-    allow(redis_client).to receive(:save_referral_data).and_return(true)
+    # Mock the RedisClient
+    allow(Ccra::RedisClient).to receive(:new).and_return(referral_cache)
+    allow(referral_cache).to receive_messages(
+      save_referral_data: true,
+      fetch_referral_data: nil,
+      save_booking_start_time: true,
+      fetch_booking_start_time: nil
+    )
 
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
@@ -78,6 +83,30 @@ describe Ccra::ReferralService do
   describe '#get_referral' do
     let(:id) { '984_646372' }
     let(:icn) { '1012845331V153043' }
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      category_of_care: 'CARDIOLOGY',
+                      referral_number: 'VA0000005681')
+    end
+
+    context 'when cached data exists' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data).with(id:, icn:).and_return(referral_detail)
+      end
+
+      it 'returns the cached referral detail and updates booking start time' do
+        Timecop.freeze(Time.current) do
+          expected_start_time = Time.current.to_f
+          allow(referral_detail).to receive(:referral_number).and_return('VA0000005681')
+          expect(referral_cache).to receive(:save_booking_start_time)
+            .with(referral_number: 'VA0000005681', booking_start_time: expected_start_time)
+            .and_return(true)
+
+          result = subject.get_referral(id, icn)
+          expect(result).to eq(referral_detail)
+        end
+      end
+    end
 
     context 'with successful response', :vcr do
       it 'returns a ReferralDetail object with correct attributes' do
@@ -91,19 +120,33 @@ describe Ccra::ReferralService do
         end
       end
 
-      it 'caches the referral data in Redis with all required fields' do
+      it 'caches the referral data and booking start time' do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-          expect(redis_client).to receive(:save_referral_data) do |args|
-            referral_data = args[:referral_data]
-            expect(referral_data).to be_a(Hash)
-            expect(referral_data).to have_key(:appointment_type_id)
-            expect(referral_data).to have_key(:end_date)
-            expect(referral_data).to have_key(:npi)
-            expect(referral_data).to have_key(:start_date)
-            true
-          end
+          Timecop.freeze(Time.current) do
+            expected_start_time = Time.current.to_f
 
-          subject.get_referral(id, icn)
+            expect(referral_cache).to receive(:save_referral_data).with(
+              id:,
+              icn:,
+              referral_data: instance_of(Ccra::ReferralDetail)
+            ).and_return(true)
+
+            # Verify the referral data after the call
+            allow(referral_cache).to receive(:save_referral_data) do |args|
+              referral = args[:referral_data]
+              expect(referral.category_of_care).to eq('CARDIOLOGY')
+              expect(referral.referral_number).to eq('VA0000005681')
+              expect(referral.booking_start_time).to eq(expected_start_time)
+              true
+            end
+
+            expect(referral_cache).to receive(:save_booking_start_time).with(
+              referral_number: 'VA0000005681',
+              booking_start_time: expected_start_time
+            ).and_return(true)
+
+            subject.get_referral(id, icn)
+          end
         end
       end
     end
@@ -129,18 +172,44 @@ describe Ccra::ReferralService do
         end
       end
     end
+  end
 
-    context 'when referral data is missing required fields', :vcr do
-      # For this test, we need to modify the behavior of the RedisClient
-      # to simulate the case where save_referral_data returns false due to missing fields
+  describe '#get_booking_start_time' do
+    let(:id) { '984_646372' }
+    let(:icn) { '1012845331V153043' }
+    let(:referral_number) { 'VA0000005681' }
+    let(:booking_start_time) { Time.current.to_f }
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      referral_number:)
+    end
 
-      it 'does not cache incomplete referral data' do
-        # Simulate the validation in save_referral_data failing
-        expect(redis_client).to receive(:save_referral_data).and_return(false)
+    context 'when referral exists in cache' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data)
+          .with(id:, icn:)
+          .and_return(referral_detail)
+      end
 
-        VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-          subject.get_referral(id, icn)
-        end
+      it 'returns the booking start time when it exists' do
+        allow(referral_cache).to receive(:fetch_booking_start_time)
+          .with(referral_number:)
+          .and_return(booking_start_time)
+
+        result = subject.get_booking_start_time(id, icn)
+        expect(result).to eq(booking_start_time)
+      end
+
+      it 'returns nil and logs warning when booking start time not found' do
+        allow(referral_cache).to receive(:fetch_booking_start_time)
+          .with(referral_number:)
+          .and_return(nil)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Referral booking start time not found.'
+        )
+        result = subject.get_booking_start_time(id, icn)
+        expect(result).to be_nil
       end
     end
   end

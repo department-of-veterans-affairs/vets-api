@@ -14,6 +14,8 @@ module IncomeAndAssets
         },
         # 7b-7d (only space for three on form)
         'assetTransfers' => {
+          # Label for each transfer entry (e.g., 'Asset Transfer 1')
+          item_label: 'Asset Transfer',
           limit: 3,
           first_key: 'otherOriginalOwnerRelationshipType',
           # Q1
@@ -23,13 +25,18 @@ module IncomeAndAssets
           'originalOwnerRelationshipOverflow' => {
             question_num: 7,
             question_suffix: '(1)',
-            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship to Veteran',
+            format_options: {
+              humanize: true
+            }
           },
           'otherOriginalOwnerRelationshipType' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
-            question_suffix: '(1)',
-            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)"
+            question_suffix: '(1)(OTHER)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)",
+            question_label: 'Relationship Type'
           },
           # Q2
           'transferMethod' => {
@@ -38,13 +45,18 @@ module IncomeAndAssets
           'transferMethodOverflow' => {
             question_num: 7,
             question_suffix: '(2)',
-            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED',
+            question_label: 'Transfer Method',
+            format_options: {
+              humanize: true
+            }
           },
           'otherTransferMethod' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
-            question_suffix: '(2)',
-            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)'
+            question_suffix: '(2)(OTHER)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)',
+            question_label: 'Other Transfer Method'
           },
           # Q3
           'assetType' => {
@@ -53,7 +65,8 @@ module IncomeAndAssets
           'assetTypeOverflow' => {
             question_num: 7,
             question_suffix: '(3)',
-            question_text: 'WHAT ASSET WAS TRANSFERRED?'
+            question_text: 'WHAT ASSET WAS TRANSFERRED?',
+            question_label: 'What Was Transferred'
           },
           # Q4
           'newOwnerName' => {
@@ -62,7 +75,8 @@ module IncomeAndAssets
           'newOwnerNameOverflow' => {
             question_num: 7,
             question_suffix: '(4)',
-            question_text: 'WHO RECEIVED THE ASSET?'
+            question_text: 'WHO RECEIVED THE ASSET?',
+            question_label: 'New Owner Name'
           },
           # Q5
           'newOwnerRelationship' => {
@@ -71,11 +85,22 @@ module IncomeAndAssets
           'newOwnerRelationshipOverflow' => {
             question_num: 7,
             question_suffix: '(5)',
-            question_text: 'RELATIONSHIP TO NEW OWNER'
+            question_text: 'RELATIONSHIP TO NEW OWNER',
+            question_label: 'Relationship to New Owner'
           },
           # Q6
           'saleReportedToIrs' => {
-            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]"
+            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(6)',
+            question_text: 'WAS THE SALE REPORTED TO THE IRS?',
+            question_label: 'Sale Reported to IRS',
+            format_options: {
+              humanize: {
+                '0' => 'Yes',
+                '1' => 'No'
+              }
+            }
           },
           # Q7
           'transferDate' => {
@@ -91,7 +116,17 @@ module IncomeAndAssets
           },
           # Q8
           'assetTransferredUnderFairMarketValue' => {
-            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]"
+            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(8)',
+            question_text: 'WAS THE ASSET TRANSFERRED FOR LESS THAN FAIR MARKET VALUE?',
+            question_label: 'Transferred Under Fair Market Value',
+            format_options: {
+              humanize: {
+                '0' => 'Yes',
+                '1' => 'No'
+              }
+            }
           },
           # Q9
           'fairMarketValue' => {
@@ -109,9 +144,11 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
+            dollar: true,
             question_num: 7,
             question_suffix: '(9)',
-            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?'
+            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?',
+            question_label: 'Fair Market Value'
           },
           # Q10
           'saleValue' => {
@@ -129,9 +166,11 @@ module IncomeAndAssets
             }
           },
           'saleValueOverflow' => {
+            dollar: true,
             question_num: 7,
             question_suffix: '(10)',
-            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)'
+            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)',
+            question_label: 'Sale Price'
           },
           # Q11
           'capitalGainValue' => {
@@ -149,9 +188,11 @@ module IncomeAndAssets
             }
           },
           'capitalGainValueOverflow' => {
+            dollar: true,
             question_num: 7,
             question_suffix: '(11)',
-            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)'
+            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)',
+            question_label: 'Capital Gain'
           }
         }
       }.freeze

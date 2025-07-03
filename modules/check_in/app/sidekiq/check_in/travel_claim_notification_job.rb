@@ -14,7 +14,7 @@ module CheckIn
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
     sidekiq_options retry: 12
-    REQUIRED_FIELDS = %i[mobile_phone template_id appointment_date claim_number_last_four].freeze
+    REQUIRED_FIELDS = %i[mobile_phone template_id appointment_date].freeze
 
     # Performs the job of sending an SMS notification via VaNotify
     #
@@ -214,7 +214,7 @@ module CheckIn
 
       phone_number = opts[:mobile_phone]
       template_id = opts[:template_id]
-      claim_number_last_four = opts[:claim_number_last_four].presence
+      claim_number_last_four = opts[:claim_number_last_four].presence || 'unknown'
       personalisation = { claim_number: claim_number_last_four, appt_date: formatted_date }
 
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)

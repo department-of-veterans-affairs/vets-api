@@ -4,7 +4,7 @@ require 'sentry_logging'
 require 'res/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
-  include SentryLogging
+  include Vets::SharedLogging
 
   FORM = '28-1900'
   FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
@@ -74,13 +74,22 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
+  after_initialize do
+    if form.present?
+      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
+    end
+  end
+
   def initialize(args)
     @sent_to_lighthouse = false
     super
   end
 
   def add_claimant_info(user)
-    return if form.blank?
+    if form.blank?
+      Rails.logger.info('VRE claim form is blank, skipping adding veteran info', { user_uuid: user&.uuid })
+      return
+    end
 
     updated_form = parsed_form
 
@@ -128,12 +137,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     if user&.participant_id
       upload_to_vbms(user:)
     else
-      Rails.logger.warn('Participant id is blank when submitting VRE claim')
+      Rails.logger.warn('Participant id is blank when submitting VRE claim, sending to Lighthouse',
+                        { user_uuid: user&.uuid })
       send_to_lighthouse!(user)
     end
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-    Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user.uuid })
+    Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user&.uuid })
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
                                            @sent_to_lighthouse).deliver_later
 
@@ -166,7 +176,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_vbms_confirmation_email(user)
   rescue => e
-    log_error(user, e)
+    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
   end
 
@@ -187,9 +197,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     unless form_copy['veteranSocialSecurityNumber']
       if user&.loa3?
-        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user.uuid })
+        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user&.uuid })
       else
-        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user.uuid })
+        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user&.uuid })
       end
     end
 
@@ -210,7 +220,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_res(user)
     Rails.logger.info('VRE claim sending to RES service',
                       {
-                        user_uuid: user.uuid,
+                        user_uuid: user&.uuid,
                         was_sent: @sent_to_lighthouse,
                         user_present: user.present?
                       })
@@ -233,6 +243,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
+    if form_id == self.class::FORM
+      validate_form_v1
+    else
+      validate_form_v2
+    end
+  end
+
+  def validate_form_v1
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
     schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
 
@@ -251,13 +269,32 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     schema_errors.empty? && validation_errors.empty?
   end
 
+  def validate_form_v2
+    validate_required_fields
+    validate_string_fields
+    validate_name_length
+    validate_is_moving
+    validate_email
+    validate_phone_numbers
+    validate_dob
+    validate_addresses
+
+    unless errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: })
+    end
+  end
+
   # SavedClaims require regional_office to be defined
   def regional_office
     []
   end
 
   def send_vbms_confirmation_email(user)
-    return if user.va_profile_email.blank?
+    if user.va_profile_email.blank?
+      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user&.uuid })
+      return
+    end
 
     VANotify::EmailJob.perform_async(
       user.va_profile_email,
@@ -267,10 +304,15 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
+    Rails.logger.info('VRE Submit1900Job VBMS confirmation email sent.')
   end
 
   def send_lighthouse_confirmation_email(user)
-    return if user.va_profile_email.blank?
+    if user.va_profile_email.blank?
+      Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
+                        { user_uuid: user&.uuid })
+      return
+    end
 
     VANotify::EmailJob.perform_async(
       user.va_profile_email,
@@ -280,6 +322,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
+    Rails.logger.info('VRE Submit1900Job successful, lighthouse confirmation email sent to user.')
   end
 
   def process_attachments!
@@ -287,6 +330,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
+    Rails.logger.info('VRE claim submitting to Benefits Intake API')
     Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
@@ -309,6 +353,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           'confirmation_number' => confirmation_number
         }
       )
+      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
+    else
+      Rails.logger.warn('VRE claim failure email not sent: email not present.')
     end
   end
 
@@ -350,6 +397,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     response = BGS::People::Request.new.find_person_by_participant_id(user:)
     response.file_number
   rescue
+    Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user&.uuid })
     nil
   end
 
@@ -360,11 +408,87 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
   end
 
-  def log_error(user, e)
-    if Flipper.enabled?(:vre_enable_vbms_exception_logging)
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
-    else
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+  def validate_required_fields
+    required_fields = %w[email isMoving yearsOfEducation veteranInformation/fullName veteranInformation/fullName/first
+                         veteranInformation/fullName/last veteranInformation/dob]
+    required_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      value = value.to_s if [true, false].include?(value)
+      errors.add("/#{field}", 'is required') if value.blank?
+    end
+  end
+
+  def validate_string_fields
+    string_fields = %w[mainPhone cellPhone internationalNumber email yearsOfEducation veteranInformation/fullName/first
+                       veteranInformation/fullName/middle veteranInformation/fullName/last veteranInformation/dob]
+    string_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      errors.add("/#{field}", 'must be a string') if value.present? && !value.is_a?(String)
+    end
+  end
+
+  def validate_name_length
+    max_30_fields = %w[veteranInformation/fullName/first veteranInformation/fullName/middle
+                       veteranInformation/fullName/last]
+    max_30_fields.each do |field|
+      value = parsed_form.dig(*field.split('/'))
+      if value.present? && value.is_a?(String) && value.length > 30
+        errors.add("/#{field}", 'must be 30 characters or less')
+      end
+    end
+  end
+
+  def validate_is_moving
+    errors.add('/isMoving', 'must be a boolean') unless [true, false].include?(parsed_form['isMoving'])
+  end
+
+  def validate_email
+    value = parsed_form['email']
+    if value.present? && value.is_a?(String) && value.length > 256
+      errors.add('/email', 'must be 256 characters or less')
+    end
+    if value.present? && value.is_a?(String) && !value.match?(/.+@.+\..+/i) # pulled from profile email model
+      errors.add('/email', 'must be a valid email address')
+    end
+  end
+
+  def validate_phone_numbers
+    phone_fields = %w[mainPhone cellPhone]
+    phone_fields.each do |field|
+      value = parsed_form[field]
+      if value.present? && value.is_a?(String) && !value.match?(/^\d{10}$/)
+        errors.add("/#{field}", 'must be a valid phone number with 10 digits only')
+      end
+    end
+  end
+
+  def validate_dob
+    value = parsed_form.dig('veteranInformation', 'dob')
+    if value.present? && value.is_a?(String) && !value.match?(
+      /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/
+    )
+      errors.add('/veteranInformation/dob', 'must be a valid date in YYYY-MM-DD format')
+    end
+  end
+
+  def validate_addresses
+    address_fields = %w[newAddress veteranAddress]
+    address_fields.each do |field|
+      address = parsed_form[field]
+      next if address.blank? || !address.is_a?(Hash)
+
+      %w[country street city state postalCode].each do |sub_field|
+        value = address[sub_field]
+        if %w[street city].include?(sub_field) && value.blank?
+          errors.add("/#{field}/#{sub_field}", 'is required')
+        elsif !value.is_a?(String) && value.present?
+          errors.add("/#{field}/#{sub_field}", 'must be a string')
+        # elsif sub_field == 'postalCode' && value.present? && !value.match?(/^\d{5}(-\d{4})?$/)
+        #   errors.add("/#{field}/#{sub_field}", 'must be a valid postal code in XXXXX or XXXXX-XXXX format')
+        elsif %w[state city].include?(sub_field) && value.present? && value.length > 100
+          errors.add("/#{field}/#{sub_field}", 'must be 100 characters or less')
+        end
+      end
     end
   end
 end

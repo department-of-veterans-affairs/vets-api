@@ -7,6 +7,8 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
+        return if Flipper.enabled?(:disable_bdn_processing)
+
         if Vye::CloudTransfer.holiday?
           Rails.logger.info("Vye::MidnightRun::IngressTims: holiday detected, job run at: #{Time.zone.now}")
           return
@@ -28,7 +30,7 @@ module Vye
         end
       end
 
-      def on_complete(status)
+      def on_complete(status, _options = '')
         message =
           if status.failures.zero?
             "#{self.class.name}: All chunks have ran for TIMS feed, there were no failures."
@@ -41,7 +43,7 @@ module Vye
         Rails.logger.info message
       end
 
-      def on_success(_status)
+      def on_success(_status, _options = '')
         Rails.logger.info "#{self.class.name}: Ingress completed successfully for TIMS feed"
       end
     end

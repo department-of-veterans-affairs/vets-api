@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'medical_records/bb_internal/client'
+
 module MyHealth
   module V1
     module MedicalRecords

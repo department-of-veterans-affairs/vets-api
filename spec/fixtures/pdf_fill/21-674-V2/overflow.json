@@ -83,10 +83,10 @@
         "tuition_is_paid_by_gov_agency": true,
         "benefit_payment_date": "2001-06-19",
         "type_of_program_or_benefit": {
-          "ch35": false,
-          "fry": false,
-          "feca": false,
-          "other": false
+          "ch35": true,
+          "fry": true,
+          "feca": true,
+          "other": true
         }
       }
     ],

@@ -27,7 +27,7 @@ RSpec.describe Vets::Collection do
   end
 
   describe '#initialize' do
-    it 'initializes with sorted records' do
+    it 'initializes with unsorted records' do
       record1 = dummy_class.new(name: 'Bob', age: 25)
       record2 = dummy_class.new(name: 'Alice', age: 30)
 
@@ -166,6 +166,12 @@ RSpec.describe Vets::Collection do
       collection = described_class.new([record4, record1, record5, record2, record3])
       sorted_collection = collection.order(age: :asc)
       expect(sorted_collection.records.last).to eq(record5)
+    end
+
+    it 'returns an empty collection if no records exist' do
+      collection = described_class.new([])
+      sorted_collection = collection.order(age: :asc)
+      expect(sorted_collection.records).to eq([])
     end
   end
 

@@ -14,9 +14,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_direct_deposit, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_disability_ratings,
-                                              instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do
@@ -46,9 +43,11 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     context 'with no upstream errors' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: sis_headers
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mr_client/bb_internal/apigw_session_auth.yml') do
+              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/user', headers: sis_headers
+              end
             end
           end
         end
@@ -226,12 +225,12 @@ RSpec.describe 'Mobile::V0::User', type: :request do
               {
                 'facilityId' => '757',
                 'isCerner' => true,
-                'facilityName' => "Baxter Springs City Soldiers' Lot"
+                'facilityName' => 'Chalmers P. Wylie Veterans Outpatient Clinic'
               },
               {
                 'facilityId' => '358',
                 'isCerner' => true,
-                'facilityName' => 'Congressional Cemetery Government Lots'
+                'facilityName' => 'Manila VA Clinic'
               }
             ]
           }
@@ -239,7 +238,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       end
 
       context 'when user object birth_date is nil' do
-        let!(:user) { sis_user(birth_date: nil) }
+        let!(:user) { sis_user(birth_date: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         before do
           VCR.use_cassette('mobile/payment_information/payment_information') do
@@ -433,11 +432,13 @@ RSpec.describe 'Mobile::V0::User', type: :request do
           Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: sis_headers
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              VCR.use_cassette('sm_client/session.yml') do
+                VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
+                  get '/mobile/v0/user', headers: sis_headers
 
-                expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
+                  expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
+                end
               end
             end
           end
@@ -446,14 +447,14 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       end
 
       context 'when user does not have a vet360_id' do
-        let!(:user) { sis_user(vet360_id: nil) }
+        let!(:user) { sis_user(vet360_id: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
                 get '/mobile/v0/user', headers: sis_headers
               end
             end

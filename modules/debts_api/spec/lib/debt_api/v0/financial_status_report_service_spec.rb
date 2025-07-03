@@ -30,7 +30,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
   describe '#submit_financial_status_report' do
     let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:user_data) { build(:user_profile_attributes) }
 
     context 'The :combined_financial_status_report flipper is turned on' do
@@ -98,7 +98,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
   describe '#get_pdf' do
     let(:filenet_id) { 'ABCD-1234' }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     context 'when FSR is missing from redis' do
       it 'raises an error' do
@@ -129,7 +129,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
   describe '#submit_vba_fsr' do
     let(:valid_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_submission') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:user_data) { build(:user_profile_attributes) }
     let(:malformed_form_data) do
       { 'bad' => 'data' }
@@ -423,7 +423,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
     let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
-    let!(:user) { build(:user, :loa3) }
+    let!(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
@@ -504,7 +504,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   describe '#create_vba_fsr' do
     let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:valid_vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     before do
       allow(User).to receive(:find).with(user.uuid).and_return(user)
@@ -526,7 +526,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   describe '#create_vha_fsr' do
     let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:valid_vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     before do
       mock_sharepoint_upload

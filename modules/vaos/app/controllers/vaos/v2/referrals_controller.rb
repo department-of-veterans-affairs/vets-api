@@ -5,6 +5,8 @@ module VAOS
     # ReferralsController provides endpoints for fetching CCRA referrals
     # It uses the Ccra::ReferralService to interact with the underlying CCRA API
     class ReferralsController < VAOS::BaseController
+      REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
+
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
       # Filters out expired referrals and adds encrypted UUIDs for security
@@ -37,6 +39,7 @@ module VAOS
         # Add uuid to the detailed response
         response.uuid = referral_uuid
 
+        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: ['Community Care Appointments'])
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
 
@@ -62,20 +65,20 @@ module VAOS
       end
 
       # CCRA Referral Status Codes:
-      # S  - Suspend: Referral temporarily paused/on hold
+      # X  - Cancelled
       # BP - EOC Complete: Episode of Care is completed
       # AP - Approved: Referral approved/authorized for care
       # A  - First Appointment Made: Initial appointment scheduled
-      #
-      # TODO:
-      # I  - Unknown - Possibly means Initial: Referral initiated/in progress
-      # AC - Unknown - Possibly means Appointment Canceled
+      # D  - Initial care
+      # RJ - Referral Rejected
+      # C  - Sent to Care Team
+      # AC - Accepted: Referral accepted/authorized for care
       #
       # The referral status parameter for filtering referrals
       # @return [String] the referral status
       def referral_status_param
         # Default to only show referrals that a veteran can make appointments for.
-        params.fetch(:status, "'AP','AC','I'")
+        params.fetch(:status, "'AP', 'C'")
       end
 
       # Filters out referrals that have expired (expiration date before today)
