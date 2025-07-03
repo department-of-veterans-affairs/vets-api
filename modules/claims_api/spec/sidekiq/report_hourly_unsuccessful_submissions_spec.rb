@@ -55,42 +55,6 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         subject.perform
       end
 
-      it 'does not repeat an alert based on transaction id' do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(true)
-
-        create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '1')
-        create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '2')
-        claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                       transaction_id: 'transaction_2',
-                                                                       id: '3')
-        claim_four = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                      transaction_id: 'transaction_3',
-                                                                      id: '4')
-
-        expected_vagov_claims = [
-          [claim_three.id, claim_three.transaction_id],
-          [claim_four.id, claim_four.transaction_id]
-        ]
-
-        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
-          errored_disability_claims: [],
-          errored_va_gov_claims: expected_vagov_claims,
-          errored_poa: ['poa1'],
-          errored_itf: ['itf1'],
-          errored_ews: ['ews1'],
-          from: kind_of(String),
-          to: kind_of(String),
-          environment: kind_of(String)
-        )
-
-        subject.perform
-      end
-
       context 'when a va gov claim with the same transaction id errs in the same hour' do
         before do
           create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now, transaction_id: 'transaction_1')
@@ -104,58 +68,44 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         end
       end
 
-      it 'does not alert for claims with specific errors' do
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
-                                                            .and_return(true)
+      context 'when dealing with va.gov claims' do
+        it 'reports unresolved claims' do
+          create(:auto_established_claim_va_gov, :errored, created_at: 30.minutes.ago,
+                                                           transaction_id: 'unresolved-1')
 
-        create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '1')
-        create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                         transaction_id: 'transaction_1',
-                                                         id: '2')
-        claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                       transaction_id: 'transaction_2',
-                                                                       id: '3')
-        claim_four = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                      transaction_id: 'transaction_3',
-                                                                      id: '4')
+          expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
+            errored_disability_claims: [],
+            errored_va_gov_claims: ['unresolved-1'],
+            errored_poa: ['poa1'],
+            errored_itf: ['itf1'],
+            errored_ews: ['ews1'],
+            from: kind_of(String),
+            to: kind_of(String),
+            environment: kind_of(String)
+          )
 
-        create(:auto_established_claim_va_gov,
-               :errored,
-               created_at: 30.seconds.ago,
-               evss_response: [{ 'status' => '422',
-                                 'title' => 'Backend Service Exception',
-                                 'detail' => 'The Maximum number of EP codes have been ' \
-                                             'reached for this benefit type claim code' }],
-               transaction_id: 'transaction_4')
+          subject.perform
+        end
 
-        create(:auto_established_claim_va_gov,
-               :errored,
-               created_at: 120.seconds.ago,
-               evss_response: [{ 'status' => '422',
-                                 'title' => 'Backend Service Exception',
-                                 'detail' => 'Claim could not be established. ' \
-                                             'Retries will fail.' }],
-               transaction_id: 'transaction_5')
+        it 'does not report resolved claims' do
+          create(:auto_established_claim_va_gov, :errored, created_at: 30.minutes.ago,
+                                                           transaction_id: 'resolved-1')
+          create(:auto_established_claim, :established, created_at: 10.minutes.ago,
+                                                       transaction_id: 'resolved-1, other data')
 
-        expected_vagov_claims = [
-          [claim_three.id, claim_three.transaction_id],
-          [claim_four.id, claim_four.transaction_id]
-        ]
+          expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
+            errored_disability_claims: [],
+            errored_va_gov_claims: [],
+            errored_poa: ['poa1'],
+            errored_itf: ['itf1'],
+            errored_ews: ['ews1'],
+            from: kind_of(String),
+            to: kind_of(String),
+            environment: kind_of(String)
+          )
 
-        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
-          errored_disability_claims: [],
-          errored_va_gov_claims: expected_vagov_claims,
-          errored_poa: ['poa1'],
-          errored_itf: ['itf1'],
-          errored_ews: ['ews1'],
-          from: kind_of(String),
-          to: kind_of(String),
-          environment: kind_of(String)
-        )
-
-        subject.perform
+          subject.perform
+        end
       end
     end
 
