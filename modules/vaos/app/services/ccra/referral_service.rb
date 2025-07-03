@@ -43,15 +43,15 @@ module Ccra
     def get_referral(id, icn)
       referral = referral_cache.fetch_referral_data(id:, icn:)
 
-      unless referral
+      if referral
+        Rails.logger.info('[CCRA::ReferralService#get_referral] CCRA referral detail retrieved from cache successfully')
+      else
         with_monitoring do
           response = perform(:get, "/#{config.base_path}/#{icn}/referrals/#{id}", {}, request_headers)
           referral = ReferralDetail.new(response.body)
         end
         cache_referral_data(referral, id, icn)
         Rails.logger.info('[CCRA::ReferralService#get_referral] CCRA referral detail retrieved from API successfully')
-      else
-        Rails.logger.info('[CCRA::ReferralService#get_referral] CCRA referral detail retrieved from cache successfully')
       end
 
       cache_booking_start_time(referral.referral_number)
@@ -67,7 +67,9 @@ module Ccra
     # @return [Boolean] true if the cache was successfully cleared, false otherwise
     def clear_referral_cache(id, icn)
       result = referral_cache.clear_referral_data(id:, icn:)
-      Rails.logger.info('[CCRA::ReferralService#clear_referral_cache] CCRA referral cache cleared successfully') if result
+      if result
+        Rails.logger.info('[CCRA::ReferralService#clear_referral_cache] CCRA referral cache cleared successfully')
+      end
       result
     end
 
@@ -87,7 +89,8 @@ module Ccra
 
       start_time = referral_cache.fetch_booking_start_time(referral_number:)
       if start_time
-        Rails.logger.info('[CCRA::ReferralService#get_booking_start_time] CCRA booking start time retrieved successfully')
+        Rails.logger.info('[CCRA::ReferralService#get_booking_start_time]
+          CCRA booking start time retrieved successfully')
       else
         Rails.logger.warn('Community Care Appointments: Referral booking start time not found.')
       end
