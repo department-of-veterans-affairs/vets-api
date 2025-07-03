@@ -109,13 +109,8 @@ module RepresentationManagement
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_rep_record(rep_data, api_response)
-      record =
-        AccreditedIndividual.find(rep_data['id'])
-      if record.nil?
-        raise StandardError, 'AccreditedIndividual not found.'
-      else
-        record.update(build_address_attributes(rep_data, api_response))
-      end
+      record = AccreditedIndividual.find(rep_data['id'])
+      record.update(build_address_attributes(rep_data, api_response))
     end
 
     # Updates the given record with the new address and other relevant attributes.
