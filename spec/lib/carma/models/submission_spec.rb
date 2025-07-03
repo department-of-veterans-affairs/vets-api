@@ -22,22 +22,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     end
   end
 
-  describe '#submitted?' do
-    it 'returns true if :carma_case_id is set' do
-      subject.carma_case_id = 'aB935000000A9GoCAK'
-      expect(subject.submitted?).to be(true)
-    end
-
-    it 'returns true if :submitted_at is set' do
-      subject.submitted_at = DateTime.now.iso8601
-      expect(subject.submitted?).to be(true)
-    end
-
-    it 'returns false if :carma_case_id and :submitted_at are falsy' do
-      expect(subject.submitted?).to be(false)
-    end
-  end
-
   describe '#data' do
     it 'is accessible' do
       value = { 'my' => 'data' }
@@ -280,69 +264,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           }
         }
       )
-    end
-  end
-
-  describe '#submit!' do
-    let(:submission) do
-      CARMA::Models::Submission.from_claim(
-        build(:caregivers_assistance_claim),
-        {
-          veteran: {
-            icn: 'VET1234',
-            is_veteran: true
-          },
-          primary_caregiver: {
-            icn: 'PC1234'
-          },
-          secondary_caregiver_one: {
-            icn: 'SCO1234'
-          },
-          secondary_caregiver_two: {
-            icn: 'SCT1234'
-          }
-        }
-      )
-    end
-
-    context 'when already submitted' do
-      it 'raises an exception' do
-        submission.submitted_at = DateTime.now.iso8601
-        submission.carma_case_id = 'aB935000000A9GoCAK'
-
-        expect { submission.submit!(double) }.to raise_error('This submission has already been submitted to CARMA')
-      end
-    end
-
-    it 'submits to CARMA, and updates :carma_case_id, :submitted_at, and :request_body' do
-      expected_response = {
-        'data' => {
-          'carmacase' => {
-            'id' => 'aB935000000F3VnCAK',
-            'createdAt' => '2020-03-09T10:48:59Z'
-          }
-        }
-      }
-
-      expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
-
-      carma_client = double
-
-      expect(submission.carma_case_id).to be_nil
-      expect(submission.submitted_at).to be_nil
-      expect(submission.request_body).to be_nil
-      expect(submission.submitted?).to be(false)
-
-      expect(carma_client).to receive(:create_submission).and_return(
-        expected_response
-      )
-
-      submission.submit!(carma_client)
-
-      expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
-      expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
-      expect(submission.request_body).to eq(:REQUEST_PAYLOAD)
-      expect(submission.submitted?).to be(true)
     end
   end
 end

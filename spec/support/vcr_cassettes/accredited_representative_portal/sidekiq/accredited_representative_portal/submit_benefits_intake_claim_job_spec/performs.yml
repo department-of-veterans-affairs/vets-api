@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<LIGHTHOUSE_BENEFITS_INTAKE_URL>uploads"
+    uri: "<LIGHTHOUSE_BENEFITS_INTAKE_URL>/uploads"
     body:
       encoding: UTF-8
       string: "{}"
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Tue, 17 Jun 2025 07:19:31 GMT
 - request:
     method: post
-    uri: "<LIGHTHOUSE_BENEFITS_INTAKE_URL>uploads/validate_document"
+    uri: "<LIGHTHOUSE_BENEFITS_INTAKE_URL>/uploads/validate_document"
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -155,7 +155,7 @@ http_interactions:
   recorded_at: Tue, 17 Jun 2025 07:19:33 GMT
 - request:
     method: post
-    uri: "<LIGHTHOUSE_BENEFITS_INTAKE_URL>uploads/validate_document"
+    uri: "<LIGHTHOUSE_BENEFITS_INTAKE_URL>/uploads/validate_document"
     body:
       encoding: ASCII-8BIT
       string: !binary |-

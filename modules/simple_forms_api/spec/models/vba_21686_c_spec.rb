@@ -14,7 +14,7 @@ RSpec.describe SimpleFormsApi::VBA21686C do
         expect(subject.submission_date_stamps(time)).to eq(
           [
             { coords: [395, 710],
-              text: 'Submitted Via: Authorized Representative', page: 0, font_size: 10 },
+              text: 'Submitted Via: Accredited Representative', page: 0, font_size: 10 },
             { coords: [395, 695], text: 'Portal on VA.gov', page: 0,
               font_size: 10 },
             { coords: [395, 680], text: '12:00 PM UTC 2025-06-02',

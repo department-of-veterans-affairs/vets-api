@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'ostruct'
 
 RSpec.describe VAOS::V2::AppointmentsController, type: :request do
+  include ActiveSupport::Testing::TimeHelpers
   describe '#start_date' do
     context 'with an invalid date' do
       it 'throws an InvalidFieldValue exception' do
@@ -319,18 +320,59 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         allow(eps_provider_service).to receive(:get_provider_slots).and_return(expected_slots)
       end
 
-      it 'calls get_provider_slots with correct parameters' do
-        result = controller.send(:fetch_provider_slots, referral, provider)
+      context 'when referral date is in the past' do
+        before do
+          travel_to Date.parse('2024-06-15')
+        end
 
-        expect(eps_provider_service).to have_received(:get_provider_slots).with(
-          'provider123',
-          hash_including(
-            appointmentTypeId: 'type123',
-            startOnOrAfter: '2024-01-01T00:00:00Z',
-            startBefore: '2024-12-31T00:00:00Z'
+        after do
+          travel_back
+        end
+
+        it 'uses current date instead of past referral date for startOnOrAfter' do
+          result = controller.send(:fetch_provider_slots, referral, provider)
+
+          expect(eps_provider_service).to have_received(:get_provider_slots).with(
+            'provider123',
+            hash_including(
+              appointmentTypeId: 'type123',
+              startOnOrAfter: '2024-06-15T00:00:00Z',
+              startBefore: '2024-12-31T00:00:00Z'
+            )
           )
-        )
-        expect(result).to eq(expected_slots)
+          expect(result).to eq(expected_slots)
+        end
+      end
+
+      context 'when referral date is in the future' do
+        let(:referral) do
+          OpenStruct.new(
+            referral_date: '2024-08-01',
+            expiration_date: '2024-12-31'
+          )
+        end
+
+        before do
+          travel_to Date.parse('2024-06-15')
+        end
+
+        after do
+          travel_back
+        end
+
+        it 'uses future referral date for startOnOrAfter' do
+          result = controller.send(:fetch_provider_slots, referral, provider)
+
+          expect(eps_provider_service).to have_received(:get_provider_slots).with(
+            'provider123',
+            hash_including(
+              appointmentTypeId: 'type123',
+              startOnOrAfter: '2024-08-01T00:00:00Z',
+              startBefore: '2024-12-31T00:00:00Z'
+            )
+          )
+          expect(result).to eq(expected_slots)
+        end
       end
     end
 

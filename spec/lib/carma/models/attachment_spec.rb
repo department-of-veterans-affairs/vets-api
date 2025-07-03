@@ -95,31 +95,6 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
     end
   end
 
-  describe '#to_hash' do
-    it 'returns attrs as hash', run_at: '2020-02-27T11:12:05-04:00' do
-      subject = described_class.new(
-        {
-          id: 'my-id',
-          carma_case_id: 'aB935000000A9GoCAK',
-          veteran_name: { first: 'Jane', last: 'Doe' },
-          file_path: 'tmp/pdfs/10-10CG_123456.pdf',
-          document_type: described_class::DOCUMENT_TYPES['10-10CG']
-        }
-      )
-
-      expect(subject.to_hash).to eq(
-        {
-          id: 'my-id',
-          carma_case_id: 'aB935000000A9GoCAK',
-          veteran_name: { first: 'Jane', last: 'Doe' },
-          file_path: 'tmp/pdfs/10-10CG_123456.pdf',
-          document_type: '10-10CG',
-          document_date: Time.now.in_time_zone('Eastern Time (US & Canada)').to_date
-        }
-      )
-    end
-  end
-
   describe '#to_request_payload' do
     it 'generates a request payload', run_at: '2020-02-27T11:12:05-04:00' do
       attachment_data = {

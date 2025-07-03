@@ -519,7 +519,7 @@ module VAOS
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
-            startOnOrAfter: Date.parse(referral.referral_date).to_time(:utc).iso8601,
+            startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
             startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
           }
         )

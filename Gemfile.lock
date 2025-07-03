@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 2a9594c68f72ef42d0b6d46b5a42d93d2aee0e09
+  revision: d4afb19993328f0f8c2ae276c046fe5b8618ac7f
   branch: master
   specs:
-    vets_json_schema (24.17.2)
+    vets_json_schema (25.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -446,7 +446,7 @@ GEM
     factory_bot_rails (6.4.4)
       factory_bot (~> 6.5)
       railties (>= 5.0.0)
-    faker (3.5.1)
+    faker (3.5.2)
       i18n (>= 1.8.11, < 2)
     faraday (2.13.1)
       faraday-net_http (>= 2.0, < 3.5)
@@ -1073,7 +1073,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.25.0)
+    sentry-ruby (5.26.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)

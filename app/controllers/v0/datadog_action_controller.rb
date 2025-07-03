@@ -2,6 +2,7 @@
 
 module V0
   class DatadogActionController < ApplicationController
+    service_tag 'datadog-metrics'
     skip_before_action :authenticate
 
     def create

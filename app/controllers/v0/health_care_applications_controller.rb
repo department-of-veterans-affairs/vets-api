@@ -65,7 +65,15 @@ module V0
           current_user.icn
         else
           Sentry.set_extras(user_loa: current_user&.loa)
-          HealthCareApplication.user_icn(HealthCareApplication.user_attributes(params[:userAttributes]))
+          if Flipper.enabled?(:hca_enrollment_status_v2)
+            user_attributes = params[:user_attributes]&.deep_transform_keys! do |key|
+              key.to_s.camelize(:lower).to_sym
+            end || params[:userAttributes]
+
+            HealthCareApplication.user_icn(HealthCareApplication.user_attributes(user_attributes))
+          else
+            HealthCareApplication.user_icn(HealthCareApplication.user_attributes(params[:userAttributes]))
+          end
         end
 
       raise Common::Exceptions::RecordNotFound, nil if icn.blank?

@@ -23,7 +23,9 @@ module ClaimsApi
         @auth_headers = claim.auth_headers
 
         begin
-          resp = client.post('submit', data)&.body&.deep_symbolize_keys
+          body = client.post('submit', data)&.body
+          log_outcome_for_claims_api('submit', 'raw_response', body, claim)
+          resp = body.is_a?(Hash) ? body.deep_symbolize_keys : body
           log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
 
           resp
@@ -39,7 +41,9 @@ module ClaimsApi
         @auth_headers = claim.auth_headers
 
         begin
-          resp = client.post('validate', data)&.body&.deep_symbolize_keys
+          body = client.post('validate', data)&.body
+          log_outcome_for_claims_api('validate', 'raw_response', body, claim)
+          resp = body.is_a?(Hash) ? body.deep_symbolize_keys : body
           log_outcome_for_claims_api('validate', 'success', resp, claim)
 
           resp
@@ -99,13 +103,15 @@ module ClaimsApi
       end
 
       def get_error_message(error)
-        if error.respond_to? :original_body
+        if error.respond_to?(:original_body) && error.original_body.present?
           error.original_body
-        elsif error.respond_to? :message
+        elsif error.respond_to?(:body) && error.body.present?
+          error.body
+        elsif error.respond_to?(:message) && error.message.present?
           error.message
-        elsif error.respond_to? :errors
+        elsif error.respond_to?(:errors) && error.errors.present?
           error.errors
-        elsif error.respond_to? :detailed_message
+        elsif error.respond_to?(:detailed_message) && error.detailed_message.present?
           error.detailed_message
         else
           error
