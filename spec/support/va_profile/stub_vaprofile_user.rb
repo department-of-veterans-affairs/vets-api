@@ -23,7 +23,8 @@ def stub_vaprofile_user(person = nil)
       FactoryBot.build(:telephone, :contact_info_v2_mobile, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
       FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
       FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
-      FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY, id: 793)
+      FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY,
+                                                            id: 793)
     ]
   )
 
