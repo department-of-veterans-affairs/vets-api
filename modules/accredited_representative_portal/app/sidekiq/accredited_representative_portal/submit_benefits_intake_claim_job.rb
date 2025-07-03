@@ -2,6 +2,46 @@
 
 module AccreditedRepresentativePortal
   class SubmitBenefitsIntakeClaimJob < Lighthouse::SubmitBenefitsIntakeClaim
+    ##
+    # TODO: Remove this parent class override.
+    #
+    # This is a temporary workaround while there is configuration inconsistency
+    # between two Benefits Intake API Ruby clients in `vets-api`'s staging
+    # environment. The inconsistency between these Ruby clients matters because
+    # we use both of them in different parts of claims' lifecycles:
+    #
+    # - `BenefitsIntakeService::Service`
+    #   - Points to Lighthouse's staging environment
+    #   - Used to submit claims initially
+    # - `BenefitsIntake::Service`
+    #   - Points to Lighthouse's sandbox environment
+    #   - Used to check claims' statuses afterwards
+    #
+    def init(saved_claim_id)
+      @claim =
+        ::SavedClaim.find(saved_claim_id)
+
+      @lighthouse_service =
+        ##
+        # Rather than:
+        # ```
+        # BenefitsIntakeService::Service.new(with_upload_location: true)
+        # ```
+        #
+        BenefitsIntakeService::Service.new.tap do |service|
+          service.define_singleton_method(:config) do
+            BenefitsIntake::Service.configuration
+          end
+
+          upload = service.get_location_and_uuid
+          service.instance_variable_set(:@uuid, upload[:uuid])
+          service.instance_variable_set(:@location, upload[:location])
+        end
+    end
+
+    ##
+    # Overrides parent class.
+    #
     def generate_metadata
       veteran = @claim.parsed_form['veteran']
       veteran_name = veteran['name']
@@ -17,6 +57,9 @@ module AccreditedRepresentativePortal
       )
     end
 
+    ##
+    # Overrides parent class.
+    #
     def stamp_pdf(record)
       case record
       when PersistentAttachments::VAFormDocumentation
