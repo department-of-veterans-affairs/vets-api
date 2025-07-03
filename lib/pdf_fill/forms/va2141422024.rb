@@ -540,7 +540,7 @@ module PdfFill
       end
 
       def combine_date_ranges_for_overflow(date_range_array)
-        return if date_range_array.nil?
+        return '' if date_range_array.nil?
 
         date_range_array.filter_map do |range|
           next unless range

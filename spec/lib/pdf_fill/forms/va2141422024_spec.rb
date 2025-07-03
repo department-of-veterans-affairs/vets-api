@@ -683,5 +683,10 @@ describe PdfFill::Forms::Va2141422024 do
       date_ranges = []
       expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq('')
     end
+
+    it 'handles nil date ranges' do
+      date_ranges = nil
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq('')
+    end
   end
 end
