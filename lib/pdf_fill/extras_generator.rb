@@ -60,12 +60,12 @@ module PdfFill
 
     def set_font(pdf)
       pdf.font_families.update(
-        'Roboto' => {
-          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'),
-          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf')
+        'SourceSansPro' => {
+          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'),
+          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf')
         }
       )
-      pdf.font('Roboto')
+      pdf.font('SourceSansPro')
     end
 
     def generate
