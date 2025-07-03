@@ -159,6 +159,9 @@ features:
   hca_disable_bgs_service:
     actor_type: user
     description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
+  hca_enrollment_status_v2:
+    actor_type: user
+    description: Enables calling enrollment_status with a post request
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -182,6 +185,10 @@ features:
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
+    enable_in_development: true
+  ezr_download_pdf_enabled:
+    actor_type: user
+    description: Enables the download of a pre-filled 10-10EZR PDF form.
     enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
