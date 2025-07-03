@@ -1085,6 +1085,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  log_eligible_benefits:
+    actor_type: user
+    description: Allows log_eligible_benefits_job.rb to run in background.
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
