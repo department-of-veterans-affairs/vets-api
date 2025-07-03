@@ -6,6 +6,11 @@ require 'common/client/middleware/logging'
 module MHV
   module AccountCreation
     class Configuration < Common::Client::Configuration::REST
+      TOU_STATUS = 'accepted'
+      TOU_REVISION = '3'
+      TOU_LEGAL_VERSION = '1.0'
+      TOU_DOC_TITLE = 'VA Enterprise Terms of Use'
+
       def base_path
         IdentitySettings.mhv.account_creation.host
       end
@@ -23,19 +28,19 @@ module MHV
       end
 
       def tou_status
-        'accepted'
+        TOU_STATUS
       end
 
       def tou_revision
-        '3'
+        TOU_REVISION
       end
 
       def tou_legal_version
-        '1.0'
+        TOU_LEGAL_VERSION
       end
 
       def tou_doc_title
-        'VA Enterprise Terms of Use'
+        TOU_DOC_TITLE
       end
 
       def access_key

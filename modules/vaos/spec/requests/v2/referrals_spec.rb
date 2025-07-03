@@ -169,6 +169,75 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
+
+      it 'increments the view metric' do
+        expect(StatsD).to receive(:increment)
+          .with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC,
+                tags: ['Community Care Appointments'])
+          .once
+        expect(StatsD).to receive(:increment)
+          .with('api.rack.request', any_args)
+          .once
+
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
+      end
+
+      context 'when fetching the same referral multiple times' do
+        let(:initial_time) { Time.current.to_f }
+        let(:client) { Ccra::RedisClient.new }
+        let(:referral) { build(:ccra_referral_detail, referral_number:) }
+
+        before do
+          allow(service_double).to receive(:get_referral)
+            .with(referral_number, icn)
+            .and_return(referral)
+
+          # Set up initial booking start time in cache
+          client.save_booking_start_time(
+            referral_number:,
+            booking_start_time: initial_time
+          )
+        end
+
+        it 'preserves the original booking start time in the cache' do
+          # First request
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          cached_time = client.fetch_booking_start_time(referral_number:)
+          expect(cached_time).to eq(initial_time)
+
+          # Second request
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          cached_time = client.fetch_booking_start_time(referral_number:)
+          expect(cached_time).to eq(initial_time)
+        end
+      end
+
+      context 'when fetching a referral for the first time' do
+        let(:client) { Ccra::RedisClient.new }
+        let(:referral) { build(:ccra_referral_detail, referral_number:) }
+
+        before do
+          Timecop.freeze
+          allow(service_double).to receive(:get_referral) do |_id, _user_icn|
+            # Simulate the service's behavior of setting the booking start time
+            client.save_booking_start_time(
+              referral_number:,
+              booking_start_time: Time.current.to_f
+            )
+            referral
+          end
+        end
+
+        after { Timecop.return }
+
+        it 'sets the booking start time in the cache' do
+          expect do
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end.to change {
+            client.fetch_booking_start_time(referral_number:)
+          }.from(nil).to(Time.current.to_f)
+        end
+      end
     end
 
     context 'when using invalid referral id' do

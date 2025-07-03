@@ -34,16 +34,20 @@ RSpec.describe 'EobTesseractValidator', type: :integration do
       expect(result).to include(:validator_type, :document_type, :attachment_id, :is_valid, :extracted_fields,
                                 :confidence)
 
-      # Check extracted fields structure
-      expect(result[:extracted_fields]).to be_a(Hash)
+      # Check extracted_fields contents
+      expect(result[:extracted_fields]).to eq(
+        {
+          date_of_service: '03/21/13',
+          provider_name: 'Smith, Robert Claim',
+          npi: nil,
+          service_code: '14221',
+          amount_paid: '1000.00'
+        }
+      )
 
-      # Print the actual results for debugging
-      puts "Extracted fields: #{result[:extracted_fields]}"
-      puts "Confidence: #{result[:confidence]}"
-      puts "Valid: #{result[:is_valid]}"
-
-      # Since this is a real EOB, we should find some fields
-      expect(result[:confidence]).to be > 0.0
+      # Since this is a sample EOB with fixed data we should always get a confidence score of just over 0.6
+      expect(result[:confidence]).to be > 0.6
+      expect(result[:confidence]).to be < 0.601
     end
 
     context 'with unknown attachment_id variations' do
@@ -124,17 +128,13 @@ RSpec.describe 'EobTesseractValidator', type: :integration do
   end
 
   describe 'field extraction accuracy' do
-    it 'extracts expected fields from the sample EOB' do
+    it 'extracts expected fields from SampleEOB.pdf' do
       result = validator.process
       fields = result[:extracted_fields]
 
       # These are fields we expect to find in most EOBs
       found_fields = fields.select { |_key, value| !value.nil? && !value.to_s.empty? }
-
-      puts "Found fields: #{found_fields}"
-
-      # We should find at least some fields in a real EOB document
-      expect(found_fields.size).to be_positive
+      expect(found_fields.keys).to include(:date_of_service, :provider_name, :service_code, :amount_paid)
     end
   end
 end

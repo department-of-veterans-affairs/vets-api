@@ -13,7 +13,8 @@ module Veteran
 
       if current_poa_code.present?
         self.power_of_attorney = PowerOfAttorney.new(code: current_poa_code,
-                                                     begin_date: current_poa_information[:begin_date])
+                                                     begin_date: current_poa_information[:begin_date],
+                                                     end_date: current_poa_information[:end_date])
       end
       self.previous_power_of_attorney = PowerOfAttorney.new(code: previous_poa_code) if previous_poa_code.present?
     end
