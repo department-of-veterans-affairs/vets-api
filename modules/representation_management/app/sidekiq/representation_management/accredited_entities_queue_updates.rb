@@ -74,7 +74,6 @@ module RepresentationManagement
       @entity_counts.save_api_counts unless @force_update_types.any?
       # TODO: Refactor to do all the valid entity counting in one place and create instance variables
       # Maybe one hash with types as keys and true/false as values
-      establish_valid_entity_counts
       process_entity_type('agents')
       process_entity_type('attorneys')
       process_orgs_and_reps
