@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VsiFlashService
     VSI_FLASH_NAME = 'VSI'
+    FORM_ID = '20-10207'
 
     def initialize(form_data)
       @form_data = form_data
@@ -18,10 +19,11 @@ module SimpleFormsApi
 
       # Confirm flash was added
       confirm_flash_addition(service, ssn)
+      true
     rescue => e
       Rails.logger.error(
         'Simple Forms API - VSI Flash Error',
-        { error: e.message, form_id: '20-10207' }
+        { error: e.message, form_id: FORM_ID }
       )
       raise e
     end
@@ -35,7 +37,7 @@ module SimpleFormsApi
       if assigned_flash.blank?
         Rails.logger.error(
           'Simple Forms API - VSI Flash Confirmation Failed',
-          { form_id: '20-10207' }
+          { form_id: FORM_ID }
         )
       end
     end

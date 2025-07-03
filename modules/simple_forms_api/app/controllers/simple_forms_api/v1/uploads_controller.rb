@@ -367,7 +367,8 @@ module SimpleFormsApi
           Rails.logger.info('Simple Forms API - VSI Flash Applied', submission_id: submission.id)
         end
       rescue => e
-        Rails.logger.error('Simple Forms API - VSI Flash Error', error: e.message, submission_id: submission.id)
+        Rails.logger.error('Simple Forms API - Controller-level VSI Flash Error', error: e.message,
+                                                                                  submission_id: submission.id)
       end
     end
   end
