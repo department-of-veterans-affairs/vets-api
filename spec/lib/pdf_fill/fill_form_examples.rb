@@ -51,7 +51,9 @@ RSpec.shared_examples 'a form filler' do |options|
               # refresh claim to reset instance methods like parsed_form
               SavedClaim.find(claim.id)
             else
-              create(factory, form: form_data.to_json)
+              claim = create(factory, form: form_data.to_json)
+              claim.update(form_id:) if claim.has_attribute?(:form_id)
+              claim
             end
           end
 
