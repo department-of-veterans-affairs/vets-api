@@ -196,8 +196,6 @@ module BenefitsDocuments
       )
     end
 
-    # Need to check that the Submission is pending(?)
-    # Need to loosen the filename check
     def presumed_duplicate?(claim_id, file)
       user_account = UserAccount.find_by(id: @user.user_account_uuid)
       es = EvidenceSubmission.where(
@@ -211,11 +209,15 @@ module BenefitsDocuments
       )
       return false unless es.exists?
 
-      filenames = es.map do |submission|
-        JSON.parse(submission.template_metadata).dig('personalisation', 'file_name')
-      end.compact
+      es.find_each do |submission|
+        filename = JSON.parse(submission.template_metadata).dig('personalisation', 'file_name')
+        if (filename == file.original_filename) &&
+           (submission.file_size.nil? || submission.file_size == File.size(file))
+          return true
+        end
+      end
 
-      filenames.include?(file.original_filename)
+      false
     end
   end
 end
