@@ -6,8 +6,8 @@ module TravelPay
       after_action :scrub_logs, only: [:show]
 
       def index
-        claims = claims_service.get_claims(params)
-        render json: claims, status: :ok
+        claims = claims_service.get_claims_by_date_range(params)
+        render json: claims, status: claims[:metadata]['status']
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
       rescue Faraday::Error => e
