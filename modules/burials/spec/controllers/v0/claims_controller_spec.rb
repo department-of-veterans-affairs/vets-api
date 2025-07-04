@@ -39,7 +39,8 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
-      expect(form).to receive(:process_attachments!)
+      expect(form).to receive(:process_attachments!).once
+      expect(Burials::BenefitsIntake::SubmitClaimJob).to receive(:perform_async).once
 
       post '/burials/v0/claims', params: { param_name => { form: form.form } }
 
@@ -78,25 +79,49 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
     end
   end
 
-  describe '#process_and_upload_to_lighthouse' do
-    let(:claim) { build(:burials_saved_claim) }
+  describe '#process_attachments' do
+    let(:claim) { create(:burials_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
+    let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
     let(:error) { StandardError.new('Something went wrong') }
+
+    before do
+      form_data = {
+        death_certificate: [{ 'confirmationCode' => bad_attachment.guid }]
+      }
+      in_progress_form.update!(form_data: form_data.to_json)
+
+      allow(claim).to receive_messages(
+        attachment_keys: [:deathCertificate],
+        open_struct_form: OpenStruct.new(deathCertificate: [OpenStruct.new(confirmationCode: bad_attachment.guid)])
+      )
+      allow_any_instance_of(PersistentAttachment).to receive(:file_data).and_raise(error)
+      allow(Flipper).to receive(:enabled?).with(:burial_persistent_attachment_error_email_notification).and_return(true)
+    end
+
+    it 'removes bad attachments, updates the in_progress_form, and destroys the claim if all attachments are bad' do
+      allow(claim).to receive(:process_attachments!).and_raise(error)
+      expect(claim).to receive(:send_email).with(:persistent_attachment_error)
+
+      aggregate_failures do
+        expect do
+          subject.send(:process_attachments, in_progress_form, claim)
+        rescue
+          # Swallow error to test side effects
+        end.to change { PersistentAttachment.where(id: bad_attachment.id).count }
+          .from(1).to(0)
+          .and change { Burials::SavedClaim.where(id: claim.id).count }
+          .from(1).to(0)
+      end
+
+      expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
+      expect(JSON.parse(in_progress_form.reload.form_data)['death_certificate']).to be_empty
+    end
 
     it 'returns a success' do
       expect(claim).to receive(:process_attachments!)
 
-      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
-    end
-
-    it 'returns a failure' do
-      allow(claim).to receive(:process_attachments!).and_raise(error)
-
-      expect do
-        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
-      end.to raise_error(StandardError, 'Something went wrong')
-
-      expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
+      subject.send(:process_attachments, in_progress_form, claim)
     end
   end
 

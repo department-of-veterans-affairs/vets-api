@@ -88,5 +88,12 @@ module IncomeAndAssets
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
     end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(email_type)
+      IncomeAndAssets::NotificationEmail.new(id).deliver(email_type)
+    end
   end
 end
