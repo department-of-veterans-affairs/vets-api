@@ -7,6 +7,7 @@ module CARMA
         Faraday.new(base_path) do |conn|
           conn.use(:breakers, service_name:)
           conn.request :instrumentation, name: service_name
+          conn.options.timeout = timeout
           conn.adapter Faraday.default_adapter
         end
       end
