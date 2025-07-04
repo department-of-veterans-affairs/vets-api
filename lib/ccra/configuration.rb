@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/middleware/response/errors'
-require_relative './middleware/ccra_logging'
+require 'common/client/configuration/rest'
+require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_custom_error'
+require 'common/client/middleware/response/snakecase'
+require 'faraday/multipart'
 
 module Ccra
   # CCRA::Configuration provides the configuration settings for the CCRA API.
@@ -53,9 +57,8 @@ module Ccra
 
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
-        conn.response :json, content_type: /\bjson$/
-        conn.response :vaos_errors
-        conn.use :ccra_logging
+        conn.response :json_parser
+        conn.response :raise_custom_error, error_prefix: 'CCRA'
         conn.adapter Faraday.default_adapter
       end
     end

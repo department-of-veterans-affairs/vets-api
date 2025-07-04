@@ -806,6 +806,7 @@ lib/bid @department-of-veterans-affairs/disability-benefits @department-of-veter
 lib/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/bpds @department-of-veterans-affairs/backend-review-group
 lib/carma @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
+lib/ccra/configuration.rb @department-of-veterans-affairs/backend-review-group
 lib/central_mail @department-of-veterans-affairs/backend-review-group
 lib/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
@@ -840,6 +841,7 @@ lib/disability_compensation @department-of-veterans-affairs/backend-review-group
 lib/disability_max_ratings @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-employee-exp-engineers @department-of-veterans-affairs/benefits-admin
 lib/efolder @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/efolder/service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+lib/eps/configuration.rb @department-of-veterans-affairs/backend-review-group
 lib/evss/auth_headers.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/evss/base_headers.rb @department-of-veterans-affairs/backend-review-group
 lib/evss/base_service.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
