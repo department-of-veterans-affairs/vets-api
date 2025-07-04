@@ -31,13 +31,13 @@ module HCA
     private
 
     def record_email_diff(tag_text, user_uuid, user_account_id, in_progress_form_id)
-      email_diff_log = FormEmailMatchesProfileLog.find_or_create_by(
+      email_diff_log = FormEmailMatchesProfileLog.create_or_find_by(
         user_uuid:,
         user_account_id:,
         in_progress_form_id:
       )
-
-      if email_diff_log.persisted? && email_diff_log.created_at == email_diff_log.updated_at
+    
+      if email_diff_log.previously_new_record?
         StatsD.increment(
           "api.1010ez.in_progress_form_email.#{tag_text}"
         )
