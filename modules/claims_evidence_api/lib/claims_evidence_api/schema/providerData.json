@@ -1,0 +1,27 @@
+{
+  "$id": "https://claims_evidence_api.va.gov/schema/providerData.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Provider Data",
+  "type": "object",
+  "properties": {
+    "claimantFirstName": {},
+    "contentSource": {
+      "type": "string",
+      "max": 500,
+      "min": 1,
+      "pattern": "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\/@\\(\\)]*$"
+    },
+    "dateVaReceivedDocument": {
+      "type": "string",
+      "max": 10,
+      "min": 10,
+      "pattern": "([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))",
+      "description": "Date field indicating the date the VA received the document. This can be any date in format of YYYY-MM-DD from 1900 until today"
+    },
+    "documentTypeId": {
+      "type": "integer",
+      "min": 0,
+      "default": 10
+    }
+  }
+}
