@@ -37,6 +37,22 @@ ALLOWLIST = %w[
   startedFormVersion
   tempfile
   content_type
+  user_account_uuid
+  confirmation_number
+  message
+  errors
+  claim_id
+  form_id
+  tags
+  in_progress_form_id
+  benefits_intake_uuid
+  call_location
+  file
+  attachments
+  extra
+  service
+  use_v2
+  line
 ].freeze
 
 Rails.application.config.filter_parameters = [
