@@ -15,9 +15,11 @@ module SignIn
                           IDME_DSLOGON_LOA3 = 'dslogon_loa3',
                           IDME_MHV_LOA1 = 'myhealthevet',
                           IDME_MHV_LOA3 = 'myhealthevet_loa3',
+                          IDME_COMPARISON_MINIMUM = 'comparison:minimum',
                           MHV_PREMIUM_VERIFIED = %w[Premium].freeze,
                           DSLOGON_PREMIUM_VERIFIED = [DSLOGON_ASSURANCE_TWO = '2',
                                                       DSLOGON_ASSURANCE_THREE = '3'].freeze,
+                          LOGIN_GOV_IAL0 = 'http://idmanagement.gov/ns/assurance/ial/0',
                           LOGIN_GOV_IAL1 = 'http://idmanagement.gov/ns/assurance/ial/1',
                           LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2'].freeze
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'
