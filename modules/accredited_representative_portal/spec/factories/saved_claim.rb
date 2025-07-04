@@ -18,7 +18,10 @@ FactoryBot.define do
           class: 'AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim' do
     guid { SecureRandom.uuid }
     form_attachment { create(:va_form_pdf) }
-
     form { form_data.to_json }
+
+    form_submissions do
+      create_list(:form_submission, 1, :pending)
+    end
   end
 end

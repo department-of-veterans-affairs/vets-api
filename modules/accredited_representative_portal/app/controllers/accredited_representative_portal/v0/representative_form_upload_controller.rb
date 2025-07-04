@@ -29,7 +29,8 @@ module AccreditedRepresentativePortal
         )
 
         render json: {
-          confirmationNumber: saved_claim.confirmation_number,
+          confirmationNumber:
+            saved_claim.latest_submission_attempt.benefits_intake_uuid,
           status: '200'
         }
       rescue service::RecordInvalidError => e
