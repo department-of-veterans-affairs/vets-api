@@ -43,7 +43,6 @@ module RES
 
     def format_payload_for_res
       form_data = claim_form_hash
-
       res_payload = {
         useEva: form_data['useEva'],
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
@@ -116,6 +115,8 @@ module RES
     end
 
     def mapped_address_hash(client_hash)
+      return nil unless client_hash
+
       {
         country: client_hash['country'],
         street: client_hash['street'],
