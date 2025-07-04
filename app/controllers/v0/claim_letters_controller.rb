@@ -26,10 +26,10 @@ module V0
 
     def service
       if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
-        return @service ||= LighthouseClaimLettersProvider.new(@current_user)
+        LighthouseClaimLettersProvider.new(@current_user)
+      else
+        ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
       end
-
-      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
     end
 
     def log_metadata_to_datadog(docs)
