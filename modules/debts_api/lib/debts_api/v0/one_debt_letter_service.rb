@@ -14,6 +14,7 @@ module DebtsApi
       COPAY_TOTAL_TEXT = 'Total Copayment Due'
       COPAY_TABLE_TITLE = '<b><i>VA Medical Center Copay Charges</i></b>'
       DEBT_TOTAL_TEXT = 'Total VBA Overpayment Due'
+      STATS_KEY = 'api.one_debt_letter'
 
       def initialize(user)
         @user = user
@@ -100,6 +101,8 @@ module DebtsApi
         legalese_pdf = load_legalese_pdf
         combined_pdf = CombinePDF.parse(document.read) << legalese_pdf
         combined_pdf.to_pdf
+      rescue StandardError => e
+        StatsD.increment("#{DebtsApi::OneDebtLetterService::STATS_KEY}.error")
       end
 
       def save_pdf(filename = default_filename)
