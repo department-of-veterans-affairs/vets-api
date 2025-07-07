@@ -92,6 +92,53 @@ http_interactions:
         - 94c8947f4410568bdca331053536b04f
     body:
       encoding: UTF-8
-      string: '{"count":1,"slots":[{"id":"page2-slot1|2025-01-02T14:00:00Z","providerServiceId":"TEST123","appointmentTypeId":"ov","start":"2025-01-02T14:00:00Z","remaining":1}]}'
+      string: '{"count":0,"slots":[],"next_token":"page3_token"}'
+  recorded_at: Sat, 11 Jan 2025 23:00:45 GMT
+- request:
+    method: get
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TEST123/slots?nextToken=page3_token
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+        - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+      Accept-Encoding:
+        - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Sat, 11 Jan 2025 23:00:45 GMT
+      Content-Type:
+        - application/json
+      Transfer-Encoding:
+        - chunked
+      Connection:
+        - keep-alive
+      Content-Security-Policy:
+        - frame-ancestors 'none'
+      Strict-Transport-Security:
+        - max-age=6307200; includeSubDomains; preload
+      Traceparent:
+        - 00-94c8947f4410568bdca331053536b04f-f282e870e6d5fa60-01
+      X-Content-Type-Options:
+        - nosniff
+      X-Request-Id:
+        - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+      X-Wellhive-Trace-Id:
+        - 94c8947f4410568bdca331053536b04f
+    body:
+      encoding: UTF-8
+      string: '{"count":1,"slots":[{"id":"page3-slot1|2025-01-02T14:00:00Z","providerServiceId":"TEST123","appointmentTypeId":"ov","start":"2025-01-02T14:00:00Z","remaining":1}]}'
   recorded_at: Sat, 11 Jan 2025 23:00:45 GMT
 recorded_with: VCR 6.3.1 

@@ -374,7 +374,7 @@ describe Eps::ProviderService do
           expect(result.slots.map { |slot| slot[:id] }).to include(
             'page1-slot1|2025-01-02T09:00:00Z',
             'page1-slot2|2025-01-02T10:00:00Z',
-            'page2-slot1|2025-01-02T14:00:00Z'
+            'page3-slot1|2025-01-02T14:00:00Z'
           )
           expect(result.to_h).not_to have_key(:next_token)
         end
