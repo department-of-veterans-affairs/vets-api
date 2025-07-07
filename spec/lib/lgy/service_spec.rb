@@ -203,7 +203,7 @@ describe LGY::Service do
           expect_any_instance_of(LGY::Service).to receive(:log_message_to_sentry).with(
             'COE application submission failed with http status: 500',
             :error,
-            { message: 'the server responded with status 500', status: 500,
+            { message: match(/the server responded with status 500/), status: 500,
               body: { 'errors' => [{ 'message' => 'Fake error message' }] } },
             { team: 'vfs-ebenefits' }
           )

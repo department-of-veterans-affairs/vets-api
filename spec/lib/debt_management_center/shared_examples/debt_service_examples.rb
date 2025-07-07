@@ -26,7 +26,7 @@ RSpec.shared_examples 'debt service behavior' do
             expect(Sentry).to receive(:set_tags).once.with(external_service: described_class.to_s.underscore)
             expect(Sentry).to receive(:set_extras).once.with(
               url: Settings.dmc.url,
-              message: 'the server responded with status 400',
+              message: match(/the server responded with status 400/),
               body: { 'message' => 'Bad request' }
             )
 

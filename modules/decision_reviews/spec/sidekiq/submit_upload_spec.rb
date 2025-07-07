@@ -407,7 +407,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
                 get_lighthouse_url_failure_log.delete(:nod_uuid)
                 get_lighthouse_url_failure_log[:sc_uuid] = appeal_submission.submitted_appeal_uuid
                 get_lighthouse_url_failure_log[:http] =
-                  { status_code: 404, body: 'the server responded with status 404' }
+                  { status_code: 404, body: match(/the server responded with status 404/) }
                 allow(Rails.logger).to receive(:error)
                 expect(Rails.logger).to receive(:error).with(get_lighthouse_url_failure_log)
                 expect do
