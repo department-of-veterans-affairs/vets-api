@@ -80,25 +80,28 @@ module HCA
       self.class.log_exception_to_sentry(e)
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
     rescue Ox::ParseError => e
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_did_not_retry")
-
-      PersonalInformationLog.create!(
-        data: parsed_form,
-        error_class: 'Form1010Ezr FailedDidNotRetry'
-      )
-
-      Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
+      log_parse_error(parsed_form, e)
 
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
-
-      Form1010Ezr::Service.log_submission_failure_to_sentry(
-        parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
-      )
       # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
       raise Sidekiq::JobRetry::Skip
     rescue
       StatsD.increment("#{STATSD_KEY_PREFIX}.async.retries")
       raise
+    end
+
+    private
+
+    def log_parse_error(parsed_form, e)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_did_not_retry")
+
+      PersonalInformationLog.create!(data: parsed_form, error_class: 'Form1010Ezr FailedDidNotRetry')
+
+      Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
+
+      Form1010Ezr::Service.log_submission_failure_to_sentry(
+        parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
+      )
     end
   end
 end
