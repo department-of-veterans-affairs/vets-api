@@ -3,7 +3,7 @@
 module Enrollment
   module Form1095B
     ##
-    # HTTP client configuration for the {Form1095BEnrollment::Service},
+    # HTTP client configuration for the {Enrollment::Form1095B::Service},
     # sets the base path, the base request headers, and a service name for breakers and metrics.
     #
     class Configuration < Common::Client::Configuration::REST
@@ -22,7 +22,7 @@ module Enrollment
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'Form1095BEnrollment'
+        'Form1095B'
       end
 
       ##
