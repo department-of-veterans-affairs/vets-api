@@ -1222,7 +1222,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
   end
 
-  context 'for eps referrals', skip: 'Flaky tests affecting CI stability since June 27th' do
+  context 'for eps referrals' do
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
