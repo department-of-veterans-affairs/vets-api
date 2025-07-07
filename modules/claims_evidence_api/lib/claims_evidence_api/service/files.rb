@@ -26,7 +26,7 @@ module ClaimsEvidenceApi
       # @param include_raw_text [Boolean] optional param to include raw text data of the document; default: false
       def retrieve(uuid, include_raw_text: false)
         # try to cast the optional argument to an actual boolean value
-        include_raw_text = !include_raw_text.to_i.zero? if include_raw_text.respond_to?(:to_i)
+        include_raw_text = !!include_raw_text
         raise ArgumentError unless [true, false].include?(include_raw_text)
 
         perform :get, "files/#{uuid}/data?includeRawTextData=#{include_raw_text}", {}, {}

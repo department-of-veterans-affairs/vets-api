@@ -22,7 +22,7 @@ module ClaimsEvidenceApi
       INVALID_JWT = 'VEFSERR40009'                        # JWT provided does not contain expected claims, or contains invalid claim value(s).
       INVALID_MIMETYPE = 'VEFSERR41501'                   # File binary content contained magic bytes indicates mime type: %s which does not match accepted mime types: %s
       INVALID_RESPONSE = 'VEFSERR50050'                   # Invalid response found on payload.
-      INVLAID_REQUEST = 'VEFSERR40010'                    # Invalid request data.
+      INVALID_REQUEST = 'VEFSERR40010'                    # Invalid request data.
       INVALID_X_EFOLDER_URI = 'VEFSERR40008'              # Header X-EFOLDER-URI contained invalid value %s
       JSON_DESERIALIZATION = 'VEFSERR50011'               # JSON deserialization error.
       JSON_SERIALIZATION = 'VEFSERR50010'                 # JSON serialization error.
