@@ -3,7 +3,6 @@
 require 'representation_management/engine'
 
 module RepresentationManagement
-  # Your code goes here...
   AGENTS = 'agents'
   ATTORNEYS = 'attorneys'
   REPRESENTATIVES = 'representatives'
