@@ -22,14 +22,14 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
           :post,
           'dispute-debt',
           satisfy do |payload|
-            expect(payload[:file_number]).to eq(user.ssn)
+            expect(payload[:fileNumber]).to eq(user.ssn)
 
-            expect(payload[:dispute_pdfs].size).to eq(1)
-            pdf = payload[:dispute_pdfs].first
+            expect(payload[:disputePDFs].size).to eq(1)
+            pdf = payload[:disputePDFs].first
 
-            expect(pdf[:file_name]).to eq('tester.pdf')
-            expect(pdf[:file_contents]).to be_a(String)
-            expect(Base64.decode64(pdf[:file_contents])).to include('%PDF')
+            expect(pdf[:fileName]).to eq('tester.pdf')
+            expect(pdf[:fileContents]).to be_a(String)
+            expect(Base64.decode64(pdf[:fileContents])).to include('%PDF')
 
             true
           end
@@ -47,13 +47,13 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
           :post,
           'dispute-debt',
           satisfy do |payload|
-            next false unless payload[:file_number] == user.ssn
-            next false unless payload[:dispute_pdfs].size == 2
+            next false unless payload[:fileNumber] == user.ssn
+            next false unless payload[:disputePDFs].size == 2
 
-            payload[:dispute_pdfs].all? do |pdf|
-              pdf[:file_name].end_with?('.pdf') &&
-                pdf[:file_contents].is_a?(String) &&
-                Base64.decode64(pdf[:file_contents]).include?('%PDF')
+            payload[:disputePDFs].all? do |pdf|
+              pdf[:fileName].end_with?('.pdf') &&
+                pdf[:fileContents].is_a?(String) &&
+                Base64.decode64(pdf[:fileContents]).include?('%PDF')
             end
           end
         )

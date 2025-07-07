@@ -8,15 +8,19 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
     File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end
 
+  let(:headers) do
+    {
+      'CONTENT_TYPE' => 'application/json',
+      'HTTP_X_KEY_INFLECTION' => 'camel'
+    }
+  end
+
   describe 'POST create' do
     subject do
       post(
         v0_form1010_ezrs_path,
         params: params.to_json,
-        headers: {
-          'CONTENT_TYPE' => 'application/json',
-          'HTTP_X_KEY_INFLECTION' => 'camel'
-        }
+        headers:
       )
     end
 
@@ -116,6 +120,29 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
             end
           end
         end
+      end
+    end
+  end
+
+  describe 'POST download_pdf' do
+    subject do
+      post(
+        v0_form1010_ezrs_download_pdf_path,
+        params: params.to_json,
+        headers:
+      )
+    end
+
+    context 'while unauthenticated' do
+      let(:params) do
+        { form: }
+      end
+
+      it 'returns an error in the response body' do
+        subject
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('Not authorized')
       end
     end
   end

@@ -1,17 +1,15 @@
 common:
   - 'kristen.brown@adhocteam.us'
   - 'michael.hobson@adhocteam.us'
-  - 'michel.mcdonald@adhocteam.us'
-  - 'emily.goodrich@oddball.io'
-  - 'melinda.cuerda@adhocteam.us'
-  - 'heather.roy@adhocteam.us'
-  - 'matt.kelly@adhocteam.us'
-  - 'gia.antoniades@adhocteam.us'
+  - 'mmcdonald@technatomy.com'
+  - 'pstevens@technatomy.com'
 dev:
 staging:
 sandbox:
 prod:
   - 'drew.fisher@adhocteam.us'
+  - 'melinda.cuerda@adhocteam.us'
+  - 'heather.roy@zerodelta365.com'
   - 'david.mazik@va.gov'
   - 'stone_christopher@bah.com'
   - 'valerie.hase@va.gov'
