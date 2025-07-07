@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 require 'res/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
@@ -296,14 +296,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       return
     end
 
-    VANotify::EmailJob.perform_async(
-      user.va_profile_email,
-      Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
-      {
-        'first_name' => user&.first_name&.upcase.presence,
-        'date' => Time.zone.today.strftime('%B %d, %Y')
-      }
-    )
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user):
+      VRE::NotificationEmail.new(self.id).deliver(:confirmation_vbms)
+    else:
+      VANotify::EmailJob.perform_async(
+        user.va_profile_email,
+        Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
+        {
+          'first_name' => user&.first_name&.upcase.presence,
+          'date' => Time.zone.today.strftime('%B %d, %Y')
+        }
+      )
+    end
     Rails.logger.info('VRE Submit1900Job VBMS confirmation email sent.')
   end
 
@@ -314,14 +318,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       return
     end
 
-    VANotify::EmailJob.perform_async(
-      user.va_profile_email,
-      Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
-      {
-        'first_name' => user&.first_name&.upcase.presence,
-        'date' => Time.zone.today.strftime('%B %d, %Y')
-      }
-    )
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user):
+      VRE::NotificationEmail.new(self.id).deliver(:confirmation_lighthouse)
+    else:
+      VANotify::EmailJob.perform_async(
+        user.va_profile_email,
+        Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
+        {
+          'first_name' => user&.first_name&.upcase.presence,
+          'date' => Time.zone.today.strftime('%B %d, %Y')
+        }
+      )
+    end
+
     Rails.logger.info('VRE Submit1900Job successful, lighthouse confirmation email sent to user.')
   end
 
