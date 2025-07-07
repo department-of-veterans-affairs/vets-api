@@ -108,9 +108,9 @@ module RepresentationManagement
       latest_counts = RepresentationManagement::AccreditationApiEntityCount.order(created_at: :desc).first
       # All of the counts fallback to counting records in the database if the latest counts are not available.
       {
-        agents: latest_counts&.agents || fallback_individual_count('agents'),
-        attorneys: latest_counts&.attorneys || fallback_individual_count('attorneys'),
-        representatives: latest_counts&.representatives || fallback_individual_count('representatives'),
+        agents: latest_counts&.agents || fallback_individual_count(RepresentationManagement::AGENTS),
+        attorneys: latest_counts&.attorneys || fallback_individual_count(RepresentationManagement::ATTORNEYS),
+        representatives: latest_counts&.representatives || fallback_individual_count(RepresentationManagement::REPRESENTATIVES),
         veteran_service_organizations: latest_counts&.veteran_service_organizations ||
           AccreditedOrganization.count
       }
