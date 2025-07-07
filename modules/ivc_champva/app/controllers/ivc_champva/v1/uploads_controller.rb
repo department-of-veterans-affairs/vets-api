@@ -250,7 +250,9 @@ module IvcChampva
       private
 
       def applicants_with_ohi(applicants)
-        applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
+        applicants.select do |item|
+          item.key?('health_insurance') || item.key?('medicare')
+        end
       end
 
       ##
@@ -267,21 +269,21 @@ module IvcChampva
       # @return [Array<IvcChampva::VHA107959c>] Array of form instances with details from form_data included
       def generate_ohi_form(applicant, form_data)
         forms = []
-        health_insurance = applicant['health_insurance'] || []
+        health_insurance = applicant['health_insurance'] || [{}]
 
         # Process insurance policies in pairs (2 per form)
         # TODO: is there a clean way to piggyback off of existing generate_additional_pdf method?
-        health_insurance.each_slice(2).with_index do |policies_pair, form_index|
+        health_insurance.each_slice(2).with_index do |policies_pair, _form_index|
           # Create applicant-specific form data for this pair of policies
-          applicant_data = form_data.except('applicants', 'raw_data').merge(applicant)
-          applicant_data['form_number'] = '10-7959C'
+          applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
+          applicant_data['form_number'] = '10-7959C-REV2025'
 
           # Map the current pair of policies to the applicant data
           applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
 
           # Create and configure form
-          form = IvcChampva::VHA107959c.new(applicant_with_mapped_policies)
-          form.data['form_number'] = '10-7959C'
+          form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
+          form.data['form_number'] = '10-7959C-REV2025'
           forms << form
         end
 
@@ -331,7 +333,7 @@ module IvcChampva
 
       def fill_ohi_and_return_path(form)
         # Generate PDF
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        filler = IvcChampva::PdfFiller.new(form_number: 'vha_10_7959c_rev2025', form:, uuid: form.uuid)
         # Results in a file path, which is returned
         if @current_user
           filler.generate(@current_user.loa[:current])
