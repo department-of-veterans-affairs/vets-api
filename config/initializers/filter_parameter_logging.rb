@@ -49,6 +49,7 @@ ALLOWLIST = %w[
   call_location
   extra
   service
+  use_v2
   line
 ].freeze
 
