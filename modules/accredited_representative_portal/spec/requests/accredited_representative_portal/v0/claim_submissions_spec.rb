@@ -47,7 +47,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
           {
             'data' => [
               {
-                'submittedDate' => '2025-07-02',
+                'submittedDate' => saved_claim_claimant_representative_a.created_at.to_date.iso8601,
                 'firstName' => 'John',
                 'lastName' => 'Doe',
                 'formType' => '21-686c',
@@ -59,7 +59,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
                 'id' => saved_claim_claimant_representative_a.id
               },
               {
-                'submittedDate' => '2025-07-02',
+                'submittedDate' => saved_claim_claimant_representative_b.created_at.to_date.iso8601,
                 'firstName' => 'John',
                 'lastName' => 'Doe',
                 'formType' => '21-686c',
