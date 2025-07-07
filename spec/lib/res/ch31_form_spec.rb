@@ -131,7 +131,7 @@ RSpec.describe RES::Ch31Form do
             },
             dob: '1980-01-01',
             regionalOffice: nil
-          },
+          }
         }.to_json
         expect_any_instance_of(RES::Service).to receive(:send_to_res).with(payload:).and_return(success_message)
 
