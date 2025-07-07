@@ -167,6 +167,11 @@ module RepresentationManagement
       end
     end
 
+    def update_orgs
+      # This will require custom implementation, it can't use handle_entity_record as is.
+      # Rename update_entities to update_individuals then add custom implementation for orgs here.
+    end
+
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
     #
     # @return [void]
