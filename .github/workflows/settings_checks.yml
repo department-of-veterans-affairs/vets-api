@@ -4,7 +4,8 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
-      - 'config/**'
+      - 'config/settings.yml'
+      - 'config/settings/*.yml'
 permissions:
   id-token: write
   contents: read

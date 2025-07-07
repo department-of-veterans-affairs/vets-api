@@ -69,6 +69,11 @@
           "description": "An issue is timely if the receipt date is within 372 dates of the decision date.",
           "example": false
         },
+        "activeReview": {
+          "type": "boolean",
+          "description": "Indicates whether this issue is already part of an active Decision Review that is being processed by VA. Submitting a Decision Review that includes a listed issue with an activeReview of true may result in VA rejecting the submission.",
+          "example": false
+        },
         "latestIssuesInChain": {
           "type": "array",
           "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).",

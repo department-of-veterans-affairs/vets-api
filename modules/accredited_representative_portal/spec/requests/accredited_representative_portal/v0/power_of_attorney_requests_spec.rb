@@ -249,6 +249,30 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
     end
 
+    context 'when providing as_selected_individual param' do
+      let!(:unassigned) do
+        # this should not show up in the results
+        create(:power_of_attorney_request, :with_veteran_claimant, poa_code:)
+      end
+      let!(:assigned_list) do
+        3.times.map { create(:power_of_attorney_request, poa_code:, accredited_individual: representative) }
+      end
+
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
+          .to receive(:get_registration_number).with('veteran_service_organization')
+          .and_return(accredited_individual.accredited_individual_registration_number)
+      end
+
+      it 'returns the filtered list for the logged-in user' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?as_selected_individual=true')
+
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data'].size).to eq(3)
+        expect(response.parsed_body['data'].map { |poa| poa['id'] }).to match_array(assigned_list.map(&:id))
+      end
+    end
+
     context 'when providing a status param' do
       # Base request for pending status
       let!(:pending_request_base) { poa_request } # Created at 'time' (2024-12-21)

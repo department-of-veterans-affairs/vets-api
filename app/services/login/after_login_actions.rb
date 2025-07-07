@@ -4,8 +4,6 @@ require 'login/errors'
 
 module Login
   class AfterLoginActions
-    include Accountable
-
     attr_reader :current_user, :skip_mhv_account_creation
 
     def initialize(user, skip_mhv_account_creation)
@@ -19,7 +17,6 @@ module Login
       Login::UserCredentialEmailUpdater.new(credential_email: current_user.email,
                                             user_verification: current_user.user_verification).perform
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
-      update_account_login_stats(login_type)
       id_mismatch_validations
       create_mhv_account
       current_user.provision_cerner_async(source: :ssoe)

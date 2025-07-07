@@ -79,8 +79,7 @@ module SM
     # @return [Sting] json response
     #
     def post_signature(params)
-      request_body = MessagingSignature.new(params).to_json
-      perform(:post, 'preferences/signature', request_body, token_headers).body
+      perform(:post, 'preferences/signature', params.to_h, token_headers).body
     end
     # @!endgroup
 

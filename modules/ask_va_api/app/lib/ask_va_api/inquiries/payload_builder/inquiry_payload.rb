@@ -7,7 +7,7 @@ module AskVAApi
         include SharedHelpers
 
         class InquiryPayloadError < StandardError; end
-        attr_reader :inquiry_params, :inquiry_details, :submitter_profile, :user, :veteran_profile
+        attr_reader :inquiry_params, :inquiry_details, :inquiry_details_obj, :submitter_profile, :user, :veteran_profile
 
         # NOTE: These two constants share the same ID value ('722310000') intentionally.
         # This is due to an API quirk where different fields (e.g., authentication status and inquiry source)
@@ -19,7 +19,8 @@ module AskVAApi
         def initialize(inquiry_params:, user: nil)
           @inquiry_params = inquiry_params
           validate_params!
-          @inquiry_details = InquiryDetails.new(inquiry_params).call
+          @inquiry_details_obj = InquiryDetails.new(inquiry_params)
+          @inquiry_details = @inquiry_details_obj.call
           @user = user
           @submitter_profile = SubmitterProfile.new(inquiry_params:, user:, inquiry_details:)
           @veteran_profile = VeteranProfile.new(inquiry_params:, user:, inquiry_details:)
@@ -30,14 +31,23 @@ module AskVAApi
           payload = {
             AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
-            CaregiverZipCode: nil,
-            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference] || 'Email'),
-            DependentDOB: family_member_field(:date_of_birth),
-            DependentFirstName: family_member_field(:first)
+            CaregiverZipCode: nil, ContactMethod: @translator.call(:response_type,
+                                                                   inquiry_params[:contact_preference] || 'Email'),
+            DependentDOB: family_member_field(:date_of_birth), DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
-          payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
+          context = {
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            user_loa: user&.loa&.fetch(:current, nil),
+            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic,
+            user_is_authenticated: user.present?
+          }
+          Rails.logger.info('Education Inquiry Context', context)
+          if user.nil? && inquiry_details_obj.inquiry_education_related?
+            raise InquiryPayloadError, 'Unauthenticated Education inquiry submitted'
+          end
 
+          payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
           payload
         end
 
@@ -89,7 +99,9 @@ module AskVAApi
         end
 
         def list_of_attachments
-          return if inquiry_params[:files].first[:file_name].nil?
+          # To try and resolve Exception InquiriesCreatorError: undefined method `[]' for nil
+          return if inquiry_params[:files].blank?
+          return if inquiry_params[:files].first.nil? || inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
             file_name = normalize_file_name(file[:file_name])

@@ -1,9 +1,8 @@
 common:
   - michael.hobson@adhocteam.us
-  - michel.mcdonald@adhocteam.us
   - kristen.brown@adhocteam.us
-  - matt.kelly@adhocteam.us
-  - gia.antoniades@adhocteam.us
+  - mmcdonald@technatomy.com
+  - pstevens@technatomy.com
 development:
 staging:
 sandbox:
@@ -17,4 +16,5 @@ production:
   - premal.shah@va.gov
   - steve.albers@va.gov
   - zachary.goldfine@va.gov
+  - heather.roy@zerodelta365.com
 

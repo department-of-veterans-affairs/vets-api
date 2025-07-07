@@ -19,6 +19,14 @@ https://us-gov-west-1.console.amazonaws-us-gov.com/systems-manager/parameters/%2
 | Schema Changes                           | [0006-db-schema-changes.md](adr/0006-db-schema-changes.md)   | 2025-04-03 |
 | Adding new submission and attempt models | [0007-adding-new-submission-and-attempt-models.md](adr/0007-adding-new-submission-and-attempt-models.md) | 2025-05-01 |
 | Sidekiq Job                              | [0008-adding-sidekiq-job.md](adr/0008-adding-sidekiq-job.md) | 2025-05-08 |
-|                                          |                                                              |            |
+| User identifier                          | [0009-adding-user-identifier-to-bpds-request.md](adr/0009-adding-user-identifier-to-bpds-request.md) | 2025-06-02 |
 
 ​	
+### Additional Links
+
+| Description                        | URL                                                      |
+| ---------------------------------- | -------------------------------------------------------- |
+| Swagger Doc for BPDS Forward Proxy | https://fwdproxy-staging.vfs.va.gov:4453/swagger-ui.html |
+| Swagger Doc for BPDS Dev Server    | https://bpds-dev.dev.bip.va.gov/swagger-ui.html          |
+
+Note: Citrix is required to access the dev server url

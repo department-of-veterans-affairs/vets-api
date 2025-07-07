@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe IvcChampva::VHA107959a do
+  let(:current_user) { build(:user, :loa3) }
+
   let(:data) do
     {
       'primary_contact_info' => {
@@ -71,6 +73,14 @@ RSpec.describe IvcChampva::VHA107959a do
         expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959A Email Used', email_used: 'no')
         vha_10_7959a.track_email_usage
       end
+    end
+  end
+
+  describe '#track_current_user_loa' do
+    it 'logs current user loa' do
+      expect(Rails.logger).to receive(:info)
+        .with('IVC ChampVA Forms - 10-7959A Current User LOA', { current_user_loa: 3 })
+      vha_10_7959a.track_current_user_loa(current_user)
     end
   end
 

@@ -7,6 +7,7 @@ describe Vye::SundownSweep, type: :worker do
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
+    allow(Vye::CloudTransfer).to receive(:holiday?).and_return(false)
   end
 
   it 'enqueues child jobs' do

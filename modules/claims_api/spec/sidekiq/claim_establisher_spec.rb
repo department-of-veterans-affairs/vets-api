@@ -161,6 +161,23 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
         expect { subject.new.perform(claim.id) }.not_to raise_error
       end
     end
+
+    context 'when the error is a BackendServiceException and text includes Error calling external service' do
+      let(:error) do
+        Common::Exceptions::BackendServiceException.new(
+          nil,
+          {},
+          nil,
+          { messages: [{ key: 'form526.submit.establishClaim.serviceError',
+                         severity: 'FATAL',
+                         text: 'Error calling external service to establish the claim during Submit' }] }
+        )
+      end
+
+      it 'raises an error (thereby retrying the job)' do
+        expect { subject.new.perform(claim.id) }.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
   end
 
   describe 'when an errored job has exhausted its retries' do

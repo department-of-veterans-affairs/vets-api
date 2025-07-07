@@ -125,7 +125,7 @@ module ClaimsApi
         def fill_pdf(data)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
 
-          temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_1.pdf")
+          temp_path = Rails.root.join('tmp', "poa_#{SecureRandom.uuid}_page_1.pdf")
           pdftk.fill_form(
             @page1_path,
             temp_path,
@@ -134,7 +134,7 @@ module ClaimsApi
           )
           @page1_path = temp_path
 
-          temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_2.pdf")
+          temp_path = Rails.root.join('tmp', "poa_#{SecureRandom.uuid}_page_2.pdf")
           pdftk.fill_form(
             @page2_path,
             temp_path,

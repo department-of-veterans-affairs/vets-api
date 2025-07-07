@@ -5,6 +5,8 @@ require 'sign_in/logingov/risc_event'
 module SignIn
   module Logingov
     class RiscEventHandler
+      STATSD_KEY = 'api.sign_in.logingov.risc_event'
+
       attr_reader :payload
 
       def initialize(payload:)
@@ -26,8 +28,17 @@ module SignIn
       private
 
       def handle_event(risc_event)
+        log_event(risc_event)
+        increment_metric(risc_event)
+      end
+
+      def log_event(risc_event)
         Rails.logger.info('[SignIn][Logingov][RiscEventHandler] risc_event received',
                           risc_event: risc_event.to_h_masked)
+      end
+
+      def increment_metric(risc_event)
+        StatsD.increment(STATSD_KEY, tags: ["event_type:#{risc_event.event_type}"])
       end
     end
   end

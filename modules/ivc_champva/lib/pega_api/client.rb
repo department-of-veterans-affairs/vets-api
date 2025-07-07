@@ -75,7 +75,7 @@ module IvcChampva
         #   "UUID"=> "78444a0b-3ac8-454d-a28d-8d6f0e+" }
 
         # Querying by date requires a window of at least 1 day:
-        date_start = record.created_at.strftime('%m/%d/%Y')
+        date_start = (record.created_at - 1.day).strftime('%m/%d/%Y')
         date_end = (record.created_at + 1.day).strftime('%m/%d/%Y')
         reports = get_report(date_start, date_end, '', record.form_uuid)
 

@@ -23,8 +23,18 @@ module ClaimsApi
         node.parent = opt
       end
 
-      make_request(endpoint: 'VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService', action: 'vnpPtcpntPhoneCreate',
-                   body:, key: 'return')
+      make_request(endpoint: bean_name, action: 'vnpPtcpntPhoneCreate', body:, key: 'return')
+    end
+
+    def vnp_ptcpnt_phone_find_by_primary_key(options)
+      arg_strg = convert_nil_values(options)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <arg0>
+        #{arg_strg}
+        </arg0>
+      EOXML
+
+      make_request(endpoint: bean_name, action: 'vnpPtcpntPhoneFindByPrimaryKey', body:, key: 'return')
     end
 
     private

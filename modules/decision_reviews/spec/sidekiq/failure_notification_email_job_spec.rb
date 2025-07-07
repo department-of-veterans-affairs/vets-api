@@ -27,12 +27,12 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
     service
   end
 
-  let(:user_verification) { create(:idme_user_verification) }
-  let(:user_account) { user_verification.user_account }
-  let(:user_uuid) { create(:user, :loa3, idme_uuid: user_verification.idme_uuid, ssn: '212222112').uuid }
-  let(:user_verification2) { create(:idme_user_verification) }
-  let(:user_account2) { user_verification2.user_account }
-  let(:user_uuid2) { create(:user, :loa3, idme_uuid: user_verification2.idme_uuid, ssn: '412222112').uuid }
+  let(:user) { create(:user, :loa3, ssn: '212222112') }
+  let(:user_uuid) { user.uuid }
+  let(:user_account) { user.user_account }
+  let(:user2) { create(:user, :loa3, ssn: '412222112') }
+  let(:user2_uuid) { user2.uuid }
+  let(:user_account2) { user2.user_account }
 
   let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
   let(:mpi_profile2) { build(:mpi_profile, vet360_id: Faker::Number.number) }
@@ -40,9 +40,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
   let(:find_profile_response2) { create(:find_profile_response, profile: mpi_profile2) }
   let(:mpi_service) do
     service = instance_double(MPI::Service, find_profile_by_identifier: nil)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_account.icn, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user.icn, identifier_type: anything)
                                                           .and_return(find_profile_response)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_account2.icn,
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user2.icn,
                                                                 identifier_type: anything)
                                                           .and_return(find_profile_response2)
 
@@ -137,7 +137,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             expect(submission3.failure_notification_sent_at).to be_nil
 
             expect(mpi_service).not_to have_received(:find_profile_by_identifier)
-              .with(identifier: user_uuid2, identifier_type: anything)
+              .with(identifier: user2_uuid, identifier_type: anything)
 
             expect(vanotify_service).to have_received(:send_email).with({ email_address:,
                                                                           personalisation:,

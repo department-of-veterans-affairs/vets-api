@@ -8,7 +8,6 @@ FactoryBot.define do
     access_token_audience { SecureRandom.hex }
     access_token_duration { SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
     access_token_user_attributes { [] }
-    certificates { [] }
 
     trait :with_certificates do
       ignore do

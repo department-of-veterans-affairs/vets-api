@@ -7,21 +7,10 @@ module Mobile
     DEFAULT_PAGE_NUMBER = 1
     DEFAULT_PAGE_SIZE = 10
 
-    attr_reader :list, :errors, :page_number, :page_size
-
-    def initialize(list:, validated_params:, errors:)
-      enforce_params_requirements(validated_params)
-      @list = list
-      @errors = errors
-      @page_number = validated_params[:page_number] || DEFAULT_PAGE_NUMBER
-      @page_size = validated_params[:page_size] || DEFAULT_PAGE_SIZE
-    end
-
     def self.paginate(list:, validated_params:, errors: nil)
-      new(list:, validated_params:, errors:).paginate
-    end
-
-    def paginate
+      enforce_params_requirements(validated_params)
+      page_number = validated_params[:page_number] || DEFAULT_PAGE_NUMBER
+      page_size = validated_params[:page_size] || DEFAULT_PAGE_SIZE
       pages = list.each_slice(page_size).to_a
 
       page_meta_data = {
@@ -40,11 +29,14 @@ module Mobile
       [content, page_meta_data]
     end
 
-    private
+    class << self
+      private
 
-    def enforce_params_requirements(params)
-      unless params.is_a?(Dry::Validation::Result)
-        raise InvalidParams, 'Params must be a contract result. Use Mobile::V0::Contracts::PaginationBase or subclass.'
+      def enforce_params_requirements(params)
+        unless params.is_a?(Dry::Validation::Result)
+          raise InvalidParams,
+                'Params must be a contract result. Use Mobile::V0::Contracts::PaginationBase or subclass.'
+        end
       end
     end
   end

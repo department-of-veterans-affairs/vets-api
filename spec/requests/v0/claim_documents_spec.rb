@@ -17,41 +17,41 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
 
     it 'uploads a file' do
       VCR.use_cassette('uploads/validate_document') do
-        params = { file:, form_id: '21P-527EZ' }
+        params = { file:, form_id: '21P-000' }
         expect do
           post('/v0/claim_documents', params:)
         end.to change(PersistentAttachment, :count).by(1)
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-        expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::ClaimEvidence)
       end
     end
 
     it 'uploads a file to the alternate route' do
       VCR.use_cassette('uploads/validate_document') do
-        params = { file:, form_id: '21P-527EZ' }
+        params = { file:, form_id: '21P-000' }
         expect do
           post('/v0/claim_attachments', params:)
         end.to change(PersistentAttachment, :count).by(1)
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-        expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::ClaimEvidence)
       end
     end
 
     it 'logs a successful upload' do
       VCR.use_cassette('uploads/validate_document') do
-        expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-527EZ', instance_of(Hash))
+        expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-000', instance_of(Hash))
         expect(Rails.logger).to receive(:info).with(
-          /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/, instance_of(Hash)
+          /^Success creating PersistentAttachment FormID=21P-000 AttachmentID=\d+/, instance_of(Hash)
         )
         expect(Rails.logger).not_to receive(:error).with(
-          'Error creating PersistentAttachment FormID=21P-527EZ AttachmentID= Common::Exceptions::ValidationErrors'
+          'Error creating PersistentAttachment FormID=21P-000 AttachmentID= Common::Exceptions::ValidationErrors'
         )
 
-        params = { file:, form_id: '21P-527EZ' }
+        params = { file:, form_id: '21P-000' }
         expect do
           post('/v0/claim_documents', params:)
         end.to change(PersistentAttachment, :count).by(1)
@@ -64,7 +64,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
 
     it 'does not upload the file' do
       VCR.use_cassette('uploads/validate_document') do
-        params = { file:, form_id: '21P-527EZ' }
+        params = { file:, form_id: '21P-000' }
         expect do
           post('/v0/claim_attachments', params:)
         end.not_to change(PersistentAttachment, :count)
@@ -76,18 +76,18 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
 
     it 'logs the error' do
       VCR.use_cassette('uploads/validate_document') do
-        expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-527EZ',
+        expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-000',
                                                     hash_including(statsd: 'api.claim_documents.attempt'))
         expect(Rails.logger).not_to receive(:info).with(
-          /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/
+          /^Success creating PersistentAttachment FormID=21P-000 AttachmentID=\d+/
         )
         expect(Rails.logger).to receive(:error).with(
           'Input error creating PersistentAttachment ' \
-          'FormID=21P-527EZ AttachmentID= Common::Exceptions::UnprocessableEntity',
+          'FormID=21P-000 AttachmentID= Common::Exceptions::UnprocessableEntity',
           instance_of(Hash)
         )
 
-        params = { file:, form_id: '21P-527EZ' }
+        params = { file:, form_id: '21P-000' }
         post('/v0/claim_attachments', params:)
       end
     end

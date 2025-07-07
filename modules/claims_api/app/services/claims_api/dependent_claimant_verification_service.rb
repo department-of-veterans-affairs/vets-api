@@ -5,8 +5,8 @@ require 'bgs_service/redis/find_poas_service'
 
 module ClaimsApi
   class DependentClaimantVerificationService
-    CLAIMANT_NOT_A_DEPENDENT_ERROR_MESSAGE = 'The claimant is not listed as a dependent for the specified Veteran. ' \
-                                             'Please submit VA Form 21-686c to add this dependent.'
+    CLAIMANT_NOT_A_DEPENDENT_ERROR_MESSAGE = 'The claimant is not listed as a dependent of the Veteran.
+ This dependent relationship must be established in VBMS before a representative can be established.'
     POA_CODE_NOT_FOUND_ERROR_MESSAGE = 'The requested POA code could not be found.'
 
     attr_reader :claimant_participant_id, :claimant_ssn

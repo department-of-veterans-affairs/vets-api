@@ -42,7 +42,7 @@ module RepresentationManagement
       raise StandardError "#{field} does not have a truncation limit defined" unless limit
 
       if result.present?
-        result[0..limit - 1]
+        result[0..(limit - 1)]
       else
         ''
       end

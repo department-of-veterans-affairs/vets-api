@@ -26,7 +26,7 @@ RSpec.describe Burials::SavedClaim do
     end
   end
 
-  context 'a record is processed through v2' do
+  context 'a record is processed' do
     it 'inherits init callsbacks from saved_claim' do
       expect(subject.form_id).to eq('21P-530EZ')
       expect(subject.guid).not_to be_nil

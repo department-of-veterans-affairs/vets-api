@@ -313,6 +313,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         expect(response).to be_successful
+
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
+
+        first_message = data.first['attributes']
+        expect(first_message['is_oh_message']).to be(true)
       end
     end
 

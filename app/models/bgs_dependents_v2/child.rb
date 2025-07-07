@@ -106,7 +106,25 @@ module BGSDependentsV2
     end
 
     def child_status
-      CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
+      if @child_info['is_biological_child']
+        'Biological'
+      elsif @child_info['relationship_to_child']
+        # adopted, stepchild
+        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)] || 'Other'
+      elsif @child_info['child_status']
+        # v1 format - included in case of legacy data
+        # adopted, stepchild, child_under18, child_over18_in_school, disabled
+        CHILD_STATUS[@child_info['child_status']&.key(true)] || 'Other'
+      else
+        Rails.logger.warn(
+          'BGSDependentsV2::Child: Unable to determine child status', {
+            relationship_to_child: @child_info['relationship_to_child'],
+            child_status: @child_info['child_status'],
+            is_biological_child: @child_info['is_biological_child']
+          }
+        )
+        'Other'
+      end
     end
 
     def marriage_indicator

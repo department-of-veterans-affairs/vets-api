@@ -30,7 +30,7 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
 
     it 'includes :detail and truncates' do
       max_length = VBADocuments::UploadSerializer::MAX_DETAIL_DISPLAY_LENGTH
-      truncated_detail = "#{upload_submission_with_detail.detail[0..max_length - 1]}..."
+      truncated_detail = "#{upload_submission_with_detail.detail[0..(max_length - 1)]}..."
       expect(attributes_long_detail['detail']).to eq truncated_detail
     end
   end

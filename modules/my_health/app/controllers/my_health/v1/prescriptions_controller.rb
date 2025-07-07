@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::PrescriptionHelper::Sorting
       include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
@@ -15,17 +16,18 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
+        recently_requested = get_recently_requested_prescriptions(resource.data)
         raw_data = resource.data.dup
         resource.records = resource_data_modifications(resource)
 
         filter_count = set_filter_metadata(resource.data, raw_data)
         resource = apply_filters(resource) if params[:filter].present?
-        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
-        resource.records = sort_prescriptions_with_pd_at_top(resource.data)
+        resource = apply_sorting(resource, params[:sort])
+        resource.records = sort_prescriptions_with_pd_at_top(resource.records)
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
-        options = { meta: resource.metadata.merge(filter_count) }
+        options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
@@ -72,7 +74,7 @@ module MyHealth
           client.post_refill_rx(id)
           successful_ids << id
         rescue => e
-          puts "Error refilling prescription with ID #{id}: #{e.message}"
+          Rails.logger.debug { "Error refilling prescription with ID #{id}: #{e.message}" }
           failed_ids << id
         end
         render json: { successful_ids:, failed_ids: }
@@ -80,9 +82,10 @@ module MyHealth
 
       def list_refillable_prescriptions
         resource = collection_resource
+        recently_requested = get_recently_requested_prescriptions(resource.data)
         resource.records = filter_data_by_refill_and_renew(resource.data)
 
-        options = { meta: resource.metadata }
+        options = { meta: resource.metadata.merge(recently_requested:) }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
@@ -93,6 +96,12 @@ module MyHealth
       end
 
       private
+
+      def get_recently_requested_prescriptions(data)
+        data.select do |item|
+          ['Active: Refill in Process', 'Active: Submitted'].include?(item.disp_status)
+        end
+      end
 
       # rubocop:disable ThreadSafety/NewThread
       # New threads are joined at the end
@@ -105,7 +114,7 @@ module MyHealth
             threads << Thread.new(item) do |thread_item|
               thread_item.prescription_image = fetch_image(image_uri)
             rescue => e
-              puts "Error fetching image for NDC #{thread_item.cmop_ndc_number}: #{e.message}"
+              Rails.logger.debug { "Error fetching image for NDC #{thread_item.cmop_ndc_number}: #{e.message}" }
             end
           end
         end
@@ -187,9 +196,9 @@ module MyHealth
       def set_filter_metadata(list, non_modified_collection)
         {
           filter_count: {
-            all_medications: group_prescriptions(non_modified_collection).length,
+            all_medications: count_grouped_prescriptions(non_modified_collection),
             active: count_active_medications(list),
-            recently_requested: count_recently_requested_medications(list),
+            recently_requested: get_recently_requested_prescriptions(list).length,
             renewal: list.select(&method(:renewable)).length,
             non_active: count_non_active_medications(list)
           }
@@ -204,11 +213,6 @@ module MyHealth
         list.select { |rx| active_statuses.include?(rx.disp_status) }.length
       end
 
-      def count_recently_requested_medications(list)
-        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
-        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
-      end
-
       def count_non_active_medications(list)
         non_active_statuses = %w[Discontinued Expired Transferred Unknown]
         list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
@@ -221,15 +225,10 @@ module MyHealth
       end
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
-        prescriptions.sort do |a, b|
-          if a.prescription_source == 'PD' && b.prescription_source != 'PD'
-            -1
-          elsif a.prescription_source != 'PD' && b.prescription_source == 'PD'
-            1
-          else
-            0
-          end
-        end
+        pd_prescriptions = prescriptions.select { |med| med.prescription_source == 'PD' }
+        other_prescriptions = prescriptions.reject { |med| med.prescription_source == 'PD' }
+
+        pd_prescriptions + other_prescriptions
       end
     end
   end

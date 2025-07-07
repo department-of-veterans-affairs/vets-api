@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
+RSpec.describe 'DebtsApi::V0::OneDebtLetters', type: :request do
   let(:user) { build(:user, :loa3) }
 
   before do

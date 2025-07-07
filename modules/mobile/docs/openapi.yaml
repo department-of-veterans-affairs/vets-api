@@ -1882,6 +1882,53 @@ paths:
       security:
         - Bearer: []
       summary: /v0/enrollment-status
+  /v0/feature-toggles:
+    get:
+      description: Returns feature toggle values for mobile applications
+      parameters:
+        - description: Comma-separated list of feature toggle names to check
+          in: query
+          name: features
+          required: false
+          schema:
+            type: string
+        - description: Cookie ID for anonymous users
+          in: query
+          name: cookie_id
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      type:
+                        type: string
+                        example: feature_toggles
+                      features:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              example: featureName
+                            value:
+                              type: boolean
+                              example: true
+                type: object
+          description: Feature toggle values
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      security: []
+      summary: /v0/feature-toggles
   /v0/facilities-info:
     get:
       description: Retrieves facilities info for a user's va treatment facilities

@@ -7,6 +7,8 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
     subject { SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform }
 
     let(:service_account_access_token) { create(:service_account_access_token) }
+    let(:private_key) { OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_encode_key)) }
+    let(:jwk) { JWT::JWK.new(private_key) }
 
     context 'when input object is a service account access token' do
       let(:expected_iss) { SignIn::Constants::ServiceAccountAccessToken::ISSUER }
@@ -25,8 +27,9 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
         allow(SecureRandom).to receive(:hex).and_return(expected_jti)
       end
 
-      it 'returns an encoded jwt with expected parameters' do
+      it 'returns an encoded jwt with expected parameters and header' do
         decoded_jwt = OpenStruct.new(JWT.decode(subject, false, nil).first)
+        header = JWT.decode(subject, false, nil).last
         expect(decoded_jwt.iss).to eq expected_iss
         expect(decoded_jwt.aud).to eq expected_aud
         expect(decoded_jwt.jti).to eq expected_jti
@@ -38,6 +41,9 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
         expect(decoded_jwt.scopes).to eq expected_scopes
         expect(decoded_jwt.service_account_id).to eq expected_service_account_id
         expect(decoded_jwt.user_attributes).to eq expected_user_attributes
+        expect(header['alg']).to eq 'RS256'
+        expect(header['typ']).to eq 'JWT'
+        expect(header['kid']).to eq jwk.kid
       end
 
       context 'with optional user_attributes claim' do

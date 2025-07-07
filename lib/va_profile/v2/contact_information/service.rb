@@ -305,6 +305,7 @@ module VAProfile
 
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
+            verify_user!
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
             # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
             if log_transaction_id?

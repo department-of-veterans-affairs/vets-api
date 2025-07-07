@@ -9,9 +9,9 @@ module TestUserDashboard
     end
 
     def call
-      return unless row['idme_uuid'] || row['logingov_uuid']
+      return unless (row['idme_uuid'] || row['logingov_uuid']) && row['user_account_id']
 
-      account_details = row.merge(account_uuid: id_uuid,
+      account_details = row.merge(user_account_id:,
                                   id_types:,
                                   birth_date:,
                                   services:).compact
@@ -22,8 +22,10 @@ module TestUserDashboard
 
     private
 
-    def id_uuid
-      SecureRandom.uuid
+    def user_account_id
+      return unless row.key?('user_account_id')
+
+      row.delete('user_account_id')
     end
 
     def id_types

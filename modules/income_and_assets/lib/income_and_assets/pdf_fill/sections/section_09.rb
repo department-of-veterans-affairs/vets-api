@@ -48,7 +48,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'D',
             question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?',
-            question_label: 'Added Funds'
+            question_label: 'Added Funds',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9e
           'addedFundsDate' => {
@@ -82,7 +88,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'G',
             question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?',
-            question_label: 'Revocable or Irrevocable'
+            question_label: 'Revocable',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9h
           'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
@@ -90,7 +102,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'H',
             question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUITY?',
-            question_label: 'Receiving Income from Annuity'
+            question_label: 'Receiving Income from Annuity',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9i
           'annualReceivedIncome' => {
@@ -112,7 +130,13 @@ module IncomeAndAssets
             question_num: 9,
             question_suffix: 'J',
             question_text: 'CAN THE ANNUITY BE LIQUIDATED?',
-            question_label: 'Can Be Liquidated'
+            question_label: 'Can Be Liquidated',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 9k
           'surrenderValue' => {

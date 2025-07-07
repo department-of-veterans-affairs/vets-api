@@ -5,6 +5,8 @@ module VAOS
     # ReferralsController provides endpoints for fetching CCRA referrals
     # It uses the Ccra::ReferralService to interact with the underlying CCRA API
     class ReferralsController < VAOS::BaseController
+      REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
+
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
       # Filters out expired referrals and adds encrypted UUIDs for security
@@ -37,6 +39,7 @@ module VAOS
         # Add uuid to the detailed response
         response.uuid = referral_uuid
 
+        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: ['Community Care Appointments'])
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
 

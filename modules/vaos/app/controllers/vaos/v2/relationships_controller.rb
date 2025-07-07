@@ -6,7 +6,8 @@ module VAOS
       def index
         response = relationships_service.get_patient_relationships(
           relationships_params[:clinical_service_id],
-          relationships_params[:facility_id]
+          relationships_params[:facility_id],
+          relationships_params[:has_availability_before]
         )
 
         render json: response
@@ -21,6 +22,7 @@ module VAOS
       def relationships_params
         params.permit(:clinical_service_id)
         params.permit(:facility_id)
+        params.permit(:has_availability_before)
         params
       end
     end

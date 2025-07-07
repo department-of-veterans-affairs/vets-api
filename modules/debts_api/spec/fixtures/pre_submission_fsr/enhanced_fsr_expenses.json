@@ -2,6 +2,7 @@
   "view:enhanced_financial_status_report": true,
   "expenses": {
     "food": "4000.38",
+    "monthlyHousingExpenses": "2200.53",
     "expense_records": [
       {
         "name": "Rent",

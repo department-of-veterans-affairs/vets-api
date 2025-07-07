@@ -4,12 +4,10 @@ require 'rails_helper'
 require 'sidekiq/testing'
 
 RSpec.describe MHV::AccountCreatorJob, type: :job do
-  let(:user_account) { create(:user_account, icn:) }
-  let(:user_verification) { create(:user_verification, user_account:, user_credential_email:) }
-  let(:user_credential_email) { create(:user_credential_email, credential_email: email) }
-  let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+  let!(:user) { create(:user, :with_terms_of_use_agreement, icn:) }
+  let(:user_account) { user.user_account }
+  let(:user_verification) { user.user_verification }
   let(:icn) { '10101V964144' }
-  let(:email) { 'some-email@email.com' }
   let(:mhv_client) { instance_double(MHV::AccountCreation::Service) }
   let(:job) { described_class.new }
   let(:break_cache) { true }

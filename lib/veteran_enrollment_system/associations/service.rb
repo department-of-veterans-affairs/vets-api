@@ -16,7 +16,6 @@ module VeteranEnrollmentSystem
   module Associations
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
-      include HCA::EnrollmentSystem
 
       configuration VeteranEnrollmentSystem::Associations::Configuration
 
@@ -46,6 +45,7 @@ module VeteranEnrollmentSystem
         400 => Common::Exceptions::BadRequest,
         404 => Common::Exceptions::ResourceNotFound,
         500 => Common::Exceptions::ExternalServerInternalServerError,
+        502 => Common::Exceptions::BadGateway,
         504 => Common::Exceptions::GatewayTimeout
       }.freeze
 
@@ -66,7 +66,9 @@ module VeteranEnrollmentSystem
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.get_associations.failed")
-        Rails.logger.error("#{form_id} retrieve associations failed: #{e.errors}")
+        Rails.logger.error(
+          "#{form_id} get associations failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+        )
 
         raise e
       end
@@ -87,7 +89,9 @@ module VeteranEnrollmentSystem
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
-        Rails.logger.error("#{form_id} update associations failed: #{e.errors}")
+        Rails.logger.error(
+          "#{form_id} update associations failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+        )
 
         raise e
       end
@@ -149,9 +153,8 @@ module VeteranEnrollmentSystem
       def raise_error(response)
         message = response.body['messages']&.pluck('description')&.join(', ') || response.body
         # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
-        raise (
-          ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
-        ).new(errors: message)
+        raise ERROR_MAP[response.status].new(detail: message) ||
+              Common::Exceptions::BackendServiceException.new(nil, detail: message)
       end
 
       def handle_ves_update_response(response, form_id)

@@ -11,6 +11,20 @@ module DebtManagementCenter
       @file_number = init_file_number if @user.present?
     end
 
+    ##
+    # Measure the time taken to execute a block of code and send that timing metric to StatsD/Datadog.
+    #
+    # @param metric_key [String]
+    # @return [Hash]
+    #
+    def measure_latency(metric_key)
+      start_time = Time.current
+      result = yield
+      elapsed_time = (Time.current - start_time) * 1000
+      StatsD.measure(metric_key, elapsed_time)
+      result
+    end
+
     private
 
     def init_file_number

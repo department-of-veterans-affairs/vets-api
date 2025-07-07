@@ -5,7 +5,7 @@ require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_f
 require 'support/disability_compensation_form/shared_examples/intent_to_file_provider'
 
 RSpec.describe LighthouseIntentToFileProvider do
-  let(:current_user) { build(:user, :loa3) }
+  let(:current_user) { build(:user, :loa3, :legacy_icn) }
   let(:provider) { LighthouseIntentToFileProvider.new(current_user) }
 
   before do

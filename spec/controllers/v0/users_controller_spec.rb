@@ -17,7 +17,6 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before do
       sign_in_as(user)
-      create(:user_verification, idme_uuid: user.idme_uuid)
       create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
     end
 
@@ -57,7 +56,6 @@ RSpec.describe V0::UsersController, type: :controller do
     before do
       sign_in_as(user)
       Flipper.disable(:profile_user_claims)
-      create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
     it 'returns a JSON user profile with a bad_address' do
@@ -151,18 +149,29 @@ RSpec.describe V0::UsersController, type: :controller do
   end
 
   describe '#credential_emails' do
-    let(:user) { build(:user, :loa3) }
     let(:user_account) { create(:user_account) }
-    let(:user_credential_email1) { create(:user_credential_email, credential_email: 'email1@example.com') }
-    let(:user_credential_email2) { create(:user_credential_email, credential_email: 'email2@example.com') }
-    let!(:idme_user_verification) do
-      create(:user_verification, idme_uuid: user.idme_uuid, user_credential_email: user_credential_email1,
-                                 user_account_id: user_account.id)
+    let(:idme_user_verification) do
+      create(:idme_user_verification, user_account_id: user_account.id)
     end
-    let!(:logingov_user_verification) do
-      create(:user_verification, logingov_uuid: user.logingov_uuid, user_credential_email: user_credential_email2,
-                                 user_account_id: user_account.id)
+    let(:logingov_user_verification) do
+      create(:logingov_user_verification, user_account_id: user_account.id)
     end
+    let!(:user_credential_email1) do
+      create(:user_credential_email, user_verification: idme_user_verification, credential_email: 'email1@example.com')
+    end
+    let!(:user_credential_email2) do
+      create(:user_credential_email, user_verification: logingov_user_verification,
+                                     credential_email: 'email2@example.com')
+    end
+
+    let(:user) do
+      build(:user, :loa3, idme_uuid: idme_user_verification.idme_uuid,
+                          logingov_uuid: logingov_user_verification.logingov_uuid,
+                          icn: user_account.icn,
+                          user_account:,
+                          user_verification: idme_user_verification)
+    end
+
     let(:expected_response) do
       { idme_user_verification.credential_type => user_credential_email1.credential_email,
         logingov_user_verification.credential_type => user_credential_email2.credential_email }
@@ -179,12 +188,7 @@ RSpec.describe V0::UsersController, type: :controller do
     end
 
     context 'when a user verification does not have a credential email' do
-      let!(:logingov_user_verification) do
-        create(:user_verification,
-               logingov_uuid: user.logingov_uuid,
-               user_credential_email: nil,
-               user_account_id: user_account.id)
-      end
+      let!(:user_credential_email2) { nil }
       let(:expected_response) do
         { idme_user_verification.credential_type => user_credential_email1.credential_email }
       end

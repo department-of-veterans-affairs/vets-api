@@ -93,7 +93,8 @@ RSpec.describe BGSV2::Children do
             participant_relationship_type_name: 'Spouse',
             event_date: '2021-09-02',
             begin_date: '2021-09-02',
-            type: 'stepchild_parent'
+            type: 'stepchild_parent',
+            ssn_nbr: '987654321'
           )
         )
       end

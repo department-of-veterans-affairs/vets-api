@@ -57,6 +57,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959A Submission User Identity', identity:)
     end
 
+    def track_current_user_loa(current_user)
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      StatsD.increment("#{STATS_KEY}.#{current_user_loa}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959A Current User LOA', current_user_loa:)
+    end
+
     def track_email_usage
       email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
       StatsD.increment("#{STATS_KEY}.#{email_used}")

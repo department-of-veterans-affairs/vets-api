@@ -32,7 +32,10 @@ module V1
                        INTERSTITIAL_VERIFY = 'interstitial_verify',
                        INTERSTITIAL_SIGNUP = 'interstitial_signup',
                        MHV_EXCEPTION = 'mhv_exception',
-                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
+                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account',
+                       VERIFY_CTA_AUTHENTICATED = 'verify_cta_authenticated',
+                       VERIFY_PAGE_AUTHENTICATED = 'verify_page_authenticated',
+                       VERIFY_PAGE_UNAUTHENTICATED = 'verify_page_unauthenticated'].freeze
     CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
 
     # Collection Action: auth is required for certain types of requests
@@ -156,11 +159,11 @@ module V1
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
       mhv_unverified_validation(user_session_form.user)
-      user_verification = create_user_verification(user_session_form.user_identity)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
 
+      user_verification = current_user.user_verification
       if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
@@ -168,16 +171,6 @@ module V1
       end
       UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
-    end
-
-    def create_user_verification(user_identity)
-      Login::UserVerifier.new(login_type: user_identity.sign_in&.dig(:service_name),
-                              auth_broker: user_identity.sign_in&.dig(:auth_broker),
-                              mhv_uuid: user_identity.mhv_credential_uuid,
-                              idme_uuid: user_identity.idme_uuid,
-                              dslogon_uuid: user_identity.edipi,
-                              logingov_uuid: user_identity.logingov_uuid,
-                              icn: user_identity.icn).perform
     end
 
     def mhv_unverified_validation(user)

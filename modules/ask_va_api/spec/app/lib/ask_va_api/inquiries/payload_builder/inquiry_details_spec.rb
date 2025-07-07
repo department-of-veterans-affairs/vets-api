@@ -195,4 +195,152 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
       end
     end
   end
+
+  describe 'education-related inquiry methods' do
+    subject(:inquiry_details) { described_class.new(params) }
+
+    let(:params) do
+      {
+        select_category: category,
+        select_topic: topic
+      }
+    end
+
+    describe '#education_benefits?' do
+      context 'when category is Education benefits and work study' do
+        let(:category) { 'Education benefits and work study' }
+
+        context 'and topic is NOT Veteran Readiness and Employment (Chapter 31)' do
+          let(:topic) { 'Montgomery GI Bill' }
+
+          it 'returns true' do
+            expect(inquiry_details.education_benefits?).to be true
+          end
+        end
+
+        context 'and topic is Post-9/11 GI Bill' do
+          let(:topic) { 'Post-9/11 GI Bill' }
+
+          it 'returns true' do
+            expect(inquiry_details.education_benefits?).to be true
+          end
+        end
+
+        context 'and topic is Veteran Readiness and Employment (Chapter 31)' do
+          let(:topic) { 'Veteran Readiness and Employment (Chapter 31)' }
+
+          it 'returns false (VR&E exception)' do
+            expect(inquiry_details.education_benefits?).to be false
+          end
+        end
+      end
+
+      context 'when category is NOT Education benefits and work study' do
+        let(:category) { 'Health care' }
+        let(:topic) { 'Montgomery GI Bill' }
+
+        it 'returns false' do
+          expect(inquiry_details.education_benefits?).to be false
+        end
+      end
+
+      context 'when category is nil' do
+        let(:category) { nil }
+        let(:topic) { 'Montgomery GI Bill' }
+
+        it 'returns false' do
+          expect(inquiry_details.education_benefits?).to be false
+        end
+      end
+    end
+
+    describe '#benefits_outside_us_edu?' do
+      context 'when category is Benefits issues outside the U.S.' do
+        let(:category) { 'Benefits issues outside the U.S.' }
+
+        context 'and topic is Education benefits and work study' do
+          let(:topic) { 'Education benefits and work study' }
+
+          it 'returns true' do
+            expect(inquiry_details.send(:benefits_outside_us_edu?)).to be true
+          end
+        end
+
+        context 'and topic is NOT Education benefits and work study' do
+          let(:topic) { 'Other benefits' }
+
+          it 'returns false' do
+            expect(inquiry_details.send(:benefits_outside_us_edu?)).to be false
+          end
+        end
+      end
+
+      context 'when category is NOT Benefits issues outside the U.S.' do
+        let(:category) { 'Health care' }
+        let(:topic) { 'Education benefits and work study' }
+
+        it 'returns false' do
+          expect(inquiry_details.send(:benefits_outside_us_edu?)).to be false
+        end
+      end
+    end
+
+    describe '#inquiry_education_related?' do
+      context 'when education_benefits? is true' do
+        let(:category) { 'Education benefits and work study' }
+        let(:topic) { 'Montgomery GI Bill' }
+
+        it 'returns true' do
+          expect(inquiry_details.inquiry_education_related?).to be true
+        end
+      end
+
+      context 'when benefits_outside_us_edu? is true' do
+        let(:category) { 'Benefits issues outside the U.S.' }
+        let(:topic) { 'Education benefits and work study' }
+
+        it 'returns true' do
+          expect(inquiry_details.inquiry_education_related?).to be true
+        end
+      end
+
+      context 'when VR&E topic (should NOT require authentication)' do
+        let(:category) { 'Education benefits and work study' }
+        let(:topic) { 'Veteran Readiness and Employment (Chapter 31)' }
+
+        it 'returns false' do
+          expect(inquiry_details.inquiry_education_related?).to be false
+        end
+      end
+
+      context 'when neither education_benefits? nor benefits_outside_us_edu? is true' do
+        let(:category) { 'Health care' }
+        let(:topic) { 'Audiology and hearing aids' }
+
+        it 'returns false' do
+          expect(inquiry_details.inquiry_education_related?).to be false
+        end
+      end
+
+      context 'edge cases' do
+        context 'when category is nil' do
+          let(:category) { nil }
+          let(:topic) { 'Montgomery GI Bill' }
+
+          it 'returns false' do
+            expect(inquiry_details.inquiry_education_related?).to be false
+          end
+        end
+
+        context 'when topic is nil' do
+          let(:category) { 'Education benefits and work study' }
+          let(:topic) { nil }
+
+          it 'returns true (education category without VR&E topic)' do
+            expect(inquiry_details.inquiry_education_related?).to be true
+          end
+        end
+      end
+    end
+  end
 end

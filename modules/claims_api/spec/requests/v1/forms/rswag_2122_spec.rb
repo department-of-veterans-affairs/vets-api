@@ -734,11 +734,11 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
           before do |example|
             stub_poa_verification
+            create(:representative, first_name: 'Abraham', last_name: 'Lincoln', poa_codes: %w[A01])
 
             mock_acg(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              allow(Veteran::Service::Representative).to receive(:for_user).and_return(true)
-              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
@@ -806,7 +806,6 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
             mock_acg(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               allow(Veteran::Service::Representative).to receive(:for_user).and_return(true)
-              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil)
               submit_request(example.metadata)
             end
           end

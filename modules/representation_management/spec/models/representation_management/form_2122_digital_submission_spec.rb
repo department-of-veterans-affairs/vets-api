@@ -76,7 +76,6 @@ RSpec.describe RepresentationManagement::Form2122DigitalSubmission, type: :model
     subject { described_class.new(user:, dependent:, organization_id:) }
 
     let(:user) { create(:user, :loa3) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:dependent) { false }
     let(:organization_id) { 'ABC' }
 

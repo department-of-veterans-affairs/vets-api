@@ -5,7 +5,7 @@ require 'lighthouse/benefits_documents/service'
 require 'lighthouse/service_exception'
 
 RSpec.describe V0::BenefitsDocumentsController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, uuid: '1234', icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn, uuid: '1234') }
 
   before do
     sign_in_as(user)

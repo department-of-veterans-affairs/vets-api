@@ -21,7 +21,7 @@ module MyHealth
     # the real resource to the block.
     #
     def with_patient_resource(resource)
-      if resource == :patient_not_found
+      if resource.equal?(:patient_not_found)
         render plain: '', status: :accepted
       else
         yield resource
@@ -29,7 +29,7 @@ module MyHealth
     end
 
     def render_resource(resource)
-      if resource == :patient_not_found
+      if resource.equal?(:patient_not_found)
         render plain: '', status: :accepted
       else
         render json: resource.to_json

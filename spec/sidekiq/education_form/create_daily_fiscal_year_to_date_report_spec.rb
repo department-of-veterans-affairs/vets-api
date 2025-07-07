@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'feature_flipper'
 
 def get_education_form_fixture(filename)
   get_fixture("education_form/#{filename}")

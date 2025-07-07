@@ -162,12 +162,10 @@ module BBInternal
     # body via the provided yielder.
     #
     def get_dicom(id, header_callback, yielder)
-      with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        study_id = get_study_id_from_cache(id)
-        uri = URI.join(config.base_path,
-                       "bluebutton/studyjob/zip/stream/#{session.patient_id}/studyidUrn/#{study_id}")
-        streaming_get(uri, token_headers, header_callback, yielder)
-      end
+      study_id = get_study_id_from_cache(id)
+      uri = URI.join(config.base_path_non_gateway,
+                     "bluebutton/studyjob/zip/stream/#{session.patient_id}/studyidUrn/#{study_id}")
+      streaming_get(uri, token_headers, header_callback, yielder)
     end
 
     ##
@@ -188,12 +186,14 @@ module BBInternal
     # @return - Continuity of Care Document in XML format
     #
     def get_download_ccd(date)
-      with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        modified_headers = token_headers.dup
-        modified_headers['Accept'] = 'application/xml'
-        response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, modified_headers)
-        response.body
-      end
+      modified_headers = token_headers.dup
+      modified_headers['Accept'] = 'application/xml'
+      response = config.connection_non_gateway.get(
+        "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML",
+        nil,
+        modified_headers
+      )
+      response.body
     end
 
     ##
@@ -376,12 +376,25 @@ module BBInternal
       conn.in_parallel do
         call_lambdas.each do |key, request_lambda|
           deferred[key] = request_lambda.call(conn)
-        rescue => e
-          errors[key] = { message: e.message, class: e.class.name }
         end
       end
 
-      responses = deferred.transform_values(&:body) # now safe
+      responses = {}
+      deferred.each do |key, resp|
+        # We are not using Faraday's :raise_custom_error for parallel requests,
+        # so we need to handle errors manually.
+        if resp.success?
+          # For 200–299, populate the responses hash
+          responses[key] = resp.body
+        else
+          # For any other status, populate the errors hash
+          errors[key] = {
+            status: resp.status,
+            message: resp.body.presence || resp.reason_phrase || nil
+          }
+        end
+      end
+
       { responses:, errors: }
     end
 

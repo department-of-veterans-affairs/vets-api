@@ -40,10 +40,6 @@ module Mobile
 
         private
 
-        def appointments_helper
-          Mobile::AppointmentsHelper.new(@user)
-        end
-
         def vaos_v2_appointments_service
           VAOS::V2::AppointmentsService.new(@user)
         end

@@ -206,7 +206,6 @@ RSpec.describe InProgressForm, type: :model do
 
     let(:form_id) { in_progress_form.form_id }
     let(:user) { create(:user) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
     context 'and in progress form exists associated with user uuid' do
       let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
@@ -231,7 +230,6 @@ RSpec.describe InProgressForm, type: :model do
     subject { InProgressForm.for_user(user) }
 
     let(:user) { create(:user) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
     let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
     let(:expected_in_progress_forms_id) { [in_progress_form_user_uuid.id, in_progress_form_user_account.id] }

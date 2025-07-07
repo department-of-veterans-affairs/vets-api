@@ -10334,7 +10334,6 @@
                         },
                         "claimant": {
                           "firstName": null,
-                          "middleName": null,
                           "lastName": null
                         },
                         "address": {
@@ -10365,7 +10364,6 @@
                         },
                         "claimant": {
                           "firstName": null,
-                          "middleName": null,
                           "lastName": null
                         },
                         "address": {
@@ -10396,7 +10394,6 @@
                         },
                         "claimant": {
                           "firstName": null,
-                          "middleName": null,
                           "lastName": null
                         },
                         "address": {
@@ -10826,7 +10823,6 @@
                       },
                       "claimant": {
                         "firstName": null,
-                        "middleName": null,
                         "lastName": null
                       },
                       "address": {

@@ -3,10 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe Users::Profile do
-  let(:user) { build(:user, :accountable) }
-  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+  let!(:user_verification) { create(:user_verification) }
+  let(:user_account) { user_verification.user_account }
+  let(:user) do
+    build(:user, :accountable, user_account:, icn: user_account.icn, user_verification:,
+                               idme_uuid: user_verification.idme_uuid)
+  end
   let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
-  let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
+  let!(:in_progress_form_user_account) { create(:in_progress_form, user_account:) }
 
   describe '.initialize' do
     let(:users_profile) { Users::Profile.new(user) }
@@ -21,9 +25,9 @@ RSpec.describe Users::Profile do
 
     context 'when initialized with a non-User object' do
       it 'raises an exception' do
-        account = build(:account)
+        user_account = build(:user_account)
 
-        expect { Users::Profile.new(account) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { Users::Profile.new(user_account) }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end
   end
@@ -77,12 +81,6 @@ RSpec.describe Users::Profile do
 
       it 'includes metadata' do
         expect(subject.in_progress_forms.map { |form| form[:metadata] }).to match_array(expected_forms_metadata)
-      end
-    end
-
-    describe '#account' do
-      it 'includes account uuid' do
-        expect(subject.account[:account_uuid]).to eq(user.account_uuid)
       end
     end
 

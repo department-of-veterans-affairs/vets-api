@@ -29,7 +29,7 @@ module SignIn
     end
 
     def validate_issuer
-      if issuer != audience
+      if issuer != service_account_id && issuer != audience
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion issuer is not valid'
       end
     end
@@ -104,7 +104,8 @@ module SignIn
     end
 
     def service_account_id
-      @service_account_id ||= decoded_assertion_without_validation.service_account_id
+      @service_account_id ||= decoded_assertion_without_validation.service_account_id ||
+                              decoded_assertion_without_validation.iss
     end
 
     def scopes
@@ -144,7 +145,8 @@ module SignIn
     end
 
     def jwt_decode(with_validation: true)
-      assertion_public_keys = with_validation ? service_account_config.assertion_public_keys : nil
+      assertion_public_keys = with_validation ? service_account_config.certs.map(&:public_key) : nil
+
       decoded_jwt = JWT.decode(
         assertion,
         assertion_public_keys,

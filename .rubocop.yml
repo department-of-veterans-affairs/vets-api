@@ -112,6 +112,7 @@ Metrics/ClassLength:
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -155,6 +156,11 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/education_benefits_claim.rb"
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
+    - modules/accredited_representative_portal/app/models/accredited_representative_portal/power_of_attorney_request.rb
+    - modules/accredited_representative_portal/app/models/accredited_representative_portal/power_of_attorney_request_resolution.rb
+    - modules/accredited_representative_portal/app/models/accredited_representative_portal/saved_claim/benefits_intake.rb
+    - modules/income_limits/app/models/std_state.rb
+
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
@@ -375,3 +381,41 @@ Layout/EmptyLineBetweenDefs:
 
 Cops/AmsSerializer:
   Enabled: true
+
+Rails/Exit:
+  Exclude:
+    - bin/**/*.rb
+    - modules/mobile/lib/scripts/parse_rspec_xml.rb
+
+# kms_encrypted_model_patch is for a gem and the method name shouldn't be changed
+Naming/PredicatePrefix:
+  Exclude:
+    - app/models/concerns/kms_encrypted_model_patch.rb
+    - app/models/preneeds/burial_form.rb
+
+Rails/UnusedIgnoredColumns:
+  Exclude:
+    - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
+
+Rails/InverseOf:
+  Exclude:
+    - modules/income_limits/app/models/std_state.rb
+    - modules/accredited_representative_portal/app/models/accredited_representative_portal/power_of_attorney_request.rb
+    - modules/accredited_representative_portal/app/models/accredited_representative_portal/power_of_attorney_request_notification.rb
+    - modules/accredited_representative_portal/app/models/accredited_representative_portal/saved_claim/benefits_intake.rb
+
+Lint/DuplicateMethods:
+  Exclude:
+    - modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb
+
+Rails/UniqueValidationWithoutIndex:
+  Exclude:
+    - modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - 'rakelib/decision_review_repl.rb'
+
+Style/SafeNavigation:
+  Exclude:
+    - 'modules/mobile/app/models/mobile/v0/adapters/immunizations.rb'

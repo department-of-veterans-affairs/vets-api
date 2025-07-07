@@ -19,6 +19,7 @@
       "required": [
         "updatedAt",
         "failedStationList",
+        "recentlyRequested",
         "sort"
       ],
       "properties": {
@@ -33,6 +34,10 @@
         },
         "filter": {
           "type": "object"
+        },
+        "recentlyRequested": {
+          "type": "array",
+          "items": { "type": "object" }
         },
         "filterCount": { 
           "type": "object",

@@ -1,0 +1,52 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://btsss.gov/api/v2/appointments/find-or-add
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: ' 
+        { "data": [
+          {
+            "id": "aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e",
+            "appointmentSource": "API",
+            "appointmentDateTime": "2024-01-01T16:45:34.465Z",
+            "appointmentName": "string",
+            "appointmentType": "EnvironmentalHealth",
+            "facilityName": "Cheyenne VA Medical Center",
+            "serviceConnectedDisability": 30,
+            "currentStatus": "string",
+            "appointmentStatus": "Completed",
+            "externalAppointmentId": "12345678-0000-0000-0000-000000000001",
+            "associatedClaimId": null,
+            "associatedClaimNumber": null,
+            "isCompleted": true
+          },
+          {
+            "id": "af8934a5-9de5-4f1c-b3de-89a2f2f2ef42",
+            "appointmentSource": "API",
+            "appointmentDateTime": "2024-03-01T16:45:34.465Z",
+            "appointmentName": "string",
+            "appointmentType": "EnvironmentalHealth",
+            "facilityName": "Cheyenne VA Medical Center",
+            "serviceConnectedDisability": 30,
+            "currentStatus": "string",
+            "appointmentStatus": "Completed",
+            "externalAppointmentId": "12345678-0000-0000-0000-000000000002",
+            "associatedClaimId": null,
+            "associatedClaimNumber": null,
+            "isCompleted": true
+          }
+        ] 
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT

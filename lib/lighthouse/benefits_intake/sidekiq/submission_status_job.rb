@@ -9,6 +9,7 @@ module BenefitsIntake
     include Sidekiq::Job
 
     sidekiq_options retry: false
+    attr_reader :pending_attempts
 
     STATS_KEY = 'api.benefits_intake.submission_status'
     STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
@@ -53,16 +54,9 @@ module BenefitsIntake
 
       log(:info, 'started')
 
-      pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission).to_a
+      @pending_attempts = pending_submission_attempts(form_id)
 
-      # filter running this job to the specific form_id
-      form_ids = FORM_HANDLERS.keys.map(&:to_s)
-      form_ids &= [form_id.to_s] if form_id
-      log(:info, "processing forms #{form_ids}")
-
-      pending_attempts.select! { |pa| form_ids.include?(pa.form_submission.form_type) }
-
-      batch_process(pending_attempts) unless pending_attempts.empty?
+      batch_process
 
       log(:info, 'ended')
     rescue => e
@@ -87,8 +81,10 @@ module BenefitsIntake
 
     # process a set of pending attempts
     #
-    # @param pending_attempts [Array<FormSubmissionAttempt>] list of pending attempts to process
-    def batch_process(pending_attempts)
+    # list of pending attempts to process
+    def batch_process
+      return if pending_attempts.blank?
+
       intake_service = BenefitsIntake::Service.new
 
       pending_attempts.each_slice(batch_size) do |batch|
@@ -106,11 +102,36 @@ module BenefitsIntake
       end
     end
 
-    # mapping of benefits_intake_uuid to FormSubmissionAttempt
+    # retrieve all pending attempts for the specified form_id
+    #
+    # @param form_type [String] the form ID to filter attempts by, or nil for all forms
+    #
+    # @return [Array<Lighthouse::SubmissionAttempt and/or FormSubmissionAttempt>] list of
+    # pending attempts for the specified form
+    #
+    def pending_submission_attempts(form_type)
+      # filter running this job to the specific form_id
+      form_ids = FORM_HANDLERS.keys.map(&:to_s)
+      form_ids &= [form_type.to_s] if form_type
+      attempts = []
+
+      log(:info, "processing forms #{form_ids}")
+
+      form_ids.each do |form_id|
+        handler = FORM_HANDLERS[form_id]
+
+        next unless handler.respond_to?(:pending_attempts)
+
+        attempts += handler.pending_attempts
+      end
+
+      attempts
+    end
+
+    # mapping of benefits_intake_uuid to Lighthouse::SubmissionAttempt
     # improves lookup during processing
     def pending_attempts_hash
-      @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
-                                    .index_by(&:benefits_intake_uuid)
+      @pah ||= pending_attempts.index_by(&:benefits_intake_uuid)
     end
 
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
@@ -137,26 +158,11 @@ module BenefitsIntake
     # @param status [String] the returned status
     # @param submission [Hash] the full data hash returned for this record
     def update_attempt_record(uuid, status, submission)
-      form_submission_attempt = pending_attempts_hash[uuid]
-      form_submission_attempt.update(lighthouse_updated_at: submission.dig('attributes', 'updated_at'))
-
-      case status
-      when 'expired'
-        # Indicates that documents were not successfully uploaded within the 15-minute window.
-        error_message = 'expired'
-        form_submission_attempt.fail!
-
-      when 'error'
-        # Indicates that there was an error. Refer to the error code and detail for further information.
-        error_message = "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
-        form_submission_attempt.fail!
-
-      when 'vbms'
-        # Submission was successfully uploaded into a Veteran's eFolder within VBMS
-        form_submission_attempt.vbms!
-      end
-
-      form_submission_attempt.update(error_message:)
+      submission_attempt = pending_attempts_hash[uuid]
+      form_id = submission_attempt.submission.form_id
+      saved_claim_id = submission_attempt.submission.saved_claim_id
+      handler = FORM_HANDLERS[form_id].new(saved_claim_id)
+      handler.update_attempt_record(status, submission, submission_attempt)
     end
 
     # monitoring of the submission attempt status
@@ -200,20 +206,27 @@ module BenefitsIntake
     #
     # @return [Hash] context of attempt result, payload suited for logging and handlers
     def attempt_status_result_context(uuid, status)
-      form_submission_attempt = pending_attempts_hash[uuid]
+      submission_attempt = pending_attempts_hash[uuid]
+      if submission_attempt.is_a?(Lighthouse::SubmissionAttempt)
+        submission = submission_attempt.submission
+        form_id = submission.form_id
+      else
+        submission = submission_attempt.form_submission
+        form_id = submission.form_type
+      end
 
-      queue_time = (Time.zone.now - form_submission_attempt.created_at).truncate
+      queue_time = (Time.zone.now - submission_attempt.created_at).truncate
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
       {
-        form_id: form_submission_attempt.form_submission.form_type,
-        saved_claim_id: form_submission_attempt.form_submission.saved_claim_id,
+        form_id:,
+        saved_claim_id: submission.saved_claim_id,
         uuid:,
         status:,
         result:,
         queue_time:,
-        error_message: form_submission_attempt.error_message
+        error_message: submission_attempt.error_message
       }
     end
 
