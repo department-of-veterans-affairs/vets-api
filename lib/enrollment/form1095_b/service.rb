@@ -28,20 +28,6 @@ module Enrollment
         super()
       end
 
-      # Fetch Form 1095-B data from the enrollment system
-      #
-      # @param tax_year [Integer] The tax year for which to fetch the form
-      # @return [Hash] The form data returned by the enrollment system
-      # @raise [Common::Exceptions::BackendServiceException] If the upstream service returns an error
-      def get_form(tax_year:)
-        with_monitoring do
-          response = perform(:get, form_path(tax_year), nil, request_headers)
-          response.body
-        end
-      rescue Faraday::Error => e
-        handle_error(e)
-      end
-
       # Fetch Form 1095-B data by ICN from the enrollment system
       #
       # @param icn [String] The ICN of the veteran

@@ -48,7 +48,7 @@ RSpec.describe Enrollment::Form1095B::Service do
       it 'makes a request with the correct path' do
         expect_any_instance_of(Common::Client::Base).to receive(:perform).with(
           :get,
-          "form1095b/#{tax_year}/icn/#{icn}",
+          "form1095b/#{icn}/#{tax_year}",
           nil,
           hash_including('X-VA-ICN' => user.icn)
         ).and_return(OpenStruct.new(body: {}))
@@ -75,7 +75,7 @@ RSpec.describe Enrollment::Form1095B::Service do
     it 'can still make requests without user headers' do
       allow_any_instance_of(Common::Client::Base).to receive(:perform).with(
         :get,
-        "form1095b/#{tax_year}/icn/#{icn}",
+        "form1095b/#{icn}/#{tax_year}",
         nil,
         {}
       ).and_return(OpenStruct.new(body: {}))
