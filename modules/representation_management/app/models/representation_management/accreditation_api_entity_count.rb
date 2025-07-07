@@ -20,6 +20,7 @@ module RepresentationManagement
 
     # Entity types supported by the GCLAWS API
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
+    ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
     # The maximum allowed percentage decrease between consecutive counts
     # If the new count is less than (previous count * (1 - DECREASE_THRESHOLD)),
@@ -107,11 +108,16 @@ module RepresentationManagement
       latest_counts = RepresentationManagement::AccreditationApiEntityCount.order(created_at: :desc).first
       # All of the counts fallback to counting records in the database if the latest counts are not available.
       {
-        agents: latest_counts&.agents || individual_count('claims_agent'),
-        attorneys: latest_counts&.attorneys || individual_count('attorney'),
-        representatives: latest_counts&.representatives || individual_count('representative'),
-        veteran_service_organizations: latest_counts&.veteran_service_organizations || AccreditedOrganization.count
+        agents: latest_counts&.agents || fallback_individual_count('agents'),
+        attorneys: latest_counts&.attorneys || fallback_individual_count('attorneys'),
+        representatives: latest_counts&.representatives || fallback_individual_count('representatives'),
+        veteran_service_organizations: latest_counts&.veteran_service_organizations ||
+          AccreditedOrganization.count
       }
+    end
+
+    def fallback_individual_count(entity_type)
+      individual_count(ENTITY_CONFIG.send(entity_type).individual_type)
     end
 
     # Counts the number of accredited individuals of a specific type
