@@ -39,8 +39,6 @@ class UserIdentity < Common::RedisModel
   validates :loa, presence: true
   validate :loa_highest_present
 
-  # I think we can technically define hash as a custom type with ActiveModel::Type
-  # as another solution instead of using string and serializing manually
   def sign_in
     @sign_in ||= JSON.parse(super || '{}')
   end
