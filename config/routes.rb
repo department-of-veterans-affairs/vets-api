@@ -122,7 +122,7 @@ Rails.application.routes.draw do
     resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
-        get(:enrollment_status)
+        match(:enrollment_status, via: %i[get post])
         get(:rating_info)
         get(:facilities)
         post(:download_pdf)
