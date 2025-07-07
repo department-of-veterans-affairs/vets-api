@@ -47,7 +47,6 @@ ALLOWLIST = %w[
   in_progress_form_id
   benefits_intake_uuid
   call_location
-  extra
   service
   use_v2
   line
