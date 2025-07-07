@@ -47,11 +47,8 @@ ALLOWLIST = %w[
   in_progress_form_id
   benefits_intake_uuid
   call_location
-  file
-  attachments
   extra
   service
-  use_v2
   line
 ].freeze
 
