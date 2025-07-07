@@ -33,7 +33,7 @@ features:
   accredited_representative_portal_normalize_path:
     actor_type: user
     description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to 
+      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
       use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
       NOTE: This should only be enabled in localhost and staging.
     enable_in_development: true
@@ -182,6 +182,10 @@ features:
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
+    enable_in_development: true
+  ezr_download_pdf_enabled:
+    actor_type: user
+    description: Enables the download of a pre-filled 10-10EZR PDF form.
     enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
@@ -1078,6 +1082,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  log_eligible_benefits:
+    actor_type: user
+    description: Allows log_eligible_benefits_job.rb to run in background.
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -1865,10 +1873,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_convert_slots_to_utc:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for for converting the start & end times in slots fetch to UTC.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
