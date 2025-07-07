@@ -60,12 +60,16 @@ module PdfFill
 
     def set_font(pdf)
       pdf.font_families.update(
-        'SourceSansPro' => {
-          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'),
-          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf')
+        'Roboto' => {
+          # Force full font embedding (subset: false) to ensure @ symbols display correctly in Adobe Reader.
+          # Font subsetting was excluding the @ character, causing email addresses to display incorrectly
+          # as "user email.com" instead of "user@email.com" in Adobe Reader specifically.
+          # https://github.com/prawnpdf/prawn/blob/master/lib/prawn/font.rb
+          normal: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'), subset: false },
+          bold: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf'), subset: false }
         }
       )
-      pdf.font('SourceSansPro')
+      pdf.font('Roboto')
     end
 
     def generate
