@@ -295,15 +295,15 @@ module Burials
             'dateRangeStart' => {
               key: "form1[0].#subform[82].DATE_ENTERED_SERVICE[#{ITERATOR}]",
               question_num: 14,
-              question_suffix: 'A',
+              question_suffix: 'A(1)',
               question_text: 'ENTERED SERVICE (date)',
               format: 'date'
             },
             'placeOfEntry' => {
               key: "form1[0].#subform[82].PLACE[#{ITERATOR}]",
-              limit: 14,
+              limit: 25,
               question_num: 14,
-              question_suffix: 'A',
+              question_suffix: 'A(2)',
               question_text: 'ENTERED SERVICE (place)'
             },
             'militaryServiceNumber' => {
@@ -316,30 +316,23 @@ module Burials
             'dateRangeEnd' => {
               key: "form1[0].#subform[82].DATE_SEPARATED_SERVICE[#{ITERATOR}]",
               question_num: 14,
-              question_suffix: 'C',
+              question_suffix: 'C(1)',
               question_text: 'SEPARATED FROM SERVICE (date)',
               format: 'date'
             },
             'placeOfSeparation' => {
               key: "form1[0].#subform[82].PLACE_SEPARATED[#{ITERATOR}]",
               question_num: 14,
-              question_suffix: 'C',
+              question_suffix: 'C(2)',
               question_text: 'SEPARATED FROM SERVICE (place)',
-              limit: 15
+              limit: 25
             },
             'rank' => {
               key: "form1[0].#subform[82].GRADE_RANK_OR_RATING[#{ITERATOR}]",
               question_num: 14,
-              question_suffix: 'D',
+              question_suffix: 'D(1)',
               question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
               limit: 31
-            },
-            'unit' => {
-              key: "form1[0].#subform[82].GRADE_RANK_OR_RATING_UNIT[#{ITERATOR}]",
-              question_num: 14,
-              question_suffix: 'D',
-              question_text: 'UNIT',
-              limit: 0
             }
           },
           'previousNames' => {
@@ -382,10 +375,7 @@ module Burials
             }
           },
           'hasNationalOrFederal' => {
-            key: 'form1[0].#subform[37].FederalCemeteryYES[0]'
-          },
-          'noNationalOrFederal' => {
-            key: 'form1[0].#subform[37].FederalCemeteryNo[0]'
+            key: 'form1[0].#subform[37].FederalCemetery[0]'
           },
           'name' => {
             key: 'form1[0].#subform[37].FederalCemeteryName[0]',
@@ -408,10 +398,7 @@ module Burials
             key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustZip[2]'
           },
           'hasGovtContributions' => {
-            key: 'form1[0].#subform[37].GovContributionYES[0]'
-          },
-          'noGovtContributions' => {
-            key: 'form1[0].#subform[37].GovContributionNo[0]'
+            key: 'form1[0].#subform[37].GovContribution[0]'
           },
           'amountGovtContribution' => {
             key: 'form1[0].#subform[37].AmountGovtContribution[0]',
@@ -468,10 +455,7 @@ module Burials
             }
           },
           'hasPreviouslyReceivedAllowance' => {
-            key: 'form1[0].#subform[83].PreviousAllowanceYes[0]'
-          },
-          'noPreviouslyReceivedAllowance' => {
-            key: 'form1[0].#subform[83].PreviousAllowanceNo[0]'
+            key: 'form1[0].#subform[83].PreviousAllowance[0]'
           },
           'hasBurialExpenseResponsibility' => {
             key: 'form1[0].#subform[83].ResponsibleForBurialCostYes[0]'
@@ -480,10 +464,7 @@ module Burials
             key: 'form1[0].#subform[83].ResponsibleForBurialCostNo[0]'
           },
           'hasConfirmation' => {
-            key: 'form1[0].#subform[83].certifyUnclaimedYes[0]'
-          },
-          'noConfirmation' => {
-            key: 'form1[0].#subform[83].certifyUnclaimedNo[0]'
+            key: 'form1[0].#subform[83].CertifyUnclaimed[0]'
           },
           'hasPlotExpenseResponsibility' => {
             key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostYes[0]'
@@ -492,10 +473,7 @@ module Burials
             key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostNo[0]'
           },
           'hasTransportation' => {
-            key: 'form1[0].#subform[83].ResponsibleForTransportationYes[0]'
-          },
-          'noTransportation' => {
-            key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
+            key: 'form1[0].#subform[83].ResponsibleForTransportation[0]'
           },
           'hasProcessOption' => {
             key: 'form1[0].#subform[83].WantClaimFDCProcessedYes[0]'
@@ -600,19 +578,26 @@ module Burials
         # @return [Hash]
         def expand_checkbox(value, key)
           {
-            "has#{key}" => value == true ? 'YES' : nil,
-            "no#{key}" => value == false ? 'NO' : nil
+            "has#{key}" => value == true ? 'On' : nil,
+            "no#{key}" => value == false ? 'On' : nil
           }
         end
 
         ##
         # Expands a checkbox value within a hash and updates it in place
+        # Returns nil if the key is not present in the hash.
+        # This behavior stems from VBA's requirement that boolean values
+        # remain empty on the PDF if not selected on the online form.
+        #
+        # For more context, see this PR: https://github.com/department-of-veterans-affairs/vets-api/pull/22958
         #
         # @param hash [Hash]
         # @param key [String]
         #
         # @return [Hash]
         def expand_checkbox_in_place(hash, key)
+          return nil if hash[key].nil?
+
           hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
         end
 
@@ -627,7 +612,7 @@ module Burials
 
           tours_of_duty.each do |tour_of_duty|
             expand_date_range(tour_of_duty, 'dateRange')
-            tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank], ', ')
+            tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank unit], ', ')
             tour_of_duty['militaryServiceNumber'] = @form_data['militaryServiceNumber']
           end
         end
@@ -665,6 +650,7 @@ module Burials
         #
         # @return [void]
         def expand_burial_allowance
+          @form_data['hasPreviouslyReceivedAllowance'] = select_radio(@form_data['previouslyReceivedAllowance'])
           burial_allowance = @form_data['burialAllowanceRequested']
           return if burial_allowance.blank?
 
@@ -683,7 +669,8 @@ module Burials
         # @return [void]
         def expand_cemetery_location
           cemetery_location = @form_data['cemeteryLocation']
-          return if cemetery_location.blank?
+          cemetery_location_question = @form_data['cemetaryLocationQuestion']
+          return unless cemetery_location.present? && cemetery_location_question == 'cemetery'
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
@@ -695,7 +682,8 @@ module Burials
         # @return [void]
         def expand_tribal_land_location
           cemetery_location = @form_data['tribalLandLocation']
-          return if cemetery_location.blank?
+          cemetery_location_question = @form_data['cemetaryLocationQuestion']
+          return unless cemetery_location.present? && cemetery_location_question == 'tribalLand'
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
@@ -731,6 +719,24 @@ module Burials
         end
 
         ##
+        # Converts a boolean value into a radio selection
+        #
+        # This method returns 0 for true and 1 for false and nil for nil
+        # This behavior stems from VBA's request to keep boolean fields blank
+        # on the PDF if not selected on the online form.
+        #
+        # For more context, see this PR: https://github.com/department-of-veterans-affairs/vets-api/pull/22958
+        #
+        # @param value [Boolean, nil]
+        #
+        # @return [Integer, nil]
+        def select_radio(value)
+          return nil if value.nil?
+
+          value ? 0 : 1
+        end
+
+        ##
         # Expands a value from a hash into a 'checkbox' structure
         #
         # Override for 'On' vs true @see FormHelper
@@ -755,8 +761,7 @@ module Burials
         def expand_confirmation_question
           if @form_data['confirmation'].present?
             confirmation = @form_data['confirmation']
-            @form_data['confirmation'] = confirmation['checkBox']
-            expand_checkbox_in_place(@form_data, 'confirmation')
+            @form_data['hasConfirmation'] = select_radio(confirmation['checkBox'])
           end
         end
 
@@ -853,21 +858,10 @@ module Burials
           expand_cemetery_location
           expand_tribal_land_location
 
+          @form_data['hasNationalOrFederal'] = select_radio(@form_data['nationalOrFederal'])
+
           # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
-          @form_data['hasTransportation'] = @form_data['transportation'] == true ? 'YES' : nil
-
-          # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-          burial_expense_responsibility = @form_data['burialExpenseResponsibility']
-          @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
-
-          # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-          plot_expense_responsibility = @form_data['plotExpenseResponsibility']
-          @form_data['hasPlotExpenseResponsibility'] = plot_expense_responsibility ? 'On' : nil
-
-          # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-          process_option = @form_data['processOption']
-          @form_data['hasProcessOption'] = process_option ? 'On' : nil
-          @form_data['noProcessOption'] = process_option ? nil : 'On'
+          @form_data['hasTransportation'] = select_radio(@form_data['transportationExpenses'])
 
           expand_confirmation_question
           set_state_to_no_if_national
@@ -887,13 +881,16 @@ module Burials
 
           convert_location_of_death
 
+          @form_data['hasGovtContributions'] = select_radio(@form_data['govtContributions'])
+
           format_currency_spacing
 
+          # These are boolean values that are set up as checkboxes in the PDF
+          # instead of radio buttons, so we need to process them differently
           %w[
-            nationalOrFederal
-            govtContributions
-            previouslyReceivedAllowance
-            allowanceStatementOfTruth
+            burialExpenseResponsibility
+            plotExpenseResponsibility
+            processOption
           ].each do |attr|
             expand_checkbox_in_place(@form_data, attr)
           end
