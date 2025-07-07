@@ -10,6 +10,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
   before do
     Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+    Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
   end
 
   describe '#identity_path' do
@@ -43,11 +44,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
       context 'with vet_status_stage_1 enabled' do
         before do
-          Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-        end
-
-        after do
-          Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+          Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
         end
 
         it 'returns not eligible if character_of_discharge_codes are missing' do
@@ -69,6 +66,10 @@ describe VAProfile::MilitaryPersonnel::Service do
       end
 
       context 'with vet_status_stage_1 disabled' do
+        before do
+          Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
+        end
+
         it 'returns not eligible if character_of_discharge_codes are missing' do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
             response = subject.get_service_history

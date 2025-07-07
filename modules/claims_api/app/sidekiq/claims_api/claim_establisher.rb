@@ -57,11 +57,18 @@ module ClaimsApi
     def expectation_failed_error?(e)
       error_messages = get_error_message(e)
 
+      ClaimsApi::Logger.log 'claim_establisher expectation_failed_error',
+                            level: :error, detail: error_messages
+
       return error_messages.include?('417') if error_messages.is_a?(String)
 
       return false if error_messages&.dig(:messages).nil?
 
-      error_messages[:messages].any? { |msg| msg[:text]&.include?('417') }
+      error_messages[:messages].any? do |msg|
+        msg[:text]&.include?('417') || msg[:text]&.include?(
+          'Error calling external service to establish the claim during Submit'
+        )
+      end
     end
 
     def handle_exception(auto_claim:, orig_form_data:, e:)

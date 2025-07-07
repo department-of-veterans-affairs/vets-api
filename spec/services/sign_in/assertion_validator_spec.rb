@@ -28,12 +28,14 @@ RSpec.describe SignIn::AssertionValidator do
     let(:exp) { 1.month.since.to_i }
     let(:scopes) { service_account_config.scopes }
     let(:service_account_id) { service_account_config.service_account_id }
-    let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
+    let(:service_account_config) { create(:service_account_config, certs: [assertion_certificate]) }
     let(:service_account_audience) { service_account_config.access_token_audience }
     let(:assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
     let(:assertion) { JWT.encode(assertion_payload, private_key, assertion_encode_algorithm) }
     let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
-    let(:assertion_certificate) { File.read(certificate_path) }
+    let(:assertion_certificate) do
+      create(:sign_in_certificate, pem: File.read(certificate_path))
+    end
     let(:token_route) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
 
     context 'when jwt was not encoded with expected signature' do
@@ -80,15 +82,49 @@ RSpec.describe SignIn::AssertionValidator do
         end
       end
 
+      context 'and service account id in assertion is missing' do
+        let(:expected_error) { SignIn::Errors::ServiceAccountConfigNotFound }
+        let(:expected_error_message) { 'Service account config not found' }
+
+        before { assertion_payload.delete(:service_account_id) }
+
+        context 'and issuer in assertion matches an existing service account config' do
+          let(:iss) { service_account_config.service_account_id }
+
+          it 'uses issuer as service account id to query the service account config' do
+            expect { subject }.not_to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and issuer in assertion does not match an existing service account config' do
+          let(:iss) { 'some-iss' }
+
+          it 'raises service account config not found error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
       context 'and service account config in assertion does match an existing service account config' do
         let(:service_account_id) { service_account_config.service_account_id }
 
         context 'and iss does not equal service account config audience' do
-          let(:iss) { 'some-iss' }
           let(:expected_error_message) { 'Assertion issuer is not valid' }
 
-          it 'raises service account assertion attributes error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
+          context 'and iss equals service account id' do
+            let(:iss) { service_account_id }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error(expected_error, expected_error_message)
+            end
+          end
+
+          context 'and iss does not equal service account id' do
+            let(:iss) { 'some-iss' }
+
+            it 'raises service account assertion attributes error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
           end
         end
 
@@ -122,7 +158,7 @@ RSpec.describe SignIn::AssertionValidator do
 
               context 'and service account config scopes are not present' do
                 let(:service_account_config) do
-                  create(:service_account_config, certificates: [assertion_certificate], scopes: [])
+                  create(:service_account_config, certs: [assertion_certificate], scopes: [])
                 end
 
                 it 'does not raise an error' do
@@ -216,7 +252,7 @@ RSpec.describe SignIn::AssertionValidator do
 
       context 'and user_attributes claim is provided' do
         let(:service_account_config) do
-          create(:service_account_config, certificates: [assertion_certificate], access_token_user_attributes: ['icn'])
+          create(:service_account_config, certs: [assertion_certificate], access_token_user_attributes: ['icn'])
         end
         let(:assertion_payload) do
           {

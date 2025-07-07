@@ -93,7 +93,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         )
       end
 
-      it 'complains about a missing declination_reason for a declination' do
+      it 'complains about a missing key for a declination' do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'declination' } }
 
@@ -135,14 +135,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
           .to eq('PowerOfAttorneyRequestAcceptance')
       end
 
-      it 'creates a declination decision with both declination_reason and no free-form reason' do
+      it 'creates a declination decision with both key and no free-form reason' do
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
           .to receive(:perform_async)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: {
                type: 'declination',
-               declination_reason: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
+               key: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
              } }
 
         expect(response).to have_http_status(:ok)
@@ -160,7 +160,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: {
                type: 'declination',
-               declination_reason: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
+               key: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
              } }
 
         expect(response).to have_http_status(:ok)
@@ -218,7 +218,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: {
                type: 'declination',
-               declination_reason: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
+               key: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
              } }
 
         expect(response).to have_http_status(:unprocessable_entity)
