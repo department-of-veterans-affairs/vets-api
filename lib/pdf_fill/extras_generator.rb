@@ -65,8 +65,8 @@ module PdfFill
           # Font subsetting was excluding the @ character, causing email addresses to display incorrectly
           # as "user email.com" instead of "user@email.com" in Adobe Reader specifically.
           # https://github.com/prawnpdf/prawn/blob/master/lib/prawn/font.rb
-          normal: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'), subset: false },
-          bold: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf'), subset: false }
+          normal: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'), subset: false },
+          bold: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf'), subset: false }
         }
       )
       pdf.font('Roboto')
