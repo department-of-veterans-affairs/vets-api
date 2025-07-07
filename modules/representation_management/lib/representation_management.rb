@@ -8,6 +8,7 @@ module RepresentationManagement
   ATTORNEYS = 'attorneys'
   REPRESENTATIVES = 'representatives'
 
+  # rubocop:disable Layout/LineLength
   ENTITY_CONFIG = OpenStruct.new({
                                    AGENTS => OpenStruct.new({
                                                               api_type: 'agent',
@@ -34,4 +35,5 @@ module RepresentationManagement
                                                                        validation_description: 'Batching representative address updates from GCLAWS Accreditation API'
                                                                      })
                                  }).freeze
+  # rubocop:enable Layout/LineLength
 end
