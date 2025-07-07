@@ -7,7 +7,6 @@ module DebtsApi
     class OneDebtLettersController < ApplicationController
       service_tag 'debt-resolution'
 
-
       def combine_pdf
         StatsD.increment("#{DebtsApi::OneDebtLetterService::STATS_KEY}.initiated")
         service = DebtsApi::V0::OneDebtLetterService.new(current_user)
