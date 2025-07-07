@@ -82,6 +82,11 @@ module HCA
     rescue Ox::ParseError => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.failed_did_not_retry")
 
+      PersonalInformationLog.create!(
+        data: parsed_form,
+        error_class: 'Form1010Ezr FailedDidNotRetry'
+      )
+
       Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
 
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
