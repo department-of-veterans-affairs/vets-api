@@ -55,7 +55,7 @@ module DebtsApi
     end
 
     def submit_to_vba
-      StatsD.increment("#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.initialize")
+      StatsD.increment("#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.initiated")
       DebtsApi::V0::Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
     end
 

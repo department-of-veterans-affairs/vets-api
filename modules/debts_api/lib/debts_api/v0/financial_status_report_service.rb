@@ -223,7 +223,7 @@ module DebtsApi
     def submit_vha_batch_job(vha_submissions)
       return unless defined?(Sidekiq::Batch)
 
-      StatsD.increment("#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initialize")
+      StatsD.increment("#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initiated")
       template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
 
       submission_batch = Sidekiq::Batch.new
