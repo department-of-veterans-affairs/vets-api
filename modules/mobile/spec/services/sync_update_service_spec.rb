@@ -16,7 +16,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
   end
 
   describe '#v2_save_and_await_response' do
-    let(:user) { create(:user, :api_auth_v2) }
+    let(:user) { create(:user, :api_auth_v2, :legacy_icn) }
     let(:params) { build(:va_profile_v3_address, :override, id: 577_127) }
 
     context 'when it succeeds' do

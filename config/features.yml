@@ -33,7 +33,7 @@ features:
   accredited_representative_portal_normalize_path:
     actor_type: user
     description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to 
+      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
       use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
       NOTE: This should only be enabled in localhost and staging.
     enable_in_development: true
@@ -183,6 +183,10 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
+  ezr_download_pdf_enabled:
+    actor_type: user
+    description: Enables the download of a pre-filled 10-10EZR PDF form.
+    enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
     description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
@@ -262,6 +266,9 @@ features:
   champva_fmp_single_file_upload:
     actor_type: user
     description: Enables the ability to upload a single merged PDF file for FMP claims
+  champva_mpi_validation:
+    actor_type: user
+    description: Enables MPI veteran and benefificiary validation for IVC CHAMPVA form submissions
   champva_old_records_cleanup_job:
     actor_type: user
     description: Enables the job to cleanup old IVC CHAMPVA form records
@@ -367,6 +374,14 @@ features:
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
+    enable_in_development: true
+  lighthouse_claims_api_v1_enable_FES:
+    actor_type: user
+    description: Use new Form526 Establishment Service (FES) for v1 disability compensation claims
+    enable_in_development: true
+  lighthouse_claims_api_v2_enable_FES:
+    actor_type: user
+    description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -893,6 +908,10 @@ features:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
     enable_in_development: true
+  form10297_confirmation_email:
+    actor_type: user
+    description: Enables form 10297 email submission confirmation (VaNotify)
+    enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
     description: Enables form 26-4555 email submission confirmation (VaNotify)
@@ -1063,6 +1082,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  log_eligible_benefits:
+    actor_type: user
+    description: Allows log_eligible_benefits_job.rb to run in background.
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -1101,6 +1124,10 @@ features:
   mhv_accelerated_delivery_uhd_sp_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_mb_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
     enable_in_development: false
   mhv_accelerated_delivery_uhd_ch_enabled:
     actor_type: user
@@ -1206,6 +1233,14 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_migrate_ccd_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the CCD endpoints
+    enable_in_development: true
+  mhv_medical_records_migrate_dicom_to_s3:
+    actor_type: user
+    description: Enables the switch to an s3 bucket for the DICOM endpoint
+    enable_in_development: true
   mhv_medical_records_migrate_to_api_gateway:
     actor_type: user
     description: Enables the switch to the new MHV API Gateway endpoints
@@ -1278,6 +1313,10 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
+  mhv_accelerated_delivery_vaccines_enabled:
+    actor_type: user
+    description: Enables/disables the new immunizations v2 endpoint that uses LH as a datasource and aligns with data model that the mobile app uses
+    enable_in_development: false
   mhv_medical_records_support_new_model_lab_test:
     actor_type: user
     description: Enables/disables the use of pre-transformed lab/test objects
@@ -1830,30 +1869,14 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_online_scheduling_fe_source_of_truth:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use API response as the source of truth in FE for upcoming/past/pending appointments.
-  va_online_scheduling_fe_source_of_truth_va:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use API response as the source of truth in FE for VA appointment and request types.
-  va_online_scheduling_fe_source_of_truth_cc:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use API response as the source of truth in FE for CC appointment and request types.
-  va_online_scheduling_fe_source_of_truth_modality:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use API response as the source of truth in FE for in person, phone, claims exam, covid vaccine modalities.
   va_online_scheduling_fe_source_of_truth_telehealth:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_convert_slots_to_utc:
+  vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
-    description: Toggle for for converting the start & end times in slots fetch to UTC.
+    description: Enables custom email delivery callback for VAOS appointment status notifications
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -1882,6 +1905,10 @@ features:
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  priority_processing_request_apply_vsi_flash:
+    actor_type: user
+    description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
+    enable_in_development: false
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -2283,4 +2310,3 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
-    

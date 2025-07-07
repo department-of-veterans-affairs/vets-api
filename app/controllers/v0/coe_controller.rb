@@ -105,7 +105,7 @@ module V0
     def build_document_data(attachment)
       file_data = attachment['file']
       index = file_data.index(';base64,') || 0
-      file_data = file_data[index + 8..] if index.positive?
+      file_data = file_data[(index + 8)..] if index.positive?
 
       {
         'documentType' => attachment['file_type'],
