@@ -32,18 +32,20 @@ module RepresentationManagement
     # Number of records to process in each address validation batch
     SLICE_SIZE = 30
 
+    AGENTS = 'agents'
+    ATTORNEYS = 'attorneys'
     # Define a configuration map for entity types
     ENTITY_CONFIG = {
-      'agents' => {
-        singular_type: 'agent',
+      AGENTS => {
+        api_type: 'agent',
         individual_type: 'claims_agent',
         responses_var: :@agent_responses,
         ids_var: :@agent_ids,
         json_var: :@agent_json_for_address_validation,
         validation_description: 'Batching agent address updates from GCLAWS Accreditation API'
       },
-      'attorneys' => {
-        singular_type: 'attorney',
+      ATTORNEYS => {
+        api_type: 'attorney',
         individual_type: 'attorney',
         responses_var: :@attorney_responses,
         ids_var: :@attorney_ids,
@@ -74,8 +76,8 @@ module RepresentationManagement
       @entity_counts.save_api_counts unless @force_update_types.any?
       # TODO: Refactor to do all the valid entity counting in one place and create instance variables
       # Maybe one hash with types as keys and true/false as values
-      process_entity_type('agents')
-      process_entity_type('attorneys')
+      process_entity_type(AGENTS)
+      process_entity_type(ATTORNEYS)
       process_orgs_and_reps
       delete_removed_accredited_individuals
     rescue => e
@@ -136,14 +138,14 @@ module RepresentationManagement
     #
     # @return [void]
     def update_agents
-      update_entities('agents')
+      update_entities(AGENTS)
     end
 
     # Fetches attorney data from the GCLAWS API and updates database records
     #
     # @return [void]
     def update_attorneys
-      update_entities('attorneys')
+      update_entities(ATTORNEYS)
     end
 
     # Generic method to update entities of a specific type
@@ -182,17 +184,17 @@ module RepresentationManagement
     # @param config [Hash] Configuration for the entity type
     # @return [void]
     def handle_entity_record(entity, config)
-      singular_type = config[:singular_type]
-      entity_hash = send("data_transform_for_#{singular_type}", entity)
+      api_type = config[:api_type]
+      entity_hash = send("data_transform_for_#{api_type}", entity)
 
       # Find or create record
       entity_identifier = { individual_type: config[:individual_type], ogc_id: entity['id'] }
       record = AccreditedIndividual.find_or_create_by(entity_identifier)
 
       # Check if address validation is needed
-      raw_address = send("raw_address_for_#{singular_type}", entity)
+      raw_address = send("raw_address_for_#{api_type}", entity)
       if record.raw_address != raw_address
-        json_method = "individual_#{singular_type}_json"
+        json_method = "individual_#{api_type}_json"
         instance_variable_get(config[:json_var]) << send(json_method, record, entity)
       end
 
@@ -360,14 +362,14 @@ module RepresentationManagement
     #
     # @return [void]
     def validate_agent_addresses
-      validate_entity_addresses('agents')
+      validate_entity_addresses(AGENTS)
     end
 
     # Queues address validation jobs for attorneys
     #
     # @return [void]
     def validate_attorney_addresses
-      validate_entity_addresses('attorneys')
+      validate_entity_addresses(ATTORNEYS)
     end
 
     # Queues address validation jobs for a specific entity type
