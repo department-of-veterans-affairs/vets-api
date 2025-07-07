@@ -13,9 +13,5 @@ module SignIn
     validates :code, presence: true
 
     computed_fallbacks code: 'hi emily'
-
-    def code
-      super.presence || self.class.computed_fallback[:code]
-    end
   end
 end

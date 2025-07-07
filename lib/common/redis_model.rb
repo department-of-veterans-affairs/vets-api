@@ -7,40 +7,34 @@ module Common
     include ActiveModel::Validations
     include ActiveModel::Serialization
 
-    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
-    class_attribute :redis_namespace, instance_writer: false
-    class_attribute :redis_ttl, instance_writer: false
-    class_attribute :redis_key, instance_writer: false
-    class_attribute :computed_fallback, instance_writer: false, default: {}
-    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
+    class_attribute :namespace, instance_writer: false
+    class_attribute :ttl, instance_writer: false
+    class_attribute :key_attribute, instance_writer: false
+    class_attribute :fallbacks, instance_writer: false, default: {}
 
     class << self
-      def redis_store(namespace)
-        self.redis_namespace = Redis::Namespace.new(namespace, redis: $redis)
+      def redis_store(name)
+        self.namespace = Redis::Namespace.new(name, redis: $redis)
       end
 
-      def redis_ttl(ttl)
-        self.redis_ttl = ttl
+      def redis_ttl(seconds)
+        self.ttl = seconds
       end
 
-      def redis_key(field)
-        self.redis_key = field.to_s
+      def redis_key(attr)
+        self.key_attribute = attr.to_s
       end
 
       def computed_fallbacks(hash = nil)
-        if hash
-          self.computed_fallback = hash.transform_keys(&:to_sym)
-        else
-          computed_fallback
-        end
+        hash ? self.fallbacks = hash.transform_keys(&:to_sym) : fallbacks
       end
 
       def find(key)
-        raw = redis_namespace.get(key)
+        raw = namespace.get(key)
         return nil if raw.blank?
 
-        attrs = Oj.load(raw)
-        new(attrs.merge(redis_key => key))
+        attrs = JSON.parse(raw)
+        new(attrs.merge(key_attribute => key))
       end
 
       def create(attrs)
@@ -48,10 +42,10 @@ module Common
       end
 
       def delete(key)
-        redis_namespace.del(key)
+        namespace.del(key)
       end
 
-      delegate :exists?, :keys, to: :redis_namespace
+      delegate :exists?, :keys, to: :namespace
     end
 
     attr_reader :persisted
@@ -61,16 +55,16 @@ module Common
       @persisted = false
     end
 
-    def redis_key
-      send(self.class.redis_key)
+    def redis_key_value
+      send(self.class.key_attribute)
     end
 
     def save
       return false unless valid?
-      return false if redis_key.blank?
+      return false if redis_key_value.blank?
 
-      self.class.redis_namespace.set(redis_key, Oj.dump(serializable_hash))
-      self.class.redis_namespace.expire(redis_key, self.class.redis_ttl) if self.class.redis_ttl
+      namespace.set(redis_key_value, JSON.dump(serializable_hash))
+      namespace.expire(redis_key_value, ttl) if ttl
       @persisted = true
     end
 
@@ -84,7 +78,7 @@ module Common
     end
 
     def destroy
-      self.class.redis_namespace.del(redis_key)
+      namespace.del(redis_key_value)
       @destroyed = true
       freeze
     end
@@ -99,13 +93,7 @@ module Common
 
     def computed(attr_name)
       value = public_send(attr_name)
-      value.presence || self.class.computed_fallback[attr_name.to_sym]
-    end
-
-    def serializable_hash(*)
-      base_hash = super
-      computed_hash = self.class.computed_fallback.keys.index_with { |attr| computed(attr) }
-      base_hash.merge(computed_hash)
+      value.presence || self.class.fallbacks[attr_name.to_sym]
     end
   end
 end
