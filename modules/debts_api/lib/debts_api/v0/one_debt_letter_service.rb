@@ -101,7 +101,8 @@ module DebtsApi
         legalese_pdf = load_legalese_pdf
         combined_pdf = CombinePDF.parse(document.read) << legalese_pdf
         combined_pdf.to_pdf
-      rescue StandardError => e
+      rescue => e
+        Rails.logger.error("Failed to combine PDFs: #{e.message}")
         StatsD.increment("#{DebtsApi::OneDebtLetterService::STATS_KEY}.error")
       end
 
