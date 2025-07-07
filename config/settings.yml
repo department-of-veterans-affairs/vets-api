@@ -471,6 +471,8 @@ form_10282:
 form_10_10cg:
   carma:
     mulesoft:
+      host: <%= ENV['form_10_10cg__carma__mulesoft__host'] %>
+      timeout: <%= ENV['form_10_10cg__carma__mulesoft__timeout'] %>
       auth:
         auth_token_path: <%= ENV['form_10_10cg__carma__mulesoft__auth__auth_token_path'] %>
         client_id: <%= ENV['form_10_10cg__carma__mulesoft__auth__client_id'] %>
@@ -478,10 +480,6 @@ form_10_10cg:
         mock: <%= ENV['form_10_10cg__carma__mulesoft__auth__mock'] %>
         timeout: <%= ENV['form_10_10cg__carma__mulesoft__auth__timeout'] %>
         token_url: <%= ENV['form_10_10cg__carma__mulesoft__auth__token_url'] %>
-      client_id: <%= ENV['form_10_10cg__carma__mulesoft__client_id'] %>
-      client_secret: <%= ENV['form_10_10cg__carma__mulesoft__client_secret'] %>
-      host: <%= ENV['form_10_10cg__carma__mulesoft__host'] %>
-      timeout: <%= ENV['form_10_10cg__carma__mulesoft__timeout'] %>
   poa:
     s3:
       aws_access_key_id: <%= ENV['form_10_10cg__poa__s3__aws_access_key_id'] %>
