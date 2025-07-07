@@ -117,9 +117,7 @@ FactoryBot.define do
         'veteranInformation' => {
           'fullName' => {
             'first' => 'First',
-            'middle' => 'Middle',
-            'last' => 'Last',
-            'suffix' => 'III'
+            'last' => 'Last'
           },
           'dob' => '1980-01-01'
         }

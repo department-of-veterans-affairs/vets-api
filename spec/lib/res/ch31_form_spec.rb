@@ -62,6 +62,83 @@ RSpec.describe RES::Ch31Form do
       end
     end
 
+    context 'when all fields are supplied' do
+      it 'forms params with matching supplied data' do
+        payload = {
+          useEva: nil,
+          receiveElectronicCommunication: nil,
+          useTelecounseling: nil,
+          appointmentTimePreferences: nil,
+          yearsOfEducation: '10',
+          isMoving: true,
+          mainPhone: '2222222222',
+          cellNumber: '3333333333',
+          internationalNumber: '+4444444444',
+          email: 'email@test.com',
+          documentId: nil,
+          receivedDate: claim_with_new_form.created_at.iso8601,
+          veteranAddress: {
+            country: 'USA',
+            street: '12 usa street',
+            city: 'New York',
+            state: 'NY',
+            postalCode: '10001'
+          },
+          veteranInformation: {
+            fullName: {
+              first: 'First',
+              middle: 'Middle',
+              last: 'Last',
+              suffix: 'III'
+            },
+            dob: '1980-01-01',
+            regionalOffice: nil
+          },
+          newAddress: {
+            country: 'USA',
+            street: '13 usa street',
+            city: 'New York',
+            state: 'NY',
+            postalCode: '10001'
+          }
+        }.to_json
+        expect_any_instance_of(RES::Service).to receive(:send_to_res).with(payload:).and_return(success_message)
+
+        service_with_new_form.submit
+      end
+    end
+
+    context 'when only required fields are supplied' do
+      it 'forms params with null data attributes' do
+        payload = {
+          useEva: nil,
+          receiveElectronicCommunication: nil,
+          useTelecounseling: nil,
+          appointmentTimePreferences: nil,
+          yearsOfEducation: '10',
+          isMoving: false,
+          mainPhone: nil,
+          cellNumber: nil,
+          internationalNumber: nil,
+          email: 'email@test.com',
+          documentId: nil,
+          receivedDate: claim_with_new_form_minimal.created_at.iso8601,
+          veteranAddress: nil,
+          veteranInformation: {
+            fullName: {
+              first: 'First',
+              last: 'Last'
+            },
+            dob: '1980-01-01',
+            regionalOffice: nil
+          },
+        }.to_json
+        expect_any_instance_of(RES::Service).to receive(:send_to_res).with(payload:).and_return(success_message)
+
+        service_with_new_form_minimal.submit
+      end
+    end
+
     context 'with an unsuccessful submission' do
       context 'with old form' do
         it 'does not successfully send to RES' do
