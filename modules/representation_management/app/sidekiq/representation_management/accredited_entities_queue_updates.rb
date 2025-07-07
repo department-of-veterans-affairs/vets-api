@@ -32,9 +32,11 @@ module RepresentationManagement
     # Number of records to process in each address validation batch
     SLICE_SIZE = 30
 
+    AGENTS = 'agents'
+    ATTORNEYS = 'attorneys'
     # Define a configuration map for entity types
     ENTITY_CONFIG = {
-      'agents' => {
+      AGENTS => {
         api_type: 'agent',
         individual_type: 'claims_agent',
         responses_var: :@agent_responses,
@@ -42,7 +44,7 @@ module RepresentationManagement
         json_var: :@agent_json_for_address_validation,
         validation_description: 'Batching agent address updates from GCLAWS Accreditation API'
       },
-      'attorneys' => {
+      ATTORNEYS => {
         api_type: 'attorney',
         individual_type: 'attorney',
         responses_var: :@attorney_responses,
@@ -51,9 +53,6 @@ module RepresentationManagement
         validation_description: 'Batching attorney address updates from GCLAWS Accreditation API'
       }
     }.freeze
-
-    AGENTS = 'agents'
-    ATTORNEYS = 'attorneys'
 
     # Main job method that processes accredited entities
     #
