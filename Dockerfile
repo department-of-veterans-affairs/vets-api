@@ -57,3 +57,6 @@ RUN bundle install && \
 
 # Copy application code with security considerations
 COPY --chown=app:app . /app
+
+# Switch to non-root user for security
+USER nonroot
