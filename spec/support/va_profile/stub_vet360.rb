@@ -12,25 +12,25 @@ def stub_vet360(person = nil)
   service = VAProfile::ContactInformation::Service
   person_response = VAProfile::ContactInformation::PersonResponse
 
-  person ||= build(
+  person ||= FactoryBot.build(
     :person,
     addresses: [
-      build(:va_profile_address, id: 123),
-      build(:va_profile_address, address_pou: VAProfile::Models::Address::CORRESPONDENCE, id: 124)
+      FactoryBot.build(:va_profile_address, id: 123),
+      FactoryBot.build(:va_profile_address, address_pou: VAProfile::Models::Address::CORRESPONDENCE, id: 124)
     ],
     emails: [
-      build(:email, id: 456)
+      FactoryBot.build(:email, id: 456)
     ],
     telephones: [
-      build(:telephone, :home, id: 789),
-      build(:telephone, :home, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
-      build(:telephone, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
-      build(:telephone, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
-      build(:telephone, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY, id: 793)
+      FactoryBot.build(:telephone, :home, id: 789),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY, id: 793)
     ],
     permissions: [
-      build(:permission, id: 1011),
-      build(:permission, permission_type: VAProfile::Models::Permission::TEXT, id: 1012)
+      FactoryBot.build(:permission, id: 1011),
+      FactoryBot.build(:permission, permission_type: VAProfile::Models::Permission::TEXT, id: 1012)
     ]
   )
 
