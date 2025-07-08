@@ -34,47 +34,55 @@ module Rx
     end
 
     ##
-    # Get a list of active Prescriptions
-    #
-    # @return [Common::Collection[Prescription]]
-    #
-    def get_active_rxs
-      Vets::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
-      end
-    end
-
-    ##
     # Get a list of active Prescriptions using new model PrescriptionDetails
     #
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_active_rxs_with_details
-      Vets::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
-        perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
+      cache_key = cache_key('getactiverx')
+      data = ::PrescriptionDetails.get_cached(cache_key)
+      if data
+        Rails.logger.info('rx PrescriptionDetails cache fetch', cache_key:)
+        statsd_cache_hit
+        Vets::Collection.new(data, ::PrescriptionDetails)
+      else
+        Rails.logger.info('rx PrescriptionDetails service fetch', cache_key:)
+        statsd_cache_miss
+        result = perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
+        collection = Vets::Collection.new(
+          result[:data],
+          ::PrescriptionDetails,
+          metadata: result[:metadata],
+          errors: result[:errors]
+        )
+        ::PrescriptionDetails.set_cached(cache_key, result[:data]) if cache_key && result[:data]
+        collection
       end
     end
 
     ##
     # Get a list of all Prescriptions
-    #
-    # @return [Common::Collection[Prescription]]
-    #
-    def get_history_rxs
-      Vets::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, get_path('gethistoryrx'), nil, get_headers(token_headers)).body
-      end
-    end
-
-    ##
-    # Get a list of all Prescriptions using different api endpoint that returns additional
-    # data per rx compared to /gethistoryrx
-    #
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
-      Vets::Collection.fetch(PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
-        perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
+      cache_key = cache_key('medications')
+      data = PrescriptionDetails.get_cached(cache_key)
+      if data
+        Rails.logger.info('rx PrescriptionDetails cache fetch', cache_key:)
+        statsd_cache_hit
+        Vets::Collection.new(data, PrescriptionDetails)
+      else
+        Rails.logger.info('rx PrescriptionDetails service fetch', cache_key:)
+        statsd_cache_miss
+        result = perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
+        collection = Vets::Collection.new(
+          result[:data],
+          PrescriptionDetails,
+          metadata: result[:metadata],
+          errors: result[:errors]
+        )
+        PrescriptionDetails.set_cached(cache_key, collection.records) if cache_key && collection.records
+        collection
       end
     end
 
@@ -89,17 +97,6 @@ module Rx
 
     ##
     # Get a single Prescription
-    #
-    # @param id [Fixnum] An Rx id
-    # @return [Prescription]
-    #
-    def get_rx(id)
-      collection = get_history_rxs
-      collection.find_by('prescription_id' => { 'eq' => id })
-    end
-
-    ##
-    # Get a single Prescription using different api endpoint that returns additional data compared to /gethistoryrx
     #
     # @param id [Fixnum] An Rx id
     # @return [Prescription]
@@ -142,6 +139,11 @@ module Rx
     #
     def post_refill_rxs(ids)
       if (result = perform(:post, get_path('rxrefill'), ids, get_headers(token_headers)))
+        Rails.logger.info('Clearing PrescriptionDetails and Vets::Collection caches',
+                          cache_keys: [cache_key('medications'), cache_key('getactiverx')].compact)
+        ::PrescriptionDetails.clear_cache(cache_key('medications')) if cache_key('medications')
+        ::PrescriptionDetails.clear_cache(cache_key('getactiverx')) if cache_key('getactiverx')
+        Vets::Collection.bust([cache_key('medications'), cache_key('getactiverx')].compact)
         increment_refill(ids.size)
       end
       result
@@ -155,8 +157,11 @@ module Rx
     #
     def post_refill_rx(id)
       if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
-        keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
-        Vets::Collection.bust(keys) unless keys.empty?
+        Rails.logger.info('Clearing PrescriptionDetails and Vets::Collection caches',
+                          cache_keys: [cache_key('medications'), cache_key('getactiverx')].compact)
+        ::PrescriptionDetails.clear_cache(cache_key('medications')) if cache_key('medications')
+        ::PrescriptionDetails.clear_cache(cache_key('getactiverx')) if cache_key('getactiverx')
+        Vets::Collection.bust([cache_key('medications'), cache_key('getactiverx')].compact)
         increment_refill
       end
       result
@@ -274,6 +279,14 @@ module Rx
     def post_rx_preference_flag(params)
       params = { flag: params[:rx_flag] }
       config.parallel_connection.post(get_preferences_path('rx'), params, get_headers(token_headers))
+    end
+
+    def statsd_cache_hit
+      StatsD.increment('api.rx.cache.hit')
+    end
+
+    def statsd_cache_miss
+      StatsD.increment('api.rx.cache.miss')
     end
   end
 end

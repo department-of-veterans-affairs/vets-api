@@ -32,6 +32,9 @@ development: &defaults
   rx_store_mobile:
     namespace: rx-service-mobile
     each_ttl: 1200
+  rx_collection_cache:
+    namespace: rx-collection
+    each_ttl: 3600
   chip:
     namespace: chip
     each_ttl: 870

@@ -3,6 +3,9 @@
 require 'vets/model'
 
 class PrescriptionDetails < Prescription
+  include RedisCaching
+
+  redis_config REDIS_CONFIG[:rx_collection_cache]
   attribute :cmop_division_phone, String
   attribute :in_cerner_transition, Bool
   attribute :not_refillable_display_message, String

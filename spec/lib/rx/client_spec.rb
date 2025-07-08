@@ -54,47 +54,11 @@ describe Rx::Client do
   end
 
   shared_examples 'prescriptions' do |caching_enabled|
+    let(:cache_keys) { ["12210827:medications", "12210827:getactiverx"] }
+
     before do
       allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(caching_enabled)
       allow(StatsD).to receive(:increment)
-    end
-
-    let(:cache_keys) { ["#{client.session.user_id}:getactiverx", "#{client.session.user_id}:gethistoryrx"] }
-
-    it 'gets a list of active prescriptions' do
-      VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
-        client_response = client.get_active_rxs
-        expect(client_response).to be_a(Vets::Collection)
-        expect(client_response.type).to eq(Prescription)
-        expect(client_response.cached?).to eq(caching_enabled)
-
-        if caching_enabled
-          expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
-        else
-          expect(cache_key_for(client_response)).to be_nil
-        end
-      end
-    end
-
-    it 'gets a list of all prescriptions' do
-      VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
-        client_response = client.get_history_rxs
-        expect(client_response).to be_a(Vets::Collection)
-        expect(client_response.members.first).to be_a(Prescription)
-        expect(client_response.cached?).to eq(caching_enabled)
-
-        if caching_enabled
-          expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:gethistoryrx")
-        else
-          expect(cache_key_for(client_response)).to be_nil
-        end
-      end
-    end
-
-    it 'gets a single prescription' do
-      VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-        expect(client.get_rx(13_650_546)).to be_a(Prescription)
-      end
     end
 
     it 'refills a prescription' do
@@ -148,13 +112,6 @@ describe Rx::Client do
         end
       end
     end
-
-    it 'handles failed stations' do
-      VCR.use_cassette('rx_client/prescriptions/handles_failed_stations') do
-        expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
-        client.get_history_rxs
-      end
-    end
   end
 
   describe 'Prescriptions with caching disabled' do
@@ -189,6 +146,61 @@ describe Rx::Client do
         headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
         allow(client).to receive(:auth_headers).and_return(headers)
         expect(result).not_to include('x-api-key')
+      end
+    end
+  end
+
+  describe '#get_active_rxs_with_details' do
+    let(:cache_key) { '12210827:getactiverx' }
+    let(:prescription_details_hash) do
+      h = build(:prescription_details).as_json
+      h['tracking_list'] = nil
+      h['rx_rf_records'] = nil
+      h
+    end
+    let(:cached_data) { [prescription_details_hash, prescription_details_hash] }
+    let(:service_response) do
+      {
+        data: [prescription_details_hash],
+        metadata: { total: 1 },
+        errors: nil
+      }
+    end
+
+    before do
+      allow(client).to receive(:cache_key).with('getactiverx').and_return(cache_key)
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when data is cached' do
+      before do
+        allow(PrescriptionDetails).to receive(:get_cached).with(cache_key).and_return(cached_data)
+      end
+
+      it 'returns cached data as a Vets::Collection' do
+        result = client.get_active_rxs_with_details
+        expect(result).to be_a(Vets::Collection)
+        expect(result.members.map(&:as_json)).to eq(cached_data)
+        expect(PrescriptionDetails).not_to receive(:set_cached)
+        expect(StatsD).to have_received(:increment).with('api.rx.cache.hit')
+      end
+    end
+
+    context 'when data is not cached' do
+      before do
+        allow(PrescriptionDetails).to receive(:get_cached).with(cache_key).and_return(nil)
+        allow(PrescriptionDetails).to receive(:set_cached)
+        allow(client).to receive(:perform).with(:get, 'prescription/getactiverx', nil, anything).and_return(
+          double(body: service_response)
+        )
+      end
+
+      it 'fetches data from the service and caches it' do
+        result = client.get_active_rxs_with_details
+        expect(result).to be_a(Vets::Collection)
+        expect(result.members.map(&:as_json)).to eq(service_response[:data])
+        expect(PrescriptionDetails).to have_received(:set_cached).with(cache_key, service_response[:data])
+        expect(StatsD).to have_received(:increment).with('api.rx.cache.miss')
       end
     end
   end
