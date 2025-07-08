@@ -1,10 +1,14 @@
+*.key
+*.pem
 .bundle
+.env
 .git
 .github
 .gitignore
 .rspec
-coverage
+coverage/
 data
 docs
-log
-tmp
+log/
+node_modules
+tmp/
