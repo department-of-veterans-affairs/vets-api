@@ -42,9 +42,15 @@ module MyHealth
       if @client.nil?
         @client ||= if use_oh_data_path
                       MedicalRecords::LighthouseClient.new(current_user.icn)
+                      if Flipper.enabled?(:mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled, @current_user)
+                        UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
+                      end
                     else
                       MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
                                                             icn: current_user.icn })
+                      if Flipper.enabled?(:mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled, @current_user)
+                        UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
+                      end
                     end
       end
       @client
