@@ -37,7 +37,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
 
       it 'responds with 200 when page size or page number is passed in' do
-        params = { 'start_date' => '2025-03-01T00.00.00Z', 'end_date' => '2025-01-01T00.00.00Z' }
+        params = { 'start_date' => '2025-01-01T00.00.00Z', 'end_date' => '2025-03-01T00.00.00Z' }
 
         VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
           get '/travel_pay/v0/claims', params:, headers: { 'Authorization' => 'Bearer vagov_token' }
@@ -53,7 +53,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
       # 206_search_claims_partial_response
       it 'responds with 206 when part of the claim retrieval fails' do
-        params = { 'start_date' => '2025-03-01T00.00.00Z', 'end_date' => '2025-01-01T00.00.00Z' }
+        params = { 'start_date' => '2025-01-01T00.00.00Z', 'end_date' => '2025-03-01T00.00.00Z' }
 
         VCR.use_cassette('travel_pay/206_search_claims_partial_response', match_requests_on: %i[method path]) do
           get '/travel_pay/v0/claims', params:, headers: { 'Authorization' => 'Bearer vagov_token' }
