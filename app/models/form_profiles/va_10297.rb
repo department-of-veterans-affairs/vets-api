@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/ppiu/service'
 require 'vets/model'
 
 module VA10297
