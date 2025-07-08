@@ -23,9 +23,10 @@ module SM
         def parse(body = nil)
           @parsed_json = body
           @meta_attributes = split_meta_fields!
-          @errors = @parsed_json.delete(:errors) || {}
+          @errors = @parsed_json.is_a?(Hash) ? @parsed_json.delete(:errors) : {}
 
           data =  parsed_threads_object ||
+                  parsed_presigned_s3_url ||
                   parsed_all_triage ||
                   parsed_triage   ||
                   preferences     ||
@@ -39,6 +40,10 @@ module SM
             metadata: @meta_attributes
           }
           @parsed_json
+        end
+
+        def parsed_presigned_s3_url
+          @parsed_json if @parsed_json.is_a?(String) && @parsed_json.match?(%r{\Ahttps?://[\S]+\z})
         end
 
         def parsed_threads
