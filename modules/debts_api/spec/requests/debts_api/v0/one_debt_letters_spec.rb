@@ -28,20 +28,29 @@ RSpec.describe 'DebtsApi::V0::OneDebtLetters', type: :request do
       end
     end
 
-    it 'increments StatsD' do
-      allow(StatsD).to receive(:increment)
+    context 'combine pdf' do
+      let(:file) do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join('modules/debts_api/spec/fixtures/5655.pdf'),
+          'application/pdf'
+        )
+      end
 
-      expect(StatsD).to receive(:increment).with(
-        "#{DebtsApi::V0::OneDebtLetterService::STATS_KEY}.initiated"
-      )
+      it 'increments StatsD' do
+        allow(StatsD).to receive(:increment)
 
-      expect(StatsD).to receive(:increment).with(
-        "#{DebtsApi::V0::OneDebtLetterService::STATS_KEY}.success"
-      )
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::OneDebtLetterService::STATS_KEY}.initiated"
+        )
 
-      VCR.use_cassette('bgs/people_service/person_data') do
-        VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
-          post '/debts_api/v0/combine_one_debt_letter_pdf', params: {}
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::OneDebtLetterService::STATS_KEY}.success"
+        )
+
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
+            post '/debts_api/v0/combine_one_debt_letter_pdf', params: {document: file}
+          end
         end
       end
     end
