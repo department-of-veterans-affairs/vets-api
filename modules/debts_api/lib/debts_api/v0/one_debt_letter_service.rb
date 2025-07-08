@@ -103,7 +103,7 @@ module DebtsApi
         combined_pdf.to_pdf
       rescue => e
         Rails.logger.error("Failed to combine PDFs: #{e.message}")
-        StatsD.increment("#{DebtsApi::OneDebtLetterService::STATS_KEY}.error")
+        StatsD.increment("#{DebtsApi::V0::OneDebtLetterService::STATS_KEY}.error")
         raise e
       end
 
