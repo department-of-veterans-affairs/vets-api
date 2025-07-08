@@ -15,13 +15,20 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   let(:set_cache) do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
-
-    Vets::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
+    user_id = user.mhv_correlation_id || user.user_id || user.uuid
+    PrescriptionDetails.set_cached("#{user_id}:medications", json_data[:data])
   end
 
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
-    allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+    # Use the test user's real mhv_correlation_id for the stubbed client
+    allow(Rx::Client).to receive(:new).and_return(
+      Rx::Client.new(session: { user_id: user.mhv_correlation_id || user.user_id || user.uuid,
+                                expires_at: Time.current + (60 * 60),
+                                token: Rx::ClientHelpers::TOKEN },
+                     upstream_request: instance_double(ActionDispatch::Request,
+                                                       { 'env' => { 'SOURCE_APP' => 'myapp' } }))
+    )
     Timecop.freeze(Time.zone.parse('2025-04-21T00:00:00.000Z'))
   end
 

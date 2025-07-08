@@ -54,7 +54,7 @@ describe Rx::Client do
   end
 
   shared_examples 'prescriptions' do |caching_enabled|
-    let(:cache_keys) { ["12210827:medications", "12210827:getactiverx"] }
+    let(:cache_keys) { ['12210827:medications', '12210827:getactiverx'] }
 
     before do
       allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(caching_enabled)
