@@ -1392,44 +1392,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'PPIU' do
-      let(:mhv_user) { create(:user, :loa3) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
-                                            .and_return(false)
-      end
-
-      it 'supports getting payment information' do
-        expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, headers)
-        end
-      end
-
-      it 'supports updating payment information' do
-        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('evss/ppiu/update_payment_information') do
-            expect(subject).to validate(
-              :put,
-              '/v0/ppiu/payment_information',
-              200,
-              headers.update(
-                '_data' => {
-                  'account_type' => 'Checking',
-                  'financial_institution_name' => 'Bank of Amazing',
-                  'account_number' => '1234567890',
-                  'financial_institution_routing_number' => '123456789'
-                }
-              )
-            )
-          end
-        end
-      end
-    end
-
     describe 'supporting evidence upload' do
       it 'supports uploading a file' do
         expect(subject).to validate(
@@ -2687,7 +2649,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       describe 'profile/status v2', :initiate_vaprofile, :skip_vet360 do
-        let(:user) { build(:user, :loa3, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', stub_mpi: false) }
+        let(:user) { build(:user, :loa3, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', should_stub_mpi: false) }
 
         before do
           sign_in_as(user)

@@ -14,12 +14,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       api_url: 'https://api.wellhive.com',
       base_path: 'care-navigation/v1'
     )
+    allow(Settings.vaos.ccra).to receive_messages(
+      api_url: 'http://test.example.com',
+      base_path: 'vaos/v1/patients'
+    )
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-  end
-
-  after do
-    Rails.cache.clear
   end
 
   let(:described_class) { VAOS::V2::AppointmentsController }
