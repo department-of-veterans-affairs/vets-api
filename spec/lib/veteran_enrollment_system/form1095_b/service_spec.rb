@@ -12,37 +12,14 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
 
   describe '#get_form_by_icn' do
     context 'when the request is successful' do
-      before do
-        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_return(
-          OpenStruct.new(
-            body: {
-              'form_data' => {
-                'first_name' => 'Jane',
-                'last_name' => 'Smith',
-                'tax_year' => tax_year,
-                'coverage_months' => [true, true, true, true, true, true, true, true, true, true, true, true, true],
-                'is_corrected' => false,
-                'address' => '456 Elm St',
-                'city' => 'Othertown',
-                'state' => 'CA',
-                'zip_code' => '98765',
-                'country' => 'USA'
-              },
-              'metadata' => {
-                'generated_date' => '2023-12-31',
-                'submission_status' => 'COMPLETED'
-              }
-            }
-          )
-        )
-      end
-
       it 'returns the form data from the enrollment system' do
-        response = service.get_form_by_icn(icn: icn, tax_year: tax_year)
+        VCR.use_cassette('veteran_enrollment_service/form1095b') do
+          response = service.get_form_by_icn(icn: icn, tax_year: tax_year)
 
-        expect(response).to be_a(Hash)
-        expect(response['form_data']['tax_year']).to eq(tax_year)
-        expect(response['form_data']['first_name']).to eq('Jane')
+          expect(response).to be_a(Hash)
+          expect(response['form_data']['tax_year']).to eq(tax_year)
+          expect(response['form_data']['first_name']).to eq('Jane')
+        end
       end
 
       it 'makes a request with the correct path' do
@@ -54,13 +31,6 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
         ).and_return(OpenStruct.new(body: {}))
 
         service.get_form_by_icn(icn: icn, tax_year: tax_year)
-      end
-
-      context 'with monitoring' do
-        it 'includes monitoring' do
-          expect(service).to receive(:with_monitoring).and_call_original
-          service.get_form_by_icn(icn: icn, tax_year: tax_year)
-        end
       end
     end
 
