@@ -95,7 +95,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the default value' do
-        expect(timeout).to eq(60)
+        expect(timeout).to eq(600)
       end
     end
   end
