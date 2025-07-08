@@ -67,20 +67,20 @@ module IvcChampva
         end
 
         def extract_name(text)
-          # Look for name patterns - typically after "NAME" or similar labels
+          # Look for name patterns
           name_patterns = [
-            /name[:\s]+([A-Z][A-Za-z\s,]+?)(?:\s+social|\s+\d{3}|$)/i,
-            /established\s+for\s+([A-Z][A-Za-z\s,]+?)(?:\s+\d{3}|$)/i,
-            /\bfor\s+([A-Z][A-Za-z\s,]+?)\s+\d{3}/i,
-            /^NAME\s+([A-Z][A-Za-z]+\s+[A-Z][A-Za-z]+)\s+social/i,
-            /^([A-Z][A-Za-z]+\s+[A-Z][A-Za-z]+)\s+\d{3}/
+            /\bname[:\s]{1,3}([A-Z][A-Za-z]{1,20}(?:\s{1,3}[A-Z][A-Za-z]{1,20}){0,3})(?=\s{1,3}(?:social|security|\d{3})|$)/i, # rubocop:disable Layout/LineLength
+            /\bestablished\s{1,3}for\s{1,3}([A-Z][A-Za-z]{1,20}(?:\s{1,3}[A-Z][A-Za-z]{1,20}){0,3})(?=\s{1,3}\d{3}|$)/i,
+            /\bfor\s{1,3}([A-Z][A-Za-z]{1,20}(?:\s{1,3}[A-Z][A-Za-z]{1,20}){0,3})(?=\s{1,3}\d{3})/i,
+            /^NAME\s{1,3}([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}social)/i,
+            /^([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}\d{3})/
           ]
 
           name_patterns.each do |pattern|
             match = text.match(pattern)
             next unless match
 
-            name = match[1].strip.gsub(/\s+(social|security|administration|ssa|ssn)$/i, '').gsub(/[,\.]+$/, '')
+            name = match[1].strip
             return name if valid_name?(name)
           end
 
