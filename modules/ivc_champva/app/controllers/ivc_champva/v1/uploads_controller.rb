@@ -35,6 +35,8 @@ module IvcChampva
 
           response = handle_file_uploads_wrapper(form_id, parsed_form_data)
 
+          #launch_background_jobs(parsed_form_data)
+
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
           end
@@ -45,6 +47,37 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      ##
+      # Launches background jobs for OCR and LLM processing if enabled
+      # @param [Hash] parsed_form_data complete form submission data object
+      def launch_background_jobs(parsed_form_data)
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) # ||
+          # Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+
+          byebug
+
+          # get needed info
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
+
+          # iterate through all files
+          metadata['attachment_ids'].zip(file_paths).map do |attachment_id, file_path|
+            next if file_path.blank?
+
+            if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user)
+              # queue Tesseract OCR job for each file
+              tesseract_ocr_logger_job = IvcChampva::TesseractOcrLoggerJob.new
+              tesseract_ocr_logger_job.perform_async(form.form_id, form.uuid, file_path, attachment_id)
+              Rails.logger.info("Tesseract OCR job queued for form_id: #{form_id}, uuid: #{uuid}, attachment_id: #{attachment_id}")
+            end
+
+            # if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+              # queue LLM job for each file
+            # end
+          end
+        end
       end
 
       def validate_mpi_profiles(parsed_form_data, form_id)

@@ -49,6 +49,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             .with(:champva_send_to_ves, @current_user)
             .and_return(true)
           allow(Flipper).to receive(:enabled?)
+            .with(:champva_enable_ocr_on_submit, @current_user)
+            .and_return(false)
+          allow(Flipper).to receive(:enabled?)
             .with(:champva_retry_logic_refactor, @current_user)
             .and_return(champva_retry_logic_refactor_state)
         end
@@ -76,6 +79,24 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(record.form_uuid).to be_present
 
             expect(response).to have_http_status(:ok)
+          end
+
+          it 'launches background jobs for OCR' do
+            #mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+            #allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+            #                                                   .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+            #allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+            #allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+            #  double('response',
+            #         context: double('context', http_response: double('http_response', status_code: 200)))
+            #)
+
+            # Spy on the method at the class level
+            #allow(IvcChampva::V1::UploadsController).to receive(:new).and_call_original
+            #allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).and_call_original
+            #expect_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).once.and_call_original
+
+            #post '/ivc_champva/v1/forms', params: data
           end
 
           it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
@@ -201,6 +222,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                   expect(response).to have_http_status(:ok)
                 end
               end
+            end
+          end
+
+          context 'with retry feature enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
             end
           end
 
