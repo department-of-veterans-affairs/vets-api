@@ -1,0 +1,34 @@
+name: Cleanup Cache
+on:
+  delete:
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup_branch_cache:
+    if: github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    name: Cleanup Branch Cache
+    steps:
+      - name: Delete branch cache
+        run: |
+          BRANCH_NAME="${{ github.event.ref }}"
+          echo "Cleaning up caches for deleted branch: $BRANCH_NAME"
+
+          # Get all caches for the deleted branch (both ref-based and key-based)
+          CACHE_IDS=$(gh api repos/${{ github.repository }}/actions/caches \
+            --jq ".actions_caches[] | select(.ref == \"refs/heads/${BRANCH_NAME}\" or (.key | contains(\"buildx-${BRANCH_NAME}-\"))) | .id")
+
+          if [ -n "$CACHE_IDS" ]; then
+            echo "Found caches to delete: $CACHE_IDS"
+            echo "$CACHE_IDS" | while read -r cache_id; do
+              echo "Deleting cache ID: $cache_id"
+              gh api --method DELETE repos/${{ github.repository }}/actions/caches/$cache_id || true
+            done
+            echo "Cache cleanup completed for branch: $BRANCH_NAME"
+          else
+            echo "No caches found for branch: $BRANCH_NAME"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
