@@ -92,7 +92,7 @@ module Eps
         all_slots.concat(current_response[:slots]) if current_response[:slots].present?
 
         next_token = current_response[:next_token]
-        break if next_token.blank? || current_response[:slots].blank?
+        break if next_token.blank?
       end
 
       combined_response = { slots: all_slots, count: all_slots.length }

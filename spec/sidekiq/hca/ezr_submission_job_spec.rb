@@ -191,12 +191,17 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
             allow(Flipper).to receive(:enabled?).with(:ezr_use_va_notify_on_submission_failure).and_return(true)
           end
 
-          it 'increments StatsD, logs the error, sends a failure email, and does not retry' do
+          it 'increments StatsD, creates a PersonalInformationLog, logs the error, ' \
+             'sends a failure email, and does not retry' do
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_did_not_retry')
             expect(Rails.logger).to receive(:info).with(full_log_msg)
             expect_submission_failure_email_and_statsd_increments
             expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
               form, '1010EZR failure did not retry', 'failure_did_not_retry'
+            )
+            expect(PersonalInformationLog).to receive(:create!).with(
+              data: form,
+              error_class: 'Form1010Ezr FailedDidNotRetry'
             )
             # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
             expect { subject }.to raise_error(Sidekiq::JobRetry::Skip)
