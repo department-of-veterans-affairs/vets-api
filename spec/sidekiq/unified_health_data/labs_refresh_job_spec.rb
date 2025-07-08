@@ -50,9 +50,9 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
     context 'when the user does not exist' do
       it 'logs an error and returns early' do
         allow(User).to receive(:find).with('nonexistent_uuid').and_return(nil)
-        
+
         expect(Rails.logger).to receive(:error).with(
-          "UHD Labs Refresh Job: User not found for UUID: nonexistent_uuid"
+          'UHD Labs Refresh Job: User not found for UUID: nonexistent_uuid'
         )
 
         described_class.new.perform('nonexistent_uuid')

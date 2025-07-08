@@ -12,42 +12,55 @@ module UnifiedHealthData
     sidekiq_options retry: 0
 
     def perform(user_uuid)
-      user = User.find(user_uuid)
-      
-      unless user
-        Rails.logger.error("UHD Labs Refresh Job: User not found for UUID: #{user_uuid}")
-        return
-      end
+      user = find_user(user_uuid)
+      return unless user
 
-      # Calculate date range for the past month
+      labs_data = fetch_labs_data(user)
+      log_success(labs_data)
+      labs_data.size
+    rescue => e
+      log_error(e)
+      raise
+    end
+
+    private
+
+    def find_user(user_uuid)
+      user = User.find(user_uuid)
+      return user if user
+
+      Rails.logger.error("UHD Labs Refresh Job: User not found for UUID: #{user_uuid}")
+      nil
+    end
+
+    def fetch_labs_data(user)
       end_date = Date.current
       start_date = end_date - 1.month
 
-      # Initialize the UHD service
       uhd_service = UnifiedHealthData::Service.new(user)
-      
-      # Fetch labs data for the past month
-      labs_data = uhd_service.get_labs(
+      uhd_service.get_labs(
         start_date: start_date.strftime('%Y-%m-%d'),
         end_date: end_date.strftime('%Y-%m-%d')
       )
+    end
 
-      # Log successful completion
+    def log_success(labs_data)
+      end_date = Date.current
+      start_date = end_date - 1.month
+
       Rails.logger.info(
-        "UHD Labs Refresh Job completed successfully",
+        'UHD Labs Refresh Job completed successfully',
         records_count: labs_data.size,
         start_date: start_date.strftime('%Y-%m-%d'),
         end_date: end_date.strftime('%Y-%m-%d')
       )
+    end
 
-      # Return the count of records fetched
-      labs_data.size
-    rescue => e
+    def log_error(error)
       Rails.logger.error(
-        "UHD Labs Refresh Job failed",
-        error: e.message,
+        'UHD Labs Refresh Job failed',
+        error: error.message
       )
-      raise
     end
   end
 end
