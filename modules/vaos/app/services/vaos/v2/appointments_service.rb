@@ -944,7 +944,8 @@ module VAOS
         elsif %w[MOBILE_ANY ADHOC].include?(vvs_kind)
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
-          'vaInPerson'
+          vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+          vvs_video_appt == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
         end
       end
 
