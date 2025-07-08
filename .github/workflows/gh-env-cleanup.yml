@@ -106,3 +106,22 @@ jobs:
               echo "Failed to delete: $ENCODED_ENV (HTTP $RESPONSE). It probably never existed though."
             fi
           done
+
+      - name: Delete branch cache
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "Cleaning up caches for deleted branch: $BRANCH_NAME"
+          
+          # Delete caches using proper iteration over lines
+          gh api repos/${{ github.repository }}/actions/caches --paginate | \
+            jq -r ".actions_caches[] | select(.ref == \"refs/heads/${BRANCH_NAME}\" or (.key | contains(\"buildx-${BRANCH_NAME}-\"))) | .id" | \
+            while read -r cache_id; do
+              if [ -n "$cache_id" ]; then
+                echo "Deleting cache ID: $cache_id"
+                gh api --method DELETE repos/${{ github.repository }}/actions/caches/$cache_id || true
+              fi
+            done
+          
+          echo "Cache cleanup completed for branch: $BRANCH_NAME"
+        env:
+          GH_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
