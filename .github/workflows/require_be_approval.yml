@@ -151,7 +151,7 @@ jobs:
             ]
             | sort_by(.submitted_at)
             | last
-            | .user.login
+            | .user.login // ""
           ' || true)
 
           echo "Approvals: $APPROVED"
