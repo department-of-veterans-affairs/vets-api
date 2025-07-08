@@ -329,7 +329,6 @@ app/policies/mhv_prescriptions_policy.rb @department-of-veterans-affairs/vfs-hea
 app/policies/mhv_user_account_policy.rb @department-of-veterans-affairs/octo-identity
 app/policies/mpi_policy.rb @department-of-veterans-affairs/octo-identity
 app/policies/power_of_attorney_policy.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group
-app/policies/ppiu_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/policies/sign_in/ @department-of-veterans-affairs/octo-identity
 app/policies/va_profile_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/policies/vet360_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1587,7 +1586,6 @@ spec/policies/mhv_prescriptions_policy_spec.rb @department-of-veterans-affairs/v
 spec/policies/mhv_user_account_policy_spec.rb @department-of-veterans-affairs/octo-identity
 spec/policies/mpi_policy_spec.rb @department-of-veterans-affairs/octo-identity
 spec/policies/power_of_attorney_policy_spec.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group
-spec/policies/ppiu_policy_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/policies/sign_in/ @department-of-veterans-affairs/octo-identity
 spec/policies/vet360_policy_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/rails_helper.rb @department-of-veterans-affairs/backend-review-group
