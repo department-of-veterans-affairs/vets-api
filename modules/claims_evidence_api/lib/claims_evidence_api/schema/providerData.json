@@ -1,27 +1,216 @@
 {
+  "$schema": "http://json-schema.org/draft-06/schema",
   "$id": "https://claims_evidence_api.va.gov/schema/providerData.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Provider Data",
+  "description" : "Claim Evidence API Provider Data.",
   "type": "object",
-  "properties": {
-    "claimantFirstName": {},
-    "contentSource": {
-      "type": "string",
-      "max": 500,
-      "min": 1,
-      "pattern": "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\/@\\(\\)]*$"
+  "additionalProperties" : false,
+  "properties" : {
+    "contentSource" : {
+      "description" : "String field designating the originating source of the content being uploaded.",
+      "example" : "VBMS",
+      "maximum" : 500,
+      "minimum" : 1,
+      "pattern" : "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\\/@\\(\\)]*$",
+      "title" : "Document content source",
+      "type" : "string"
     },
-    "dateVaReceivedDocument": {
-      "type": "string",
-      "max": 10,
-      "min": 10,
-      "pattern": "([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))",
-      "description": "Date field indicating the date the VA received the document. This can be any date in format of YYYY-MM-DD from 1900 until today"
+    "claimantFirstName" : {
+      "description" : "String field designating the Claimant's first name.",
+      "example" : "John",
+      "maxLength" : 64,
+      "pattern" : "^[a-zA-Z0-9\\\\'\\\\,\\\\s.\\\\-\\\\_\\\\|\\\\/@\\\\(\\\\)]*$",
+      "title" : "Claimant First Name",
+      "type" : "string"
     },
-    "documentTypeId": {
-      "type": "integer",
-      "min": 0,
-      "default": 10
+    "claimantMiddleInitial" : {
+      "description" : "String field designating the Claimant's middle initial.",
+      "example" : "M",
+      "maxLength" : 4,
+      "pattern" : "^[a-zA-Z]*$",
+      "title" : "Claimant Middle Initial",
+      "type" : "string"
+    },
+    "claimantLastName" : {
+      "description" : "String field designating the Claimant's last name.",
+      "example" : "Smith",
+      "maxLength" : 64,
+      "pattern" : "^[a-zA-Z0-9\\\\'\\\\,\\\\s.\\\\-\\\\_\\\\|\\\\/@\\\\(\\\\)]*$",
+      "title" : "Claimant Last Name",
+      "type" : "string"
+    },
+    "claimantSsn" : {
+      "description" : "String field designating the Claimant's SSN. Only accepts exactly 9 characters.",
+      "example" : "123456789",
+      "maxLength" : 9,
+      "pattern" : "^[0-9]*$",
+      "title" : "Claimant SSN",
+      "type" : "string"
+    },
+    "benefitTypeId" : {
+      "description" : "Number field designating the Benefit Type ID.",
+      "example" : 10,
+      "minimum" : 0,
+      "title" : "Benefit Type ID",
+      "type" : "integer"
+    },
+    "documentTypeId" : {
+      "description" : "Number field correlating to a Claim Evidence document type ID. Document types primary use is loosely categorizing their contents.",
+      "example" : 131,
+      "minimum" : 1,
+      "title" : "Document Type ID",
+      "type" : "integer"
+    },
+    "dateVaReceivedDocument" : {
+      "description" : "Date field indicating the date the VA received the document. This can be any date in format of YYYY-MM-DD from 1900 until today",
+      "example" : "2022-02-01",
+      "format" : "string",
+      "maxLength" : 10,
+      "minLength" : 10,
+      "pattern" : "([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))",
+      "title" : "Date VA Received Document",
+      "type" : "string"
+    },
+    "subject" : {
+      "description" : "Free text describing the document. This is primarily notes used to assist claim developers.",
+      "example" : "subject",
+      "maxLength" : 256,
+      "pattern" : "^[a-zA-Z0-9\\s.\\-_|\\Q\\\\E@#~=%,;?!'\"`():$+*^\\[\\]&<>{}\\Q/\\E]*$",
+      "title" : "Subject",
+      "type" : "string"
+    },
+    "contentions" : {
+      "description" : "list of contentions by name associated to the document. This is only available for files where the documentType is 526 as evidenced by the is526 property on the /DocumentTypes endpoint response. If there are no contentions supplied, this key should not be on the request.",
+      "example" : "[\"contention1\"]",
+      "items" : {
+        "maxLength" : 128,
+        "minLength" : 1,
+        "pattern" : "^[a-zA-Z0-9\\s.\\-_|\\Q\\\\E@#~=%,;?!'\"`():$+*^\\[\\]&<>{}\\Q/\\E]*$",
+        "type" : "string"
+      },
+      "title" : "Contentions",
+      "type" : "array"
+    },
+    "alternativeDocumentTypeIds" : {
+      "description" : "list of associated document type Ids.",
+      "example" : "[1]",
+      "items" : {
+        "minimum" : 0,
+        "type" : "integer"
+      },
+      "title" : "Alternative Document Type Ids",
+      "type" : "array"
+    },
+    "actionable" : {
+      "default" : false,
+      "description" : "Boolean true/false for if the document is considered 'actionable' or whether claim action can be taken based on the content.",
+      "title" : "Actionable",
+      "type" : "boolean"
+    },
+    "manifestId" : {
+      "description" : "UUID that uniquely identifies the manifest",
+      "example" : "550e8400-e29b-41d4-a716-446655440000",
+      "maxLength" : 36,
+      "minLength" : 36,
+      "pattern" : "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "title" : "Manifest Id",
+      "type" : "string"
+    },
+    "documentId" : {
+      "description" : "UUID that uniquely identifies the document",
+      "example" : "550e8400-e29b-41d4-a716-446655440001",
+      "maxLength" : 36,
+      "minLength" : 36,
+      "pattern" : "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "title" : "Document Id",
+      "type" : "string"
+    },
+    "associatedClaimIds" : {
+      "description" : "list of associated claim ids.",
+      "example" : "[\"1\"]",
+      "items" : {
+        "maxLength" : 128,
+        "minLength" : 1,
+        "pattern" : "^[a-zA-Z0-9\\s.\\-_|\\Q\\\\E@#~=%,;?!'\"`():$+*^\\[\\]&<>{}\\Q/\\E]*$",
+        "type" : "string"
+      },
+      "title" : "Associated Claim Ids",
+      "type" : "array"
+    },
+    "notes" : {
+      "description" : "Notes to describe the document.",
+      "example" : "[This is a note for a document, These replace editing the document summary]",
+      "maxLength" : 100,
+      "pattern" : "^[a-zA-Z0-9\\s.\\-_|\\Q\\\\E@#~=%,;?!'\"`():$+*^\\[\\]&<>{}\\Q/\\E]*$",
+      "title" : "Document Notes",
+      "type" : "string"
+    },
+    "payeeCode" : {
+      "description" : "String field designating the Payee Code. Only accepts 2 digits as a string with leading 0 if below 10.",
+      "example" : "00",
+      "maxLength" : 2,
+      "minLength" : 2,
+      "pattern" : "^[0-9]*$",
+      "title" : "Payee Code",
+      "type" : "string"
+    },
+    "endProductCode" : {
+      "description" : "Free text describing the document. This is primarily notes used to assist claim developers. This field must match a valid known end product code.",
+      "example" : "130DPNDCY",
+      "maxLength" : 64,
+      "minLength" : 1,
+      "pattern" : "^[a-zA-Z0-9\\s.\\\\\\-\\_\\|\\/@&><\\(\\))\\'\\+\\,\\$]*$",
+      "title" : "Subject",
+      "type" : "string"
+    },
+    "regionalProcessingOffice" : {
+      "description" : "String field designating the regional processing office.",
+      "example" : "Buffalo",
+      "maxLength" : 15,
+      "minLength" : 3,
+      "pattern" : "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\\/@\\(\\)]*$",
+      "title" : "Regional Processing Office",
+      "type" : "string"
+    },
+    "facilityCode" : {
+      "description" : "String field designating the Facility Code.",
+      "example" : "Facility",
+      "maxLength" : 8,
+      "pattern" : "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\\/@\\(\\)]*$",
+      "title" : "Facility Code",
+      "type" : "string"
+    },
+    "claimantParticipantId" : {
+      "description" : "String field designating the claimant participant Id.",
+      "example" : "000000000",
+      "maxLength" : 15,
+      "pattern" : "^[0-9]*$",
+      "title" : "Claimant Participant Id",
+      "type" : "string"
+    },
+    "sourceComment" : {
+      "description" : "String field containing any comments from the source of the document",
+      "example" : "source comment",
+      "maxLength" : 1200,
+      "pattern" : "^[a-zA-Z0-9\\s.\\-_|\\Q\\\\E@#~=%,;?!'\"`():$+*^\\[\\]&<>{}\\Q/\\E]*$",
+      "title" : "Source comment",
+      "type" : "string"
+    },
+    "claimantDateOfBirth" : {
+      "description" : "Date field indicating the date the claimant was born. This can be any date in format of YYYY-MM-DD from 1900 until today",
+      "example" : "2022-01-01",
+      "format" : "string",
+      "maxLength" : 10,
+      "pattern" : "([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))",
+      "title" : "Claimant Date of Birth",
+      "type" : "string"
+    },
+    "newMail" : {
+      "default" : false,
+      "description" : "Boolean true/false for if the document is considered 'new mail'",
+      "example" : false,
+      "title" : "New Mail",
+      "type" : "boolean"
     }
   }
 }

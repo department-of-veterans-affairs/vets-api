@@ -1,11 +1,13 @@
 {
+  "$schema": "http://json-schema.org/draft-06/schema",
   "$id": "https://claims_evidence_api.va.gov/schema/uploadPayload.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Upload File Payload",
   "type": "object",
   "required": ["contentName", "providerData"],
+  "additionalProperties" : false,
   "properties": {
     "contentName": {
+      "description": "The content name of the document being uploaded. This must be unique for the folder being uploaded to. For instance the document 'pdf.pdf' cannot be uploaded twice for fileNumber 987654321. The acceptable file extensions are png, pdf, tif, tiff, txt, jpg, jpeg, and bmp.",
       "type": "string",
       "max": 256,
       "min": 4,

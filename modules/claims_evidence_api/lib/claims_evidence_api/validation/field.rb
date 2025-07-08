@@ -71,12 +71,12 @@ module ClaimsEvidenceApi
       #
       # @raise ArgumentError if value does not match regex
       #
-      # @param regex [String|Regex] the pattern for value
+      # @param regexp [String] the pattern for value
       # @param value [Mixed] the value to test
-      def pattern(regex, value)
+      def pattern(regexp, value)
         raise ArgumentError, '`type` must be :string to use pattern' if type != :string
         raise ArgumentError, "#{value} is not a string" if value.class != String
-        raise ArgumentError, "#{value} does not match #{regex}" unless regex.match?(value)
+        raise ArgumentError, "#{value} does not match #{regex}" unless Regexp.new(regexp).match?(value)
       end
 
       # check if the value is in an accepted set
