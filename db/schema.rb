@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_03_183404) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1855,6 +1855,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_03_183404) do
     t.string "address_line2"
     t.string "address_line3"
     t.string "phone_number"
+    t.index "lower((email)::text)", name: "index_veteran_representatives_on_lower_email"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
