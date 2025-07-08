@@ -382,7 +382,6 @@ app/serializers/persistent_attachment_serializer.rb @department-of-veterans-affa
 app/serializers/persistent_attachment_va_form_serializer.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
 app/serializers/personal_information_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/post911_gi_bill_status_serializer.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
-app/serializers/ppiu_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/preferred_name_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/preneed_attachment_serializer.rb @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 app/serializers/rated_disabilities_serializer.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -579,7 +578,6 @@ app/swagger/swagger/schemas/letter_beneficiary.rb @department-of-veterans-affair
 app/swagger/swagger/schemas/maintenance_windows.rb @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/onsite_notifications.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
-app/swagger/swagger/schemas/ppiu.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/sign_in.rb @department-of-veterans-affairs/octo-identity
 app/swagger/swagger/schemas/travel_pay.rb @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/upload_supporting_evidence.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -1710,7 +1708,6 @@ spec/serializers/persistent_attachment_serializer_spec.rb @department-of-veteran
 spec/serializers/persistent_attachment_va_form_serializer_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
 spec/serializers/personal_information_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/post911_gi_bill_status_serializer_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
-spec/serializers/ppiu_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/preferred_name_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/preneed_attachment_serializer_spec.rb @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 spec/serializers/rated_disabilities_serializer_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -1853,7 +1850,6 @@ spec/support/mpi @department-of-veterans-affairs/octo-identity
 spec/support/mr_client_helpers.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/backend-review-group
 spec/support/pagerduty @department-of-veterans-affairs/backend-review-group
 spec/support/poa_stub.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
-spec/support/ppiu @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/rakelib/users_serialized.json @department-of-veterans-affairs/octo-identity
 spec/support/request_helper.rb @department-of-veterans-affairs/octo-identity
 spec/support/rswag/text_helpers.rb @department-of-veterans-affairs/lighthouse-dash
