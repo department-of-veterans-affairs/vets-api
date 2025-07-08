@@ -13,7 +13,7 @@ module Enrollment
     #
     # @example Fetch form data for a specific user and tax year
     #   service = Form1095BEnrollment::Service.new(user)
-    #   form_data = service.get_form(tax_year: 2023)
+    #   form_data = service.get_form_by_icn(icn: '1234', tax_year: 2023)
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
