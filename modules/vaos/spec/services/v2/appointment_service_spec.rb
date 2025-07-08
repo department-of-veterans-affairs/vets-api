@@ -2004,7 +2004,7 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_avs_link' do
-    let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+    let(:user) { build(:user, :loa3, :legacy_icn) }
     let(:expected_avs_link) do
       '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
     end
@@ -2330,11 +2330,18 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    it 'is vaInPerson for nil vvsKind' do
-      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+    it 'is vaInPerson for nil vvsKind and false vvsVistaVideoAppt' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoFalse).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPerson')
+    end
+
+    it 'is vaVideoCareAtHome for nil vvsKind and true vvsVistaVideoAppt' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoTrue).attributes
+      appt[:telehealth][:vvs_kind] = nil
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtHome')
     end
 
     it 'is nil for unrecognized vvsKind' do
@@ -2584,11 +2591,18 @@ describe VAOS::V2::AppointmentsService do
       expect(subject.send(:schedulable?, appt)).to be(false)
     end
 
-    it 'returns false for cc appointments and requests' do
-      appt = build(:appointment_form_v2, :community_cares_base).attributes
+    it 'returns false for cc appointment' do
+      appt = build(:appointment_form_v2, :community_cares_no_request_dates).attributes
       appt[:id] = '1234'
       subject.send(:set_type, appt)
       expect(subject.send(:schedulable?, appt)).to be(false)
+    end
+
+    it 'returns true for cc request' do
+      appt = build(:appointment_form_v2, :community_cares_base).attributes
+      appt[:id] = '1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(true)
     end
 
     it 'returns true for va requests' do

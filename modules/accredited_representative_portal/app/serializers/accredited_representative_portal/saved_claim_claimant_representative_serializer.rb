@@ -24,10 +24,12 @@ module AccreditedRepresentativePortal
     attribute :form_type, &:display_form_id
 
     attribute :packet do |object|
-      object.persistent_attachments.size > 1
+      object.persistent_attachments.any?
     end
 
-    attribute :confirmation_number, &:guid
+    attribute :confirmation_number do |object|
+      object.latest_submission_attempt.benefits_intake_uuid
+    end
 
     attribute :vbms_status do |object|
       STATUSES[object.latest_submission_attempt&.aasm_state]

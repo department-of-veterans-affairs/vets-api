@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
   let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
   let(:claim_id) { 600_383_363 } # This is the claim in the vcr cassettes that we are using
 
@@ -320,9 +320,9 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                          ' The examiner’s office will contact you to schedule' \
                                                          ' this appointment.')
           short_description_values = tracked_items.map { |i| i['shortDescription'] }
-          expect(short_description_values).to include('For your benefits claim, we’ve requested your service' \
+          expect(short_description_values).to include('We’ve requested your service' \
                                                       ' records or treatment records from your reserve unit.')
-          expect(short_description_values).to include('For your benefits claim, we’ve requested all your' \
+          expect(short_description_values).to include('We’ve requested all your' \
                                                       ' DD Form 214’s or other separation papers for all' \
                                                       ' your periods of military service.')
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }

@@ -187,6 +187,11 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when no error occurs' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(false)
+        end
+
         it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
@@ -211,12 +216,17 @@ RSpec.describe Form1010Ezr::Service do
             ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
             allow_any_instance_of(
               Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
-            ).to receive(:reconcile_and_update_associations).and_return(
+            ).to receive(:update_associations).and_return(
               {
                 status: 'success',
                 message: 'All associations were updated successfully',
                 timestamp: '2025-06-08T18:00:00Z'
               }
+            )
+            allow_any_instance_of(
+              VeteranEnrollmentSystem::Associations::Service
+            ).to receive(:get_associations).and_return(
+              get_fixture('/veteran_enrollment_system/associations/associations_maximum')
             )
             # Call the submit_sync method instead of submit_async so that we can ensure that
             # the associations are removed from the form before it is submitted
