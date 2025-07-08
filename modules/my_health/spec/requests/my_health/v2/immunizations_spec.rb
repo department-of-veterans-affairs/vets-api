@@ -52,11 +52,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       it 'includes location information in immunization data' do
         json_response = JSON.parse(response.body)
-        
+
         # Verify that immunizations have location data
         expect(json_response['data']).to be_an(Array)
         expect(json_response['data']).not_to be_empty
-        
+
         # Check that each immunization includes location data
         json_response['data'].each do |immunization|
           expect(immunization['attributes']).to have_key('location')
