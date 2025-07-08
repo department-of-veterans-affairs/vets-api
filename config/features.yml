@@ -121,6 +121,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
+  benefits_documents_filter_duplicates:
+    actor_type: user
+    description: When enabled, attempt to catch duplicate documents before sending them to LH
+    enable_in_development: false
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
