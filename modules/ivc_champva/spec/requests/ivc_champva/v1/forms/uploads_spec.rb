@@ -82,21 +82,21 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           it 'launches background jobs for OCR' do
-            #mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
-            #allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+            # mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+            # allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
             #                                                   .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
-            #allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
-            #allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+            # allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+            # allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
             #  double('response',
             #         context: double('context', http_response: double('http_response', status_code: 200)))
-            #)
+            # )
 
             # Spy on the method at the class level
-            #allow(IvcChampva::V1::UploadsController).to receive(:new).and_call_original
-            #allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).and_call_original
-            #expect_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).once.and_call_original
+            # allow(IvcChampva::V1::UploadsController).to receive(:new).and_call_original
+            # allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).and_call_original
+            # expect_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).once.and_call_original
 
-            #post '/ivc_champva/v1/forms', params: data
+            # post '/ivc_champva/v1/forms', params: data
           end
 
           it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do

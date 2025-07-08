@@ -35,7 +35,7 @@ module IvcChampva
 
           response = handle_file_uploads_wrapper(form_id, parsed_form_data)
 
-          #launch_background_jobs(parsed_form_data)
+          # launch_background_jobs(parsed_form_data)
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
@@ -60,7 +60,7 @@ module IvcChampva
 
           # get needed info
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
+          _, form = get_attachment_ids_and_form(parsed_form_data)
 
           # iterate through all files
           metadata['attachment_ids'].zip(file_paths).map do |attachment_id, file_path|
@@ -70,11 +70,13 @@ module IvcChampva
               # queue Tesseract OCR job for each file
               tesseract_ocr_logger_job = IvcChampva::TesseractOcrLoggerJob.new
               tesseract_ocr_logger_job.perform_async(form.form_id, form.uuid, file_path, attachment_id)
-              Rails.logger.info("Tesseract OCR job queued for form_id: #{form_id}, uuid: #{uuid}, attachment_id: #{attachment_id}")
+              Rails.logger.info(
+                "Tesseract OCR job queued for form_id: #{form_id}, uuid: #{uuid}, attachment_id: #{attachment_id}"
+              )
             end
 
             # if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
-              # queue LLM job for each file
+            # queue LLM job for each file
             # end
           end
         end

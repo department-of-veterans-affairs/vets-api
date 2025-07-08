@@ -13,7 +13,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
     document_type: 'the document type',
     is_valid: true,
     confidence: 0.8675309,
-    extracted_fields: extracted_fields
+    extracted_fields:
   }
 
   before do
@@ -60,7 +60,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
 
       it 'does not log values from extracted fields which may contain PII' do
         job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
-        extracted_fields.values.each do |value|
+        extracted_fields.each_value do |value|
           expect(Rails.logger).not_to have_received(:info).with(a_string_including(value.to_s))
         end
       end
@@ -69,10 +69,11 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
         allow(File).to receive(:exist?).and_return(false)
 
         job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
-        expect(Rails.logger).to have_received(:error).with(a_string_including('failed with error: No such file or directory - File not found'))
+        expect(Rails.logger).to have_received(:error).with(
+          a_string_including('failed with error: No such file or directory - File not found')
+        )
         expect(Rails.logger).not_to have_received(:error).with(a_string_including('file_path')) # path may contain PII
       end
     end
   end
-
 end

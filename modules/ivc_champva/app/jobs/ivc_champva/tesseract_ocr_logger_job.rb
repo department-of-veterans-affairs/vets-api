@@ -10,7 +10,10 @@ module IvcChampva
     def perform(form_id, uuid, file_path, attachment_id)
       return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
 
-      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}, attachment_id: #{attachment_id}")
+      Rails.logger.info(
+        "IvcChampva::TesseractOcrLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}," \
+        " attachment_id: #{attachment_id}"
+      )
 
       begin
         # Ensure the file exists before processing
@@ -32,9 +35,11 @@ module IvcChampva
         result[:extracted_fields].each do |key, value|
           type = value.class
           length = value.is_a?(String) ? value.length : nil
-          Rails.logger.info("IvcChampva::TesseractOcrLoggerJob extracted_field: #{key}: type=#{type}#{", length=#{length}" if length}")
+          Rails.logger.info(
+            "IvcChampva::TesseractOcrLoggerJob extracted_field: #{key}: " \
+            "type=#{type}#{", length=#{length}" if length}"
+          )
         end
-
       rescue => e
         Rails.logger.error("IvcChampva::TesseractOcrLoggerJob failed with error: #{e.message}")
       end
