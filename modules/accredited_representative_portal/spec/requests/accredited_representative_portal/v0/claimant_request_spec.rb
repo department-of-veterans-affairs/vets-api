@@ -17,7 +17,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
   let!(:other_poa_code) { 'z99' }
 
   let!(:test_user) do
-    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
 
   let!(:accredited_individual) do
@@ -30,6 +30,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
   let!(:representative) do
     create(:representative,
            :vso,
+           email: test_user.email,
            representative_id: accredited_individual.accredited_individual_registration_number,
            poa_codes: [poa_code])
   end
@@ -42,7 +43,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     create(:power_of_attorney_request, :with_veteran_claimant, poa_code:, accredited_individual: representative,
                                                                accredited_organization: vso, claimant:)
   end
-  let!(:other_poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code) }
+  let!(:other_poa_request) { create(:power_of_attorney_request, claimant:, poa_code: other_poa_code) }
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
@@ -82,6 +83,51 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([poa_request.id])
+      end
+
+      context 'there are multiple PoA request attempts' do
+        let!(:other_poa_request) do
+          create(:power_of_attorney_request,
+                 :with_veteran_claimant,
+                 :with_pending_form_submission,
+                 poa_code:, accredited_individual: representative,
+                 accredited_organization: vso, claimant:, created_at: 1.day.ago)
+        end
+        let!(:accepted_poa_request) do
+          create(:power_of_attorney_request,
+                 :with_veteran_claimant,
+                 :with_acceptance,
+                 poa_code:, accredited_individual: representative,
+                 accredited_organization: vso, claimant:, created_at: 2.days.ago)
+        end
+        let!(:declined_poa_request) do
+          create(:power_of_attorney_request,
+                 :with_veteran_claimant,
+                 :with_declination,
+                 poa_code:, accredited_individual: representative,
+                 accredited_organization: vso, claimant:, created_at: 3.days.ago)
+        end
+
+        it 'orders poa requests with pending first, then by date' do
+          VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+            VCR.use_cassette(
+              'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
+              'lighthouse/benefits_claims/200_response'
+            ) do
+              post('/accredited_representative_portal/v0/claimant/search', params: {
+                     first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: '666-66-6666'
+                   })
+            end
+          end
+          parsed_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([
+                                                                                             poa_request.id,
+                                                                                             other_poa_request.id,
+                                                                                             accepted_poa_request.id,
+                                                                                             declined_poa_request.id
+                                                                                           ])
+        end
       end
     end
   end

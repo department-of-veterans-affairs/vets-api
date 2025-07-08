@@ -94,12 +94,25 @@ class FormProfile
     coe: ['26-1880'],
     decision_review: %w[20-0995 20-0996 10182],
     dependents: %w[686C-674 686C-674-V2],
+    dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_upload: %w[
+      21P-4185-UPLOAD
+      21-651-UPLOAD
+      21-0304-UPLOAD
+      21-8960-UPLOAD
+      21P-4706c-UPLOAD
+      21-4140-UPLOAD
+      21P-4718a-UPLOAD
+      21-4193-UPLOAD
+      21-0788-UPLOAD
+      21-8951-2-UPLOAD
+      21-674b-UPLOAD
+      21-2680-UPLOAD
       21-0779-UPLOAD
       21-4192-UPLOAD
       21-509-UPLOAD
@@ -117,9 +130,9 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
     vre_counseling: ['28-8832'],
-    vre_readiness: ['28-1900']
+    vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -130,23 +143,14 @@ class FormProfile
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
-    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0538' => DependentsVerification::FormProfiles::VA210538,
     '21-0966' => ::FormProfiles::VA210966,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
-    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
+    '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
-    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
@@ -163,6 +167,7 @@ class FormProfile
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
     '28-1900' => ::FormProfiles::VA281900,
+    '28-1900-V2' => ::FormProfiles::VA281900v2,
     '28-8832' => ::FormProfiles::VA288832,
     '40-10007' => ::FormProfiles::VA4010007,
     '5655' => ::FormProfiles::VA5655,
@@ -171,7 +176,30 @@ class FormProfile
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
-    'MDOT' => ::FormProfiles::MDOT
+    'MDOT' => ::FormProfiles::MDOT,
+    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-651-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-674b-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0304-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0788-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-2680-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4140-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4185-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4193-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4706c-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4718a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-8960-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -188,35 +216,10 @@ class FormProfile
     forms
   end
 
-  # Prepends the appropriate form class namespace based on the given form_class, form_id and Flipper settings
-  #
-  # @param form_class [Class] The name of the Class (e.g., ::FormProfiles::VA21p527ez).
-  # @param form_id [String] The name of the Form (e.g., '21P-527EZ').
-  # @return [Module] The corresponding namespace module for form profiles, defaulting to FormProfiles.
-  #
-  # @example Usage
-  #   prepend_module(::FormProfiles::VA21p527ez, '21P-527EZ') #=> Pensions::FormProfiles::VA21p527ez
-  #   prepend_module(::FormProfiles::VA21p530ez', '21P-530EZ')  #=> Burials::FormProfiles::VA21p530ez
-  #   prepend_module(::FormProfiles::VA4010007, '40-10007')  #=> ::FormProfiles::VA4010007 (no flipper)
-  #
-  def self.prepend_module(form_class, form_id)
-    namespaces = {
-      '21P-527EZ' => 'Pensions'
-    }
-
-    namespace = namespaces[form_id]
-    if namespace && Flipper.enabled?(:"#{namespace.singularize.downcase}_form_profile_module_enabled", @user)
-      "#{namespace}::#{form_class}".constantize
-    else
-      form_class
-    end
-  end
-
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
-    form_class = FORM_ID_TO_CLASS.fetch(form_id, self)
-    prepend_module(form_class, form_id).new(form_id:, user:)
+    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
   end
 
   def initialize(form_id:, user:)

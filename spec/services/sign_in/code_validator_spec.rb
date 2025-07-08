@@ -35,10 +35,9 @@ RSpec.describe SignIn::CodeValidator do
                user_verification_id:)
       end
       let(:client_id) { client_config.client_id }
-      let(:client_config) { create(:client_config, pkce:, certificates: [client_assertion_certificate]) }
+      let(:client_config) { create(:client_config, pkce:) }
       let(:pkce) { true }
       let(:code_container_code) { code }
-      let(:client_assertion_certificate) { nil }
       let(:code_challenge) { 'some-code-challenge' }
       let(:user_verification_id) { 'some-user-verification-uuid' }
 
@@ -102,6 +101,7 @@ RSpec.describe SignIn::CodeValidator do
       end
 
       context 'and client is configured with private key jwt authentication type' do
+        let(:client_config) { create(:client_config, pkce:, certs: [client_assertion_certificate]) }
         let(:pkce) { false }
         let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
         let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
@@ -124,7 +124,7 @@ RSpec.describe SignIn::CodeValidator do
           JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
         end
         let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
-        let(:client_assertion_certificate) { File.read(certificate_path) }
+        let(:client_assertion_certificate) { create(:sign_in_certificate, pem: File.read(certificate_path)) }
 
         context 'and client assertion type does not equal expected value' do
           let(:client_assertion_type) { 'some-client-assertion-type' }

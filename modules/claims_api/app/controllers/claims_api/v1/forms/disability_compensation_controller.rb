@@ -277,7 +277,11 @@ module ClaimsApi
         end
 
         def unprocessable_response(e)
-          log_message_to_sentry('Upload error in 526', :warning, body: e.message)
+          ClaimsApi::Logger.log '526',
+                                detail: 'Upload error in 526',
+                                level: :warn,
+                                error_message: e&.message,
+                                error_source: e&.key
 
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]

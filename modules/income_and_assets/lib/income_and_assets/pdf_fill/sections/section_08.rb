@@ -36,6 +36,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'C',
             question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHMENT',
@@ -47,7 +48,10 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'D',
             question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED',
-            question_label: 'Trust Type'
+            question_label: 'Trust Type',
+            format_options: {
+              humanize: true
+            }
           },
           # 8e
           'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
@@ -55,7 +59,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'E',
             question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?',
-            question_label: 'Added Funds'
+            question_label: 'Added Funds',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8f
           'addedFundsDate' => {
@@ -76,6 +86,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'G',
             question_text: 'HOW MUCH DID YOU ADD?',
@@ -87,7 +98,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'H',
             question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? ',
-            question_label: 'Receiving Income from Trust'
+            question_label: 'Receiving Income from Trust',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8i
           'annualReceivedIncome' => {
@@ -96,6 +113,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'I',
             question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?',
@@ -108,7 +126,13 @@ module IncomeAndAssets
             question_suffix: 'J',
             question_text:
                       'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?',
-            question_label: 'Used for Medical Expenses'
+            question_label: 'Used for Medical Expenses',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -117,6 +141,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]" }
           },
           'monthlyMedicalReimbursementAmountOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'K',
             question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?',
@@ -128,7 +153,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'L',
             question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?', # rubocop:disable Layout/LineLength
-            question_label: 'Trust Established for Veterans Child'
+            question_label: 'Trust Established for Veteran\'s Child',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # 8m
           'haveAuthorityOrControlOfTrust' => { key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]" },
@@ -136,7 +167,13 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: 'M',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?',
-            question_label: 'Additional Authority or Control of Trust'
+            question_label: 'Additional Authority or Control of Trust',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           }
         }
       }.freeze

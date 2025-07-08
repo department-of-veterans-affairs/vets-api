@@ -102,15 +102,59 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
       expect_aal_logged(1)
     end
 
-    context 'when some of the upstream calls error out' do
+    context 'when one of the upstream calls error out with a 502 XML error' do
+      # Test that the :mhv_xml_html_errors middleware is bypassed
+      it 'reports an error for one service but still succeeds overall' do
+        VCR.use_cassette('mr_client/get_self_entered_information_502') do
+          get '/my_health/v1/medical_records/self_entered'
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_a(Hash)
+        expect(json['errors'].keys).to contain_exactly('allergies')
+        json['errors'].each_value do |details|
+          expect(details['message']).to match(/502 Bad Gateway/)
+        end
+
+        expect(json['responses'].size).to eq(14) # 15 total - 1 failure
+
+        expect_aal_logged(1)
+      end
+    end
+
+    context 'when some of the upstream calls error out with non-XML/HTML responses' do
+      # Test that the :raise_custom_error middleware is bypassed
+      let(:allergy_error_response) do
+        instance_double(
+          Faraday::Response,
+          success?: false,
+          status: 500,
+          body: 'allergy service is down',
+          reason_phrase: 'Internal Server Error'
+        )
+      end
+
+      let(:immunization_error_response) do
+        instance_double(
+          Faraday::Response,
+          success?: false,
+          status: 504,
+          body: 'immunization timeout',
+          reason_phrase: 'Gateway Timeout'
+        )
+      end
+
       before do
         allow_any_instance_of(BBInternal::Client)
           .to receive(:get_sei_allergies)
-          .and_raise(StandardError.new('allergy service is down'))
+          .and_return(allergy_error_response)
 
         allow_any_instance_of(BBInternal::Client)
           .to receive(:get_sei_immunizations)
-          .and_raise(StandardError.new('immunization timeout'))
+          .and_return(immunization_error_response)
       end
 
       it 'returns errors for some services but still succeeds overall' do
@@ -132,21 +176,21 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
 
         expect_aal_logged(1)
       end
+    end
 
-      context 'when the entire call fails' do
-        before do
-          allow_any_instance_of(BBInternal::Client)
-            .to receive(:get_all_sei_data)
-            .and_raise(StandardError.new('SEI error'))
-        end
+    context 'when the entire call fails' do
+      before do
+        allow_any_instance_of(BBInternal::Client)
+          .to receive(:get_all_sei_data)
+          .and_raise(StandardError.new('SEI error'))
+      end
 
-        it 'returns an overall error' do
-          get '/my_health/v1/medical_records/self_entered'
+      it 'returns an overall error' do
+        get '/my_health/v1/medical_records/self_entered'
 
-          expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:internal_server_error)
 
-          expect_aal_logged(0)
-        end
+        expect_aal_logged(0)
       end
     end
   end

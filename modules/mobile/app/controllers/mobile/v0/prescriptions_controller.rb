@@ -9,12 +9,15 @@ module Mobile
 
       def index
         resource = client.get_all_rxs
+        has_non_va_meds = non_va_meds? resource.data
+
         resource.records = resource_data_modifications(resource)
         resource = resource.where(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.records)
 
         page_meta_data[:meta].merge!(status_meta(resource))
+        page_meta_data[:meta].merge!(has_non_va_meds:)
 
         render json: Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
       end
@@ -115,6 +118,10 @@ module Mobile
         data.reject do |item|
           status_with_date_limit.include?(item.refill_status) && item.expiration_date < 180.days.ago
         end
+      end
+
+      def non_va_meds?(data)
+        data.any? { |item| item.prescription_source == 'NV' }
       end
     end
   end

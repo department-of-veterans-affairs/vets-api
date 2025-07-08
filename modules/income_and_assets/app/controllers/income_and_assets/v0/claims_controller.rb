@@ -43,18 +43,19 @@ module IncomeAndAssets
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
+          monitor.track_create_validation_error(in_progress_form, claim, current_user)
           log_validation_error_to_metadata(in_progress_form, claim)
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_lighthouse(claim)
+        process_and_upload_to_lighthouse(in_progress_form, claim)
 
-        monitor.track_create_success(in_progress_form&.id, claim, current_user)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
-        monitor.track_create_error(in_progress_form&.id, claim, current_user, e)
+        monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
       end
 
@@ -62,15 +63,20 @@ module IncomeAndAssets
 
       # Raises an exception if the income and assets flipper flag isn't enabled.
       def check_flipper_flag
-        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_income_and_assets_clarification,
+        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:income_and_assets_form_enabled,
                                                                     current_user)
       end
 
       # send this Income and Assets Evidence claim to the Lighthouse Benefit Intake API
       #
       # @see https://developer.va.gov/explore/api/benefits-intake/docs
-      def process_and_upload_to_lighthouse(claim)
+      def process_and_upload_to_lighthouse(in_progress_form, claim)
+        claim.process_attachments!
+
         IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
+      rescue => e
+        monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        raise e
       end
 
       # Filters out the parameters to form access.

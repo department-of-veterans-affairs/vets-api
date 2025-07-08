@@ -20,7 +20,19 @@ class PersistentAttachments::VAForm < PersistentAttachment
       '21P-0519C-1' => { max_pages: 2, min_pages: 2 },
       '21P-0519S-1' => { max_pages: 2, min_pages: 2 },
       '21P-530a' => { max_pages: 2, min_pages: 2 },
-      '21P-8049' => { max_pages: 4, min_pages: 4 }
+      '21P-8049' => { max_pages: 4, min_pages: 4 },
+      '21-8951-2' => { max_pages: 3, min_pages: 2 },
+      '21-674b' => { max_pages: 2, min_pages: 2 },
+      '21-2680' => { max_pages: 4, min_pages: 4 },
+      '21-0788' => { max_pages: 2, min_pages: 2 },
+      '21-4193' => { max_pages: 3, min_pages: 2 },
+      '21P-4718a' => { max_pages: 2, min_pages: 2 },
+      '21-4140' => { max_pages: 2, min_pages: 2 },
+      '21P-4706c' => { max_pages: 4, min_pages: 4 },
+      '21-8960' => { max_pages: 2, min_pages: 2 },
+      '21-0304' => { max_pages: 4, min_pages: 3 },
+      '21-651' => { max_pages: 1, min_pages: 1 },
+      '21P-4185' => { max_pages: 2, min_pages: 2 }
     }
   )
 

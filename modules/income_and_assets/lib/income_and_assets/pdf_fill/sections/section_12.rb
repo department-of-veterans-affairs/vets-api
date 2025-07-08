@@ -24,14 +24,17 @@ module IncomeAndAssets
             question_num: 12,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship to Veteran',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship12[#{ITERATOR}]",
             question_num: 12,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Other Relationship'
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -63,6 +66,7 @@ module IncomeAndAssets
             }
           },
           'expectedIncomeOverflow' => {
+            dollar: true,
             question_num: 12,
             question_suffix: '(4)',
             question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?',
@@ -83,11 +87,14 @@ module IncomeAndAssets
           'paymentWillNotResume' => {
             key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
           },
-          'paymentWillNotResumeOverflow' => {
+          'paymentWillResumeOverflow' => {
             question_num: 12,
             question_suffix: '(5)',
-            question_text: 'This income will not resume',
-            question_label: 'Payment Will Not Resume'
+            question_text: 'Payment Will Resume',
+            question_label: 'Payment Will Resume',
+            format_options: {
+              humanize: true
+            }
           },
           # Q6
           'waivedGrossMonthlyIncome' => {
@@ -102,6 +109,7 @@ module IncomeAndAssets
             }
           },
           'waivedGrossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 12,
             question_suffix: '(6)',
             question_text: 'WAIVED GROSS MONTHLY INCOME',
@@ -145,11 +153,12 @@ module IncomeAndAssets
 
         overrides = {
           'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'recipientRelationshipOverflow' => recipient_relationship,
           'expectedIncome' => split_currency_amount_sm(item['expectedIncome']),
           'paymentResumeDate' => split_date(payment_resume_date),
           'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
           'paymentWillNotResume' => payment_resume_date ? 0 : 1,
-          'paymentWillNotResumeOverflow' => payment_resume_date ? 'NO' : 'YES',
+          'paymentWillResumeOverflow' => payment_resume_date ? 'YES' : 'NO',
           'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'])
         }
 

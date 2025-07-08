@@ -15,21 +15,24 @@ module IncomeAndAssets
           # Label for each unreported asset (e.g., 'Unreported Asset 1')
           item_label: 'Unreported Asset',
           limit: 4,
-          first_key: 'otherRelationshipType',
+          first_key: 'otherAssetOwnerRelationshipType',
           # Q1
           'assetOwnerRelationship' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
           'assetOwnerRelationshipOverflow' => {
             question_num: 10,
             question_suffix: '(1)',
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN",
-            question_label: 'Asset Owner Relationship'
+            question_label: 'Relationship to Veteran',
+            format_options: {
+              humanize: true
+            }
           },
-          'otherRelationshipType' => {
+          'otherAssetOwnerRelationshipType' => {
             key: "F[0].OtherRelationship10[#{ITERATOR}]",
             question_num: 10,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN",
-            question_label: 'Other Relationship Type'
+            question_label: 'Relationship Type'
           },
           # Q2
           'assetType' => {
@@ -47,6 +50,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
           'ownedPortionValueOverflow' => {
+            dollar: true,
             question_num: 10,
             question_suffix: '(3)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY',
@@ -89,6 +93,7 @@ module IncomeAndAssets
       def expand_item(item)
         expanded = {
           'assetOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[item['assetOwnerRelationship']],
+          'otherAssetOwnerRelationshipType' => item['otherAssetOwnerRelationshipType'],
           'recipientName' => item['recipientName'],
           'assetType' => item['assetType'],
           'ownedPortionValue' => split_currency_amount(item['ownedPortionValue']),

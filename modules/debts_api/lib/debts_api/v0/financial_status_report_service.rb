@@ -45,20 +45,6 @@ module DebtsApi
     }.freeze
 
     ##
-    # Measure the time taken to execute a block of code and send that timing metric to StatsD/Datadog.
-    #
-    # @param metric_key [String]
-    # @return [Hash]
-    #
-    def measure_latency(metric_key)
-      start_time = Time.current
-      result = yield
-      elapsed_time = (Time.current - start_time) * 1000
-      StatsD.measure(metric_key, elapsed_time)
-      result
-    end
-
-    ##
     # Submit a financial status report to the Debt Management Center
     #
     # @param form [JSON] JSON serialized form data of a Financial Status Report form (VA-5655)

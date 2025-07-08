@@ -63,6 +63,12 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
               VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
+                expect(StatsD).to receive(:increment).with(
+                  'api.vaos.eps_appointment_detail.access',
+                  tags: ['Community Care Appointments']
+                ).and_call_original
+                allow(StatsD).to receive(:increment).and_call_original
+
                 get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
                 expect(response).to have_http_status(:success)
@@ -103,9 +109,29 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
             VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path]) do
               get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
-              expect(response).to have_http_status(:not_found)
+              expect(response).to have_http_status(:success)
+              expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('proposed')
             end
           end
+        end
+      end
+
+      context 'when response contains error field' do
+        it 'returns a 400 error' do
+          # Mock the appointment service to raise the exception we added for error field handling
+          error_env = OpenStruct.new(
+            status: 400,
+            body: '{"error": "conflict", "id": "qdm61cJ5"}',
+            url: 'https://api.wellhive.com/care-navigation/v1'
+          )
+          exception = VAOS::Exceptions::BackendServiceException.new(error_env)
+
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointment)
+            .and_raise(exception)
+
+          get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end

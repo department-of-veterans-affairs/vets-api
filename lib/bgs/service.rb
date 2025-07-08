@@ -37,7 +37,7 @@ module BGS
     def find_rating_data
       service.rating.find_rating_data(@user.ssn)
     rescue BGS::ShareError => e
-      raise Common::Exceptions::RecordNotFound, @user.account_id if e.message =~ /No record found for/
+      raise Common::Exceptions::RecordNotFound, @user.user_account_uuid if e.message =~ /No record found for/
 
       raise e
     end

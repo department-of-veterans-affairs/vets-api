@@ -22,9 +22,7 @@ task backfill_user_account_for_form_email_matches_profile_logs: :environment do
                      UserVerification.find_by(backing_idme_uuid: user_uuid)&.user_account ||
                      UserVerification.find_by(logingov_uuid: user_uuid)&.user_account
       unless user_account
-        icn = Account.find_by(idme_uuid: user_uuid)&.icn ||
-              Account.find_by(logingov_uuid: user_uuid)&.icn ||
-              mpi_service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile&.icn
+        icn = mpi_service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile&.icn
         user_account = UserAccount.find_or_create_by(icn:) if icn
       end
       sub.user_account_id = user_account&.id
