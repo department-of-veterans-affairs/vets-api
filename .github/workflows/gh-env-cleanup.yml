@@ -65,6 +65,28 @@ jobs:
             puts "\nDone."
           EOF
 
+      - name: Clean up old caches
+        run: |
+          echo "Cleaning up caches older than 7 days..."
+          
+          # Get current timestamp and calculate 7 days ago
+          SEVEN_DAYS_AGO=$(date -v-7d +%Y-%m-%dT%H:%M:%SZ)
+          echo "Deleting caches last accessed before: $SEVEN_DAYS_AGO"
+          
+          # Delete old caches
+          gh api repos/${{ github.repository }}/actions/caches --paginate | \
+            jq -r ".actions_caches[] | select(.last_accessed_at < \"${SEVEN_DAYS_AGO}\") | .id" | \
+            while read -r cache_id; do
+              if [ -n "$cache_id" ]; then
+                echo "Deleting old cache ID: $cache_id"
+                gh api --method DELETE repos/${{ github.repository }}/actions/caches/$cache_id || true
+              fi
+            done
+          
+          echo "Old cache cleanup completed"
+        env:
+          GH_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
   # PR-close cleanup job
   pr-close-cleanup:
     if: github.event_name == 'pull_request'
