@@ -2,9 +2,9 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'enrollment/form1095_b/configuration'
+require 'veteran_enrollment_system/form1095_b/configuration'
 
-module Enrollment
+module VeteranEnrollmentSystem
   module Form1095B
     ##
     # Service class for fetching Form 1095-B data from the enrollment system.
@@ -12,14 +12,14 @@ module Enrollment
     # Form 1095-B tax forms for veterans.
     #
     # @example Fetch form data for a specific user and tax year
-    #   service = Form1095BEnrollment::Service.new(user)
+    #   service = VeteranEnrollmentSystem::Form1095B::Service.new(user)
     #   form_data = service.get_form_by_icn(icn: '1234', tax_year: 2023)
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
       include SentryLogging
 
-      configuration Enrollment::Form1095B::Configuration
+      configuration VeteranEnrollmentSystem::Form1095B::Configuration
       STATSD_KEY_PREFIX = 'api.form1095b_enrollment'
 
       # @param user [User] The user for whom to fetch Form 1095-B data

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module Enrollment
+module VeteranEnrollmentSystem
   module Form1095B
     ##
-    # HTTP client configuration for the {Enrollment::Form1095B::Service},
+    # HTTP client configuration for the {VeteranEnrollmentSystem::Form1095B::Service},
     # sets the base path, the base request headers, and a service name for breakers and metrics.
     #
     class Configuration < Common::Client::Configuration::REST

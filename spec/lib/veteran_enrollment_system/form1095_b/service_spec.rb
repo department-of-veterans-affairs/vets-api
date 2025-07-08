@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'enrollment/form1095_b/service'
+require 'veteran_enrollment_system/form1095_b/service'
 
-RSpec.describe Enrollment::Form1095B::Service do
+RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
   subject(:service) { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
