@@ -24,24 +24,28 @@ module IvcChampva
         result = validator.process
         Rails.logger.info('IvcChampva::TesseractOcrLoggerJob OCR processing has returned results')
 
-        # Log top level results
-        Rails.logger.info("IvcChampva::TesseractOcrLoggerJob validator_type: #{result[:validator_type]}")
-        Rails.logger.info("IvcChampva::TesseractOcrLoggerJob document_type: #{result[:document_type]}")
-        Rails.logger.info("IvcChampva::TesseractOcrLoggerJob is_valid: #{result[:is_valid]}")
-        Rails.logger.info("IvcChampva::TesseractOcrLoggerJob confidence: #{result[:confidence]}")
-
-        # Log extracted fields but not their values
-        # Values are not safe to log as they may contain PII
-        result[:extracted_fields].each do |key, value|
-          type = value.class
-          length = value.is_a?(String) ? value.length : nil
-          Rails.logger.info(
-            "IvcChampva::TesseractOcrLoggerJob extracted_field: #{key}: " \
-            "type=#{type}#{", length=#{length}" if length}"
-          )
-        end
+        log_result(result)
       rescue => e
         Rails.logger.error("IvcChampva::TesseractOcrLoggerJob failed with error: #{e.message}")
+      end
+    end
+
+    def log_result(result)
+      # Log top level results
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob validator_type: #{result[:validator_type]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob document_type: #{result[:document_type]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob is_valid: #{result[:is_valid]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob confidence: #{result[:confidence]}")
+
+      # Log extracted fields but not their values
+      # Values are not safe to log as they may contain PII
+      result[:extracted_fields].each do |key, value|
+        type = value.class
+        length = value.is_a?(String) ? value.length : nil
+        Rails.logger.info(
+          "IvcChampva::TesseractOcrLoggerJob extracted_field: #{key}: " \
+          "type=#{type}#{", length=#{length}" if length}"
+        )
       end
     end
   end
