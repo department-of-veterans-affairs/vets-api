@@ -25,21 +25,21 @@ describe Burials::PdfFill::Forms::Va21p530ez do
     [
       [
         [
-          true, 'GovtContribution'
+          true, 'BurialExpenseResponsibility'
         ],
-        { 'hasGovtContribution' => 'YES', 'noGovtContribution' => nil }
+        { 'hasBurialExpenseResponsibility' => 'On', 'noBurialExpenseResponsibility' => nil }
       ],
       [
         [
-          false, 'GovtContribution'
+          false, 'BurialExpenseResponsibility'
         ],
-        { 'hasGovtContribution' => nil, 'noGovtContribution' => 'NO' }
+        { 'hasBurialExpenseResponsibility' => nil, 'noBurialExpenseResponsibility' => 'On' }
       ],
       [
         [
-          nil, 'GovtContribution'
+          nil, 'BurialExpenseResponsibility'
         ],
-        { 'hasGovtContribution' => nil, 'noGovtContribution' => nil }
+        { 'hasBurialExpenseResponsibility' => nil, 'noBurialExpenseResponsibility' => nil }
       ]
     ]
   )
@@ -188,17 +188,20 @@ describe Burials::PdfFill::Forms::Va21p530ez do
       unselected_benefits_data = JSON.parse(
         File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json")
       ).except(
-        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportation'
+        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
+        'previouslyReceivedAllowance', 'govtContributions'
       )
 
       expected_merge_data = JSON.parse(
         File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json")
       ).except(
-        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportation'
+        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
+        'previouslyReceivedAllowance', 'govtContributions', 'hasBurialExpenseResponsibility',
+        'noBurialExpenseResponsibility', 'hasPlotExpenseResponsibility', 'noPlotExpenseResponsibility'
       )
       expected_merge_data['hasTransportation'] = nil
-      expected_merge_data['hasBurialExpenseResponsibility'] = nil
-      expected_merge_data['hasPlotExpenseResponsibility'] = nil
+      expected_merge_data['hasGovtContributions'] = nil
+      expected_merge_data['hasPreviouslyReceivedAllowance'] = nil
       expect(described_class.new(unselected_benefits_data).merge_fields.to_json).to eq(
         expected_merge_data.to_json
       )

@@ -1,0 +1,13 @@
+{
+    "privacyAgreementAccepted": true,
+    "veteranFullName": "Jones, Indiana, Bill II",
+    "veteranSocialSecurityNumber": "234221243",
+    "veteranDateOfBirth": "1980-01-01",
+    "gender": "M",
+    "veteranAddress": {
+        "street": "321 Elm St",
+        "city": "Houston",
+        "country": "USA"
+    },
+    "isMedicaidEligible": true
+}

@@ -33,7 +33,7 @@ features:
   accredited_representative_portal_normalize_path:
     actor_type: user
     description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to 
+      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
       use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
       NOTE: This should only be enabled in localhost and staging.
     enable_in_development: true
@@ -1086,6 +1086,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  log_eligible_benefits:
+    actor_type: user
+    description: Allows log_eligible_benefits_job.rb to run in background.
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -1450,9 +1454,6 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
-  profile_ppiu_reject_requests:
-    actor_type: user
-    description: When enabled, requests to the PPIU controller will return a routing error.
   profile_contact_info_page_ui_refresh:
     actor_type: user
     description: Display updated UI/UX for the profile Contact Information page.
@@ -1873,10 +1874,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_convert_slots_to_utc:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for for converting the start & end times in slots fetch to UTC.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
@@ -1909,6 +1906,10 @@ features:
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  priority_processing_request_apply_vsi_flash:
+    actor_type: user
+    description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
+    enable_in_development: false
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
