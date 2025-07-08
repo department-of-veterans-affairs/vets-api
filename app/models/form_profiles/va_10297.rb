@@ -57,7 +57,7 @@ class FormProfiles::VA10297 < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "FormProfiles::VA10297 Failed to retrieve PPIU data: #{e.message}"
+    Rails.logger.error "FormProfiles::VA10297 Failed to retrieve Payment Information data: #{e.message}"
     {}
   end
 
