@@ -398,7 +398,7 @@ module RepresentationManagement
     end
 
     def orgs_and_reps
-      %w[representatives veterans_service_organizations]
+      %w[representatives veteran_service_organizations]
     end
 
     def orgs_and_reps_both_valid?

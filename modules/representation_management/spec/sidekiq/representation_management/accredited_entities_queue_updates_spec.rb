@@ -58,6 +58,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:save_api_counts)
       allow(entity_counts).to receive(:valid_count?).with('agents').and_return(true)
       allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with('representatives').and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with('veteran_service_organizations').and_return(true)
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
