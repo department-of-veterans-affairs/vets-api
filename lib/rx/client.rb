@@ -42,11 +42,11 @@ module Rx
       cache_key = cache_key('getactiverx')
       data = ::PrescriptionDetails.get_cached(cache_key)
       if data
-        Rails.logger.info('rx PrescriptionDetails cache fetch', cache_key:)
+        Rails.logger.info("rx PrescriptionDetails cache fetch with cache_key: #{cache_key}")
         statsd_cache_hit
         Vets::Collection.new(data, ::PrescriptionDetails)
       else
-        Rails.logger.info('rx PrescriptionDetails service fetch', cache_key:)
+        Rails.logger.info("rx PrescriptionDetails service fetch with cache_key: #{cache_key}")
         statsd_cache_miss
         result = perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
         collection = Vets::Collection.new(
@@ -68,11 +68,11 @@ module Rx
       cache_key = cache_key('medications')
       data = PrescriptionDetails.get_cached(cache_key)
       if data
-        Rails.logger.info('rx PrescriptionDetails cache fetch', cache_key:)
+        Rails.logger.info("rx PrescriptionDetails cache fetch with cache_key: #{cache_key}")
         statsd_cache_hit
         Vets::Collection.new(data, PrescriptionDetails)
       else
-        Rails.logger.info('rx PrescriptionDetails service fetch', cache_key:)
+        Rails.logger.info("rx PrescriptionDetails service fetch with cache_key: #{cache_key}")
         statsd_cache_miss
         result = perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
         collection = Vets::Collection.new(
@@ -81,7 +81,7 @@ module Rx
           metadata: result[:metadata],
           errors: result[:errors]
         )
-        PrescriptionDetails.set_cached(cache_key, collection.records) if cache_key && collection.records
+        PrescriptionDetails.set_cached(cache_key, result[:data]) if cache_key && result[:data]
         collection
       end
     end

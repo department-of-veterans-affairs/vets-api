@@ -20,6 +20,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   end
 
   before do
+    set_cache
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     # Use the test user's real mhv_correlation_id for the stubbed client
     allow(Rx::Client).to receive(:new).and_return(
@@ -27,7 +28,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                 expires_at: Time.current + (60 * 60),
                                 token: Rx::ClientHelpers::TOKEN },
                      upstream_request: instance_double(ActionDispatch::Request,
-                                                       { 'env' => { 'SOURCE_APP' => 'myapp' } }))
+                                                       env: { 'SOURCE_APP' => 'myapp' }))
     )
     Timecop.freeze(Time.zone.parse('2025-04-21T00:00:00.000Z'))
   end
