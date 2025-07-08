@@ -421,4 +421,68 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       end
     end
   end
+
+  describe '#process_draft_appointment' do
+    let(:controller) { described_class.new }
+    let(:referral_id) { 'REF123' }
+    let(:referral_consult_id) { 'CONSULT123' }
+    let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
+    let(:eps_provider_service) { instance_double(Eps::ProviderService) }
+    let(:appointments_service) { instance_double(VAOS::V2::AppointmentsService) }
+    let(:current_user) { OpenStruct.new(icn: '123V456') }
+    let(:referral) do
+      OpenStruct.new(
+        provider_npi: '1234567890',
+        provider_specialty: 'Cardiology',
+        treating_facility_address: '123 Main St',
+        referral_date: '2024-01-01',
+        expiration_date: '2024-12-31'
+      )
+    end
+
+    before do
+      allow(controller).to receive_messages(
+        ccra_referral_service:,
+        eps_provider_service:,
+        appointments_service:,
+        current_user:,
+        check_referral_data_validation: { success: true },
+        check_referral_usage: { success: true }
+      )
+      allow(ccra_referral_service).to receive(:get_referral).and_return(referral)
+      allow(Rails.logger).to receive(:error)
+    end
+
+    context 'when provider is not found' do
+      let(:provider) { OpenStruct.new(id: nil) }
+
+      before do
+        allow(controller).to receive(:find_provider).and_return(provider)
+      end
+
+      it 'logs an error message' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(Rails.logger).to have_received(:error).with(/Provider not found/)
+        expect(result[:success]).to be(false)
+        expect(result[:status]).to eq(:not_found)
+      end
+    end
+
+    context 'when provider id is blank' do
+      let(:provider) { OpenStruct.new(id: '') }
+
+      before do
+        allow(controller).to receive(:find_provider).and_return(provider)
+      end
+
+      it 'logs an error message' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(Rails.logger).to have_received(:error).with(/Provider not found/)
+        expect(result[:success]).to be(false)
+        expect(result[:status]).to eq(:not_found)
+      end
+    end
+  end
 end
