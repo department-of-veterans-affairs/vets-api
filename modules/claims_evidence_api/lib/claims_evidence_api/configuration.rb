@@ -7,8 +7,6 @@ require 'faraday/multipart'
 module ClaimsEvidenceApi
   # HTTP client configuration for the {ClaimsEvidenceApi::Service::Base},
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.claims_evidence_api.read_timeout || 20
-
     # @return [Config::Options] Settings for benefits_claims API.
     def service_settings
       Settings.claims_evidence_api

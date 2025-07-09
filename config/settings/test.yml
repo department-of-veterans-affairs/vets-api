@@ -214,7 +214,6 @@ claims_evidence_api:
   breakers_error_threshold: 80
   jwt_secret: fake-secret
   mock: false
-  read_timeout: 20
 clamav:
   host: 0.0.0.0
   mock: true
