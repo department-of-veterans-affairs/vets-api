@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/services/benefits-documents/v1/documents/validate/claimant"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"docType":"L023","participantId":null,"fileNumber":"796378881","claimId":"600423040"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Wed, 09 Jul 2025 19:45:32 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '28'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Www-Authenticate:
+      - Bearer
+      X-Envoy-Upstream-Service-Time:
+      - '77'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: "{ \n  \"status\": 401,\n  \"error\": \"Invalid token.\"\n}\n"
+  recorded_at: Wed, 09 Jul 2025 19:45:32 GMT
+recorded_with: VCR 6.3.1

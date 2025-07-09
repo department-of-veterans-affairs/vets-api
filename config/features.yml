@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_documents_validate_claimant:
+    actor_type: user
+    description: When enabled, validate that the given claimant can upload docs for the claim
+    enable_in_development: false
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
