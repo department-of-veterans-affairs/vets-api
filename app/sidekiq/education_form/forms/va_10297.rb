@@ -116,13 +116,13 @@ module EducationForm::Forms
     end
 
     def program_text
-      return '' if @applicant.hitechVetsPrograms&.programs.blank?
+      return '' if @applicant.trainingProviders&.providers.blank?
 
       program_blocks = []
-      @applicant.hitechVetsPrograms.programs.each do |program|
+      @applicant.trainingProviders.providers.each do |program|
         program_blocks.push(get_program_block(program))
       end
-      program_blocks.push(["\n  Planned start date: ", @applicant.hitechVetsPrograms.plannedStartDate].join)
+      program_blocks.push(["\n  Planned start date: ", @applicant.trainingProviders.plannedStartDate].join)
 
       program_blocks.join("\n")
     end
