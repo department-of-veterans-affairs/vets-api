@@ -38,6 +38,7 @@ module Processors
         'document' => to_faraday_upload,
         'metadata' => generate_metadata
       }
+      # binding.pry
     end
 
     # Invokes Filler ancillary form method to generate PDF document

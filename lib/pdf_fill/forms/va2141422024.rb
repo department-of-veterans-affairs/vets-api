@@ -398,8 +398,12 @@ module PdfFill
         phone = @form_data['veteranPhone']
         return if phone.blank?
 
-        ['', '1', '2', '3'].each do |suffix|
-          @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone)
+        if phone['countryCode'].blank? || phone['countryCode'] == '1'
+          ['', '1', '2', '3'].each do |suffix|
+            @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone['number'])
+          end
+        else
+          @form_data['internationalPhoneNumber'] = "+#{phone['countryCode']} #{phone['number']}"
         end
       end
 

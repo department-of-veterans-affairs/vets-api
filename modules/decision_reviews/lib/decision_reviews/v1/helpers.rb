@@ -23,6 +23,19 @@ module DecisionReviews
         DR_LOCKBOX.encrypt(payload.to_json)
       end
 
+      def format_phone_number(phone)
+        return unless phone
+
+        country_code = phone['countryCode'] || ''
+        area_code = phone['areaCode'] || ''
+        number = phone['phoneNumber']
+
+        {
+          number: "#{area_code}#{number}",
+          countryCode: country_code
+        }
+      end
+
       def get_and_rejigger_required_info(request_body:, form4142:, user:)
         data = request_body['data']
         attrs = data['attributes']
@@ -38,7 +51,7 @@ module DecisionReviews
           veteranDateOfBirth: user.birth_date.to_s.strip.presence,
           veteranAddress: transform_address_fields(vet['address']),
           email: vet['email'],
-          veteranPhone: "#{vet['phone']['areaCode']}#{vet['phone']['phoneNumber']}"
+          veteranPhone: format_phone_number(vet['phone'])
         }
 
         transformed_form4142 = transform_form4142_data(form4142)
