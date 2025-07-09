@@ -66,6 +66,7 @@ module ClaimsApi
         if poa_code_in_organization?(poa_code)
           ClaimsApi::V1::PoaPdfConstructor::Organization.new
         else
+          @rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).order(created_at: :desc).first
           ClaimsApi::V1::PoaPdfConstructor::Individual.new
         end
       end
@@ -76,7 +77,26 @@ module ClaimsApi
       # @param power_of_attorney [ClaimsApi::PowerOfAttorney] Record for this poa change request
       #
       # @return [Hash] All data to be inserted into pdf
+      # rubocop:disable Metrics/MethodLength
       def data(power_of_attorney)
+        if @rep.present?
+          power_of_attorney.form_data =
+            power_of_attorney.form_data.deep_merge({
+                                                     'representative' => {
+                                                       'firstName' => @rep.first_name,
+                                                       'lastName' => @rep.last_name,
+                                                       'poaCodes' => @rep.poa_codes,
+                                                       'type' => @rep.user_types[0],
+                                                       'address' => {
+                                                         'addressLine1' => @rep.address_line1,
+                                                         'city' => @rep.city,
+                                                         'stateCode' => @rep.state_code,
+                                                         'zipCode' => @rep.zip_code
+                                                       }
+                                                     }
+                                                   })
+        end
+
         power_of_attorney.form_data.deep_merge({
                                                  'veteran' => {
                                                    'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
@@ -86,6 +106,7 @@ module ClaimsApi
                                                  }
                                                })
       end
+      # rubocop:enable Metrics/MethodLength
 
       def poa_code_in_organization?(poa_code)
         ::Veteran::Service::Organization.find_by(poa: poa_code).present?
