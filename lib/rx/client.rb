@@ -40,14 +40,13 @@ module Rx
     #
     def get_active_rxs_with_details
       cache_key = cache_key('getactiverx')
-      data = ::PrescriptionDetails.get_cached(cache_key)
-      if data
+      if cache_key && (data = ::PrescriptionDetails.get_cached(cache_key))
         Rails.logger.info("rx PrescriptionDetails cache fetch with cache_key: #{cache_key}")
         statsd_cache_hit
         Vets::Collection.new(data, ::PrescriptionDetails)
       else
         Rails.logger.info("rx PrescriptionDetails service fetch with cache_key: #{cache_key}")
-        statsd_cache_miss
+        statsd_cache_miss unless cache_key.nil?
         result = perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
         collection = Vets::Collection.new(
           result[:data],
@@ -66,14 +65,13 @@ module Rx
     #
     def get_all_rxs
       cache_key = cache_key('medications')
-      data = PrescriptionDetails.get_cached(cache_key)
-      if data
+      if cache_key && (data = PrescriptionDetails.get_cached(cache_key))
         Rails.logger.info("rx PrescriptionDetails cache fetch with cache_key: #{cache_key}")
         statsd_cache_hit
         Vets::Collection.new(data, PrescriptionDetails)
       else
         Rails.logger.info("rx PrescriptionDetails service fetch with cache_key: #{cache_key}")
-        statsd_cache_miss
+        statsd_cache_miss unless cache_key.nil?
         result = perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
         collection = Vets::Collection.new(
           result[:data],
@@ -138,12 +136,16 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rxs(ids)
-      if (result = perform(:post, get_path('rxrefill'), ids, get_headers(token_headers)))
-        Rails.logger.info('Clearing PrescriptionDetails and Vets::Collection caches',
-                          cache_keys: [cache_key('medications'), cache_key('getactiverx')].compact)
-        ::PrescriptionDetails.clear_cache(cache_key('medications')) if cache_key('medications')
-        ::PrescriptionDetails.clear_cache(cache_key('getactiverx')) if cache_key('getactiverx')
-        Vets::Collection.bust([cache_key('medications'), cache_key('getactiverx')].compact)
+      result = perform(:post, get_path('rxrefill'), ids, get_headers(token_headers))
+      if result
+        if (med_key = cache_key('medications'))
+          ::PrescriptionDetails.clear_cache(med_key)
+        end
+        if (act_key = cache_key('getactiverx'))
+          ::PrescriptionDetails.clear_cache(act_key)
+        end
+        keys = [cache_key('medications'), cache_key('getactiverx')].compact
+        Vets::Collection.bust(keys) unless keys.empty?
         increment_refill(ids.size)
       end
       result
@@ -156,12 +158,16 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rx(id)
-      if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
-        Rails.logger.info('Clearing PrescriptionDetails and Vets::Collection caches',
-                          cache_keys: [cache_key('medications'), cache_key('getactiverx')].compact)
-        ::PrescriptionDetails.clear_cache(cache_key('medications')) if cache_key('medications')
-        ::PrescriptionDetails.clear_cache(cache_key('getactiverx')) if cache_key('getactiverx')
-        Vets::Collection.bust([cache_key('medications'), cache_key('getactiverx')].compact)
+      result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers))
+      if result
+        if (med_key = cache_key('medications'))
+          ::PrescriptionDetails.clear_cache(med_key)
+        end
+        if (act_key = cache_key('getactiverx'))
+          ::PrescriptionDetails.clear_cache(act_key)
+        end
+        keys = [cache_key('medications'), cache_key('getactiverx')].compact
+        Vets::Collection.bust(keys) unless keys.empty?
         increment_refill
       end
       result
