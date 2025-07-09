@@ -7,6 +7,7 @@ require_relative '../../../../support/pdf_matcher'
 describe ClaimsApi::V1::PoaPdfConstructor::Individual do
   let(:temp) { create(:power_of_attorney, :with_full_headers) }
   let(:phone_country_codes_temp) { create(:power_of_attorney, :with_full_headers) }
+  let(:rep) { create(:veteran_representative, :with_address, representative_id: '12345') }
 
   before do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
@@ -86,6 +87,18 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
           'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+        },
+        'representative' => {
+          'firstName' => rep.first_name,
+          'lastName' => rep.last_name,
+          'poaCodes' => rep.poa_codes,
+          'type' => rep.user_types[0],
+          'address' => {
+            'addressLine1' => rep.address_line1,
+            'city' => rep.city,
+            'stateCode' => rep.state_code,
+            'zipCode' => rep.zip_code
+          }
         }
       }
     )
@@ -105,6 +118,18 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
           'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+        },
+        'representative' => {
+          'firstName' => rep.first_name,
+          'lastName' => rep.last_name,
+          'poaCodes' => rep.poa_codes,
+          'type' => rep.user_types[0],
+          'address' => {
+            'addressLine1' => rep.address_line1,
+            'city' => rep.city,
+            'stateCode' => rep.state_code,
+            'zipCode' => rep.zip_code
+          }
         }
       }
     )
