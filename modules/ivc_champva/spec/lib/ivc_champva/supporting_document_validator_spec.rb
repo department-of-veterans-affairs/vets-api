@@ -44,7 +44,7 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
     
     before do
       allow(validator).to receive(:perform_ocr)
-      allow(validator).to receive(:extracted_text).and_return('Sample OCR text') #'Sample OCR text with EOB information' TODO check me
+      allow(validator).to receive(:extracted_text).and_return('Sample OCR text')
     end
     
     context 'when a direct validator mapping exists for Social Security card' do
@@ -164,7 +164,7 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
         allow(IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator)
           .to receive(:new).and_return(mock_eob_validator)
         allow(mock_eob_validator).to receive(:process_and_cache)
-          .with('Sample OCR text with EOB information').and_return(0.9)
+          .with('Sample OCR text').and_return(0.9)
         allow(mock_eob_validator).to receive_messages(
           cached_validity: true,
           cached_extracted_fields: { provider: 'Test Provider' },
