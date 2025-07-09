@@ -79,7 +79,13 @@ module ClaimsApi
 
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
 
-          process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:)
+          process_poa_decision(decision:, 
+                                ptcpnt_id:, 
+                                proc_id:, 
+                                representative_id:, 
+                                poa_code: request.poa_code, 
+                                metadata: request.metadata
+                              )
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
@@ -142,9 +148,9 @@ module ClaimsApi
 
         private
 
-        def process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:)
+        def process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:)
           ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
-            decision:, ptcpnt_id:, proc_id:, representative_id:
+            decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:
           ).call
         end
 

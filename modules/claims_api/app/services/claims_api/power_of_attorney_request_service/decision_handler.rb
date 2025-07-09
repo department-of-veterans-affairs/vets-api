@@ -10,11 +10,13 @@ module ClaimsApi
         'accepted' => ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler
       }.freeze
 
-      def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:)
+      def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:)
         @decision = decision
         @ptcpnt_id = ptcpnt_id
         @proc_id = proc_id
         @representative_id = representative_id
+        @poa_code = poa_code
+        @metadata = metadata
       end
 
       def call
@@ -33,7 +35,12 @@ module ClaimsApi
           representative_id: @representative_id
         ).call if @decision == 'declined'
 
-        handler_class.new().call if @decision == 'accepted'
+        handler_class.new(
+          ptcpnt_id: @ptcpnt_id,
+          proc_id: @proc_id,
+          poa_code: @poa_code,
+          metadata: @metadata
+        ).call if @decision == 'accepted'
       end
     end
   end
