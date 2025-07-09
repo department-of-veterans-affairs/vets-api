@@ -12,6 +12,24 @@ module ClaimsApi
       end
 
       def call
+        poa_data_object = gather_poa_data
+
+        # call sidekiq job
+      end
+
+      private
+
+      def gather_poa_data
+        # Parallelize create_vnp_form and create_vnp_ptcpnt
+        form_promise = Concurrent::Promise.execute do
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            gather_read_all_veteran_representatve_data
+          end
+        end
+      end
+
+      def gather_read_all_veteran_representatve_data
+
       end
     end
   end
