@@ -8,6 +8,7 @@ RSpec.describe 'V0::MVIUsers', type: :request do
     let(:user) { build(:user_with_no_ids) }
 
     before do
+      stub_mpi(build(:mpi_profile, birls_id: nil, participant_id: nil))
       sign_in_as(user)
     end
 
