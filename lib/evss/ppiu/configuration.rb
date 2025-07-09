@@ -28,7 +28,7 @@ module EVSS
       # @return [Boolean] Should the service use mock data in lower environments.
       #
       def mock_enabled?
-        Settings.evss.mock_ppiu || false
+        false
       end
     end
   end
