@@ -15,8 +15,9 @@ module UnifiedHealthData
       user = find_user(user_uuid)
       return unless user
 
-      labs_data = fetch_labs_data(user)
-      log_success(labs_data)
+      start_date, end_date = date_range
+      labs_data = fetch_labs_data(user, start_date, end_date)
+      log_success(labs_data, start_date, end_date)
       labs_data.size
     rescue => e
       log_error(e)
@@ -33,10 +34,13 @@ module UnifiedHealthData
       nil
     end
 
-    def fetch_labs_data(user)
+    def date_range
       end_date = Date.current
       start_date = end_date - 1.month
+      [start_date, end_date]
+    end
 
+    def fetch_labs_data(user, start_date, end_date)
       uhd_service = UnifiedHealthData::Service.new(user)
       uhd_service.get_labs(
         start_date: start_date.strftime('%Y-%m-%d'),
@@ -44,10 +48,7 @@ module UnifiedHealthData
       )
     end
 
-    def log_success(labs_data)
-      end_date = Date.current
-      start_date = end_date - 1.month
-
+    def log_success(labs_data, start_date, end_date)
       Rails.logger.info(
         'UHD Labs Refresh Job completed successfully',
         records_count: labs_data.size,
