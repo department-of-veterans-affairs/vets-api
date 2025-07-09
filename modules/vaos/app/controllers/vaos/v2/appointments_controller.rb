@@ -513,14 +513,15 @@ module VAOS
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral, provider)
+      def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
         eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
             startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
+            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
+            appointmentId: draft_appointment_id
           }
         )
       rescue ArgumentError
@@ -828,8 +829,8 @@ module VAOS
                                  address: referral.treating_facility_address)
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
-        slots = fetch_provider_slots(referral, provider)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        slots = fetch_provider_slots(referral, provider, draft.id)
         drive_time = fetch_drive_times(provider)
 
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
