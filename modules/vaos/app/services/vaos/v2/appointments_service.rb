@@ -945,7 +945,7 @@ module VAOS
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
           vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
-          vvs_video_appt == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
+          vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
         end
       end
 
