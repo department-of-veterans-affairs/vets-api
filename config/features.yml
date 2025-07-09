@@ -121,6 +121,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
+  benefits_documents_filter_duplicates:
+    actor_type: user
+    description: When enabled, attempt to catch duplicate documents before sending them to LH
+    enable_in_development: false
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -1980,6 +1984,9 @@ features:
   mobile_cerner_transition:
     actor_type: user
     description: For mobile app, a facility is being transitioned to cerner.
+  mobile_iam_authentication_disabled:
+    actor_type: user
+    description: For mobile app, disable iam authentication method.
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
@@ -2119,6 +2126,9 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
+  income_and_assets_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
   income_and_assets_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
