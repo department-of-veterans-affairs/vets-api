@@ -40,20 +40,34 @@ module MyHealth
       use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_enabled, @current_user) &&
                          params[:use_oh_data_path].to_i == 1
       if @client.nil?
-        @client ||= if use_oh_data_path
-                      MedicalRecords::LighthouseClient.new(current_user.icn)
-                      if Flipper.enabled?(:mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled, @current_user)
-                        UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
-                      end
-                    else
-                      MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                            icn: current_user.icn })
-                      if Flipper.enabled?(:mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled, @current_user)
-                        UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
-                      end
-                    end
+        @client = if use_oh_data_path
+                    create_lighthouse_client
+                  else
+                    create_medical_records_client
+                  end
       end
       @client
+    end
+
+    private
+
+    def create_lighthouse_client
+      lighthouse_client = MedicalRecords::LighthouseClient.new(current_user.icn)
+      if Flipper.enabled?(:mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled, @current_user)
+        UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
+      end
+      lighthouse_client
+    end
+
+    def create_medical_records_client
+      medical_records_client = MedicalRecords::Client.new(
+        session: { user_id: current_user.mhv_correlation_id,
+                   icn: current_user.icn }
+      )
+      if Flipper.enabled?(:mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled, @current_user)
+        UnifiedHealthData::LabsRefreshJob.perform_async(current_user.uuid)
+      end
+      medical_records_client
     end
 
     def phrmgr_client
