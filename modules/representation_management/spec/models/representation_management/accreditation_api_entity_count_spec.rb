@@ -15,10 +15,10 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   describe '#save_api_counts' do
     before do
       allow(model).to receive(:current_api_counts).and_return({
-                                                                'agents' => 100,
-                                                                'attorneys' => 100,
-                                                                'representatives' => 100,
-                                                                'veteran_service_organizations' => 100
+                                                                agents: 100,
+                                                                attorneys: 100,
+                                                                representatives: 100,
+                                                                veteran_service_organizations: 100
                                                               })
     end
 
@@ -33,11 +33,10 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     end
 
     it 'only assigns values for valid counts' do
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::AGENTS, notify: false).and_return(false)
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS, notify: false).and_return(true)
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES,
-                                                  notify: false).and_return(true)
-      allow(model).to receive(:valid_count?).with('veteran_service_organizations', notify: false).and_return(false)
+      allow(model).to receive(:valid_count?).with(RepresentationManagement::AGENTS).and_return(false)
+      allow(model).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
+      allow(model).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
+      allow(model).to receive(:valid_count?).with('veteran_service_organizations').and_return(false)
 
       model.save_api_counts
       model.reload
