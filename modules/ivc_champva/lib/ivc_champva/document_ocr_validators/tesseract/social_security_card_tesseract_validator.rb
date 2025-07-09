@@ -67,20 +67,21 @@ module IvcChampva
         end
 
         def extract_name(text)
-          # Look for name patterns - typically after "NAME" or similar labels
+          # Look for name patterns
           name_patterns = [
-            /name[:\s]+([A-Z][A-Za-z\s,]+?)(?:\s+social|\s+\d{3}|$)/i,
-            /established\s+for\s+([A-Z][A-Za-z\s,]+?)(?:\s+\d{3}|$)/i,
-            /\bfor\s+([A-Z][A-Za-z\s,]+?)\s+\d{3}/i,
-            /^NAME\s+([A-Z][A-Za-z]+\s+[A-Z][A-Za-z]+)\s+social/i,
-            /^([A-Z][A-Za-z]+\s+[A-Z][A-Za-z]+)\s+\d{3}/
+            /\bname[:\s]{1,3}([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}(?:social|security|\d{3})|$)/i,
+            /\bname[:\s]{1,3}([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}(?:social|security|\d{3})|$)/i, # rubocop:disable Layout/LineLength
+            /\bestablished\s{1,3}for\s{1,3}([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}\d{3}|$)/i,
+            /\bfor\s{1,3}([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}\d{3})/i,
+            /^NAME\s{1,3}([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}social)/i,
+            /^([A-Z][A-Za-z]{1,20}\s{1,3}[A-Z][A-Za-z]{1,20})(?=\s{1,3}\d{3})/
           ]
 
           name_patterns.each do |pattern|
             match = text.match(pattern)
             next unless match
 
-            name = match[1].strip.gsub(/\s+(social|security|administration|ssa|ssn)$/i, '').gsub(/[,\.]+$/, '')
+            name = match[1].strip
             return name if valid_name?(name)
           end
 
@@ -101,8 +102,8 @@ module IvcChampva
           # Basic length validation
           return false if name.length < 4 || name.length > 50
 
-          # Must contain only letters and spaces
-          return false unless name.match?(/^[A-Za-z\s]+$/)
+          # Must contain only letters and spaces (bounded to prevent ReDoS)
+          return false unless name.match?(/^[A-Za-z\s]{1,50}$/)
 
           # Reject common non-name phrases
           invalid_phrases = [
@@ -114,7 +115,7 @@ module IvcChampva
           return false if invalid_phrases.any? { |phrase| normalized_name.include?(phrase) }
 
           # Must have at least two words (first and last name)
-          words = name.strip.split(/\s+/)
+          words = name.strip.split(/\s{1,5}/)
           return false if words.length < 2
 
           # First and last words should be at least 2 characters, middle initials can be 1
