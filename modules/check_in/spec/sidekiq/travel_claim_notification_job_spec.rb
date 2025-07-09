@@ -18,8 +18,10 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   before do
     allow(VaNotify::Service).to receive(:new).and_return(notify_client)
     allow(notify_client).to receive(:send_sms)
-    allow_any_instance_of(described_class).to receive(:logger).and_return(test_logger)
+    allow(Rails).to receive(:logger).and_return(test_logger)
     allow(test_logger).to receive(:info)
+    allow(test_logger).to receive(:error)
+    allow(test_logger).to receive(:send)
     allow(Settings.vanotify.services.check_in).to receive(:api_key).and_return('test-api-key')
     allow(StatsD).to receive(:increment)
 
@@ -38,23 +40,22 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
-      expect(test_logger).to receive(:info).with(
-        hash_including(
-          message: 'Sending Travel Claim Notification SMS',
-          uuid:,
-          phone_last_four: '0123',
-          template_id:
-        )
-      )
+      expect(test_logger).to receive(:send).with(:info, hash_including(
+                                                          message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                   'Sending Travel Claim Notification SMS',
+                                                          uuid:,
+                                                          phone_last_four: '0123',
+                                                          template_id:
+                                                        ))
 
-      expect(test_logger).to receive(:info).with(
-        hash_including(
-          message: 'Travel Claim Notification SMS API request succeeded',
-          uuid:,
-          phone_last_four: '0123',
-          template_id:
-        )
-      )
+      expect(test_logger).to receive(:send).with(:info, hash_including(
+                                                          message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                   'Travel Claim Notification SMS API ' \
+                                                                   'request succeeded',
+                                                          uuid:,
+                                                          phone_last_four: '0123',
+                                                          template_id:
+                                                        ))
 
       described_class.new.perform(uuid, appointment_date, template_id, claim_number)
 
@@ -68,14 +69,14 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
 
       expect(notify_client).not_to receive(:send_sms)
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
-      expect(test_logger).to receive(:info).with(
-        hash_including(
-          message: "Failed to send Travel Claim Notification SMS: missing mobile_phone, Won't Retry",
-          uuid:,
-          phone_last_four: 'unknown',
-          template_id:
-        )
-      )
+      expect(test_logger).to receive(:send).with(:error, hash_including(
+                                                           message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                    'Failed to send Travel Claim Notification SMS: ' \
+                                                                    "missing mobile_phone, Won't Retry",
+                                                           uuid:,
+                                                           phone_last_four: 'unknown',
+                                                           template_id:
+                                                         ))
 
       job.perform(uuid, appointment_date, template_id, claim_number)
     end
@@ -84,11 +85,11 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       job = described_class.new
 
       expect(notify_client).to receive(:send_sms)
-      expect(test_logger).to receive(:info).with(
-        hash_including(
-          message: 'Travel Claim Notification SMS API request succeeded'
-        )
-      )
+      expect(test_logger).to receive(:send).with(:info, hash_including(
+                                                          message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                   'Travel Claim Notification SMS API ' \
+                                                                   'request succeeded'
+                                                        ))
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
 
       job.perform(uuid, appointment_date, template_id, nil)
@@ -97,18 +98,17 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
     it 'skips SMS sending and logs when appointment date is invalid' do
       invalid_date = 'invalid-date'
       job = described_class.new
-      message = "Failed to send Travel Claim Notification SMS: invalid appointment date format, Won't Retry"
+      message = 'CheckIn::TravelClaimNotificationJob: Failed to send Travel Claim Notification SMS: ' \
+                "invalid appointment date format, Won't Retry"
 
       expect(notify_client).not_to receive(:send_sms)
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
-      expect(test_logger).to receive(:info).with(
-        hash_including(
-          message:,
-          uuid:,
-          phone_last_four: '0123',
-          template_id:
-        )
-      )
+      expect(test_logger).to receive(:send).with(:error, hash_including(
+                                                           message:,
+                                                           uuid:,
+                                                           phone_last_four: '0123',
+                                                           template_id:
+                                                         ))
 
       expect { job.perform(uuid, invalid_date, template_id, claim_number) }.not_to raise_error
     end
@@ -121,23 +121,22 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       it 'logs failures and raises the error' do
         job = described_class.new
 
-        expect(test_logger).to receive(:info).with(
-          hash_including(
-            message: 'Sending Travel Claim Notification SMS',
-            uuid:,
-            phone_last_four: '0123',
-            template_id:
-          )
-        )
+        expect(test_logger).to receive(:send).with(:info, hash_including(
+                                                            message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                     'Sending Travel Claim Notification SMS',
+                                                            uuid:,
+                                                            phone_last_four: '0123',
+                                                            template_id:
+                                                          ))
 
-        expect(test_logger).to receive(:info).with(
-          hash_including(
-            message: 'Failed to send Travel Claim Notification SMS: Test error',
-            uuid:,
-            phone_last_four: '0123',
-            template_id:
-          )
-        )
+        expect(test_logger).to receive(:send).with(:error, hash_including(
+                                                             message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                      'Failed to send Travel Claim ' \
+                                                                      'Notification SMS: Test error',
+                                                             uuid:,
+                                                             phone_last_four: '0123',
+                                                             template_id:
+                                                           ))
 
         expect do
           job.perform(uuid, appointment_date, template_id, claim_number)
@@ -146,23 +145,22 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
 
       it 'logs only the last 4 digits of the phone number in error messages' do
         job = described_class.new
-        expect(test_logger).to receive(:info).with(
-          hash_including(
-            message: 'Sending Travel Claim Notification SMS',
-            uuid:,
-            phone_last_four: '0123',
-            template_id:
-          )
-        )
+        expect(test_logger).to receive(:send).with(:info, hash_including(
+                                                            message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                     'Sending Travel Claim Notification SMS',
+                                                            uuid:,
+                                                            phone_last_four: '0123',
+                                                            template_id:
+                                                          ))
 
-        expect(test_logger).to receive(:info).with(
-          hash_including(
-            message: 'Failed to send Travel Claim Notification SMS: Test error',
-            uuid:,
-            phone_last_four: '0123',
-            template_id:
-          )
-        ).ordered
+        expect(test_logger).to receive(:send).with(:error, hash_including(
+                                                             message: 'CheckIn::TravelClaimNotificationJob: ' \
+                                                                      'Failed to send Travel Claim ' \
+                                                                      'Notification SMS: Test error',
+                                                             uuid:,
+                                                             phone_last_four: '0123',
+                                                             template_id:
+                                                           )).ordered
 
         expect(test_logger).not_to receive(:info).with(
           hash_including(message: /202-555-0123/)

@@ -41,7 +41,7 @@ module CheckIn
         va_notify_send_sms(opts, parsed_date)
       rescue => e
         message = "Failed to send Travel Claim Notification SMS: #{e.message}"
-        self.class.log_sms_attempt(opts, logger, message)
+        self.class.log_sms_attempt(message, opts, :error)
 
         # Explicit re-raise to trigger the retry mechanism
         raise e
@@ -49,7 +49,7 @@ module CheckIn
 
       # Log API request success (not delivery success - that would require VA Notify callbacks)
       message = 'Travel Claim Notification SMS API request succeeded'
-      self.class.log_sms_attempt(opts, logger, message)
+      self.class.log_sms_attempt(message, opts, :info)
       StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
 
@@ -109,9 +109,8 @@ module CheckIn
     #
     # @param message [String] The failure message to log
     # @param opts [Hash] Options hash containing job parameters
-    # @param logger_instance [Logger] Logger instance to use (defaults to Rails.logger)
     # @return [Boolean] Always returns false to prevent retries
-    def self.log_failure_no_retry(message, opts, logger_instance = Rails.logger)
+    def self.log_failure_no_retry(message, opts)
       template_id = opts&.dig(:template_id)
       facility_type = opts&.dig(:facility_type)
 
@@ -133,7 +132,7 @@ module CheckIn
       # Log all failures for CIE team metrics tracking
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
       failure_message = "Failed to send Travel Claim Notification SMS: #{message}, Won't Retry"
-      log_sms_attempt(opts, logger_instance, failure_message)
+      log_sms_attempt(failure_message, opts, :error)
 
       # Explicit return here to be sure retry doesn't trigger.
       false
@@ -142,19 +141,20 @@ module CheckIn
     # Logs information about SMS sending attempts (success or failure)
     # Extracts phone number last four digits and logs with template ID, message, and UUID.
     #
-    # @param opts [Hash] Options hash containing job parameters
-    # @param logger_instance [Logger] Logger instance to use (defaults to Rails.logger for class method calls)
     # @param message [String] The log message (success or failure message)
+    # @param opts [Hash] Options hash containing job parameters
+    # @param log_level [Symbol] The log level to use (:info, :error, etc.) (defaults to :info)
     # @return [void]
     #
     # NOTE: Don't increment StatsD failure yet, this occurs once the job has run through it's retries
-    def self.log_sms_attempt(opts, logger_instance = Rails.logger, message)
+    def self.log_sms_attempt(message, opts, log_level = :info)
       phone_number = opts[:mobile_phone]
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
       template_id = opts[:template_id]
       uuid = opts[:uuid]
+      prefixed_message = "#{self}: #{message}"
 
-      logger_instance.info({ message:, uuid:, template_id:, phone_last_four: })
+      Rails.logger.send(log_level, { message: prefixed_message, uuid:, template_id:, phone_last_four: })
     end
 
     private
@@ -169,7 +169,7 @@ module CheckIn
       return true if missing_fields.empty?
 
       error_message = "missing #{missing_fields.join(', ')}"
-      self.class.log_failure_no_retry(error_message, opts, logger)
+      self.class.log_failure_no_retry(error_message, opts)
       false
     end
 
@@ -195,7 +195,7 @@ module CheckIn
       date_string = opts[:appointment_date]
       DateTime.strptime(date_string.to_s, '%Y-%m-%d').to_date
     rescue
-      self.class.log_failure_no_retry('invalid appointment date format', opts, logger)
+      self.class.log_failure_no_retry('invalid appointment date format', opts)
       nil
     end
 
@@ -228,7 +228,7 @@ module CheckIn
       personalisation = { claim_number: claim_number_last_four, appt_date: formatted_date }
 
       message = 'Sending Travel Claim Notification SMS'
-      self.class.log_sms_attempt(opts, logger, message)
+      self.class.log_sms_attempt(message, opts, :info)
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
     end
   end
