@@ -56,7 +56,7 @@ module ClaimsApi
           text: {
             type: 'mrkdwn',
             text: "*ERRORED SUBMISSIONS*\n\n#{@from} – #{@to}\nThe following submissions have encountered errors " \
-                  "in *#{@environment}*:"
+                  "in *#{@environment}*:\n#{general_datadog_link}"
           }
         }
       end
@@ -97,6 +97,15 @@ module ClaimsApi
             text: "```#{text}```"
           }
         }
+      end
+
+      def general_datadog_link
+        time_stamps = datadog_timestamps
+
+        '<https://vagov.ddog-gov.com/logs?query=service%3Avets-api%20status%3Aerror&agg_m=count&agg_m_source=base&' \
+          'agg_t=count&cols=host%2Cservice&fromUser=true&messageDisplay=inline&refresh_mode=sliding&storage=hot&' \
+          "stream_sort=desc&viz=stream&from_ts=#{time_stamps[0]}&to_ts=#{time_stamps[1]}&live=true|" \
+          'View All Errors in DataDog>'
       end
 
       def link_value(id, type = :eid)

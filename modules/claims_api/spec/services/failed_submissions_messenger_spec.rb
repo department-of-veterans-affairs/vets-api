@@ -211,4 +211,48 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
       end
     end
   end
+
+  describe '#general_datadog_link' do
+    let(:messenger) do
+      described_class.new(
+        from: '03:59PM EST',
+        to: '04:59PM EST',
+        environment: 'production'
+      )
+    end
+
+    it 'returns a properly formatted DataDog URL' do
+      # Mock the current time for consistent testing
+      allow(Time).to receive(:now).and_return(Time.zone.at(1_640_995_200)) # 2022-01-01 00:00:00 UTC
+
+      link = messenger.send(:general_datadog_link)
+
+      expect(link).to include('https://vagov.ddog-gov.com/logs')
+      expect(link).to include('query=service%3Avets-api%20status%3Aerror')
+      expect(link).to include('from_ts=1640736000000') # 3 days ago in milliseconds
+      expect(link).to include('to_ts=1640995200000')   # current time in milliseconds
+      expect(link).to include('View All Errors in DataDog')
+    end
+
+    it 'includes the general DataDog link in the message heading' do
+      allow(Time).to receive(:now).and_return(Time.zone.at(1_640_995_200))
+
+      expect(notifier).to receive(:notify) do |_text, args|
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including(
+                'ERRORED SUBMISSIONS',
+                'View All Errors in DataDog',
+                'https://vagov.ddog-gov.com/logs'
+              )
+            }
+          )
+        )
+      end
+
+      messenger.notify!
+    end
+  end
 end
