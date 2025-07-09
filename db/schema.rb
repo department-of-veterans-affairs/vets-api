@@ -330,6 +330,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
     t.string "type", null: false
     t.uuid "creator_id", null: false
     t.integer "declination_reason"
+    t.string "power_of_attorney_holder_type"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["creator_id"], name: "index_ar_power_of_attorney_request_decisions_on_creator_id"
   end
 
