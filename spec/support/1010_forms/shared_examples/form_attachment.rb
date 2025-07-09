@@ -55,7 +55,7 @@ shared_examples 'create 1010 form attachment' do
   end
 
   def expect_form_attachment_creation
-    form_attachment = FactoryBot.build(attachment_factory_id, guid: form_attachment_guid)
+    form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
     expect(form_attachment_model).to receive(:new) do
       expect(form_attachment).to receive(:set_file_data!)

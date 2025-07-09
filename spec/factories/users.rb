@@ -285,12 +285,10 @@ FactoryBot.define do
 
     factory :dependent_user_with_relationship, traits: %i[loa3 dependent] do
       should_stub_mpi { false }
-
     end
 
     factory :user_with_relationship, traits: [:loa3] do
       should_stub_mpi { false }
-
     end
 
     factory :evss_user, traits: [:loa3] do

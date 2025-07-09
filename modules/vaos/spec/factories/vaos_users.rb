@@ -26,7 +26,6 @@ FactoryBot.modify do
         }
       end
 
-      
       after(:build) do |user, _t|
         # build UserVerification & UserAccount records
         create(:idme_user_verification, idme_uuid: user.idme_uuid)
@@ -57,7 +56,6 @@ FactoryBot.modify do
         }
       end
 
-      
       after(:build) do |user, _t|
         # build UserVerification & UserAccount records
         create(:idme_user_verification, idme_uuid: user.idme_uuid)

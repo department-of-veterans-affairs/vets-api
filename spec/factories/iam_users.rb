@@ -31,13 +31,11 @@ FactoryBot.define do
       user.instance_variable_set(:@identity, user_identity)
     end
 
-
     trait :no_edipi_id do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity, iam_edipi: nil)
         user.instance_variable_set(:@identity, user_identity)
       end
-
     end
 
     trait :no_birth_date do
@@ -45,7 +43,6 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity, birth_date: nil)
         user.instance_variable_set(:@identity, user_identity)
       end
-
     end
 
     trait :no_vet360_id do
@@ -53,7 +50,6 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
       end
-
     end
 
     trait :id_theft_flag do
@@ -61,7 +57,6 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
       end
-
     end
 
     trait :no_multifactor do
@@ -94,7 +89,6 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
       end
-
     end
 
     trait :no_vha_facilities do
@@ -102,7 +96,6 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
       end
-
     end
 
     trait :custom_facility_ids do
@@ -115,7 +108,6 @@ FactoryBot.define do
         facility_ids { [] }
         cerner_facility_ids { [] }
       end
-
     end
 
     trait :loa2 do
