@@ -9,7 +9,7 @@ module UnifiedHealthData
   class LabsRefreshJob
     include Sidekiq::Job
 
-    sidekiq_options retry: 0
+    sidekiq_options retry: 0, unique_for: 30.minutes
 
     def perform(user_uuid)
       user = find_user(user_uuid)
