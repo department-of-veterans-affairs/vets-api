@@ -56,6 +56,16 @@ jobs:
         with:
           driver-opts: image=${{ steps.ecr-login.outputs.registry }}/moby/buildkit:buildx-stable-1
 
+      - name: Restore Docker cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.head_ref || github.ref_name }}-
+            ${{ runner.os }}-buildx-master-
+            ${{ runner.os }}-buildx-
+
       - name: Build Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -68,8 +78,8 @@ jobs:
           push: false
           load: true
           tags: vets-api
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
