@@ -18,9 +18,24 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
 
   describe '#perform' do
     context 'when the user exists' do
-      it 'fetches labs data for the past month' do
+      it 'fetches labs data using the configured date range' do
         end_date = Date.current
-        start_date = end_date - 1.month
+        days_back = Settings.mhv.uhd.labs_logging_date_range_days
+        start_date = end_date - days_back.days
+
+        expect(uhd_service).to receive(:get_labs).with(
+          start_date: start_date.strftime('%Y-%m-%d'),
+          end_date: end_date.strftime('%Y-%m-%d')
+        )
+
+        described_class.new.perform(user.uuid)
+      end
+
+      it 'respects custom date range configuration' do
+        allow(Settings.mhv.uhd).to receive(:labs_logging_date_range_days).and_return(7)
+
+        end_date = Date.current
+        start_date = end_date - 7.days
 
         expect(uhd_service).to receive(:get_labs).with(
           start_date: start_date.strftime('%Y-%m-%d'),
