@@ -10,6 +10,7 @@ module ClaimsApi
         'accepted' => ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler
       }.freeze
 
+      # rubocop:disable Metrics/ParameterLists
       def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:)
         @decision = decision
         @ptcpnt_id = ptcpnt_id
@@ -18,6 +19,7 @@ module ClaimsApi
         @poa_code = poa_code
         @metadata = metadata
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def call
         handler_class = DECISION_HANDLERS[@decision]
@@ -29,18 +31,22 @@ module ClaimsApi
       private
 
       def make_call_for_decision(handler_class)
-        handler_class.new(
-          ptcpnt_id: @ptcpnt_id,
-          proc_id: @proc_id,
-          representative_id: @representative_id
-        ).call if @decision == 'declined'
+        if @decision == 'declined'
+          handler_class.new(
+            ptcpnt_id: @ptcpnt_id,
+            proc_id: @proc_id,
+            representative_id: @representative_id
+          ).call
+        end
 
-        handler_class.new(
-          ptcpnt_id: @ptcpnt_id,
-          proc_id: @proc_id,
-          poa_code: @poa_code,
-          metadata: @metadata
-        ).call if @decision == 'accepted'
+        if @decision == 'accepted'
+          handler_class.new(
+            ptcpnt_id: @ptcpnt_id,
+            proc_id: @proc_id,
+            poa_code: @poa_code,
+            metadata: @metadata
+          ).call
+        end
       end
     end
   end

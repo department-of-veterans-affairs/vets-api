@@ -64,7 +64,7 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide
+        def decide # rubocop:disable Metrics/MethodLength
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
@@ -76,16 +76,14 @@ module ClaimsApi
           validate_decide_params!(proc_id:, decision:)
 
           manage_rep_service = manage_representative_service
-
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
 
-          process_poa_decision(decision:, 
-                                ptcpnt_id:, 
-                                proc_id:, 
-                                representative_id:, 
-                                poa_code: request.poa_code, 
-                                metadata: request.metadata
-                              )
+          process_poa_decision(decision:,
+                               ptcpnt_id:,
+                               proc_id:,
+                               representative_id:,
+                               poa_code: request.poa_code,
+                               metadata: request.metadata)
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
@@ -148,11 +146,13 @@ module ClaimsApi
 
         private
 
+        # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:)
           ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:
           ).call
         end
+        # rubocop:enable Metrics/ParameterLists
 
         def handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
           service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)

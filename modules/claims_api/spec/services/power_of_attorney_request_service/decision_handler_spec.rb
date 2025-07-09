@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
-
   let(:declined_subject) { build_subject('declined') }
   let(:accepted_subject) { build_subject('accepted') }
   let(:ptcpnt_id) { '600043284' }
@@ -11,7 +10,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
   let(:representative_id) { '11' }
   let(:poa_code) { '087' }
   let(:metadata) do
-    {"vnp_phone_id"=>"106175", "vnp_email_addr_id"=>"148885", "vnp_mailing_addr_id"=>"148886"}
+    { 'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886' }
   end
 
   context "When the decision is 'Declined'" do
@@ -25,7 +24,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
   context "When the decision is 'Accepted'" do
     it 'calls the accepted decision service handler' do
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler).to receive(:call)
-      
+
       accepted_subject.call
     end
   end
@@ -34,10 +33,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
 
   def build_subject(decision)
     described_class.new(
-      decision: decision,
-      ptcpnt_id: ptcpnt_id,
-      proc_id: proc_id,
-      representative_id: representative_id,
+      decision:,
+      ptcpnt_id:,
+      proc_id:,
+      representative_id:,
       poa_code:,
       metadata:
     )
