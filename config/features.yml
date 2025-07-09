@@ -1992,6 +1992,9 @@ features:
   mobile_cerner_transition:
     actor_type: user
     description: For mobile app, a facility is being transitioned to cerner.
+  mobile_iam_authentication_disabled:
+    actor_type: user
+    description: For mobile app, disable iam authentication method.
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
