@@ -204,7 +204,6 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
 
       VCR.use_cassette('claims_api/bd/upload_error') do
-        allow_any_instance_of(ClaimsApi::V1::PoaFormBuilderJob).to receive(:poa_code_in_organization?).and_return true
         allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
                                                     .and_raise(Common::Exceptions::BackendServiceException.new(errors))
         subject.new.perform(power_of_attorney.id, 'post')
