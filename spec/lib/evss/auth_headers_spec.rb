@@ -95,6 +95,10 @@ describe EVSS::AuthHeaders do
         let(:head_of_family) { authorization_response['headOfFamily'] }
         let(:expected_status) { 'DEPENDENT' }
 
+        before do
+          stub_mpi(build(:mpi_profile_response, :with_relationship, person_types: ['DEP']))
+        end
+
         it 'returns DEPENDENT in status field' do
           expect(authorization_response['status']).to eq expected_status
         end
