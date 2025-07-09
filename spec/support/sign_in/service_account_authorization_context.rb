@@ -6,7 +6,7 @@ RSpec.shared_context 'with service account authentication' do |service_account_i
     SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
   end
   let(:service_account_access_token) do
-    create(
+    FactoryBot.create(
       :service_account_access_token,
       **optional_claims.merge(
         {
@@ -17,6 +17,6 @@ RSpec.shared_context 'with service account authentication' do |service_account_i
     )
   end
   let(:service_account_config) do
-    create(:service_account_config, service_account_id:, scopes:)
+    FactoryBot.create(:service_account_config, service_account_id:, scopes:)
   end
 end

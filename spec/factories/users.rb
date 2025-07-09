@@ -136,7 +136,6 @@ FactoryBot.define do
       user_identity = create(:user_identity, t.user_identity)
       user.instance_variable_set(:@identity, user_identity)
       user.instance_variable_set(:@needs_accepted_terms_of_use, t.needs_accepted_terms_of_use)
-      stub_mpi(t.mpi_profile) unless t.should_stub_mpi == false
     end
 
     # This is used by the response_builder helper to build a user from saml attributes
@@ -287,28 +286,11 @@ FactoryBot.define do
     factory :dependent_user_with_relationship, traits: %i[loa3 dependent] do
       should_stub_mpi { false }
 
-      after(:build) do
-        stub_mpi(
-          FactoryBot.build(
-            :mpi_profile_response,
-            :with_relationship,
-            person_types: ['DEP']
-          )
-        )
-      end
     end
 
     factory :user_with_relationship, traits: [:loa3] do
       should_stub_mpi { false }
 
-      after(:build) do |_t|
-        stub_mpi(
-          FactoryBot.build(
-            :mpi_profile_response,
-            :with_relationship
-          )
-        )
-      end
     end
 
     factory :evss_user, traits: [:loa3] do

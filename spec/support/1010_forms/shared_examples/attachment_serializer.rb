@@ -13,7 +13,7 @@ shared_examples '1010 forms attachment serializer' do
     }
   end
   let(:attachment) do
-    build(resource_name.to_sym, id: expected[:id].to_i, guid: expected[:guid])
+    FactoryBot.build(resource_name.to_sym, id: expected[:id].to_i, guid: expected[:guid])
   end
   let(:data) { JSON.parse(subject)['data'] }
 
