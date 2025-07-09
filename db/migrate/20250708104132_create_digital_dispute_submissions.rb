@@ -12,7 +12,7 @@ class CreateDigitalDisputeSubmissions < ActiveRecord::Migration[7.2]
       t.text :encrypted_kms_key
       t.integer :state, default: 0, null: false
       t.string :error_message
-      t.string :dmc_reference_id
+      t.string :reference_id
       t.boolean :needs_kms_rotation, default: false, null: false
       t.timestamps
     end
