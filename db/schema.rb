@@ -843,6 +843,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.integer "file_size"
     t.index ["needs_kms_rotation"], name: "index_evidence_submissions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end

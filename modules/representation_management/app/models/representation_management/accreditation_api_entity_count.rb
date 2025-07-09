@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 module RepresentationManagement
   # Tracks and validates counts of accredited entities from the GCLAWS API
   #
@@ -87,6 +85,7 @@ module RepresentationManagement
     def get_counts_from_api
       counts = {}
       TYPES.each do |type|
+        # We're fetching with a page size of 1 to get the fastest possible response for the total count
         counts[type] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
       rescue => e
         log_error("Error fetching count for #{type}: #{e.message}")

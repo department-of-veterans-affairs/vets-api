@@ -15,7 +15,7 @@ namespace :representation_management do
       end
 
       rep_types = args[:rep_types].split(',').map(&:strip)
-      valid_types = %w[agents attorneys]
+      valid_types = RepresentationManagement::ENTITY_CONFIG.to_h.keys.map(&:to_s)
 
       invalid_types = rep_types - valid_types
       if invalid_types.any?

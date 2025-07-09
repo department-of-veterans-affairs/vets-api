@@ -56,23 +56,21 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       # Only stub external dependencies
       allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
       allow(entity_counts).to receive(:save_api_counts)
-      allow(entity_counts).to receive(:valid_count?).with('agents').and_return(true)
-      allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(true)
-      allow(entity_counts).to receive(:valid_count?).with('representatives').and_return(true)
-      allow(entity_counts).to receive(:valid_count?).with('veteran_service_organizations').and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::AGENTS).and_return(true)
+      allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'agents', page: 1)
+        .with(type: RepresentationManagement::AGENTS, page: 1)
         .and_return(instance_double(Faraday::Response, body: agent_response))
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'agents', page: 2)
+        .with(type: RepresentationManagement::AGENTS, page: 2)
         .and_return(instance_double(Faraday::Response, body: empty_response))
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'attorneys', page: 1)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 1)
         .and_return(instance_double(Faraday::Response, body: attorney_response))
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'attorneys', page: 2)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 2)
         .and_return(instance_double(Faraday::Response, body: empty_response))
 
       # Mock record creation
@@ -116,14 +114,14 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when forcing updates' do
       it 'skips saving API counts' do
-        job.perform(['agents'])
+        job.perform([RepresentationManagement::AGENTS])
         expect(entity_counts).not_to have_received(:save_api_counts)
       end
     end
 
     context 'when agent count is invalid' do
       before do
-        allow(entity_counts).to receive(:valid_count?).with('agents').and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::AGENTS).and_return(false)
       end
 
       it 'logs an error and skips agent updates' do
@@ -143,13 +141,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       context 'when forcing claims_agent updates' do
         it 'updates agents despite invalid count' do
-          job.perform(['agents'])
+          job.perform([RepresentationManagement::AGENTS])
           expect(AccreditedIndividual).to have_received(:find_or_create_by)
             .with(individual_type: 'claims_agent', ogc_id: '123')
         end
 
         it 'does not update attorneys' do
-          job.perform(['agents'])
+          job.perform([RepresentationManagement::AGENTS])
           expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
             .with(individual_type: 'attorney', ogc_id: '789')
         end
@@ -158,7 +156,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when attorney count is invalid' do
       before do
-        allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(false)
       end
 
       it 'logs an error and skips attorney updates' do
@@ -178,13 +176,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       context 'when forcing attorney updates' do
         it 'updates attorneys despite invalid count' do
-          job.perform(['attorneys'])
+          job.perform([RepresentationManagement::ATTORNEYS])
           expect(AccreditedIndividual).to have_received(:find_or_create_by)
             .with(individual_type: 'attorney', ogc_id: '789')
         end
 
         it 'does not update agents' do
-          job.perform(['attorneys'])
+          job.perform([RepresentationManagement::ATTORNEYS])
           expect(AccreditedIndividual).not_to have_received(:find_or_create_by)
             .with(individual_type: 'claims_agent', ogc_id: '123')
         end
@@ -193,8 +191,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     context 'when both counts are invalid' do
       before do
-        allow(entity_counts).to receive(:valid_count?).with('agents').and_return(false)
-        allow(entity_counts).to receive(:valid_count?).with('attorneys').and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::AGENTS).and_return(false)
+        allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(false)
       end
 
       it 'logs errors for both counts and skips updates' do
@@ -263,10 +261,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       # Only stub external dependencies, not methods on the object under test
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'agents', page: 1)
+        .with(type: RepresentationManagement::AGENTS, page: 1)
         .and_return(response1)
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'agents', page: 2)
+        .with(type: RepresentationManagement::AGENTS, page: 2)
         .and_return(response2)
 
       allow(AccreditedIndividual).to receive(:find_or_create_by) do |args|
@@ -294,9 +292,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:update_agents)
 
       expect(client).to have_received(:get_accredited_entities)
-        .with(type: 'agents', page: 1)
+        .with(type: RepresentationManagement::AGENTS, page: 1)
       expect(client).to have_received(:get_accredited_entities)
-        .with(type: 'agents', page: 2)
+        .with(type: RepresentationManagement::AGENTS, page: 2)
     end
 
     it 'stores agent responses' do
@@ -414,10 +412,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       # Mock external dependencies only
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'attorneys', page: 1)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 1)
         .and_return(response1)
       allow(client).to receive(:get_accredited_entities)
-        .with(type: 'attorneys', page: 2)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 2)
         .and_return(response2)
 
       # Use flexible argument matcher for find_or_create_by
@@ -442,9 +440,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:update_attorneys)
 
       expect(client).to have_received(:get_accredited_entities)
-        .with(type: 'attorneys', page: 1)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 1)
       expect(client).to have_received(:get_accredited_entities)
-        .with(type: 'attorneys', page: 2)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 2)
     end
 
     it 'stores attorney responses' do

@@ -15,10 +15,10 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   describe '#save_api_counts' do
     before do
       allow(model).to receive(:current_api_counts).and_return({
-                                                                agents: 100,
-                                                                attorneys: 100,
-                                                                representatives: 100,
-                                                                veteran_service_organizations: 100
+                                                                'agents' => 100,
+                                                                'attorneys' => 100,
+                                                                'representatives' => 100,
+                                                                'veteran_service_organizations' => 100
                                                               })
     end
 
@@ -33,10 +33,11 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     end
 
     it 'only assigns values for valid counts' do
-      allow(model).to receive(:valid_count?).with(:agents).and_return(false)
-      allow(model).to receive(:valid_count?).with(:attorneys).and_return(true)
-      allow(model).to receive(:valid_count?).with(:representatives).and_return(true)
-      allow(model).to receive(:valid_count?).with(:veteran_service_organizations).and_return(false)
+      allow(model).to receive(:valid_count?).with(RepresentationManagement::AGENTS, notify: false).and_return(false)
+      allow(model).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS, notify: false).and_return(true)
+      allow(model).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES,
+                                                  notify: false).and_return(true)
+      allow(model).to receive(:valid_count?).with('veteran_service_organizations', notify: false).and_return(false)
 
       model.save_api_counts
       model.reload
@@ -192,7 +193,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
     it 'handles API errors for individual types' do
       allow(RepresentationManagement::GCLAWS::Client).to receive(:get_accredited_entities)
-        .with(type: :agents, page: 1, page_size: 1)
+        .with(type: RepresentationManagement::AGENTS, page: 1, page_size: 1)
         .and_raise(StandardError.new('API error'))
 
       result = model.send(:get_counts_from_api)

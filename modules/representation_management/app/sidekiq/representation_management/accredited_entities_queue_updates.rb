@@ -32,27 +32,9 @@ module RepresentationManagement
     # Number of records to process in each address validation batch
     SLICE_SIZE = 30
 
-    AGENTS = 'agents'
-    ATTORNEYS = 'attorneys'
-    # Define a configuration map for entity types
-    ENTITY_CONFIG = {
-      AGENTS => {
-        api_type: 'agent',
-        individual_type: 'claims_agent',
-        responses_var: :@agent_responses,
-        ids_var: :@agent_ids,
-        json_var: :@agent_json_for_address_validation,
-        validation_description: 'Batching agent address updates from GCLAWS Accreditation API'
-      },
-      ATTORNEYS => {
-        api_type: 'attorney',
-        individual_type: 'attorney',
-        responses_var: :@attorney_responses,
-        ids_var: :@attorney_ids,
-        json_var: :@attorney_json_for_address_validation,
-        validation_description: 'Batching attorney address updates from GCLAWS Accreditation API'
-      }
-    }.freeze
+    AGENTS = RepresentationManagement::AGENTS
+    ATTORNEYS = RepresentationManagement::ATTORNEYS
+    ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
     # Main job method that processes accredited entities
     #
@@ -74,8 +56,6 @@ module RepresentationManagement
 
       # Don't save fresh API counts if updates are forced
       @entity_counts.save_api_counts unless @force_update_types.any?
-      # TODO: Refactor to do all the valid entity counting in one place and create instance variables
-      # Maybe one hash with types as keys and true/false as values
       process_entity_type(AGENTS)
       process_entity_type(ATTORNEYS)
       process_orgs_and_reps
@@ -95,7 +75,7 @@ module RepresentationManagement
       return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
 
       if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
-        if entity_type == 'agents'
+        if entity_type == AGENTS
           update_agents
           validate_agent_addresses
         else # attorneys
@@ -213,7 +193,7 @@ module RepresentationManagement
     # @param agent [Hash] Raw agent data from the GCLAWS API
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_agent(agent)
-      data_transform_for_entity(agent, 'claims_agent', {
+      data_transform_for_entity(agent, ENTITY_CONFIG.send(AGENTS).individual_type, {
                                   country_code_iso3: agent['workCountry'],
                                   country_name: agent['workCountry'],
                                   phone: agent['workPhoneNumber'],
@@ -227,7 +207,7 @@ module RepresentationManagement
     # @param attorney [Hash] Raw attorney data from the GCLAWS API
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_attorney(attorney)
-      data_transform_for_entity(attorney, 'attorney', {
+      data_transform_for_entity(attorney, ENTITY_CONFIG.send(ATTORNEYS).individual_type, {
                                   city: attorney['workCity'],
                                   state_code: attorney['workState'],
                                   phone: attorney['workNumber'],
@@ -395,14 +375,6 @@ module RepresentationManagement
     # @return [RepresentationManagement::GCLAWS::Client] The client for GCLAWS API calls
     def client
       RepresentationManagement::GCLAWS::Client
-    end
-
-    def orgs_and_reps
-      %w[representatives veteran_service_organizations]
-    end
-
-    def orgs_and_reps_both_valid?
-      orgs_and_reps.all? { |type| @entity_counts.valid_count?(type) }
     end
 
     # Logs an error message to the Rails logger
