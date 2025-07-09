@@ -7,7 +7,7 @@ module VeteranEnrollmentSystem
     class Configuration < VeteranEnrollmentSystem::BaseConfiguration
 
       def self.api_key_path
-        :associations
+        :form1095b
       end
 
       ##
