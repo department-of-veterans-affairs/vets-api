@@ -13,7 +13,7 @@ module CheckIn
       facility_type = redis_client.facility_type(uuid:)
 
       logger.info({
-                    message: "Checking travel claim status for #{uuid}, #{appointment_date}, " \
+                    message: "#{self.class}: Checking travel claim status for #{uuid}, #{appointment_date}, " \
                              "#{station_number}, #{facility_type}",
                     uuid:,
                     appointment_date:,
@@ -39,7 +39,8 @@ module CheckIn
 
       handle_response(claim_status_resp:, facility_type:, uuid:)
     rescue => e
-      logger.error({ message: "Error calling BTSSS Service: #{e.message}", method: 'claim_status' }.merge(opts))
+      logger.error({ message: "#{self.class}: Error calling BTSSS Service: #{e.message}",
+                     method: 'claim_status' }.merge(opts))
       if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
@@ -74,11 +75,11 @@ module CheckIn
 
       case response_code
       when TravelClaim::Response::CODE_EMPTY_STATUS
-        logger.info({ message: 'Received empty claim status response', uuid: })
+        logger.info({ message: "#{self.class}: Received empty claim status response", uuid: })
         TravelClaim::Response::CODE_EMPTY_STATUS
       else
         if response_code == TravelClaim::Response::CODE_MULTIPLE_STATUSES
-          logger.info({ message: 'Received multiple claim status response', uuid: })
+          logger.info({ message: "#{self.class}: Received multiple claim status response", uuid: })
         end
 
         response_body = claim_status_resp.dig(:data, :body)
@@ -88,7 +89,7 @@ module CheckIn
         elsif FAILED_CLAIM_STATUSES.include?(claim_status)
           TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
         else
-          logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
+          logger.info({ message: "#{self.class}: Received non-matching claim status", claim_status:, uuid: })
           TravelClaim::Response::CODE_UNKNOWN_ERROR
         end
       end

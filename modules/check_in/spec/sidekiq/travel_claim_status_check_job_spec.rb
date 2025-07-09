@@ -73,7 +73,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
       expect(Sidekiq.logger).to have_received(:info).with({
-                                                            message: 'Received multiple claim status response',
+                                                            message: 'CheckIn::TravelClaimStatusCheckJob: ' \
+                                                                     'Received multiple claim status response',
                                                             uuid:
                                                           })
     end
@@ -96,7 +97,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
       expect(Sidekiq.logger).to have_received(:info).with({
-                                                            message: 'Received empty claim status response',
+                                                            message: 'CheckIn::TravelClaimStatusCheckJob: ' \
+                                                                     'Received empty claim status response',
                                                             uuid:
                                                           })
     end
@@ -137,7 +139,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
       expect(Sidekiq.logger).to have_received(:info).with({
-                                                            message: 'Received non-matching claim status',
+                                                            message: 'CheckIn::TravelClaimStatusCheckJob: ' \
+                                                                     'Received non-matching claim status',
                                                             claim_status: 'Invalid',
                                                             uuid:
                                                           })

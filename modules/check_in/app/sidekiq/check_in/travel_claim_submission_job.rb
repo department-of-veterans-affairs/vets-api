@@ -8,7 +8,7 @@ module CheckIn
       facility_type = redis_client.facility_type(uuid:)
 
       logger.info({
-                    message: "Submitting travel claim for #{uuid}, #{appointment_date}, " \
+                    message: "#{self.class}: Submitting travel claim for #{uuid}, #{appointment_date}, " \
                              "#{station_number}, #{facility_type}",
                     uuid:,
                     appointment_date:,
@@ -36,7 +36,7 @@ module CheckIn
         handle_response(claims_resp:, facility_type:)
       end
     rescue => e
-      logger.error({ message: "Error calling BTSSS Service: #{e.message}" }.merge(opts))
+      logger.error({ message: "#{self.class}: Error calling BTSSS Service: #{e.message}" }.merge(opts))
       if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
