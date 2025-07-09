@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'dependents_verification/monitor'
+require 'dependents_verification/benefits_intake/submit_claim_job'
 require 'support/controller_spec_helper'
 
 RSpec.describe DependentsVerification::V0::ClaimsController, type: :request do
@@ -72,6 +73,17 @@ RSpec.describe DependentsVerification::V0::ClaimsController, type: :request do
 
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
       expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe '#process_and_upload_to_lighthouse' do
+    let(:claim) { build(:dependents_verification_claim) }
+    let(:in_progress_form) { build(:in_progress_form) }
+    let(:error) { StandardError.new('Something went wrong') }
+
+    it 'returns a success' do
+      expect(DependentsVerification::BenefitsIntake::SubmitClaimJob).to receive(:perform_async).with(claim.id)
+      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
     end
   end
 
