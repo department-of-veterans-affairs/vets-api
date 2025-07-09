@@ -12,7 +12,7 @@ RSpec.describe 'EobTesseractValidator', type: :integration do
 
   before do
     # Ensure the test file exists
-    expect(File.exist?(sample_eob_pdf)).to be true
+    expect(sample_eob_pdf).to exist
   end
 
   describe 'document auto-detection' do

@@ -40,13 +40,13 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
     end
     let(:mock_pharmacy_validator) do
       instance_double(IvcChampva::DocumentOcrValidators::Tesseract::PharmacyClaimTesseractValidator)
-    end
-
+    end    
+    
     before do
       allow(validator).to receive(:perform_ocr)
-      allow(validator).to receive(:extracted_text).and_return('Sample OCR text')
+      allow(validator).to receive(:extracted_text).and_return('Sample OCR text') #'Sample OCR text with EOB information' TODO check me
     end
-
+    
     context 'when a direct validator mapping exists for Social Security card' do
       let(:attachment_id) { 'Social Security card' }
 
@@ -73,7 +73,7 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
         expect(result[:confidence]).to eq(0.8)
       end
     end
-
+    
     context 'when a direct validator mapping exists for EOB' do
       let(:attachment_id) { 'Explanation of Benefits' }
 
@@ -100,7 +100,7 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
         expect(result[:confidence]).to eq(0.9)
       end
     end
-
+        
     context 'when a direct validator mapping exists for Superbill' do
       let(:attachment_id) { 'Superbill' }
 
@@ -151,10 +151,39 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
         expect(result[:document_type]).to eq('pharmacy_claim')
         expect(result[:is_valid]).to be true
         expect(result[:extracted_fields]).to eq({ patient_name: 'John Doe', rx_number: 'RX123' })
-        expect(result[:confidence]).to eq(0.6)
+        expect(result[:confidence]).to eq(0.6)     
       end
     end
+    
+    # TODO is this test still needed?
+    context 'when no direct mapping exists but fallback detection finds a suitable validator' do
+      let(:attachment_id) { 'unknown_attachment' }
 
+      before do
+        # Mock EOB validator as suitable with high confidence
+        allow(IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator)
+          .to receive(:new).and_return(mock_eob_validator)
+        allow(mock_eob_validator).to receive(:process_and_cache)
+          .with('Sample OCR text with EOB information').and_return(0.9)
+        allow(mock_eob_validator).to receive_messages(
+          cached_validity: true,
+          cached_extracted_fields: { provider: 'Test Provider' },
+          cached_confidence_score: 0.9,
+          document_type: 'eob',
+          class: IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator
+        )
+      end
+
+      it 'selects the validator with the highest confidence score' do
+        result = validator.process
+
+        expect(result[:validator_type]).to include('EobTesseractValidator')
+        expect(result[:document_type]).to eq('eob')
+        expect(result[:confidence]).to eq(0.9)
+        expect(result[:extracted_fields]).to eq({ provider: 'Test Provider' })
+      end
+    end
+    
     context 'when no validator is suitable' do
       let(:attachment_id) { 'unknown_attachment' }
 
@@ -181,6 +210,6 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
         expect(result[:extracted_fields]).to eq({})
         expect(result[:confidence]).to eq(0.0)
       end
-    end
+    end 
   end
 end
