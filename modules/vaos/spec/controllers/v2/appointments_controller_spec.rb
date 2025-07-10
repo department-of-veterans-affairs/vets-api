@@ -424,43 +424,127 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
   describe '#process_draft_appointment' do
     let(:controller) { described_class.new }
-    let(:referral_id) { 'REF123' }
-    let(:referral_consult_id) { 'CONSULT123' }
-    let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
-    let(:eps_provider_service) { instance_double(Eps::ProviderService) }
-    let(:appointments_service) { instance_double(VAOS::V2::AppointmentsService) }
-    let(:current_user) { OpenStruct.new(icn: '123V456') }
-    let(:referral) do
+    let(:referral_id) { 'test-referral-123' }
+    let(:referral_consult_id) { 'consult-456' }
+    let(:mock_referral) do
       OpenStruct.new(
         provider_npi: '1234567890',
         provider_specialty: 'Cardiology',
-        treating_facility_address: '123 Main St',
-        referral_date: '2024-01-01',
-        expiration_date: '2024-12-31'
+        treating_facility_address: { street: '123 Main St', city: 'Test City' }
       )
     end
+    let(:mock_provider) { OpenStruct.new(id: 'provider-123') }
+    let(:mock_slots) { [{ id: 'slot1' }, { id: 'slot2' }] }
+    let(:mock_draft) { { id: 'draft-789' } }
+    let(:mock_drive_time) { { duration: 30 } }
+
+    let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
+    let(:eps_appointment_service) { instance_double(Eps::AppointmentService) }
+    let(:eps_config) { instance_double(Eps::Configuration) }
 
     before do
       allow(controller).to receive_messages(
         ccra_referral_service:,
-        eps_provider_service:,
-        appointments_service:,
-        current_user:,
-        check_referral_data_validation: { success: true },
-        check_referral_usage: { success: true }
+        eps_appointment_service:,
+        current_user: OpenStruct.new(icn: 'test-icn-123')
       )
-      allow(ccra_referral_service).to receive(:get_referral).and_return(referral)
+
+      # Mock all the service calls to return success
+      allow(ccra_referral_service).to receive(:get_referral).and_return(mock_referral)
+      allow(controller).to receive_messages(
+        check_referral_data_validation: { success: true },
+        check_referral_usage: { success: true },
+        find_provider: mock_provider,
+        fetch_provider_slots: mock_slots,
+        fetch_drive_times: mock_drive_time,
+        build_draft_response: { draft: mock_draft }
+      )
+
+      allow(eps_appointment_service).to receive_messages(
+        create_draft_appointment: mock_draft,
+        config: eps_config
+      )
       allow(Rails.logger).to receive(:error)
     end
 
-    context 'when provider is not found' do
-      let(:provider) { OpenStruct.new(id: nil) }
-
+    context 'when EPS mocks are enabled' do
       before do
-        allow(controller).to receive(:find_provider).and_return(provider)
+        allow(eps_config).to receive(:mock_enabled?).and_return(true)
       end
 
-      it 'logs an error message' do
+      it 'bypasses drive time calculation' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(result[:success]).to be(true)
+        expect(controller).not_to have_received(:fetch_drive_times)
+      end
+    end
+
+    context 'when EPS mocks are disabled' do
+      before do
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'calls drive time calculation' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(result[:success]).to be(true)
+        expect(controller).to have_received(:fetch_drive_times).with(mock_provider)
+      end
+    end
+
+    context 'when referral data validation fails' do
+      before do
+        allow(controller).to receive(:check_referral_data_validation).and_return({ success: false,
+                                                                                   error: 'Invalid data' })
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'returns early without calling drive time calculation' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(result[:success]).to be(false)
+        expect(controller).not_to have_received(:fetch_drive_times)
+      end
+    end
+
+    context 'when referral usage check fails' do
+      before do
+        allow(controller).to receive(:check_referral_usage).and_return({ success: false, error: 'Already used' })
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'returns early without calling drive time calculation' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(result[:success]).to be(false)
+        expect(controller).not_to have_received(:fetch_drive_times)
+      end
+    end
+
+    context 'when provider is not found' do
+      before do
+        allow(controller).to receive(:find_provider).and_return(nil)
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'returns early without calling drive time calculation' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(result[:success]).to be(false)
+        expect(controller).not_to have_received(:fetch_drive_times)
+      end
+    end
+
+    context 'when provider id is nil' do
+      let(:provider_with_nil_id) { OpenStruct.new(id: nil) }
+
+      before do
+        allow(controller).to receive(:find_provider).and_return(provider_with_nil_id)
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'logs an error message and returns failure' do
         result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
 
         expect(Rails.logger).to have_received(:error).with(match(/Provider not found/), anything)
@@ -470,13 +554,14 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
 
     context 'when provider id is blank' do
-      let(:provider) { OpenStruct.new(id: '') }
+      let(:provider_with_blank_id) { OpenStruct.new(id: '') }
 
       before do
-        allow(controller).to receive(:find_provider).and_return(provider)
+        allow(controller).to receive(:find_provider).and_return(provider_with_blank_id)
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
       end
 
-      it 'logs an error message' do
+      it 'logs an error message and returns failure' do
         result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
 
         expect(Rails.logger).to have_received(:error).with(match(/Provider not found/), anything)
