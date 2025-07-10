@@ -21,7 +21,7 @@ module VeteranEnrollmentSystem
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'VeteranEnrollmentSystem/'
+        'VeteranEnrollmentSystem/form1095b'
       end
     end
   end

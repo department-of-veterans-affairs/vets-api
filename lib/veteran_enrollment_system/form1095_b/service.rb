@@ -36,7 +36,7 @@ module VeteranEnrollmentSystem
       # @raise [Common::Exceptions::BackendServiceException] If the upstream service returns an error
       def get_form_by_icn(icn:, tax_year:)
         with_monitoring do
-          response = perform(:get, form_by_icn_path(icn, tax_year), nil, request_headers)
+          response = perform(:get, form_by_icn_path(icn, tax_year), nil)
           response.body
         end
       rescue Faraday::Error => e
@@ -47,17 +47,6 @@ module VeteranEnrollmentSystem
 
       def form_by_icn_path(icn, tax_year)
         "ves-ee-summary-svc/form1095b/#{icn}/#{tax_year}"
-      end
-
-      def request_headers
-        headers = {}
-
-        if @user.present?
-          headers['X-VA-ICN'] = @user.icn if @user.icn.present?
-          headers['X-VA-SSN'] = @user.ssn if @user.ssn.present?
-        end
-
-        headers
       end
 
       def handle_error(error)
