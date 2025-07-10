@@ -916,6 +916,7 @@ mhv:
     app_id: 1000
     app_token: faketoken
     host: https://mhv-api.example.com
+    labs_logging_date_range_days: 30
     mock: false
     security_host: https://mhv-api.example.com
     subject: "Proxy Client"
