@@ -99,6 +99,10 @@ RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
     context 'when user has no icn' do
       let!(:user) { sis_user(:api_auth, icn: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
+
       it 'returns not found' do
         get('/mobile/v0/enrollment-status', headers: sis_headers)
         assert_schema_conform(404)

@@ -37,6 +37,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
+      stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn))
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
@@ -559,6 +560,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       context 'debt letters index' do
         stub_debt_letters(:index)
 
@@ -629,6 +634,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       context 'medical copays index' do
         stub_medical_copays(:index)
 
@@ -694,6 +703,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       context 'efolder index' do
         stub_efolder_index_documents
 
@@ -729,6 +742,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
       let(:fsr_data) { get_fixture('dmc/fsr_submission') }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
 
       context 'financial status report create' do
         it 'validates the route' do
@@ -1364,6 +1381,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when user is correct' do
         let(:mhv_user) { build(:user_with_no_ids) }
 
+        before do
+          stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn, birls_id: nil, participant_id: nil))
+        end
+
         it 'fails when invalid form id is passed' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
         end
@@ -1385,6 +1406,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       context 'when user is missing birls only' do
         let(:mhv_user) { build(:user, :loa3, birls_id: nil) }
+
+        before do
+          stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn, birls_id: nil))
+        end
 
         it 'fails with 422' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 422, headers.merge('id' => '21-0966'))
@@ -2378,6 +2403,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         let(:mhv_user) { build(:user, :loa3, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         before do
+          stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn))
           sign_in_as(mhv_user)
         end
 
@@ -2886,6 +2912,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
         create(:form1095_b, tax_year: Form1095B.current_tax_year)
       end
 
@@ -2998,6 +3025,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           let(:user) { build(:user, :loa3) }
           let(:headers) do
             { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+          end
+
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
           end
 
           it 'supports getting list of inquiries sent by user' do
@@ -3341,6 +3372,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
         let(:mhv_user) { build(:user, :loa3, idme_uuid:) }
 
+        before do
+          stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn))
+        end
+
         it 'returns ok status code' do
           VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
             expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
@@ -3516,6 +3551,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
         create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)

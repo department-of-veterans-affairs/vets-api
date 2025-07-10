@@ -98,6 +98,10 @@ RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
     context 'without bgs access' do
       let!(:user) { sis_user(participant_id: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
+
       it 'returns 403' do
         get '/mobile/v0/payment-history', headers: sis_headers, params: nil
 
