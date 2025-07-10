@@ -31,8 +31,8 @@ module DecisionReviews
         number = phone['phoneNumber']
 
         {
-          number: "#{area_code}#{number}",
-          countryCode: country_code
+          'number' => "#{area_code}#{number}",
+          'countryCode' => country_code
         }
       end
 

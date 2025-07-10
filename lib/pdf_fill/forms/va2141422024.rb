@@ -403,6 +403,7 @@ module PdfFill
             @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone['number'])
           end
         else
+          @form_data['veteranPhone'] = ''
           @form_data['internationalPhoneNumber'] = "+#{phone['countryCode']} #{phone['number']}"
         end
       end

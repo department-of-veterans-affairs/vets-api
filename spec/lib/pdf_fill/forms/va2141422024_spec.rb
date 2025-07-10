@@ -20,11 +20,22 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#merge_fields' do
-    it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
-      .merge_fields.to_json)).to eq(
-        JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
-      )
+    context 'form data with a domestic phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
+        )
+      end
+    end
+
+    context 'form data with an international phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink_intl_phone'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields_intl_phone').to_json)
+        )
+      end
     end
   end
 
@@ -157,10 +168,95 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#expand_phone_number' do
-    context 'phone number is not blank' do
+    separated_phone_number = {
+      'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                          'phone_last_four_numbers' => '1234' },
+      'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                           'phone_last_four_numbers' => '1234' },
+      'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                           'phone_last_four_numbers' => '1234' },
+      'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                           'phone_last_four_numbers' => '1234' }
+    }
+
+    context 'phone number is a domestic number with a country code' do
       let(:form_data) do
         {
-          'veteranPhone' => '6195551234'
+          'veteranPhone' => {
+            'number' => '6195551234',
+            'countryCode' => '1'
+          }
+        }
+      end
+
+      it 'expands the phone number correctly' do
+        new_form_class.expand_phone_number_field
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(separated_phone_number)
+      end
+    end
+
+    context 'phone number is a domestic number with an empty country code' do
+      let(:form_data) do
+        {
+          'veteranPhone' => {
+            'number' => '6195551234',
+            'countryCode' => ''
+          }
+        }
+      end
+
+      it 'expands the phone number correctly' do
+        new_form_class.expand_phone_number_field
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(separated_phone_number)
+      end
+    end
+
+    context 'phone number is a domestic number with a nil country code' do
+      let(:form_data) do
+        {
+          'veteranPhone' => {
+            'number' => '6195551234',
+            'countryCode' => nil
+          }
+        }
+      end
+
+      it 'expands the phone number correctly' do
+        new_form_class.expand_phone_number_field
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(separated_phone_number)
+      end
+    end
+
+    context 'phone number is a domestic number with no country code' do
+      let(:form_data) do
+        {
+          'veteranPhone' => {
+            'number' => '6195551234'
+          }
+        }
+      end
+
+      it 'expands the phone number correctly' do
+        new_form_class.expand_phone_number_field
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(separated_phone_number)
+      end
+    end
+
+    context 'phone number is a 10-digit international number with a 2-digit country code' do
+      let(:form_data) do
+        {
+          'veteranPhone' => {
+            'number' => '8493726746',
+            'countryCode' => '84'
+          }
         }
       end
 
@@ -169,14 +265,55 @@ describe PdfFill::Forms::Va2141422024 do
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
-          'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                              'phone_last_four_numbers' => '1234' },
-          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' }
+          'veteranPhone' => '',
+          'internationalPhoneNumber' => '+84 8493726746'
+        )
+      end
+    end
+
+    context 'phone number is a 9-digit international number with a 3-digit country code' do
+      let(:form_data) do
+        {
+          'veteranPhone' => {
+            'number' => '589340274',
+            'countryCode' => '490'
+          }
+        }
+      end
+
+      it 'expands the phone number correctly' do
+        new_form_class.expand_phone_number_field
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'veteranPhone' => '',
+          'internationalPhoneNumber' => '+490 589340274'
+        )
+      end
+    end
+
+    context 'phone number is an international number with no country code' do
+      let(:form_data) do
+        {
+          'veteranPhone' => {
+            'number' => '8493726746'
+          }
+        }
+      end
+
+      it 'expands the phone number correctly' do
+        new_form_class.expand_phone_number_field
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'veteranPhone' => { 'phone_area_code' => '849', 'phone_first_three_numbers' => '372',
+                              'phone_last_four_numbers' => '6746' },
+          'veteranPhone1' => { 'phone_area_code' => '849', 'phone_first_three_numbers' => '372',
+                               'phone_last_four_numbers' => '6746' },
+          'veteranPhone2' => { 'phone_area_code' => '849', 'phone_first_three_numbers' => '372',
+                               'phone_last_four_numbers' => '6746' },
+          'veteranPhone3' => { 'phone_area_code' => '849', 'phone_first_three_numbers' => '372',
+                               'phone_last_four_numbers' => '6746' }
         )
       end
     end
