@@ -9,7 +9,6 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
   let(:current_user) { build(:user, :vaos) }
 
   before do
-    stub_mpi(build(:mpi_profile, ssn: current_user.ssn, icn: current_user.icn))
     Flipper.enable('va_online_scheduling')
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     sign_in_as(current_user)
