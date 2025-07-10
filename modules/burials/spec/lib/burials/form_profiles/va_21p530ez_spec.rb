@@ -10,6 +10,7 @@ RSpec.describe Burials::FormProfiles::VA21p530ez, type: :model do
   let(:address) { instance_double(Address, country: 'USA') }
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(FormProfile).to receive(:prefill_enabled_forms).and_return([form_id])
   end

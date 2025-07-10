@@ -23,6 +23,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
+      stub_mpi(build(:mpi_profile, ssn: current_user.ssn, icn: current_user.icn))
       allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(false)
       sign_in_as(current_user)
     end

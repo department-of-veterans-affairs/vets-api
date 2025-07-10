@@ -9,6 +9,7 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
