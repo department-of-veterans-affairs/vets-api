@@ -139,7 +139,8 @@ module CheckIn
     end
 
     # Logs information about SMS sending attempts (success or failure)
-    # Extracts phone number last four digits and logs with template ID, message, and UUID.
+    # For error logs: only logs UUID along with the message
+    # For info logs: logs template ID and phone last four digits (NO UUID)
     #
     # @param message [String] The log message (success or failure message)
     # @param opts [Hash] Options hash containing job parameters
@@ -148,13 +149,37 @@ module CheckIn
     #
     # NOTE: Don't increment StatsD failure yet, this occurs once the job has run through it's retries
     def self.log_sms_attempt(message, opts, log_level = :info)
+      prefixed_message = "#{self}: #{message}"
+      status = determine_status(message, log_level)
+
+      log_data = { message: prefixed_message, status: }
+      log_data[:uuid] = opts[:uuid] if log_level == :error
       phone_number = opts[:mobile_phone]
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
-      template_id = opts[:template_id]
-      uuid = opts[:uuid]
-      prefixed_message = "#{self}: #{message}"
+      log_data[:template_id] = opts[:template_id]
+      log_data[:phone_last_four] = phone_last_four
 
-      Rails.logger.send(log_level, { message: prefixed_message, uuid:, template_id:, phone_last_four: })
+      Rails.logger.send(log_level, to_s, log_data)
+    end
+
+    # Determines the appropriate status based on message content and log level
+    # @param message [String] The log message
+    # @param log_level [Symbol] The log level
+    # @return [String] The status
+    def self.determine_status(message, log_level)
+      if log_level == :error
+        if message.include?("Won't Retry")
+          'failed_no_retry'
+        else
+          'failed'
+        end
+      elsif message.include?('Sending')
+        'sending'
+      elsif message.include?('succeeded')
+        'success'
+      else
+        'info'
+      end
     end
 
     private

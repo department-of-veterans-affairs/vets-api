@@ -72,11 +72,14 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({
-                                                            message: 'CheckIn::TravelClaimStatusCheckJob: ' \
-                                                                     'Received multiple claim status response',
-                                                            uuid:
-                                                          })
+      expect(Sidekiq.logger).to have_received(:info).with(
+        'CheckIn::TravelClaimStatusCheckJob',
+        {
+          message: 'CheckIn::TravelClaimStatusCheckJob: Received multiple claim status response',
+          uuid:,
+          status: 'multiple_response'
+        }
+      )
     end
   end
 
@@ -96,11 +99,14 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({
-                                                            message: 'CheckIn::TravelClaimStatusCheckJob: ' \
-                                                                     'Received empty claim status response',
-                                                            uuid:
-                                                          })
+      expect(Sidekiq.logger).to have_received(:info).with(
+        'CheckIn::TravelClaimStatusCheckJob',
+        {
+          message: 'CheckIn::TravelClaimStatusCheckJob: Received empty claim status response',
+          uuid:,
+          status: 'empty_response'
+        }
+      )
     end
   end
 
@@ -138,12 +144,15 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with({
-                                                            message: 'CheckIn::TravelClaimStatusCheckJob: ' \
-                                                                     'Received non-matching claim status',
-                                                            claim_status: 'Invalid',
-                                                            uuid:
-                                                          })
+      expect(Sidekiq.logger).to have_received(:info).with(
+        'CheckIn::TravelClaimStatusCheckJob',
+        {
+          message: 'CheckIn::TravelClaimStatusCheckJob: Received non-matching claim status',
+          claim_status: 'Invalid',
+          uuid:,
+          status: 'non_matching'
+        }
+      )
     end
   end
 
