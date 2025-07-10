@@ -21,6 +21,9 @@
     "postalCode": "97063"
   },
   "email": "myemail72585885@unattended.com",
-  "veteranPhone": "6195551234",
+  "veteranPhone": {
+    "number": "6195551234",
+    "countryCode": "1"
+  },
   "signatureDate": "2025-05-20"
 }

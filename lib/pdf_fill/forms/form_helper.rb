@@ -131,6 +131,7 @@ module PdfFill
       # de-duplication across different forms.
       module PhoneNumberFormatting
         def expand_phone_number(phone_number)
+          # binding.pry
           phone_number = phone_number.delete('^0-9')
           {
             'phone_area_code' => phone_number[0..2],

@@ -21,7 +21,10 @@
     "postalCode": "97063"
   },
   "email": "myemail72585885@unattended.com",
-  "veteranPhone": "6195551234",
+  "veteranPhone": {
+    "number": "6195551234",
+    "countryCode": "1"
+  },
   "privacyAgreementAccepted": true,
   "limitedConsent": "I would like to limit consent to only blah blabh balhb test overflows generation I would like to limit consent to only blah blabh balhb test overflows generation I would like to limit consent to only blah blabh balhb test overflows generation I would like to limit consent to only blah blabh balhb test overflows generation I would like to limit consent to only blah blabh balhb test overflows generation",
   "providerFacility": [

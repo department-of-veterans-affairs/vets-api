@@ -282,7 +282,10 @@
       "state": "OR"
     },
     "email": "test@email.com",
-    "veteranPhone": "2024561111",
+    "veteranPhone": {
+      "number": "2024561111",
+      "countryCode": "1"
+    },
     "veteranServiceNumber": ""
   },
   "form0781": null,
