@@ -27,7 +27,6 @@ module ClaimsEvidenceApi
       def retrieve(uuid, include_raw_text: false)
         # cast the optional argument to an actual boolean value
         include_raw_text = !!include_raw_text # rubocop:disable Style/DoubleNegation
-        raise ArgumentError unless [true, false].include?(include_raw_text)
 
         perform :get, "files/#{uuid}/data?includeRawTextData=#{include_raw_text}", {}, {}
       end
