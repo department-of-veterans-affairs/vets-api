@@ -60,12 +60,14 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
       serviceOrganization: {
         poaCode: poa_code.to_s,
         organizationName: 'I Help Vets LLC',
+        firstName: 'Bob',
+        lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          state: 'CA',
+          numberAndStreet: '123 East Main St',
+          city: 'My City',
+          state: 'ZZ',
           country: 'US',
-          zipFirstFive: '92264'
+          zipFirstFive: '12345'
         }
       }
     }

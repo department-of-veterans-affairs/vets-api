@@ -101,12 +101,12 @@ module ClaimsApi
             "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email'),
             "#{base_form}.RelationshipToVeteran[0]": data.dig('claimant', 'relationship'),
 
-            "#{base_form}.NAME_OF_INDIVIDUAL_APPOINTED_AS_REPRESENTATIVE[0]": "#{data.dig('representative', 'firstName')} #{data.dig('representative', 'lastName')}",
+            "#{base_form}.NAME_OF_INDIVIDUAL_APPOINTED_AS_REPRESENTATIVE[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
             # Item 15B
             "#{base_form}.Checkbox1[0]": (data.dig('representative', 'type') == 'attorney' ? 1 : 0),
             "#{base_form}.Checkbox2[0]": (data.dig('representative', 'type') == 'agent' ? 1 : 0),
             # Item 18
-            "#{base_form}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('representative', 'address')),
+            "#{base_form}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('serviceOrganization', 'address')),
 
             "#{base_form}.Date_Of_Signature[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
             "#{base_form}.Date_Of_Signature[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
@@ -124,7 +124,7 @@ module ClaimsApi
         def stringify_address(address)
           return if address.nil?
 
-          "#{address['addressLine1']}, #{address['city']} #{address['stateCode']} #{address['zipCode']}"
+          "#{address['numberAndStreet']}, #{address['city']} #{address['state']} #{address['zipFirstFive']}"
         end
       end
     end

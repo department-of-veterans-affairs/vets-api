@@ -330,6 +330,7 @@
         },
         "address": {
           "type": "object",
+          "description": "Representative address details",
           "additionalProperties": false,
           "required": [
             "numberAndStreet",

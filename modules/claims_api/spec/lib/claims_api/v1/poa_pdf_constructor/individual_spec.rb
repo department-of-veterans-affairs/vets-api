@@ -31,12 +31,14 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
         }
       },
       serviceOrganization: {
+        firstName: 'Bob',
+        lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          state: 'CA',
+          numberAndStreet: '123 East Main St',
+          city: 'My City',
+          state: 'ZZ',
           country: 'US',
-          zipFirstFive: '92264'
+          zipFirstFive: '12345'
         }
       }
     }
@@ -62,12 +64,14 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
         }
       },
       serviceOrganization: {
+        firstName: 'Bob',
+        lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          state: 'CA',
+          numberAndStreet: '123 East Main St',
+          city: 'My City',
+          state: 'ZZ',
           country: 'US',
-          zipFirstFive: '92264'
+          zipFirstFive: '12345'
         }
       }
     }
@@ -89,16 +93,7 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
         'representative' => {
-          'firstName' => rep.first_name,
-          'lastName' => rep.last_name,
-          'poaCodes' => rep.poa_codes,
-          'type' => rep.user_types[0],
-          'address' => {
-            'addressLine1' => rep.address_line1,
-            'city' => rep.city,
-            'stateCode' => rep.state_code,
-            'zipCode' => rep.zip_code
-          }
+          'type' => rep.user_types[0]
         }
       }
     )
@@ -120,16 +115,7 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
         'representative' => {
-          'firstName' => rep.first_name,
-          'lastName' => rep.last_name,
-          'poaCodes' => rep.poa_codes,
-          'type' => rep.user_types[0],
-          'address' => {
-            'addressLine1' => rep.address_line1,
-            'city' => rep.city,
-            'stateCode' => rep.state_code,
-            'zipCode' => rep.zip_code
-          }
+          'type' => rep.user_types[0]
         }
       }
     )
