@@ -139,6 +139,32 @@ RSpec.describe Burials::SavedClaim do
     it 'tracks pdf overflow' do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(StatsD).to receive(:increment)
+      instance.form = {
+        privacyAgreementAccepted: true,
+        veteranFullName: {
+          first: 'WESLEYLONGNAME',
+          last: 'FORD'
+        },
+        claimantEmail: 'foo@foo.com',
+        deathDate: '1989-12-13',
+        veteranDateOfBirth: '1986-05-06',
+        veteranSocialSecurityNumber: '796043735',
+        claimantAddress: {
+          country: 'USA',
+          state: 'CA',
+          postalCode: '90210',
+          street: '123 Main St',
+          city: 'Anytown'
+        },
+        claimantFullName: {
+          first: 'Derrick',
+          middle: 'A',
+          last: 'Stewart'
+        },
+        burialAllowance: true,
+        plotAllowance: true,
+        transportation: true
+      }.to_json
       instance.save!
 
       expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags: ['form_id:21P-530EZ'])
