@@ -14,6 +14,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
   let(:monitor) { double('monitor') }
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     sign_in_as(user)
     Flipper.disable(:disability_compensation_production_tester)
 
@@ -146,6 +147,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
         it 'raises MissingICNError' do
           user_no_icn = build(:disabilities_compensation_user, icn: nil)
+          stub_mpi(build(:mpi_profile, ssn: user_no_icn.ssn, icn: nil))
 
           expect { subject.send(:validate_data, user_no_icn, 'post', 'form_id', 'pension') }
             .to raise_error V0::IntentToFilesController::MissingICNError
@@ -154,6 +156,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
         it 'raises MissingParticipantIDError' do
           user_no_pid = build(:disabilities_compensation_user, participant_id: nil)
+          stub_mpi(build(:mpi_profile, ssn: user_no_pid.ssn, icn: user_no_pid.icn, participant_id: nil))
 
           expect { subject.send(:validate_data, user_no_pid, 'get', 'form_id', 'survivor') }
             .to raise_error V0::IntentToFilesController::MissingParticipantIDError
