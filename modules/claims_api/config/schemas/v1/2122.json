@@ -296,7 +296,7 @@
       }
     },
     "serviceOrganization": {
-      "description": "Details of the Service Organization representing the veteran.",
+      "description": "Details of the Service Organization or representative representing the veteran.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -304,7 +304,7 @@
       ],
       "properties": {
         "poaCode": {
-          "description": "The POA code of the organization.",
+          "description": "The POA code of the organization or representative.",
           "type": "string",
           "example": "A1Q"
         },
