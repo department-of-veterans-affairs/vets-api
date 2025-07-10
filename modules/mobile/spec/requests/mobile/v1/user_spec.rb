@@ -7,7 +7,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
   before do
-    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn)) if defined?(user)
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
