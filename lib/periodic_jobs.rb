@@ -164,15 +164,15 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-  mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
-  mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
+  # mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
+  # mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
   mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
-  mgr.register('* * * * *', 'ExternalServicesStatusJob')
+  # mgr.register('* * * * *', 'ExternalServicesStatusJob')
   mgr.register('* * * * *', 'ExportBreakerStatus')
   mgr.register('0 0 * * *', 'Form1010cg::DeleteOldUploadsJob')
   mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
@@ -239,7 +239,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
   # Every 15min job that syncs ARP's allowlist
-  mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
+  # mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')

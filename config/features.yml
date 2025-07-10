@@ -1186,6 +1186,7 @@ features:
   mhv_secure_messaging_migrate_to_api_gateway:
     actor_type: user
     description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
+    enable_in_development: false
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
@@ -1383,7 +1384,7 @@ features:
   mhv_medications_migrate_to_api_gateway:
     actor_type: user
     description: Enables/disables medications migration to the new API Gateway endpoints
-    enable_in_development: true
+    enable_in_development: false
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page

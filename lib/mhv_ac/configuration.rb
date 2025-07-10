@@ -7,6 +7,7 @@ require 'common/client/middleware/response/raise_custom_error'
 require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'common/client/middleware/response/snakecase'
+require 'flipper_utils'
 
 module MHVAC
   ##
@@ -32,7 +33,7 @@ module MHVAC
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
+      if FlipperUtils.safe_enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
         "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
       else
         "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
