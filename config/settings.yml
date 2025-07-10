@@ -10,6 +10,16 @@ accredited_representative_portal:
       base_uri: https://api.github.com
       path: <%= ENV['accredited_representative_portal__allow_list__github__path'] %>
       repo: department-of-veterans-affairs/va.gov-team-sensitive
+  notify:
+    api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
+    email:
+      received:
+        flipper_id: arp_received_email_notification
+        template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__received__template_id'] %>
+      error:
+        flipper_id: arp_error_email_notification
+        template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
+
 adapted_housing:
   prefill: true
 argocd:

@@ -28,5 +28,16 @@ module AccreditedRepresentativePortal
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
+
+    initializer 'accredited_representative_portal.benefits_intake.register_handler' do |app|
+      app.config.to_prepare do
+        require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+        require 'burials/benefits_intake/submission_handler'
+
+        # Register our Claims Benefits Intake Submission Handler
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID,
+                                                               AccreditedRepresentativePortal::BenefitsIntake::SubmissionHandler)
+      end
+    end
   end
 end
