@@ -68,7 +68,7 @@ module CheckIn
       [claim_number, template_id]
     end
 
-    def get_code_for_200_response(claim_status_resp)
+    def get_code_for_200_response(claim_status_resp, uuid)
       response_code = claim_status_resp&.dig(:data, :code)
 
       case response_code
@@ -87,7 +87,7 @@ module CheckIn
         elsif FAILED_CLAIM_STATUSES.include?(claim_status)
           TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
         else
-          log_with_context(:info, 'Received non-matching claim status', { claim_status:, status: 'non_matching' })
+          log_with_context(:error, 'Received non-matching claim status', { claim_status:, status: 'non_matching', uuid: })
           TravelClaim::Response::CODE_UNKNOWN_ERROR
         end
       end

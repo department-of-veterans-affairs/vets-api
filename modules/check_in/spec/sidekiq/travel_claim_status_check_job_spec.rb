@@ -142,12 +142,13 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with(
+      expect(Sidekiq.logger).to have_received(:error).with(
         'CheckIn::TravelClaimStatusCheckJob',
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received non-matching claim status',
           claim_status: 'Invalid',
-          status: 'non_matching'
+          status: 'non_matching',
+          uuid:
         }
       )
     end
@@ -282,6 +283,7 @@ describe CheckIn::TravelClaimStatusCheckJob, type: :worker do
 
     allow(StatsD).to receive(:increment)
     allow(Sidekiq.logger).to receive(:info)
+    allow(Sidekiq.logger).to receive(:error)
     allow(SemanticLogger::Logger).to receive(:new).and_return(Sidekiq.logger)
   end
 
