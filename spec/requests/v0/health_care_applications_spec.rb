@@ -23,13 +23,13 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
-      stub_mpi(build(:mpi_profile, ssn: current_user.ssn, icn: current_user.icn))
+      stub_mpi(build(:mpi_profile, ssn: current_user.ssn, icn: current_user.icn, participant_id: current_user.participant_id))
       allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(false)
       sign_in_as(current_user)
     end
 
     it 'returns the users rating info' do
-      VCR.use_cassette('bgs/service/find_rating_data', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('bgs/service/find_rating_data', record: :new_episodes) do
         get(rating_info_v0_health_care_applications_path)
       end
 

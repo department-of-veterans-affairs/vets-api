@@ -26,7 +26,7 @@ describe EVSSPolicy do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       before do
-        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: nil))
       end
 
       it 'denies access' do
@@ -60,7 +60,7 @@ describe EVSSPolicy do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       before do
-        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: nil))
       end
 
       it 'denies access' do
@@ -73,10 +73,10 @@ describe EVSSPolicy do
     end
 
     context 'with a user who does not have the required date of birth' do
-      let(:user) { build(:user, :loa3, birth_date: nil) }
+      let(:user) { build(:user, :loa3) }
 
       before do
-        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: user.participant_id, birth_date: nil))
       end
 
       it 'denies access' do

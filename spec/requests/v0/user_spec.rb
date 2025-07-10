@@ -14,6 +14,7 @@ RSpec.describe 'V0::User', type: :request do
     let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
 
     before do
+      stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn))
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       sign_in_as(mhv_user)
