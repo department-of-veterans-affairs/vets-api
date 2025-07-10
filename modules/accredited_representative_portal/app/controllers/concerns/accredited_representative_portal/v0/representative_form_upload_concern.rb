@@ -110,6 +110,7 @@ module AccreditedRepresentativePortal
               :email,
               :claimantDateOfBirth,
               :claimantSsn,
+              :vaFileNumber,
               { claimantFullName: %i[first last] },
               { veteranFullName: %i[first last] }
             ] }
@@ -141,6 +142,7 @@ module AccreditedRepresentativePortal
                 :email,
                 :claimant_date_of_birth,
                 :claimant_ssn,
+                :va_file_number,
                 { claimant_full_name: %i[first last] },
                 { veteran_full_name: %i[first last] }
               ] }
