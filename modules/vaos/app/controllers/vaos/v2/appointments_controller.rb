@@ -828,9 +828,11 @@ module VAOS
                                  specialty: referral.provider_specialty,
                                  address: referral.treating_facility_address)
         if provider&.id.blank?
-          Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Provider not found: " \
-                             "#{referral.provider_npi}/#{referral.provider_specialty}/" \
-                             "#{referral.treating_facility_address}")
+          Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Provider not found while creating draft appointment.",
+                             { provider_address: referral.treating_facility_address,
+                               provider_npi: referral.provider_npi,
+                               provider_specialty: referral.provider_specialty,
+                               tag: CC_APPOINTMENT_ERROR_TAG })
           return { success: false, json: provider_not_found_error, status: :not_found }
         end
 

@@ -463,7 +463,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       it 'logs an error message' do
         result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
 
-        expect(Rails.logger).to have_received(:error).with(/Provider not found/)
+        expect(Rails.logger).to have_received(:error).with(match(/Provider not found/), anything)
         expect(result[:success]).to be(false)
         expect(result[:status]).to eq(:not_found)
       end
@@ -479,7 +479,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       it 'logs an error message' do
         result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
 
-        expect(Rails.logger).to have_received(:error).with(/Provider not found/)
+        expect(Rails.logger).to have_received(:error).with(match(/Provider not found/), anything)
         expect(result[:success]).to be(false)
         expect(result[:status]).to eq(:not_found)
       end
