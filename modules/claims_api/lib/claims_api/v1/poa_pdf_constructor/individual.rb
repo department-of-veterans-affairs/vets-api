@@ -104,7 +104,7 @@ module ClaimsApi
             "#{base_form}.NAME_OF_INDIVIDUAL_APPOINTED_AS_REPRESENTATIVE[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
             # Item 15B
             "#{base_form}.Checkbox1[0]": (data.dig('representative', 'type') == 'attorney' ? 1 : 0),
-            "#{base_form}.Checkbox2[0]": (data.dig('representative', 'type') == 'agent' ? 1 : 0),
+            "#{base_form}.Checkbox2[0]": (data.dig('representative', 'type') == 'claim_agents' ? 1 : 0),
             # Item 18
             "#{base_form}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('serviceOrganization', 'address')),
 
