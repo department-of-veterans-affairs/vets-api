@@ -563,12 +563,10 @@ module VAOS
         self_schedulable_types.first[:id]
       end
 
-      def raise_draft_appointment_creation_error(error_code)
-        raise Common::Exceptions::BackendServiceException.new(
-          error_code,
-          {},
-          502,
-          'Draft appointment creation failed or returned invalid data'
+      def draft_appointment_creation_failed_error
+        appt_creation_failed_error(
+          title: 'Appointment creation failed',
+          detail: 'An unexpected error occurred while creating the draft appointment'
         )
       end
 
@@ -838,7 +836,9 @@ module VAOS
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        raise_draft_appointment_creation_error('DRAFT_APPOINTMENT_CREATION_FAILED') if draft.blank? || draft.id.blank?
+        unless draft.id
+          return { success: false, json: draft_appointment_creation_failed_error, status: unprocessable_entity }
+        end
 
         slots = fetch_provider_slots(referral, provider, draft.id)
         drive_time = fetch_drive_times(provider)
