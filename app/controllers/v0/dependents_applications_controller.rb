@@ -13,12 +13,14 @@ module V0
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create
       if Flipper.enabled?(:va_dependents_v2, current_user)
         form = dependent_params.to_json
         use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
         claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
       else
+        use_v2 = nil
         claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
       end
 
@@ -33,6 +35,10 @@ module V0
       end
 
       claim.process_attachments!
+
+      # reinstantiate as v1 dependent service if use_v2 is blank
+      dependent_service = BGS::DependentService.new(current_user) if use_v2.blank?
+
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
@@ -42,6 +48,7 @@ module V0
 
       render json: SavedClaimSerializer.new(claim)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
