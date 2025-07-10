@@ -114,7 +114,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
         it 'responds with forbidden' do
           [user_without_ssn, user_without_edipi, user_without_participant_id].each do |user|
             # Use nil instead of empty string for missing fields in MPI profile
-            mpi_ssn = user.ssn.present? ? user.ssn : nil
+            mpi_ssn = user.ssn.presence
             stub_mpi(build(:mpi_profile, ssn: mpi_ssn, icn: user.icn))
             sign_in_as(user)
             get(:rating_info)
