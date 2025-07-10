@@ -17,35 +17,35 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
           response = service.get_form_by_icn(icn: icn, tax_year: tax_year)
 
           expect(response).to eq(
-            {"data"=>
-              {"issuer"=>
-                {"issuerName"=>"US Department of Veterans Affairs",
-                 "ein"=>"54-2002017",
-                 "contactPhoneNumber"=>"877-222-8387",
-                 "address"=>
-                  {"street1"=>"PO Box 149975",
-                   "city"=>"Austin",
-                   "stateOrProvince"=>"TX",
-                   "zipOrPostalCode"=>"78714-8975",
-                   "country"=>"USA"}},
-               "responsibleIndividual"=>
-                {"name"=>{"firstName"=>"VGSSFIFTYSIX", "lastName"=>"TESTFIFTYSIX"},
-                 "address"=>
-                  {"street1"=>"3015 ASHBURTON MANOR DR",
-                   "city"=>"HERNDON",
-                   "stateOrProvince"=>"VA",
-                   "zipOrPostalCode"=>"20171-2270",
-                   "country"=>"USA"},
-                 "ssn"=>"101990920",
-                 "dateOfBirth"=>"19530907"},
-               "coveredIndividual"=>
-                {"name"=>{"firstName"=>"VGSSFIFTYSIX", "lastName"=>"TESTFIFTYSIX"},
-                 "ssn"=>"101990920",
-                 "dateOfBirth"=>"19530907",
-                 "coveredAll12Months"=>false,
-                 "monthsCovered"=>[]},
-               "taxYear"=>"2024"},
-             "messages"=>[]}
+            { 'data' =>
+              { 'issuer' =>
+                { 'issuerName' => 'US Department of Veterans Affairs',
+                  'ein' => '54-2002017',
+                  'contactPhoneNumber' => '877-222-8387',
+                  'address' =>
+                  { 'street1' => 'PO Box 149975',
+                    'city' => 'Austin',
+                    'stateOrProvince' => 'TX',
+                    'zipOrPostalCode' => '78714-8975',
+                    'country' => 'USA' } },
+                'responsibleIndividual' =>
+                { 'name' => { 'firstName' => 'VGSSFIFTYSIX', 'lastName' => 'TESTFIFTYSIX' },
+                  'address' =>
+                  { 'street1' => '3015 ASHBURTON MANOR DR',
+                    'city' => 'HERNDON',
+                    'stateOrProvince' => 'VA',
+                    'zipOrPostalCode' => '20171-2270',
+                    'country' => 'USA' },
+                  'ssn' => '101990920',
+                  'dateOfBirth' => '19530907' },
+                'coveredIndividual' =>
+                { 'name' => { 'firstName' => 'VGSSFIFTYSIX', 'lastName' => 'TESTFIFTYSIX' },
+                  'ssn' => '101990920',
+                  'dateOfBirth' => '19530907',
+                  'coveredAll12Months' => false,
+                  'monthsCovered' => [] },
+                'taxYear' => '2024' },
+              'messages' => [] }
           )
         end
       end
