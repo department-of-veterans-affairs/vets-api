@@ -22,14 +22,14 @@ module ClaimsEvidenceApi
     # assemble and validate the upload (POST) payload
     # @see modules/claims_evidence_api/lib/claims_evidence_api/schema/uploadPayload.json
     #
-    # @param content_name [String] name for the content being uploaded, must be unique for the destination folder
+    # @param file_name [String] name for the content being uploaded, must be unique for the destination folder
     # @param provider_data [Hash] metadata to be applied to the uploaded content; upload requires certain fields
     #
     # @return [Hash] valid upload payload
     # @raise JSON::Schema::ValidationError
-    def validate_upload_payload(content_name, provider_data)
+    def validate_upload_payload(file_name, provider_data)
       payload = {
-        contentName: content_name,
+        contentName: file_name,
         providerData: provider_data
       }
 

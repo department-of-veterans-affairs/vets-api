@@ -11,7 +11,7 @@
       "type": "string",
       "max": 256,
       "min": 4,
-      "pattern": "^[a-zA-Z0-9 Q`'~=+#^@$&-_.(){};\\[\\]E]+.[a-zA-Z]{3,4}$"
+      "pattern": "^[a-zA-Z0-9 Q`'~=+#^@$&-_\\.\\(\\){};\\[\\]E]+\\.[a-zA-Z]{3,4}$"
     },
     "providerData": {
       "required": ["contentSource", "dateVaReceivedDocument", "documentTypeId"],

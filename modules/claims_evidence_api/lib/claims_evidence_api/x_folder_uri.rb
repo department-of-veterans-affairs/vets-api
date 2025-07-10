@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/exceptions'
+
 module ClaimsEvidenceApi
   # value used in request header to identify a folder location
   class XFolderUri
+    include ClaimsEvidenceApi::Exceptions::XFolderUri
+
     # valid associated types
     TYPES = {
       'VETERAN' => %w[FILENUMBER SSN PARTICIPANT_ID SEARCH EDIPI],
@@ -49,7 +53,7 @@ module ClaimsEvidenceApi
     # @return [String] the conformed folder_type
     def self.validate_folder_type(folder_type)
       folder_type = folder_type.to_s.upcase
-      raise ArgumentError unless TYPES.keys.include?(folder_type)
+      raise InvalidFolderType unless TYPES.keys.include?(folder_type)
 
       folder_type
     end
@@ -64,7 +68,7 @@ module ClaimsEvidenceApi
     # @return [String] the conformed identifier_type
     def self.validate_identifier_type(identifier_type, folder_type)
       identifier_type = identifier_type.to_s.upcase
-      raise ArgumentError unless TYPES[folder_type].include?(identifier_type)
+      raise InvalidIdentifierType unless TYPES[folder_type].include?(identifier_type)
 
       identifier_type
     end

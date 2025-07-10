@@ -11,7 +11,7 @@ RSpec.describe ClaimsEvidenceApi::Validation::BaseField do
           minimum: 2,
           maximum: 50,
           pattern: '[a-z]{2}(-\d{3}-\w+)?',
-          enum: ['a', 'foo', 'ab-123-testing', 'bar']
+          enum: %w[a foo ab-123-testing bar]
         }
 
         field = ClaimsEvidenceApi::Validation::StringField.new(**validations)
@@ -38,7 +38,7 @@ RSpec.describe ClaimsEvidenceApi::Validation::BaseField do
       it 'returns a valid value' do
         validations = {
           minimum: 1,
-          maximum: 99,
+          maximum: 99
         }
 
         field = ClaimsEvidenceApi::Validation::NumberField.new(**validations)
@@ -51,9 +51,9 @@ RSpec.describe ClaimsEvidenceApi::Validation::BaseField do
       it 'returns a valid value' do
         field = ClaimsEvidenceApi::Validation::BooleanField.new
         value = 'any value should return true'
-        expect(true).to eq field.validate(value)
+        expect(field.validate(value)).to be(true)
 
-        expect(false).to eq field.validate(nil)
+        expect(field.validate(nil)).to be(false)
       end
     end
   end

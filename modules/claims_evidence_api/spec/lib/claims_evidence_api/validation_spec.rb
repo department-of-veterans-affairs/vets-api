@@ -28,41 +28,50 @@ RSpec.describe ClaimsEvidenceApi::Validation do
 
   describe '#validate_upload_payload' do
     it 'returns a valid upload payload hash' do
-      expected = {:contentName=>"foo.bar", :providerData=>{:contentSource=>"va.gov", :dateVaReceivedDocument=>'1955-11-05', :documentTypeId=>23}}
-      result = subject.validate_upload_payload('foo.bar', {contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23})
+      expected = { contentName: 'foo.bar',
+                   providerData: { contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05',
+                                   documentTypeId: 23 } }
+      result = subject.validate_upload_payload('foo.bar',
+                                               { contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05',
+                                                 documentTypeId: 23 })
 
       expect(result).to eq expected
     end
 
     context 'with bad data' do
+      it 'checks contentName is a filename with extension' do
+        provider_data = { contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23 }
+        expect { subject.validate_upload_payload('invalid', provider_data) }.to raise_error JSON::Schema::ValidationError
+      end
+
       it 'checks required fields' do
-        missingRequired = {contentSource: 'va.gov'}
-        expect { subject.validate_upload_payload('foo.bar', missingRequired) }.to raise_error JSON::Schema::ValidationError
+        missing_required = { contentSource: 'va.gov' }
+        expect { subject.validate_upload_payload('foo.bar', missing_required) }.to raise_error JSON::Schema::ValidationError
       end
 
       it 'checks field data types' do
         # documentTypeId must be an integer
-        invalidDocTypeId = {contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: '23'}
-        expect { subject.validate_upload_payload('foo.bar', invalidDocTypeId) }.to raise_error JSON::Schema::ValidationError
+        invalid_doctypeid = { contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: '23' }
+        expect { subject.validate_upload_payload('foo.bar', invalid_doctypeid) }.to raise_error JSON::Schema::ValidationError
       end
 
       it 'checks field formats' do
         # dateVaReceivedDocument must be YYYY-MM-DD
-        invalidDateFormat = {contentSource: 'va.gov', dateVaReceivedDocument: '11-05-1955', documentTypeId: 23}
-        expect { subject.validate_upload_payload('foo.bar', invalidDateFormat) }.to raise_error JSON::Schema::ValidationError
+        invalid_dateformat = { contentSource: 'va.gov', dateVaReceivedDocument: '11-05-1955', documentTypeId: 23 }
+        expect { subject.validate_upload_payload('foo.bar', invalid_dateformat) }.to raise_error JSON::Schema::ValidationError
       end
     end
   end
 
   describe '#validate_provider_data' do
     it 'returns a valid provider data hash' do
-      valid = {:contentSource=>"va.gov", :dateVaReceivedDocument=>'1955-11-05', :documentTypeId=>23}
+      valid = { contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23 }
       expect(valid).to eq subject.validate_provider_data(valid)
     end
 
     it 'raises a JSON::Schema::ValidationError' do
-      invalidDocTypeId = {documentTypeId: '23'}
-      expect { subject.validate_provider_data(invalidDocTypeId) }.to raise_error JSON::Schema::ValidationError
+      invalid_doctypeid = { documentTypeId: '23' }
+      expect { subject.validate_provider_data(invalid_doctypeid) }.to raise_error JSON::Schema::ValidationError
     end
   end
 end

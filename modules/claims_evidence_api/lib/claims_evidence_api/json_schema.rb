@@ -6,10 +6,12 @@ module ClaimsEvidenceApi
   # @see modules/claims_evidence_api/documentation/claims-evidence-openapi.json
   # voxpupuli/json-schema (gem) only supports up to draft-06
   module JsonSchema
-    DIR = "#{__dir__}/schema"
+    DIR = "#{__dir__}/schema".freeze
 
-    UPLOAD_PAYLOAD = "#{DIR}/uploadPayload.json"  # #/components/schemas/payload
-    PROVIDER_DATA = "#{DIR}/providerData.json"    # #/components/schemas/updateDataProviderData
+    # #/components/schemas/payload
+    UPLOAD_PAYLOAD = "#{DIR}/uploadPayload.json".freeze
+    # #/components/schemas/updateDataProviderData
+    PROVIDER_DATA = "#{DIR}/providerData.json".freeze
 
     # end JsonSchema
   end

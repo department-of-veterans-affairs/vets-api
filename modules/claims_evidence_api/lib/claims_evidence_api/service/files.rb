@@ -12,6 +12,10 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def upload(file_path, provider_data:)
+        raise UndefinedXFolderURI unless x_folder_uri
+
+        validate_folder_identifier(x_folder_uri)
+
         headers = { 'X-Folder-URI' => x_folder_uri }
         params = post_params(file_path, provider_data)
 
@@ -28,7 +32,7 @@ module ClaimsEvidenceApi
         # cast the optional argument to an actual boolean value
         include_raw_text = !!include_raw_text # rubocop:disable Style/DoubleNegation
 
-        perform :get, "files/#{uuid}/data?includeRawTextData=#{include_raw_text}", {}, {}
+        perform :get, "files/#{uuid}/data?includeRawTextData=#{include_raw_text}", {}
       end
       alias read retrieve
 
@@ -37,9 +41,9 @@ module ClaimsEvidenceApi
       #
       # @param uuid [String] The UUID of the file data
       # @param provider_data [Hash] metadata to be associated with the file
-      def update(uuid, provider_data:)
-        # TODO: validate provider data; future pr
-        perform :put, "files/#{uuid}/data", provider_data, {}
+      def update(uuid, provider_data: {})
+        provider_data = validate_provider_data(provider_data)
+        perform :put, "files/#{uuid}/data", provider_data
       end
 
       # POST overwrite a file in a vbms folder, but retain the uuid
@@ -48,6 +52,10 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def overwrite(uuid, file_path, provider_data:)
+        raise UndefinedXFolderURI unless x_folder_uri
+
+        validate_folder_identifier(x_folder_uri)
+
         headers = { 'X-Folder-URI' => x_folder_uri }
         params = post_params(file_path, provider_data)
 
@@ -61,15 +69,13 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def post_params(file_path, provider_data)
-        # TODO: validate file_path and provider data; future pr
+        raise FileNotFound unless File.exist?(file_path)
+
         file_name = File.basename(file_path)
         mime_type = Marcel::MimeType.for(file_path)
 
         {
-          payload: {
-            contentName: file_name,
-            providerData: provider_data
-          },
+          payload: validate_upload_payload(file_name, provider_data),
           file: Faraday::UploadIO.new(file_path, mime_type, file_name)
         }
       end

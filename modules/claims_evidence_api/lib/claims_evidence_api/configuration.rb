@@ -12,12 +12,11 @@ module ClaimsEvidenceApi
       Settings.claims_evidence_api
     end
 
+    # @see Common::Client::Configuration::Base#base_path
     # @return [String] Base path.
     def service_path
       service_settings.base_url
     end
-
-    # @see Common::Client::Configuration::Base
     alias base_path service_path
 
     # @return [String] Service name to use in breakers and metrics.
@@ -34,7 +33,12 @@ module ClaimsEvidenceApi
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     def connection
-      @conn ||= Faraday.new(service_path, headers: base_request_headers, request: request_options) do |faraday|
+      options = {
+        headers: base_request_headers,
+        request: request_options,
+        ssl: { verify: service_settings.ssl }
+      }
+      @conn ||= Faraday.new(service_path, **options) do |faraday|
         faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 

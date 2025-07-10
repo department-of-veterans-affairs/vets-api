@@ -3,11 +3,21 @@
 module ClaimsEvidenceApi
   # collection of module exceptions
   module Exceptions
-    # required header is missing
-    class UndefinedXFolderURI < StandardError; end
+    module XFolderUri
+      # invalid folder type
+      class InvalidFolderType < StandardError; end
 
-    # intended upload file not found
-    class FileNotFound < StandardError; end
+      # invalid indentifier type for folder type
+      class InvalidIdentifierType < StandardError; end
+    end
+
+    module Service
+      # required header is missing
+      class UndefinedXFolderURI < StandardError; end
+
+      # intended upload file not found
+      class FileNotFound < StandardError; end
+    end
 
     # ClaimsEvidence API possible error codes
     # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html
