@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d4afb19993328f0f8c2ae276c046fe5b8618ac7f
+  revision: 82f6fed76802255b901f3415ea3bb4bdfb6c0aac
   branch: master
   specs:
-    vets_json_schema (25.1.0)
+    vets_json_schema (25.1.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -637,7 +637,7 @@ GEM
     jruby-openssl (0.15.3-java)
     json (2.12.0)
     json (2.12.0-java)
-    json-schema (5.1.1)
+    json-schema (5.2.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
     json_schema (0.21.0)

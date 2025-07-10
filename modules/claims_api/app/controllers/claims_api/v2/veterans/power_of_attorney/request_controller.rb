@@ -143,11 +143,9 @@ module ClaimsApi
         private
 
         def process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:)
-          if decision == 'declined'
-            ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
-              ptcpnt_id:, proc_id:, representative_id:
-            ).call
-          end
+          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+            decision:, ptcpnt_id:, proc_id:, representative_id:
+          ).call
         end
 
         def handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
