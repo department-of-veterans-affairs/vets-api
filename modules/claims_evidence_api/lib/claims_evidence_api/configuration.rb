@@ -1,0 +1,60 @@
+# frozen_string_literal: true
+
+require 'claims_evidence_api/jwt_generator'
+require 'common/client/configuration/rest'
+require 'faraday/multipart'
+
+module ClaimsEvidenceApi
+  # HTTP client configuration for the {ClaimsEvidenceApi::Service::Base},
+  class Configuration < Common::Client::Configuration::REST
+    # @return [Config::Options] Settings for benefits_claims API.
+    def service_settings
+      Settings.claims_evidence_api
+    end
+
+    # @return [String] Base path.
+    def service_path
+      service_settings.base_url
+    end
+
+    # @see Common::Client::Configuration::Base
+    alias base_path service_path
+
+    # @return [String] Service name to use in breakers and metrics.
+    def service_name
+      'ClaimsEvidenceApi'
+    end
+
+    # @return [Hash] The basic headers required for any Lighthouse API call
+    def self.base_request_headers
+      super.merge('Authorization' => "Bearer #{ClaimsEvidenceApi::JwtGenerator.new.encode_jwt}")
+    end
+
+    # Creates a connection with json parsing and breaker functionality.
+    #
+    # @return [Faraday::Connection] a Faraday connection instance.
+    def connection
+      @conn ||= Faraday.new(service_path, headers: base_request_headers, request: request_options) do |faraday|
+        faraday.use(:breakers, service_name:)
+        faraday.use Faraday::Response::RaiseError
+
+        faraday.request :multipart
+        faraday.request :json
+
+        faraday.response :betamocks if use_mocks?
+        faraday.response :json
+        faraday.adapter Faraday.default_adapter
+      end
+    end
+
+    # @return [Boolean] Should the service use mock data in lower environments.
+    def use_mocks?
+      service_settings.mock || false
+    end
+
+    # breakers will be tripped if error rate exceeds the threshold over a two minute period.
+    def breakers_error_threshold
+      service_settings.breakers_error_threshold || 80
+    end
+  end
+end
