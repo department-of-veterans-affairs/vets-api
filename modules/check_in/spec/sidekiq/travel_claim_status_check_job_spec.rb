@@ -76,7 +76,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         'CheckIn::TravelClaimStatusCheckJob',
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received multiple claim status response',
-          uuid:,
           status: 'multiple_response'
         }
       )
@@ -103,7 +102,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         'CheckIn::TravelClaimStatusCheckJob',
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received empty claim status response',
-          uuid:,
           status: 'empty_response'
         }
       )
@@ -149,7 +147,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received non-matching claim status',
           claim_status: 'Invalid',
-          uuid:,
           status: 'non_matching'
         }
       )

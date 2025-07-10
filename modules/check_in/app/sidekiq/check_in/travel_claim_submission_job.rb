@@ -7,14 +7,12 @@ module CheckIn
       station_number = redis_client.station_number(uuid:)
       facility_type = redis_client.facility_type(uuid:)
 
-      logger.info(self.class.to_s, {
-                    message: "#{self.class}: Submitting travel claim",
-                    uuid:,
-                    appointment_date:,
-                    station_number:,
-                    facility_type:,
-                    status: 'submitting'
-                  })
+      log_with_context(:info, 'Submitting travel claim', {
+                         appointment_date:,
+                         station_number:,
+                         facility_type:,
+                         status: 'submitting'
+                       })
 
       claim_number_last_four, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
       unless template_id.nil?
@@ -36,8 +34,14 @@ module CheckIn
         handle_response(claims_resp:, facility_type:)
       end
     rescue => e
-      logger.error(self.class.to_s, { message: "#{self.class}: Error calling BTSSS Service: #{e.message}",
-                                      status: 'failed' }.merge(opts))
+      handle_submit_error(e, opts, facility_type)
+    end
+
+    private
+
+    def handle_submit_error(error, opts, facility_type)
+      log_with_context(:error, "Error calling BTSSS Service: #{error.message}",
+                       { status: 'failed' }.merge(opts))
       if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
