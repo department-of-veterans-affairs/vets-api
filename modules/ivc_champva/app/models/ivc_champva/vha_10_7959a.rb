@@ -42,6 +42,16 @@ module IvcChampva
                   'end_date_of_service', 'medication_name', 'prescription_fill_date')
     end
 
+    ##
+    # Informs pdf stamper that we want to stamp some arbitrary values on a blank page
+    # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
+    # @return [Hash] hash of keys/values we want to stamp on a blank page
+    def stamp_metadata
+      # If it's a resubmission, we want to stamp resubmission-specific values on a blank
+      # page in the PDF
+      add_resubmission_properties if @data['claim_status'] == 'resubmission'
+    end
+
     def desired_stamps
       [{ coords: [250, 105], text: data['statement_of_truth_signature'], page: 0 }]
     end
