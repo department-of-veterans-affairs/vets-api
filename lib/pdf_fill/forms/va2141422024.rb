@@ -259,7 +259,8 @@ module PdfFill
           }
         },
         'internationalPhoneNumber' => {
-          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]'
+          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]',
+          limit: 14
         },
         'email' => {
           key: 'F[0].Page_1[0].E_Mail_Address[0]',
