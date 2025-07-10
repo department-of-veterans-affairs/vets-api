@@ -104,12 +104,18 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       end
 
       context 'with a 403 response' do
-        it 'returns a forbidden response' do
-          VCR.use_cassette('va_profile/contact_information/post_telephone_status_403') do
-            post('/v0/profile/telephones', params: telephone.to_json, headers:)
+        let(:user) { build(:user, :loa3, vet360_id: nil) }
+        let(:telephone) { build(:telephone, vet360_id: nil) }
 
-            expect(response).to have_http_status(:forbidden)
-          end
+        before do
+          stub_mpi(build(:mpi_profile, icn: nil, vet360_id: nil))
+          sign_in_as(user)
+        end
+
+        it 'returns a forbidden response' do
+          post('/v0/profile/telephones', params: telephone.to_json, headers:)
+
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
@@ -332,12 +338,18 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       end
 
       context 'with a 403 response' do
-        it 'returns a forbidden response' do
-          VCR.use_cassette('va_profile/v2/contact_information/post_telephone_status_403') do
-            post('/v0/profile/telephones', params: telephone.to_json, headers:)
+        let(:user) { build(:user, :loa3, icn: nil) }
+        let(:telephone) { build(:telephone, :contact_info_v2, vet360_id: nil) }
 
-            expect(response).to have_http_status(:forbidden)
-          end
+        before do
+          stub_mpi(build(:mpi_profile, icn: nil, vet360_id: nil))
+          sign_in_as(user)
+        end
+
+        it 'returns a forbidden response' do
+          post('/v0/profile/telephones', params: telephone.to_json, headers:)
+
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
