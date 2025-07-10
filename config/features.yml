@@ -458,6 +458,12 @@ features:
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
+  cst_claim_letters_use_lighthouse_api_provider:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider
+  cst_claim_letters_use_lighthouse_api_provider_mobile:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider in mobile endpoints
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
