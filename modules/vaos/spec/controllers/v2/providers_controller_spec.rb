@@ -111,6 +111,11 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
           'title' => 'Operation failed',
           'detail' => 'Operation failed',
           'code' => 'VA900',
+          'source' => {
+            'vamf_url' => "https://api.wellhive.com/care-navigation/v1/provider-services/#{provider_id}",
+            'vamf_body' => "{\n  \"name\": \"Unauthorized\"\n}",
+            'vamf_status' => 401
+          },
           'status' => '400'
         }
       end
@@ -134,21 +139,26 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
     end
 
     context 'when eps api returns internal service exception' do
-      let(:bad_request_msg) do
+      let(:bad_gateway_msg) do
         {
-          'title' => 'Operation failed',
-          'detail' => 'Operation failed',
-          'code' => 'VA900',
-          'status' => '400'
+          'title' => 'Bad Gateway',
+          'detail' => 'Received an an invalid response from the upstream server',
+          'code' => 'VAOS_502',
+          'source' => {
+            'vamf_url' => "https://api.wellhive.com/care-navigation/v1/provider-services/#{provider_id}",
+            'vamf_body' => "{\n  \"error\": \"Internal Service Exception\"\n}",
+            'vamf_status' => 500
+          },
+          'status' => '502'
         }
       end
-      let(:error_resp) { { 'errors' => [bad_request_msg] } }
+      let(:error_resp) { { 'errors' => [bad_gateway_msg] } }
 
       before do
         sign_in_as(create(:user, :loa3))
       end
 
-      it 'returns 400 bad request' do
+      it 'returns 502 bad gateway' do
         VCR.use_cassette('vaos/eps/providers/data_500', match_requests_on: %i[method path],
                                                         erb: { provider_id: }) do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
@@ -156,7 +166,7 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
           end
         end
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:bad_gateway)
         expect(JSON.parse(response.body)).to eq(error_resp)
       end
     end
