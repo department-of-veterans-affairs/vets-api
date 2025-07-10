@@ -830,6 +830,16 @@ module VAOS
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
+
+        if draft.blank? || draft.id.blank?
+          raise Common::Exceptions::BackendServiceException.new(
+            'DRAFT_APPOINTMENT_CREATION_FAILED',
+            {},
+            502,
+            'Draft appointment creation failed or returned invalid data'
+          )
+        end
+
         slots = fetch_provider_slots(referral, provider, draft.id)
         drive_time = fetch_drive_times(provider)
 
