@@ -77,7 +77,8 @@ describe EVSSPolicy do
 
       before do
         # Ensure user has no birth_date by stubbing MPI and mocking user.birth_date
-        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: user.participant_id, birth_date: nil))
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: user.participant_id,
+                                     birth_date: nil))
         allow(user).to receive(:birth_date).and_return(nil)
       end
 
