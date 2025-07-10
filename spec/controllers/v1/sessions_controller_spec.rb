@@ -837,8 +837,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         before do
           # When cerner_id is nil, also clear cerner_facility_ids to ensure user is not cerner eligible
           cerner_facilities = user.cerner_id.present? ? user.cerner_facility_ids : []
-          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
-                                        cerner_id: user.cerner_id, cerner_facility_ids: cerner_facilities))
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn,
+                                       cerner_id: user.cerner_id, cerner_facility_ids: cerner_facilities))
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
           allow(Rails.logger).to receive(:info)
         end

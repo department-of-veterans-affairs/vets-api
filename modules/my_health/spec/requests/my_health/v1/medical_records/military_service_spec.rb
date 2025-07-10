@@ -69,7 +69,8 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::MilitaryServiceController', type: 
       # TODO: This test is complex due to FactoryBot 6.5.0+ restrictions
       # The user factory's mpi_profile transient attribute overrides explicit icn: nil
       # Need to investigate proper way to test ICN=nil scenarios
-      xit 'returns 403 Forbidden when ICN is missing', :skip_factorybot_restrictions do
+      it 'returns 403 Forbidden when ICN is missing', :skip_factorybot_restrictions do
+        skip 'pending FactoryBot factory fix for ICN=nil scenarios'
         sign_in_as(current_user)
 
         get '/my_health/v1/medical_records/military_service'
