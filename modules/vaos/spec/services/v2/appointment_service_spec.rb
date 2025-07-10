@@ -8,6 +8,20 @@ describe VAOS::V2::AppointmentsService do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :jac) }
+
+  before do
+    # Stub MPI with ICN that matches this spec's VCR cassettes
+    # get_appointments tests use ICN 1012846043V576341
+    # get_appointment tests use ICN 1012845331V153043 (from VCR cassettes)
+    stub_mpi(build(:mpi_profile,
+                   icn: '1012845331V153043',
+                   ssn: user.ssn,
+                   given_names: ['Jacqueline'],
+                   family_name: 'Morgan',
+                   edipi: '1259897978',
+                   gender: 'F',
+                   birth_date: '1962-02-07'))
+  end
   let(:start_date) { Time.zone.parse('2021-06-04T04:00:00.000Z') }
   let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
   let(:start_date2) { Time.zone.parse('2022-01-01T19:25:00Z') }
@@ -542,6 +556,18 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when requesting a list of appointments given a date range' do
+        before do
+          # Override MPI stub for get_appointments tests which use ICN 1012846043V576341
+          stub_mpi(build(:mpi_profile,
+                         icn: '1012846043V576341',
+                         ssn: user.ssn,
+                         given_names: ['Jacqueline'],
+                         family_name: 'Morgan',
+                         edipi: '1259897978',
+                         gender: 'F',
+                         birth_date: '1962-02-07'))
+        end
+
         it 'returns a 200 status with list of appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do

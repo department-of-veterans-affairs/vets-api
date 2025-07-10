@@ -22,9 +22,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
 
     # Stub MPI with VAOS-specific profile data
-    # Most VAOS VCR cassettes were recorded with Judy Morrison's ICN: 1012845331V153043
-    # So we'll use that ICN for both user types to match the cassettes
-    if current_user&.ssn == '796029146' # :jac user - but use Judy Morrison's ICN to match VCR cassettes
+    # Handle different user types based on their ICN or SSN
+    if current_user&.icn == 'care-nav-patient-casey'
+      # EPS referrals user - VCR cassettes use care-nav-patient-casey as patient ID
+      stub_mpi(build(:mpi_profile,
+                     icn: 'care-nav-patient-casey',
+                     given_names: ['Casey'],
+                     family_name: 'Patient',
+                     ssn: current_user.ssn,
+                     edipi: '1259897978',
+                     gender: 'F',
+                     birth_date: '1990-01-01',
+                     vha_facility_ids: ['983', '984'],
+                     participant_id: '12345678'))
+    elsif current_user&.ssn == '796029146' # :jac user - but use Judy Morrison's ICN to match VCR cassettes
       stub_mpi(build(:mpi_profile,
                      icn: '1012845331V153043',
                      given_names: ['Jacqueline'],
@@ -32,7 +43,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                      ssn: '796029146',
                      edipi: '1259897978',
                      gender: 'F',
-                     birth_date: '1962-02-07'))
+                     birth_date: '1962-02-07',
+                     vha_facility_ids: ['983', '984'],
+                     participant_id: '12345678'))
     else
       # Default VAOS profile for :vaos user and other cases
       stub_mpi(build(:mpi_profile,
@@ -42,7 +55,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                      ssn: '796061976',
                      edipi: '1259897978',
                      gender: 'F',
-                     birth_date: '1953-04-01'))
+                     birth_date: '1953-04-01',
+                     vha_facility_ids: ['983', '984'],
+                     participant_id: '12345678'))
     end
   end
 
