@@ -941,11 +941,11 @@ module VAOS
           'vaVideoCareAtAnAtlasLocation'
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif %w[MOBILE_ANY ADHOC].include?(vvs_kind)
+        elsif %w[MOBILE_ANY MOBILE_ANY_GROUP ADHOC].include?(vvs_kind)
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
           vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
-          vvs_video_appt == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
+          vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
         end
       end
 
