@@ -8,14 +8,6 @@ require 'gi/client'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  before do
-    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
-    allow(Flipper).to receive(:enabled?).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
-    described_class.instance_variable_set(:@mappings, nil)
-  end
-
   let(:user) do
     build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
                                      address: build(:va_profile_v3_address), vet360_id: '1')
@@ -1010,6 +1002,23 @@ RSpec.describe FormProfile, type: :model do
         { service_branch: 'Army', date_range: { from: '2012-03-02', to: '2018-10-31' } }
       ]
     }
+  end
+
+  before do
+    # Create MPI profile with consistent data that matches user factory defaults
+    mpi_profile = build(:mpi_profile,
+                        ssn: '796111863', # User factory default SSN
+                        icn: '123498767V234859', # From :legacy_icn trait
+                        given_names: ['Abraham'], # User factory default (capitalized)
+                        family_name: 'Lincoln', # User factory default (capitalized)
+                        suffix: 'Jr.',           # Explicit suffix to match test setup
+                        gender: 'M',             # User factory default
+                        birth_date: '18090212') # User factory default birth_date formatted for MPI
+    stub_mpi(mpi_profile)
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
+    described_class.instance_variable_set(:@mappings, nil)
   end
 
   describe '#initialize_military_information', :skip_va_profile do

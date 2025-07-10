@@ -10,6 +10,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    # Stub MPI with matching vet360_id for VCR cassettes
+    stub_mpi(build(:mpi_profile, vet360_id: '1', icn: '123498767V234859'))
   end
 
   describe '#get_person' do
