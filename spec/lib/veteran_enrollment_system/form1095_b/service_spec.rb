@@ -14,7 +14,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
     context 'when the request is successful' do
       it 'returns the form data from the enrollment system' do
         VCR.use_cassette('veteran_enrollment_system/form1095b/200', { match_requests_on: %i[method uri] }) do
-          response = service.get_form_by_icn(icn: icn, tax_year: tax_year)
+          response = service.get_form_by_icn(icn:, tax_year:)
 
           expect(response).to eq(
             { 'data' =>
@@ -50,9 +50,6 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
         end
       end
     end
-
-    # Error handling for get_form_by_icn is tested implicitly through get_form tests
-    # as they share the same error handling mechanism
   end
 
   describe 'without a user' do
@@ -66,7 +63,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
         nil
       ).and_return(OpenStruct.new(body: {}))
 
-      service_without_user.get_form_by_icn(icn: icn, tax_year: tax_year)
+      service_without_user.get_form_by_icn(icn:, tax_year:)
     end
   end
 end

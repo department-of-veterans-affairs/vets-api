@@ -39,36 +39,12 @@ module VeteranEnrollmentSystem
           response = perform(:get, form_by_icn_path(icn, tax_year), nil)
           response.body
         end
-      rescue Faraday::Error => e
-        handle_error(e)
       end
 
       private
 
       def form_by_icn_path(icn, tax_year)
         "ves-ee-summary-svc/form1095b/#{icn}/#{tax_year}"
-      end
-
-      def handle_error(error)
-        if error.is_a?(Faraday::ParsingError)
-          log_message_to_sentry('Form 1095B enrollment invalid JSON response', :error)
-          raise_backend_exception('ENROLLMENT_SYSTEM_PARSING_ERROR', self.class)
-        elsif error.is_a?(Faraday::TimeoutError)
-          log_message_to_sentry('Form 1095B enrollment timeout', :error)
-          raise_backend_exception('GATEWAY_TIMEOUT', self.class)
-        elsif error.is_a?(Faraday::ClientError)
-          response_hash = error.response&.to_hash
-          response_body = response_hash&.dig(:body)
-
-          log_message_to_sentry('Form 1095B enrollment service returned error', :error,
-                              { response_body: response_body })
-
-          raise_backend_exception("ENROLLMENT_#{error.response&.fetch(:status, 500)}",
-                                self.class, error)
-        else
-          log_exception_to_sentry(error)
-          raise_backend_exception('ENROLLMENT_SYSTEM_ERROR', self.class, error)
-        end
       end
 
       def raise_backend_exception(key, source, error = nil)
