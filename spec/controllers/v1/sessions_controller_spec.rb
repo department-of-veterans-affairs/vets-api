@@ -835,6 +835,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_log_payload) { { eligible:, cookie_action: :set, icn: user.icn } }
 
         before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
           allow(Rails.logger).to receive(:info)
         end

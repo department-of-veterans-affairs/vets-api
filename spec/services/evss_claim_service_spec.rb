@@ -46,6 +46,7 @@ RSpec.describe EVSSClaimService do
     let(:claim_service) { BGS::EbenefitsBenefitClaimsStatus }
 
     before do
+      stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
       allow(Rails.logger).to receive(:info)
       allow_any_instance_of(claim_service).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim)
       user.user_account_uuid = user_account.id

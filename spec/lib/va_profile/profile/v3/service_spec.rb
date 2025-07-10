@@ -41,6 +41,10 @@ describe VAProfile::Profile::V3::Service do
     context 'invalid edipi' do
       let(:user) { build(:user, :loa3, edipi: '') }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       it 'returns no data' do
         VCR.use_cassette('va_profile/profile/v3/military_occupations_error') do
           response = subject.get_military_occupations

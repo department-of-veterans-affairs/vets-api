@@ -29,6 +29,7 @@ describe SignIn::UserInfoController do
   let(:encoded_access_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
 
   before do
+    stub_mpi(mpi_profile)
     allow(IdentitySettings.sign_in).to receive(:user_info_clients).and_return(user_info_clients)
     request.headers['Authorization'] = "Bearer #{encoded_access_token}"
   end

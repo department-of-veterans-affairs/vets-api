@@ -11,6 +11,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
   let(:frozen_time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     Timecop.freeze(frozen_time)
     sign_in_as(user)
   end
@@ -520,6 +521,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
           before do
             allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: '123498767V234859'))
             allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')
           end
 

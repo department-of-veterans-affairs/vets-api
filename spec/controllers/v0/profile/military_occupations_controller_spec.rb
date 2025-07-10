@@ -6,6 +6,7 @@ RSpec.describe V0::Profile::MilitaryOccupationsController, type: :controller do
   let(:user) { create(:user, :loa3, edipi: '1100377582') }
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     sign_in_as(user)
   end
 
@@ -47,6 +48,10 @@ RSpec.describe V0::Profile::MilitaryOccupationsController, type: :controller do
 
     context 'when user does not have edipi' do
       let(:user) { create(:user, :loa3, edipi: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
 
       it 'returns a status of 403' do
         VCR.use_cassette('va_profile/profile/v3/military_occupations_200') do

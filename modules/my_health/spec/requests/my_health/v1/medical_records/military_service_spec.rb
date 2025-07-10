@@ -61,6 +61,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::MilitaryServiceController', type: 
       let(:mhv_account_type) { 'Premium' }
 
       before do
+        stub_mpi(build(:mpi_profile, ssn: current_user.ssn, icn: current_user.icn))
         sign_in_as(current_user)
       end
 

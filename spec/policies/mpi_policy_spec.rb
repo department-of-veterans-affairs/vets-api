@@ -76,6 +76,10 @@ describe MPIPolicy do
     context 'with a user who is missing birls and participant id' do
       let(:user) { build(:user_with_no_ids) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       it 'grants access' do
         expect(subject).to permit(user, :mvi)
       end
@@ -83,6 +87,10 @@ describe MPIPolicy do
 
     context 'with a user who is missing only participant or birls id' do
       let(:user) { build(:user, :loa3, birls_id: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
 
       it 'grants access' do
         expect(subject).to permit(user, :mvi)
