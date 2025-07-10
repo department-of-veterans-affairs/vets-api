@@ -15,9 +15,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:cancelled_va_id) { '121133' }
   let(:cancelled_proposed_va_id) { '53241' }
   let(:phone_va_id) { '53352' }
-  let(:home_va_id) { '50094' }
+  let(:home_va_mobile_any_id) { '50094' }
   let(:atlas_va_id) { '50095' }
   let(:home_gfe_id) { '50096' }
+  let(:home_va_mobile_any_group_id) { '50098' }
+  let(:home_va_adhoc_id) { '50099' }
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
@@ -54,7 +56,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
-    expect(adapted_appointments.size).to eq(13)
+    expect(adapted_appointments.size).to eq(15)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
 
@@ -165,8 +167,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
       end
 
-      it 'sets home non-GFE appointments to VA_VIDEO_CONNECT_HOME' do
-        appt = appointment_by_id(home_va_id)
+      it 'sets home non-GFE MOBILE_ANY appointments to VA_VIDEO_CONNECT_HOME' do
+        appt = appointment_by_id(home_va_mobile_any_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
+      end
+
+      it 'sets home non-GFE MOBILE_ANY_GROUP appointments to VA_VIDEO_CONNECT_HOME' do
+        appt = appointment_by_id(home_va_mobile_any_group_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
+      end
+
+      it 'sets home non-GFE ADHOC appointments to VA_VIDEO_CONNECT_HOME' do
+        appt = appointment_by_id(home_va_adhoc_id)
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
       end
 
@@ -185,13 +197,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'cancel_id' do
     context 'when telehealth appointment and cancellable is true' do
       it 'is nil' do
-        expect(appointment_by_id(home_va_id).cancel_id).to be_nil
+        expect(appointment_by_id(home_va_mobile_any_id).cancel_id).to be_nil
       end
     end
 
     context 'when not telehealth appointment and cancellable is false' do
       it 'is nil' do
-        appt = appointment_by_id(home_va_id, overrides: { cancellable: false })
+        appt = appointment_by_id(home_va_mobile_any_id, overrides: { cancellable: false })
         expect(appt.cancel_id).to be_nil
       end
     end
@@ -208,7 +220,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     it 'are set to the result of convert_from_non_prod_id' do
       # this method is tested in the appointment model and doesn't need to be retested here
       expect(Mobile::V0::Appointment).to receive(:convert_from_non_prod_id!).and_return('anything')
-      appt = appointment_by_id(home_va_id)
+      appt = appointment_by_id(home_va_mobile_any_id)
       expect(appt.facility_id).to eq('anything')
       expect(appt.sta6aid).to eq('anything')
     end
