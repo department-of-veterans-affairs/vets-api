@@ -26,6 +26,10 @@ RSpec.describe 'V0::DisabilityCompensationForm::RatingInfo' do
     context 'with a 403 unauthorized response' do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: nil))
+      end
+
       it 'returns a forbidden response' do
         VCR.use_cassette('evss/disability_compensation_form/rating_info_403') do
           get '/v0/disability_compensation_form/rating_info'
