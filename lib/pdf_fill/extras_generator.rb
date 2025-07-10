@@ -59,17 +59,9 @@ module PdfFill
     end
 
     def set_font(pdf)
-      pdf.font_families.update(
-        'Roboto' => {
-          # Force full font embedding (subset: false) to ensure @ symbols display correctly in Adobe Reader.
-          # Font subsetting was excluding the @ character, causing email addresses to display incorrectly
-          # as "user email.com" instead of "user@email.com" in Adobe Reader specifically.
-          # https://github.com/prawnpdf/prawn/blob/master/lib/prawn/font.rb
-          normal: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'), subset: false },
-          bold: { file: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf'), subset: false }
-        }
-      )
-      pdf.font('Roboto')
+      # Use built-in Helvetica font - eliminates font embedding issues and file size overhead
+      # while ensuring @ symbols display correctly in all PDF viewers including Adobe Reader
+      pdf.font('Helvetica')
     end
 
     def generate
