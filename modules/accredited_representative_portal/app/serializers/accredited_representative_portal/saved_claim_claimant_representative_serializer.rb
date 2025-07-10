@@ -28,7 +28,7 @@ module AccreditedRepresentativePortal
     end
 
     attribute :confirmation_number do |object|
-      object.latest_submission_attempt&.benefits_intake_uuid
+      object.latest_submission_attempt.benefits_intake_uuid
     end
 
     attribute :vbms_status do |object|
