@@ -211,8 +211,10 @@ claims_api:
         notification_client_secret: ~
         notify_service_id: ~
 claims_evidence_api:
-  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
-  jwt_secret: 'fake_api_key'
+  base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  jwt_secret: fake-secret
+  mock: false
 clamav:
   host: 0.0.0.0
   mock: true
@@ -917,6 +919,7 @@ mhv:
     app_id: 1000
     app_token: faketoken
     host: https://example.myhealth.va.gov
+    labs_logging_date_range_days: 30
     mock: true
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"

@@ -43,6 +43,7 @@ module Mobile
         # ADHOC is a staging value used in place of MOBILE_ANY
         VIDEO_CODE = %w[
           MOBILE_ANY
+          MOBILE_ANY_GROUP
           ADHOC
         ].freeze
 
