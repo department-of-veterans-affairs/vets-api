@@ -33,18 +33,32 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     end
 
     it 'only assigns values for valid counts' do
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::AGENTS).and_return(false)
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
-      allow(model).to receive(:valid_count?).with('veteran_service_organizations').and_return(false)
+      # Mock the data sources that valid_count? uses internally
+      allow(model).to receive_messages(
+        current_db_counts: {
+          agents: 100, # Previous count
+          attorneys: 100,
+          representatives: 100,
+          veteran_service_organizations: 100
+        },
+        current_api_counts: {
+          agents: 70, # 30% decrease - exceeds 20% threshold
+          attorneys: 90, # 10% decrease - within 20% threshold
+          representatives: 85, # 15% decrease - within 20% threshold
+          veteran_service_organizations: 60 # 40% decrease - exceeds 20% threshold
+        }
+      )
 
       model.save_api_counts
       model.reload
 
-      expect(model.agents).not_to eq(100)
-      expect(model.attorneys).to eq(100)
-      expect(model.representatives).to eq(100)
-      expect(model.veteran_service_organizations).not_to eq(100)
+      # These should NOT be updated (exceeds threshold)
+      expect(model.agents).not_to eq(70)
+      expect(model.veteran_service_organizations).not_to eq(60)
+
+      # These SHOULD be updated (within threshold)
+      expect(model.attorneys).to eq(90)
+      expect(model.representatives).to eq(85)
     end
 
     it 'calls notify_threshold_exceeded when valid_count? is false' do
@@ -186,7 +200,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
       result = model.send(:get_counts_from_api)
 
       described_class::TYPES.each do |type|
-        expect(result[type]).to eq(100)
+        expect(result[type.to_sym]).to eq(100)
       end
     end
 

@@ -19,7 +19,7 @@ module RepresentationManagement
     self.table_name = 'accreditation_api_entity_counts'
 
     # Entity types supported by the GCLAWS API
-    TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES.map(&:to_sym).freeze
+    TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
     ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
     # The total number of representatives and organizations parsed from the GCLAWS API
@@ -32,6 +32,7 @@ module RepresentationManagement
     # @return [Boolean] true if save was successful, false otherwise
     def save_api_counts
       TYPES.each do |type|
+        type = type.to_sym
         if valid_count?(type)
           send("#{type}=", current_api_counts[type])
         else
@@ -53,6 +54,7 @@ module RepresentationManagement
     # @param type [Symbol] The entity type to validate (:agents, :attorneys, etc.)
     # @return [Boolean] true if count is valid, false otherwise
     def valid_count?(type)
+      type = type.to_sym
       previous_count = current_db_counts[type]
       new_count = current_api_counts[type]
 
@@ -86,7 +88,7 @@ module RepresentationManagement
       counts = {}
       TYPES.each do |type|
         # We're fetching with a page size of 1 to get the fastest possible response for the total count
-        counts[type] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
+        counts[type.to_sym] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
       rescue => e
         log_error("Error fetching count for #{type}: #{e.message}")
       end
