@@ -98,9 +98,12 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{
-       "statusCode": 200,
+        "statusCode": 200,
+        "pageNumber": 1,
+        "pageSize": 50,
         "message": "nice job everyone",
         "success": true,
+        "totalRecordCount": 0,
         "data": []
       }'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT

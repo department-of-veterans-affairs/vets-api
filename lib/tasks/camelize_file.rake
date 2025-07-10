@@ -28,7 +28,7 @@ namespace :camelize_file do
   end
 
   desc 'Given a json file it is transformed into a camelCase version'
-  # example `bundle exec rake camelize_file:json[spec/support/ppiu/ppiu_response.json]`
+  # example `bundle exec rake camelize_file:json[spec/support/pagerduty/maintenance_windows_simple.json]`
   task :json, [:json_path] => [:environment] do |_, args|
     json_path = args[:json_path]
     raise IOError, 'No json file provided' unless json_path

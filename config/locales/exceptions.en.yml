@@ -2346,25 +2346,6 @@ en:
       detail: 'The upstream server returned an error code that is unmapped'
       code: 128
       status: 400
-    ppiu:
-      potential_fraud:
-        <<: *defaults
-        title: Potential Fraud
-        detail: 'Routing number related to potential fraud'
-        code: 135
-        status: 422
-      account_flagged:
-        <<: *defaults
-        title: Account Flagged
-        detail: 'The account has been flagged'
-        code: 136
-        status: 422
-      unprocessable_entity:
-        <<: *defaults
-        title: Unprocessable Entity
-        detail: 'One or more unprocessable user payment properties'
-        code: 126
-        status: 422
     intent_to_file:
       partner_service_error:
         <<: *defaults

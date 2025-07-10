@@ -1159,6 +1159,14 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           end
         end
       end
+
+      context 'downloading a 1010EZR pdf form' do
+        context 'unauthenticated user' do
+          it 'returns unauthorized status code' do
+            expect(subject).to validate(:post, '/v0/form1010_ezrs/download_pdf', 401)
+          end
+        end
+      end
     end
 
     describe 'disability compensation' do
@@ -1380,44 +1388,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         it 'fails with 422' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 422, headers.merge('id' => '21-0966'))
-        end
-      end
-    end
-
-    describe 'PPIU' do
-      let(:mhv_user) { create(:user, :loa3) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
-                                            .and_return(false)
-      end
-
-      it 'supports getting payment information' do
-        expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, headers)
-        end
-      end
-
-      it 'supports updating payment information' do
-        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('evss/ppiu/update_payment_information') do
-            expect(subject).to validate(
-              :put,
-              '/v0/ppiu/payment_information',
-              200,
-              headers.update(
-                '_data' => {
-                  'account_type' => 'Checking',
-                  'financial_institution_name' => 'Bank of Amazing',
-                  'account_number' => '1234567890',
-                  'financial_institution_routing_number' => '123456789'
-                }
-              )
-            )
-          end
         end
       end
     end
@@ -2679,7 +2649,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       describe 'profile/status v2', :initiate_vaprofile, :skip_vet360 do
-        let(:user) { build(:user, :loa3, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', stub_mpi: false) }
+        let(:user) { build(:user, :loa3, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', should_stub_mpi: false) }
 
         before do
           sign_in_as(user)
@@ -3400,7 +3370,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[host path method]) do
+        VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/v0/claims', 200, headers)
         end
       end

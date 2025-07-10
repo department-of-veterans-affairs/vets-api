@@ -291,7 +291,8 @@ module PdfFill
       end
 
       def merge_address_helpers
-        format_address(@form_data['veteranAddress'])
+        veteran_address = @form_data.key?('veteranAddress') ? @form_data['veteranAddress'] : {}
+        format_address(veteran_address) unless veteran_address.empty?
         format_address(@form_data['newAddress']) if @form_data['isMoving']
       end
 
@@ -300,14 +301,6 @@ module PdfFill
 
         zip_code = split_postal_code(address)
         address['postalCode'] = {
-          'firstFive' => zip_code['firstFive'],
-          'lastFour' => zip_code['lastFour']
-        }
-      end
-
-      def merge_postal_code_helpers
-        zip_code = split_postal_code(@form_data['veteranAddress'])
-        @form_data['veteranAddress']['postalCode'] = {
           'firstFive' => zip_code['firstFive'],
           'lastFour' => zip_code['lastFour']
         }
