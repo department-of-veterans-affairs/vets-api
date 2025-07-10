@@ -1310,16 +1310,16 @@ vanotify:
   services:
     21_0538: &vanotify_services_dependents_verification
       api_key: <%= ENV['vanotify__services__dependents__api_key'] %>
-        email:
-          error:
-            flipper_id: dv_email_notification
-            template_id: <%= ENV['vanotify__services__21_0538__email__error__template_id'] %>
-          received:
-            flipper_id: dv_email_notification
-            template_id: <%= ENV['vanotify__services__21_0538__email__received__template_id'] %>
-          submitted:
-            flipper_id: dv_email_notification
-            template_id: <%= ENV['vanotify__services__21_0538__email__submitted__template_id'] %>
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: <%= ENV['vanotify__services__21_0538__email__error__template_id'] %>
+        received:
+          flipper_id: dv_email_notification
+          template_id: <%= ENV['vanotify__services__21_0538__email__received__template_id'] %>
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: <%= ENV['vanotify__services__21_0538__email__submitted__template_id'] %>
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
