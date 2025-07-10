@@ -36,25 +36,10 @@ module VeteranEnrollmentSystem
       # @raise [Common::Exceptions::BackendServiceException] If the upstream service returns an error
       def get_form_by_icn(icn:, tax_year:)
         with_monitoring do
-          response = perform(:get, form_by_icn_path(icn, tax_year), nil)
+          path = "ves-ee-summary-svc/form1095b/#{icn}/#{tax_year}"
+          response = perform(:get, path, {})
           response.body
         end
-      end
-
-      private
-
-      def form_by_icn_path(icn, tax_year)
-        "ves-ee-summary-svc/form1095b/#{icn}/#{tax_year}"
-      end
-
-      def raise_backend_exception(key, source, error = nil)
-        exception = Common::Exceptions::BackendServiceException.new(
-          key,
-          { source: source.to_s },
-          error&.try(:response)&.try(:status),
-          error&.try(:response)&.try(:body)
-        )
-        raise exception
       end
     end
   end

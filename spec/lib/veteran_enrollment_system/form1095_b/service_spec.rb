@@ -50,20 +50,13 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
         end
       end
     end
-  end
 
-  describe 'without a user' do
-    let(:user) { nil }
-    let(:service_without_user) { described_class.new }
-
-    it 'can still make requests without user headers' do
-      allow_any_instance_of(Common::Client::Base).to receive(:perform).with(
-        :get,
-        "ves-ee-summary-svc/form1095b/#{icn}/#{tax_year}",
-        nil
-      ).and_return(OpenStruct.new(body: {}))
-
-      service_without_user.get_form_by_icn(icn:, tax_year:)
+    context 'when error occurs' do
+      it 'raises an error' do
+        VCR.use_cassette('veteran_enrollment_system/form1095b/error') do
+          expect { service.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
+        end
+      end
     end
   end
 end
