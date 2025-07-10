@@ -170,7 +170,7 @@ module Eps
     def build_slot_params(next_token, opts)
       return { nextToken: next_token } if next_token
 
-      required_params = %i[appointmentTypeId startOnOrAfter startBefore]
+      required_params = %i[appointmentTypeId startOnOrAfter startBefore appointmentId]
       missing_params = required_params - opts.keys
 
       raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
