@@ -6,6 +6,7 @@ module ClaimsEvidenceApi
   # @see modules/claims_evidence_api/documentation/claims-evidence-openapi.json
   # voxpupuli/json-schema (gem) only supports up to draft-06
   module JsonSchema
+    # base path for our schemas
     DIR = "#{__dir__}/schema".freeze
 
     # #/components/schemas/payload

@@ -3,18 +3,18 @@
 module ClaimsEvidenceApi
   # collection of module exceptions
   module Exceptions
+    # x_folder_uri exceptions
     module XFolderUri
       # invalid folder type
       class InvalidFolderType < StandardError; end
-
       # invalid indentifier type for folder type
       class InvalidIdentifierType < StandardError; end
     end
 
+    # service exceptions
     module Service
       # required header is missing
       class UndefinedXFolderURI < StandardError; end
-
       # intended upload file not found
       class FileNotFound < StandardError; end
     end

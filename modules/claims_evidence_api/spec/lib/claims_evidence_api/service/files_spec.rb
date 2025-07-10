@@ -64,13 +64,13 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
   describe '#retrieve|read' do
     it 'performs a GET for a specific file' do
       path = "files/#{uuid}/data?includeRawTextData=false"
-      expect(service).to receive(:perform).with(:get, path, {}, {})
+      expect(service).to receive(:perform).with(:get, path, {})
       service.retrieve(uuid)
     end
 
     it 'performs a GET for a specific file with raw text included' do
       path = "files/#{uuid}/data?includeRawTextData=true"
-      expect(service).to receive(:perform).with(:get, path, {}, {})
+      expect(service).to receive(:perform).with(:get, path, {})
       service.read(uuid, include_raw_text: true)
     end
   end
@@ -78,7 +78,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
   describe '#update' do
     it 'performs a PUT to a specific file' do
       expect(service).to receive(:validate_provider_data).with(provider_data).and_call_original
-      expect(service).to receive(:perform).with(:put, "files/#{uuid}/data", provider_data, {})
+      expect(service).to receive(:perform).with(:put, "files/#{uuid}/data", provider_data)
       service.update(uuid, provider_data:)
     end
   end
