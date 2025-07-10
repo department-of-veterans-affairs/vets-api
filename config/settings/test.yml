@@ -1330,10 +1330,13 @@ vanotify:
       api_key: fake_secret
       email:
         error:
+          flipper_id: dv_email_notification
           template_id: fake_dv_error
         received:
+          flipper_id: dv_email_notification
           template_id: fake_dv_received
         submitted:
+          flipper_id: dv_email_notification
           template_id: fake_dv_submitted
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
