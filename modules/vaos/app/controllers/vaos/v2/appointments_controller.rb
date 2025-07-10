@@ -563,6 +563,15 @@ module VAOS
         self_schedulable_types.first[:id]
       end
 
+      def raise_draft_appointment_creation_error(error_code)
+        raise Common::Exceptions::BackendServiceException.new(
+          error_code,
+          {},
+          502,
+          'Draft appointment creation failed or returned invalid data'
+        )
+      end
+
       ##
       # Fetches drive time information from the user's residential address to the provider's location.
       # Uses the EPS provider service to calculate drive times between the current user's address
@@ -817,7 +826,6 @@ module VAOS
       #
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
-
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
 
@@ -830,19 +838,10 @@ module VAOS
         return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
 
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-
-        if draft.blank? || draft.id.blank?
-          raise Common::Exceptions::BackendServiceException.new(
-            'DRAFT_APPOINTMENT_CREATION_FAILED',
-            {},
-            502,
-            'Draft appointment creation failed or returned invalid data'
-          )
-        end
+        raise_draft_appointment_creation_error('DRAFT_APPOINTMENT_CREATION_FAILED') if draft.blank? || draft.id.blank?
 
         slots = fetch_provider_slots(referral, provider, draft.id)
         drive_time = fetch_drive_times(provider)
-
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
       end
 
