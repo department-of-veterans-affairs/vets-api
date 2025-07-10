@@ -77,7 +77,7 @@ describe MPIPolicy do
       let(:user) { build(:user_with_no_ids) }
 
       before do
-        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, birls_id: nil, participant_id: nil))
       end
 
       it 'grants access' do
@@ -89,7 +89,7 @@ describe MPIPolicy do
       let(:user) { build(:user, :loa3, birls_id: nil) }
 
       before do
-        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, birls_id: nil))
       end
 
       it 'grants access' do
