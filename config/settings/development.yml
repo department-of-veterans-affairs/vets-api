@@ -400,13 +400,10 @@ evss:
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
-  mock_ppiu: true
   mock_vso_search: false
   pciu:
     timeout: 30
   pciu_address:
-    timeout: 30
-  ppiu:
     timeout: 30
   prefill: true
   root_cert_path: ~
