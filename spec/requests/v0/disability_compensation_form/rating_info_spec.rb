@@ -8,6 +8,7 @@ RSpec.describe 'V0::DisabilityCompensationForm::RatingInfo' do
   let(:user) { build(:disabilities_compensation_user) }
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     sign_in_as(user)
     Flipper.disable('profile_lighthouse_rating_info')
   end

@@ -29,6 +29,7 @@ RSpec.describe 'V0::MVIUsers', type: :request do
         let(:user) { build(:user, :loa3, birls_id: nil) }
 
         before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, birls_id: nil))
           sign_in_as(user)
         end
 
@@ -45,6 +46,7 @@ RSpec.describe 'V0::MVIUsers', type: :request do
         let(:user) { build(:user, :loa3) }
 
         before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
           sign_in_as(user)
         end
 
