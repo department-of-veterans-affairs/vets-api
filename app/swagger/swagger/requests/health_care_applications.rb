@@ -206,7 +206,7 @@ module Swagger
           ].each do |attribute_data|
             parameter do
               key :name, attribute_data[:name]
-              key :in, :query
+              key :in, :body
               key :description, attribute_data[:description]
               key :required, false
               key :type, :string
