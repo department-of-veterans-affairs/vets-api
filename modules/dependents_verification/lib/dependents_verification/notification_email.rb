@@ -8,14 +8,14 @@ module DependentsVerification
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
-        super(saved_claim_id, service_name: 'dependents_verification')
+      super(saved_claim_id, service_name: 'dependents_verification')
     end
 
     private
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
     def claim_class
-        DependentsVerification::SavedClaim
+      DependentsVerification::SavedClaim
     end
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
@@ -33,7 +33,7 @@ module DependentsVerification
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass
     def callback_klass
-        DependentsVerification::NotificationCallback.to_s
+      DependentsVerification::NotificationCallback.to_s
     end
 
     # Add 'claim_id' to the metadata for consistency in DataDog and Burials::Monitor

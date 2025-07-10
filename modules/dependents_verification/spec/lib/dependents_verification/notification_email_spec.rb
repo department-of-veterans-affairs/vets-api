@@ -14,14 +14,14 @@ RSpec.describe DependentsVerification::NotificationEmail do
 
       args = [
         saved_claim.email,
-        Settings.vanotify.services[21_0538].email.submitted.template_id,
+        Settings.vanotify.services[210_538].email.submitted.template_id,
         {
           'date_received' => saved_claim.form_submissions.last&.form_submission_attempts&.last&.lighthouse_updated_at,
           'date_submitted' => saved_claim.submitted_at,
           'confirmation_number' => saved_claim.confirmation_number,
           'first_name' => saved_claim.veteran_first_name.titleize
         },
-        Settings.vanotify.services[21_0538].api_key,
+        Settings.vanotify.services[210_538].api_key,
         { callback_klass: DependentsVerification::NotificationCallback.to_s,
           callback_metadata: anything }
       ]
