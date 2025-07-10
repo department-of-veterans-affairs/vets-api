@@ -469,8 +469,6 @@ form_10282:
 form_10_10cg:
   carma:
     mulesoft:
-      host: https://fake-mulesoft.vapi.va.gov
-      timeout: 10
       auth:
         auth_token_path: ~
         client_id: ~
@@ -478,6 +476,8 @@ form_10_10cg:
         mock: false
         timeout: ~
         token_url: ~
+      host: https://fake-mulesoft.vapi.va.gov
+      timeout: 10
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
