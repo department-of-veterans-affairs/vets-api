@@ -124,14 +124,36 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           }
         end
 
-        it 'returns 404 unless signed in' do
-          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-          allow(HealthCareApplication).to receive(:enrollment_status).with(
-            '123', nil
-          ).and_return(loa1_response)
+        context ':hca_enrollment_status_filter_get enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_filter_get).and_return(true)
+          end
 
-          get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-          expect(response).to have_http_status(:not_found)
+          it 'returns 404 unless signed in' do
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+            allow(HealthCareApplication).to receive(:enrollment_status).with(
+              '123', nil
+            ).and_return(loa1_response)
+
+            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        context ':hca_enrollment_status_filter_get disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_filter_get).and_return(false)
+          end
+
+          it 'returns 200' do
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+            allow(HealthCareApplication).to receive(:enrollment_status).with(
+              '123', nil
+            ).and_return(loa1_response)
+
+            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
 

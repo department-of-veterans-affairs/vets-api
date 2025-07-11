@@ -166,6 +166,9 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_enrollment_status_filter_get:
+    actor_type: user
+    description: Filters out query params from GET requests for the enrollment_status endpoint.  
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
