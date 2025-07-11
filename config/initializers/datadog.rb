@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require 'datadog/appsec'
+# Skip Datadog configuration during normal development boot
+# Only load when explicitly needed or in production environments
+unless Rails.env.development? && ENV['ENABLE_DATADOG'] != 'true'
+  require 'datadog/appsec'
+end
 
 envs = %w[development staging sandbox production]
 

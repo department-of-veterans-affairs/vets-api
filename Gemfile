@@ -183,6 +183,8 @@ end
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
+  # gem 'spring' # Application preloader for faster development - requires bundle install
+  # gem 'spring-commands-rspec', require: false
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
 end

@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
-require 'sidekiq_stats_instrumentation/client_middleware'
-require 'sidekiq_stats_instrumentation/server_middleware'
-require 'sidekiq/retry_monitoring'
-require 'sidekiq/error_tag'
-require 'sidekiq/semantic_logging'
-require 'sidekiq/set_request_id'
-require 'sidekiq/set_request_attributes'
-require 'datadog/statsd' # gem 'dogstatsd-ruby'
-require 'admin/redis_health_checker'
-require 'kafka/producer_manager'
-
+# Lazy load Sidekiq dependencies to avoid Redis connection during boot
 Rails.application.reloader.to_prepare do
+  # Only load Sidekiq if we're actually running it or in test environment
+  next unless Rails.env.test? || ENV['SIDEKIQ_WORKER'] == 'true' || defined?(Sidekiq::CLI)
+  
+  require 'sidekiq_stats_instrumentation/client_middleware'
+  require 'sidekiq_stats_instrumentation/server_middleware'
+  require 'sidekiq/retry_monitoring'
+  require 'sidekiq/error_tag'
+  require 'sidekiq/semantic_logging'
+  require 'sidekiq/set_request_id'
+  require 'sidekiq/set_request_attributes'
+  require 'datadog/statsd' # gem 'dogstatsd-ruby'
+  require 'admin/redis_health_checker'
+  require 'kafka/producer_manager'
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
   Sidekiq.configure_server do |config|
