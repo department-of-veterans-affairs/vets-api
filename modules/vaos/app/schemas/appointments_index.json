@@ -138,7 +138,7 @@
                     "additionalProperties": false,
                     "required": ["system", "value"],
                     "properties": {
-                      "system": { "type": "string" },
+                      "system": { "type": ["string", "null"] },
                       "value": { "type": ["string", "null"] }
                     }
                   }
@@ -394,9 +394,12 @@
                    "char4": { "type": "string" },
                    "active": { "type": "boolean" },
                    "non_count": { "type": "boolean" },
-                   "future_booking_maximum_days": { "type": "integer" }
+                   "future_booking_maximum_days": { "type": "integer" },
+                   "phone_number_extension": { "type": "string" }
                 }
-              }
+              },
+              "vvs_video_appt": { "type": "boolean" },
+              "vvs_vista_video_appt": { "type": "boolean" }
             }
           }
         }
