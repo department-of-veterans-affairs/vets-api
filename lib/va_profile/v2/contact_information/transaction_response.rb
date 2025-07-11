@@ -115,6 +115,7 @@ module VAProfile
           end
         rescue => e
           log_exception_to_sentry(e)
+          log_exception_to_rails(e)
         end
       end
 
@@ -149,6 +150,7 @@ module VAProfile
           end
         rescue => e
           log_exception_to_sentry(e)
+          log_exception_to_rails(e)
         end
       end
 
