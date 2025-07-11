@@ -271,7 +271,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
 
     context 'with a validation key' do
       let(:address) do
-        build(:va_profile_address, :override, country_name: nil)
+        build(:va_profile_address, :override, country_name: 'USA')
       end
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
