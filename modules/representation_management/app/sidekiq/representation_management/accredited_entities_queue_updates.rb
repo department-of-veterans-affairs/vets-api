@@ -41,19 +41,11 @@ module RepresentationManagement
     # Main job method that processes accredited entities
     #
     # @param force_update_types [Array<String>] Optional array of entity types to force update
-    #   regardless of count validation ('agents', 'attorneys')
+    #   regardless of count validation ('agents', 'attorneys', 'representatives', 'veteran_service_organizations')
     # @return [void]
     def perform(force_update_types = [])
-      # The force_update_types are the accredited entity types that should be updated regardless of the current counts.
       @force_update_types = force_update_types
-      @agent_responses = []
-      @attorney_responses = []
-      @org_responses = []
-      @agent_ids = []
-      @attorney_ids = []
-      # @org_ids = []
-      @agent_json_for_address_validation = []
-      @attorney_json_for_address_validation = []
+      initialize_instance_variables
       @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
 
       # Don't save fresh API counts if updates are forced
@@ -62,11 +54,25 @@ module RepresentationManagement
       process_entity_type(ATTORNEYS)
       process_orgs_and_reps
       delete_removed_accredited_individuals
+      delete_removed_accredited_organizations
+      delete_removed_accreditations
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
     end
 
     private
+
+    def initialize_instance_variables
+      @agent_ids = []
+      @attorney_ids = []
+      @vso_ids = []
+      @representative_ids = []
+      @agent_json_for_address_validation = []
+      @attorney_json_for_address_validation = []
+      @representative_json_for_address_validation = []
+      @rep_to_vso_associations = {}
+      @accreditation_ids = []
+    end
 
     # Processes entities of a specific type based on count validation and force update settings
     #
@@ -107,13 +113,15 @@ module RepresentationManagement
         return
       end
 
-      # Process orgs
-      update_orgs
-      validate_org_addresses
+      # Process VSOs first (must exist before representatives can reference them)
+      update_vsos
 
-      # Process reps
+      # Process representatives
       update_reps
       validate_rep_addresses
+
+      # Create or update join records
+      create_or_update_accreditations
     end
 
     # Fetches agent data from the GCLAWS API and updates database records
@@ -143,39 +151,164 @@ module RepresentationManagement
         entities = response.body['items']
         break if entities.empty?
 
-        instance_variable_get(config[:responses_var]) << entities
         entities.each { |entity| handle_entity_record(entity, config) }
         page += 1
       end
     end
 
-    def update_orgs
-      # This will require custom implementation, it can't use handle_entity_record as is.
-      # Rename update_entities to update_individuals then add custom implementation for orgs here.
-      config = ENTITY_CONFIG[VSOS]
+    # Fetches VSO data from the GCLAWS API and updates database records
+    #
+    # @return [void]
+    def update_vsos
       page = 1
+
       loop do
         response = client.get_accredited_entities(type: VSOS, page:)
-        orgs = response.body['items']
-        break if orgs.empty?
+        vsos = response.body['items']
+        break if vsos.empty?
 
-        instance_variable_get(config[:responses_var]) << orgs
-        orgs.each do |entity|
-          # Custom handling for orgs
-          org_hash = data_transform_for_entity(entity, config.individual_type)
-          record = AccreditedIndividual.find_or_create_by(ogc_id: entity['id'])
-          record.update(org_hash)
-          instance_variable_get(config[:ids_var]) << record.id
-        end
+        vsos.each { |vso| handle_vso_record(vso) }
         page += 1
       end
+    rescue => e
+      log_error("Error updating VSOs: #{e.message}")
+    end
+
+    # Process individual VSO record
+    #
+    # @param vso [Hash] VSO data from the API
+    # @return [void]
+    def handle_vso_record(vso)
+      vso_hash = data_transform_for_vso(vso)
+
+      # Find or create record by ogc_id and poa_code
+      record = AccreditedOrganization.find_or_create_by(ogc_id: vso['vsoid'], poa_code: vso['poa'])
+
+      # Update record
+      record.update(vso_hash)
+      @vso_ids << record.id
+    rescue => e
+      log_error("Error handling VSO record with ID #{vso['vsoid']}: #{e.message}")
+    end
+
+    # Transforms VSO data from the GCLAWS API into a format suitable for the AccreditedOrganization model
+    #
+    # @param vso [Hash] Raw VSO data from the GCLAWS API
+    # @return [Hash] Transformed data for AccreditedOrganization record
+    def data_transform_for_vso(vso)
+      {
+        ogc_id: vso['vsoid'],
+        poa_code: vso['poa'],
+        name: vso['organization']['text']
+      }
+    end
+
+    # Fetches representative data from the GCLAWS API and updates database records
+    #
+    # @return [void]
+    def update_reps
+      page = 1
+
+      loop do
+        response = client.get_accredited_entities(type: REPRESENTATIVES, page:)
+        representatives = response.body['items']
+        break if representatives.empty?
+
+        representatives.each { |rep| handle_representative_record(rep) }
+        page += 1
+      end
+    rescue => e
+      log_error("Error updating representatives: #{e.message}")
+    end
+
+    # Process individual representative record
+    #
+    # @param rep [Hash] Representative data from the API
+    # @return [void]
+    def handle_representative_record(rep)
+      rep_hash = data_transform_for_representative(rep)
+
+      # Find or create record by ogc_id and individual_type
+      rep_ogc_id = rep['representative']['id']
+      record = AccreditedIndividual.find_or_create_by(
+        ogc_id: rep_ogc_id,
+        individual_type: 'representative'
+      )
+
+      # Check if address validation is needed
+      raw_address = raw_address_for_representative(rep)
+      if record.raw_address != raw_address
+        @representative_json_for_address_validation << individual_representative_json(record, rep)
+      end
+
+      # Update record
+      record.update(rep_hash)
+      @representative_ids << record.id
+
+      # Track VSO associations for this representative
+      vso_ogc_id = rep['veteransServiceOrganization']['id']
+      @rep_to_vso_associations[record.id] ||= []
+      @rep_to_vso_associations[record.id] << vso_ogc_id unless @rep_to_vso_associations[record.id].include?(vso_ogc_id)
+    rescue => e
+      log_error("Error handling representative record with ID #{rep['representative']['id']}: #{e.message}")
+    end
+
+    # Transforms representative data from the GCLAWS API into a format suitable for the AccreditedIndividual model
+    #
+    # @param rep [Hash] Raw representative data from the GCLAWS API
+    # @return [Hash] Transformed data for AccreditedIndividual record
+    def data_transform_for_representative(rep)
+      data_transform_for_entity(rep['representative'], 'representative', {
+                                  city: rep['workCity'],
+                                  state_code: rep['workState'],
+                                  phone: rep['representative']['workNumber'],
+                                  email: rep['representative']['workEmailAddress'],
+                                  address_line1: rep['workAddress1'],
+                                  address_line2: rep['workAddress2'],
+                                  address_line3: rep['workAddress3'],
+                                  zip_code: rep['workZip'],
+                                  raw_address: raw_address_for_representative(rep)
+                                })
+    end
+
+    # Creates a standardized address hash for a representative
+    #
+    # @param rep [Hash] Raw representative data from the GCLAWS API
+    # @return [Hash] Standardized address data
+    def raw_address_for_representative(rep)
+      {
+        'address_line1' => rep['workAddress1'],
+        'address_line2' => rep['workAddress2'],
+        'address_line3' => rep['workAddress3'],
+        'city' => rep['workCity'],
+        'state_code' => rep['workState'],
+        'zip_code' => rep['workZip']
+      }
+    end
+
+    # Creates a JSON object for a representative's address, used for address validation
+    #
+    # @param record [AccreditedIndividual] The database record for the representative
+    # @param rep [Hash] Raw representative data from the GCLAWS API
+    # @return [Hash] JSON structure for address validation
+    def individual_representative_json(record, rep)
+      rep_raw_address = raw_address_for_representative(rep)
+      individual_entity_json(
+        record,
+        rep,
+        :representative,
+        {
+          city: rep_raw_address['city'],
+          state: { state_code: rep_raw_address['state_code'] }
+        }
+      )
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
     #
     # @return [void]
     def delete_removed_accredited_individuals
-      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids).find_each do |record|
+      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
         record.destroy
       rescue => e
         log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
@@ -230,7 +363,8 @@ module RepresentationManagement
                                   city: attorney['workCity'],
                                   state_code: attorney['workState'],
                                   phone: attorney['workNumber'],
-                                  email: attorney['emailAddress']
+                                  email: attorney['emailAddress'],
+                                  raw_address: raw_address_for_attorney(attorney)
                                 })
     end
 
@@ -318,7 +452,7 @@ module RepresentationManagement
     #
     # @param record [AccreditedIndividual] The database record for the entity
     # @param entity [Hash] Raw entity data from the GCLAWS API
-    # @param entity_type [Symbol] The type of entity (:agent or :attorney)
+    # @param entity_type [Symbol] The type of entity (:agent, :attorney, or :representative)
     # @param additional_fields [Hash] Additional address fields specific to this entity type
     # @return [Hash] JSON structure for address validation
     def individual_entity_json(record, entity, entity_type, additional_fields = {})
@@ -376,9 +510,16 @@ module RepresentationManagement
       validate_entity_addresses(ATTORNEYS)
     end
 
+    # Queues address validation jobs for representatives
+    #
+    # @return [void]
+    def validate_rep_addresses
+      validate_entity_addresses(REPRESENTATIVES)
+    end
+
     # Queues address validation jobs for a specific entity type
     #
-    # @param entity_type [String] The entity type to validate ('agents' or 'attorneys')
+    # @param entity_type [String] The entity type to validate ('agents', 'attorneys', or 'representatives')
     # @return [void]
     def validate_entity_addresses(entity_type)
       config = ENTITY_CONFIG[entity_type]
@@ -402,6 +543,70 @@ module RepresentationManagement
     # @return [void]
     def log_error(message)
       Rails.logger.error("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
+    end
+
+    # Helper method to get array of org and rep types
+    #
+    # @return [Array<String>]
+    def orgs_and_reps
+      [REPRESENTATIVES, VSOS]
+    end
+
+    # Check if both orgs and reps have valid counts
+    #
+    # @return [Boolean]
+    def orgs_and_reps_both_valid?
+      @entity_counts.valid_count?(REPRESENTATIVES) && @entity_counts.valid_count?(VSOS)
+    end
+
+    # Removes AccreditedOrganization records that are no longer present in the GCLAWS API
+    #
+    # @return [void]
+    def delete_removed_accredited_organizations
+      AccreditedOrganization.where.not(id: @vso_ids).find_each do |record|
+        record.destroy
+      rescue => e
+        log_error("Error deleting old accredited organization with ID #{record.id}: #{e.message}")
+      end
+    end
+
+    # Removes Accreditation records that are no longer valid
+    #
+    # @return [void]
+    def delete_removed_accreditations
+      Accreditation.where.not(id: @accreditation_ids).find_each do |record|
+        record.destroy
+      rescue => e
+        log_error("Error deleting old accreditation with ID #{record.id}: #{e.message}")
+      end
+    end
+
+    # Creates or updates Accreditation records based on representative-VSO associations
+    #
+    # @return [void]
+    def create_or_update_accreditations
+      @rep_to_vso_associations.each do |rep_id, vso_ogc_ids|
+        vso_ogc_ids.each do |vso_ogc_id|
+          # Find the VSO by ogc_id
+          vso = AccreditedOrganization.find_by(ogc_id: vso_ogc_id)
+
+          # Skip if VSO not found
+          if vso.nil?
+            log_error("VSO not found for ogc_id: #{vso_ogc_id} when creating accreditation")
+            next
+          end
+
+          # Find or create the accreditation
+          accreditation = Accreditation.find_or_create_by(
+            accredited_individual_id: rep_id,
+            accredited_organization_id: vso.id
+          )
+
+          @accreditation_ids << accreditation.id
+        end
+      end
+    rescue => e
+      log_error("Error creating/updating accreditations: #{e.message}")
     end
   end
 end
