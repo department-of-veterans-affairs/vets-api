@@ -8,7 +8,7 @@ require 'va1010_forms/utils'
 require 'hca/overrides_parser'
 require 'va1010_forms/enrollment_system/service'
 require 'form1010_ezr/veteran_enrollment_system/associations/service'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module Form1010Ezr
   class Service < Common::Client::Base

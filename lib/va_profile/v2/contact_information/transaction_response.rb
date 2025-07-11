@@ -2,7 +2,7 @@
 
 require 'va_profile/models/transaction'
 require 'va_profile/response'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 # rubocop:disable ThreadSafety/ClassInstanceVariable
 module VAProfile

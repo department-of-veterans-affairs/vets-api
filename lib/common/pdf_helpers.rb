@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'hexapdf'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module Common
   module PdfHelpers
