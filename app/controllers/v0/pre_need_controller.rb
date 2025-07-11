@@ -1,7 +1,5 @@
 module V0
   class PreNeedController < ApplicationController
-    skip_before_action :authenticate
-    skip_before_action :verify_authenticity_token
 
     def submit
       Rails.logger.info("[PreNeedController] submit action called. Params: ")
@@ -10,9 +8,14 @@ module V0
 
       payload = params.permit!.to_h
 
-      # Check if mock is enabled in settings
+      # Check if mock is enabled in local.settings.yml
+      # mulesoft:
+      #   pre_need:
+      #     url: http://casemgmt.dev.mbms.va.gov
+      #     timeout: 30
+      #     mock: true 
       if Settings.mulesoft.pre_need.mock
-        if payload["cmPacketNum"].blank?
+        if payload["cm_packet_num"].blank?
           # Mock failure response
           mock_response = {
             "UUID" => "0cfa0c22-52b2-4113-a1b6-b985b841a4f8",
