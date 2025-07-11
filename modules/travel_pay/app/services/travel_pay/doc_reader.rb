@@ -9,27 +9,23 @@ module TravelPay
     end
 
     def denial_reasons
-      heading = find_heading('Denial Reason')
+      reasons('Denial Reason')
+    end
+
+    def partial_payment_reasons
+      reasons('Partial Payment Reason')
+    end
+
+    private
+
+    def reasons(heading_text)
+      heading = find_heading(heading_text)
 
       return unless heading
 
       # Yeah, yeah, I know.
-      # This is due to the poor structure of the DOCX file
-      # The template has a structure like this:
-      # heading: <w:p>Denial Reason</w:p>
-      # .next_sibling: <w:p>NEW_LINE</w:p>
-      # .next_sibling: <w:p>Denied for the following reason:</w:p>
-      # .next_sibling: <w:p>ACTUAL TEXT</w:p>
-      heading.next_sibling.next_sibling.next_sibling.text.strip
-    end
-
-    def partial_payment_reasons
-      heading = find_heading('Partial Payment Reason')
-
-      return unless heading
-
-      # Hey get off my back.
-      # This is due to the poor structure of the DOCX file
+      # This is due to the poor structure of the DOCX file.
+      # It's a template so I feel slightly justified in this hack.
       # The template has a structure like this:
       # heading: <w:p>Partial Payment Reason</w:p>
       # .next_sibling: <w:p>NEW_LINE</w:p>
@@ -37,8 +33,6 @@ module TravelPay
       # .next_sibling: <w:p>ACTUAL TEXT</w:p>
       heading.next_sibling.next_sibling.next_sibling.text.strip
     end
-
-    private
 
     def read_docx(buffer)
       doc = nil
