@@ -30,10 +30,10 @@ RSpec.describe 'V0::User', type: :request do
     context 'with MPI stubbing' do
       before do
         # Simple MPI profile setup like mobile app but with valid VHA facility IDs
-        stub_mpi(build(:mpi_profile, 
-                       ssn: mhv_user.ssn, 
+        stub_mpi(build(:mpi_profile,
+                       ssn: mhv_user.ssn,
                        icn: mhv_user.icn,
-                       vha_facility_ids: %w[358 500]))  # Use IDs within the configured range
+                       vha_facility_ids: %w[358 500])) # Use IDs within the configured range
       end
 
       it 'gives me the list of available prefill forms' do
@@ -69,18 +69,18 @@ RSpec.describe 'V0::User', type: :request do
 
       it 'gives me va profile cerner data' do
         va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
-        expect(va_profile['is_cerner_patient']).to be true  # Factory has cerner_id by default
-        expect(va_profile['facilities']).to eq([])  # No valid treatment facilities
+        expect(va_profile['is_cerner_patient']).to be true # Factory has cerner_id by default
+        expect(va_profile['facilities']).to eq([]) # No valid treatment facilities
       end
 
       it 'returns patient status' do
         va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
-        expect(va_profile['va_patient']).to be false  # No valid treatment facilities
+        expect(va_profile['va_patient']).to be false # No valid treatment facilities
       end
 
       it 'returns mhv account state info' do
         va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
-        expect(va_profile['mhv_account_state']).to eq('MULTIPLE')  # Factory creates 2 MHV IDs by default
+        expect(va_profile['mhv_account_state']).to eq('MULTIPLE') # Factory creates 2 MHV IDs by default
       end
     end
 
@@ -156,9 +156,9 @@ RSpec.describe 'V0::User', type: :request do
                        icn: mhv_user.icn,
                        vha_facility_ids: %w[358 200MHS],
                        vha_facility_hash: { '358' => %w[998877], '200MHS' => %w[998877] },
-                       mhv_ids: [],  # No MHV IDs for this case
+                       mhv_ids: [], # No MHV IDs for this case
                        active_mhv_ids: [],
-                       cerner_id: nil,  # No cerner_id for non-cerner patient
+                       cerner_id: nil, # No cerner_id for non-cerner patient
                        cerner_facility_ids: [],
                        gender: 'M',
                        birth_date: mhv_user.birth_date,
@@ -182,10 +182,10 @@ RSpec.describe 'V0::User', type: :request do
         stub_mpi(build(:mpi_profile,
                        ssn: mhv_user.ssn,
                        icn: mhv_user.icn,
-                       vha_facility_ids: [],  # Empty for non-VA patient
-                       vha_facility_hash: {},  # Empty for non-VA patient
+                       vha_facility_ids: [], # Empty for non-VA patient
+                       vha_facility_hash: {}, # Empty for non-VA patient
                        mhv_ids: %w[12345678901],
-                       cerner_id: nil,  # No cerner_id for non-cerner patient
+                       cerner_id: nil, # No cerner_id for non-cerner patient
                        cerner_facility_ids: [],
                        gender: 'M',
                        birth_date: mhv_user.birth_date,
