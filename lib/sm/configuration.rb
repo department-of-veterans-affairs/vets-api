@@ -9,6 +9,8 @@ require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
 require 'faraday/multipart'
 require 'sm/middleware/response/sm_parser'
+
+# No more Errors => Flipper error: undefined method column_for_attribute' for class Flipper::Gate
 require 'flipper_utils'
 
 module SM

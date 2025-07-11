@@ -12,6 +12,9 @@ require 'rx/middleware/response/rx_failed_station'
 require 'rx/middleware/response/rx_raise_error'
 require 'typhoeus'
 
+# No more Errors => Flipper error: undefined method column_for_attribute' for class Flipper::Gate
+require 'flipper_utils'
+
 module Rx
   ##
   # HTTP client configuration for {Rx::Client}, sets the token, base path and a service name for breakers and metrics
