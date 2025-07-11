@@ -25,7 +25,7 @@ module Eps
     STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
     STATSD_CC_SILENT_FAILURE_TAGS = [
       'service:vaos',
-      'function: Community Care Appointment Status Notification Failure'
+      'function:cc_appointment_status_failure'
     ].freeze
 
     ##
@@ -90,7 +90,7 @@ module Eps
       )
 
       if permanent
-        StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_KEY}.failure", tags: ['service:community_care_appointments'])
         StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
       else
         raise error
