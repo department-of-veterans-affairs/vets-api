@@ -9,10 +9,10 @@ module Eps
   class AppointmentStatusNotificationCallback
     STATSD_KEY = 'api.vaos.appointment_status_notification'
     STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
-      STATSD_CC_SILENT_FAILURE_TAGS = [
-    'service:vaos',
-    'function:community_care_appointment_status_notification_failure'
-  ].freeze
+    STATSD_CC_SILENT_FAILURE_TAGS = [
+      'service:vaos',
+      'function:community_care_appointment_status_notification_failure'
+    ].freeze
     FAILURE_STATUSES = %w[permanent-failure temporary-failure technical-failure].freeze
     FAILURE_TYPE_MAP = {
       'permanent-failure' => 'permanent',
