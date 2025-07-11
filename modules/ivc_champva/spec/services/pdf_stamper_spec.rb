@@ -93,6 +93,37 @@ describe IvcChampva::PdfStamper do
         end
       end
     end
+
+    context 'when form has no stamp_metadata method' do
+      let(:test_payload) { 'vha_10_7959c' }
+
+      before do
+        # Remove stamp_metadata method if it exists
+        form.singleton_class.send(:undef_method, :stamp_metadata) if form.methods.include?(:stamp_metadata)
+
+        allow(described_class).to receive(:add_blank_page_and_stamp)
+      end
+
+      it 'does not call add_blank_page_and_stamp' do
+        stamp_pdf
+        expect(described_class).not_to have_received(:add_blank_page_and_stamp)
+      end
+    end
+
+    context 'when form has stamp_metadata method but returns non-hash' do
+      let(:test_payload) { 'vha_10_7959c' }
+
+      before do
+        # Define stamp_metadata to return something that's not a hash
+        allow(form).to receive(:stamp_metadata).and_return('Not a hash')
+        allow(described_class).to receive(:add_blank_page_and_stamp)
+      end
+
+      it 'does not call add_blank_page_and_stamp' do
+        stamp_pdf
+        expect(described_class).not_to have_received(:add_blank_page_and_stamp)
+      end
+    end
   end
 
   describe '.stamp_signature' do
