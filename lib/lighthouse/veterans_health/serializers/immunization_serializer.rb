@@ -47,6 +47,7 @@ module Lighthouse
           attrs.dose_number = extract_dose_number(protocol_applied)
           attrs.dose_series = extract_dose_series(protocol_applied)
           attrs.group_name = group_name
+          attrs.location = extract_location_display(resource['location'])
           attrs.location_id = extract_location_id(resource['location'])
           attrs.manufacturer = extract_manufacturer(resource, group_name)
           attrs.note = extract_note(resource['note'])
@@ -157,6 +158,12 @@ module Lighthouse
           return nil if location.nil?
 
           location['reference'].split('/').last if location.is_a?(Hash) && location['reference']
+        end
+
+        def self.extract_location_display(location)
+          return nil if location.nil?
+
+          location['display'] if location.is_a?(Hash) && location['display']
         end
       end
     end
