@@ -259,7 +259,10 @@ module PdfFill
           }
         },
         'internationalPhoneNumber' => {
-          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]'
+          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]',
+          limit: 14,
+          question_text: 'International Phone Number',
+          question_num: 7
         },
         'email' => {
           key: 'F[0].Page_1[0].E_Mail_Address[0]',
@@ -398,8 +401,13 @@ module PdfFill
         phone = @form_data['veteranPhone']
         return if phone.blank?
 
-        ['', '1', '2', '3'].each do |suffix|
-          @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone)
+        if phone['countryCode'].blank? || phone['countryCode'] == '1'
+          ['', '1', '2', '3'].each do |suffix|
+            @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone['number'])
+          end
+        else
+          @form_data['veteranPhone'] = ''
+          @form_data['internationalPhoneNumber'] = "+#{phone['countryCode']} #{phone['number']}"
         end
       end
 

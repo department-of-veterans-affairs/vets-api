@@ -215,7 +215,10 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                                       'zipCode5' => '30012', 'country' => 'USA', 'postalCode' => '30012',
                                       'street' => '123  Main St', 'street2' => nil, 'state' => nil },
                 'email' => 'josie@example.com',
-                'veteranPhone' => '5558001111'
+                'veteranPhone' => {
+                  'countryCode' => '1',
+                  'number' => '5558001111'
+                }
               }
               expected_form4142_data_with_user = veteran_data.merge(expected_form4142_data)
               saved4142 = SecondaryAppealForm.last
