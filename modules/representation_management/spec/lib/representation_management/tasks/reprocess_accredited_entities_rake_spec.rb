@@ -107,6 +107,7 @@ RSpec.describe 'representation_management:accreditation:reprocess rake task', ty
       end.to raise_error(SystemExit)
     end
 
+    # rubocop:disable Layout/LineLength
     it 'processes both reps and VSOs when both are explicitly specified' do
       expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
         .with(%w[representatives veteran_service_organizations])
@@ -117,6 +118,7 @@ RSpec.describe 'representation_management:accreditation:reprocess rake task', ty
         /Starting manual reprocessing for: representatives, veteran_service_organizations.*Job enqueued successfully for representatives, veteran_service_organizations/m
       ).to_stdout
     end
+    # rubocop:enable Layout/LineLength
 
     it 'handles all four entity types' do
       expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
