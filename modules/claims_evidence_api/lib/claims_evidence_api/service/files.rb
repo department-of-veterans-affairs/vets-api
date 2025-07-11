@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/service/base'
+require 'common/virus_scan'
 
 module ClaimsEvidenceApi
   module Service
@@ -69,7 +70,8 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def post_params(file_path, provider_data)
-        raise FileNotFound unless File.exist?(file_path)
+        raise FileNotFound, file_path unless File.exist?(file_path)
+        raise VirusFound, file_path unless Common::VirusScan.scan(file_path)
 
         file_name = File.basename(file_path)
         mime_type = Marcel::MimeType.for(file_path)

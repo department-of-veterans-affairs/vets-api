@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'claims_evidence_api/exceptions'
+require 'claims_evidence_api/exceptions/x_folder_uri'
 
 module ClaimsEvidenceApi
   # value used in request header to identify a folder location

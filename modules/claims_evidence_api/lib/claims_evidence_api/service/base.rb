@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/configuration'
-require 'claims_evidence_api/exceptions'
+require 'claims_evidence_api/exceptions/service'
 require 'claims_evidence_api/validation'
 require 'claims_evidence_api/x_folder_uri'
 require 'common/client/base'

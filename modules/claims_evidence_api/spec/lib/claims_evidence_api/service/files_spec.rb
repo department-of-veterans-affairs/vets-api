@@ -4,6 +4,7 @@ require 'rails_helper'
 
 require 'claims_evidence_api/service/files'
 require 'common/file_helpers'
+require 'common/virus_scan'
 
 require_relative '../../../support/claims_evidence_api/shared_examples/service'
 
@@ -59,6 +60,11 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
     it 'raises an error on missing file' do
       expect { service.create('BAD_FILE', provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::FileNotFound
     end
+
+    it 'raises an error if virus found' do
+      allow(Common::VirusScan).to receive(:scan).and_return false
+      expect { service.create(file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::VirusFound
+    end
   end
 
   describe '#retrieve|read' do
@@ -92,7 +98,16 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
 
     it 'raises an exception if x_folder_uri is not defined' do
       service.instance_variable_set(:@x_folder_uri, nil)
-      expect { service.create(file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::UndefinedXFolderURI
+      expect { service.overwrite(uuid, file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::UndefinedXFolderURI
+    end
+
+    it 'raises an error on missing file' do
+      expect { service.overwrite(uuid, 'BAD_FILE', provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::FileNotFound
+    end
+
+    it 'raises an error if virus found' do
+      allow(Common::VirusScan).to receive(:scan).and_return false
+      expect { service.overwrite(uuid, file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::VirusFound
     end
   end
 end
