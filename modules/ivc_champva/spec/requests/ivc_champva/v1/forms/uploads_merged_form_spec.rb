@@ -133,6 +133,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
         form = controller.send(:generate_ohi_form, applicant, form_data)
 
         # Verify the form has the correct properties
+        expect(form[0]).to be_a(IvcChampva::VHA107959cRev2025)
         expect(form[0].data['first_name']).to eq('John')
         expect(form[0].data['last_name']).to eq('Doe')
         expect(form[0].data['form_number']).to eq('10-7959C-REV2025')
