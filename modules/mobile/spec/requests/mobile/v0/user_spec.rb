@@ -11,9 +11,37 @@ RSpec.describe 'Mobile::V0::User', type: :request do
   end
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
+
+    # Stub VA Profile contact information service layer
+    telephones = [
+      build(:telephone, :contact_info_v2, id: 458_781, phone_type: VAProfile::Models::Telephone::HOME),
+      build(:telephone, :contact_info_v2, id: 790, phone_type: VAProfile::Models::Telephone::MOBILE),
+      build(:telephone, :contact_info_v2, id: 791, phone_type: VAProfile::Models::Telephone::WORK),
+      build(:telephone, :contact_info_v2, id: 792, phone_type: VAProfile::Models::Telephone::FAX)
+    ]
+    emails = [build(:email, :contact_info_v2, id: 318_927)]
+    addresses = [
+      build(:va_profile_v3_address, id: 577_127, address_pou: VAProfile::Models::V3::Address::RESIDENCE),
+      build(:va_profile_v3_address, id: 124, address_pou: VAProfile::Models::V3::Address::CORRESPONDENCE)
+    ]
+    person = build(:person_v2, telephones:, emails:, addresses:)
+    person_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+    va_profile_response = VAProfile::V2::ContactInformation::PersonResponse.from(person_response)
+
+    # Stub the service layer
+    allow_any_instance_of(VAProfile::V2::ContactInformation::Service)
+      .to receive(:get_person).and_return(va_profile_response)
+
+    # Stub demographics service
+    allow_any_instance_of(VAProfile::Demographics::Service).to receive(:get_demographics).and_return(nil)
+
+    # Stub facilities helper
+    facility_names = ['Chalmers P. Wylie Veterans Outpatient Clinic', 'Manila VA Clinic']
+    allow(Mobile::FacilitiesHelper).to receive(:get_facility_names).and_return(facility_names)
   end
 
   describe 'GET /mobile/v0/user' do

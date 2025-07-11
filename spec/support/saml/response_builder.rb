@@ -17,7 +17,7 @@ module SAML
         issuer:
       )
       saml_user = SAML::User.new(saml)
-      user = create(:user, :response_builder, saml_user.to_hash)
+      user = FactoryBot.create(:user, :response_builder, saml_user.to_hash)
       user.identity
     end
 

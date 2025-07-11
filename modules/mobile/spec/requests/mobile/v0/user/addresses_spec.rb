@@ -8,6 +8,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   let!(:user) { sis_user(icn: '123498767V234859') }
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
   end

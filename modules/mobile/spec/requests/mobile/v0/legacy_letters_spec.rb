@@ -101,6 +101,10 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
+
       it 'returns forbidden' do
         get '/mobile/v0/letters', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
@@ -175,6 +179,10 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
+
       it 'returns forbidden' do
         get '/mobile/v0/letters/beneficiary', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
@@ -225,6 +233,10 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
   describe 'POST /mobile/v0/letters/:type/download' do
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
 
       it 'returns forbidden' do
         post '/mobile/v0/letters/commissary/download', headers: sis_headers
