@@ -137,8 +137,11 @@ RSpec.describe User, type: :model do
 
   describe '#ssn_mismatch?', :skip_mvi do
     let(:mpi_ssn) { '918273384' }
-    let(:mpi_profile) { build(:mpi_profile, { ssn: mpi_ssn }) }
-    let(:user) { build(:user, :loa3, mpi_profile:) }
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      stub_mpi(build(:mpi_profile, ssn: mpi_ssn, icn: user.icn))
+    end
 
     it 'returns true if user loa3?, and ssns dont match' do
       expect(user).to be_ssn_mismatch
@@ -153,7 +156,11 @@ RSpec.describe User, type: :model do
     end
 
     context 'identity ssn is nil' do
-      let(:user) { build(:user, :loa3, ssn: nil, mpi_profile:) }
+      let(:user) { build(:user, :loa3, ssn: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: mpi_ssn, icn: user.icn))
+      end
 
       it 'returns false' do
         expect(user).to be_loa3
@@ -164,7 +171,9 @@ RSpec.describe User, type: :model do
     end
 
     context 'mpi ssn is nil' do
-      let(:mpi_profile) { build(:mpi_profile, { ssn: nil }) }
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: user.icn))
+      end
 
       it 'returns false' do
         expect(user).to be_loa3
@@ -176,6 +185,10 @@ RSpec.describe User, type: :model do
 
     context 'matched ssn' do
       let(:user) { build(:user, :loa3) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
 
       it 'returns false if identity & mpi ssns match' do
         expect(user).to be_loa3
@@ -361,8 +374,11 @@ RSpec.describe User, type: :model do
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:vet360_id) { '1234567' }
-        let(:mpi_profile) { build(:mpi_profile, { vet360_id: }) }
-        let(:user) { build(:user, :loa3, mpi_profile:) }
+        let(:user) { build(:user, :loa3) }
+
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id:))
+        end
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be(user.identity.first_name)
@@ -399,15 +415,17 @@ RSpec.describe User, type: :model do
       end
 
       context 'when saml user attributes blank and user LOA3' do
-        let(:mpi_profile) do
-          build(:mpi_profile, { edipi: '1007697216',
-                                given_names: [Faker::Name.first_name, Faker::Name.first_name],
-                                family_name: Faker::Name.last_name,
-                                gender: Faker::Gender.short_binary_type.upcase })
-        end
         let(:user) do
-          build(:user, :loa3, mpi_profile:,
+          build(:user, :loa3,
                               edipi: nil, first_name: '', middle_name: '', last_name: '', gender: '')
+        end
+
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
+                         edipi: '1007697216',
+                         given_names: [Faker::Name.first_name, Faker::Name.first_name],
+                         family_name: Faker::Name.last_name,
+                         gender: Faker::Gender.short_binary_type.upcase))
         end
 
         it 'fetches edipi from MPI' do
@@ -441,6 +459,17 @@ RSpec.describe User, type: :model do
               state: 'CO',
               postal_code: '80203',
               country: 'USA' }
+          end
+
+          before do
+            address = build(:mpi_profile_address,
+                           street: expected_address[:street],
+                           street2: expected_address[:street2],
+                           city: expected_address[:city],
+                           state: expected_address[:state],
+                           postal_code: expected_address[:postal_code],
+                           country: expected_address[:country])
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, address:))
           end
 
           it 'fetches preferred name from MPI' do
@@ -478,6 +507,10 @@ RSpec.describe User, type: :model do
           let(:user) { build(:user, :loa3, birls_id: mpi_birls_id) }
           let(:mpi_birls_id) { 'some_mpi_birls_id' }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, birls_id: mpi_birls_id))
+          end
+
           it 'returns birls_id from the MPI profile' do
             expect(user.birls_id).to eq(mpi_birls_id)
             expect(user.birls_id).to eq(user.send(:mpi_profile).birls_id)
@@ -491,6 +524,11 @@ RSpec.describe User, type: :model do
           end
           let(:cerner_id) { 'some-cerner-id' }
           let(:cerner_facility_ids) { %w[123 456] }
+
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
+                           cerner_id:, cerner_facility_ids:))
+          end
 
           it 'returns cerner_id from the MPI profile' do
             expect(user.cerner_id).to eq(cerner_id)
@@ -507,6 +545,10 @@ RSpec.describe User, type: :model do
           let(:user) { build(:user, :loa3, edipi: expected_edipi) }
           let(:expected_edipi) { '1234567890' }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, edipi: expected_edipi))
+          end
+
           it 'fetches edipi from MPI' do
             expect(user.edipi_mpi).to eq(expected_edipi)
             expect(user.edipi_mpi).to eq(user.send(:mpi_profile).edipi)
@@ -517,6 +559,10 @@ RSpec.describe User, type: :model do
           let(:user) { build(:user, :loa3, gender: expected_gender) }
           let(:expected_gender) { 'F' }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, gender: expected_gender))
+          end
+
           it 'fetches gender from MPI' do
             expect(user.gender_mpi).to eq(expected_gender)
             expect(user.gender_mpi).to eq(user.send(:mpi_profile).gender)
@@ -526,6 +572,10 @@ RSpec.describe User, type: :model do
         describe '#home_phone' do
           let(:user) { build(:user, :loa3, home_phone:) }
           let(:home_phone) { '315-867-5309' }
+
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, home_phone:))
+          end
 
           it 'returns home_phone from the MPI profile' do
             expect(user.home_phone).to eq(home_phone)
@@ -544,6 +594,11 @@ RSpec.describe User, type: :model do
           let(:suffix) { 'some-suffix' }
           let(:expected_given_names) { [first_name, middle_name] }
           let(:expected_common_name) { "#{first_name} #{middle_name} #{last_name} #{suffix}" }
+
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn,
+                           given_names: expected_given_names, family_name: last_name, suffix:))
+          end
 
           it 'fetches first_name from MPI' do
             expect(user.first_name_mpi).to eq(first_name)
@@ -571,15 +626,18 @@ RSpec.describe User, type: :model do
         end
 
         describe '#mhv_correlation_id' do
-          let(:user) { build(:user, :loa3, mpi_profile:) }
+          let(:user) { build(:user, :loa3) }
           let(:mhv_user_account) { build(:mhv_user_account, user_profile_id: mhv_account_id) }
-          let(:mpi_profile) { build(:mpi_profile, active_mhv_ids:) }
           let(:mhv_account_id) { 'some-id' }
           let(:active_mhv_ids) { [mhv_account_id] }
           let(:needs_accepted_terms_of_use) { false }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, active_mhv_ids:))
+          end
+
           context 'when the user is loa3' do
-            let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:, mpi_profile:) }
+            let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:) }
 
             context 'and the user has accepted the terms of use' do
               let(:needs_accepted_terms_of_use) { false }
@@ -636,6 +694,10 @@ RSpec.describe User, type: :model do
         describe '#mhv_ids' do
           let(:user) { build(:user, :loa3) }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+          end
+
           it 'fetches mhv_ids from MPI' do
             expect(user.mhv_ids).to be(user.send(:mpi_profile).mhv_ids)
           end
@@ -645,6 +707,10 @@ RSpec.describe User, type: :model do
           let(:user) { build(:user, :loa3, active_mhv_ids:) }
           let(:active_mhv_ids) { [mhv_id] }
           let(:mhv_id) { 'some-mhv-id' }
+
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, active_mhv_ids: active_mhv_ids))
+          end
 
           it 'fetches active_mhv_ids from MPI' do
             expect(user.active_mhv_ids).to eq(active_mhv_ids)
@@ -664,6 +730,10 @@ RSpec.describe User, type: :model do
           let(:user) { build(:user, :loa3, participant_id: mpi_participant_id) }
           let(:mpi_participant_id) { 'some_mpi_participant_id' }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, participant_id: mpi_participant_id))
+          end
+
           it 'returns participant_id from the MPI profile' do
             expect(user.participant_id).to eq(mpi_participant_id)
             expect(user.participant_id).to eq(user.send(:mpi_profile).participant_id)
@@ -674,6 +744,10 @@ RSpec.describe User, type: :model do
           let(:user) { build(:user, :loa3, person_types: expected_person_types) }
           let(:expected_person_types) { %w[DEP VET] }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, person_types: expected_person_types))
+          end
+
           it 'returns person_types from the MPI profile' do
             expect(user.person_types).to eq(expected_person_types)
             expect(user.person_types).to eq(user.send(:mpi_profile).person_types)
@@ -683,6 +757,10 @@ RSpec.describe User, type: :model do
         describe '#ssn_mpi' do
           let(:user) { build(:user, :loa3, ssn: expected_ssn) }
           let(:expected_ssn) { '296333851' }
+
+          before do
+            stub_mpi(build(:mpi_profile, ssn: expected_ssn, icn: user.icn))
+          end
 
           it 'returns ssn from the MPI profile' do
             expect(user.ssn_mpi).to eq(expected_ssn)
@@ -698,6 +776,11 @@ RSpec.describe User, type: :model do
           let(:vha_facility_ids) { %w[200CRNR 200MHV] }
           let(:vha_facility_hash) { { '200CRNR' => %w[123456], '200MHV' => %w[123456] } }
 
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
+                           vha_facility_ids:, vha_facility_hash:))
+          end
+
           it 'returns vha_facility_ids from the MPI profile' do
             expect(user.vha_facility_ids).to eq(vha_facility_ids)
             expect(user.vha_facility_ids).to eq(user.send(:mpi_profile).vha_facility_ids)
@@ -712,8 +795,11 @@ RSpec.describe User, type: :model do
 
       describe '#vha_facility_hash' do
         let(:vha_facility_hash) { { '400' => %w[123456789 999888777] } }
-        let(:mpi_profile) { build(:mpi_profile, { vha_facility_hash: }) }
-        let(:user) { build(:user, :loa3, vha_facility_hash: nil, mpi_profile:) }
+        let(:user) { build(:user, :loa3) }
+
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vha_facility_hash:))
+        end
 
         it 'returns the users vha_facility_hash' do
           expect(user.vha_facility_hash).to eq(vha_facility_hash)
@@ -731,10 +817,13 @@ RSpec.describe User, type: :model do
 
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:given_names) { [Faker::Name.first_name] }
-        let(:mpi_profile) { build(:mpi_profile, given_names:) }
         let(:user) do
-          build(:user, :loa3, mpi_profile:,
-                              first_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil, address: nil)
+          build(:user, :loa3,
+                              first_name: nil, middle_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil, address: nil)
+        end
+
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, given_names:))
         end
 
         it 'fetches first_name from MPI' do
@@ -750,6 +839,11 @@ RSpec.describe User, type: :model do
         context 'when given_names has middle_name' do
           let(:given_names) { [Faker::Name.first_name, Faker::Name.first_name] }
 
+          before do
+            user.instance_variable_set(:@mpi, nil)  # Clear cached MPI data
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, given_names:))
+          end
+
           it 'fetches middle name from MPI' do
             expect(user.middle_name).to eq(given_names[1])
           end
@@ -758,6 +852,11 @@ RSpec.describe User, type: :model do
         context 'when given_names has multiple middle names' do
           let(:given_names) { [Faker::Name.first_name, Faker::Name.first_name, Faker::Name.first_name] }
           let(:expected_middle_names) { given_names.drop(1).join(' ') }
+
+          before do
+            user.instance_variable_set(:@mpi, nil)  # Clear cached MPI data
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, given_names:))
+          end
 
           it 'fetches middle name from MPI' do
             expect(user.middle_name).to eq(expected_middle_names)
@@ -777,6 +876,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches address data from MPI and stores it as a hash' do
+          mpi_profile = user.send(:mpi_profile)
           expect(user.address[:street]).to eq(mpi_profile.address.street)
           expect(user.address[:street2]).to be(mpi_profile.address.street2)
           expect(user.address[:city]).to be(mpi_profile.address.city)
@@ -856,8 +956,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_patient?' do
-    let(:user) { build(:user, :loa3, vha_facility_ids:) }
+    let(:user) { build(:user, :loa3) }
     let(:vha_facility_ids) { [] }
+
+    before do
+      stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vha_facility_ids:))
+    end
 
     around do |example|
       with_settings(Settings.mhv, facility_range: [[450, 758]]) do
@@ -956,8 +1060,11 @@ RSpec.describe User, type: :model do
 
   describe '#va_treatment_facility_ids' do
     let(:vha_facility_ids) { %w[200MHS 400 741 744 741MM] }
-    let(:mpi_profile) { build(:mpi_profile, { vha_facility_ids: }) }
-    let(:user) { build(:user, :loa3, vha_facility_ids: nil, mpi_profile:) }
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vha_facility_ids:))
+    end
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do
       expect(user.va_treatment_facility_ids).to match_array(%w[400 744 741MM])
@@ -1013,11 +1120,12 @@ RSpec.describe User, type: :model do
       end
 
       context 'and mhv_icn attribute is available on the UserIdentity object' do
-        let(:mpi_profile) { build(:mpi_profile) }
-        let(:user) { described_class.new(build(:user, :mhv, mhv_icn: 'some-mhv-icn', mpi_profile:)) }
+        let(:user) { described_class.new(build(:user, :mhv, mhv_icn: 'some-mhv-icn')) }
 
         context 'and MPI Profile birth date does not exist' do
-          let(:mpi_profile) { build(:mpi_profile, { birth_date: nil }) }
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, birth_date: nil))
+          end
 
           it 'returns nil' do
             expect(user.birth_date).to be_nil
@@ -1025,6 +1133,10 @@ RSpec.describe User, type: :model do
         end
 
         context 'and MPI Profile birth date does exist' do
+          before do
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+          end
+
           it 'returns iso8601 parsed date from the MPI Profile birth_date attribute' do
             expect(user.birth_date).to eq Date.parse(user.birth_date_mpi.to_s).iso8601
           end
@@ -1580,7 +1692,7 @@ RSpec.describe User, type: :model do
   end
 
   describe '#provision_cerner_async' do
-    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:user) { build(:user, :loa3) }
     let(:cerner_id) { 'some-cerner-id' }
 
     before do
@@ -1589,6 +1701,10 @@ RSpec.describe User, type: :model do
 
     context 'when the user is loa3' do
       context 'when the user has a cerner_id' do
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, cerner_id:))
+        end
+
         it 'enqueues a job to provision the Cerner account' do
           user.provision_cerner_async
 
@@ -1597,7 +1713,9 @@ RSpec.describe User, type: :model do
       end
 
       context 'when the user does not have a cerner_id' do
-        let(:cerner_id) { nil }
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, cerner_id: nil))
+        end
 
         it 'does not enqueue a job to provision the Cerner account' do
           user.provision_cerner_async
@@ -1608,7 +1726,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when the user is not loa3' do
-      let(:user) { build(:user, cerner_id:) }
+      let(:user) { build(:user) }
 
       it 'does not enqueue a job to provision the Cerner account' do
         user.provision_cerner_async
@@ -1619,18 +1737,24 @@ RSpec.describe User, type: :model do
   end
 
   describe '#cerner_eligible?' do
-    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:user) { build(:user, :loa3) }
     let(:cerner_id) { 'some-cerner-id' }
 
     context 'when the user is loa3' do
       context 'when the user has a cerner_id' do
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, cerner_id:))
+        end
+
         it 'returns true' do
           expect(user.cerner_eligible?).to be true
         end
       end
 
       context 'when the user does not have a cerner_id' do
-        let(:cerner_id) { nil }
+        before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, cerner_id: nil))
+        end
 
         it 'returns false' do
           expect(user.cerner_eligible?).to be false
