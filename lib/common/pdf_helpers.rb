@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'hexapdf'
-require './lib/sentry_logging'
+require './lib/vets/shared_logging'
 
 module Common
   module PdfHelpers
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     def self.unlock_pdf(input_file, password, output_file)
       doc = HexaPDF::Document.open(input_file, decryption_opts: { password: })
