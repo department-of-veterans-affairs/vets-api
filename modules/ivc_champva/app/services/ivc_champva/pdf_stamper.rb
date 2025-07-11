@@ -221,6 +221,38 @@ module IvcChampva
       end
     end
 
+    def self.verify(template_path)
+      orig_size = File.size(template_path)
+      yield
+      stamped_size = File.size(template_path)
+
+      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
+    rescue Prawn::Errors::IncompatibleStringEncoding
+      Rails.logger.info 'IVC Champva Forms - PdfStamper: error on verify, incompatible string encoding, re-raising'
+      raise
+    rescue => e
+      Rails.logger.info 'IVC Champva Forms - PdfStamper: error on verify, catch all, wrapping in a new standard error'
+      raise StandardError, "An error occurred while verifying stamp: #{e}"
+    end
+
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
+      raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
+
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
+    end
+
+    def self.get_page_configuration(page, position)
+      [
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page }
+      ].tap do |config|
+        config[page] = { type: :text, position: }
+      end
+    end
+
     ##
     # Adds a blank page to the PDF and stamps metadata on it.
     #
@@ -256,49 +288,6 @@ module IvcChampva
         handle_pdf_error(e, [pdf_w_blank_page, tmp_path].compact)
       end
     end
-
-    def self.verify(template_path)
-      orig_size = File.size(template_path)
-      yield
-      stamped_size = File.size(template_path)
-
-      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
-    rescue Prawn::Errors::IncompatibleStringEncoding
-      Rails.logger.info 'IVC Champva Forms - PdfStamper: error on verify, incompatible string encoding, re-raising'
-      raise
-    rescue => e
-      Rails.logger.info 'IVC Champva Forms - PdfStamper: error on verify, catch all, wrapping in a new standard error'
-      raise StandardError, "An error occurred while verifying stamp: #{e}"
-    end
-
-    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
-      raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
-
-      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
-    end
-
-    def self.get_page_configuration(page, position)
-      [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page }
-      ].tap do |config|
-        config[page] = { type: :text, position: }
-      end
-    end
-
-    ##
-    # retreive a monitor for tracking
-    #
-    # @return [IvcChampva::Monitor]
-    #
-    def self.monitor
-      IvcChampva::Monitor.new
-    end
-
-    private
 
     ##
     # Combines a PDF with a blank page.
@@ -391,7 +380,7 @@ module IvcChampva
     # @param temp_files [Array<String>] paths to temporary files that should be deleted
     # @raise [Exception] re-raises the original exception after cleanup
     def self.handle_pdf_error(e, temp_files = [])
-      Rails.logger.error "IVC Champva Forms - PdfStamper: error processing PDF: #{e.message}"
+      Rails.logger.error 'IVC Champva Forms - PdfStamper: error processing PDF in add_blank_page_and_stamp workflow'
       Rails.logger.error e.backtrace.join("\n")
 
       # Clean up temporary files
@@ -400,6 +389,15 @@ module IvcChampva
       end
 
       raise
+    end
+
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [IvcChampva::Monitor]
+    #
+    def self.monitor
+      IvcChampva::Monitor.new
     end
   end
 end
