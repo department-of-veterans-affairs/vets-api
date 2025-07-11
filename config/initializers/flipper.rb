@@ -80,7 +80,8 @@ Rails.application.reloader.to_prepare do
         nil
       end
     end
-  else
-    Rails.logger.info "Skipping Flipper sync on boot for faster startup. Run 'rake flipper:sync' to sync features."
-  end
+  # else
+    # Flipper sync skipped for faster boot time
+    # Run 'rake flipper:sync' to sync features when needed
+  # end
 end
