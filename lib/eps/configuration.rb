@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../vaos/middleware/response/errors'
-require_relative './middleware/eps_logging'
 require 'common/client/configuration/rest'
+require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/snakecase'
+require 'faraday/multipart'
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
@@ -35,9 +37,8 @@ module Eps
 
         conn.response :betamocks if mock_enabled?
         conn.response :snakecase
-        conn.response :json, content_type: /\bjson$/
+        conn.response :json_parser
         conn.response :vaos_errors
-        conn.use :eps_logging
         conn.adapter Faraday.default_adapter
       end
     end
