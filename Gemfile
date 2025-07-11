@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 source 'https://rubygems.org'
 ruby '~> 3.3.6'
 # Modules
@@ -38,7 +39,6 @@ path 'modules' do
   gem 'vre'
   gem 'vye'
 end
-gem 'rails', '~> 7.2.2'
 gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
@@ -133,6 +133,7 @@ gem 'rack', '~> 2.2.17'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rack-timeout', require: 'rack/timeout/base'
+gem 'rails', '~> 7.2.2'
 gem 'rails_semantic_logger'
 gem 'rails-session_cookie'
 gem 'ransack'

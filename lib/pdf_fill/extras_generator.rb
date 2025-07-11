@@ -62,7 +62,7 @@ module PdfFill
       pdf.font_families.update(
         'Roboto' => {
           normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'),
-          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf'),
+          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf')
         }
       )
 
