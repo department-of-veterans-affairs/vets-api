@@ -25,7 +25,7 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      CC_APPOINTMENT_ERROR_TAG = 'Community Care Appointments'
+      CC_APPOINTMENT_ERROR_TAG = 'service:community_care_appointments'
 
       def index
         appointments[:data].each do |appt|
