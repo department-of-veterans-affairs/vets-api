@@ -91,31 +91,29 @@ RSpec.describe 'representation_management:accreditation:reprocess rake task', ty
       end.to raise_error(SystemExit)
     end
 
-    it 'enqueues a job with the correct parameters for representatives' do
-      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
-        .with(['representatives'])
-
+    it 'exits with error when only representatives is specified' do
       expect do
-        task.invoke('representatives')
-      end.to output(/Job enqueued successfully for representatives/).to_stdout
+        expect do
+          task.invoke('representatives')
+        end.to output(/Error: Representatives and VSOs must be processed together/).to_stdout
+      end.to raise_error(SystemExit)
     end
 
-    it 'enqueues a job with the correct parameters for VSOs' do
-      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
-        .with(['veteran_service_organizations'])
-
+    it 'exits with error when only veteran_service_organizations is specified' do
       expect do
-        task.invoke('veteran_service_organizations')
-      end.to output(/Job enqueued successfully for veteran_service_organizations/).to_stdout
+        expect do
+          task.invoke('veteran_service_organizations')
+        end.to output(/Error: Representatives and VSOs must be processed together/).to_stdout
+      end.to raise_error(SystemExit)
     end
 
-    it 'enqueues a job with multiple types including reps and VSOs' do
+    it 'processes both reps and VSOs when both are explicitly specified' do
       expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
         .with(%w[representatives veteran_service_organizations])
 
       expect do
         task.invoke('representatives,veteran_service_organizations')
-      end.to output(/Job enqueued successfully for representatives, veteran_service_organizations/).to_stdout
+      end.to output(/Starting manual reprocessing for: representatives, veteran_service_organizations.*Job enqueued successfully for representatives, veteran_service_organizations/m).to_stdout
     end
 
     it 'handles all four entity types' do
@@ -127,6 +125,23 @@ RSpec.describe 'representation_management:accreditation:reprocess rake task', ty
       end.to output(
         /Job enqueued successfully for agents, attorneys, representatives, veteran_service_organizations/
       ).to_stdout
+    end
+
+    it 'exits with error when mixing other types with only one VSO type' do
+      expect do
+        expect do
+          task.invoke('attorneys,representatives')
+        end.to output(/Error: Representatives and VSOs must be processed together/).to_stdout
+      end.to raise_error(SystemExit)
+    end
+
+    it 'processes correctly when mixing other types with both VSO types' do
+      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
+        .with(%w[attorneys representatives veteran_service_organizations])
+
+      expect do
+        task.invoke('attorneys,representatives,veteran_service_organizations')
+      end.to output(/Job enqueued successfully for attorneys, representatives, veteran_service_organizations/).to_stdout
     end
   end
 
