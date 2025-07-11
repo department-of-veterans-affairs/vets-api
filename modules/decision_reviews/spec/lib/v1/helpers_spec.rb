@@ -14,56 +14,56 @@ describe DecisionReviews::V1::Helpers do
     it 'formats phone number with country code, area code, and number' do
       phone = { 'countryCode' => '44', 'areaCode' => '20', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '205550456',
-                                                        countryCode: '44'
+                                                        'number' => '205550456',
+                                                        'countryCode' => '44'
                                                       })
     end
 
     it 'formats phone number with nil area code' do
       phone = { 'areaCode' => nil, 'countryCode' => '44', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '5550456',
-                                                        countryCode: '44'
+                                                        'number' => '5550456',
+                                                        'countryCode' => '44'
                                                       })
     end
 
     it 'formats phone number with empty area code' do
       phone = { 'areaCode' => '', 'countryCode' => '44', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '5550456',
-                                                        countryCode: '44'
+                                                        'number' => '5550456',
+                                                        'countryCode' => '44'
                                                       })
     end
 
     it 'formats phone number with no area code' do
       phone = { 'countryCode' => '44', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '5550456',
-                                                        countryCode: '44'
+                                                        'number' => '5550456',
+                                                        'countryCode' => '44'
                                                       })
     end
 
     it 'formats phone number with nil country code' do
       phone = { 'countryCode' => nil, 'areaCode' => '210', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '2105550456',
-                                                        countryCode: ''
+                                                        'number' => '2105550456',
+                                                        'countryCode' => ''
                                                       })
     end
 
     it 'formats phone number with empty country code' do
       phone = { 'countryCode' => '', 'areaCode' => '210', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '2105550456',
-                                                        countryCode: ''
+                                                        'number' => '2105550456',
+                                                        'countryCode' => ''
                                                       })
     end
 
     it 'formats phone number with no country code' do
       phone = { 'areaCode' => '210', 'phoneNumber' => '5550456' }
       expect(helper.format_phone_number(phone)).to eq({
-                                                        number: '2105550456',
-                                                        countryCode: ''
+                                                        'number' => '2105550456',
+                                                        'countryCode' => ''
                                                       })
     end
   end
