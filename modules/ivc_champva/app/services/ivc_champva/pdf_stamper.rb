@@ -221,63 +221,16 @@ module IvcChampva
       end
     end
 
-    def self.combine_with_blank_page(original_pdf_path)
-      tmp_path = "#{original_pdf_path}_#{SecureRandom.hex(8)}"
-      blank_page_path = Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path
-
-      Rails.logger.info 'IVC Champva Forms - PdfStamper: combining PDF with blank page'
-
-      pdf_combined = IvcChampva::PdfCombiner.combine(tmp_path, [original_pdf_path, blank_page_path])
-      [pdf_combined, tmp_path]
-    end
-
-    def self.stamp_metadata_items(pdf_path, metadata, start_y, page_number)
-      y_position = start_y
-      already_stamped = []
-
-      metadata.each do |key, value|
-        # If we hit the bottom margin, return what's left to process
-        return [already_stamped, metadata.except(*already_stamped)] if y_position < BOTTOM_MARGIN
-
-        # Format and stamp the metadata text
-        text = "#{key.humanize}: #{value}"
-        y_position -= LINE_HEIGHT
-        desired_stamp = { coords: [LEFT_MARGIN, y_position], text:, page: page_number }
-
-        Rails.logger.info "IVC Champva Forms - PdfStamper: stamping metadata item: #{key}"
-        stamp(desired_stamp, pdf_path)
-        already_stamped << key
-      end
-
-      # All items stamped successfully
-      [already_stamped, {}]
-    end
-
-    def self.finalize_pdf(temp_pdf_path, final_pdf_path)
-      Rails.logger.info 'IVC Champva Forms - PdfStamper: finalizing PDF'
-
-      # Verify the PDF was actually modified before saving
-      verify(final_pdf_path) do
-        # Save the modified PDF
-        FileUtils.mv(temp_pdf_path, final_pdf_path)
-      end
-
-      Rails.logger.info 'IVC Champva Forms - PdfStamper: successfully finalized PDF'
-      final_pdf_path
-    end
-
-    def self.handle_pdf_error(e, temp_files = [])
-      Rails.logger.error "IVC Champva Forms - PdfStamper: error processing PDF: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      # Clean up temporary files
-      temp_files.each do |file|
-        Common::FileHelpers.delete_file_if_exists(file) if file && File.exist?(file)
-      end
-
-      raise
-    end
-
+    ##
+    # Adds a blank page to the PDF and stamps metadata on it.
+    #
+    # This method performs a recursive operation to add metadata to the PDF document.
+    # If the metadata doesn't fit on a single page, it adds additional pages as needed.
+    #
+    # @param stamped_template_path [String] The file path of the PDF to modify
+    # @param metadata [Hash, Array] The metadata to stamp onto the blank page
+    # @param pg [Integer] The current page number being processed (defaults to 1)
+    # @return [void]
     def self.add_blank_page_and_stamp(stamped_template_path, metadata, pg = 1)
       Rails.logger.info "IVC Champva Forms - PdfStamper: adding metadata page #{pg}"
 
@@ -343,6 +296,110 @@ module IvcChampva
     #
     def self.monitor
       IvcChampva::Monitor.new
+    end
+
+    private
+
+    ##
+    # Combines a PDF with a blank page.
+    #
+    # @param original_pdf_path [String] The file path of the original PDF to combine
+    # @return [Array<String, String>] An array containing:
+    #   - The combined PDF file
+    #   - The temporary path where the combined PDF is stored
+    # @example
+    #   pdf_file, tmp_path = IvcChampva::PdfStamper.combine_with_blank_page('/path/to/original.pdf')
+    def self.combine_with_blank_page(original_pdf_path)
+      tmp_path = "#{original_pdf_path}_#{SecureRandom.hex(8)}"
+      blank_page_path = Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path
+
+      Rails.logger.info 'IVC Champva Forms - PdfStamper: combining PDF with blank page'
+
+      pdf_combined = IvcChampva::PdfCombiner.combine(tmp_path, [original_pdf_path, blank_page_path])
+      [pdf_combined, tmp_path]
+    end
+
+    ##
+    # Stamps metadata items on a PDF document at specified coordinates.
+    #
+    # @param pdf_path [String] The file path to the PDF document to be stamped
+    # @param metadata [Hash] A hash containing key-value pairs to be stamped on the PDF
+    # @param start_y [Integer] The starting Y-coordinate position for the first metadata item
+    # @param page_number [Integer] The page number on which to stamp the metadata
+    #
+    # @return [Array<Array, Hash>] A tuple containing:
+    #   - An array of keys that were successfully stamped
+    #   - A hash of remaining metadata items that couldn't be stamped (due to space constraints)
+    #
+    # @example
+    #   stamped, remaining = stamp_metadata_items('path/to/file.pdf', {'name' => 'John Doe'}, 700, 1)
+    #
+    # @note This method will stop stamping when it reaches the bottom margin defined by BOTTOM_MARGIN
+    #       and will return any unstamped metadata items
+    def self.stamp_metadata_items(pdf_path, metadata, start_y, page_number)
+      y_position = start_y
+      already_stamped = []
+
+      metadata.each do |key, value|
+        # If we hit the bottom margin, return what's left to process
+        return [already_stamped, metadata.except(*already_stamped)] if y_position < BOTTOM_MARGIN
+
+        # Format and stamp the metadata text
+        text = "#{key.humanize}: #{value}"
+        y_position -= LINE_HEIGHT
+        desired_stamp = { coords: [LEFT_MARGIN, y_position], text:, page: page_number }
+
+        Rails.logger.info "IVC Champva Forms - PdfStamper: stamping metadata item: #{key}"
+        stamp(desired_stamp, pdf_path)
+        already_stamped << key
+      end
+
+      # All items stamped successfully
+      [already_stamped, {}]
+    end
+
+    ##
+    # Finalizes a PDF generated in the add_blank_page_and_stamp workflow
+    # by moving it from a temporary location to its final destination.
+    # This method ensures that the PDF has been modified before saving it.
+    #
+    # @param temp_pdf_path [String] The path to the temporary PDF file
+    # @param final_pdf_path [String] The path where the finalized PDF should be stored
+    # @return [String] The path to the finalized PDF file
+    # @raise [RuntimeError] If verification fails
+    def self.finalize_pdf(temp_pdf_path, final_pdf_path)
+      Rails.logger.info 'IVC Champva Forms - PdfStamper: finalizing PDF'
+
+      # Verify the PDF was actually modified before saving
+      verify(final_pdf_path) do
+        # Save the modified PDF
+        FileUtils.mv(temp_pdf_path, final_pdf_path)
+      end
+
+      Rails.logger.info 'IVC Champva Forms - PdfStamper: successfully finalized PDF'
+      final_pdf_path
+    end
+
+    ##
+    # Handles errors that occur during PDF processing in the add_blank_page_and_stamp
+    # workflow
+    #
+    # This method logs the error message and backtrace, cleans up any temporary files
+    # that were created during the PDF processing, and then re-raises the error.
+    #
+    # @param e [Exception] the exception that was raised during PDF processing
+    # @param temp_files [Array<String>] paths to temporary files that should be deleted
+    # @raise [Exception] re-raises the original exception after cleanup
+    def self.handle_pdf_error(e, temp_files = [])
+      Rails.logger.error "IVC Champva Forms - PdfStamper: error processing PDF: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      # Clean up temporary files
+      temp_files.each do |file|
+        Common::FileHelpers.delete_file_if_exists(file) if file && File.exist?(file)
+      end
+
+      raise
     end
   end
 end
