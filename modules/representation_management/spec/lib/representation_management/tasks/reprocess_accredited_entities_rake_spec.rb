@@ -90,6 +90,44 @@ RSpec.describe 'representation_management:accreditation:reprocess rake task', ty
         end.to output(/Error scheduling reprocessing job: Test error/).to_stdout
       end.to raise_error(SystemExit)
     end
+
+    it 'enqueues a job with the correct parameters for representatives' do
+      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
+        .with(['representatives'])
+
+      expect do
+        task.invoke('representatives')
+      end.to output(/Job enqueued successfully for representatives/).to_stdout
+    end
+
+    it 'enqueues a job with the correct parameters for VSOs' do
+      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
+        .with(['veteran_service_organizations'])
+
+      expect do
+        task.invoke('veteran_service_organizations')
+      end.to output(/Job enqueued successfully for veteran_service_organizations/).to_stdout
+    end
+
+    it 'enqueues a job with multiple types including reps and VSOs' do
+      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
+        .with(%w[representatives veteran_service_organizations])
+
+      expect do
+        task.invoke('representatives,veteran_service_organizations')
+      end.to output(/Job enqueued successfully for representatives, veteran_service_organizations/).to_stdout
+    end
+
+    it 'handles all four entity types' do
+      expect(RepresentationManagement::AccreditedEntitiesQueueUpdates).to receive(:perform_async)
+        .with(%w[agents attorneys representatives veteran_service_organizations])
+
+      expect do
+        task.invoke('agents,attorneys,representatives,veteran_service_organizations')
+      end.to output(
+        /Job enqueued successfully for agents, attorneys, representatives, veteran_service_organizations/
+      ).to_stdout
+    end
   end
 
   describe 'output messages' do
