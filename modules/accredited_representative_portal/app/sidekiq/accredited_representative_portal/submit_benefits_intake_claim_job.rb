@@ -69,10 +69,10 @@ module AccreditedRepresentativePortal
     def stamp_pdf(record)
       case record
       when PersistentAttachments::VAFormDocumentation
-        record.to_pdf.tap do |pdf_path|
-          PDFUtilities::DatestampPdf.new(pdf_path).run(text: get_auth_text_stamp, x: 5, y: 5,
-                                                       text_only: true)
-        end
+        pdf_path = record.to_pdf
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: get_auth_text_stamp, x: 5, y: 5, text_only: true
+        )
       when SavedClaim::BenefitsIntake
         record.to_pdf.tap do |stamped_template_path|
           ##
