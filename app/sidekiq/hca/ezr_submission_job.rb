@@ -2,11 +2,12 @@
 
 require 'hca/soap_parser'
 require 'form1010_ezr/service'
+require './lib/vets/shared_logging'
 
 module HCA
   class EzrSubmissionJob
     include Sidekiq::Job
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     FORM_ID = '10-10EZR'
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError

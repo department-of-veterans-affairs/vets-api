@@ -8,12 +8,13 @@ require 'va1010_forms/utils'
 require 'hca/overrides_parser'
 require 'va1010_forms/enrollment_system/service'
 require 'form1010_ezr/veteran_enrollment_system/associations/service'
+require './lib/vets/shared_logging'
 
 module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::Utils
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 

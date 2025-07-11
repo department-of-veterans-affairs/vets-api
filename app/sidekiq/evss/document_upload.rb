@@ -6,10 +6,11 @@ require 'logging/third_party_transaction'
 require 'evss/failure_notification'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
+require './lib/vets/shared_logging'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
-  extend SentryLogging
+  extend Vets::SharedLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
   DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
