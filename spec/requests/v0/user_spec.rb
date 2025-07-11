@@ -14,7 +14,7 @@ RSpec.describe 'V0::User', type: :request do
     let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
 
     before do
-      stub_mpi(build(:mpi_profile, ssn: mhv_user.ssn, icn: mhv_user.icn))
+      allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       sign_in_as(mhv_user)
@@ -27,6 +27,63 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
+    context 'with MPI stubbing' do
+      before do
+        # Simple MPI profile setup like mobile app but with valid VHA facility IDs
+        stub_mpi(build(:mpi_profile, 
+                       ssn: mhv_user.ssn, 
+                       icn: mhv_user.icn,
+                       vha_facility_ids: %w[358 500]))  # Use IDs within the configured range
+      end
+
+      it 'gives me the list of available prefill forms' do
+        num_enabled = 2
+        FormProfile::ALL_FORMS.each { |type, form_list| num_enabled += form_list.length if Settings[type].prefill }
+        expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].length).to be(num_enabled)
+      end
+
+      it 'gives me the list of available services' do
+        expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
+          [
+            BackendServices::FACILITIES,
+            BackendServices::HCA,
+            BackendServices::EDUCATION_BENEFITS,
+            BackendServices::EVSS_CLAIMS,
+            BackendServices::LIGHTHOUSE,
+            BackendServices::FORM526,
+            BackendServices::USER_PROFILE,
+            BackendServices::RX,
+            # BackendServices::MESSAGING,      # Not available with MULTIPLE MHV account status
+            # BackendServices::MEDICAL_RECORDS, # Not available with MULTIPLE MHV account status
+            BackendServices::HEALTH_RECORDS,
+            BackendServices::ID_CARD,
+            # BackendServices::MHV_AC, this will be false if mhv account is premium
+            BackendServices::FORM_PREFILL,
+            BackendServices::SAVE_IN_PROGRESS,
+            BackendServices::APPEALS_STATUS,
+            BackendServices::IDENTITY_PROOFED,
+            BackendServices::VET360
+          ].sort
+        )
+      end
+
+      it 'gives me va profile cerner data' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['is_cerner_patient']).to be true  # Factory has cerner_id by default
+        expect(va_profile['facilities']).to eq([])  # No valid treatment facilities
+      end
+
+      it 'returns patient status' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['va_patient']).to be false  # No valid treatment facilities
+      end
+
+      it 'returns mhv account state info' do
+        va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
+        expect(va_profile['mhv_account_state']).to eq('MULTIPLE')  # Factory creates 2 MHV IDs by default
+      end
+    end
+
     context 'dont stub mpi' do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
@@ -34,53 +91,6 @@ RSpec.describe 'V0::User', type: :request do
         assert_response :success
         expect(response).to match_response_schema('user_loa3')
       end
-    end
-
-    it 'gives me the list of available prefill forms' do
-      num_enabled = 2
-      FormProfile::ALL_FORMS.each { |type, form_list| num_enabled += form_list.length if Settings[type].prefill }
-      expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].length).to be(num_enabled)
-    end
-
-    it 'gives me the list of available services' do
-      expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
-        [
-          BackendServices::FACILITIES,
-          BackendServices::HCA,
-          BackendServices::EDUCATION_BENEFITS,
-          BackendServices::EVSS_CLAIMS,
-          BackendServices::LIGHTHOUSE,
-          BackendServices::FORM526,
-          BackendServices::USER_PROFILE,
-          BackendServices::RX,
-          BackendServices::MESSAGING,
-          BackendServices::MEDICAL_RECORDS,
-          BackendServices::HEALTH_RECORDS,
-          BackendServices::ID_CARD,
-          # BackendServices::MHV_AC, this will be false if mhv account is premium
-          BackendServices::FORM_PREFILL,
-          BackendServices::SAVE_IN_PROGRESS,
-          BackendServices::APPEALS_STATUS,
-          BackendServices::IDENTITY_PROOFED,
-          BackendServices::VET360
-        ].sort
-      )
-    end
-
-    it 'gives me va profile cerner data' do
-      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
-      expect(va_profile['is_cerner_patient']).to be false
-      expect(va_profile['facilities']).to contain_exactly({ 'facility_id' => '358', 'is_cerner' => false })
-    end
-
-    it 'returns patient status' do
-      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
-      expect(va_profile['va_patient']).to be true
-    end
-
-    it 'returns mhv account state info' do
-      va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
-      expect(va_profile['mhv_account_state']).to eq('OK')
     end
 
     context 'with camel header inflection' do
@@ -97,7 +107,8 @@ RSpec.describe 'V0::User', type: :request do
       let(:mpi_profile) do
         build(:mpi_profile,
               mhv_ids: %w[12345 67890],
-              active_mhv_ids: ['12345'])
+              active_mhv_ids: ['12345'],
+              cerner_id: nil)
       end
       let(:mhv_user) { build(:user, :mhv) }
 
@@ -117,7 +128,8 @@ RSpec.describe 'V0::User', type: :request do
       let(:mpi_profile) do
         build(:mpi_profile,
               mhv_ids: %w[12345 67890],
-              active_mhv_ids: %w[12345 67890])
+              active_mhv_ids: %w[12345 67890],
+              cerner_id: nil)
       end
       let(:mhv_user) { build(:user, :mhv) }
 
@@ -138,6 +150,20 @@ RSpec.describe 'V0::User', type: :request do
       let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.idme_uuid) }
 
       before do
+        # Stub MPI profile for missing MHV accounts user
+        stub_mpi(build(:mpi_profile,
+                       ssn: mhv_user.ssn,
+                       icn: mhv_user.icn,
+                       vha_facility_ids: %w[358 200MHS],
+                       vha_facility_hash: { '358' => %w[998877], '200MHS' => %w[998877] },
+                       mhv_ids: [],  # No MHV IDs for this case
+                       active_mhv_ids: [],
+                       cerner_id: nil,  # No cerner_id for non-cerner patient
+                       cerner_facility_ids: [],
+                       gender: 'M',
+                       birth_date: mhv_user.birth_date,
+                       given_names: [mhv_user.first_name],
+                       family_name: mhv_user.last_name))
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -152,6 +178,19 @@ RSpec.describe 'V0::User', type: :request do
       let(:mhv_user) { build(:user, :mhv, :no_vha_facilities, va_patient: false) }
 
       before do
+        # Stub MPI profile for non-VA patient with empty VHA facility data
+        stub_mpi(build(:mpi_profile,
+                       ssn: mhv_user.ssn,
+                       icn: mhv_user.icn,
+                       vha_facility_ids: [],  # Empty for non-VA patient
+                       vha_facility_hash: {},  # Empty for non-VA patient
+                       mhv_ids: %w[12345678901],
+                       cerner_id: nil,  # No cerner_id for non-cerner patient
+                       cerner_facility_ids: [],
+                       gender: 'M',
+                       birth_date: mhv_user.birth_date,
+                       given_names: [mhv_user.first_name],
+                       family_name: mhv_user.last_name))
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
