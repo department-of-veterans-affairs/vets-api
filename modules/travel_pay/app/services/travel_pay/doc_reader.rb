@@ -34,19 +34,6 @@ module TravelPay
       heading.next_sibling.next_sibling.next_sibling.text.strip
     end
 
-    def read_docx(buffer)
-      doc = nil
-
-      Zip::File.open_buffer(buffer) do |zip_file|
-        doc_xml = zip_file.glob('word/document.xml').first.get_input_stream.read
-        doc = Nokogiri::XML(doc_xml)
-      end
-
-      doc
-    rescue Zip::Error => e
-      raise "Error reading DOCX file: #{e.message}"
-    end
-
     def find_heading(heading_text)
       # This xpath says: "find any paragraph (w:p) that contains the text '#{heading_text}'"
       match = @doc.xpath(".//w:p[contains(., '#{heading_text}')]")
@@ -60,6 +47,19 @@ module TravelPay
       return if match.first.at_xpath('.//w:b').blank?
 
       match.first
+    end
+
+    def read_docx(buffer)
+      doc = nil
+
+      Zip::File.open_buffer(buffer) do |zip_file|
+        doc_xml = zip_file.glob('word/document.xml').first.get_input_stream.read
+        doc = Nokogiri::XML(doc_xml)
+      end
+
+      doc
+    rescue Zip::Error => e
+      raise "Error reading DOCX file: #{e.message}"
     end
   end
 end
