@@ -314,17 +314,17 @@
           "example": "I help vets LLC."
         },
         "firstName": {
-          "description": "First Name of an individual",
+          "description": "First Name of the representative",
           "type": "string",
           "example": "John"
         },
         "lastName": {
-          "description": "Last Name of an individual",
+          "description": "Last Name of the representative",
           "type": "string",
           "example": "Doe"
         },
         "jobTitle": {
-          "description": "Job title of an individual",
+          "description": "Job title of the representative",
           "type": "string",
           "example": "Veteran Service representative"
         },

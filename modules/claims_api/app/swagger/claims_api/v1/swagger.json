@@ -1564,17 +1564,17 @@
                               "example": "I help vets LLC."
                             },
                             "firstName": {
-                              "description": "First Name of an individual",
+                              "description": "First Name of the representative",
                               "type": "string",
                               "example": "John"
                             },
                             "lastName": {
-                              "description": "Last Name of an individual",
+                              "description": "Last Name of the representative",
                               "type": "string",
                               "example": "Doe"
                             },
                             "jobTitle": {
-                              "description": "Job title of an individual",
+                              "description": "Job title of the representative",
                               "type": "string",
                               "example": "Veteran Service representative"
                             },
@@ -1786,7 +1786,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e670351f-ce11-4422-8541-259145258f41",
+                    "id": "cee13ab5-ed72-4100-812d-b609cc006d89",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "date_request_accepted": "2025-07-11",
@@ -2393,17 +2393,17 @@
                                 "example": "I help vets LLC."
                               },
                               "firstName": {
-                                "description": "First Name of an individual",
+                                "description": "First Name of the representative",
                                 "type": "string",
                                 "example": "John"
                               },
                               "lastName": {
-                                "description": "Last Name of an individual",
+                                "description": "Last Name of the representative",
                                 "type": "string",
                                 "example": "Doe"
                               },
                               "jobTitle": {
-                                "description": "Job title of an individual",
+                                "description": "Job title of the representative",
                                 "type": "string",
                                 "example": "Veteran Service representative"
                               },
@@ -2665,7 +2665,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c6c3f087-1b0f-4097-8568-7a2155aa7bc3",
+                    "id": "a996d576-c457-4b21-a871-adf80236a405",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "date_request_accepted": "2025-07-11",
@@ -3181,7 +3181,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "885a6e4c-bc9a-4419-b6bb-aacdd4de956b",
+                    "id": "d4171056-5130-4a29-9cf9-eae5fc95fe25",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "date_request_accepted": "2025-07-11",
@@ -3191,7 +3191,7 @@
                           "poa_code": "074"
                         }
                       },
-                      "status": "errored"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -4364,17 +4364,17 @@
                                 "example": "I help vets LLC."
                               },
                               "firstName": {
-                                "description": "First Name of an individual",
+                                "description": "First Name of the representative",
                                 "type": "string",
                                 "example": "John"
                               },
                               "lastName": {
-                                "description": "Last Name of an individual",
+                                "description": "Last Name of the representative",
                                 "type": "string",
                                 "example": "Doe"
                               },
                               "jobTitle": {
-                                "description": "Job title of an individual",
+                                "description": "Job title of the representative",
                                 "type": "string",
                                 "example": "Veteran Service representative"
                               },
@@ -6039,7 +6039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a21d3a75-5769-43ee-b546-c1a2be578b22",
+                    "id": "6f3d9d96-cba7-4051-96b5-01908f7df3a9",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6047,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-11T16:00:11.226Z",
+                      "updated_at": "2025-07-11T17:12:12.498Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6061,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "a21d3a75-5769-43ee-b546-c1a2be578b22",
+                      "token": "6f3d9d96-cba7-4051-96b5-01908f7df3a9",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -7914,7 +7914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "175d0a3c-77ed-424a-84c6-db0c064a3125",
+                    "id": "0de12d82-43f0-46b6-b129-ffa0df84f3e2",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7922,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-11T16:00:11.609Z",
+                      "updated_at": "2025-07-11T17:12:12.844Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7936,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "175d0a3c-77ed-424a-84c6-db0c064a3125",
+                      "token": "0de12d82-43f0-46b6-b129-ffa0df84f3e2",
                       "status": "pending",
                       "flashes": []
                     }
@@ -10165,7 +10165,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "27c5c016-63c2-4ada-9b68-2e8f20fc6853",
+                    "id": "157f8920-98ad-42a2-9957-752698433bf7",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10173,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-11T16:00:12.502Z",
+                      "updated_at": "2025-07-11T17:12:13.721Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10186,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "b3acf151-a064-4fa8-babf-72ddd0b01afe",
+                          "id": "ddd3911f-ffd2-4b59-8a86-8acafb8c7a60",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -11025,7 +11025,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17b498b5-6a9e-4683-8ea3-a126bbf0f4e6",
+                    "id": "136904f8-cd9c-4a94-b21f-008ee399269e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -11058,12 +11058,12 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "3358c45e-6035-42e8-9753-423801fc6481",
+                          "id": "d186d34f-13b1-4f3e-a2a1-d038fd32b00f",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-07-11T16:00:13.115Z"
+                          "uploaded_at": "2025-07-11T17:12:14.272Z"
                         }
                       ]
                     }
