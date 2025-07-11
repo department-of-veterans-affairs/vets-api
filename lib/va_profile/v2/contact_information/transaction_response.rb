@@ -2,13 +2,14 @@
 
 require 'va_profile/models/transaction'
 require 'va_profile/response'
+require './lib/vets/shared_logging'
 
 # rubocop:disable ThreadSafety/ClassInstanceVariable
 module VAProfile
   module V2
     module ContactInformation
       class TransactionResponse < VAProfile::Response
-        extend SentryLogging
+        extend Vets::SharedLogging
 
         REDACTED_KEYS = %w[
           source_system_user
