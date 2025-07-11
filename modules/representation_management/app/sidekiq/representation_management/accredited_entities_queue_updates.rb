@@ -559,26 +559,32 @@ module RepresentationManagement
       @entity_counts.valid_count?(REPRESENTATIVES) && @entity_counts.valid_count?(VSOS)
     end
 
+    # Helper method to delete records that are not in the specified ID list
+    #
+    # @param model_class [Class] The model class to operate on
+    # @param id_list [Array<Integer>] The list of valid IDs
+    # @param error_context [String] Context for error logging
+    # @return [void]
+    def delete_removed_records(model_class, id_list, error_context)
+      model_class.where.not(id: id_list).find_each do |record|
+        record.destroy
+      rescue => e
+        log_error("Error deleting old #{error_context} with ID #{record.id}: #{e.message}")
+      end
+    end
+
     # Removes AccreditedOrganization records that are no longer present in the GCLAWS API
     #
     # @return [void]
     def delete_removed_accredited_organizations
-      AccreditedOrganization.where.not(id: @vso_ids).find_each do |record|
-        record.destroy
-      rescue => e
-        log_error("Error deleting old accredited organization with ID #{record.id}: #{e.message}")
-      end
+      delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
     end
 
     # Removes Accreditation records that are no longer valid
     #
     # @return [void]
     def delete_removed_accreditations
-      Accreditation.where.not(id: @accreditation_ids).find_each do |record|
-        record.destroy
-      rescue => e
-        log_error("Error deleting old accreditation with ID #{record.id}: #{e.message}")
-      end
+      delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
     end
 
     # Creates or updates Accreditation records based on representative-VSO associations
