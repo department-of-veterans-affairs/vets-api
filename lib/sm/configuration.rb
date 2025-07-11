@@ -30,14 +30,21 @@ module SM
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
+      # Use safe Flipper check to avoid boot-time database connection errors
+      if flipper_enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
         "#{Settings.mhv.api_gateway.hosts.sm_patient}/#{Settings.mhv.sm.gw_base_path}"
       else
         "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}"
       end
-    rescue NoMethodError => e
-      Rails.logger.error("SM:Configuration Flipper error: #{e.message}")
-      "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}" # Default path
+    end
+
+    private
+
+    def flipper_enabled?(feature)
+      Flipper.enabled?(feature)
+    rescue => e
+      Rails.logger.debug("SM:Configuration Flipper not ready: #{e.message}")
+      false # Default to false if Flipper isn't ready
     end
 
     ##

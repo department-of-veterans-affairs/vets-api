@@ -32,14 +32,21 @@ module MHVAC
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
+      # Use safe Flipper check to avoid boot-time database connection errors
+      if flipper_enabled?(:mhv_medications_migrate_to_api_gateway)
         "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
       else
         "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
       end
-    rescue NoMethodError => e
-      Rails.logger.error("RX:Configuration Flipper error: #{e.message}")
-      "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}" # Default path
+    end
+
+    private
+
+    def flipper_enabled?(feature)
+      Flipper.enabled?(feature)
+    rescue => e
+      Rails.logger.debug("MHVAC:Configuration Flipper not ready: #{e.message}")
+      false # Default to false if Flipper isn't ready
     end
 
     ##
