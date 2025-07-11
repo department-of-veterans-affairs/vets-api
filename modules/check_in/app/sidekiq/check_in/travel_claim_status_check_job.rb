@@ -12,21 +12,18 @@ module CheckIn
       station_number = redis_client.station_number(uuid:)
       facility_type = redis_client.facility_type(uuid:)
 
-      logger.info({
-                    message: "Checking travel claim status for #{uuid}, #{appointment_date}, " \
-                             "#{station_number}, #{facility_type}",
-                    uuid:,
-                    appointment_date:,
-                    station_number:,
-                    facility_type:
-                  })
+      self.class.log_with_context(:info, 'Checking travel claim status', {
+                                    appointment_date:,
+                                    station_number:,
+                                    facility_type:,
+                                    status: 'checking'
+                                  })
 
       claim_number, template_id = claim_status(uuid:, appointment_date:, station_number:, facility_type:)
 
       claim_number_last_four = claim_number&.last(4)
 
       TravelClaimNotificationJob.perform_async(uuid, appointment_date, template_id, claim_number_last_four || '')
-      StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
 
     def claim_status(opts = {})
@@ -40,7 +37,8 @@ module CheckIn
 
       handle_response(claim_status_resp:, facility_type:, uuid:)
     rescue => e
-      logger.error({ message: "Error calling BTSSS Service: #{e.message}", method: 'claim_status' }.merge(opts))
+      self.class.log_with_context(:error, "Error calling BTSSS Service: #{e.message}",
+                                  { method: 'claim_status', status: 'failed' }.merge(opts))
       if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
@@ -75,23 +73,30 @@ module CheckIn
 
       case response_code
       when TravelClaim::Response::CODE_EMPTY_STATUS
-        logger.info({ message: 'Received empty claim status response', uuid: })
+        self.class.log_with_context(:info, 'Received empty claim status response', { status: 'empty_response' })
         TravelClaim::Response::CODE_EMPTY_STATUS
       else
         if response_code == TravelClaim::Response::CODE_MULTIPLE_STATUSES
-          logger.info({ message: 'Received multiple claim status response', uuid: })
+          self.class.log_with_context(:info, 'Received multiple claim status response', { status: 'multiple_response' })
         end
 
         response_body = claim_status_resp.dig(:data, :body)
         claim_status = response_body.first.with_indifferent_access[:claimStatus]
-        if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status)
-          TravelClaim::Response::CODE_CLAIM_APPROVED
-        elsif FAILED_CLAIM_STATUSES.include?(claim_status)
-          TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
-        else
-          logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
-          TravelClaim::Response::CODE_UNKNOWN_ERROR
-        end
+        determine_claim_code(claim_status, uuid)
+      end
+    end
+
+    private
+
+    def determine_claim_code(claim_status, uuid)
+      if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status)
+        TravelClaim::Response::CODE_CLAIM_APPROVED
+      elsif FAILED_CLAIM_STATUSES.include?(claim_status)
+        TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
+      else
+        self.class.log_with_context(:error, 'Received non-matching claim status',
+                                    { claim_status:, status: 'non_matching', uuid: })
+        TravelClaim::Response::CODE_UNKNOWN_ERROR
       end
     end
   end
