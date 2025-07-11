@@ -80,8 +80,7 @@ Rails.application.reloader.to_prepare do
         nil
       end
     end
-  # else
-    # Flipper sync skipped for faster boot time
-    # Run 'rake flipper:sync' to sync features when needed
-  # end
+  end
+  # Note: Flipper sync skipped for faster boot time
+  # Run 'rake flipper:sync' to sync features when needed
 end
