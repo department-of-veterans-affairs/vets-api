@@ -5,11 +5,13 @@ require 'sentry_logging'
 module SentryLogging
   # WARNING: This module is deprecated, and will be removed in October 2025. Please use Vets::SharedLogging instead.
   # If your team currently uses this module, please see documentation for migrating to Vets::SharedLogging: TODO
-  ActiveSupport::Deprecation
-    .new.warn('SentryLogging is deprecated and will be removed in October 2025. Use Vets::SharedLogging instead.')
   extend self
 
+  DEPRECATION_MESSAGE = 'SentryLogging is deprecated and will be removed in October 2025. ' \
+                        'Use Vets::SharedLogging instead.'
+
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
+    ActiveSupport::Deprecation.new.warn(DEPRECATION_MESSAGE)
     level = normalize_level(level, nil)
     formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
     rails_logger(level, formatted_message)
@@ -21,6 +23,7 @@ module SentryLogging
   end
 
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
+    ActiveSupport::Deprecation.new.warn(DEPRECATION_MESSAGE)
     level = normalize_level(level, exception)
 
     if Settings.sentry.dsn.present?
