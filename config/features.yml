@@ -150,6 +150,9 @@ features:
     actor_type: user
     description: Enables stamped PDF validation on document upload
     enable_in_development: true
+  dv_email_notification:
+    actor_type: user
+    description: Enables dependents verification emails
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
