@@ -93,6 +93,37 @@ describe IvcChampva::PdfStamper do
         end
       end
     end
+
+    context 'when form has no stamp_metadata method' do
+      let(:test_payload) { 'vha_10_7959c' }
+
+      before do
+        # Remove stamp_metadata method if it exists
+        form.singleton_class.send(:undef_method, :stamp_metadata) if form.methods.include?(:stamp_metadata)
+
+        allow(described_class).to receive(:add_blank_page_and_stamp)
+      end
+
+      it 'does not call add_blank_page_and_stamp' do
+        stamp_pdf
+        expect(described_class).not_to have_received(:add_blank_page_and_stamp)
+      end
+    end
+
+    context 'when form has stamp_metadata method but returns non-hash' do
+      let(:test_payload) { 'vha_10_7959c' }
+
+      before do
+        # Define stamp_metadata to return something that's not a hash
+        allow(form).to receive(:stamp_metadata).and_return('Not a hash')
+        allow(described_class).to receive(:add_blank_page_and_stamp)
+      end
+
+      it 'does not call add_blank_page_and_stamp' do
+        stamp_pdf
+        expect(described_class).not_to have_received(:add_blank_page_and_stamp)
+      end
+    end
   end
 
   describe '.stamp_signature' do
@@ -303,6 +334,124 @@ describe IvcChampva::PdfStamper do
 
       it 'raises an error' do
         expect { verified_multistamp }.to raise_error('The provided stamp content was empty.')
+      end
+    end
+  end
+
+  describe '.combine_with_blank_page' do
+    subject(:combine_with_blank_page) { described_class.combine_with_blank_page(original_pdf_path) }
+
+    let(:original_pdf_path) { Rails.root.join('tmp', 'test_original.pdf').to_s }
+    let(:blank_page_path) { Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_s }
+    let(:expected_tmp_path) { /#{original_pdf_path}_[a-f0-9]{16}/ }
+
+    before do
+      # Create a copy of the blank page to use as our "original" document
+      FileUtils.copy(blank_page_path, original_pdf_path)
+    end
+
+    after do
+      # Clean up any files created during tests
+      FileUtils.rm_f(original_pdf_path)
+      Dir.glob("#{original_pdf_path}_*").each { |f| FileUtils.rm_f(f) }
+    end
+
+    context 'when actually combining PDFs' do
+      it 'combines the original PDF with a blank page' do
+        original_size = File.size(original_pdf_path)
+
+        result_path, tmp_path = combine_with_blank_page
+
+        # Verify that the combined file exists and is larger than the original
+        expect(File.exist?(result_path)).to be true
+        expect(File.size(result_path)).to be > original_size
+
+        # Verify that the temporary path follows the expected pattern
+        expect(tmp_path).to match(expected_tmp_path)
+      end
+    end
+
+    context 'when the blank page template is missing' do
+      before do
+        # Temporarily rename the blank page to simulate missing file
+        @original_blank_path = blank_page_path
+        @temp_blank_path = "#{blank_page_path}.bak"
+        FileUtils.mv(blank_page_path, @temp_blank_path) if File.exist?(blank_page_path)
+      end
+
+      after do
+        # Restore the blank page template
+        FileUtils.mv(@temp_blank_path, blank_page_path) if File.exist?(@temp_blank_path)
+      end
+
+      it 'raises a file not found error' do
+        expect { combine_with_blank_page }.to raise_error(Errno::ENOENT, /No such file or directory/)
+      end
+    end
+  end
+
+  describe '.add_blank_page_and_stamp' do
+    subject(:add_blank_page_and_stamp) { described_class.add_blank_page_and_stamp(stamped_template_path, metadata) }
+
+    let(:stamped_template_path) { Rails.root.join('tmp', 'test_template.pdf').to_s }
+    let(:blank_page_path) { Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_s }
+    let(:metadata) { { 'key1' => 'value1', 'key2' => 'value2', 'key3' => 'value3', 'key4' => 'value4' } }
+
+    before do
+      # Create a copy of the blank page as our template
+      FileUtils.copy(blank_page_path, stamped_template_path) if File.exist?(blank_page_path)
+    end
+
+    after do
+      # Clean up any test files
+      FileUtils.rm_f(stamped_template_path)
+      Dir.glob("#{stamped_template_path}_*").each { |f| FileUtils.rm_f(f) }
+    end
+
+    context 'when the combination process works with real files' do
+      it 'combines PDF with blank page and stamps metadata' do
+        # Get original file size
+        original_size = File.size(stamped_template_path)
+
+        # Process should add a page and stamp metadata
+        add_blank_page_and_stamp
+
+        # Verify the file exists and has grown in size
+        expect(File.exist?(stamped_template_path)).to be true
+        expect(File.size(stamped_template_path)).to be > original_size
+      end
+    end
+
+    context 'when there is a lot of metadata requiring multiple pages' do
+      let(:metadata) do
+        # Create a large metadata hash that would require multiple pages
+        large_metadata = {}
+        50.times do |i|
+          large_metadata["key#{i}"] = "This is a longer value for testing pagination #{i}"
+        end
+        large_metadata
+      end
+
+      it 'adds multiple pages to accommodate all metadata' do
+        original_size = File.size(stamped_template_path)
+
+        add_blank_page_and_stamp
+
+        # File should exist and be significantly larger due to multiple pages
+        expect(File.exist?(stamped_template_path)).to be true
+        # With 50 metadata items we'll add two extra pages to the PDF. We should
+        # expect to see that the new file is at least 3x the size of the original
+        expect(File.size(stamped_template_path)).to be > 3 * original_size
+      end
+    end
+
+    context 'when the template file is missing' do
+      before do
+        FileUtils.rm_f(stamped_template_path)
+      end
+
+      it 'raises a file not found error' do
+        expect { add_blank_page_and_stamp }.to raise_error(Errno::ENOENT)
       end
     end
   end
