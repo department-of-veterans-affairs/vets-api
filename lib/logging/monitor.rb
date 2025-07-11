@@ -23,6 +23,8 @@ module Logging
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)
 
+      filtered_context = ParameterFilterHelper.filter_params(context)
+
       if %w[debug info warn error fatal unknown].include?(error_level.to_s)
         payload = {
           statsd: metric,
@@ -30,7 +32,7 @@ module Logging
           function:,
           file:,
           line:,
-          context:
+          context: filtered_context
         }
         Rails.logger.public_send(error_level, message.to_s, payload)
       else
