@@ -4,13 +4,23 @@ namespace :representation_management do
   namespace :accreditation do
     desc 'Manually reprocess specific Accredited Entity types after validation failure'
     # Usage examples:
-    #   rails representation_management:accreditation:reprocess[agents]           # Process only claims agents
-    #   rails representation_management:accreditation:reprocess[attorneys]        # Process only attorneys
-    #   rails representation_management:accreditation:reprocess[agents,attorneys] # Process both types
+    #   rails representation_management:accreditation:reprocess[agents]
+    #     # Process only claims agents
+    #   rails representation_management:accreditation:reprocess[attorneys]
+    #     # Process only attorneys
+    #   rails representation_management:accreditation:reprocess[representatives]
+    #     # Process only representatives
+    #   rails representation_management:accreditation:reprocess[veteran_service_organizations]
+    #     # Process only VSOs
+    #   rails representation_management:accreditation:reprocess[agents,attorneys]
+    #     # Process multiple types
+    #   rails representation_management:accreditation:reprocess[representatives,veteran_service_organizations]
+    #     # Process reps and VSOs together
     task :reprocess, [:rep_types] => :environment do |_task, args|
       unless args[:rep_types]
         puts 'Error: Please specify representative types to reprocess'
-        puts 'Usage: rails representation_management:accreditation:reprocess[agents,attorneys]'
+        puts 'Usage: rails representation_management:accreditation:reprocess[agents,attorneys,representatives,' \
+             'veteran_service_organizations]'
         exit 1
       end
 
