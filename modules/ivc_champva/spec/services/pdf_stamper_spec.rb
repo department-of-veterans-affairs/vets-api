@@ -306,4 +306,49 @@ describe IvcChampva::PdfStamper do
       end
     end
   end
+
+  describe '.combine_with_blank_page' do
+    subject(:combine_with_blank_page) { described_class.combine_with_blank_page(original_pdf_path) }
+
+    let(:original_pdf_path) { 'path/to/original.pdf' }
+    let(:blank_page_path) { Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path }
+    let(:tmp_path) { "#{original_pdf_path}_#{SecureRandom.hex(8)}" }
+    let(:combined_path) { 'path/to/combined.pdf' }
+
+    context 'when everything works fine' do
+      before do
+        allow(SecureRandom).to receive(:hex).and_return('12345678')
+        allow(IvcChampva::PdfCombiner).to receive(:combine).and_return(combined_path)
+      end
+
+      it 'returns the combined PDF path and temporary path' do
+        expect(combine_with_blank_page).to eq([combined_path, tmp_path])
+        expect(IvcChampva::PdfCombiner).to have_received(:combine)
+          .with(tmp_path, [original_pdf_path, blank_page_path])
+      end
+    end
+
+    context 'when PdfCombiner raises an error' do
+      before do
+        allow(SecureRandom).to receive(:hex).and_return('12345678')
+        allow(IvcChampva::PdfCombiner).to receive(:combine).and_raise(StandardError, 'PDF combining failed')
+      end
+
+      it 'allows the error to propagate' do
+        expect { combine_with_blank_page }.to raise_error(StandardError, 'PDF combining failed')
+      end
+    end
+
+    context 'when the blank page template is missing' do
+      before do
+        allow(Rails.root).to receive(:join).and_return(double(to_path: '/nonexistent/path'))
+        allow(SecureRandom).to receive(:hex).and_return('12345678')
+        allow(IvcChampva::PdfCombiner).to receive(:combine).and_raise(Errno::ENOENT, 'No such file or directory')
+      end
+
+      it 'raises a file not found error' do
+        expect { combine_with_blank_page }.to raise_error(Errno::ENOENT)
+      end
+    end
+  end
 end
