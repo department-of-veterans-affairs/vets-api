@@ -11,6 +11,8 @@ module RepresentationManagement
   # Processes updates for AccreditedIndividual records based on provided JSON data.
   # This class is designed to parse AccreditedIndividual data, validate addresses using an external service,
   # and update records in the database accordingly.
+  # Note: While the job structure supports AccreditedOrganization records, VSO address validation
+  # is currently not implemented as the API does not provide address data for VSOs.
   class AccreditedIndividualsUpdate
     include Sidekiq::Job
 
