@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './lib/vets/shared_logging'
+
 module Eps
   ##
   # Sidekiq job responsible for sending appointment status notification emails
@@ -14,7 +16,7 @@ module Eps
   #
   class AppointmentStatusEmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     # 14 retries to span approximately 25 hours, this is to allow for unexpected outage of the
     # external messaging service. If the service is down for more than 25 hours, the job will
@@ -83,7 +85,8 @@ module Eps
     #
     def self.log_failure(error:, message:, user_uuid:, appointment_id_last4:, permanent: false)
       Rails.logger.error(message, { user_uuid:, appointment_id_last4: })
-      SentryLogging.log_exception_to_sentry(
+      logger = Class.new { include Vets::SharedLogging }.new
+      logger.log_exception_to_sentry(
         error,
         { user_uuid:, appointment_id_last4: },
         { error: :eps_appointment_email_job, team: 'vaos' }

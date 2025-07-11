@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require './lib/vets/shared_logging'
 
 module Organizations
   class Names
@@ -123,7 +123,7 @@ module Organizations
         # the original module's design. This approach enables class-level logging by leveraging the module's
         # instance methods, ensuring we can log messages to Sentry from static (class) contexts while maintaining
         # the module's intended usage patterns.
-        dummy_logger = Class.new { include SentryLogging }.new
+        dummy_logger = Class.new { include Vets::SharedLogging }.new
         dummy_logger.log_message_to_sentry("Failed to serialize POA in Organizations::Names: #{e.message}. POA: '#{org[:poa]}', Org Name: '#{org[:name]}'.", 'error') # rubocop:disable Layout/LineLength
         next
       end.compact
