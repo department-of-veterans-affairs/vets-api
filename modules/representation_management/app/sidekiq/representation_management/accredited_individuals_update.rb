@@ -9,10 +9,10 @@ require 'va_profile/v3/address_validation/service'
 module RepresentationManagement
   # This is the second job in a two job process for updating accredited entities.
   # Processes updates for AccreditedIndividual records based on provided JSON data.
-  # This class is designed to parse AccreditedIndividual data, validate addresses using an external service,
-  # and update records in the database accordingly.
-  # Note: While the job structure supports AccreditedOrganization records, VSO address validation
-  # is currently not implemented as the API does not provide address data for VSOs.
+  # This class is designed to parse AccreditedIndividual data (agents, attorneys, and representatives),
+  # validate addresses using an external service, and update records in the database accordingly.
+  # Note: This job only processes individuals. VSOs (AccreditedOrganization records) do not require
+  # address validation as the API does not provide address data for organizations.
   class AccreditedIndividualsUpdate
     include Sidekiq::Job
 
@@ -24,7 +24,8 @@ module RepresentationManagement
     end
 
     # Processes each AccreditedIndividual's data provided in JSON format.
-    # This method parses the JSON, validates each AccreditedIndividual's address, and updates the database records.
+    # This method parses the JSON, validates each individual's address, and updates the database records.
+    # Works for all individual types: agents, attorneys, and representatives.
     # @param reps_json [String] JSON string containing an array of AccreditedIndividual data.
     def perform(reps_json)
       reps_data = JSON.parse(reps_json)
