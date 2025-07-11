@@ -13,7 +13,7 @@ module ConsoleFilterToggles
       model.filter_attributes = [] if model.respond_to?(:filter_attributes)
     end
 
-    $stdout.puts 'All filters removed: attributes will not be concealed.'
+    # $stdout.puts 'All filters removed: attributes will not be concealed.'
   end
 
   def conceal!
@@ -28,7 +28,7 @@ module ConsoleFilterToggles
       end
     end
 
-    $stdout.puts 'All filters re-applied: attributes are concealed.'
+    # $stdout.puts 'All filters re-applied: attributes are concealed.'
   end
 end
 
