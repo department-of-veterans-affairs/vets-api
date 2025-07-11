@@ -22,6 +22,7 @@ module Eps
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'get_appointment')
 
+        Rails.logger.info('[EPS::AppointmentService#get_appointment] EPS appointment retrieved successfully')
         result
       end
     end
@@ -41,6 +42,7 @@ module Eps
 
         appointments = response.body[:appointments]
         merged_appointments = merge_provider_data_with_appointments(appointments)
+        Rails.logger.info('[EPS::AppointmentService#get_appointments] EPS appointments list retrieved successfully')
         OpenStruct.new(data: merged_appointments)
       end
     end
@@ -61,6 +63,8 @@ module Eps
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'create_draft_appointment')
 
+        Rails.logger.info('[EPS::AppointmentService#create_draft_appointment] EPS draft
+          appointment created successfully')
         result
       end
     end
@@ -92,13 +96,10 @@ module Eps
       payload = build_submit_payload(params)
 
       # Store appointment data in Redis using the RedisClient
-      redis_client.store_appointment_data(
-        uuid: user.uuid,
-        appointment_id:,
-        email: user.email
-      )
+      redis_client.store_appointment_data(uuid: user.uuid,
+                                          appointment_id:,
+                                          email: user.email)
 
-      # Enqueue worker with UUID and last 4 of appointment_id
       appointment_last4 = appointment_id.to_s.last(4)
       Eps::AppointmentStatusJob.perform_async(user.uuid, appointment_last4)
 
@@ -108,9 +109,9 @@ module Eps
 
         result = OpenStruct.new(response.body)
 
-        # Check for error field in successful responses using reusable helper
         check_for_eps_error!(result, response, 'submit_appointment')
 
+        Rails.logger.info('[EPS::AppointmentService#submit_appointment] EPS appointment submitted successfully')
         result
       end
     end
