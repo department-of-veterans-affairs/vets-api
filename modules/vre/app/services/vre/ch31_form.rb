@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module VRE
   class Ch31Form < VRE::Service

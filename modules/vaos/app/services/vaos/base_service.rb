@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module VAOS
   class BaseService < Common::Client::Base

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'octokit'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module Representatives
   # Class responsible for fetching the XLSX file containing representative organization addresses

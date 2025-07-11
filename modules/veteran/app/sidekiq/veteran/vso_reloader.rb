@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module Veteran
   class VSOReloader < BaseReloader
