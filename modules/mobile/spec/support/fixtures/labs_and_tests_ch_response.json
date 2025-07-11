@@ -1,79 +1,1054 @@
-{
-  "id": "9fc29a49-16d1-4a19-b5a1-fa8c9b2bf2b7",
-  "type": "DiagnosticReport",
-  "attributes": {
-    "display": "CH",
-    "testCode": "CH",
-    "dateCompleted": "2025-01-23T21:06:20+00:00",
-    "sampleTested": "SERUM",
-    "encodedData": "",
-    "location": "CHYSHR TEST LAB",
-    "orderedBy": "MARCI P MCGUIRE",
-    "bodySite": "",
-    "observations": [
-      {
-        "testCode": "GLUCOSE",
-        "value": { "text": "99.0 mg/dL", "type": "quantity" },
-        "referenceRange": "70 - 110",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      },
-      {
-        "testCode": "UREA NITROGEN",
-        "value": { "text": "200.0 mg/dL", "type": "quantity" },
-        "referenceRange": "7 - 18",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      },
-      {
-        "testCode": "CREATININE",
-        "value": { "text": "5.0 mg/dL", "type": "quantity" },
-        "referenceRange": "0.6 - 1.3",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      },
-      {
-        "testCode": "SODIUM",
-        "value": { "text": "8.0 meq/L", "type": "quantity" },
-        "referenceRange": "136 - 145",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      },
-      {
-        "testCode": "POTASSIUM",
-        "value": { "text": "24.0 meq/L", "type": "quantity" },
-        "referenceRange": "3.5 - 5.1",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      },
-      {
-        "testCode": "CHLORIDE",
-        "value": { "text": "2.0 meq/L", "type": "quantity" },
-        "referenceRange": "98 - 107",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      },
-      {
-        "testCode": "CO2",
-        "value": { "text": "2.0 meq/L", "type": "quantity" },
-        "referenceRange": "22 - 29",
-        "status": "final",
-        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
-        "bodySite": "SERUM",
-        "sampleTested": "SERUM"
-      }
-    ]
+[
+  {
+    "id": "7cb1b995-6b62-4dd6-ae45-204622f4816b",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "URINALYSIS",
+      "testCode": "CH",
+      "dateCompleted": "2025-05-14T00:29:58+00:00",
+      "sampleTested": "URINE",
+      "encodedData": "",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "VICTORIA A BORLAND",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "URINE COLOR",
+          "value": {
+            "text": "clear",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "APPEARANCE",
+          "value": {
+            "text": "normal",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "SPECIFIC GRAVITY",
+          "value": {
+            "text": "1.005",
+            "type": "quantity"
+          },
+          "referenceRange": "1.005 - 1.03",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "UROBILINOGEN",
+          "value": {
+            "text": "0.2 EU/DL",
+            "type": "quantity"
+          },
+          "referenceRange": ".1 - 1",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "URINE BLOOD",
+          "value": {
+            "text": "NEG",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "URINE BILIRUBIN",
+          "value": {
+            "text": "NEG",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "URINE KETONES",
+          "value": {
+            "text": "NEGATIVE",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "URINE GLUCOSE",
+          "value": {
+            "text": "100.0 MG/DL",
+            "type": "quantity"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "URINE PROTEIN",
+          "value": {
+            "text": "TRACE",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "URINE PH",
+          "value": {
+            "text": "4.7",
+            "type": "quantity"
+          },
+          "referenceRange": "5 - 8",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "NITRITE, URINE",
+          "value": {
+            "text": "NEG",
+            "type": "string"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        },
+        {
+          "testCode": "LEUKOCYTE ESTERASE, URINE",
+          "value": {
+            "text": "NEG",
+            "type": "string"
+          },
+          "referenceRange": "NEG - POS",
+          "status": "final",
+          "comments": "first comment for troubleshooting second comment for troubleshooting third comment for troubleshooting fourth comment for troubleshooting, entered separately fifth comment? Ordering Provider: Victoria A Borland Report Released Date/Time: May 13, 2025@20:34\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "URINE",
+          "sampleTested": "URINE"
+        }
+      ]
+    }
+  },
+  {
+    "id": "15246933257",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "*Glomerular Filtration Rate, Estimated",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-28T21:16:00Z",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "SYSTEM Cerner SYSTEM",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "eGFR CKD EPI",
+          "value": {
+            "text": "3 mL/min/1.73m^2",
+            "type": "quantity"
+          },
+          "referenceRange": ">=60",
+          "status": "final",
+          "comments": "Estimated Glomerular Filtration Rate (eGFR) calculated using the 2021 Chronic Kidney Disease-Epidemiology (CKD-EPI) Collaboration creatinine equation; units of measure are mL/min/1.73 m2.\nResults are only valid for adults (≥18 years) whose serum creatinine is in steady state.  eGFR calculations are not valid for patients with acute kidney injury and for patients on dialysis.  Creatinine-based estimates of kidney function may also be inaccurate in patients with reduced creatinine generation due to decreased muscle mass (e.g., malnutrition, severe hypoalbuminemia, sarcopenia, chronic neuromuscular disease, amputations, severe heart failure or liver disease) and in patients with increased creatinine generation due to increased muscle mass (e.g., muscle builders, anabolic steroids) or increased dietary intake.\nAs drug clearance is proportional to total GFR and not GFR indexed to body surface area (BSA), in individuals with a BSA substantially different than 1.73 m2, drug dosing should be based the reported eGFRvalue de-indexed from BSA by multiplying by the individuals BSA and dividing by 1.73.\n\nCKD is diagnosed based on abnormalities of kidney structure or function, present for >3 months, with implications for health and disease. CKD is classified and staged based on cause, eGFR and albuminuria (quantified as urine albumin to creatinine ratio). An eGFR >60 mL/min/1.73 m2 in the absence of increased urine albumin excretion or structural abnormalities does not represent CKD.\neGFR(mL/min/1.73 m2)CKD stageInterpretation≥90G1Normal60-89G2Mild decrease45-59G3AMild to moderate decrease30-44G3BModerate to severe decrease15-29G4Severe decrease<15G5Kidney failure\n",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "50305cc4-ae98-4e7b-9611-79f2e81d4d15",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "BMP",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-28T21:16:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "Calcium",
+          "value": {
+            "text": "TNP mg/dL",
+            "type": "string"
+          },
+          "referenceRange": "Normal Range: 8.7 - 10.4 mg/dL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Creatinine Level",
+          "value": {
+            "text": "20.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0.73 - 1.18 mg/dL",
+          "status": "final",
+          "comments": "Required comment for crit high / low values - believe this is a unique requirement for OH",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "BUN",
+          "value": {
+            "text": "30 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 7 - 21 mg/dL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "CO2",
+          "value": {
+            "text": "<10.0 mmol/L",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 21.0 - 32.0 mmol/L",
+          "status": "final",
+          "comments": "Required comment for crit high / low values - believe this is a unique requirement for OH",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Glucose Lvl",
+          "value": {
+            "text": "99 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 70 - 99 mg/dL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Sodium",
+          "value": {
+            "text": "<50 mmol/L",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 136 - 145 mmol/L",
+          "status": "final",
+          "comments": "Required comment for crit high / low values - believe this is a unique requirement for OH",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Potassium Lvl",
+          "value": {
+            "text": ">10.0 mmol/L",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 3.0 - 6.0 mmol/L",
+          "status": "final",
+          "comments": "Required comment for crit high / low values - believe this is a unique requirement for OH, Adult reference range:\nPlasma: 3.54.7 mmol/L\nSerum: 3.55.1 mmol/L\n\nPlatelets release K+ upon clotting and therefore K+ values in serum may be slightly higher than plasma depending on platelet count. \n\n",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Chloride",
+          "value": {
+            "text": "<50 mmol/L",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 98 - 109 mmol/L",
+          "status": "final",
+          "comments": "Required comment for crit high / low values - believe this is a unique requirement for OH",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "c5443c91-34e0-4809-b97f-17b7e3697f1f",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "CBC w/ Diff",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-27T14:45:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "MPV",
+          "value": {
+            "text": "8.4 fL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 7.4 - 12.0 fL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Platelets",
+          "value": {
+            "text": "227 K/mcL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 130 - 400 K/mcL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MCHC",
+          "value": {
+            "text": "33.0 g/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 33.0 - 36.0 g/dL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MCH",
+          "value": {
+            "text": "30.0 pg",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 28.0 - 35.0 pg",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "MCV",
+          "value": {
+            "text": "92.0 fL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 80.0 - 97.0 fL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Hematocrit",
+          "value": {
+            "text": "48.0 %",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 39.3 - 52.5 %",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Hemoglobin",
+          "value": {
+            "text": "15.0 g/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 13.1 - 17.5 g/dL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "RBC",
+          "value": {
+            "text": "5.2 10^6/uL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 4.1 - 5.8 10^6/uL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "WBC",
+          "value": {
+            "text": "4.4 K/mcL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 3.9 - 11.0 K/mcL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Differential?",
+          "value": {
+            "text": "Auto",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "cad73fbb-e2d3-4170-b6a7-9d2678527f62",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "*Differential Automated",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-27T14:45:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "Mono Absolute",
+          "value": {
+            "text": "0.2 K/mcL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0.0 - 1.5 K/mcL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Lymph Absolute",
+          "value": {
+            "text": "2.1 K/mcL",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 1.2 - 3.4 K/mcL",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Basophil % Auto",
+          "value": {
+            "text": "0.2 %",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0.0 - 3.0 %",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Eosinophil % Auto",
+          "value": {
+            "text": "2.0 %",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0.0 - 4.0 %",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Monocyte % Auto",
+          "value": {
+            "text": "4.2 %",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 3.0 - 9.5 %",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Lymphocyte % Auto",
+          "value": {
+            "text": "32.0 %",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 20.0 - 45.0 %",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "Neutrophil % Auto",
+          "value": {
+            "text": "66.0 %",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 49.0 - 78.0 %",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "3f163999-c461-4c64-a689-05c539713004",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "Urinalysis with Microscopic and Culture if Indicated",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-27T14:45:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "UA Bacteria",
+          "value": {
+            "text": "3+",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "None Seen",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA WBC",
+          "value": {
+            "text": "2 /HPF",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0 - 3 /HPF",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA RBC",
+          "value": {
+            "text": "1 /HPF",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0 - 2 /HPF",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Leuk Esterase",
+          "value": {
+            "text": "NEGATIVE",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Nitrite",
+          "value": {
+            "text": "NEGATIVE",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Urobilinogen",
+          "value": {
+            "text": "1.1 mg/dL RBC",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0.2 - 1.0 mg/dL RBC",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Protein",
+          "value": {
+            "text": "Trace",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA pH",
+          "value": {
+            "text": "5.0",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 5.0 - 8.0",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Spec Gravity",
+          "value": {
+            "text": "1.01",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 1.0 - 1.03",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Bili",
+          "value": {
+            "text": "NEGATIVE",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Blood",
+          "value": {
+            "text": "NEGATIVE",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Ketones",
+          "value": {
+            "text": "NEGATIVE",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Glucose",
+          "value": {
+            "text": "Trace",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "NEGATIVE",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Clarity",
+          "value": {
+            "text": "Cloudy",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "Clear",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Color",
+          "value": {
+            "text": "Dark Yellow",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "Yellow",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Culture Ind?",
+          "value": {
+            "text": "Yes",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "UA Hippuric Acid Crystal",
+          "value": {
+            "text": "Rare",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "",
+          "status": "final",
+          "comments": "Comment on subresult",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "71ec76d3-2a25-4dab-91b3-6565c6e6019f",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "Hemoglobin A1c",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-27T14:45:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "Hemoglobin A1c",
+          "value": {
+            "text": "5.0 %",
+            "type": "quantity"
+          },
+          "referenceRange": "<=5.6",
+          "status": "final",
+          "comments": "SUGGESTED DIAGNOSIS   HGBA1C %\n \nNORMAL                <5.7%     \nPREDIABETES           5.7-6.4%\nDIABETES              >=6.5%\n \nTarget A1C values should be individualized. Better understanding of A1C\ntest result accuracy is essential if clinicians are to interpret results\nfor Veterans, and discuss treatment options through the process of Shared\nDecision Making.  Contact your provider for performance characteristics\nof this assay.\n\n",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "fac70ca9-af86-4443-bf17-720b02c80b57",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "CHEM 7",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-23T21:06:20+00:00",
+      "sampleTested": "SERUM",
+      "encodedData": "",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "GLUCOSE",
+          "value": {
+            "text": "99.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "70 - 110",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "UREA NITROGEN",
+          "value": {
+            "text": "200.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "7 - 18",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "CREATININE",
+          "value": {
+            "text": "5.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "0.6 - 1.3",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "SODIUM",
+          "value": {
+            "text": "8.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "136 - 145",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "POTASSIUM",
+          "value": {
+            "text": "24.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "3.5 - 5.1",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "CHLORIDE",
+          "value": {
+            "text": "2.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "98 - 107",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "CO2",
+          "value": {
+            "text": "2.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "22 - 29",
+          "status": "final",
+          "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        }
+      ]
+    }
+  },
+  {
+    "id": "e074a130-4461-4a89-80c4-13da72bb5919",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "CHEM 7",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-23T21:01:52+00:00",
+      "sampleTested": "SERUM",
+      "encodedData": "",
+      "location": "CHYSHR TEST LAB",
+      "orderedBy": "MARCI P MCGUIRE",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "GLUCOSE",
+          "value": {
+            "text": "99.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "70 - 110",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "UREA NITROGEN",
+          "value": {
+            "text": "30.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "7 - 18",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "CREATININE",
+          "value": {
+            "text": "20.0 mg/dL",
+            "type": "quantity"
+          },
+          "referenceRange": "0.6 - 1.3",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "SODIUM",
+          "value": {
+            "text": "24.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "136 - 145",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "POTASSIUM",
+          "value": {
+            "text": "200.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "3.5 - 5.1",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "CHLORIDE",
+          "value": {
+            "text": "10.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "98 - 107",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        },
+        {
+          "testCode": "CO2",
+          "value": {
+            "text": "1.0 meq/L",
+            "type": "quantity"
+          },
+          "referenceRange": "22 - 29",
+          "status": "final",
+          "comments": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
+          "bodySite": "SERUM",
+          "sampleTested": "SERUM"
+        }
+      ]
+    }
+  },
+  {
+    "id": "2a1a9d16-c9a1-4937-b518-4814e196aefe",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "PT and INR POC",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-20T19:28:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "POC PT",
+          "value": {
+            "text": "12 seconds",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 12 - 14 seconds",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        },
+        {
+          "testCode": "POC INR",
+          "value": {
+            "text": "1.0",
+            "type": "quantity"
+          },
+          "referenceRange": "Normal Range: 0.7 - 4.5",
+          "status": "final",
+          "comments": "Venous Thrombosis 2.0-3.0. \nMechanical Valves 2.5-3.5. \nResults >4.5 must be confirmed by laboratory testing.\n\n",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "0fcb6bec-4b06-4ca6-9398-a79466c71010",
+    "type": "DiagnosticReport",
+    "attributes": {
+      "display": "SARS-CoV-2 ANTIGEN POC",
+      "testCode": "CH",
+      "dateCompleted": "2025-01-20T19:26:00+00:00",
+      "sampleTested": "",
+      "encodedData": "",
+      "location": null,
+      "orderedBy": "Victoria A Borland",
+      "bodySite": "",
+      "observations": [
+        {
+          "testCode": "SARS-CoV-2 ANTIGEN",
+          "value": {
+            "text": "Positive",
+            "type": "codeable-concept"
+          },
+          "referenceRange": "Negative",
+          "status": "final",
+          "comments": "",
+          "bodySite": "",
+          "sampleTested": ""
+        }
+      ]
+    }
   }
-}
+]
