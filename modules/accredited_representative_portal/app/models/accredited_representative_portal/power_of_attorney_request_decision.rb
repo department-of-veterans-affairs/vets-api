@@ -67,19 +67,39 @@ module AccreditedRepresentativePortal
 
       private
 
-      def create_with_resolution!(creator:, type:, power_of_attorney_request:, declination_reason: nil, **attrs)
+      def create_with_resolution!(
+        creator:,
+        type:,
+        power_of_attorney_request:,
+        declination_reason: nil,
+        **attrs
+      )
         PowerOfAttorneyRequestResolution.transaction do
-          decision = build_decision(creator:, type:, declination_reason:)
+          decision = build_decision(
+            creator:,
+            type:,
+            declination_reason:,
+            power_of_attorney_holder_type: power_of_attorney_request.power_of_attorney_holder_type,
+            power_of_attorney_holder_poa_code:
+              creator&.active_power_of_attorney_holders&.find do |h|
+                h.poa_code == power_of_attorney_request.power_of_attorney_holder_poa_code
+              end&.poa_code,
+            accredited_individual_registration_number:
+              creator&.get_registration_number(
+                power_of_attorney_request.power_of_attorney_holder_type
+              )
+          )
+
           create_resolution(decision:, power_of_attorney_request:, **attrs)
+
           decision
         end
       rescue => e
         log_error_and_raise(e)
       end
 
-      def build_decision(creator:, type:, declination_reason:)
-        decision = new(type:, creator:)
-        decision.declination_reason = declination_reason if declination_reason.present?
+      def build_decision(**args)
+        decision = new(**args.delete_if { |_, v| v.nil? })
         decision.save!
         decision
       end
