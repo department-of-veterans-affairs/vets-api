@@ -5,7 +5,7 @@ module V0
     service_tag 'dependent-change'
 
     def show
-      dependents = dependent_service.get_dependents
+      dependents = create_dependent_service.get_dependents
       dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
@@ -37,7 +37,7 @@ module V0
       claim.process_attachments!
 
       # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = BGS::DependentService.new(current_user) if use_v2.blank?
+      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 
@@ -70,7 +70,7 @@ module V0
       )
     end
 
-    def dependent_service
+    def create_dependent_service
       @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
                                BGS::DependentV2Service.new(current_user)
                              else
