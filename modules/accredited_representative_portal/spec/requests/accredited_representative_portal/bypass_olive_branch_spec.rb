@@ -26,115 +26,38 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     Rails.application.reload_routes!
   end
 
-  context 'the request is in development and accredited_representative_portal_normalize_path is disabled' do
-    before do
-      allow(Settings).to receive(:vsp_environment).and_return('development')
-      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(false)
-    end
+  context 'when the request is for an accredited representative portal route' do
+    let(:path_prefix) { '/accredited_representative_portal' }
 
-    context 'when the request is for an accredited representative portal route' do
-      let(:path_prefix) { '/accredited_representative_portal' }
-
-      it 'bypasses OliveBranch processing' do
-        expect(OliveBranch::Transformations).not_to receive(:underscore_params)
-        expect(OliveBranch::Transformations).not_to receive(:transform)
-        subject
-      end
-    end
-
-    context 'when the request is for a normal route' do
-      let(:path_prefix) { '' }
-
-      it 'applies OliveBranch processing' do
-        expect(OliveBranch::Transformations).to receive(:underscore_params)
-        expect(OliveBranch::Transformations).to receive(:transform)
-        subject
-      end
+    it 'bypasses OliveBranch processing' do
+      expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+      expect(OliveBranch::Transformations).not_to receive(:transform)
+      subject
     end
   end
 
-  context 'the request is in development and accredited_representative_portal_normalize_path is enabled' do
-    before do
-      allow(Settings).to receive(:vsp_environment).and_return('development')
-      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(true)
-    end
+  ##
+  # Our reverse proxy for deployed environments prepends an extra slash at the
+  # beginning. Ouch. Offending nginx conf here:
+  # https://github.com/department-of-veterans-affairs/devops/blob/c84a83696357b84e155c8ec849934af3019da769/ansible/deployment/config/revproxy-vagov/templates/nginx_api_server.conf.j2#L121
+  #
+  context 'when the request is for an accredited representative portal route with an extra slash prepended' do
+    let(:path_prefix) { '//accredited_representative_portal' }
 
-    context 'when the request is for an accredited representative portal route' do
-      let(:path_prefix) { '/accredited_representative_portal' }
-
-      it 'bypasses OliveBranch processing' do
-        expect(OliveBranch::Transformations).not_to receive(:underscore_params)
-        expect(OliveBranch::Transformations).not_to receive(:transform)
-        subject
-      end
-    end
-
-    context 'when the request is for a normal route' do
-      let(:path_prefix) { '' }
-
-      it 'applies OliveBranch processing' do
-        expect(OliveBranch::Transformations).to receive(:underscore_params)
-        expect(OliveBranch::Transformations).to receive(:transform)
-        subject
-      end
+    it 'bypasses OliveBranch processing' do
+      expect(OliveBranch::Transformations).not_to receive(:underscore_params)
+      expect(OliveBranch::Transformations).not_to receive(:transform)
+      subject
     end
   end
 
-  context 'the request is in staging and accredited_representative_portal_normalize_path is disabled' do
-    before do
-      allow(Settings).to receive(:vsp_environment).and_return('staging')
-      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(false)
-    end
+  context 'when the request is for a normal route' do
+    let(:path_prefix) { '' }
 
-    # Staging path includes an extra hash EX: '//accredited_representative_portal'
-    context 'when the request is for an accredited representative portal route' do
-      let(:path_prefix) { '//accredited_representative_portal' }
-
-      it 'bypasses OliveBranch processing' do
-        # This is true because the Staging path includes an extra hash EX: '//accredited_representative_portal'
-        # and when not normalized the extra hash is not removed.
-        expect(OliveBranch::Transformations).to receive(:underscore_params)
-        expect(OliveBranch::Transformations).to receive(:transform)
-        subject
-      end
-    end
-
-    context 'when the request is for a normal route' do
-      let(:path_prefix) { '' }
-
-      it 'applies OliveBranch processing' do
-        expect(OliveBranch::Transformations).to receive(:underscore_params)
-        expect(OliveBranch::Transformations).to receive(:transform)
-        subject
-      end
-    end
-  end
-
-  context 'the request is in staging and accredited_representative_portal_normalize_path is enabled' do
-    before do
-      allow(Settings).to receive(:vsp_environment).and_return('staging')
-      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_normalize_path).and_return(true)
-    end
-
-    # Staging path includes an extra hash EX: '//accredited_representative_portal'
-    context 'when the request is for an accredited representative portal route' do
-      let(:path_prefix) { '//accredited_representative_portal' }
-
-      it 'bypasses OliveBranch processing' do
-        expect(OliveBranch::Transformations).not_to receive(:underscore_params)
-        expect(OliveBranch::Transformations).not_to receive(:transform)
-        subject
-      end
-    end
-
-    context 'when the request is for a normal route' do
-      let(:path_prefix) { '' }
-
-      it 'applies OliveBranch processing' do
-        expect(OliveBranch::Transformations).to receive(:underscore_params)
-        expect(OliveBranch::Transformations).to receive(:transform)
-        subject
-      end
+    it 'applies OliveBranch processing' do
+      expect(OliveBranch::Transformations).to receive(:underscore_params)
+      expect(OliveBranch::Transformations).to receive(:transform)
+      subject
     end
   end
 end
