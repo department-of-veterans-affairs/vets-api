@@ -82,14 +82,21 @@ module CheckIn
 
         response_body = claim_status_resp.dig(:data, :body)
         claim_status = response_body.first.with_indifferent_access[:claimStatus]
-        if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status)
-          TravelClaim::Response::CODE_CLAIM_APPROVED
-        elsif FAILED_CLAIM_STATUSES.include?(claim_status)
-          TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
-        else
-          log_with_context(:error, 'Received non-matching claim status', { claim_status:, status: 'non_matching', uuid: })
-          TravelClaim::Response::CODE_UNKNOWN_ERROR
-        end
+        determine_claim_code(claim_status, uuid)
+      end
+    end
+
+    private
+
+    def determine_claim_code(claim_status, uuid)
+      if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status)
+        TravelClaim::Response::CODE_CLAIM_APPROVED
+      elsif FAILED_CLAIM_STATUSES.include?(claim_status)
+        TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
+      else
+        log_with_context(:error, 'Received non-matching claim status',
+                         { claim_status:, status: 'non_matching', uuid: })
+        TravelClaim::Response::CODE_UNKNOWN_ERROR
       end
     end
   end
