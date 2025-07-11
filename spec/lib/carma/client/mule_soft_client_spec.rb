@@ -79,10 +79,10 @@ describe CARMA::Client::MuleSoftClient do
 
               it 'logs submission and response code' do
                 expect(Rails.logger).to receive(:info).with(
-                  "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
+                  "[10-10CG] - Submitting to '#{resource}' using bearer token"
                 )
                 expect(Rails.logger).to receive(:info)
-                  .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code #{status}")
+                  .with("[10-10CG] - Submission to '#{resource}' resource resulted in response code #{status}")
                 expect(Sentry).to receive(:set_extras).with(response_body: mock_response.body)
 
                 subject
@@ -96,11 +96,11 @@ describe CARMA::Client::MuleSoftClient do
 
           it 'raises SchemaValidationError' do
             expect(Rails.logger).to receive(:info)
-              .with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
+              .with("[10-10CG] - Submitting to '#{resource}' using bearer token")
             expect(Rails.logger).to receive(:info)
-              .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 500")
+              .with("[10-10CG] - Submission to '#{resource}' resource resulted in response code 500")
             expect(Rails.logger).to receive(:error).with(
-              '[Form 10-10CG] Submission expected 200 status but received 500'
+              '[10-10CG] - Submission expected 200 status but received 500'
             )
 
             expect { subject }.to raise_error(Common::Exceptions::SchemaValidationErrors)
@@ -114,7 +114,7 @@ describe CARMA::Client::MuleSoftClient do
             context 'results is empty' do
               it 'logs carma response' do
                 expect(Rails.logger).to receive(:error)
-                  .with('[Form 10-10CG] response contained attachment errors',
+                  .with('[10-10CG] - response contained attachment errors',
                         {
                           created_at: '2022-08-04 16:44:37',
                           id: 'aB93S0000000FTqSAM',
@@ -150,7 +150,7 @@ describe CARMA::Client::MuleSoftClient do
 
               it 'logs carma response' do
                 expect(Rails.logger).to receive(:error)
-                  .with('[Form 10-10CG] response contained attachment errors',
+                  .with('[10-10CG] - response contained attachment errors',
                         {
                           created_at: '2022-08-04 16:44:37',
                           id: 'aB93S0000000FTqSAM',
