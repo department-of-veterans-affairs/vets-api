@@ -59,9 +59,14 @@ module PdfFill
     end
 
     def set_font(pdf)
-      # Use built-in Helvetica font - eliminates font embedding issues and file size overhead
-      # while ensuring @ symbols display correctly in all PDF viewers including Adobe Reader
-      pdf.font('Helvetica')
+      pdf.font_families.update(
+        'Roboto' => {
+          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'),
+          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf'),
+        }
+      )
+
+      pdf.font('Roboto')
     end
 
     def generate

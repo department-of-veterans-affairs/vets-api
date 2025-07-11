@@ -1,9 +1,6 @@
 # frozen_string_literal: true
-
 source 'https://rubygems.org'
-
 ruby '~> 3.3.6'
-
 # Modules
 path 'modules' do
   gem 'accredited_representative_portal'
@@ -41,9 +38,7 @@ path 'modules' do
   gem 'vre'
   gem 'vye'
 end
-
 gem 'rails', '~> 7.2.2'
-
 gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
@@ -129,7 +124,7 @@ gem 'pg'
 gem 'pg_query'
 gem 'pg_search'
 gem 'pkce_challenge'
-gem 'prawn'
+gem 'prawn', '~> 2.4.0' # Pinned to version 2.4.0 to avoid embedded font issues (https://github.com/prawnpdf/ttfunk/issues/102)
 gem 'prawn-markup'
 gem 'prawn-table'
 gem 'puma'
@@ -162,6 +157,7 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
+gem 'ttfunk', '~>1.7.0'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
@@ -172,21 +168,18 @@ gem 'warden-github'
 gem 'waterdrop'
 gem 'will_paginate'
 gem 'with_advisory_lock'
-
 group :development, :production do
   # This needs to be required as early as possible in the initialization
   # process because it starts collecting data on 'require'.
   # Only require this in development and production to avoid slowing down tests.
   gem 'coverband'
 end
-
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
 end
-
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
   gem 'committee-rails'
@@ -203,7 +196,6 @@ group :test do
   gem 'vcr'
   gem 'webrick'
 end
-
 group :development, :test do
   gem 'awesome_print' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman'
@@ -240,7 +232,6 @@ group :development, :test do
   gem 'webmock'
   gem 'yard'
 end
-
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
     Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
