@@ -464,6 +464,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         create_draft_appointment: mock_draft,
         config: eps_config
       )
+      allow(Rails.logger).to receive(:error)
     end
 
     context 'when EPS mocks are enabled' do
@@ -532,6 +533,40 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
         expect(result[:success]).to be(false)
         expect(controller).not_to have_received(:fetch_drive_times)
+      end
+    end
+
+    context 'when provider id is nil' do
+      let(:provider_with_nil_id) { OpenStruct.new(id: nil) }
+
+      before do
+        allow(controller).to receive(:find_provider).and_return(provider_with_nil_id)
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'logs an error message and returns failure' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(Rails.logger).to have_received(:error).with(match(/Provider not found/), anything)
+        expect(result[:success]).to be(false)
+        expect(result[:status]).to eq(:not_found)
+      end
+    end
+
+    context 'when provider id is blank' do
+      let(:provider_with_blank_id) { OpenStruct.new(id: '') }
+
+      before do
+        allow(controller).to receive(:find_provider).and_return(provider_with_blank_id)
+        allow(eps_config).to receive(:mock_enabled?).and_return(false)
+      end
+
+      it 'logs an error message and returns failure' do
+        result = controller.send(:process_draft_appointment, referral_id, referral_consult_id)
+
+        expect(Rails.logger).to have_received(:error).with(match(/Provider not found/), anything)
+        expect(result[:success]).to be(false)
+        expect(result[:status]).to eq(:not_found)
       end
     end
   end
