@@ -113,7 +113,9 @@ RSpec.describe 'representation_management:accreditation:reprocess rake task', ty
 
       expect do
         task.invoke('representatives,veteran_service_organizations')
-      end.to output(/Starting manual reprocessing for: representatives, veteran_service_organizations.*Job enqueued successfully for representatives, veteran_service_organizations/m).to_stdout
+      end.to output(
+        /Starting manual reprocessing for: representatives, veteran_service_organizations.*Job enqueued successfully for representatives, veteran_service_organizations/m
+      ).to_stdout
     end
 
     it 'handles all four entity types' do
