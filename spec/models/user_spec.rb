@@ -417,15 +417,15 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes blank and user LOA3' do
         let(:user) do
           build(:user, :loa3,
-                              edipi: nil, first_name: '', middle_name: '', last_name: '', gender: '')
+                edipi: nil, first_name: '', middle_name: '', last_name: '', gender: '')
         end
 
         before do
-          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
-                         edipi: '1007697216',
-                         given_names: [Faker::Name.first_name, Faker::Name.first_name],
-                         family_name: Faker::Name.last_name,
-                         gender: Faker::Gender.short_binary_type.upcase))
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn,
+                                       edipi: '1007697216',
+                                       given_names: [Faker::Name.first_name, Faker::Name.first_name],
+                                       family_name: Faker::Name.last_name,
+                                       gender: Faker::Gender.short_binary_type.upcase))
         end
 
         it 'fetches edipi from MPI' do
@@ -463,12 +463,12 @@ RSpec.describe User, type: :model do
 
           before do
             address = build(:mpi_profile_address,
-                           street: expected_address[:street],
-                           street2: expected_address[:street2],
-                           city: expected_address[:city],
-                           state: expected_address[:state],
-                           postal_code: expected_address[:postal_code],
-                           country: expected_address[:country])
+                            street: expected_address[:street],
+                            street2: expected_address[:street2],
+                            city: expected_address[:city],
+                            state: expected_address[:state],
+                            postal_code: expected_address[:postal_code],
+                            country: expected_address[:country])
             stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, address:))
           end
 
@@ -526,8 +526,8 @@ RSpec.describe User, type: :model do
           let(:cerner_facility_ids) { %w[123 456] }
 
           before do
-            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
-                           cerner_id:, cerner_facility_ids:))
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn,
+                                         cerner_id:, cerner_facility_ids:))
           end
 
           it 'returns cerner_id from the MPI profile' do
@@ -597,7 +597,7 @@ RSpec.describe User, type: :model do
 
           before do
             stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn,
-                           given_names: expected_given_names, family_name: last_name, suffix:))
+                                         given_names: expected_given_names, family_name: last_name, suffix:))
           end
 
           it 'fetches first_name from MPI' do
@@ -709,7 +709,7 @@ RSpec.describe User, type: :model do
           let(:mhv_id) { 'some-mhv-id' }
 
           before do
-            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, active_mhv_ids: active_mhv_ids))
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, active_mhv_ids:))
           end
 
           it 'fetches active_mhv_ids from MPI' do
@@ -777,8 +777,8 @@ RSpec.describe User, type: :model do
           let(:vha_facility_hash) { { '200CRNR' => %w[123456], '200MHV' => %w[123456] } }
 
           before do
-            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, 
-                           vha_facility_ids:, vha_facility_hash:))
+            stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn,
+                                         vha_facility_ids:, vha_facility_hash:))
           end
 
           it 'returns vha_facility_ids from the MPI profile' do
@@ -819,7 +819,7 @@ RSpec.describe User, type: :model do
         let(:given_names) { [Faker::Name.first_name] }
         let(:user) do
           build(:user, :loa3,
-                              first_name: nil, middle_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil, address: nil)
+                first_name: nil, middle_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil, address: nil)
         end
 
         before do
