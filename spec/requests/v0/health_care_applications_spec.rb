@@ -124,26 +124,14 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           }
         end
 
-        it 'returns the enrollment status data' do
-          expect(HealthCareApplication).to receive(:user_icn).and_return('123')
-          expect(HealthCareApplication).to receive(:enrollment_status).with(
+        it 'returns 404 unless signed in' do
+          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+          allow(HealthCareApplication).to receive(:enrollment_status).with(
             '123', nil
           ).and_return(loa1_response)
 
           get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-
-          expect(response.body).to eq(loa1_response.to_json)
-        end
-
-        context 'when the request is rate limited' do
-          it 'returns 429' do
-            expect(HCA::RateLimitedSearch).to receive(
-              :create_rate_limited_searches
-            ).and_raise(RateLimitedSearch::RateLimitedError)
-
-            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-            expect(response).to have_http_status(:too_many_requests)
-          end
+          expect(response).to have_http_status(:not_found)
         end
       end
 
@@ -160,26 +148,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           end
 
           it 'returns 404' do
-            get(
-              enrollment_status_v0_health_care_applications_path,
-              params: { userAttributes: build(:health_care_application).parsed_form }
-            )
+            get(enrollment_status_v0_health_care_applications_path)
             expect(response).to have_http_status(:not_found)
-          end
-        end
-
-        context 'with user passed attributes' do
-          it 'returns the enrollment status data' do
-            expect(HealthCareApplication).to receive(:enrollment_status).with(
-              current_user.icn, true
-            ).and_return(success_response)
-
-            get(
-              enrollment_status_v0_health_care_applications_path,
-              params: { userAttributes: build(:health_care_application).parsed_form }
-            )
-
-            expect(response.body).to eq(success_response.to_json)
           end
         end
 
@@ -198,9 +168,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             }
           end
 
-          it 'returns the enrollment status data' do
+          before do
             allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+          end
 
+          it 'returns the enrollment status data' do
             VCR.use_cassette('hca/ee/lookup_user', erb: true) do
               get(enrollment_status_v0_health_care_applications_path)
 
