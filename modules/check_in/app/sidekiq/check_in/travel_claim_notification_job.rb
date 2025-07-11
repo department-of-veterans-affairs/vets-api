@@ -41,7 +41,8 @@ module CheckIn
         va_notify_send_sms(opts, parsed_date)
       rescue => e
         message = "Failed to send Travel Claim Notification SMS: #{e.message}"
-        self.class.log_sms_attempt(message, opts, :error)
+        log_data = self.class.build_log_data(message, opts, :error)
+        self.class.log_with_context(:error, message, log_data)
 
         # Explicit re-raise to trigger the retry mechanism
         raise e
@@ -49,7 +50,8 @@ module CheckIn
 
       # Log API request success (not delivery success - that would require VA Notify callbacks)
       message = 'Travel Claim Notification SMS API request succeeded'
-      self.class.log_sms_attempt(message, opts, :info)
+      log_data = self.class.build_log_data(message, opts, :info)
+      self.class.log_with_context(:info, message, log_data)
       StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
 
@@ -132,34 +134,32 @@ module CheckIn
       # Log all failures for CIE team metrics tracking
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
       failure_message = "Failed to send Travel Claim Notification SMS: #{message}, Won't Retry"
-      log_sms_attempt(failure_message, opts, :error)
+      log_data = build_log_data(failure_message, opts, :error)
+      log_with_context(:error, failure_message, log_data)
 
       # Explicit return here to be sure retry doesn't trigger.
       false
     end
 
-    # Logs information about SMS sending attempts (success or failure)
-    # For error logs: only logs UUID along with the message
-    # For info logs: logs template ID and phone last four digits (NO UUID)
+    # Builds log data for SMS sending attempts
+    # For error logs: includes UUID along with other data
+    # For info logs: includes template ID and phone last four digits (NO UUID)
     #
     # @param message [String] The log message (success or failure message)
     # @param opts [Hash] Options hash containing job parameters
     # @param log_level [Symbol] The log level to use (:info, :error, etc.) (defaults to :info)
-    # @return [void]
-    #
-    # NOTE: Don't increment StatsD failure yet, this occurs once the job has run through it's retries
-    def self.log_sms_attempt(message, opts, log_level = :info)
-      prefixed_message = "#{self}: #{message}"
+    # @return [Hash] The log data hash
+    def self.build_log_data(message, opts, log_level = :info)
       status = determine_status(message, log_level)
 
-      log_data = { message: prefixed_message, status: }
+      log_data = { status: }
       log_data[:uuid] = opts[:uuid] if log_level == :error
       phone_number = opts[:mobile_phone]
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
       log_data[:template_id] = opts[:template_id]
       log_data[:phone_last_four] = phone_last_four
 
-      Rails.logger.send(log_level, to_s, log_data)
+      log_data
     end
 
     # Determines the appropriate status based on message content and log level
@@ -253,7 +253,8 @@ module CheckIn
       personalisation = { claim_number: claim_number_last_four, appt_date: formatted_date }
 
       message = 'Sending Travel Claim Notification SMS'
-      self.class.log_sms_attempt(message, opts, :info)
+      log_data = self.class.build_log_data(message, opts, :info)
+      self.class.log_with_context(:info, message, log_data)
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
     end
   end

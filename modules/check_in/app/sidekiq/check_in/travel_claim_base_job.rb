@@ -44,15 +44,13 @@ module CheckIn
                                  Constants::CIE_ERROR_TEMPLATE_ID, Constants::OH_ERROR_TEMPLATE_ID,
                                  Constants::OH_FAILURE_TEMPLATE_ID, Constants::OH_TIMEOUT_TEMPLATE_ID].freeze
 
-    private
-
     # Helper method for logging with contextual data across all travel claim jobs
     # @param log_level [Symbol] The log level (:info, :error, etc.)
     # @param message [String] The log message
     # @param data [Hash] Additional contextual data to include in the log
-    def log_with_context(log_level, message, data = {})
-      log_data = { message: "#{self.class}: #{message}" }.merge(data)
-      logger.send(log_level, self.class.to_s, log_data)
+    def self.log_with_context(log_level, message, data = {})
+      log_data = { message: "#{self}: #{message}" }.merge(data)
+      Rails.logger.send(log_level, to_s, log_data)
     end
   end
 end

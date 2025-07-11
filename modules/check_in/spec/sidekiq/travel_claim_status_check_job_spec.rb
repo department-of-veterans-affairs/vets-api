@@ -72,7 +72,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with(
+      expect(Rails.logger).to have_received(:info).with(
         'CheckIn::TravelClaimStatusCheckJob',
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received multiple claim status response',
@@ -98,7 +98,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:info).with(
+      expect(Rails.logger).to have_received(:info).with(
         'CheckIn::TravelClaimStatusCheckJob',
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received empty claim status response',
@@ -142,7 +142,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(Sidekiq.logger).to have_received(:error).with(
+      expect(Rails.logger).to have_received(:error).with(
         'CheckIn::TravelClaimStatusCheckJob',
         {
           message: 'CheckIn::TravelClaimStatusCheckJob: Received non-matching claim status',
@@ -282,9 +282,9 @@ describe CheckIn::TravelClaimStatusCheckJob, type: :worker do
                                             station_number:, facility_type: nil)
 
     allow(StatsD).to receive(:increment)
-    allow(Sidekiq.logger).to receive(:info)
-    allow(Sidekiq.logger).to receive(:error)
-    allow(SemanticLogger::Logger).to receive(:new).and_return(Sidekiq.logger)
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(SemanticLogger::Logger).to receive(:new).and_return(Rails.logger)
   end
 
   describe '#perform for vista sites' do
