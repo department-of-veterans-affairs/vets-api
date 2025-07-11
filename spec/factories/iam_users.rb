@@ -56,6 +56,7 @@ FactoryBot.define do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
+        stub_mpi(build(:mpi_profile, ssn: user_identity.ssn, icn: user_identity.icn, id_theft_flag: true))
       end
     end
 

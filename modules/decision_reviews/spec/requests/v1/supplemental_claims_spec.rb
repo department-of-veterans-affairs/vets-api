@@ -52,7 +52,10 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     }
   end
 
-  before { sign_in_as(user) }
+  before do
+    sign_in_as(user)
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+  end
 
   describe '#create' do
     def personal_information_logs
