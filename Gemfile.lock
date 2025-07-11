@@ -1114,6 +1114,9 @@ GEM
     socksify (1.7.1)
     spoon (0.0.6)
       ffi
+    spring (4.3.0)
+    spring-commands-rspec (1.0.4)
+      spring (>= 0.9.1)
     ssrf_filter (1.2.0)
     staccato (0.5.3)
     statsd-instrument (3.9.9)
@@ -1400,6 +1403,8 @@ DEPENDENCIES
   simplecov
   slack-notify
   socksify
+  spring
+  spring-commands-rspec
   staccato
   statsd-instrument
   strong_migrations
