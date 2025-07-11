@@ -174,42 +174,23 @@ module Swagger
 
           parameter :optional_authorization
 
-          [
-            {
-              name: 'userAttributes[veteranFullName][first]',
-              description: 'user first name'
-            },
-            {
-              name: 'userAttributes[veteranFullName][middle]',
-              description: 'user middle name'
-            },
-            {
-              name: 'userAttributes[veteranFullName][last]',
-              description: 'user last name'
-            },
-            {
-              name: 'userAttributes[veteranFullName][suffix]',
-              description: 'user name suffix'
-            },
-            {
-              name: 'userAttributes[veteranDateOfBirth]',
-              description: 'user date of birth'
-            },
-            {
-              name: 'userAttributes[veteranSocialSecurityNumber]',
-              description: 'user ssn'
-            },
-            {
-              name: 'userAttributes[gender]',
-              description: 'user gender'
-            }
-          ].each do |attribute_data|
-            parameter do
-              key :name, attribute_data[:name]
-              key :in, :body
-              key :description, attribute_data[:description]
-              key :required, false
-              key :type, :string
+          parameter do
+            key :name, :userAttributes
+            key :in, :body
+            key :description, 'User attributes for enrollment status check'
+            key :required, false
+            schema do
+              property :userAttributes, type: :object do
+                property :veteranFullName, type: :object do
+                  property :first, type: :string, description: 'user first name'
+                  property :middle, type: :string, description: 'user middle name'
+                  property :last, type: :string, description: 'user last name'
+                  property :suffix, type: :string, description: 'user name suffix'
+                end
+                property :veteranDateOfBirth, type: :string, description: 'user date of birth'
+                property :veteranSocialSecurityNumber, type: :string, description: 'user ssn'
+                property :gender, type: :string, description: 'user gender'
+              end
             end
           end
 
