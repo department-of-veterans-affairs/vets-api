@@ -6,6 +6,7 @@ module RepresentationManagement
   AGENTS = 'agents'
   ATTORNEYS = 'attorneys'
   REPRESENTATIVES = 'representatives'
+  VSOS = 'veteran_service_organizations'
 
   # rubocop:disable Layout/LineLength
   ENTITY_CONFIG = OpenStruct.new({
@@ -32,7 +33,15 @@ module RepresentationManagement
                                                                        ids_var: :@representative_ids,
                                                                        json_var: :@representative_json_for_address_validation,
                                                                        validation_description: 'Batching representative address updates from GCLAWS Accreditation API'
-                                                                     })
+                                                                     }),
+                                   VSOS => OpenStruct.new({
+                                                            api_type: 'veteran_service_organization',
+                                                            individual_type: 'veteran_service_organization',
+                                                            responses_var: :@vso_responses,
+                                                            ids_var: :@vso_ids,
+                                                            json_var: :@vso_json_for_address_validation,
+                                                            validation_description: 'Batching VSO address updates from GCLAWS Accreditation API'
+                                                          })
                                  }).freeze
-  # rubocop:enable Layout/LineLength
 end
+# rubocop:enable Layout/LineLength

@@ -34,6 +34,8 @@ module RepresentationManagement
 
     AGENTS = RepresentationManagement::AGENTS
     ATTORNEYS = RepresentationManagement::ATTORNEYS
+    REPRESENTATIVES = RepresentationManagement::REPRESENTATIVES
+    VSOS = RepresentationManagement::VSOS
     ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
     # Main job method that processes accredited entities
@@ -150,6 +152,23 @@ module RepresentationManagement
     def update_orgs
       # This will require custom implementation, it can't use handle_entity_record as is.
       # Rename update_entities to update_individuals then add custom implementation for orgs here.
+      config = ENTITY_CONFIG[VSOS]
+      page = 1
+      loop do
+        response = client.get_accredited_entities(type: VSOS, page:)
+        orgs = response.body['items']
+        break if orgs.empty?
+
+        instance_variable_get(config[:responses_var]) << orgs
+        orgs.each do |entity|
+          # Custom handling for orgs
+          org_hash = data_transform_for_entity(entity, config.individual_type)
+          record = AccreditedIndividual.find_or_create_by(ogc_id: entity['id'])
+          record.update(org_hash)
+          instance_variable_get(config[:ids_var]) << record.id
+        end
+        page += 1
+      end
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
