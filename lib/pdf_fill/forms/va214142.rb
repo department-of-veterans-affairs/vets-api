@@ -98,7 +98,10 @@ module PdfFill
           }
         },
         'email' => {
-          key: 'F[0].Page_1[0].EMAIL[0]'
+          key: 'F[0].Page_1[0].EMAIL[0]',
+          limit: 50,
+          question_num: 7,
+          question_text: 'Email'
         },
         'veteranPhone' => {
           key: 'F[0].Page_1[0].EMAIL[1]'

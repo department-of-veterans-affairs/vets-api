@@ -797,7 +797,7 @@ GEM
       racc
     patience_diff (1.2.0)
       optimist (~> 3.0)
-    pdf-core (0.10.0)
+    pdf-core (0.9.0)
     pdf-forms (1.5.2)
       cliver (~> 0.3.2)
       rexml (~> 3.2, >= 3.2.6)
@@ -819,10 +819,9 @@ GEM
     pkce_challenge (1.0.0)
     pp (0.6.2)
       prettyprint
-    prawn (2.5.0)
-      matrix (~> 0.4)
-      pdf-core (~> 0.10.0)
-      ttfunk (~> 1.8)
+    prawn (2.4.0)
+      pdf-core (~> 0.9.0)
+      ttfunk (~> 1.7)
     prawn-markup (1.1.0)
       nokogiri
       prawn
@@ -1136,8 +1135,7 @@ GEM
     timecop (0.9.10)
     timeout (0.4.3)
     trailblazer-option (0.1.2)
-    ttfunk (1.8.0)
-      bigdecimal (~> 3.1)
+    ttfunk (1.7.0)
     typhoeus (1.4.1)
       ethon (>= 0.9.0)
     tzinfo (2.0.6)
@@ -1342,7 +1340,7 @@ DEPENDENCIES
   pg_query
   pg_search
   pkce_challenge
-  prawn
+  prawn (~> 2.4.0)
   prawn-markup
   prawn-table
   pry-byebug
@@ -1408,6 +1406,7 @@ DEPENDENCIES
   test_user_dashboard!
   timecop
   travel_pay!
+  ttfunk (~> 1.7.0)
   tzinfo-data
   utf8-cleaner
   va_notify!
