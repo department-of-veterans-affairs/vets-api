@@ -2,7 +2,7 @@
 
 require 'hca/soap_parser'
 require 'form1010_ezr/service'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 module HCA
   class EzrSubmissionJob
@@ -79,6 +79,7 @@ module HCA
 
       Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       self.class.log_exception_to_sentry(e)
+      self.class.log_exception_to_rails(e)
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
     rescue Ox::ParseError => e
       log_parse_error(parsed_form, e)

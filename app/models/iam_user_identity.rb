@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 
 # Subclasses the `UserIdentity` model. Adds a unique redis namespace for IAM user identities.
 # Like the it's base model it acts as an adapter for the attributes from the IAMSSOeOAuth::Service's
@@ -84,6 +84,7 @@ class IAMUserIdentity < UserIdentity
     mhv_ids = mhv_ids&.split(',')&.uniq
     if mhv_ids&.size.to_i > 1
       log_message_to_sentry('OAuth: Multiple MHV IDs present', :warn, { mhv_ien: id_from_profile })
+      log_message_to_rails('OAuth: Multiple MHV IDs present', :warn, { mhv_ien: id_from_profile })
     end
     mhv_ids&.first
   end

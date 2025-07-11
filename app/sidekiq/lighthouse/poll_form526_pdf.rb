@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
-require './lib/vets/shared_logging'
+require 'vets/shared_logging'
 require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 require 'sidekiq/form526_job_status_tracker/metrics'
@@ -79,6 +79,7 @@ module Lighthouse
       )
     rescue => e
       log_exception_to_sentry(e)
+      log_exception_to_rails(e)
     end
     # :nocov:
 
