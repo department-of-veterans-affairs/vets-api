@@ -116,7 +116,7 @@ gem 'net-sftp'
 gem 'nkf'
 gem 'nokogiri'
 gem 'notifications-ruby-client'
-gem 'octokit'
+gem 'octokit', require: false
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
@@ -149,14 +149,14 @@ gem 'restforce'
 gem 'rgeo-geojson'
 gem 'roo'
 gem 'rswag-ui'
-gem 'rtesseract'
+gem 'rtesseract', require: false
 gem 'ruby-saml'
 gem 'rubyzip'
 gem 'savon'
 gem 'sentry-ruby'
 gem 'shrine'
 gem 'sign_in_service'
-gem 'slack-notify'
+gem 'slack-notify', require: false
 gem 'socksify'
 gem 'staccato'
 gem 'statsd-instrument'
@@ -240,7 +240,7 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
-  gem 'yard'
+  gem 'yard', require: false
 end
 
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
