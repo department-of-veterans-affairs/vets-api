@@ -121,3 +121,4 @@ staging.benefits_claims.pem
 
 # ignore all local settings files
 **/*.local.yml
+.solargraph.yml
