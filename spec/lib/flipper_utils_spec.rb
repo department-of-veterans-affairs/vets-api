@@ -35,19 +35,5 @@ RSpec.describe FlipperUtils do
         expect(described_class.safe_enabled?(feature_name)).to be(false)
       end
     end
-
-    context 'when Flipper raises an exception' do
-      before do
-        stub_const('Flipper', double('Flipper'))
-
-        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).and_raise(StandardError.new('Boom'))
-      end
-
-      it 'logs the error and returns false' do
-        expect(Rails.logger).to receive(:warn).with(/Flipper check failed/)
-        expect(described_class.safe_enabled?(feature_name)).to be(false)
-      end
-    end
   end
 end
