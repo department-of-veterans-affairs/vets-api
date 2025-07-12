@@ -855,6 +855,7 @@ lib/evss/service.rb @department-of-veterans-affairs/backend-review-group
 lib/faraday_adapter_socks @department-of-veterans-affairs/backend-review-group
 lib/feature_flipper.rb @department-of-veterans-affairs/backend-review-group
 lib/flipper @department-of-veterans-affairs/backend-review-group
+lib/flipper_utils.rb @department-of-veterans-affairs/backend-review-group
 lib/form1010_ezr @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/form1095_b @department-of-veterans-affairs/vfs-1095-b @department-of-veterans-affairs/backend-review-group
 lib/form526_backup_submission @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
