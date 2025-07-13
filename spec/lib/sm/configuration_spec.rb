@@ -27,6 +27,18 @@ RSpec.describe SM::Configuration do
       end
     end
 
+    context 'when flipper is not enabled (bootup)' do
+      it 'returns the old API base path' do
+        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(false)
+        allow(Settings.mhv.sm).to receive_messages(
+          host: 'https://old-api.example.com',
+          base_path: 'mhv-sm-api-patient/v1/',
+          gw_base_path: 'v1/sm/patient/'
+        )
+        expect(configuration.base_path).to eq('https://old-api.example.com/mhv-sm-api-patient/v1/')
+      end
+    end
+
     context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is false' do
       it 'returns the old API base path' do
         allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)

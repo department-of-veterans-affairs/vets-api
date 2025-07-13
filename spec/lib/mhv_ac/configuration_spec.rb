@@ -32,6 +32,17 @@ RSpec.describe MHVAC::Configuration do
       end
     end
 
+    context 'when flipper is not enabled (bootup)' do
+      it 'returns the default base path' do
+        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(false)
+        allow(Settings.mhv.rx).to receive_messages(
+          host: 'https://default-api.example.com',
+          base_path: 'mhv-api-patient/v1/'
+        )
+        expect(configuration.base_path).to eq('https://default-api.example.com/mhv-api-patient/v1/')
+      end
+    end
+
     context 'when Flipper is disabled for API gateway' do
       it 'returns the default base path' do
         allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)

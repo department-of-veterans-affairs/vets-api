@@ -6,6 +6,27 @@ RSpec.describe FlipperUtils do
   describe '.safe_enabled?' do
     let(:feature_name) { :some_feature }
 
+    context 'when Flipper is not defined' do
+      before do
+        # stub_const('Flipper', nil) returns "constant" 5 times when 'puts ing defined?(Flipper)'
+        # The below retruns "constant" 3 times and nil 2 times when 'puts ing defined?(Flipper)'
+        @original_flipper = Object.const_get(:Flipper) if Object.const_defined?(:Flipper)
+
+        # rubocop:disable Rspec/RemoveConst
+        Object.send(:remove_const, :Flipper)
+        # rubocop:enable Rspec/RemoveConst
+      end
+
+      after do
+        Object.const_set(:Flipper, @original_flipper) if @original_flipper
+      end
+
+      it 'returns false' do
+        expect { described_class.safe_enabled?(feature_name) }.not_to raise_error
+        expect(described_class.safe_enabled?(feature_name)).to be(false)
+      end
+    end
+
     context 'when Flipper is defined and initialized' do
       before do
         stub_const('Flipper', double('Flipper'))
