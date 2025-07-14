@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
+
 ruby '~> 3.3.6'
+
 # Modules
 path 'modules' do
   gem 'accredited_representative_portal'
@@ -39,6 +41,9 @@ path 'modules' do
   gem 'vre'
   gem 'vye'
 end
+
+gem 'rails', '~> 7.2.2'
+
 gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
@@ -133,7 +138,6 @@ gem 'rack', '~> 2.2.17'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rack-timeout', require: 'rack/timeout/base'
-gem 'rails', '~> 7.2.2'
 gem 'rails_semantic_logger'
 gem 'rails-session_cookie'
 gem 'ransack'
@@ -158,7 +162,7 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
-gem 'ttfunk', '~>1.7.0'
+gem 'ttfunk', '~> 1.7.0'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
