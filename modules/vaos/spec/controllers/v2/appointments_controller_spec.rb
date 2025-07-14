@@ -442,7 +442,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
     let(:mock_provider) { OpenStruct.new(id: 'provider-123') }
     let(:mock_slots) { [{ id: 'slot1' }, { id: 'slot2' }] }
-    let(:mock_draft) { { id: 'draft-789' } }
+    let(:mock_draft) { OpenStruct.new(id: 'draft-789') }
     let(:mock_drive_time) { { duration: 30 } }
 
     let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
