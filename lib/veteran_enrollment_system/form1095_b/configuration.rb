@@ -10,16 +10,6 @@ module VeteranEnrollmentSystem
         :form1095b
       end
 
-      ##
-      # @return [String] Base path for Form 1095-B enrollment API URLs.
-      #
-      def base_path
-        "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
-      end
-
-      ##
-      # @return [String] Service name to use in breakers and metrics.
-      #
       def service_name
         'VeteranEnrollmentSystem/form1095b'
       end
