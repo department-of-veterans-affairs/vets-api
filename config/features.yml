@@ -30,13 +30,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_normalize_path:
-    actor_type: user
-    description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
-      use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
-      NOTE: This should only be enabled in localhost and staging.
-    enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
     description: Enables the people search of the accredited representative portal
@@ -924,10 +917,6 @@ features:
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
-    enable_in_development: true
-  form10297_confirmation_email:
-    actor_type: user
-    description: Enables form 10297 email submission confirmation (VaNotify)
     enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
@@ -2338,3 +2327,6 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+  show_vye_downtime_alert:
+    actor_type: user
+    description: If enabled, show the VYE downtime alert on the VYE application
