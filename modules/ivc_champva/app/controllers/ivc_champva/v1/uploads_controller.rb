@@ -10,6 +10,7 @@ module IvcChampva
 
       FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
+        '10-10D-EXTENDED' => 'vha_10_10d',
         '10-7959F-1' => 'vha_10_7959f_1',
         '10-7959F-2' => 'vha_10_7959f_2',
         '10-7959C' => 'vha_10_7959c',
@@ -68,7 +69,8 @@ module IvcChampva
 
         apps.each do |app|
           ohi_form = generate_ohi_form(app, parsed_form_data)
-          ohi_supporting_doc = create_ohi_attachment(ohi_form)
+          ohi_path = fill_ohi_and_return_path(ohi_form)
+          ohi_supporting_doc = create_custom_attachment(ohi_form, ohi_path, 'VA form 10-7959c')
           add_supporting_doc(parsed_form_data, ohi_supporting_doc)
         end
 
@@ -282,8 +284,7 @@ module IvcChampva
         end
       end
 
-      def create_ohi_attachment(form)
-        file_path = fill_ohi_and_return_path(form)
+      def create_custom_attachment(form, file_path, attachment_id)
         # Create attachment
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: form.form_id)
 
@@ -296,20 +297,35 @@ module IvcChampva
           # Clean up the file
           FileUtils.rm_f(file_path)
 
-          # Get serialized attachment data -
-          # This is a lot chained together, but basically have to take the
-          # persistentattachment and turn it into the same hash structure as
-          # produced when the user directly uploads a supporting attachment.
-          PersistentAttachmentSerializer.new(attachment)
-                                        .serializable_hash
-                                        .dig(:data, :attributes)
-                                        .merge!('attachment_id' => 'VA form 10-7959c')
-                                        .stringify_keys!
+          serialize_attachment(attachment, attachment_id)
         rescue => e
-          Rails.logger.error "Failed to process OHI form: #{e.message}"
+          Rails.logger.error "Failed to process new custom attachment: #{e.message}"
           FileUtils.rm_f(file_path)
           raise
         end
+      end
+
+      ##
+      # Serializes a persistent attachment into a specific format for use in the API.
+      # This method transforms a persistent attachment into a hash structure compatible with
+      # the format used when users directly upload a supporting attachment.
+      #
+      # @param attachment [PersistentAttachment] The attachment object to serialize
+      # @param attachment_id [String] The ID to associate with the attachment
+      # @return [Hash] A hash containing the serialized attachment data with attachment_id
+      def serialize_attachment(attachment, attachment_id)
+        PersistentAttachmentSerializer.new(attachment)
+                                      .serializable_hash
+                                      .dig(:data, :attributes)
+                                      .merge!('attachment_id' => attachment_id)
+                                      .stringify_keys!
+      end
+
+      def get_blank_page
+        tmp_path = File.join('tmp', "#{SecureRandom.hex(8)}_blank.pdf")
+        blank_page_path = Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path
+        FileUtils.cp(blank_page_path, tmp_path)
+        tmp_path
       end
 
       # Probably doesn't need to be its own method, but trying to keep methods
@@ -525,10 +541,36 @@ module IvcChampva
         attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
+      ##
+      # Add a blank page to the PDF with stamped metadata if the form allows it.
+      #
+      # This method checks if the form has a `stamp_metadata` method that returns an array.
+      # If so, it creates a blank page, stamps it with the provided metadata values,
+      # and adds it as a supporting document to the parsed form data.
+      #
+      # @param form [Object] The form object that may contain stamp_metadata method
+      # @param parsed_form_data [Hash] The parsed form data where the supporting document will be added
+      # @return [nil] This method doesn't return any value
+      def add_blank_doc_and_stamp(form, parsed_form_data)
+        # Only triggers if the form in question has a method that returns values
+        # we want to stamp.
+        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Array)
+          blank_page_path = get_blank_page
+          values, attachment_id = form.stamp_metadata
+          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, values)
+          att = create_custom_attachment(form, blank_page_path, attachment_id)
+          add_supporting_doc(parsed_form_data, att)
+        end
+      end
+
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
         filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+
+        # Optionally add a supporting document with arbitrary form-defined values.
+        add_blank_doc_and_stamp(form, parsed_form_data)
+
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
