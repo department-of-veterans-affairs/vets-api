@@ -406,6 +406,56 @@ describe Eps::ProviderService do
       }
     end
 
+    context 'when required parameters are missing or blank' do
+      it 'raises ArgumentError when npi is nil' do
+        expect do
+          service.search_provider_services(npi: nil, specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when npi is empty string' do
+        expect do
+          service.search_provider_services(npi: '', specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when npi is blank' do
+        expect do
+          service.search_provider_services(npi: '   ', specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is nil' do
+        expect do
+          service.search_provider_services(npi:, specialty: nil, address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is empty string' do
+        expect do
+          service.search_provider_services(npi:, specialty: '', address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is blank' do
+        expect do
+          service.search_provider_services(npi:, specialty: '   ', address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when address is nil' do
+        expect do
+          service.search_provider_services(npi:, specialty:, address: nil)
+        end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when address is empty hash' do
+        expect do
+          service.search_provider_services(npi:, specialty:, address: {})
+        end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
+      end
+    end
+
     context 'when the request is successful' do
       context 'when provider specialty does not match' do
         let(:response_body) do

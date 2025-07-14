@@ -212,7 +212,9 @@ claims_api:
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
 claims_evidence_api:
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
+  breakers_error_threshold: 80
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
+  mock: false
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -401,13 +403,10 @@ evss:
   mock_letters: <%= ENV['evss__mock_letters'] %>
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
-  mock_ppiu: <%= ENV['evss__mock_ppiu'] %>
   mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
   pciu:
     timeout: 30
   pciu_address:
-    timeout: 30
-  ppiu:
     timeout: 30
   prefill: true
   root_cert_path: <%= ENV['evss__root_cert_path'] %>
@@ -906,6 +905,7 @@ mhv:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
     app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
     host: <%= ENV['mhv__uhd__host'] %>
+    labs_logging_date_range_days: <%= ENV['mhv__uhd__labs_logging_date_range_days'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"

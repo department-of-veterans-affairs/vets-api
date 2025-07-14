@@ -811,6 +811,30 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
+      it 'supports getting the hca enrollment status with post call' do
+        expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+        expect(HealthCareApplication).to receive(:enrollment_status).with(
+          '123', nil
+        ).and_return(parsed_status: login_required)
+
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications/enrollment_status',
+          200,
+          '_data' => {
+            userAttributes: {
+              veteranFullName: {
+                first: 'First',
+                last: 'last'
+              },
+              veteranDateOfBirth: '1923-01-02',
+              veteranSocialSecurityNumber: '111-11-1234',
+              gender: 'F'
+            }
+          }
+        )
+      end
+
       it 'supports getting the hca health check' do
         VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
           expect(subject).to validate(
@@ -3244,6 +3268,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'claim letters' do
       it 'retrieves a list of claim letters metadata' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:cst_claim_letters_use_lighthouse_api_provider, anything)
+          .and_return(false)
         # Response comes from fixture: spec/fixtures/claim_letter/claim_letter_list.json
         expect(subject).to validate(:get, '/v0/claim_letters', 200, headers)
         expect(subject).to validate(:get, '/v0/claim_letters', 401)

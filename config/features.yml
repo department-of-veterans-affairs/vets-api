@@ -30,13 +30,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_normalize_path:
-    actor_type: user
-    description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
-      use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
-      NOTE: This should only be enabled in localhost and staging.
-    enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
     description: Enables the people search of the accredited representative portal
@@ -458,6 +451,16 @@ features:
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
+  cst_smooth_loading_experience:
+    actor_type: user
+    description: When enabled, the UI of the CST app will have a smoother loading experience
+    enable_in_development: true
+  cst_claim_letters_use_lighthouse_api_provider:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider
+  cst_claim_letters_use_lighthouse_api_provider_mobile:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider in mobile endpoints
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -1124,6 +1127,14 @@ features:
   mhv_accelerated_delivery_uhd_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs lab types returned for OH patients
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs lab types returned for VistA patients
     enable_in_development: false
   mhv_accelerated_delivery_uhd_sp_enabled:
     actor_type: user
