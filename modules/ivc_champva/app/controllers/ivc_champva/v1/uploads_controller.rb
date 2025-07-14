@@ -68,10 +68,14 @@ module IvcChampva
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
-          ohi_form = generate_ohi_form(app, parsed_form_data)
-          ohi_path = fill_ohi_and_return_path(ohi_form)
-          ohi_supporting_doc = create_custom_attachment(ohi_form, ohi_path, 'VA form 10-7959c')
-          add_supporting_doc(parsed_form_data, ohi_supporting_doc)
+          # Generates overflow OHI forms if applicant is associated with
+          # more than 2 healthInsurance policies
+          ohi_forms = generate_ohi_form(app, parsed_form_data)
+          ohi_forms.each do |f|
+            ohi_path = fill_ohi_and_return_path(f)
+            ohi_supporting_doc = create_custom_attachment(f, ohi_path, 'VA form 10-7959c')
+            add_supporting_doc(parsed_form_data, ohi_supporting_doc)
+          end
         end
 
         submit(parsed_form_data)
@@ -247,11 +251,13 @@ module IvcChampva
       private
 
       def applicants_with_ohi(applicants)
-        applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
+        applicants.select do |item|
+          item.key?('health_insurance') || item.key?('medicare')
+        end
       end
 
       ##
-      # Directly generates an OHI form + fills it (via fill_ohi_and_return_path)
+      # Directly generates OHI form(s) + fills them (via fill_ohi_and_return_path)
       # rather than trying to just send an OHI through the default submit
       # method.
       # Main reason for this is because since the PDFs need to be saved
@@ -261,21 +267,74 @@ module IvcChampva
       # @param [Hash] applicant A hash comprising a 10-10d applicant (name, ssn, etc)
       # @param [Hash] form_data complete form submission data object
       #
-      # @return [IvcChampva::VHA107959c] A form instance with details from form_data included
+      # @return [Array<IvcChampva::VHA107959c>] Array of form instances with details from form_data included
       def generate_ohi_form(applicant, form_data)
-        # Create applicant-specific form data
-        applicant_data = form_data.except('applicants', 'raw_data').merge(applicant)
-        applicant_data['form_number'] = '10-7959C'
+        forms = []
+        health_insurance = applicant['health_insurance'] || [{}]
 
-        # Create and configure form
-        form = IvcChampva::VHA107959c.new(applicant_data)
-        form.data['form_number'] = '10-7959C'
-        form
+        # Process insurance policies in pairs (2 per form)
+        # TODO: is there a clean way to piggyback off of existing generate_additional_pdf method?
+        health_insurance.each_slice(2).with_index do |policies_pair, _form_index|
+          # Create applicant-specific form data for this pair of policies
+          applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
+          applicant_data['form_number'] = '10-7959C-REV2025'
+
+          # Map the current pair of policies to the applicant data
+          applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
+
+          # Create and configure form
+          form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
+          form.data['form_number'] = '10-7959C-REV2025'
+          forms << form
+        end
+
+        forms
+      end
+
+      ##
+      # Sets the primary/secondary health insurance properties on the provided
+      # applicant based on a pair of policies. This is so that we can automatically
+      # get the keys/values needed to generate overflow OHI forms in the event
+      # an applicant is associated with > 2 health insurance policies
+      #
+      # @param [Array<Hash>] policies Array of hashes representing insurance policies.
+      # @param [Hash] applicant Hash representing an applicant object from a 10-10d/10-7959c form
+      #
+      # @returns [Hash] Updated applicant hash with the primary/secondary insurances mapped
+      # so an OHI (10-7959c) PDF can be stamped with this info
+      #
+      def map_policies_to_applicant(policies, applicant)
+        # Create a copy of the applicant hash to avoid modifying the original
+        updated_applicant = Marshal.load(Marshal.dump(applicant))
+
+        # Map primary insurance policy (policies[0]) if it exists
+        if policies&.[](0)
+          updated_applicant['applicant_primary_provider'] = policies[0]['provider']
+          updated_applicant['applicant_primary_effective_date'] = policies[0]['effective_date']
+          updated_applicant['applicant_primary_expiration_date'] = policies[0]['expiration_date']
+          updated_applicant['applicant_primary_through_employer'] = policies[0]['through_employer']
+          updated_applicant['applicant_primary_insurance_type'] = policies[0]['insurance_type']
+          updated_applicant['primary_medigap_plan'] = policies[0]['medigap_plan']
+          updated_applicant['primary_additional_comments'] = policies[0]['additional_comments']
+        end
+
+        # Map secondary insurance policy (policies[1]) if it exists
+        if policies&.[](1)
+          updated_applicant['applicant_secondary_provider'] = policies[1]['provider']
+          updated_applicant['applicant_secondary_effective_date'] = policies[1]['effective_date']
+          updated_applicant['applicant_secondary_expiration_date'] = policies[1]['expiration_date']
+          updated_applicant['applicant_secondary_through_employer'] = policies[1]['through_employer']
+          updated_applicant['applicant_secondary_insurance_type'] = policies[1]['insurance_type']
+          updated_applicant['secondary_medigap_plan'] = policies[1]['medigap_plan']
+          updated_applicant['secondary_additional_comments'] = policies[1]['additional_comments']
+        end
+
+        updated_applicant
       end
 
       def fill_ohi_and_return_path(form)
         # Generate PDF
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        filler = IvcChampva::PdfFiller.new(form_number: 'vha_10_7959c_rev2025', form:, uuid: form.uuid)
         # Results in a file path, which is returned
         if @current_user
           filler.generate(@current_user.loa[:current])
