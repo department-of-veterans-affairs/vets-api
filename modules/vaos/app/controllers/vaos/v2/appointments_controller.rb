@@ -564,6 +564,16 @@ module VAOS
         self_schedulable_types.first[:id]
       end
 
+      ##
+      # Builds a standardized error response for draft appointment creation failures.
+      #
+      # This method returns a formatted error response hash using the
+      # {#appt_creation_failed_error} helper, with a specific title and detail
+      # message indicating that an unexpected error occurred while creating the
+      # draft appointment.
+      #
+      # @return [Hash] Formatted error response for draft appointment creation failure
+      #
       def draft_appointment_creation_failed_error
         appt_creation_failed_error(
           title: 'Appointment creation failed',
