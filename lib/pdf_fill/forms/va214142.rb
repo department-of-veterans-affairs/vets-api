@@ -269,6 +269,17 @@ module PdfFill
         end
       end
 
+      def expand_phone_number_field
+        phone = @form_data['veteranPhone']
+        return if phone.blank?
+
+        @form_data['veteranPhone'] = if phone['countryCode'].blank? || phone['countryCode'] == '1'
+                                       phone['number']
+                                     else
+                                       "+#{phone['countryCode']} #{phone['number']}"
+                                     end
+      end
+
       def expand_claimant_address
         @form_data['veteranAddress']['country'] = extract_country(@form_data['veteranAddress'])
         @form_data['veteranAddress']['postalCode'] = split_postal_code(@form_data['veteranAddress'])
@@ -357,6 +368,8 @@ module PdfFill
         expand_signature(@form_data['veteranFullName'], signature_date)
         @form_data['printedName'] = @form_data['signature']
         @form_data['signature'] = "#{@form_data['signature']} - signed by digital authentication to api.va.gov"
+
+        expand_phone_number_field
 
         expand_claimant_address
 

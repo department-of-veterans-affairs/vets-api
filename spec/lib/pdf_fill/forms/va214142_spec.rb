@@ -19,10 +19,20 @@ describe PdfFill::Forms::Va214142 do
     new_form_class.instance_variable_get(:@form_data)
   end
   describe '#merge_fields' do
-    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142/kitchen_sink')).merge_fields.to_json)).to eq(
-        JSON.parse(get_fixture('pdf_fill/21-4142/merge_fields').to_json)
-      )
+    context 'form data with a domestic phone number' do
+      it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142/kitchen_sink')).merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142/merge_fields').to_json)
+        )
+      end
+    end
+
+    context 'form data with an international phone number' do
+      it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142/kitchen_sink_intl_phone')).merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142/merge_fields_intl_phone').to_json)
+        )
+      end
     end
   end
 
