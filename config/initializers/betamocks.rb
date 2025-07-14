@@ -6,7 +6,7 @@ unless Settings.vsp_environment == 'production'
   rescue NoMethodError, ArgumentError
     raise ArgumentError,
           "Betamocks services_config error. Values in settings.yml aren't being interpolated correctly " \
-          'for a betamocks configuration in config/betamocks/services_config.yml'
+          "for a betamocks configuration in #{Settings.betamocks.services_config}"
   end
 end
 
