@@ -277,7 +277,6 @@ module IvcChampva
         y_position -= LINE_HEIGHT
         desired_stamp = { coords: [LEFT_MARGIN, y_position], text:, page: page_number }
 
-        Rails.logger.info "IVC Champva Forms - PdfStamper: stamping metadata item: #{key}"
         stamp(desired_stamp, pdf_path)
         already_stamped << key
       end
