@@ -67,6 +67,7 @@ module BenefitsDocuments
       response.body.dig('data', 'valid') # boolean
     rescue Faraday::ClientError, Faraday::ServerError => e
       handle_error(e, nil, 'services/benefits-documents/v1/documents/validate/claimant')
+      false
     end
 
     private
