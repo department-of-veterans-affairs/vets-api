@@ -143,6 +143,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  cerner_non_eligible_sis_enabled:
+    actor_type: user
+    description: Enables Sign in Service for cerner authentication
   decision_reviews_4142_banner:
     actor_type: user
     description: Enables the re-authorization banner on the 4142 legalese page
