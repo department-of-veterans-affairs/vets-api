@@ -22,9 +22,8 @@ module RepresentationManagement
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
     ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
-    # The maximum allowed percentage decrease between consecutive counts
-    # If the new count is less than (previous count * (1 - DECREASE_THRESHOLD)),
-    # the count is considered invalid and requires manual review
+    # The total number of representatives and organizations parsed from the GCLAWS API
+    # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
     # Retrieves current counts from the API and saves them to the database
@@ -33,7 +32,15 @@ module RepresentationManagement
     # @return [Boolean] true if save was successful, false otherwise
     def save_api_counts
       TYPES.each do |type|
-        send("#{type}=", current_api_counts[type]) if valid_count?(type, notify: false)
+        type = type.to_sym
+        if valid_count?(type)
+          send("#{type}=", current_api_counts[type])
+        else
+          previous_count = current_db_counts[type]
+          new_count = current_api_counts[type]
+          decrease_percentage = (previous_count - new_count).to_f / previous_count
+          notify_threshold_exceeded(type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD)
+        end
       end
 
       save!
@@ -45,9 +52,9 @@ module RepresentationManagement
     # DECREASE_THRESHOLD.
     #
     # @param type [Symbol] The entity type to validate (:agents, :attorneys, etc.)
-    # @param notify [Boolean] Whether to send notifications if threshold is exceeded
     # @return [Boolean] true if count is valid, false otherwise
-    def valid_count?(type, notify: true)
+    def valid_count?(type)
+      type = type.to_sym
       previous_count = current_db_counts[type]
       new_count = current_api_counts[type]
 
@@ -59,14 +66,7 @@ module RepresentationManagement
 
       # Calculate decrease percentage
       decrease_percentage = (previous_count - new_count).to_f / previous_count
-
-      if decrease_percentage > DECREASE_THRESHOLD
-        # Log to Slack and don't update
-        notify_threshold_exceeded(type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD) if notify
-        false
-      else
-        true
-      end
+      decrease_percentage <= DECREASE_THRESHOLD
     end
 
     private
@@ -88,7 +88,7 @@ module RepresentationManagement
       counts = {}
       TYPES.each do |type|
         # We're fetching with a page size of 1 to get the fastest possible response for the total count
-        counts[type] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
+        counts[type.to_sym] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
       rescue => e
         log_error("Error fetching count for #{type}: #{e.message}")
       end

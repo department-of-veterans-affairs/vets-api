@@ -94,6 +94,94 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
     end
   end
 
+  context 'when all error types have DataDog links' do
+    let(:disability_id) { SecureRandom.uuid }
+    let(:poa_id) { SecureRandom.uuid }
+    let(:ews_id) { SecureRandom.uuid }
+    let(:itf_id) { SecureRandom.uuid }
+    let(:va_gov_tid) { "'FORM526SUBMISSION-3443656, user_uuid: [filtered], service_provider: lighthouse'" }
+    let(:from) { '03:59PM EST' }
+    let(:to) { '04:59PM EST' }
+    let(:environment) { 'production' }
+
+    it 'includes DataDog links for all submission IDs' do
+      messenger = described_class.new(
+        errored_disability_claims: [disability_id],
+        errored_poa: [poa_id],
+        errored_ews: [ews_id],
+        errored_itf: [itf_id],
+        errored_va_gov_claims: [va_gov_tid],
+        from:,
+        to:,
+        environment:
+      )
+
+      expect(notifier).to receive(:notify) do |_text, args|
+        # Check Disability Compensation has DataDog link
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including(
+                '```',
+                "<https://vagov.ddog-gov.com/logs?query='#{disability_id}'",
+                "|#{disability_id}>",
+                '```'
+              )
+            }
+          )
+        )
+
+        # Check Power of Attorney has DataDog link
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including(
+                '```',
+                "<https://vagov.ddog-gov.com/logs?query='#{poa_id}'",
+                "|#{poa_id}>",
+                '```'
+              )
+            }
+          )
+        )
+
+        # Check Evidence Waiver has DataDog link
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including(
+                '```',
+                "<https://vagov.ddog-gov.com/logs?query='#{ews_id}'",
+                "|#{ews_id}>",
+                '```'
+              )
+            }
+          )
+        )
+
+        # Check Va Gov has DataDog link with extracted TID
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including(
+                '```',
+                "TID: <https://vagov.ddog-gov.com/logs?query='FORM526SUBMISSION-3443656'",
+                '|FORM526SUBMISSION-3443656>',
+                '```'
+              )
+            }
+          )
+        )
+      end
+
+      messenger.notify!
+    end
+  end
+
   context 'when there are more than 10 failed va.gov submissions & TID is in whitelist' do
     let(:num_errors) { 12 }
     let(:tid_tag) { "FORM526SUBMISSION-#{SecureRandom.uuid}" }

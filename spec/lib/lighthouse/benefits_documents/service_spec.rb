@@ -84,7 +84,7 @@ RSpec.describe BenefitsDocuments::Service do
                       service.queue_document_upload(params)
                     end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
                   end
-
+                  
                   it 'records evidence submission with CREATED status' do
                     subject.queue_document_upload(params)
                     expect(EvidenceSubmission.count).to eq(1)
@@ -94,6 +94,7 @@ RSpec.describe BenefitsDocuments::Service do
                       .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED])
                     expect(current_personalisation['date_submitted']).to eql(submitted_date)
                     expect(evidence_submission.tracked_item_id).to be(1)
+                    expect(evidence_submission.file_size).to eq(File.size(params[:file]))
                     expect(StatsD)
                       .to have_received(:increment)
                       .with('cst.lighthouse.document_uploads.evidence_submission_record_created')
