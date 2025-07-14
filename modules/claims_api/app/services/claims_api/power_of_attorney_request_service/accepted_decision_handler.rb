@@ -4,6 +4,7 @@ require 'bgs_service/veteran_representative_service'
 require 'bgs_service/vnp_ptcpnt_addrs_service'
 require 'bgs_service/vnp_ptcpnt_phone_service'
 
+
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class AcceptedDecisionHandler
@@ -82,6 +83,18 @@ module ClaimsApi
           proc_id: @proc_id,
           records:
         ).call
+
+        read_all_data = gather_read_all_veteran_representative_data
+
+        vnp_find_addrs_data = gather_vnp_addrs_data(@vet_pctpnt_id, 'veteran')
+
+        if @claimant_ptcpnt_id.present?
+          claimant_addr_data = gather_vnp_addrs_data(@claimant_ptcpnt_id, 'claimant')
+
+          read_all_data.merge!(claimant: claimant_addr_data)
+        end
+
+        read_all_data.merge!(veteran: vnp_find_addrs_data)
       end
 
       # key is 'veteran' or 'claimant'
@@ -130,6 +143,29 @@ module ClaimsApi
 
       def poa_code_in_organization?
         ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
+      end
+
+      def gather_read_all_veteran_representative_data
+        records = read_all_vateran_representative_records
+        # error if records nil
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper.new(
+          proc_id: @proc_id,
+          records:
+        ).call
+      end
+
+      # key is 'veteran' or 'claimant'
+      def gather_vnp_addrs_data(pctpnt_id, key)
+        primary_key = @metadata.dig(key, 'vnp_mail_id')
+        # error if primary_key nil
+        res = ClaimsApi::VnpPtcpntAddrsService
+              .new(external_uid: pctpnt_id, external_key: pctpnt_id)
+              .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
+
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyService.new(
+          record: res,
+          key:
+        ).call
       end
     end
   end
