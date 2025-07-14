@@ -109,45 +109,6 @@ module Swagger
 
           parameter :optional_authorization
 
-          [
-            {
-              name: 'userAttributes[veteranFullName][first]',
-              description: 'user first name'
-            },
-            {
-              name: 'userAttributes[veteranFullName][middle]',
-              description: 'user middle name'
-            },
-            {
-              name: 'userAttributes[veteranFullName][last]',
-              description: 'user last name'
-            },
-            {
-              name: 'userAttributes[veteranFullName][suffix]',
-              description: 'user name suffix'
-            },
-            {
-              name: 'userAttributes[veteranDateOfBirth]',
-              description: 'user date of birth'
-            },
-            {
-              name: 'userAttributes[veteranSocialSecurityNumber]',
-              description: 'user ssn'
-            },
-            {
-              name: 'userAttributes[gender]',
-              description: 'user gender'
-            }
-          ].each do |attribute_data|
-            parameter do
-              key :name, attribute_data[:name]
-              key :in, :query
-              key :description, attribute_data[:description]
-              key :required, false
-              key :type, :string
-            end
-          end
-
           response 200 do
             key :description, 'enrollment_status response'
 

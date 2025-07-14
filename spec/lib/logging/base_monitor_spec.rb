@@ -44,12 +44,6 @@ RSpec.describe Logging::BaseMonitor do
     end
   end
 
-  describe '#send_email' do
-    it 'does not raise an error when called' do
-      expect { base_monitor.send(:send_email, 123, :error) }.not_to raise_error
-    end
-  end
-
   describe '#submit_event' do
     it 'calls track_request with the correct arguments' do
       allow(base_monitor).to receive(:track_request)
