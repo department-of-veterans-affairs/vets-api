@@ -26,22 +26,6 @@ RSpec.describe 'Accredited Individuals',
            phone: '123-456-7890',
            email: 'boblaw@example.com',
            individual_type: 'attorney')
-    create(:accredited_individual,
-           :with_location,
-           first_name: 'Alice',
-           last_name: 'Agent',
-           full_name: 'Alice Agent',
-           address_type: 'Domestic',
-           address_line1: '456 Oak Ave',
-           city: 'Sometown',
-           country_name: 'USA',
-           country_code_iso3: 'USA',
-           province: 'New York',
-           state_code: 'NY',
-           zip_code: '12346',
-           phone: '098-765-4321',
-           email: 'aliceagent@example.com',
-           individual_type: 'claims_agent')
   end
 
   path '/representation_management/v0/accredited_individuals' do
@@ -76,7 +60,7 @@ RSpec.describe 'Accredited Individuals',
       response '200', 'OK' do
         let(:lat) { 40.7128 }
         let(:long) { -74.0060 }
-        let(:type) { 'attorney' }
+        let(:type) { 'attorney' } # Query parameter - doesn't conflict with RSpec's type: :request
         let(:distance) { 50 }
         let(:name) { 'Bob Law' }
         let(:page) { 1 }
@@ -98,7 +82,7 @@ RSpec.describe 'Accredited Individuals',
                          current_page: { type: :integer, example: 1 },
                          per_page: { type: :integer, example: 10 },
                          total_pages: { type: :integer, example: 1 },
-                         total_entries: { type: :integer, example: 2 }
+                         total_entries: { type: :integer, example: 1 }
                        }
                      }
                    }
