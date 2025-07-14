@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_08_104133) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -143,6 +143,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_08_104133) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "can_accept_digital_poa_requests", default: false, null: false
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
