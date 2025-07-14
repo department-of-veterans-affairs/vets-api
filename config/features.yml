@@ -153,7 +153,7 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
-  browser_monitoring_enabled:
+  hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
   hca_disable_bgs_service:
