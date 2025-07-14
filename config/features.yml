@@ -30,13 +30,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_normalize_path:
-    actor_type: user
-    description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
-      use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
-      NOTE: This should only be enabled in localhost and staging.
-    enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
     description: Enables the people search of the accredited representative portal
@@ -121,6 +114,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
+  benefits_documents_filter_duplicates:
+    actor_type: user
+    description: When enabled, attempt to catch duplicate documents before sending them to LH
+    enable_in_development: false
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -153,18 +150,21 @@ features:
     actor_type: user
     description: Enables stamped PDF validation on document upload
     enable_in_development: true
+  dv_email_notification:
+    actor_type: user
+    description: Enables dependents verification emails
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
   hca_disable_bgs_service:
     actor_type: user
     description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
-  hca_enrollment_status_v2:
-    actor_type: user
-    description: Enables calling enrollment_status with a post request
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_enrollment_status_filter_get:
+    actor_type: user
+    description: Filters out query params from GET requests for the enrollment_status endpoint.  
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -457,6 +457,16 @@ features:
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
+  cst_smooth_loading_experience:
+    actor_type: user
+    description: When enabled, the UI of the CST app will have a smoother loading experience
+    enable_in_development: true
+  cst_claim_letters_use_lighthouse_api_provider:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider
+  cst_claim_letters_use_lighthouse_api_provider_mobile:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider in mobile endpoints
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -911,10 +921,6 @@ features:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
     enable_in_development: true
-  form10297_confirmation_email:
-    actor_type: user
-    description: Enables form 10297 email submission confirmation (VaNotify)
-    enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
     description: Enables form 26-4555 email submission confirmation (VaNotify)
@@ -1123,6 +1129,14 @@ features:
   mhv_accelerated_delivery_uhd_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs lab types returned for OH patients
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs lab types returned for VistA patients
     enable_in_development: false
   mhv_accelerated_delivery_uhd_sp_enabled:
     actor_type: user
@@ -1447,15 +1461,15 @@ features:
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  pension_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
-  profile_ppiu_reject_requests:
-    actor_type: user
-    description: When enabled, requests to the PPIU controller will return a routing error.
   profile_contact_info_page_ui_refresh:
     actor_type: user
     description: Display updated UI/UX for the profile Contact Information page.
@@ -1908,6 +1922,10 @@ features:
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
+  priority_processing_request_apply_vsi_flash:
+    actor_type: user
+    description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
+    enable_in_development: false
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1982,6 +2000,9 @@ features:
   mobile_cerner_transition:
     actor_type: user
     description: For mobile app, a facility is being transitioned to cerner.
+  mobile_iam_authentication_disabled:
+    actor_type: user
+    description: For mobile app, disable iam authentication method.
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
@@ -2091,6 +2112,9 @@ features:
   burial_submitted_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Burial Submission in Progress email notification
+  burial_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2121,6 +2145,9 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
+  income_and_assets_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
   income_and_assets_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2130,6 +2157,9 @@ features:
   income_and_assets_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  income_and_assets_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
@@ -2309,3 +2339,6 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+  show_vye_downtime_alert:
+    actor_type: user
+    description: If enabled, show the VYE downtime alert on the VYE application

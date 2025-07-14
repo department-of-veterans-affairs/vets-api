@@ -14,12 +14,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       api_url: 'https://api.wellhive.com',
       base_path: 'care-navigation/v1'
     )
+    allow(Settings.vaos.ccra).to receive_messages(
+      api_url: 'http://test.example.com',
+      base_path: 'vaos/v1/patients'
+    )
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-  end
-
-  after do
-    Rails.cache.clear
   end
 
   let(:described_class) { VAOS::V2::AppointmentsController }
@@ -1222,7 +1222,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
   end
 
-  context 'for eps referrals', skip: 'Flaky tests affecting CI stability since June 27th' do
+  context 'for eps referrals' do
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
