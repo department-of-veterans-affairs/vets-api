@@ -69,12 +69,12 @@ module IvcChampva
 
     def convert_pdf_to_image(output_path)
       pdf = MiniMagick::Image.open(@file_path)
-      MiniMagick::Tool::Convert.new do |convert|
+      MiniMagick.convert do |convert|
+        convert << pdf.pages.first.path
         convert.background 'white'
         convert.flatten
         convert.density 150
         convert.quality 100
-        convert << pdf.pages.first.path
         convert << output_path
       end
     end
