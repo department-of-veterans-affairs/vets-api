@@ -84,7 +84,7 @@ RSpec.describe BenefitsDocuments::Service do
                       service.queue_document_upload(params)
                     end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
                   end
-                  
+
                   it 'records evidence submission with CREATED status' do
                     subject.queue_document_upload(params)
                     expect(EvidenceSubmission.count).to eq(1)
