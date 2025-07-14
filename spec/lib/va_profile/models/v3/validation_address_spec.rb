@@ -14,8 +14,7 @@ describe VAProfile::Models::V3::ValidationAddress do
           :cityName => 'Brooklyn',
           :zipCode5 => '11249',
           :country => {
-            countryCodeISO3: 'USA',
-            countryName: 'USA'
+            countryCodeISO3: 'USA'
           },
           :state => {
             stateCode: 'NY'

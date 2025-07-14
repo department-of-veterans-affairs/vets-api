@@ -10,7 +10,9 @@ module AccreditedRepresentativePortal
       ADDRESS_CHANGE_WITHHELD: 1,
       BOTH_WITHHELD: 2,
       NOT_ACCEPTING_CLIENTS: 3,
-      OTHER: 4
+      LIMITED_AUTH: 4,
+      OUTSIDE_SERVICE_TERRITORY: 5,
+      OTHER: 6
     }
 
     DECLINATION_REASON_TEXTS = {
@@ -19,6 +21,8 @@ module AccreditedRepresentativePortal
       BOTH_WITHHELD:
         'Decline, because change of address isn\'t authorized and protected medical record access is limited',
       NOT_ACCEPTING_CLIENTS: 'Decline, because the VSO isn\'t accepting new clients',
+      LIMITED_AUTH: 'Decline, because authorization is limited',
+      OUTSIDE_SERVICE_TERRITORY: 'Decline, because the claimant is outside of the organization’s service territory',
       OTHER: 'Decline, because of another reason'
     }.freeze
 

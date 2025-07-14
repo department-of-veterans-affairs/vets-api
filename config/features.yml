@@ -30,13 +30,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_normalize_path:
-    actor_type: user
-    description: >
-      Enables the path that is passed in to the AccreditedRepresentativePortal::BypassOliveBranch.exclude_arp_route?() method to
-      use the function Rack::Attack::PathNormalizer.normalize_path() which removes trailing slashes and resolves redundant parts of the path.
-      NOTE: This should only be enabled in localhost and staging.
-    enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
     description: Enables the people search of the accredited representative portal
@@ -157,6 +150,9 @@ features:
     actor_type: user
     description: Enables stamped PDF validation on document upload
     enable_in_development: true
+  dv_email_notification:
+    actor_type: user
+    description: Enables dependents verification emails
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -166,6 +162,9 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_enrollment_status_filter_get:
+    actor_type: user
+    description: Filters out query params from GET requests for the enrollment_status endpoint.  
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -458,6 +457,16 @@ features:
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
+  cst_smooth_loading_experience:
+    actor_type: user
+    description: When enabled, the UI of the CST app will have a smoother loading experience
+    enable_in_development: true
+  cst_claim_letters_use_lighthouse_api_provider:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider
+  cst_claim_letters_use_lighthouse_api_provider_mobile:
+    actor_type: user
+    description: When enabled, claims_letters from the Lighthouse API Provider in mobile endpoints
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -912,10 +921,6 @@ features:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
     enable_in_development: true
-  form10297_confirmation_email:
-    actor_type: user
-    description: Enables form 10297 email submission confirmation (VaNotify)
-    enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
     description: Enables form 26-4555 email submission confirmation (VaNotify)
@@ -1124,6 +1129,14 @@ features:
   mhv_accelerated_delivery_uhd_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs lab types returned for OH patients
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs lab types returned for VistA patients
     enable_in_development: false
   mhv_accelerated_delivery_uhd_sp_enabled:
     actor_type: user
@@ -1448,6 +1461,9 @@ features:
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  pension_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1984,6 +2000,9 @@ features:
   mobile_cerner_transition:
     actor_type: user
     description: For mobile app, a facility is being transitioned to cerner.
+  mobile_iam_authentication_disabled:
+    actor_type: user
+    description: For mobile app, disable iam authentication method.
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
@@ -2093,6 +2112,9 @@ features:
   burial_submitted_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Burial Submission in Progress email notification
+  burial_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2135,6 +2157,9 @@ features:
   income_and_assets_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  income_and_assets_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
@@ -2314,3 +2339,6 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+  show_vye_downtime_alert:
+    actor_type: user
+    description: If enabled, show the VYE downtime alert on the VYE application
