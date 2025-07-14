@@ -684,6 +684,10 @@ features:
   disability_compensation_temp_toxic_exposure_optional_dates_fix:
     actor_type: user
     description: enables removing malformed optional dates from the Toxic Exposure node of a Form526Submission at SavedClaim creation.
+  disability_compensation_toxic_exposure_destruction_modal:
+    actor_type: user
+    description: enables confirmation modal when removing toxic exposure data from Form 526
+    enable_in_development: true
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
