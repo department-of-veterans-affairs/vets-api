@@ -75,6 +75,7 @@ class SourceAppMiddleware
     'coronavirus-research-update',
     'covid19screen',
     'dashboard',
+    '0538-dependents-verification',
     'dependents-view-dependents',
     'dhp-consent-flow',
     'discharge-upgrade-instructions',
