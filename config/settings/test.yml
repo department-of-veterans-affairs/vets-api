@@ -319,7 +319,7 @@ dmc:
   fsr_payment_window: 30
   mock_debts: false
   mock_fsr: false
-  # url: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/
+  url: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/
 dogstatsd:
   enabled: false
 edu:
