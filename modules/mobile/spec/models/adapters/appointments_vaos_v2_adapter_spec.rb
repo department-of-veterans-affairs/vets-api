@@ -17,9 +17,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:phone_va_id) { '53352' }
   let(:home_va_mobile_any_id) { '50094' }
   let(:atlas_va_id) { '50095' }
-  let(:home_gfe_id) { '50096' }
+  let(:home_mobile_any_gfe_id) { '50096' }
   let(:home_va_mobile_any_group_id) { '50098' }
   let(:home_va_adhoc_id) { '50099' }
+  let(:home_mobile_gfe_id) { '50100' }
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
@@ -56,7 +57,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
-    expect(adapted_appointments.size).to eq(15)
+    expect(adapted_appointments.size).to eq(16)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
 
@@ -162,8 +163,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_ATLAS')
       end
 
-      it 'sets GFE appointments to VA_VIDEO_CONNECT_GFE' do
-        appt = appointment_by_id(home_gfe_id)
+      it 'sets GFE MOBILE_ANY appointments to VA_VIDEO_CONNECT_GFE' do
+        appt = appointment_by_id(home_mobile_any_gfe_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
+      end
+
+      it 'sets GFE MOBILE_GFE appointments to VA_VIDEO_CONNECT_GFE' do
+        appt = appointment_by_id(home_mobile_gfe_id)
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
       end
 
