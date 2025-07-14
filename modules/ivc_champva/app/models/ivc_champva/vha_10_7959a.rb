@@ -41,7 +41,7 @@ module IvcChampva
       @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type', 'provider_name', 'beginning_date_of_service',
                   'end_date_of_service', 'medication_name', 'prescription_fill_date')
     end
-  
+
     ##
     # Informs pdf stamper that we want to stamp some arbitrary values on a blank page
     # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
@@ -49,9 +49,7 @@ module IvcChampva
     def stamp_metadata
       # If it's a resubmission, we want to stamp resubmission-specific values on a blank
       # page in the PDF
-      if @data['claim_status'] == 'resubmission'
-        [add_resubmission_properties, @data['pdi_or_claim_number']]
-      end
+      [add_resubmission_properties, @data['pdi_or_claim_number']] if @data['claim_status'] == 'resubmission'
     end
 
     def desired_stamps

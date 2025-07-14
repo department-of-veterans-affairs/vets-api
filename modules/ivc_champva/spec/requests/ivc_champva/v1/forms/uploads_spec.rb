@@ -1022,61 +1022,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
-  describe '#get_blank_page' do
-    let(:controller) { IvcChampva::V1::UploadsController.new }
-    let(:blank_page_template_path) { Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path }
-
-    before do
-      # Ensure the template file exists or mock its existence
-      FileUtils.mkdir_p(File.dirname(blank_page_template_path))
-      FileUtils.touch(blank_page_template_path) unless File.exist?(blank_page_template_path)
-    end
-
-    after do
-      # Clean up any test files that were created
-      tmp_files = Dir.glob(File.join('tmp', '*_blank.pdf'))
-      FileUtils.rm_f(tmp_files)
-    end
-
-    it 'creates a new file in the tmp directory' do
-      # Count files before
-      tmp_files_before = Dir.glob(File.join('tmp', '*_blank.pdf')).count
-
-      # Call the method
-      result = controller.send(:get_blank_page)
-
-      # Count files after
-      tmp_files_after = Dir.glob(File.join('tmp', '*_blank.pdf')).count
-
-      # Verify a new file was created
-      expect(tmp_files_after).to eq(tmp_files_before + 1)
-      expect(result).to match(%r{tmp/[a-f0-9]{16}_blank\.pdf})
-    end
-
-    it 'copies the blank page template to the new file' do
-      # Call the method
-      result = controller.send(:get_blank_page)
-
-      # Verify the content was copied
-      expect(File.exist?(result)).to be true
-      expect(File.size(result)).to eq(File.size(blank_page_template_path))
-      expect(FileUtils.compare_file(result, blank_page_template_path)).to be true
-    end
-
-    it 'returns a path to an existing file' do
-      result = controller.send(:get_blank_page)
-      expect(File.exist?(result)).to be true
-    end
-
-    it 'handles missing template directory gracefully' do
-      allow(Rails.root).to receive(:join).and_return(Pathname.new('/nonexistent/path/blank_page.pdf'))
-
-      expect do
-        controller.send(:get_blank_page)
-      end.to raise_error(Errno::ENOENT)
-    end
-  end
-
   describe '#add_blank_doc_and_stamp integration' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:parsed_form_data) { { 'form_number' => '10-7959A', 'supporting_docs' => [] } }
@@ -1092,7 +1037,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     it 'creates and adds a supporting document' do
       # Mock out the PDF operations to avoid actually creating files
-      expect(controller).to receive(:get_blank_page).and_return('/path/to/blank.pdf')
       expect(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
       expect(controller).to receive(:create_custom_attachment).and_return({ 'attachment_id' => 'doc1' })
 
@@ -1115,7 +1059,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
 
     it 'does nothing when form has no stamp_metadata method' do
-      expect(controller).not_to receive(:get_blank_page)
       expect(IvcChampva::PdfStamper).not_to receive(:stamp_metadata_items)
 
       controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)

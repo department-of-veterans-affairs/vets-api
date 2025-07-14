@@ -356,35 +356,12 @@ module IvcChampva
           # Clean up the file
           FileUtils.rm_f(file_path)
 
-          serialize_attachment(attachment, attachment_id)
+          IvcChampva::Attachments.serialize_attachment(attachment, attachment_id)
         rescue => e
           Rails.logger.error "Failed to process new custom attachment: #{e.message}"
           FileUtils.rm_f(file_path)
           raise
         end
-      end
-
-      ##
-      # Serializes a persistent attachment into a specific format for use in the API.
-      # This method transforms a persistent attachment into a hash structure compatible with
-      # the format used when users directly upload a supporting attachment.
-      #
-      # @param attachment [PersistentAttachment] The attachment object to serialize
-      # @param attachment_id [String] The ID to associate with the attachment
-      # @return [Hash] A hash containing the serialized attachment data with attachment_id
-      def serialize_attachment(attachment, attachment_id)
-        PersistentAttachmentSerializer.new(attachment)
-                                      .serializable_hash
-                                      .dig(:data, :attributes)
-                                      .merge!('attachment_id' => attachment_id)
-                                      .stringify_keys!
-      end
-
-      def get_blank_page
-        tmp_path = File.join('tmp', "#{SecureRandom.hex(8)}_blank.pdf")
-        blank_page_path = Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path
-        FileUtils.cp(blank_page_path, tmp_path)
-        tmp_path
       end
 
       # Probably doesn't need to be its own method, but trying to keep methods
@@ -614,7 +591,7 @@ module IvcChampva
         # Only triggers if the form in question has a method that returns values
         # we want to stamp.
         if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Array)
-          blank_page_path = get_blank_page
+          blank_page_path = IvcChampva::Attachments.get_blank_page
           values, attachment_id = form.stamp_metadata
           IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, values)
           att = create_custom_attachment(form, blank_page_path, attachment_id)
