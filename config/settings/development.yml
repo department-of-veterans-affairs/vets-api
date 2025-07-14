@@ -1327,6 +1327,18 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21_0538: &vanotify_services_dependents_verification
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_error
+        received:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_received
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_submitted
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1426,6 +1438,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
       template_id:
