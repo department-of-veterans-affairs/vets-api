@@ -13,6 +13,8 @@ module VAOS
       APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
       APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
       APPT_CREATION_DURATION_METRIC = 'api.vaos.appointment_creation.duration'
+      REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_stationid.access'
+      PROVIDER_DRAFT_NETWORK_ID_METRIC = 'api.vaos.provider_draft_network_id.access'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -818,6 +820,16 @@ module VAOS
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
 
+        # Log referral provider IDs for tracking
+        referring_provider_id = sanitize_log_value(referral.referring_facility_code)
+        referral_provider_id = sanitize_log_value(referral.provider_npi)
+        
+        StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
+          "service:community_care_appointments",
+          "referring_provider_id:#{referring_provider_id}",
+          "referral_provider_id:#{referral_provider_id}"
+        ])
+
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
 
@@ -834,6 +846,13 @@ module VAOS
                                provider_specialty: referral.provider_specialty,
                                tag: CC_APPOINTMENT_ERROR_TAG })
           return { success: false, json: provider_not_found_error, status: :not_found }
+        end
+
+        # Log provider network ID for tracking
+        if provider&.network_ids.present?
+          provider.network_ids.each do |network_id|
+            StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC, tags: ["service:Community Care Appointments", "network_id:#{network_id}"])
+          end
         end
 
         slots = fetch_provider_slots(referral, provider)
@@ -858,8 +877,17 @@ module VAOS
 
         return unless start_time
 
-        duration_ms = ((Time.current.to_f - start_time) * 1000).round
-        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms, tags: [CC_APPOINTMENT_ERROR_TAG])
+        duration = (Time.current.to_f - start_time) * 1000
+        StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: [CC_APPOINTMENT_ERROR_TAG])
+      end
+
+      # Sanitizes log values by removing spaces and providing fallback for nil/empty values
+      # @param value [String, nil] the value to sanitize
+      # @return [String] sanitized value or "no_value" if blank
+      def sanitize_log_value(value)
+        return 'no_value' if value.blank?
+        
+        value.to_s.gsub(/\s+/, '_')
       end
     end
   end
