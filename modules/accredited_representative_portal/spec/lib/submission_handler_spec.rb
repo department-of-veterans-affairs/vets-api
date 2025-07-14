@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'accredited_representative_portal/benefits_intake/submission_handler'
+require 'accredited_representative_portal/submission_handler'
 require 'accredited_representative_portal/monitor'
 require 'accredited_representative_portal/notification_email'
 
-RSpec.describe AccreditedRepresentativePortal::BenefitsIntake::SubmissionHandler do
+RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
   let(:handler) { described_class }
   let(:claim) { double(form_id: 'TEST', id: 23) }
   let(:monitor) { double(AccreditedRepresentativePortal::Monitor) }
@@ -23,11 +23,11 @@ RSpec.describe AccreditedRepresentativePortal::BenefitsIntake::SubmissionHandler
 
     before do
       allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
-        .and_return(Lighthouse::SubmissionAttempt)
+                                                             .and_return(Lighthouse::SubmissionAttempt)
       allow(Lighthouse::SubmissionAttempt).to receive(:where).with(
         status: 'pending',
         'lighthouse_submissions.form_id' =>
-          SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
+          AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
       ).and_return([submission_attempt])
     end
 
@@ -40,7 +40,8 @@ RSpec.describe AccreditedRepresentativePortal::BenefitsIntake::SubmissionHandler
   describe '#on_failure' do
     it 'logs silent failure avoided' do
       expect(notification).to receive(:deliver).with(:error).and_return true
-      expect(monitor).to receive(:log_silent_failure_avoided).with(hash_including(claim_id: claim.id), call_location: nil)
+      expect(monitor).to receive(:log_silent_failure_avoided).with(hash_including(claim_id: claim.id),
+                                                                   call_location: nil)
       instance.handle(:failure)
     end
 

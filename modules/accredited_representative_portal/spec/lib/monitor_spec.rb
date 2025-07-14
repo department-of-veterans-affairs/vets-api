@@ -13,7 +13,7 @@ RSpec.describe AccreditedRepresentativePortal::Monitor do
 
   describe '#form_id' do
     it 'returns PROPER_FORM_ID' do
-      expect(monitor.send(:form_id)).to eq(SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID)
+      expect(monitor.send(:form_id)).to eq(AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID)
     end
   end
 

@@ -25,3 +25,5 @@ RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
     end
   end
 end
+
+# no factory class

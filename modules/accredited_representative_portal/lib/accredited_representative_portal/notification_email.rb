@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AccreditedRepresentativePortal
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     def initialize(saved_claim_id)

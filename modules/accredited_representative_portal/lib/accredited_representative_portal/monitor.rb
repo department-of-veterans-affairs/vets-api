@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AccreditedRepresentativePortal
   class Monitor < ::Logging::BaseMonitor
     CLAIM_STATS_KEY = 'api.accredited_representative_portal_claim'
@@ -25,7 +27,7 @@ module AccreditedRepresentativePortal
     end
 
     def form_id
-      SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
+      AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
     end
 
     def send_email(claim_id, email_type)
