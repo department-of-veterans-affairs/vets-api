@@ -2337,3 +2337,6 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  accredited_representative_portal_faux_redaction:
+    actor_type: user
+    description: Enables faux redaction for the Accredited Representative Portal POA requests
