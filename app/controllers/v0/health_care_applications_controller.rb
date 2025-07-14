@@ -62,8 +62,8 @@ module V0
 
       icn = if loa3
               current_user.icn
-            elsif request.method == 'GET' && Flipper.enabled?(:hca_enrollment_status_filter_get)
-              # Return nil if `GET` request and user is not authenticated
+            elsif request.get? && Flipper.enabled?(:hca_enrollment_status_filter_get)
+              # Return nil if `GET` request and user is not loa3
               nil
             else
               Sentry.set_extras(user_loa: current_user&.loa)
