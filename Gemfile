@@ -173,18 +173,21 @@ gem 'warden-github'
 gem 'waterdrop'
 gem 'will_paginate'
 gem 'with_advisory_lock'
+
 group :development, :production do
   # This needs to be required as early as possible in the initialization
   # process because it starts collecting data on 'require'.
   # Only require this in development and production to avoid slowing down tests.
   gem 'coverband'
 end
+
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
 end
+
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
   gem 'committee-rails'
@@ -201,6 +204,7 @@ group :test do
   gem 'vcr'
   gem 'webrick'
 end
+
 group :development, :test do
   gem 'awesome_print' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman'
@@ -237,6 +241,7 @@ group :development, :test do
   gem 'webmock'
   gem 'yard'
 end
+
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
     Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
