@@ -159,6 +159,9 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_facility_import_job_filter_facilities:
+    actor_type: user
+    description: Delete an facilities that were previously imported but no longer exist in Lighthouse and filter on mobile.
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
