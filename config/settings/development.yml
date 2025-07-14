@@ -1333,6 +1333,9 @@ vanotify:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: form0969_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: form0969_persistent_attachment_error_email_template_id
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: form0969_received_email_template_id
@@ -1348,6 +1351,9 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
         received:
           flipper_id: pension_received_email_notification
           template_id: form527ez_received_email_template_id
@@ -1363,6 +1369,9 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: burial_claim_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: burial_persistent_attachment_error_email_template_id
         received:
           flipper_id: burial_received_email_notification
           template_id: burial_received_email_template_id
