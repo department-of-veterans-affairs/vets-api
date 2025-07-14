@@ -40,17 +40,17 @@ module VAOS
         # Add uuid to the detailed response
         response.uuid = referral_uuid
 
-        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: ['Community Care Appointments'])
+        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: ["service:community_care_appointments"])
 
         # Log referral provider IDs for tracking
         referring_provider_id = sanitize_log_value(response.referring_facility_code)
         referral_provider_id = sanitize_log_value(response.provider_npi)
 
-        StatsD.increment(REFERRAL_STATIONID_METRIC, tags: [
-                           'Community Care Appointments',
-                           "referring_provider_id:#{referring_provider_id}",
-                           "referral_provider_id:#{referral_provider_id}"
-                         ])
+                StatsD.increment(REFERRAL_STATIONID_METRIC, tags: [
+                          "service:community_care_appointments",
+                          "referring_provider_id:#{referring_provider_id}",
+                          "referral_provider_id:#{referral_provider_id}"
+                        ])
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end

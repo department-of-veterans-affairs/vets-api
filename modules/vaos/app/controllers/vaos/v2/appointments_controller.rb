@@ -79,18 +79,18 @@ module VAOS
         begin
           response_data = process_draft_appointment(referral_id, referral_consult_id)
           if response_data[:success]
-            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: [CC_APPOINTMENTS_TAG])
+            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ["service:community_care_appointments"])
             ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
             render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
           else
-            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENTS_TAG])
+            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ["service:community_care_appointments"])
             render json: response_data[:json], status: response_data[:status]
           end
         rescue Redis::BaseError => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENTS_TAG])
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ["service:community_care_appointments"])
           handle_redis_error(e)
         rescue => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENTS_TAG])
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ["service:community_care_appointments"])
           handle_appointment_creation_error(e)
         end
       end
@@ -129,16 +129,16 @@ module VAOS
 
         if appointment[:error]
           StatsD.increment(APPT_CREATION_FAILURE_METRIC,
-                           tags: [CC_APPOINTMENTS_TAG, "error_type:#{appointment[:error]}"])
+                           tags: ["service:community_care_appointments", "error_type:#{appointment[:error]}"])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         log_referral_booking_duration(submit_params[:referral_number])
 
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: [CC_APPOINTMENTS_TAG])
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ["service:community_care_appointments"])
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENTS_TAG])
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["service:community_care_appointments"])
         handle_appointment_creation_error(e)
       end
 
@@ -848,11 +848,11 @@ module VAOS
         referring_provider_id = sanitize_log_value(referral.referring_facility_code)
         referral_provider_id = sanitize_log_value(referral.provider_npi)
 
-        StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
-                           CC_APPOINTMENTS_TAG,
-                           "referring_provider_id:#{referring_provider_id}",
-                           "referral_provider_id:#{referral_provider_id}"
-                         ])
+                StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
+                          "service:community_care_appointments",
+                          "referring_provider_id:#{referring_provider_id}",
+                          "referral_provider_id:#{referral_provider_id}"
+                        ])
       end
 
       ##
@@ -901,7 +901,7 @@ module VAOS
 
         provider.network_ids.each do |network_id|
           StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC,
-                           tags: [CC_APPOINTMENTS_TAG, "network_id:#{network_id}"])
+                           tags: ["service:community_care_appointments", "network_id:#{network_id}"])
         end
       end
 
@@ -937,7 +937,7 @@ module VAOS
         return unless start_time
 
         duration = (Time.current.to_f - start_time) * 1000
-        StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: [CC_APPOINTMENTS_TAG])
+        StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: ["service:community_care_appointments"])
       end
 
       # Sanitizes log values by removing spaces and providing fallback for nil/empty values

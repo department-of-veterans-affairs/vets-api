@@ -1159,7 +1159,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                 expect(StatsD).to have_received(:histogram).with(described_class::APPT_CREATION_DURATION_METRIC,
                                                                  kind_of(Numeric),
-                                                                 tags: [described_class::CC_APPOINTMENTS_TAG])
+                                                                 tags: ['service:community_care_appointments'])
               end
             end
           end
@@ -1405,13 +1405,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                         expect(StatsD).to receive(:increment)
                           .with(described_class::APPT_DRAFT_CREATION_SUCCESS_METRIC,
-                                tags: [described_class::CC_APPOINTMENTS_TAG])
+                                tags: ['service:community_care_appointments'])
                           .once
 
                         expect(StatsD).to receive(:increment)
                           .with(described_class::REFERRAL_DRAFT_STATIONID_METRIC,
                                 tags: [
-                                  described_class::CC_APPOINTMENTS_TAG,
+                                  'service:community_care_appointments',
                                   'referring_provider_id:528A6',
                                   'referral_provider_id:7894563210'
                                 ])
@@ -1420,7 +1420,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                         expect(StatsD).to receive(:increment)
                           .with(described_class::PROVIDER_DRAFT_NETWORK_ID_METRIC,
                                 tags: [
-                                  described_class::CC_APPOINTMENTS_TAG,
+                                  'service:community_care_appointments',
                                   'network_id:sandbox-network-5vuTac8v'
                                 ])
                           .once

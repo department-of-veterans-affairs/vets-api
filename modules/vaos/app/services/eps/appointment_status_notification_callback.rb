@@ -52,7 +52,7 @@ module Eps
           appointment_id_present: metadata['appointment_id_last4'].present?,
           status: notification.status
         )
-        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['service:community_care_appointments'])
       end
 
       metadata
@@ -85,7 +85,7 @@ module Eps
 
       case status.downcase
       when 'delivered'
-        StatsD.increment("#{STATSD_KEY}.success", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_KEY}.success", tags: ['service:community_care_appointments'])
       when *FAILURE_STATUSES
         handle_failure(notification, base_data)
       else
@@ -99,7 +99,7 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_failure(notification, base_data)
-      StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
+              StatsD.increment("#{STATSD_KEY}.failure", tags: ['service:community_care_appointments'])
       StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
 
       failure_type = FAILURE_TYPE_MAP[notification.status&.downcase] || 'unknown'
@@ -120,7 +120,7 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_unknown_status(notification, base_data)
-      StatsD.increment("#{STATSD_KEY}.unknown_status", tags: ['Community Care Appointments'])
+              StatsD.increment("#{STATSD_KEY}.unknown_status", tags: ['service:community_care_appointments'])
 
       unknown_data = base_data.merge(
         status_reason: notification.status_reason
