@@ -268,7 +268,6 @@ module IvcChampva
       y_position = start_y
       already_stamped = []
 
-      byebug
       metadata.each do |key, value|
         # If we hit the bottom margin, return what's left to process
         return [already_stamped, metadata.except(*already_stamped)] if y_position < BOTTOM_MARGIN
@@ -279,7 +278,6 @@ module IvcChampva
         desired_stamp = { coords: [LEFT_MARGIN, y_position], text:, page: page_number }
 
         Rails.logger.info "IVC Champva Forms - PdfStamper: stamping metadata item: #{key}"
-        byebug
         stamp(desired_stamp, pdf_path)
         already_stamped << key
       end
