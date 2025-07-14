@@ -47,10 +47,10 @@ module VAOS
         referral_provider_id = sanitize_log_value(response.provider_npi)
 
         StatsD.increment(REFERRAL_STATIONID_METRIC, tags: [
-          "service:community_care_appointments",
-          "referring_provider_id:#{referring_provider_id}",
-          "referral_provider_id:#{referral_provider_id}"
-        ])
+                           'service:community_care_appointments',
+                           "referring_provider_id:#{referring_provider_id}",
+                           "referral_provider_id:#{referral_provider_id}"
+                         ])
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end

@@ -825,10 +825,10 @@ module VAOS
         referral_provider_id = sanitize_log_value(referral.provider_npi)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
-          "service:community_care_appointments",
-          "referring_provider_id:#{referring_provider_id}",
-          "referral_provider_id:#{referral_provider_id}"
-        ])
+                           'service:community_care_appointments',
+                           "referring_provider_id:#{referring_provider_id}",
+                           "referral_provider_id:#{referral_provider_id}"
+                         ])
 
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
@@ -851,7 +851,8 @@ module VAOS
         # Log provider network ID for tracking
         if provider&.network_ids.present?
           provider.network_ids.each do |network_id|
-            StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC, tags: ["service:Community Care Appointments", "network_id:#{network_id}"])
+            StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC,
+                             tags: ['service:Community Care Appointments', "network_id:#{network_id}"])
           end
         end
 
