@@ -3,6 +3,7 @@
 require 'bgs_service/veteran_representative_service'
 require 'bgs_service/vnp_ptcpnt_addrs_service'
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'bgs_service/vnp_ptcpnt_phone_service'
 <<<<<<< HEAD
 
@@ -10,6 +11,8 @@ require 'bgs_service/vnp_ptcpnt_phone_service'
 >>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)
 =======
 >>>>>>> e1171e221b (API-43735-gather-data-for-poa-accept-2)
+=======
+>>>>>>> 31e3f06064 (API-43735-gather-data-for-poa-accept-2)
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -62,6 +65,7 @@ module ClaimsApi
       private
 
       def gather_poa_data
+<<<<<<< HEAD
 <<<<<<< HEAD
         veteran_data = gather_veteran_data
 
@@ -236,11 +240,20 @@ module ClaimsApi
 
         if @claimant_ptcpnt_id.present?
           claimant_addr_data = gather_vnp_addrs_data('claimant')
+=======
+        read_all_data = gather_read_all_veteran_representative_data
+
+        vnp_find_addrs_data = gather_vnp_addrs_data(@vet_pctpnt_id, 'veteran')
+
+        if @claimant_ptcpnt_id.present?
+          claimant_addr_data = gather_vnp_addrs_data(@claimant_ptcpnt_id, 'claimant')
+>>>>>>> 31e3f06064 (API-43735-gather-data-for-poa-accept-2)
 
           read_all_data.merge!(claimant: claimant_addr_data)
         end
 
         read_all_data.merge!(veteran: vnp_find_addrs_data)
+<<<<<<< HEAD
 >>>>>>> e1171e221b (API-43735-gather-data-for-poa-accept-2)
       end
 
@@ -284,6 +297,8 @@ module ClaimsApi
           proc_id: @proc_id,
           records:
         ).call
+=======
+>>>>>>> 31e3f06064 (API-43735-gather-data-for-poa-accept-2)
       end
 
       # key is 'veteran' or 'claimant'
@@ -300,8 +315,34 @@ module ClaimsApi
           record: res
         ).call
       end
+<<<<<<< HEAD
 =======
 >>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
+=======
+
+      def gather_read_all_veteran_representative_data
+        records = read_all_vateran_representative_records
+        # error if records nil
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper.new(
+          proc_id: @proc_id,
+          records:
+        ).call
+      end
+
+      # key is 'veteran' or 'claimant'
+      def gather_vnp_addrs_data(pctpnt_id, key)
+        primary_key = @metadata.dig(key, 'vnp_mail_id')
+        # error if primary_key nil
+        res = ClaimsApi::VnpPtcpntAddrsService
+              .new(external_uid: pctpnt_id, external_key: pctpnt_id)
+              .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
+
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyService.new(
+          record: res,
+          key:
+        ).call
+      end
+>>>>>>> 31e3f06064 (API-43735-gather-data-for-poa-accept-2)
     end
   end
 end
