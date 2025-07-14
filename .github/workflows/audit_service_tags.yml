@@ -4,8 +4,10 @@ on:
     branches:
       - 'master'
 permissions:
+  id-token: write
   contents: read
   checks: write
+
 jobs:
   audit_service_tags:
     permissions: write-all
@@ -20,7 +22,13 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
     runs-on: ubuntu-16-cores-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR HEAD ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - uses: docker/login-action@v3
         with:
@@ -30,8 +38,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
       - name: Login to Amazon ECR
@@ -49,6 +56,16 @@ jobs:
         with:
           driver-opts: image=${{ steps.ecr-login.outputs.registry }}/moby/buildkit:buildx-stable-1
 
+      - name: Restore Docker cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.head_ref || github.ref_name }}-
+            ${{ runner.os }}-buildx-master-
+            ${{ runner.os }}-buildx-
+
       - name: Build Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -61,8 +78,8 @@ jobs:
           push: false
           load: true
           tags: vets-api
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2

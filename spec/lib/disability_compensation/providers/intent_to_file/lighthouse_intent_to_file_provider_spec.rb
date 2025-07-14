@@ -5,7 +5,7 @@ require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_f
 require 'support/disability_compensation_form/shared_examples/intent_to_file_provider'
 
 RSpec.describe LighthouseIntentToFileProvider do
-  let(:current_user) { build(:user, :loa3) }
+  let(:current_user) { build(:user, :loa3, :legacy_icn) }
   let(:provider) { LighthouseIntentToFileProvider.new(current_user) }
 
   before do
@@ -20,7 +20,7 @@ RSpec.describe LighthouseIntentToFileProvider do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
       response = provider.get_intent_to_file('compensation', '', '')
       expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
-      expect(response['intent_to_file'].length).to eq(1)
+      expect(response.intent_to_file.length).to eq(1)
     end
   end
 
@@ -28,8 +28,8 @@ RSpec.describe LighthouseIntentToFileProvider do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
       response = provider.create_intent_to_file('compensation', '', '')
       expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFileResponse)
-      expect(response['intent_to_file']['type']).to eq('compensation')
-      expect(response['intent_to_file']['id']).to be_present
+      expect(response.intent_to_file.type).to eq('compensation')
+      expect(response.intent_to_file.id).to be_present
     end
   end
 
@@ -37,8 +37,8 @@ RSpec.describe LighthouseIntentToFileProvider do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_survivor_200_response') do
       response = provider.create_intent_to_file('survivor', '', '')
       expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFileResponse)
-      expect(response['intent_to_file']['type']).to eq('survivor')
-      expect(response['intent_to_file']['id']).to be_present
+      expect(response.intent_to_file.type).to eq('survivor')
+      expect(response.intent_to_file.id).to be_present
     end
   end
 

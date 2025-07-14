@@ -25,8 +25,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       .and_return('fake_access_token')
   end
 
-  let(:user) { create(:user, :loa3, icn: '123498767V234859') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user) { create(:user, :loa3, :legacy_icn) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -455,7 +455,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with Lighthouse as submission provider' do
-        let(:user) { create(:user, :loa3, icn: '123498767V234859') }
+        let(:user) { create(:user, :loa3, :legacy_icn) }
         let(:submission) do
           create(:form526_submission,
                  :with_everything,
@@ -487,6 +487,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                          headers:
                        ))
           expect_retryable_error(Common::Exceptions::UpstreamUnprocessableEntity)
+        end
+
+        it 'retries with a Net::ReadTimeout Error' do
+          error = Net::ReadTimeout.new('#<TCPSocket:(closed)>')
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
+        it 'retries with a Faraday::TimeoutError Error' do
+          error = Faraday::TimeoutError.new
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
+        end
+
+        it 'retries with a Common::Exceptions::Timeout Error' do
+          error = Common::Exceptions::Timeout.new('Timeout error')
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:submit526).and_raise(error)
+          expect_retryable_error(error)
         end
 
         it 'does not retry UnprocessableEntity errors with "pointer" defined' do
@@ -746,6 +764,127 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+        end
+      end
+    end
+
+    context 'MST Metrics Logging' do
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      def submit_and_expect_success
+        subject.perform_async(submission.id)
+        VCR.use_cassette('contention_classification/contention_classification_null_response') do
+          described_class.drain
+        end
+        submission.reload
+        expect(Form526JobStatus.last.status).to eq 'success'
+      end
+
+      context 'when form0781 is not present' do
+        let(:submission) do
+          create(:form526_submission,
+                 user_uuid: user.uuid,
+                 user_account:,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'does not log MST metrics' do
+          submit_and_expect_success
+          expect(Rails.logger).not_to have_received(:info).with('Form526 MST checkbox selection', anything)
+        end
+      end
+
+      context 'when form0781 is present' do
+        context 'when mst checkbox is false' do
+          let(:submission) do
+            sub = create(:form526_submission,
+                         :with_0781v2,
+                         user_uuid: user.uuid,
+                         user_account:,
+                         auth_headers_json: auth_headers.to_json,
+                         saved_claim_id: saved_claim.id)
+            form_data = sub.form
+            form_data['form0781']['form0781v2']['eventTypes']['mst'] = false
+            sub.update!(form_json: form_data.to_json)
+            sub.invalidate_form_hash
+            sub
+          end
+
+          it 'does not log MST metrics' do
+            submit_and_expect_success
+            expect(Rails.logger).not_to have_received(:info).with('Form526 MST checkbox selection', anything)
+          end
+        end
+
+        context 'when mst checkbox is true' do
+          context 'with classification codes populated by contention classification service' do
+            let(:submission) do
+              sub = create(:form526_submission,
+                           :with_0781v2,
+                           user_uuid: user.uuid,
+                           user_account:,
+                           auth_headers_json: auth_headers.to_json,
+                           saved_claim_id: saved_claim.id)
+              form_data = sub.form
+              form_data['form0781']['form0781v2']['eventTypes']['mst'] = true
+              form_data['form526']['form526']['disabilities'] = [
+                {
+                  'name' => 'PTSD (post traumatic stress disorder)',
+                  'diagnosticCode' => 9411,
+                  'disabilityActionType' => 'NEW'
+                },
+                {
+                  'name' => 'Anxiety',
+                  'diagnosticCode' => 9400,
+                  'disabilityActionType' => 'INCREASE'
+                },
+                {
+                  'name' => 'Some condition that cant be classified because of free text',
+                  'disabilityActionType' => 'NEW'
+                }
+              ]
+              sub.update!(form_json: form_data.to_json)
+              sub.invalidate_form_hash
+              sub
+            end
+
+            it 'logs MST metrics with classification codes from service response' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('contention_classification/mental_health_conditions') do
+                described_class.drain
+              end
+              submission.reload
+              expect(Rails.logger).to have_received(:info).with(
+                'Form526-0781 MST selected',
+                {
+                  id: submission.id,
+                  disabilities: [
+                    {
+                      name: 'PTSD (post traumatic stress disorder)',
+                      disabilityActionType: 'NEW',
+                      diagnosticCode: 9411,
+                      classificationCode: 8989
+                    },
+                    {
+                      name: 'Anxiety',
+                      disabilityActionType: 'INCREASE',
+                      diagnosticCode: 9400,
+                      classificationCode: 8989
+                    },
+                    {
+                      name: 'unclassifiable',
+                      disabilityActionType: 'NEW',
+                      diagnosticCode: nil,
+                      classificationCode: nil
+                    }
+                  ]
+                }
+              )
+            end
+          end
         end
       end
     end

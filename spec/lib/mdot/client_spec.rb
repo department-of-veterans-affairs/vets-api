@@ -52,7 +52,42 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'with a gateway timeout' do
+    context 'with a 500 internal server error response' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client)
+          .to receive(:perform).and_raise(Common::Exceptions::ExternalServerInternalServerError)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::ExternalServerInternalServerError
+          ) do |e|
+            expect(e.message).to match('Internal server error')
+          end
+        end
+      end
+    end
+
+    context 'with a 501 Not Implemented response' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::NotImplemented)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::NotImplemented
+          ) do |e|
+            expect(e.message).to match('Not Implemented')
+          end
+        end
+      end
+    end
+
+    context 'with a 504 gateway timeout' do
       it 'raises error gracefully' do
         allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::GatewayTimeout)
         VCR.use_cassette(
@@ -175,6 +210,82 @@ describe MDOT::Client, type: :mdot_helpers do
           ) do |e|
             expect(e.message).to match(/MDOT_invalid/)
           end
+        end
+      end
+    end
+
+    context 'handles unexpected or malformed responses' do
+      before do
+        VCR.insert_cassette(
+          cassette,
+          match_requests_on: %i[method uri],
+          erb: { icn: user.icn }
+        )
+      end
+
+      after { VCR.eject_cassette }
+
+      context 'with a response that is not actually JSON' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_200_not_json' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsParsingError', 'status:200'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+
+      context 'with a 406 response' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_406' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:406'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+
+      context 'with a 410 response' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_410' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:410'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+
+      context 'with a 418 response' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_418' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:418'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
         end
       end
     end
@@ -315,6 +426,62 @@ describe MDOT::Client, type: :mdot_helpers do
           expect(res[0]['status']).to eq('Order Processed')
           expect(res[0]['order_id']).to be_an(Integer)
         end
+      end
+    end
+
+    context 'with last order too recent' do
+      it 'returns a 0 order id and a non-Order Processed status' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_200_last_order_too_recent',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+        res = subject.submit_order(valid_order)
+        expect(res[0]['status']).to eq('Unable to order item since the last order was less than 5 months ago.')
+        expect(res[0]['order_id']).to eq(0)
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with no disability station' do
+      it 'returns a 0 order id and a non-Order Processed status' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_200_no_disability_station',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+        res = subject.submit_order(valid_order)
+        expect(res[0]['status']).to eq('No Disability Station for Veteran')
+        expect(res[0]['order_id']).to eq(0)
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with a 401 response' do
+      it 'raises BackendServiceException' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_401',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+
+        expect { subject.submit_order(valid_order) }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'raises BackendServiceException' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_500',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+
+        expect { subject.submit_order(valid_order) }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
       end
     end
 

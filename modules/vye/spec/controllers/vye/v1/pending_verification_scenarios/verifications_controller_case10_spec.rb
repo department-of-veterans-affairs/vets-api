@@ -6,6 +6,9 @@ require_relative '../../../../support/shared_award_helpers'
 
 RSpec.describe Vye::V1::VerificationsController, type: :controller do
   include_context 'shared_award_helpers'
+  before do
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
+  end
 
   #################################
   # glossary

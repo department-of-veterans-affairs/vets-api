@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'lighthouse/facilities/v1/client'
-require 'lighthouse/facilities/client'
 
 module Mobile
   module FacilitiesHelper
@@ -18,12 +17,21 @@ module Mobile
     end
 
     def get_facilities(facility_ids)
-      facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
+      facilities_service.get_facilities(facilityIds: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
     end
 
     def get_facility_names(facility_ids)
       facilities = get_facilities(facility_ids)
-      facilities.map(&:name)
+
+      # Create a hash mapping facility IDs to their names
+      # Extract ID from format like "vha_123" to just "123"
+      facility_map = facilities.each_with_object({}) do |facility, map|
+        id = facility.id.sub(/^vha_/, '')
+        map[id] = facility.name
+      end
+
+      # Map over the original facility_ids to maintain order
+      facility_ids.map { |id| facility_map[id.to_s] }
     end
 
     def facilities_service

@@ -31,7 +31,7 @@ module EVSS
       end
 
       def address=(attrs)
-        super EVSS::PCIUAddress.build_address(attrs)
+        @address = EVSS::PCIUAddress.build_address(attrs)
       end
     end
   end

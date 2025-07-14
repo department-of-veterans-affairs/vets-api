@@ -165,6 +165,52 @@ module Swagger
             end
           end
         end
+        operation :post do
+          key :description, 'Check the status of a health care application.' \
+                            ' Non-logged in users must pass request body parameters with user attributes.' \
+                            ' No parameters needed for logged in loa3 users.'
+          key :operationId, 'enrollmentStatusHealthCareApplication'
+          key :tags, %w[benefits_forms]
+
+          parameter :optional_authorization
+
+          parameter do
+            key :name, :userAttributes
+            key :in, :body
+            key :description, 'User attributes for enrollment status check'
+            key :required, false
+            schema do
+              property :userAttributes, type: :object do
+                property :veteranFullName, type: :object do
+                  property :first, type: :string, description: 'user first name'
+                  property :middle, type: :string, description: 'user middle name'
+                  property :last, type: :string, description: 'user last name'
+                  property :suffix, type: :string, description: 'user name suffix'
+                end
+                property :veteranDateOfBirth, type: :string, description: 'user date of birth'
+                property :veteranSocialSecurityNumber, type: :string, description: 'user ssn'
+                property :gender, type: :string, description: 'user gender'
+              end
+            end
+          end
+
+          response 200 do
+            key :description, 'enrollment_status response'
+
+            schema do
+              property :application_date, type: %i[string null], example: '2018-12-27T00:00:00.000-06:00'
+              property :enrollment_date, type: %i[string null], example: '2018-12-27T17:15:39.000-06:00'
+              property :preferred_facility, type: %i[string null], example: '988 - DAYT20'
+              property :parsed_status,
+                       type: :string,
+                       example: HCA::EnrollmentEligibility::Constants::ENROLLED,
+                       enum: HCA::EnrollmentEligibility::StatusMatcher::ELIGIBLE_STATUS_CATEGORIES
+              property :effective_date, type: :string, example: '2019-01-02T21:58:55.000-06:00'
+              property :priority_group, type: %i[string null], example: 'Group 3'
+              property :can_submit_financial_info, type: %i[boolean null], example: true
+            end
+          end
+        end
       end
 
       # TODO: This is an interal monitoring endpoint, consider

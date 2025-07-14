@@ -1,0 +1,29 @@
+{
+    "dependencyVerification": {
+        "updateDiaries": true,
+        "veteranInformation": {
+            "fullName": {
+                "first": "Jane",
+                "middle": "Elizabeth",
+                "last": "Maximal"
+            },
+            "ssn": "333224445",
+            "fileNumber": "333224445",
+            "dateOfBirth": "2020-01-01",
+            "email": "maximal@example.com",
+            "emailAgree": true,
+            "usPhone": "5551234567",
+            "homePhone": "5553339999",
+            "mobilePhone":  "15552229999",
+            "address": {
+                "street": "123 Main St",
+                "unitNumber": "4B",
+                "city": "Anytown",
+                "state": "NY",
+                "postalCode": "12345-1234",
+                "country": "USA"
+            }
+        },
+        "hasDependentsStatusChanged": "Y"
+    }
+}

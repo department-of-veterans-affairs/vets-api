@@ -6,8 +6,8 @@ module TravelPay
       after_action :scrub_logs, only: [:show]
 
       def index
-        claims = claims_service.get_claims(params)
-        render json: claims, status: :ok
+        claims = claims_service.get_claims_by_date_range(params)
+        render json: claims, status: claims[:metadata]['status']
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
       rescue Faraday::Error => e
@@ -46,7 +46,6 @@ module TravelPay
           Rails.logger.error(message:)
           raise Common::Exceptions::ServiceUnavailable, message:
         end
-
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
@@ -90,15 +89,20 @@ module TravelPay
       def scrub_logs
         logger.filter = lambda do |log|
           if log.name =~ /TravelPay/
-            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
-            log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+            # Safely scrub :params
+            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID' if log.payload[:params].is_a?(Hash)
 
-            # Conditional because no referer if directly using the API
-            if log.named_tags.key? :referer
+            # Safely scrub :path
+            if log.payload[:path].is_a?(String)
+              log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+            end
+
+            # Safely scrub :referer if present
+            if log.named_tags&.key?(:referer) && log.named_tags[:referer].is_a?(String)
               log.named_tags[:referer] = log.named_tags[:referer].gsub(%r{(.+claims/)(.+)(.+)}, '\1SCRUBBED_CLAIM_ID')
             end
           end
-          # After the log has been scrubbed, make sure it is logged:
+
           true
         end
       end

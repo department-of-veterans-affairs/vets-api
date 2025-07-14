@@ -5,6 +5,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 permissions:
+  id-token: write
   contents: read
   checks: write
 jobs:
@@ -26,7 +27,18 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v4
+
+      - name: Checkout PR HEAD ref
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -69,11 +81,19 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
-    outputs:
-      status: ${{ steps.test-status.outputs.status }}
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v4
+
+      - name: Checkout PR HEAD ref
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -84,8 +104,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
       - name: Login to Amazon ECR
@@ -102,6 +121,16 @@ jobs:
         with:
           driver-opts: image=${{ steps.ecr-login.outputs.registry }}/moby/buildkit:buildx-stable-1
 
+      - name: Restore Docker cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.head_ref || github.ref_name }}-
+            ${{ runner.os }}-buildx-master-
+            ${{ runner.os }}-buildx-
+
       - name: Build Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -114,8 +143,8 @@ jobs:
           push: false
           load: true
           tags: vets-api
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -127,7 +156,6 @@ jobs:
             ${{ env.COMPOSE_BASH_CMD }}
             "bundle exec rake parallel:setup[24]"
 
-
       - name: Setup system tmp dir
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
@@ -138,11 +166,6 @@ jobs:
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
-
-      - name: Set Test Status
-        id: test-status
-        if: always()
-        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
 
       - name: Upload Coverage Report
         if: always()
@@ -179,23 +202,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-
-  update_labels:
-    name: Update Test Status Labels
-    needs: tests
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
       - name: Remove Test Failure label
-        if: needs.tests.outputs.status == 'success'
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
 
       - name: Add Test Failure label
-        if: needs.tests.outputs.status == 'failure'
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}

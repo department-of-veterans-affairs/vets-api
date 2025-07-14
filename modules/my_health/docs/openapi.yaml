@@ -2018,6 +2018,53 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v2/labs_and_tests:
+    get:
+      description: |
+        Get lab results and test information for the current user within a specified date range.
+        This endpoint provides structured lab and test data with FHIR path mappings for each data element.
+      operationId: getLabsAndTests
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for lab results query (format YYYY-MM-DD)
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for lab results query (format YYYY-MM-DD)
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Lab results and test information response
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/LabsAndTestsResponse.yml
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - user not authorized for lab results
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: No lab results found
+      summary: /v2/labs_and_tests
 
 components:
   securitySchemes:

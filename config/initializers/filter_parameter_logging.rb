@@ -37,13 +37,33 @@ ALLOWLIST = %w[
   startedFormVersion
   tempfile
   content_type
+  user_account_uuid
+  confirmation_number
+  message
+  errors
+  claim_id
+  form_id
+  tags
+  in_progress_form_id
+  benefits_intake_uuid
+  call_location
+  service
+  use_v2
+  line
 ].freeze
 
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
     case v
     when Hash # Recursively iterate over each key value pair in hashes
-      v.transform_values { |nested_value| Rails.application.config.filter_parameters.first.call(k, nested_value) }
+      v.each_with_object({}) do |(nested_key, nested_value), result|
+        key = nested_key.is_a?(String) ? nested_key : nested_key.to_sym
+        result[key] = if ALLOWLIST.include?(nested_key.to_s)
+                        nested_value
+                      else
+                        Rails.application.config.filter_parameters.first.call(nested_key, nested_value)
+                      end
+      end
     when Array # Recursively map all elements in arrays
       v.map { |element| Rails.application.config.filter_parameters.first.call(k, element) }
     when ActionDispatch::Http::UploadedFile # Base case
@@ -51,6 +71,7 @@ Rails.application.config.filter_parameters = [
         var_name = var.to_s.delete_prefix('@')
         v.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
       end
+      v
     when String # Base case
       # Apply filtering only if the key is NOT in the ALLOWLIST
       v.replace('[FILTERED]') unless ALLOWLIST.include?(k.to_s)

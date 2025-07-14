@@ -40,7 +40,7 @@ module TravelPay
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
       log_to_statsd('token', 'btsss') do
-        response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
+        response = connection(server_url: btsss_url).post('api/v2/Auth/access-token') do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
           req.headers['X-Correlation-ID'] = correlation_id
@@ -78,7 +78,7 @@ module TravelPay
 
       {
         'iss' => host,
-        'sub' => user.email,
+        'sub' => user.user_account_uuid,
         'aud' => "#{host}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,

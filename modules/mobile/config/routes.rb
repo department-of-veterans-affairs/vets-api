@@ -4,6 +4,7 @@ Mobile::Engine.routes.draw do
   get '/', to: 'discovery#welcome'
 
   namespace :v0 do
+    get '/feature-toggles', to: 'feature_toggles#index'
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/appointments', to: 'appointments#index'
     put '/appointments/cancel/:id', to: 'appointments#cancel'
@@ -28,6 +29,8 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
+    get '/claim-letter/documents', to: 'claims_and_appeals#claim_letter_documents_search'
+    post '/claim-letter/documents/:document_id/download', to: 'claims_and_appeals#claim_letter_document_download'
     get '/community-care-providers', to: 'community_care_providers#index'
     get '/debts', to: 'debts#index'
     get '/debts/:id', to: 'debts#show'

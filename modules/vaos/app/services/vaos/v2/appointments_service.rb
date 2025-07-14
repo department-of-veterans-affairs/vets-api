@@ -25,6 +25,21 @@ module VAOS
         cc_request: 'COMMUNITY_CARE_REQUEST',
         request: 'REQUEST'
       }.freeze
+      SCHEDULABLE_SERVICE_TYPES = %w[
+        primaryCare
+        clinicalPharmacyPrimaryCare
+        outpatientMentalHealth
+        socialWork
+        amputation
+        audiology
+        moveProgram
+        foodAndNutrition
+        optometry
+        ophthalmology
+        cpap
+        homeSleepTesting
+        covid
+      ].freeze
 
       # Output format for preferred dates
       # Example: "Thu, July 18, 2024 in the ..."
@@ -76,8 +91,8 @@ module VAOS
       # #get_all_appointments. If that response contains any failures, it returns an error hash
       # with the failure messages. If a VAOS appointment is found with a matching referral_id,
       # it returns { exists: true }. Otherwise, it checks the EPS appointments for a matching
-      # referral number and returns { exists: true } if found. If no matching appointment is found,
-      # it returns { exists: false }.
+      # referral number, excluding draft appointments, and returns { exists: true } if found.
+      # If no matching appointment is found, it returns { exists: false }.
       #
       # @param referral_id [String] the referral identifier to check.
       # @param pagination_params [Hash] (optional) pagination options (e.g. page and per_page).
@@ -87,14 +102,19 @@ module VAOS
       #   - { exists: true } if an appointment with the given referral exists,
       #   - { exists: false } if no appointment with the referral is found.
       def referral_appointment_already_exists?(referral_id, pagination_params = {})
-        vaos_response = get_all_appointments(pagination_params)
-        vaos_request_failures = vaos_response[:meta][:failures]
+        # Bypass VAOS call if EPS mocks are enabled since we don't have betamocks for it.
+        unless eps_appointments_service.config.mock_enabled?
+          vaos_response = get_all_appointments(pagination_params)
+          vaos_request_failures = vaos_response[:meta][:failures]
 
-        return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-        return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+          return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
+          return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+        end
 
         eps_appointments = eps_appointments_service.get_appointments[:data]
-        { exists: appointment_with_referral_exists?(eps_appointments, referral_id) }
+        # Filter out draft EPS appointments when checking referral usage
+        non_draft_eps_appointments = eps_appointments.reject { |appt| appt[:state] == 'draft' }
+        { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -177,12 +197,14 @@ module VAOS
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
-            response = update_appointment_vaos(appt_id, status).body
-            convert_appointment_time(response)
-            extract_appointment_fields(response)
-            merge_clinic(response)
-            merge_facility(response)
-            OpenStruct.new(response)
+            appointment = update_appointment_vaos(appt_id, status).body
+            convert_appointment_time(appointment)
+            extract_appointment_fields(appointment)
+            merge_clinic(appointment)
+            merge_facility(appointment)
+            set_type(appointment)
+            appointment[:show_schedule_link] = schedulable?(appointment)
+            OpenStruct.new(appointment)
           end
         end
       end
@@ -397,6 +419,8 @@ module VAOS
         set_telehealth_visibility(appointment) if telehealth?(appointment)
 
         set_derived_appointment_date_fields(appointment)
+
+        appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
       end
 
       def find_and_merge_provider_name(appointment)
@@ -920,11 +944,25 @@ module VAOS
           'vaVideoCareAtAnAtlasLocation'
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif %w[MOBILE_ANY ADHOC].include?(vvs_kind)
+        elsif %w[MOBILE_ANY MOBILE_ANY_GROUP ADHOC].include?(vvs_kind)
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
-          'vaInPerson'
+          vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+          vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
         end
+      end
+
+      # This should be called after set_type has been called
+      def schedulable?(appointment)
+        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
+        return appointment[:type] == APPOINTMENT_TYPES[:cc_request] if cc?(appointment)
+        return true if appointment[:type] == APPOINTMENT_TYPES[:request]
+        if appointment[:type] == APPOINTMENT_TYPES[:va] &&
+           SCHEDULABLE_SERVICE_TYPES.include?(appointment[:service_type])
+          return true
+        end
+
+        false
       end
 
       def ds_error_details(e)
@@ -1090,7 +1128,7 @@ module VAOS
       end
 
       ##
-      # Retrieves all appointments over a 200-year window, a temporary range to be replaced with passed
+      # Retrieves all appointments over a 2-year window, a temporary range to be replaced with passed
       # in date from referral data.
       #
       # Uses a fixed date range to fetch all appointments.
@@ -1105,8 +1143,8 @@ module VAOS
       #
       # TODO: accept date from cached referral data to use for range
       def get_all_appointments(pagination_params)
-        start_date = (Time.zone.today - 100.years).in_time_zone
-        end_date   = (Time.zone.today + 100.years).in_time_zone
+        start_date = (Time.zone.today - 1.year).in_time_zone
+        end_date   = (Time.zone.today + 1.year).in_time_zone
 
         response = send_appointments_request(start_date, end_date, __method__, pagination_params)
 
@@ -1135,8 +1173,7 @@ module VAOS
       #   in the format { data: {}, meta: { failures: ... } } if an error occurs.
       def send_appointments_request(start_date, end_date, caller_name, pagination_params = {}, statuses = nil)
         req_params = build_appointment_request_params(start_date, end_date, pagination_params, statuses)
-
-        response   = perform_appointment_request(req_params)
+        response = perform_appointment_request(req_params)
         validate_response_schema(response, 'appointments_index')
         response
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,

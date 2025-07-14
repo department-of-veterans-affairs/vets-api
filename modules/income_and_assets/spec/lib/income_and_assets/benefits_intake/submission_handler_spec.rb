@@ -2,20 +2,45 @@
 
 require 'rails_helper'
 require 'income_and_assets/benefits_intake/submission_handler'
-require 'income_and_assets/submissions/monitor'
+require 'income_and_assets/monitor'
 require 'income_and_assets/notification_email'
 
 Rspec.describe IncomeAndAssets::BenefitsIntake::SubmissionHandler do
   let(:handler) { IncomeAndAssets::BenefitsIntake::SubmissionHandler }
   let(:claim) { double(form_id: 'TEST', id: 23) }
-  let(:monitor) { double(IncomeAndAssets::Submissions::Monitor) }
+  let(:monitor) { double(IncomeAndAssets::Monitor) }
   let(:notification) { double(IncomeAndAssets::NotificationEmail) }
   let(:instance) { handler.new('fake-claim-id') }
 
   before do
     allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return claim
-    allow(IncomeAndAssets::Submissions::Monitor).to receive(:new).and_return monitor
+    allow(IncomeAndAssets::Monitor).to receive(:new).and_return monitor
     allow(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+  end
+
+  describe '.pending_attempts' do
+    let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
+    let(:submission) { double('Lighthouse::Submission', form_id: '21P-0969') }
+
+    before do
+      allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
+                                                             .and_return(Lighthouse::SubmissionAttempt)
+      allow(Lighthouse::SubmissionAttempt).to receive(:where).with(status: 'pending',
+                                                                   'lighthouse_submissions.form_id' => '21P-0969')
+                                                             .and_return([submission_attempt])
+    end
+
+    it 'returns pending submission attempts with the correct form_id' do
+      result = handler.pending_attempts
+      expect(result).to eq([submission_attempt])
+    end
+
+    it 'queries with the correct status and form_id' do
+      expect(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
+      expect(Lighthouse::SubmissionAttempt).to receive(:where).with(status: 'pending',
+                                                                    'lighthouse_submissions.form_id' => '21P-0969')
+      handler.pending_attempts
+    end
   end
 
   describe '#on_failure' do

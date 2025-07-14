@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dependents/monitor'
+
 module BGS
   class DependentService
     include SentryLogging
@@ -15,6 +17,8 @@ module BGS
                 :participant_id,
                 :uuid,
                 :file_number
+
+    STATS_KEY = 'bgs.dependent_service'
 
     def initialize(user)
       @first_name = user.first_name
@@ -37,7 +41,8 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+      @monitor = init_monitor(claim&.id)
+      @monitor.track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
 
@@ -46,14 +51,15 @@ module BGS
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
-        Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+        @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
       end
 
       {
         submit_form_job_id:
       }
     rescue => e
-      Rails.logger.warn('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
+      @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
+                           "#{STATS_KEY}.failure", { error: e.message })
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
@@ -66,8 +72,15 @@ module BGS
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
-      Rails.logger.debug('BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                         { claim_id: claim.id })
+      @monitor = init_monitor(claim&.id)
+      if Flipper.enabled?(:dependents_claims_evidence_api_upload)
+        # TODO: implement upload using the claims_evidence_api module
+        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
+                             "#{STATS_KEY}.claim_evidence.failure")
+        return
+      end
+      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+                           "#{STATS_KEY}.submit_pdf.begin")
       VBMS::SubmitDependentsPdfJob.perform_sync(
         claim.id,
         encrypted_vet_info,
@@ -77,7 +90,9 @@ module BGS
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
-      Rails.logger.warn('DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, icn:, error: e }) # rubocop:disable Layout/LineLength
+      @monitor.track_event('warn',
+                           'DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake',
+                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
       submit_to_central_service(claim:)
 
       raise e
@@ -154,6 +169,10 @@ module BGS
           'icn' => icn
         }
       }
+    end
+
+    def init_monitor(saved_claim_id)
+      @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
     end
   end
 end

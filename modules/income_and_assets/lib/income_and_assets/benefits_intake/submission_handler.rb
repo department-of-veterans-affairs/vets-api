@@ -1,13 +1,23 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/submission_handler/saved_claim'
-require 'income_and_assets/submissions/monitor'
+require 'income_and_assets/monitor'
 require 'income_and_assets/notification_email'
 
 module IncomeAndAssets
   module BenefitsIntake
     # @see BenefitsIntake::SubmissionHandler::SavedClaim
     class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
+      # Retrieves all pending Lighthouse::SubmissionAttempt records associated with submissions
+      # where the form_id is '21P-0969'.
+      #
+      # @return [ActiveRecord::Relation] a relation containing pending submission attempts for form '21P-530EZ'
+      def self.pending_attempts
+        Lighthouse::SubmissionAttempt.joins(:submission)
+                                     .where(status: 'pending',
+                                            'lighthouse_submissions.form_id' => IncomeAndAssets::FORM_ID)
+      end
+
       private
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#claim_class
@@ -17,7 +27,7 @@ module IncomeAndAssets
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#monitor
       def monitor
-        @monitor ||= IncomeAndAssets::Submissions::Monitor.new
+        @monitor ||= IncomeAndAssets::Monitor.new
       end
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#notification_email

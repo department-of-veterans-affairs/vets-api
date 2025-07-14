@@ -9,7 +9,7 @@ module TestUserDashboard
     attr_accessor :tud_account, :user
 
     def initialize(user)
-      @tud_account = TudAccount.find_by(account_uuid: user.account_uuid)
+      @tud_account = TudAccount.find_by(user_account_id: user.user_account_uuid)
     end
 
     def call(time = nil)

@@ -8,7 +8,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:referral_consult_id) { '984_646372' }
   let(:encrypted_referral_consult_id) { 'encrypted-984_646372' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
-  let(:referral_statuses) { "'AP','AC','I'" }
+  let(:referral_statuses) { "'AP', 'C'" }
   let(:icn) { '1012845331V153043' }
 
   before do
@@ -207,6 +207,37 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
+      end
+
+      it 'sets the booking start time in the cache' do
+        client = Ccra::RedisClient.new
+
+        Timecop.freeze do
+          expect_any_instance_of(Ccra::ReferralService).to receive(:get_referral) do |_service, id, user_icn|
+            expect(id).to eq(referral_consult_id)
+            expect(user_icn).to eq(icn)
+            # Simulate the service saving the booking start time
+            client.save_booking_start_time(
+              referral_number:,
+              booking_start_time: Time.current.to_f
+            )
+            referral_detail
+          end
+
+          expect do
+            get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+          end.to change {
+            client.fetch_booking_start_time(referral_number:)
+          }.from(nil).to(Time.current.to_f)
+        end
+      end
+
+      it 'increments the referral detail page access metric' do
+        expect(StatsD).to receive(:increment).with(described_class::REFERRAL_DETAIL_VIEW_METRIC,
+                                                   tags: ['Community Care Appointments'])
+        expect(StatsD).to receive(:increment).with('api.rack.request', any_args)
+
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
       end
     end
   end

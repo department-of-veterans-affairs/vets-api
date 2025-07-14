@@ -16,9 +16,6 @@ module Burials
       # generic job processing error
       class BurialsBenefitIntakeError < StandardError; end
 
-      # tracking id for datadog metrics
-      STATSD_KEY_PREFIX = 'worker.burials.benefits_intake.submit_claim_job'
-
       # retry for 2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       sidekiq_options retry: 16, queue: 'low'
@@ -44,7 +41,7 @@ module Burials
       def perform(saved_claim_id, user_account_uuid = nil)
         init(saved_claim_id, user_account_uuid)
 
-        return if form_submission_pending_or_success
+        return if lighthouse_submission_pending_or_success
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf)
@@ -54,18 +51,12 @@ module Burials
         upload_document
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-        if Flipper.enabled?(:burial_submitted_email_notification)
-          send_submitted_email
-        else
-          send_confirmation_email
-        end
+        Flipper.enabled?(:burial_submitted_email_notification) ? send_submitted_email : send_confirmation_email
 
         @intake_service.uuid
       rescue => e
-        call_location = e.backtrace.first
-
-        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e, call_location:)
-        @form_submission_attempt&.fail!
+        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
+        @lighthouse_submission_attempt&.fail!
         raise e
       ensure
         cleanup_file_paths
@@ -96,13 +87,14 @@ module Burials
         @monitor ||= Burials::Monitor.new
       end
 
-      # Check FormSubmissionAttempts for record with 'pending' or 'success'
+      # Check Lighthouse::SubmissionAttempts for record with 'pending' or 'success'
       #
-      # @return true if FormSubmissionAttempt has 'pending' or 'success'
-      # @return false if unable to find a FormSubmission or FormSubmissionAttempt not 'pending' or 'success'
-      def form_submission_pending_or_success
-        @claim&.form_submissions&.any? do |form_submission|
-          form_submission.non_failure_attempt.present?
+      # @return true if Lighthouse::SubmissionAttempt has 'pending' or 'success'
+      # @return false if unable to find a Lighthouse::Submission or Lighthouse::SubmissionAttempt
+      # not 'pending' or 'success'
+      def lighthouse_submission_pending_or_success
+        @claim&.lighthouse_submissions&.any? do |lighthouse_submission|
+          lighthouse_submission.non_failure_attempt.present?
         end || false
       end
 
@@ -149,7 +141,7 @@ module Burials
         # upload must be performed within 15 minutes of this request
         @intake_service.request_upload
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
-        form_submission_polling
+        lighthouse_submission_polling
 
         payload = {
           upload_url: @intake_service.location,
@@ -188,21 +180,20 @@ module Burials
 
       # Insert submission polling entries
       #
-      # @see FormSubmission
-      # @see FormSubmissionAttempt
-      def form_submission_polling
-        form_submission = {
-          form_type: @claim.form_id,
-          form_data: @claim.to_json,
-          saved_claim: @claim,
-          saved_claim_id: @claim.id
+      # @see Lighthouse::Submission
+      # @see Lighthouse::SubmissionAttempt
+      def lighthouse_submission_polling
+        lighthouse_submission = {
+          form_id: @claim.form_id,
+          reference_data: @claim.to_json,
+          saved_claim: @claim
         }
-        form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
-        FormSubmissionAttempt.transaction do
-          @form_submission = FormSubmission.create(**form_submission)
-          @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission,
-                                                                  benefits_intake_uuid: @intake_service.uuid)
+        Lighthouse::SubmissionAttempt.transaction do
+          @lighthouse_submission = Lighthouse::Submission.create(**lighthouse_submission)
+          @lighthouse_submission_attempt =
+            Lighthouse::SubmissionAttempt.create(submission: @lighthouse_submission,
+                                                 benefits_intake_uuid: @intake_service.uuid)
         end
 
         Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.wellhive.com/care-navigation/v1/provider-services/53mL4LAZ/slots?appointmentTypeId=ov&startBefore=2025-01-03T00:00:00Z&startOnOrAfter=2025-01-01T00:00:00Z
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/53mL4LAZ/slots?appointmentTypeId=ov&startBefore=2025-01-03T00:00:00Z&startOnOrAfter=2025-01-01T00:00:00Z
     body:
       encoding: US-ASCII
       string: ''

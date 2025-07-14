@@ -1,71 +1,74 @@
 # frozen_string_literal: true
 
 module Eps
-  # RedisClient is responsible for interacting with the Redis cache
-  # to store and retrieve tokens and referral information.
+  # Eps::RedisClient provides a caching mechanism for EPS appointment data.
+  # It stores and retrieves appointment IDs for background processing.
   class RedisClient
     extend Forwardable
 
     attr_reader :settings
 
-    def_delegators :settings, :redis_token_expiry
+    # Cache keys and namespaces
+    CACHE_KEY = 'vaos_eps_appointment'
+    CACHE_NAMESPACE = 'eps-appointments'
 
-    REFERRAL_CACHE_KEY = 'vaos_eps_referral_identifier_'
-    REFERRAL_CACHE_NAMESPACE = 'vaos-eps-cache'
+    # 26 hours to be available for the full duration of the Eps::AppointmentStatusEmailJob retries
+    # which will span approximately 25 hours.
+    CACHE_TTL = 26.hours
 
     # Initializes the RedisClient with settings.
+    #
+    # @return [Eps::RedisClient] A new instance of RedisClient
     def initialize
-      @settings = Settings.vaos.eps
+      @settings = REDIS_CONFIG[:eps_appointments]
     end
 
-    # Retrieves the token from the Redis cache.
+    # Store appointment status check data
     #
-    # @return [String, nil] the token if it exists, otherwise nil
-    def token
-      Rails.cache.read('token', namespace: 'eps-access-token')
-    end
+    # @param uuid [String] User's UUID
+    # @param appointment_id [String] The appointment ID
+    # @param email [String] User's email for notifications
+    # @raise [ArgumentError] If required parameters are missing
+    # @return [Boolean] True if the cache operation was successful
+    def store_appointment_data(uuid:, appointment_id:, email:)
+      raise ArgumentError, 'User UUID is required' if uuid.blank?
+      raise ArgumentError, 'Appointment ID is required' if appointment_id.blank?
+      raise ArgumentError, 'Email is required' if email.blank?
 
-    # Saves the token to the Redis cache.
-    #
-    # @param token [String] the token to be saved
-    # @return [Boolean] true if the write was successful, otherwise false
-    def save_token(token:)
+      cache_key = generate_appointment_data_key(uuid, appointment_id)
       Rails.cache.write(
-        'token',
-        token,
-        namespace: 'eps-access-token',
-        expires_in: REDIS_CONFIG[:eps_access_token][:each_ttl]
+        cache_key,
+        { appointment_id:, email: },
+        namespace: CACHE_NAMESPACE,
+        expires_in: CACHE_TTL
       )
     end
 
-    # # Saves referral data directly to the Redis cache.
-    # # The data is stored using the referral_number from the referral_data hash.
-    # # The data is stored as a Ruby hash.
-    # #
-    # # @param referral_data [Hash] The referral data to be cached
-    # # @return [Boolean] True if the cache operation was successful
-    def save_referral_data(referral_data:)
-      Rails.cache.write(
-        "#{REFERRAL_CACHE_KEY}#{referral_data[:referral_number]}",
-        referral_data,
-        namespace: REFERRAL_CACHE_NAMESPACE,
-        expires_in: redis_token_expiry
+    # Retrieve appointment status check data from cache
+    #
+    # @param uuid [String] User's UUID
+    # @param appointment_id [String] The appointment ID
+    # @return [Hash, nil] Appointment data if found
+    def fetch_appointment_data(uuid:, appointment_id:)
+      return if uuid.blank? || appointment_id.blank?
+
+      cache_key = generate_appointment_data_key(uuid, appointment_id)
+      Rails.cache.read(
+        cache_key,
+        namespace: CACHE_NAMESPACE
       )
     end
 
-    # Retrieves all stored attributes for a given referral number from the Redis cache.
-    # Returns the entire cached hash for the referral.
+    private
+
+    # Generates a consistent cache key for status check data.
     #
-    # @param referral_number [String] The referral number associated with the cached data
-    # @return [Hash, nil] The complete referral data hash if it exists, otherwise nil
-    def fetch_referral_attributes(referral_number:)
-      @referral_identifiers ||= Hash.new do |h, key|
-        h[key] = Rails.cache.read(
-          "#{REFERRAL_CACHE_KEY}#{key}",
-          namespace: REFERRAL_CACHE_NAMESPACE
-        )
-      end
-      @referral_identifiers[referral_number]
+    # @param uuid [String] The user's UUID
+    # @param appointment_id [String] The appointment ID
+    # @return [String] The generated cache key
+    def generate_appointment_data_key(uuid, appointment_id)
+      appointment_last4 = appointment_id.to_s.last(4).presence || '0000'
+      "#{CACHE_KEY}:#{uuid}:#{appointment_last4}"
     end
   end
 end

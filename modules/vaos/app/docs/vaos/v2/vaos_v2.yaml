@@ -914,19 +914,6 @@ paths:
         "504":
           $ref: "#/components/responses/GatewayTimeout"
   "/relationships":
-    parameters:
-      - in: query
-        required: false
-        name: clinical_service_id
-        description: The clinical service (type of care) ID to filter results by. The currently supported/available VAOS clinical service IDs can be discovered from Mobile Facility Service v2.
-        schema:
-          type: string
-      - in: query
-        required: false
-        name: facility_id
-        description: The VHA facility ID to filter results by
-        schema:
-          type: string
     get:
       tags:
         - relationships
@@ -934,6 +921,27 @@ paths:
       operationId: getRelationships
       security:
         - bearerAuth: [ ]
+      parameters:
+        - in: query
+          required: false
+          name: clinical_service_id
+          description: The clinical service (type of care) ID to filter results by. The currently supported/available VAOS clinical service IDs can be discovered from Mobile Facility Service v2.
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: facility_id
+          description: The VHA facility ID to filter results by
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: has_availability_before
+          description: Whether or not to consider the patient's appointment history when filtering results.
+          schema:
+            type: string
+            format: date-time
+            example: '2026-05-13T17:42:00Z'
       responses:
         "200":
           description: Retrieves all matching relationships for the patient
@@ -1136,6 +1144,9 @@ components:
           description: URL path for the After Visit Summary, for past booked appointments.
         modality:
           "$ref": "#/components/schemas/AppointmentModality"
+        showScheduleLink:
+          type: boolean
+          description: If true then this cancelled appointment can be scheduled via the web tool.
     AppointmentExtensions:
       type: object
       properties:

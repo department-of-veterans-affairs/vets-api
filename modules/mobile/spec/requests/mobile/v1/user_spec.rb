@@ -10,9 +10,6 @@ RSpec.describe 'Mobile::V1::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_direct_deposit, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_disability_ratings,
-                                              instance_of(User)).and_return(false)
   end
 
   let(:contact_information_service) do
@@ -224,12 +221,12 @@ RSpec.describe 'Mobile::V1::User', type: :request do
               {
                 'facilityId' => '757',
                 'isCerner' => true,
-                'facilityName' => "Baxter Springs City Soldiers' Lot"
+                'facilityName' => 'Chalmers P. Wylie Veterans Outpatient Clinic'
               },
               {
                 'facilityId' => '358',
                 'isCerner' => true,
-                'facilityName' => 'Congressional Cemetery Government Lots'
+                'facilityName' => 'Manila VA Clinic'
               }
             ]
           }
@@ -237,7 +234,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       end
 
       context 'when user object birth_date is nil' do
-        let!(:user) { sis_user(birth_date: nil) }
+        let!(:user) { sis_user(birth_date: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         before do
           VCR.use_cassette('mobile/payment_information/payment_information') do
@@ -409,7 +406,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       end
 
       context 'when user does not have a vet360_id' do
-        let!(:user) { sis_user(vet360_id: nil) }
+        let!(:user) { sis_user(vet360_id: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)

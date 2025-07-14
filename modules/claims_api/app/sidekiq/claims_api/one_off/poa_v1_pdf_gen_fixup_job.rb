@@ -28,16 +28,13 @@ module ClaimsApi
         end
 
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-        rep_or_org = 'serviceOrganization'
-        poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
-
-        output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
+        output_path = pdf_constructor.construct(data(power_of_attorney), id: power_of_attorney_id)
         benefits_doc_upload(poa: power_of_attorney, pdf_path: output_path, doc_type: 'L075', action: 'post')
+        ClaimsApi::Logger.log LOG_TAG, detail: "POA #{power_of_attorney_id} PDF successfully regenerated & re-uploaded"
       rescue => e
         ClaimsApi::Logger.log LOG_TAG, level: :error,
                                        detail: "Exception thrown on POA #{power_of_attorney_id}",
-                                       error_class: e.class.name,
-                                       error: e.message
+                                       error_class: e.class.name
         raise
       end
 
@@ -55,12 +52,8 @@ module ClaimsApi
         end
       end
 
-      def pdf_constructor(poa_code)
-        if poa_code_in_organization?(poa_code)
-          ClaimsApi::V1::PoaPdfConstructor::Organization.new
-        else
-          ClaimsApi::V1::PoaPdfConstructor::Individual.new
-        end
+      def pdf_constructor
+        ClaimsApi::V1::PoaPdfConstructor::Organization.new
       end
 
       #

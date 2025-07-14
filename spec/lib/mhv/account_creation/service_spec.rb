@@ -224,7 +224,7 @@ describe MHV::AccountCreation::Service do
         let(:expected_log_payload) do
           {
             body: { errorCode: 812, message: 'Required ICN field is missing or invalid in the JWT' }.as_json,
-            error_message: 'the server responded with status 400',
+            error_message: match(/the server responded with status 400/),
             status: 400,
             icn:
           }
@@ -239,7 +239,7 @@ describe MHV::AccountCreation::Service do
         let(:expected_log_payload) do
           {
             body: { errorCode: 805, message: 'Deactivated Account found in MHV for ICN' }.as_json,
-            error_message: 'the server responded with status 400',
+            error_message: match(/the server responded with status 400/),
             status: 400,
             icn:
           }
@@ -254,7 +254,7 @@ describe MHV::AccountCreation::Service do
         let(:expected_log_payload) do
           {
             body: { errorCode: 808, message: 'Application authentication failed' }.as_json,
-            error_message: 'the server responded with status 403',
+            error_message: match(/the server responded with status 403/),
             status: 403,
             icn:
           }
@@ -269,7 +269,7 @@ describe MHV::AccountCreation::Service do
       let(:expected_log_payload) do
         {
           body: 'Internal Server Error',
-          error_message: "unexpected token at 'Internal Server Error'",
+          error_message: "unexpected token 'Internal Server Error' at line 1 column 1",
           status: 500,
           icn:
         }

@@ -11,7 +11,14 @@ module Dependents
     # the monitor to be used
     # @see Dependents::Monitor
     def monitor
-      @monitor ||= Dependents::Monitor.new
+      begin
+        claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+        monitor = claim.monitor
+      rescue => e
+        monitor = Dependents::Monitor.new(false)
+        Rails.logger.warn('Unable to find claim for DependentsNotification', e)
+      end
+      monitor
     end
   end
 end

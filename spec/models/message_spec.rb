@@ -10,15 +10,15 @@ RSpec.describe Message do
     let(:other) { described_class.new(attributes_for(:message, sent_date: Time.current)) }
 
     it 'populates attributes' do
-      expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,
-                                                                           :attachment, :attachments, :sent_date,
-                                                                           :sender_id, :sender_name, :recipient_id,
-                                                                           :recipient_name, :read_receipt, :uploads,
-                                                                           :suggested_name_display,
-                                                                           :triage_group_name, :proxy_sender_name,
-                                                                           :has_attachments, :attachment1_id,
-                                                                           :attachment2_id, :attachment3_id,
-                                                                           :attachment4_id)
+      expect(described_class.attribute_set).to contain_exactly(:id, :category, :subject, :body,
+                                                               :attachment, :attachments, :sent_date,
+                                                               :sender_id, :sender_name, :recipient_id,
+                                                               :recipient_name, :read_receipt, :uploads,
+                                                               :suggested_name_display, :is_oh_message,
+                                                               :triage_group_name, :proxy_sender_name,
+                                                               :has_attachments, :attachment1_id,
+                                                               :attachment2_id, :attachment3_id,
+                                                               :attachment4_id, :metadata)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
@@ -52,11 +52,20 @@ RSpec.describe Message do
 
         context 'file uploads' do
           let(:upload_class) { 'ActionDispatch::Http::UploadedFile' }
+
           let(:file1) { instance_double(upload_class, original_filename: 'file1.jpg', size: 1.megabyte) }
           let(:file2) { instance_double(upload_class, original_filename: 'file2.jpg', size: 2.megabytes) }
           let(:file3) { instance_double(upload_class, original_filename: 'file3.jpg', size: 1.megabyte) }
           let(:file4) { instance_double(upload_class, original_filename: 'file4.jpg', size: 4.megabytes) }
           let(:file5) { instance_double(upload_class, original_filename: 'file5.jpg', size: 6.1.megabytes) }
+          let(:file6) { instance_double(upload_class, original_filename: 'file6.jpg', size: 5.1.megabytes) }
+
+          before do
+            [file1, file2, file3, file4, file5, file6].each do |file|
+              allow(file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)
+              allow(file).to receive(:is_a?).with(Hash).and_return(false)
+            end
+          end
 
           it 'can validate file size with valid file sizes' do
             message = build(:message, uploads: [file1, file2, file3, file4])
@@ -64,9 +73,9 @@ RSpec.describe Message do
           end
 
           it 'requires that there be no more than 4 uploads' do
-            message = build(:message, uploads: [file1, file2, file3, file4, file5])
+            message = build(:message, uploads: [file1, file2, file3, file4, file6])
             expect(message).not_to be_valid
-            expect(message.errors[:uploads]).to include('has too many files (maximum is 4 files)')
+            expect(message.errors[:base]).to include('Total file count exceeds 4 files')
           end
 
           it 'requires that upload file size not exceed 6 MB for any one file' do
@@ -76,7 +85,7 @@ RSpec.describe Message do
           end
 
           it 'require that total upload size not exceed 10 MB' do
-            message = build(:message, uploads: [file2, file3, file4, file5])
+            message = build(:message, uploads: [file2, file3, file4, file6])
             expect(message).not_to be_valid
             expect(message.errors[:base]).to include('Total size of uploads exceeds 10.0 MB')
           end
@@ -114,6 +123,52 @@ RSpec.describe Message do
           expect(build(:message_draft, :with_message, body: '').as_reply).not_to be_valid
         end
       end
+    end
+  end
+
+  context 'with file upload limits' do
+    let(:upload_class) { 'ActionDispatch::Http::UploadedFile' }
+    let(:file1) { instance_double(upload_class, original_filename: 'file1.jpg', size: 1.megabyte) }
+    let(:file2) { instance_double(upload_class, original_filename: 'file2.jpg', size: 2.megabytes) }
+    let(:file3) { instance_double(upload_class, original_filename: 'file3.jpg', size: 1.megabyte) }
+    let(:file4) { instance_double(upload_class, original_filename: 'file4.jpg', size: 4.megabytes) }
+    let(:file5) { instance_double(upload_class, original_filename: 'file5.jpg', size: 6.1.megabytes) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(false)
+      [file1, file2, file3, file4, file5].each do |file|
+        allow(file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)
+        allow(file).to receive(:is_a?).with(Hash).and_return(false)
+      end
+    end
+
+    it 'validates file count limit (default 4)' do
+      message = build(:message, uploads: [file1, file2, file3, file4, file5])
+      expect(message).not_to be_valid
+      expect(message.errors[:base]).to include('Total file count exceeds 4 files')
+    end
+
+    it 'validates total upload size limit (default 10MB)' do
+      big_file = instance_double(upload_class, original_filename: 'big.jpg', size: 11.megabytes)
+      allow(big_file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)
+      allow(big_file).to receive(:is_a?).with(Hash).and_return(false)
+      message = build(:message, uploads: [big_file])
+      expect(message).not_to be_valid
+      expect(message.errors[:base]).to include('Total size of uploads exceeds 10.0 MB')
+    end
+
+    it 'validates file count and size with feature flag enabled' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(true)
+      message = build(:message, uploads: Array.new(11) { file1 })
+      expect(message).not_to be_valid
+      expect(message.errors[:base]).to include('Total file count exceeds 10 files')
+
+      big_file = instance_double(upload_class, original_filename: 'big.jpg', size: 26.megabytes)
+      allow(big_file).to receive(:is_a?).with(ActionDispatch::Http::UploadedFile).and_return(true)
+      allow(big_file).to receive(:is_a?).with(Hash).and_return(false)
+      message = build(:message, uploads: [big_file])
+      expect(message).not_to be_valid
+      expect(message.errors[:base]).to include('Total size of uploads exceeds 25.0 MB')
     end
   end
 end

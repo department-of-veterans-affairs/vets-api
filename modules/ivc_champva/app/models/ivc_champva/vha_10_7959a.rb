@@ -33,7 +33,13 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s
-      }
+      }.merge(add_resubmission_properties)
+    end
+
+    def add_resubmission_properties
+      # TODO: When the frontend adds the actual PDI number field, add to this list
+      @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type', 'provider_name', 'beginning_date_of_service',
+                  'end_date_of_service', 'medication_name', 'prescription_fill_date')
     end
 
     def desired_stamps
@@ -55,6 +61,12 @@ module IvcChampva
       identity = data['certifier_role']
       StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('IVC ChampVA Forms - 10-7959A Submission User Identity', identity:)
+    end
+
+    def track_current_user_loa(current_user)
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      StatsD.increment("#{STATS_KEY}.#{current_user_loa}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959A Current User LOA', current_user_loa:)
     end
 
     def track_email_usage

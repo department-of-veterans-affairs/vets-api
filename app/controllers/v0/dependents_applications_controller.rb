@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require 'evss/dependents/retrieved_info'
-
 module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
 
     def show
-      dependents = dependent_service.get_dependents
+      dependents = create_dependent_service.get_dependents
       dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
@@ -15,12 +13,14 @@ module V0
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create
-      if Flipper.enabled?(:va_dependents_v2)
+      if Flipper.enabled?(:va_dependents_v2, current_user)
         form = dependent_params.to_json
         use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
         claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
       else
+        use_v2 = nil
         claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
       end
 
@@ -35,6 +35,10 @@ module V0
       end
 
       claim.process_attachments!
+
+      # reinstantiate as v1 dependent service if use_v2 is blank
+      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
+
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
@@ -44,11 +48,7 @@ module V0
 
       render json: SavedClaimSerializer.new(claim)
     end
-
-    def disability_rating
-      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
-      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
-    end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -70,8 +70,12 @@ module V0
       )
     end
 
-    def dependent_service
-      @dependent_service ||= BGS::DependentService.new(current_user)
+    def create_dependent_service
+      @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
+                               BGS::DependentV2Service.new(current_user)
+                             else
+                               BGS::DependentService.new(current_user)
+                             end
     end
 
     def dependency_verification_service

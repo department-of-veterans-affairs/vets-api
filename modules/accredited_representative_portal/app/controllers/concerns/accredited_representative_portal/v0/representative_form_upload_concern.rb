@@ -5,102 +5,108 @@ module AccreditedRepresentativePortal
     module RepresentativeFormUploadConcern
       extend ActiveSupport::Concern
 
-      def validated_metadata
-        {
-          'veteranFirstName' => veteran_first_name,
-          'veteranLastName' => veteran_last_name,
-          'fileNumber' => veteran_ssn,
-          'zipCode' => form_params.dig('formData', 'postalCode'),
-          'source' => 'VA Platform Digital Forms',
-          'docType' => form_data['formNumber'],
-          'businessLine' => 'CMP'
-        }
+      private
+
+      def attachment_guids
+        guids = []
+        guids << submit_params[:confirmationCode] if submit_params[:confirmationCode].present?
+
+        if submit_params[:supportingDocuments].is_a?(Array)
+          guids += submit_params[:supportingDocuments].pluck(:confirmationCode).compact
+        end
+
+        guids
       end
 
-      def create_new_form_data
-        {
-          'ssn' => ssn,
-          'postalCode' => form_data['postalCode'],
-          'full_name' => {
-            'first' => first_name,
-            'last' => last_name
-          },
-          'email' => form_data['email'],
-          'veteranDateOfBirth' => birth_date
-        }
+      def claimant_representative
+        defined?(@claimant_representative) and
+          return @claimant_representative
+
+        @claimant_representative =
+          if claimant_icn.present?
+            ClaimantRepresentative.find do |finder|
+              finder.for_claimant(
+                icn: claimant_icn
+              )
+
+              finder.for_representative(
+                icn: current_user.icn,
+                email: current_user.email,
+                all_emails: current_user.all_emails
+              )
+            end
+          end
       end
 
-      def form_params
-        params.require(:representative_form_upload).permit(
-          :confirmationCode,
-          :location,
-          :formNumber,
-          :formName,
-          formData: [
-            :veteranSsn,
-            :formNumber,
-            :postalCode,
-            :veteranDateOfBirth,
-            :email,
-            :postal_code,
-            :claimantDateOfBirth,
-            :claimantSsn,
-            { claimantFullName: %i[first last] },
-            { veteranFullName: %i[first last] }
-          ]
-        )
+      def claimant_icn
+        defined?(@claimant_icn) and
+          return @claimant_icn
+
+        @claimant_icn =
+          begin
+            claimant =
+              metadata[:dependent] ||
+              metadata[:veteran]
+
+            mpi_response =
+              MPI::Service.new.find_profile_by_attributes(
+                ssn: claimant[:ssn],
+                first_name: claimant[:name][:first],
+                last_name: claimant[:name][:last],
+                birth_date: claimant[:dateOfBirth]
+              )
+
+            mpi_response.profile&.icn
+          end
       end
 
-      def form_data
-        form_params['formData'] || {}
+      def metadata # rubocop:disable Metrics/MethodLength
+        @metadata ||=
+          {}.tap do |memo|
+            form_data = submit_params[:formData]
+
+            memo[:veteran] = {
+              ssn: form_data[:veteranSsn],
+              dateOfBirth: form_data[:veteranDateOfBirth],
+              postalCode: form_data[:postalCode],
+              name: {
+                first: form_data[:veteranFullName][:first],
+                last: form_data[:veteranFullName][:last]
+              }
+            }
+
+            memo[:dependent] =
+              ##
+              # Note that "claimant" is not as correct a name as "dependent" here.
+              # The claimant is either a dependent or the Veteran.
+              #
+              if form_data[:claimantSsn].present?
+                {
+                  ssn: form_data[:claimantSsn],
+                  dateOfBirth: form_data[:claimantDateOfBirth],
+                  name: {
+                    first: form_data[:claimantFullName][:first],
+                    last: form_data[:claimantFullName][:last]
+                  }
+                }
+              end
+          end
       end
 
-      def veteran_ssn
-        form_params.dig('formData', 'veteranSsn')
-      end
-
-      def veteran_first_name
-        form_params.dig('formData', 'veteranFullName', 'first')
-      end
-
-      def veteran_last_name
-        form_params.dig('formData', 'veteranFullName', 'last')
-      end
-
-      def veteran_birth_date
-        form_params.dig('formData', 'veteranDateOfBirth')
-      end
-
-      def claimant_ssn
-        form_params.dig('formData', 'claimantSsn')
-      end
-
-      def claimant_first_name
-        form_params.dig('formData', 'claimantFullName', 'first')
-      end
-
-      def claimant_last_name
-        form_params.dig('formData', 'claimantFullName', 'last')
-      end
-
-      def claimant_birth_date
-        form_params.dig('formData', 'claimantDateOfBirth')
-      end
-
-      def ssn
-        claimant_ssn || veteran_ssn
-      end
-
-      def first_name
-        claimant_first_name || veteran_first_name
-      end
-
-      def last_name
-        claimant_last_name || veteran_last_name
-      end
-
-      def birth_date
-        claimant_birth_date || veteran_birth_date
+      def submit_params
+        @submit_params ||=
+          params.require(:representative_form_upload).permit(
+            [
+              :formName, :confirmationCode,
+              { supportingDocuments: %i[name confirmationCode size isEncrypted] },
+              { formData: [
+                :veteranSsn, :postalCode, :veteranDateOfBirth, :formNumber,
+                :email, :claimantDateOfBirth, :claimantSsn, :vaFileNumber,
+                { claimantFullName: %i[first last] },
+                { veteranFullName: %i[first last] }
+              ] }
+            ]
+          )
       end
     end
   end

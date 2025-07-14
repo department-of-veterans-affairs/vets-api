@@ -168,6 +168,72 @@ describe SignIn::Logingov::Service do
     end
   end
 
+  describe '#jwt_decode' do
+    let(:valid_jwt) { 'valid.jwt.token' }
+    let(:expired_jwt) { 'expired.jwt.token' }
+    let(:malformed_jwt) { 'malformed.jwt.token' }
+    let(:invalid_signature_jwt) { 'invalid.signature.jwt.token' }
+
+    let(:service) { subject }
+
+    before do
+      allow(service).to receive(:jwks_loader).and_return({})
+    end
+
+    context 'when the JWT is valid' do
+      it 'successfully decodes the JWT' do
+        decoded_token = { 'sub' => '123' }
+        allow(JWT).to receive(:decode).and_return([decoded_token])
+
+        result = service.jwt_decode(valid_jwt)
+
+        expect(result).to eq(decoded_token)
+      end
+    end
+
+    context 'when the JWT is expired' do
+      it 'raises a JWTExpiredError' do
+        allow(JWT).to receive(:decode).and_raise(JWT::ExpiredSignature)
+
+        expect do
+          service.jwt_decode(expired_jwt)
+        end.to raise_error(SignIn::Logingov::Errors::JWTExpiredError, '[SignIn][Logingov][Service] JWT has expired')
+      end
+    end
+
+    context 'when the JWT is malformed' do
+      it 'raises a JWTDecodeError' do
+        allow(JWT).to receive(:decode).and_raise(JWT::DecodeError)
+
+        expect do
+          service.jwt_decode(malformed_jwt)
+        end.to raise_error(SignIn::Logingov::Errors::JWTDecodeError, '[SignIn][Logingov][Service] JWT is malformed')
+      end
+    end
+
+    context 'when the JWT signature is invalid' do
+      it 'raises a JWTVerificationError' do
+        allow(JWT).to receive(:decode).and_raise(JWT::VerificationError)
+
+        expect do
+          service.jwt_decode(invalid_signature_jwt)
+        end.to raise_error(SignIn::Logingov::Errors::JWTVerificationError,
+                           '[SignIn][Logingov][Service] JWT body does not match signature')
+      end
+    end
+
+    context 'when the public JWK is malformed' do
+      it 'raises a PublicJWKError' do
+        allow(JWT).to receive(:decode).and_raise(JWT::JWKError)
+
+        expect do
+          service.jwt_decode(valid_jwt)
+        end.to raise_error(SignIn::Logingov::Errors::PublicJWKError,
+                           '[SignIn][Logingov][Service] Public JWK is malformed')
+      end
+    end
+  end
+
   describe '#token' do
     let(:expected_jwks_fetch_log) { '[SignIn][Logingov][Service] Get Public JWKs Success' }
 
