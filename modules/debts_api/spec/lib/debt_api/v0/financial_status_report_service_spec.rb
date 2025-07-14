@@ -555,6 +555,18 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
                                                           DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size
                                                         end)
     end
+
+    it 'increments StatsD' do
+      allow(StatsD).to receive(:increment)
+
+      expect(StatsD).to receive(:increment).with(
+        "#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initiated"
+      )
+
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
+      service.create_vha_fsr(builder)
+    end
   end
 
   describe '#send_vha_confirmation_email' do
