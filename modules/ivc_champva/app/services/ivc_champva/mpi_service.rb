@@ -39,6 +39,7 @@ module IvcChampva
 
     def extract_user_attributes(person_data, person_type)
       # Handle different field structures for veterans vs applicants
+      # dob is missing sometimes
       name_field = person_type == 'veteran' ? 'full_name' : 'applicant_name'
       dob_field = person_type == 'veteran' ? 'date_of_birth' : 'applicant_dob'
 

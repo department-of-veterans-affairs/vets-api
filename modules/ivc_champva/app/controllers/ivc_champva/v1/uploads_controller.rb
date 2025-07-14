@@ -53,8 +53,8 @@ module IvcChampva
       # Launches background jobs for OCR and LLM processing if enabled
       # @param [Hash] parsed_form_data complete form submission data object
       def launch_background_jobs(parsed_form_data)
-        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) # ||
-          # Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) ||
+           Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
 
           byebug
 
@@ -71,13 +71,19 @@ module IvcChampva
               tesseract_ocr_logger_job = IvcChampva::TesseractOcrLoggerJob.new
               tesseract_ocr_logger_job.perform_async(form.form_id, form.uuid, file_path, attachment_id)
               Rails.logger.info(
-                "Tesseract OCR job queued for form_id: #{form_id}, uuid: #{uuid}, attachment_id: #{attachment_id}"
+                "Tesseract OCR job queued for form_id: #{form.form_id}, uuid: #{form.uuid}, attachment_id: \
+                #{attachment_id}"
               )
             end
 
-            # if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
-            # queue LLM job for each file
-            # end
+            if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+              # queue LLM job for each file
+              llm_logger_job = IvcChampva::LlmLoggerJob.new
+              llm_logger_job.perform_async(form.form_id, form.uuid, file_path, attachment_id)
+              Rails.logger.info(
+                "LLM job queued for form_id: #{form.form_id}, uuid: #{form.uuid}, attachment_id: #{attachment_id}"
+              )
+            end
           end
         end
       end

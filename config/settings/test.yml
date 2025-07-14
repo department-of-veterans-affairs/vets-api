@@ -593,6 +593,10 @@ ivc_champva_ves_api:
   host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
+
+ivc_champva_llm_processor_api:
+  api_key: fake_llm_api_key
+  host: https://fake-llm-host.com
 ivc_forms:
   form_status_job:
     enabled: ~
