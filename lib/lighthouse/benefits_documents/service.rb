@@ -63,7 +63,8 @@ module BenefitsDocuments
     end
 
     def validate_claimant_can_upload(document_data)
-      config.claimant_can_upload_document(document_data)
+      response = config.claimant_can_upload_document(document_data)
+      response.body.dig('data', 'valid') # boolean
     rescue Faraday::ClientError, Faraday::ServerError => e
       handle_error(e, nil, 'services/benefits-documents/v1/documents/validate/claimant')
     end

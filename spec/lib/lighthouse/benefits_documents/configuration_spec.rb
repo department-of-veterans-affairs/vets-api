@@ -15,7 +15,7 @@ RSpec.describe BenefitsDocuments::Configuration do
   describe 'BenefitsDocuments Configuration' do
     let(:document_data) do
       OpenStruct.new(
-        file_number: '796378881',
+        participant_id: '796378881',
         claim_id: '600423040',
         tracked_item_id: nil,
         document_type: 'L023',
@@ -55,19 +55,27 @@ RSpec.describe BenefitsDocuments::Configuration do
           VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_validate_claimant_success') do
             response = BenefitsDocuments::Configuration.instance.claimant_can_upload_document(document_data)
             expect(response.status).to eq(200)
-            response_body = JSON.parse(response.body)
-            expect(response_body['data']['valid']).to be(true)
+            expect(response.body['data']['valid']).to be(true)
           end
         end
       end
 
       context 'when the claimant cannot upload a document' do
+        let(:document_data) do
+          OpenStruct.new(
+            participant_id: '796378882', # intentionally one off
+            claim_id: '600423040',
+            tracked_item_id: nil,
+            document_type: 'L023',
+            file_name: 'doctors-note.jpg'
+          )
+        end
+
         it 'returns a 200 response with valid=false' do
           VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_validate_claimant_failure') do
             response = BenefitsDocuments::Configuration.instance.claimant_can_upload_document(document_data)
             expect(response.status).to eq(200)
-            response_body = JSON.parse(response.body)
-            expect(response_body['data']['valid']).to be(false)
+            expect(response.body['data']['valid']).to be(false)
           end
         end
       end

@@ -186,13 +186,12 @@ module BenefitsDocuments
     #
     # @return [Faraday::Response] response from POST request
     #
-    def claimant_can_upload_document(document_data, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
-                                     options = {})
+    def claimant_can_upload_document(document_data)
       headers = { 'Authorization' => "Bearer #{
           access_token(
-            lighthouse_client_id,
-            lighthouse_rsa_key_path,
-            options
+            nil,
+            nil,
+            {}
           )
         }" }
 
@@ -200,7 +199,6 @@ module BenefitsDocuments
         'data' => {
           'docType' => document_data.document_type,
           'participantId' => document_data.participant_id,
-          'fileNumber' => document_data.file_number,
           'claimId' => document_data.claim_id
         }
       }
