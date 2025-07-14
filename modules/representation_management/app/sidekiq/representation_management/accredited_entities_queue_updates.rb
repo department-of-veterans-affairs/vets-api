@@ -98,7 +98,7 @@ module RepresentationManagement
 
     def process_orgs_and_reps
       # Check if there are any force update types specified AND
-      # none of them are representatives or veteran_service_organizations
+      # that none of them are representatives or veteran_service_organizations
       return if @force_update_types.any? &&
                 !@force_update_types.intersect?(orgs_and_reps)
 
