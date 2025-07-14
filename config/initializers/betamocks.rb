@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-unless Rails.env.production?
+unless Settings.vsp_environment == 'production'
   begin
     ERB.new(File.read(Settings.betamocks.services_config)).result
-  rescue NoMethodError
-    raise ArgumentError, 'betamocks services_config error, check that vars from settings.yml are interpolated correctly'
+  rescue NoMethodError, ArgumentError
+    raise ArgumentError,
+          "Betamocks services_config error. Values in settings.yml aren't being interpolated correctly " \
+          'for a betamocks configuration in config/betamocks/services_config.yml'
   end
 end
 
