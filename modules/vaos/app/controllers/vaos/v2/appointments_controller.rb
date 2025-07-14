@@ -13,7 +13,7 @@ module VAOS
       APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
       APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
       APPT_CREATION_DURATION_METRIC = 'api.vaos.appointment_creation.duration'
-      REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_stationid.access'
+      REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_station_id.access'
       PROVIDER_DRAFT_NETWORK_ID_METRIC = 'api.vaos.provider_draft_network_id.access'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
@@ -823,7 +823,7 @@ module VAOS
         # Log referral provider IDs for tracking
         referring_provider_id = sanitize_log_value(referral.referring_facility_code)
         referral_provider_id = sanitize_log_value(referral.provider_npi)
-        
+
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
           "service:community_care_appointments",
           "referring_provider_id:#{referring_provider_id}",
@@ -886,7 +886,7 @@ module VAOS
       # @return [String] sanitized value or "no_value" if blank
       def sanitize_log_value(value)
         return 'no_value' if value.blank?
-        
+
         value.to_s.gsub(/\s+/, '_')
       end
     end
