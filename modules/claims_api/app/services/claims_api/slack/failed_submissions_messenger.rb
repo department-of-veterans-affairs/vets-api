@@ -84,9 +84,15 @@ module ClaimsApi
       end
 
       def build_error_block(title, errors)
-        text = if title == 'Va Gov Disability Compensation'
+        text = case title
+               when 'Va Gov Disability Compensation'
+                 # Search datadog for TID
                  errors.map { |tid| "TID: #{link_value(tid, :tid)}" }.join("\n")
+               when 'Disability Compensation', 'Power of Attorney', 'Evidence Waiver'
+                 # Search datadog for UUID
+                 errors.map { |id| link_value(id, :id) }.join("\n")
                else
+                 # Currently no other error types reach here due to ITF early return on line 77
                  errors.join("\n")
                end
 

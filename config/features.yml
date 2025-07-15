@@ -122,6 +122,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_documents_validate_claimant:
+    actor_type: user
+    description: When enabled, validate that the given claimant can upload docs for the claim
+    enable_in_development: false
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
@@ -143,6 +147,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  cerner_non_eligible_sis_enabled:
+    actor_type: user
+    description: Enables Sign in Service for cerner authentication
   decision_reviews_4142_banner:
     actor_type: user
     description: Enables the re-authorization banner on the 4142 legalese page
@@ -150,6 +157,9 @@ features:
     actor_type: user
     description: Enables stamped PDF validation on document upload
     enable_in_development: true
+  dv_email_notification:
+    actor_type: user
+    description: Enables dependents verification emails
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -159,6 +169,12 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_enrollment_status_filter_get:
+    actor_type: user
+    description: Filters out query params from GET requests for the enrollment_status endpoint.
+  hca_facility_import_job_filter_facilities:
+    actor_type: user
+    description: Delete facilities that were previously imported but no longer exist in Lighthouse and filter on mobile.
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -915,10 +931,6 @@ features:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
     enable_in_development: true
-  form10297_confirmation_email:
-    actor_type: user
-    description: Enables form 10297 email submission confirmation (VaNotify)
-    enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
     description: Enables form 26-4555 email submission confirmation (VaNotify)
@@ -1459,6 +1471,9 @@ features:
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  pension_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -2107,6 +2122,9 @@ features:
   burial_submitted_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Burial Submission in Progress email notification
+  burial_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2149,6 +2167,9 @@ features:
   income_and_assets_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  income_and_assets_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
@@ -2328,3 +2349,6 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+  show_vye_downtime_alert:
+    actor_type: user
+    description: If enabled, show the VYE downtime alert on the VYE application
