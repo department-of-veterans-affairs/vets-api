@@ -966,4 +966,97 @@ describe PdfFill::ExtrasGeneratorV2 do
       end
     end
   end
+
+  def width_of_mock(string)
+    # Mocked method to simulate Prawn's width_of behavior
+    string.length * 7 # Assuming average character width of 7px
+  end
+
+  describe '#calculate_text_box_position' do
+    mock_section_title = 'Section I'
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), width_of: width_of_mock(mock_section_title)) }
+
+    it 'returns an object with the correct positions' do
+      expect(subject.calculate_text_box_position(
+               pdf, mock_section_title, 100, 0
+             )).to eq({ width: 63, x: 83, y: 95 })
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#create_formatted_text_options' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50)) }
+
+    it 'returns the correct information' do
+      expect(subject.create_formatted_text_options(
+               'Test Text'
+             )).to eq([{ text: 'Test Text', color: '005EA2', size: 10.5, styles: [:underline] }])
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#store_section_coordinates' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3) }
+
+    it 'returns the correct information' do
+      expect(subject.store_section_coordinates(
+               pdf, 0, { width: 100, height: 50, x: 10, y: 20 }
+             )).to eq([{ section: 0,
+                         page: 3,
+                         x: 55,
+                         y: 60,
+                         width: 100,
+                         height: 20,
+                         dest: nil }])
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#render_new_section' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3) }
+
+    before do
+      allow(pdf).to receive(:cursor).and_return(250)
+      allow(pdf).to receive(:markup)
+    end
+
+    it 'renders the new section' do
+      subject.render_new_section(
+        pdf, 0
+      )
+      expect(pdf).to have_received(:markup).with(
+        '<h2>Section I</h2>'
+      )
+      File.delete(subject.generate)
+    end
+  end
+
+  describe '#render_back_to_section_text' do
+    mock_section_title = 'Section I'
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3, width_of: width_of_mock(mock_section_title)) }
+
+    before do
+      allow(pdf).to receive(:bounding_box).and_yield
+      allow(pdf).to receive(:formatted_text_box)
+      # allow(pdf).to receive(:formatted_text_box).and_return([{ text: 'Back to Section I', color: '005EA2', size: 10.5,
+      #                                                          styles: [:underline] }], { at: [0, 7], width: 63,
+      #                                                                                     height: 15, align: :right })
+      allow(pdf).to receive(:cursor).and_return(250)
+      allow(pdf).to receive(:markup)
+    end
+
+    it 'renders Back text with correct section' do
+      subject.render_back_to_section_text(
+        pdf, 0, 20
+      )
+      expect(pdf).to have_received(:formatted_text_box).with(
+        [{ color: '005EA2',
+           size: 10.5,
+           styles: [:underline],
+           text: 'Back to Section I' }],
+        { align: :right, at: [0, 7], height: 15, width: 63 }
+      )
+      File.delete(subject.generate)
+    end
+  end
 end
