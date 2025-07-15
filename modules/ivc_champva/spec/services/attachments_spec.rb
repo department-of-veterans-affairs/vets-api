@@ -172,7 +172,7 @@ RSpec.describe IvcChampva::Attachments do
       tmp_files_before = Dir.glob(File.join('tmp', '*_blank.pdf')).count
 
       # Call the method
-      result = test_instance.send(:get_blank_page)
+      result = IvcChampva::Attachments.send(:get_blank_page)
 
       # Count files after
       tmp_files_after = Dir.glob(File.join('tmp', '*_blank.pdf')).count
@@ -184,7 +184,7 @@ RSpec.describe IvcChampva::Attachments do
 
     it 'copies the blank page template to the new file' do
       # Call the method
-      result = test_instance.send(:get_blank_page)
+      result = IvcChampva::Attachments.send(:get_blank_page)
 
       # Verify the content was copied
       expect(File.exist?(result)).to be true
@@ -193,7 +193,7 @@ RSpec.describe IvcChampva::Attachments do
     end
 
     it 'returns a path to an existing file' do
-      result = test_instance.send(:get_blank_page)
+      result = IvcChampva::Attachments.send(:get_blank_page)
       expect(File.exist?(result)).to be true
     end
 
@@ -201,7 +201,7 @@ RSpec.describe IvcChampva::Attachments do
       allow(Rails.root).to receive(:join).and_return(Pathname.new('/nonexistent/path/blank_page.pdf'))
 
       expect do
-        test_instance.send(:get_blank_page)
+        IvcChampva::Attachments.send(:get_blank_page)
       end.to raise_error(Errno::ENOENT)
     end
   end
