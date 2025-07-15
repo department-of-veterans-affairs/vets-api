@@ -47,6 +47,7 @@ module ClaimsApi
         read_all_data = gather_read_all_veteran_representative_data
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
 
+<<<<<<< HEAD
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
@@ -55,6 +56,12 @@ module ClaimsApi
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')
           claimant_phone_data = gather_vnp_phone_data
+=======
+        vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
+
+        if @claimant_ptcpnt_id.present?
+          claimant_addr_data = gather_vnp_addrs_data('claimant')
+>>>>>>> 22498c8b77 (Cleans up variable usage)
 
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
@@ -193,7 +200,11 @@ module ClaimsApi
 
       # key is 'veteran' or 'claimant'
       def gather_vnp_addrs_data(key)
+<<<<<<< HEAD
         ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant.participant_id
+=======
+        ptcpnt_id = key == 'veteran' ? @vet_ptcpnt_id : @claimant_ptcpnt_id
+>>>>>>> 22498c8b77 (Cleans up variable usage)
         primary_key = @metadata.dig(key, 'vnp_mail_id')
 
         # error if primary_key nil
