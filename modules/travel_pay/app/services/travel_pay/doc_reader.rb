@@ -11,7 +11,7 @@ module TravelPay
     end
 
     def denial_reasons
-      reasons('Denial Reason')
+      reasons('Denial Reason', /Authority \d+ CFR \d+\.\d+/)
     end
 
     def partial_payment_reasons
@@ -20,10 +20,13 @@ module TravelPay
 
     private
 
-    def reasons(heading_text)
+    def reasons(heading_text, paragraph_includes = nil)
       heading = find_heading(heading_text)
 
-      return unless heading
+      unless heading
+        Rails.logger.error "TravelPay::DocReader: Heading not found for '#{heading_text}'"
+        return
+      end
 
       # Yeah, yeah, I know.
       # This is due to the poor structure of the DOCX file.
@@ -33,7 +36,19 @@ module TravelPay
       # .next_sibling: <w:p>NEW_LINE</w:p>
       # .next_sibling: <w:p>Partially paid for the following reason:</w:p>
       # .next_sibling: <w:p>ACTUAL TEXT</w:p>
-      heading.next_sibling.next_sibling.next_sibling.text.strip
+      paragraph_text = heading.next_sibling.next_sibling.next_sibling.text.strip
+
+      # If a regex pattern is provided, check if the paragraph matches
+      if paragraph_includes.nil?
+        Rails.logger.info "TravelPay::DocReader: No regex pattern provided for '#{heading_text}', returning paragraph text"
+      elsif paragraph_text.match?(paragraph_includes)
+        Rails.logger.info "TravelPay::DocReader: Regex pattern matched for '#{heading_text}': #{paragraph_includes}"
+      else
+        Rails.logger.error "TravelPay::DocReader: Regex pattern did not match for '#{heading_text}': #{paragraph_includes}"
+        return
+      end
+
+      paragraph_text
     end
 
     def find_heading(heading_text)
