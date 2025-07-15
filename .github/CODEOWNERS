@@ -972,8 +972,8 @@ lib/va_profile/profile/v3/health_benefit_bio_response.rb @department-of-veterans
 lib/va_profile/profile/v3/service.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/va1010_forms @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/vbs @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
-lib/veteran_enrollment_system @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group 
-lib/veteran_enrollment_system/form1095b @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group 
+lib/veteran_enrollment_system @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/veteran_enrollment_system/form1095_b @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 lib/veteran_facing_services @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 lib/vetext @department-of-veterans-affairs/mobile-api-team
 lib/vets @department-of-veterans-affairs/backend-review-group

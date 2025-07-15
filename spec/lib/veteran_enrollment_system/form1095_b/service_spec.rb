@@ -10,7 +10,8 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
   describe '#get_form_by_icn' do
     context 'when the request is successful' do
       it 'returns the form data from the enrollment system' do
-        VCR.use_cassette('veteran_enrollment_system/form1095b/get_form_success', { match_requests_on: %i[method uri] }) do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                         { match_requests_on: %i[method uri] }) do
           response = subject.get_form_by_icn(icn:, tax_year:)
 
           expect(response).to eq(
@@ -50,7 +51,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
 
     context 'when an error status is received' do
       it 'raises an error' do
-        VCR.use_cassette('veteran_enrollment_system/form1095b/get_form_error') do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found') do
           expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
         end
       end

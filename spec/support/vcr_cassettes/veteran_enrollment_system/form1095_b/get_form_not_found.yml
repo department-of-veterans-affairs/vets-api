@@ -17,8 +17,8 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 404
+      message: 404 Not Found
     headers:
       Date:
       - Thu, 01 May 2025 17:03:17 GMT
@@ -50,7 +50,11 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"description":"No record found for a person with the
-        specified ICN","code":"VES_101"}],"retryable":false}'
+      string: |-
+        {
+          "messages": [
+            {"description":"No enrollments found for the provided ICN 1014361683V924543 with tax year 2024.","code":"VES_101"}
+          ]
+        }
   recorded_at: Thu, 01 May 2025 17:03:17 GMT
 recorded_with: VCR 6.3.1
