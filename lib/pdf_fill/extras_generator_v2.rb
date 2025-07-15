@@ -2,6 +2,8 @@
 
 module PdfFill
   class ExtrasGeneratorV2 < ExtrasGenerator
+    attr_reader :section_coordinates
+
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
     FOOTER_FONT_SIZE = 9
@@ -12,12 +14,13 @@ module PdfFill
     HEADER_BODY_GAP = 25
     BODY_FOOTER_GAP = 27
     # Constants for the back to section link text boxes
-    BOUNDING_BOX_X_OFFSET = 300
+    BOUNDING_BOX_X_OFFSET = 20
     BOUNDING_BOX_Y_OFFSET = 5
     BOUNDING_BOX_HEIGHT = 15
     FORMATTED_TEXT_BOX_X = 0
     FORMATTED_TEXT_BOX_Y = 7
     TEXT_SIZE = 10.5
+    TEXT_COLOR = '005EA2'
 
     class Question
       attr_accessor :section_index, :overflow, :config, :index
@@ -360,6 +363,8 @@ module PdfFill
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
       @default_label_width    = options[:label_width] || LABEL_WIDTH
+      @show_jumplinks         = options[:show_jumplinks] || false
+      @section_coordinates    = options[:section_coordinates] || []
       @questions              = {}
       super()
     end
@@ -578,28 +583,29 @@ module PdfFill
            end
     end
 
-    def calculate_text_box_position(pdf, section_label, start_y)
+    def calculate_text_box_position(pdf, section_label, start_y, section_index)
       {
         width: pdf.width_of("Back to #{section_label}"),
-        x: section_label == 'Section III' ? pdf.bounds.left : pdf.bounds.left + BOUNDING_BOX_X_OFFSET,
-        y: section_label == 'Section III' ? start_y + 10 : start_y - BOUNDING_BOX_Y_OFFSET
+        x: @sections[section_index][:link_next_line] ? pdf.bounds.left - 10 : pdf.width_of("#{@sections[section_index][:label]}") + BOUNDING_BOX_X_OFFSET,
+        y: @sections[section_index][:link_next_line] ? start_y + 3 : start_y - BOUNDING_BOX_Y_OFFSET
       }
     end
 
     def create_formatted_text_options(return_text)
       [{
         text: return_text,
-        color: '0000FF',
+        color: TEXT_COLOR,
         size: TEXT_SIZE,
         styles: [:underline]
       }]
     end
 
     def render_back_to_section_text(pdf, section_index, start_y)
+      Rails.logger.debug 'Hello'
       return_section_label = @sections[section_index][:label].split(':')[0]
 
       return_text = "Back to #{return_section_label}"
-      box_position = calculate_text_box_position(pdf, return_section_label, start_y)
+      box_position = calculate_text_box_position(pdf, return_section_label, start_y, section_index)
 
       pdf.bounding_box(
         [box_position[:x], box_position[:y]],
@@ -622,8 +628,8 @@ module PdfFill
       (@section_coordinates ||= []) << {
         section: section_index,
         page: pdf.page_count,
-        x: box_position[:x] + 35,
-        y: box_position[:y] + 35,
+        x: box_position[:x] + 45,
+        y: box_position[:y] + 40,
         width: box_position[:width],
         height: 20,
         dest: @sections[section_index][:dest_name]
@@ -637,12 +643,7 @@ module PdfFill
       pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
       start_y = pdf.cursor if section_index == 2
 
-      render_back_to_section_text(pdf, section_index, start_y)
-    end
-
-    # Add a method to access the coordinates
-    def section_coordinates
-      @section_coordinates || []
+      render_back_to_section_text(pdf, section_index, start_y) if @show_jumplinks
     end
 
     def set_header(pdf)
@@ -717,7 +718,7 @@ module PdfFill
     def set_markup_options(pdf)
       pdf.markup_options = {
         heading2: { style: :normal, size: 13, margin_top: 12, margin_bottom: -4 },
-        heading3: { style: :bold, size: 10.5, margin_top: 10, margin_bottom: -2 },
+        heading3: { style: :bold, size: 10.5, margin_top: @show_jumplinks ? 15 : 10, margin_bottom: -2 },
         table: {
           cell: {
             border_width: 0,
