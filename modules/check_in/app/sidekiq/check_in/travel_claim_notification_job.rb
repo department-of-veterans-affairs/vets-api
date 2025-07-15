@@ -18,7 +18,7 @@ module CheckIn
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
     sidekiq_options retry: 12
-    REQUIRED_FIELDS = %i[mobile_phone template_id appointment_date].freeze
+    REQUIRED_FIELDS = %i[phone_number template_id appointment_date].freeze
 
     ##
     # Performs the job of sending an SMS notification via VaNotify
@@ -34,8 +34,8 @@ module CheckIn
     # @return [void]
     def perform(uuid, appointment_date, template_id, claim_number_last_four)
       redis_client = TravelClaim::RedisClient.build
-      mobile_phone = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
-      opts = { mobile_phone:, appointment_date:, template_id:, claim_number_last_four:, uuid: }
+      phone_number = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
+      opts = { phone_number:, appointment_date:, template_id:, claim_number_last_four:, uuid: }
 
       # Early return here because there is no sense in retrying if the required fields are missing
       return unless validate_and_log_missing_fields(opts)
@@ -65,7 +65,7 @@ module CheckIn
     # @param job [Hash] The Sidekiq job hash containing job metadata
     # @param ex [Exception] The exception that caused the job to fail
     sidekiq_retries_exhausted do |job, ex|
-      CheckIn::TravelClaimNotificationJob.handle_retries_exhausted_failure(job, ex)
+      CheckIn::TravelClaimNotificationJob.handle_retries_exhausted(job, ex)
     end
 
     ##
@@ -77,14 +77,13 @@ module CheckIn
     # @param job [Hash] The Sidekiq job hash containing args: [uuid, appointment_date, template_id, claim_number]
     # @param ex [Exception] The exception that caused the job to fail
     # @return [void]
-    def self.handle_retries_exhausted_failure(job, ex)
+    def self.handle_retries_exhausted(job, ex)
       uuid = job.dig('args', 0)
       template_id = job.dig('args', 2)
       claim_number = job.dig('args', 3)
 
       redis_client = TravelClaim::RedisClient.build
       phone_number = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
-      phone_last_four = TravelClaimNotificationUtilities.phone_last_four(phone_number)
 
       sentry_context = { template_id:, phone_last_four: }
       sentry_context[:claim_number] = claim_number if claim_number
@@ -96,7 +95,7 @@ module CheckIn
       )
 
       facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
-      log_failure_no_retry('Retries exhausted', { uuid:, phone_last_four:, template_id:, facility_type: })
+      log_failure_no_retry('Retries exhausted', { uuid:, phone_number:, template_id:, facility_type: })
     end
 
     ##

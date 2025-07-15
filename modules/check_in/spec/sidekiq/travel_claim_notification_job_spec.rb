@@ -218,7 +218,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'cie-failure-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number] }
 
-      described_class.handle_retries_exhausted_failure(job_hash, error)
+      described_class.handle_retries_exhausted(job_hash, error)
 
       expect(StatsD).to have_received(:increment).with(
         CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
@@ -231,7 +231,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'regular-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number] }
 
-      described_class.handle_retries_exhausted_failure(job_hash, error)
+      described_class.handle_retries_exhausted(job_hash, error)
 
       expect(StatsD).not_to have_received(:increment).with(
         CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
