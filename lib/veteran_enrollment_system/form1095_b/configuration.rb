@@ -5,7 +5,6 @@ require 'veteran_enrollment_system/base_configuration'
 module VeteranEnrollmentSystem
   module Form1095B
     class Configuration < VeteranEnrollmentSystem::BaseConfiguration
-
       def self.api_key_path
         :form1095b
       end
