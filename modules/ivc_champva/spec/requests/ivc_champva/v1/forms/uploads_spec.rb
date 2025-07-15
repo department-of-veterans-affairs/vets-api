@@ -49,9 +49,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             .with(:champva_send_to_ves, @current_user)
             .and_return(true)
           allow(Flipper).to receive(:enabled?)
-            .with(:champva_enable_ocr_on_submit, @current_user)
-            .and_return(false)
-          allow(Flipper).to receive(:enabled?)
             .with(:champva_retry_logic_refactor, @current_user)
             .and_return(champva_retry_logic_refactor_state)
         end
@@ -79,24 +76,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(record.form_uuid).to be_present
 
             expect(response).to have_http_status(:ok)
-          end
-
-          it 'launches background jobs for OCR' do
-            # mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
-            # allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-            #                                                   .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
-            # allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
-            # allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-            #  double('response',
-            #         context: double('context', http_response: double('http_response', status_code: 200)))
-            # )
-
-            # Spy on the method at the class level
-            # allow(IvcChampva::V1::UploadsController).to receive(:new).and_call_original
-            # allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).and_call_original
-            # expect_any_instance_of(IvcChampva::V1::UploadsController).to receive(:launch_background_jobs).once.and_call_original
-
-            # post '/ivc_champva/v1/forms', params: data
           end
 
           it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
@@ -330,6 +309,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#submit_supporting_documents' do
     let(:file) { fixture_file_upload('doctors-note.gif') }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
+
     context 'successful transaction' do
       it 'renders the attachment as json' do
         clamscan = double(safe?: true)
@@ -371,6 +354,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#unlock_file' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
 
     context 'with locked PDF and no provided password' do
       let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
@@ -1123,6 +1110,101 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         end.not_to raise_error
 
         expect(Rails.logger).to have_received(:error).with('Error validating MPI profiles: MPI service error')
+      end
+    end
+  end
+
+  describe '#launch_background_job' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:file_path) { '/tmp/some_file.pdf' }
+    let(:attachment_guid) { '12345' }
+    let(:mock_file) do
+      double('File', respond_to?: true, original_filename: 'some_file.pdf', read: 'content', path: file_path)
+    end
+    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid) }
+    let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
+
+    context 'when OCR feature is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+      end
+
+      it 'queues TesseractOcrLoggerJob with correct arguments' do
+        job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+        expect(job).to receive(:perform_async).with(
+          form_id,
+          nil,
+          match(%r{^/.*vha_10_10d_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
+          attachment_guid
+        )
+
+        controller.send(:launch_background_job, attachment, form_id)
+      end
+    end
+
+    context 'when OCR feature is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
+      end
+
+      it 'does not queue TesseractOcrLoggerJob' do
+        job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+        expect(job).not_to receive(:new)
+
+        controller.send(:launch_background_job, attachment, form_id)
+      end
+    end
+  end
+
+  describe '#tempfile_from_attachment' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:file_content) { 'test file content' }
+
+    context 'when attachment.file responds to original_filename' do
+      let(:mock_file) do
+        double('UploadedFile',
+               original_filename: 'some_file.gif',
+               read: file_content)
+      end
+
+      let(:attachment) do
+        instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+      end
+
+      it 'creates a tempfile with the original filename and random code' do
+        tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
+
+        expect(tmpfile).to be_a(Tempfile)
+        expect(File.basename(tmpfile.path)).to match(/^vha_10_10d_attachment_[\w\-]+\.gif$/)
+        tmpfile.rewind
+        expect(tmpfile.read).to eq(file_content)
+        tmpfile.close
+        tmpfile.unlink
+      end
+    end
+
+    context 'when attachment.file does not respond to original_filename' do
+      let(:mock_file) do
+        double('File',
+               path: '/tmp/some_other_file.png',
+               read: file_content)
+      end
+
+      let(:attachment) do
+        instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+      end
+
+      it 'creates a tempfile with the basename and random code' do
+        tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
+
+        expect(tmpfile).to be_a(Tempfile)
+        expect(File.basename(tmpfile.path)).to match(/^vha_10_10d_attachment_[\w\-]+\.png$/)
+        tmpfile.rewind
+        expect(tmpfile.read).to eq(file_content)
+        tmpfile.close
+        tmpfile.unlink
       end
     end
   end
