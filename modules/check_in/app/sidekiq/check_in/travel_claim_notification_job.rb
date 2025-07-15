@@ -17,7 +17,7 @@ module CheckIn
   #     '1234'                                # Required - Last four digits of claim number
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
-    sidekiq_options retry: 1
+    sidekiq_options retry: 12
     REQUIRED_FIELDS = %i[mobile_phone template_id appointment_date].freeze
 
     ##
@@ -96,7 +96,7 @@ module CheckIn
       )
 
       facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
-      log_failure_no_retry('Retries exhausted', { template_id:, facility_type: })
+      log_failure_no_retry('Retries exhausted', { uuid:, phone_last_four:, template_id:, facility_type: })
     end
 
     ##
