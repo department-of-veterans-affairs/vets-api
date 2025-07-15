@@ -86,10 +86,10 @@ module ClaimsApi
 
         read_all_data = gather_read_all_veteran_representative_data
 
-        vnp_find_addrs_data = gather_vnp_addrs_data(@vet_pctpnt_id, 'veteran')
-
+        vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
+byebug
         if @claimant_ptcpnt_id.present?
-          claimant_addr_data = gather_vnp_addrs_data(@claimant_ptcpnt_id, 'claimant')
+          claimant_addr_data = gather_vnp_addrs_data('claimant')
           claimant_phone_data = gather_vnp_phone_data
 
           read_all_data.merge!(claimant: claimant_addr_data)
@@ -156,11 +156,13 @@ module ClaimsApi
       end
 
       # key is 'veteran' or 'claimant'
-      def gather_vnp_addrs_data(pctpnt_id, key)
+      def gather_vnp_addrs_data(key)
+        ptcpnt_id = key == 'veteran' ? @vet_ptcpnt_id : @claimant_ptcpnt_id
         primary_key = @metadata.dig(key, 'vnp_mail_id')
+
         # error if primary_key nil
         res = ClaimsApi::VnpPtcpntAddrsService
-              .new(external_uid: pctpnt_id, external_key: pctpnt_id)
+              .new(external_uid: ptcpnt_id, external_key: ptcpnt_id)
               .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
 
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyDataMapper.new(
@@ -169,6 +171,13 @@ module ClaimsApi
       end
 
       def gather_vnp_phone_data
+        primary_key = @metadata.dig('claimant', 'vnp_mail_id')
+
+        res = ClaimsApi::VnpPtcpntPhoneService
+              .new(external_uid: ptcpnt_id, external_key: ptcpnt_id)
+              .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
+
+        byebug
       end
     end
   end
