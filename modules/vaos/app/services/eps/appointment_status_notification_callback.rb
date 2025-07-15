@@ -99,7 +99,7 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_failure(notification, base_data)
-              StatsD.increment("#{STATSD_KEY}.failure", tags: ['service:community_care_appointments'])
+      StatsD.increment("#{STATSD_KEY}.failure", tags: ['service:community_care_appointments'])
       StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
 
       failure_type = FAILURE_TYPE_MAP[notification.status&.downcase] || 'unknown'
@@ -120,7 +120,7 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_unknown_status(notification, base_data)
-              StatsD.increment("#{STATSD_KEY}.unknown_status", tags: ['service:community_care_appointments'])
+      StatsD.increment("#{STATSD_KEY}.unknown_status", tags: ['service:community_care_appointments'])
 
       unknown_data = base_data.merge(
         status_reason: notification.status_reason
