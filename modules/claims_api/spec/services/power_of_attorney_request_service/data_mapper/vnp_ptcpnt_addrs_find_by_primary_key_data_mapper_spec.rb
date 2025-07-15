@@ -7,6 +7,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
 
   let(:record) do
     {
+<<<<<<< HEAD
       addrs_one_txt: '2719 Atlas Ave',
       addrs_two_txt: 'Apt 2',
       city_nm: 'Los Angeles',
@@ -17,16 +18,28 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
 >>>>>>> 05485bf6ad (Fixes naming on files to be inline with previous mapper files)
       zip_first_suffix_nbr: '0200',
       zip_prefix_nbr: '92264'
+=======
+      'addrs_one_txt' => '2719 Atlas Ave',
+      'addrs_two_txt' => 'Apt 2',
+      'city_nm' => 'Los Angeles',
+      'cntry_nm' => 'USA',
+      'zip_first_suffix_nbr' => '0200',
+      'zip_prefix_nbr' => '92264'
+>>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
     }
   end
 
   let(:expected_data_obj) do
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
       'addrs_one_txt' => '2719 Atlas Ave',
       'addrs_two_txt' => 'Apt 2',
       'city_nm' => 'Los Angeles',
       'cntry_nm' => 'USA',
+<<<<<<< HEAD
       'postal_cd' => 'CA',
       'zip_prefix_nbr' => '92264',
       'zip_first_suffix_nbr' => '0200',
@@ -41,6 +54,12 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       zip_first_suffix_nbr: '0200',
       email_addrs_txt: nil
 >>>>>>> 05485bf6ad (Fixes naming on files to be inline with previous mapper files)
+=======
+      'prvnc_nm' => nil,
+      'zip_prefix_nbr' => '92264',
+      'zip_first_suffix_nbr' => '0200',
+      'email_addrs_txt' => nil
+>>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
     }
   end
 
