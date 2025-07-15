@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_MR_HOST>/v2/phrmgr/status/1000000000V000000"
+    uri: "<MHV_APIGW_HOST>/v2/phrmgr/status/1000000000V000000"
     body:
       encoding: US-ASCII
       string: ''

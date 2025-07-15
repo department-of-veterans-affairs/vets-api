@@ -894,7 +894,7 @@ mhv:
   medical_records:
     app_id: 103
     app_token: xyz
-    host: http://mhv-api.example.com
+    host: https://mhv-api.example.com
     mhv_x_api_key: ~
     x_api_key: fake-x-api-key
     x_api_key_v2: fake-x-api-key-v2
@@ -904,14 +904,14 @@ mhv:
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
-    host: http://mhv-api.example.com
+    host: https://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: http://mhv-api.example.com
+    host: https://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:

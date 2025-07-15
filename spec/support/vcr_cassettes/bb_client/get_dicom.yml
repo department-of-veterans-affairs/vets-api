@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/studyjob/zip/stream/11382904/studyidUrn/453-2487448"
+      uri: "<MHV_APIGW_HOST>/mhvapi/v1/bluebutton/studyjob/zip/stream/11382904/studyidUrn/453-2487448"
       body:
         encoding: US-ASCII
         string: ""

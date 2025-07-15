@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_APIGW_HOST>/v1/usermgmt/auth/session"
+    uri: "<MHV_APIGW_HOST>/v2/phrmgr/status/1000000000V000000"
     body:
       encoding: US-ASCII
       string: ''
@@ -13,10 +13,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apptoken:
-      - "<APP_TOKEN>"
-      Mhvcorrelationid:
-      - '21207668'
+      Token: "<SESSION_TOKEN>"
       X-Api-Key:
       - "<MHV_MR_X_API_KEY>"
       Accept-Encoding:
@@ -27,28 +24,25 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 26 Mar 2025 16:14:44 GMT
+      - Tue, 25 Mar 2025 14:22:51 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '0'
+      - '45'
       X-Amzn-Requestid:
-      - 8ce0ca2b-7fba-4ebc-92f8-e4f8777b9972
+      - 45c2cc22-41b1-4e25-b1a2-c284c7bbf479
       X-Amzn-Remapped-Content-Length:
-      - '0'
+      - '45'
       X-Amzn-Remapped-Connection:
       - keep-alive
       X-Amz-Apigw-Id:
-      - ICsuVGcXPHMFcXg=
-      Expires:
-      - Wed, 26 Mar 2025 16:24:44 GMT+00:00
-      Token: "<SESSION_TOKEN>"
+      - H_JZbF65PHMFYZA=
       X-Amzn-Remapped-Date:
-      - Wed, 26 Mar 2025 16:14:44 GMT
+      - Tue, 25 Mar 2025 14:22:51 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
-      encoding: UTF-8
-      string: ''
-  recorded_at: Wed, 26 Mar 2025 16:14:45 GMT
+      encoding: ASCII-8BIT
+      string: '{"phrmgrPdwsStatus":"ACTIVE","phrmgrADSStatus":"ACTIVE"}'
+  recorded_at: Tue, 25 Mar 2025 14:22:51 GMT
 recorded_with: VCR 6.3.1
