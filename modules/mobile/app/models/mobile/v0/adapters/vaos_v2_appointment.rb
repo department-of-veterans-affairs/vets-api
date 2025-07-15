@@ -453,6 +453,7 @@ module Mobile
         def travel_pay_eligible?
           [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
+            appointment[:kind] != PHONE_KIND &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
             appointment.start < Time.now.utc # verify it's a past appointment
         end
