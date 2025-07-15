@@ -22,17 +22,9 @@ module DependentsVerification
     def personalization
       default = super
 
-      facility_name, street_address, city_state_zip = claim.regional_office
-      veteran_name = "#{claim.veteran_first_name} #{claim.veteran_last_name&.first}"
-      benefits_claimed = " - #{claim.benefits_claimed.join(" \n - ")}"
-
+      # confirmation, error
       dependents_verification = {
-        'form_name' => 'Dependents Verification Claim (Form 21-0528)',
-        'benefits_claimed' => benefits_claimed,
-        'facility_name' => facility_name,
-        'street_address' => street_address,
-        'city_state_zip' => city_state_zip,
-        'first_name' => claim.veteran_first_name&.upcase,
+        'first_name' => claim.veteran_first_name&.titleize,
         'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
       }
 

@@ -48,12 +48,12 @@ module DependentsVerification
         end
 
         process_and_upload_to_lighthouse(in_progress_form, claim)
-        monitor.track_create_success(in_progress_form&.id, claim, current_user)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
-        monitor.track_create_error(in_progress_form&.id, claim, current_user, e)
+        monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
       end
 
