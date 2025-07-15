@@ -157,7 +157,7 @@ namespace :persistent_attachment_remediation do
         else
           service_config = Settings.vanotify.services[vanotify_service]
           VANotify::EmailJob.new.perform(
-            'bryan.alexander@adhocteam.us',
+            email,
             'abe80469-c61f-4c30-bb24-18e7120d5066',
             personalization,
             service_config.api_key
