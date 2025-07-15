@@ -78,7 +78,8 @@ module ClaimsApi
 
       # key is 'veteran' or 'claimant'
       def gather_vnp_addrs_data(key)
-        ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant.participant_id
+        ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant&.participant_id
+
         primary_key = @metadata.dig(key, 'vnp_mail_id')
 
         # error if primary_key nil

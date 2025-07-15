@@ -78,8 +78,13 @@ module ClaimsApi
           vet_icn = request.veteran_icn
           claimant_icn = request.claimant_icn
 
+<<<<<<< HEAD
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
+=======
+          ptcpnt_id = fetch_ptcpnt_id(vet_icn)
+          claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
+>>>>>>> API-43735-gather-data-for-poa-accept-2
 
           manage_rep_service = manage_representative_service
 
