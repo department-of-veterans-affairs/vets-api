@@ -1302,12 +1302,19 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         let(:path) { '/services/claims/v1/forms/526/validate' }
 
         it 'returns a successful response when valid' do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:claims_status_v1_lh_auto_establish_claim_enabled).and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:claims_api_v1_lh_fes_auto_establish_claim_enabled).and_return(false)
+
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/v1/disability_comp/validate') do
                   post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
                   parsed = JSON.parse(response.body)
+                  expect(parsed['data']).not_to be_nil, "Response body: #{response.body}"
                   expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
                   expect(parsed['data']['attributes']['status']).to eq('valid')
                 end

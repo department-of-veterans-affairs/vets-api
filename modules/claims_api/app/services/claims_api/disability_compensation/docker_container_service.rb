@@ -3,6 +3,7 @@
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'evss_service/base'
+require 'fes_service/base'
 
 module ClaimsApi
   module DisabilityCompensation
@@ -16,17 +17,23 @@ module ClaimsApi
 
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
-        evss_data = get_evss_data(auto_claim)
+        # Use EVSS mapper for both services - assuming FES accepts the same data structure
+        claim_data = get_evss_data(auto_claim)
+        service_name = use_fes_service? ? 'FES' : 'EVSS Docker container'
 
-        log_job_progress(claim_id, 'Submitting mapped data to Docker container', auto_claim.transaction_id)
+        log_job_progress(claim_id, "Submitting mapped data to #{service_name}", auto_claim.transaction_id)
 
-        evss_res = evss_service.submit(auto_claim, evss_data, false)
+        submission_response = if use_fes_service?
+                                submission_service.submit(auto_claim, claim_data)
+                              else
+                                submission_service.submit(auto_claim, claim_data, false)
+                              end
 
-        log_job_progress(claim_id, "Successfully submitted to Docker container with response: #{evss_res}",
+        log_job_progress(claim_id, "Successfully submitted to #{service_name} with response: #{submission_response}",
                          auto_claim.transaction_id)
 
-        # update with the evss_id returned
-        auto_claim.update!(evss_id: evss_res[:claimId])
+        # update with the claim_id returned
+        auto_claim.update!(evss_id: submission_response[:claimId])
       rescue => e
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.evss_response = e.errors if e.methods.include?(:errors)
@@ -44,6 +51,22 @@ module ClaimsApi
 
       def get_evss_data(auto_claim)
         evss_mapper_service(auto_claim).map_claim
+      end
+
+      def submission_service
+        if use_fes_service?
+          ClaimsApi::FesService::Base.new
+        else
+          ClaimsApi::EVSSService::Base.new
+        end
+      end
+
+      def use_fes_service?
+        Flipper.enabled?(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
+      end
+
+      def evss_mapper_service(auto_claim)
+        ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
       end
     end
   end

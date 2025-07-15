@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
   before do
     Sidekiq::Job.clear_all
     stub_claims_api_auth_token
+    Flipper.disable(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
   end
 
   let(:user) { create(:user, :loa3) }
@@ -285,6 +286,28 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
                                              'text' => 'Error calling external service to establish the claim during submit.' }])
         # rubocop:enable Layout/LineLength
         expect(@should_retry).to be(true)
+      end
+    end
+
+    context 'with FES feature flag enabled' do
+      before do
+        Flipper.enable(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
+        allow_any_instance_of(ClaimsApi::FesService::Base).to receive(:submit)
+          .and_return({ claimId: '600236153' })
+      end
+
+      after do
+        Flipper.disable(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
+      end
+
+      it 'uses FES service when feature flag is enabled' do
+        expect_any_instance_of(ClaimsApi::FesService::Base).to receive(:submit)
+          .with(claim, anything)
+          .and_return({ claimId: '600236153' })
+
+        service.perform(claim.id)
+        claim.reload
+        expect(claim.evss_id).to eq(600_236_153)
       end
     end
   end

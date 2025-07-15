@@ -3,6 +3,7 @@
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'evss_service/base'
+require 'fes_service/base'
 
 module ClaimsApi
   module V2
@@ -18,18 +19,20 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        evss_data = evss_mapper_service(auto_claim).map_claim
+        # Use EVSS mapper for both services - FES accepts the same data structure
+        claim_data = evss_mapper_service(auto_claim).map_claim
+        service_name = use_fes_service? ? 'FES' : 'EVSS Docker container'
 
         log_job_progress(claim_id,
-                         'Submitting mapped data to Docker container')
+                         "Submitting mapped data to #{service_name}")
 
-        evss_res = evss_service.submit(auto_claim, evss_data)
+        submission_response = submission_service.submit(auto_claim, claim_data)
 
         log_job_progress(claim_id,
-                         "Successfully submitted to Docker container with response: #{evss_res}")
-        # update with the evss_id returned
-        auto_claim.update!(evss_id: evss_res[:claimId])
-        # clear out the evss_response value on successful submssion to docker container
+                         "Successfully submitted to #{service_name} with response: #{submission_response}")
+        # update with the claim_id returned
+        auto_claim.update!(evss_id: submission_response[:claimId])
+        # clear out the evss_response value on successful submission
         clear_evss_response_for_claim(auto_claim)
         # queue flashes job
         queue_flash_updater(auto_claim.flashes, auto_claim&.id)
@@ -76,6 +79,10 @@ module ClaimsApi
 
       def bd_service
         ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+      end
+
+      def use_fes_service?
+        Flipper.enabled?(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
       end
     end
   end
