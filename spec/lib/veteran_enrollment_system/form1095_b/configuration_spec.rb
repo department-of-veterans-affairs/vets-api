@@ -6,7 +6,7 @@ require 'veteran_enrollment_system/form1095_b/configuration'
 describe 'VeteranEnrollmentSystem::Form1095B::Configuration' do
   subject { VeteranEnrollmentSystem::Form1095B::Configuration.instance }
 
-  describe '#self.api_key_path' do
+  describe '.api_key_path' do
     it 'returns the api key path' do
       expect(VeteranEnrollmentSystem::Form1095B::Configuration.api_key_path).to eq(:form1095b)
     end
