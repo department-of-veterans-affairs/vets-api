@@ -28,22 +28,13 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
     } }
   end
-<<<<<<< HEAD
+
   let(:claimant) { nil }
 
   let(:declined_subject) { build_subject('declined') }
   let(:accepted_subject) { build_subject('accepted') }
-=======
-  let(:metadata_with_claimant) do
-    { 'veteran' => {
-        'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
-      },
-      'claimant' => {
-        'vnp_phone_id' => '122175', 'vnp_email_addr_id' => '148801', 'vnp_mailing_addr_id' => '148726'
-      } }
-  end
+
   let(:claimant_ptcpnt_id) { nil }
->>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 
   context "When the decision is 'Declined'" do
     it 'calls the declined decision service handler' do
@@ -70,12 +61,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       registration_number:,
       poa_code:,
       metadata:,
-<<<<<<< HEAD
       veteran:,
       claimant:
-=======
-      claimant_ptcpnt_id:
->>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
     )
   end
 end
