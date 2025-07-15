@@ -14,14 +14,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
     } }
   end
-  let(:metadata_with_claimant) do
-    { 'veteran' => {
-        'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
-      },
-      'claimant' => {
-        'vnp_phone_id' => '122175', 'vnp_email_addr_id' => '148801', 'vnp_mailing_addr_id' => '148726'
-      } }
-  end
   let(:claimant_ptcpnt_id) { nil }
 
   context "When the decision is 'Declined'" do
