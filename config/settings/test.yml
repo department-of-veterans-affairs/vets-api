@@ -911,7 +911,7 @@ mhv:
     app_token: fake-app-token
     base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:
