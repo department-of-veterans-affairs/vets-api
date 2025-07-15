@@ -88,6 +88,7 @@ module ClaimsApi
 byebug
 >>>>>>> 26b74cf5cf (WIP)
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
+<<<<<<< HEAD
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.blank?
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 =======
@@ -100,6 +101,9 @@ byebug
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
 >>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
+=======
+          claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
+>>>>>>> 4268f0782a (Fixes conditional)
 
           manage_rep_service = manage_representative_service
 
