@@ -32,7 +32,9 @@ module MHVAC
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.gw_base_path}"
+      host = Settings.mhv.api_gateway.hosts.pharmacy
+      host = "https://#{host}" unless host.start_with?('http')
+      "#{host}/#{Settings.mhv.rx.gw_base_path}"
     end
 
     ##

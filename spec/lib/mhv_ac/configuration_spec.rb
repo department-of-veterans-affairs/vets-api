@@ -22,10 +22,10 @@ RSpec.describe MHVAC::Configuration do
   end
 
   describe '#base_path' do
-    it 'returns the RX host with gateway base path' do
-      allow(Settings.mhv.rx).to receive(:host).and_return('https://mhv-api.example.com')
+    it 'returns the API gateway host with gateway base path' do
+      allow(Settings.mhv.api_gateway.hosts).to receive(:pharmacy).and_return('https://api-gateway.example.com')
       allow(Settings.mhv.rx).to receive(:gw_base_path).and_return('v1/')
-      expect(configuration.base_path).to eq('https://mhv-api.example.com/v1/')
+      expect(configuration.base_path).to eq('https://api-gateway.example.com/v1/')
     end
   end
 

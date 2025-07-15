@@ -869,13 +869,13 @@ mhv:
     mock: false
   api_gateway:
     hosts:
-      bluebutton: http://mhv-api.example.com
-      fhir: http://mhv-api.example.com
-      pharmacy: http://mhv-api.example.com
-      phrmgr: http://mhv-api.example.com
-      security: http://mhv-api.example.com
-      sm_patient: http://mhv-api.example.com
-      usermgmt: http://mhv-api.example.com
+      bluebutton: https://mhv-api.example.com
+      fhir: https://mhv-api.example.com
+      pharmacy: https://mhv-api.example.com
+      phrmgr: https://mhv-api.example.com
+      security: https://mhv-api.example.com
+      sm_patient: https://mhv-api.example.com
+      usermgmt: https://mhv-api.example.com
   bb:
     collection_caching_enabled: true
     mock: true

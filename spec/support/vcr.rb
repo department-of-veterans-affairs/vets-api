@@ -29,6 +29,10 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MDOT_KEY>') { Settings.mdot.api_key }
   c.filter_sensitive_data('<MDOT_URL>') { Settings.mdot.url }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
+  c.filter_sensitive_data('<MHV_HOST>') { 
+    host = Settings.mhv.api_gateway.hosts.pharmacy
+    host.start_with?('http') ? host : "https://#{host}"
+  }
   c.filter_sensitive_data('<MHV_UHD_HOST>') { Settings.mhv.uhd.host }
   c.filter_sensitive_data('<MHV_UHD_SECURITY_HOST>') { Settings.mhv.uhd.security_host }
   c.filter_sensitive_data('<MHV_MR_HOST>') { Settings.mhv.medical_records.host }

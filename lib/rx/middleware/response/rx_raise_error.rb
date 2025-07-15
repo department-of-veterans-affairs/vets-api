@@ -10,7 +10,10 @@ module Rx
 
         def service_i18n_key
           key = super
-          key << 'LOCKED' if status == 400 && body['source']&.include?('optimistic locking failed')
+          if status == 400 && (body['source']&.include?('optimistic locking failed') || 
+                               body['developerMessage']&.include?('optimistic locking failed'))
+            key << 'LOCKED'
+          end
           key
         end
       end
