@@ -52,10 +52,9 @@ module DependentsVerification
 
       private
 
+      # Remove fields that are not needed in the final PDF
       def remove_fields(form_data)
-        # Remove fields that are not needed in the final PDF
-
-        updated_form_data = form_data
+        updated_form_data = form_data.deep_dup
         keys_to_remove = %w[
           veteranInformation
           address
