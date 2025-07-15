@@ -234,11 +234,8 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
       it 'increments the referral detail page access metric' do
         expect(StatsD).to receive(:increment)
-          .with(described_class::REFERRAL_DETAIL_VIEW_METRIC, tags: ['service:community_care_appointments'])
-
-        expect(StatsD).to receive(:increment)
           .with(
-            described_class::REFERRAL_STATIONID_METRIC,
+            described_class::REFERRAL_DETAIL_VIEW_METRIC,
             tags: [
               'service:community_care_appointments',
               'referring_provider_id:552',
