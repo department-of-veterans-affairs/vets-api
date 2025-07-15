@@ -3,15 +3,23 @@
 require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper do
-  subject { described_class.new(record: record) }
+  subject { described_class.new(record:) }
 
-  let(:record) { [] }
+  let(:record) do
+    {
+      phone_nbr: '5555559876'
+    }
+  end
+
+  let(:expected_response_obj) do
+    { phone_nbr: '5555559876' }
+  end
 
   context 'Mapping the POA data object' do
     it 'gathers the expected data based on the params' do
       res = subject.call
 
-      expect(res).to eq([])
+      expect(res).to eq(expected_response_obj)
     end
   end
 end

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'declined_decision_handler'
-
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class DecisionHandler
@@ -39,7 +37,7 @@ module ClaimsApi
             representative_id: @representative_id
           ).call
         end
-byebug
+
         if @decision == 'accepted'
           handler_class.new(
             ptcpnt_id: @ptcpnt_id,

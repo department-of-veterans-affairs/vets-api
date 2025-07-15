@@ -2,6 +2,7 @@
 
 require 'bgs_service/veteran_representative_service'
 require 'bgs_service/vnp_ptcpnt_addrs_service'
+require 'bgs_service/vnp_ptcpnt_phone_service'
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -28,15 +29,19 @@ module ClaimsApi
         read_all_data = gather_read_all_veteran_representative_data
 
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
-byebug
+
+        read_all_data.merge!(vnp_find_addrs_data)
+
         if @claimant_ptcpnt_id.present?
           claimant_addr_data = gather_vnp_addrs_data('claimant')
           claimant_phone_data = gather_vnp_phone_data
 
-          read_all_data.merge!(claimant: claimant_addr_data)
+          claimant_mapped_data = claimant_addr_data.merge!(claimant_phone_data)
+
+          read_all_data.merge!(claimant: claimant_mapped_data)
         end
 
-        read_all_data.merge!(veteran: vnp_find_addrs_data)
+        read_all_data
       end
 
       def read_all_vateran_representative_records
@@ -70,13 +75,15 @@ byebug
       end
 
       def gather_vnp_phone_data
-        primary_key = @metadata.dig('claimant', 'vnp_mail_id')
+        primary_key = @metadata.dig('claimant', 'vnp_phone_id')
 
         res = ClaimsApi::VnpPtcpntPhoneService
-              .new(external_uid: ptcpnt_id, external_key: ptcpnt_id)
-              .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
+              .new(external_uid: @claimant_ptcpnt_id, external_key: @claimant_ptcpnt_id)
+              .vnp_ptcpnt_phone_find_by_primary_key(id: primary_key)
 
-        byebug
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(
+          record: res
+        ).call
       end
     end
   end
