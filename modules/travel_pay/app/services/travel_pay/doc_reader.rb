@@ -56,8 +56,11 @@ module TravelPay
     end
 
     def find_heading(heading_text)
+      # Configure Word namespace for XPath queries
+      namespaces = { 'w' => 'http://schemas.openxmlformats.org/wordprocessingml/2006/main' }
+
       # This xpath says: "find any paragraph (w:p) that contains the text '#{heading_text}'"
-      match = @doc.xpath(".//w:p[contains(., '#{heading_text}')]")
+      match = @doc.xpath(".//w:p[contains(., '#{heading_text}')]", namespaces)
 
       # Can't have more than one match and be confident in the result
       return unless match.size == 1
@@ -65,7 +68,7 @@ module TravelPay
       # Due to poor structure of the doc, we need to check if the paragraph is bold
       # to determine if it is a heading. If not, return.
       # This xpath says: "starting with the current paragraph, find any child that has a bold (w:b) element"
-      return if match.first.at_xpath('.//w:b').blank?
+      return if match.first.at_xpath('.//w:b', namespaces).blank?
 
       match.first
     end
