@@ -12,7 +12,7 @@ namespace :simple_forms_api do
     log_results(successful_uuids, failure_notifications_sent)
   end
 
-  def fetch_form_submission_attempts(start_date, end_date)
+  def self.fetch_form_submission_attempts(start_date, end_date)
     date_range = (start_date..end_date)
     FormSubmissionAttempt
       .joins(:form_submission)
@@ -21,7 +21,7 @@ namespace :simple_forms_api do
       .where(form_submissions: { form_type: SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP.keys })
   end
 
-  def process_form_submission_attempts(form_submission_attempts)
+  def self.process_form_submission_attempts(form_submission_attempts)
     failure_notifications_sent = []
     errors = []
 
@@ -38,7 +38,7 @@ namespace :simple_forms_api do
     [confirmation_numbers, failure_notifications_sent]
   end
 
-  def send_email(form_submission_attempt, error_notifications_sent, confirmation_number)
+  def self.send_email(form_submission_attempt, error_notifications_sent, confirmation_number)
     Rails.logger.info "Attempting to enqueue email for: #{confirmation_number}"
     now = Time.now.in_time_zone('Eastern Time (US & Canada)')
     time_to_send = now.tomorrow.change(hour: 9, min: 0)
@@ -53,19 +53,19 @@ namespace :simple_forms_api do
     ).send(at: time_to_send)
   end
 
-  def log_results(successful_uuids, failure_notifications_sent)
+  def self.log_results(successful_uuids, failure_notifications_sent)
     log_successful_attempts(successful_uuids)
     Rails.logger.info('Total successful', successful_count: successful_uuids.count)
     Rails.logger.info('Failure notifications successfully sent:',
                       failure_notifications_sent_count: failure_notifications_sent.count)
   end
 
-  def log_successful_attempts(successful_uuids)
+  def self.log_successful_attempts(successful_uuids)
     Rails.logger.info 'Successful UUIDS & notification types:'
     Rails.logger.info successful_uuids
   end
 
-  def log_errors(errors)
+  def self.log_errors(errors)
     Rails.logger.error 'Errors:'
     errors.each do |error|
       Rails.logger.error('SendEmailsByDateRange error.', confirmation_number: error[:confirmation_number],
@@ -73,7 +73,7 @@ namespace :simple_forms_api do
     end
   end
 
-  def get_notification_type(form_submission_attempt)
+  def self.get_notification_type(form_submission_attempt)
     if form_submission_attempt.failure?
       :error
     elsif form_submission_attempt.vbms?
@@ -86,7 +86,7 @@ namespace :simple_forms_api do
     end
   end
 
-  def config(form_submission_attempt, form_submission, confirmation_number)
+  def self.config(form_submission_attempt, form_submission, confirmation_number)
     form_number = SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
     {
       form_data: JSON.parse(form_submission.form_data),
