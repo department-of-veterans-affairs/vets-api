@@ -70,9 +70,9 @@ module TravelPay
         claim['documents'] = documents
 
         # Add decision letter reason for denied or partial payment claims
-        if %w[Denied PartialPayment].include?(claim['claimStatus'])
-          decision_document = find_decision_letter_document(claim)
-          claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['id']) if decision_document
+        decision_document = find_decision_letter_document(claim)
+        if (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].eql?('Paid')) && !decision_document.nil?
+          claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['id'])
         end
 
         claim
