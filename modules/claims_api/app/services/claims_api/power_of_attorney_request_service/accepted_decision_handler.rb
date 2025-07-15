@@ -31,6 +31,7 @@ module ClaimsApi
 
         if @claimant_ptcpnt_id.present?
           claimant_addr_data = gather_vnp_addrs_data(@claimant_ptcpnt_id, 'claimant')
+          claimant_phone_data = gather_vnp_phone_data
 
           read_all_data.merge!(claimant: claimant_addr_data)
         end
@@ -64,6 +65,9 @@ module ClaimsApi
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
+      end
+
+      def gather_vnp_phone_data
       end
     end
   end
