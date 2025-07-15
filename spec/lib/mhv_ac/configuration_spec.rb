@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'rx/configuration'
+require 'mhv_ac/configuration'
 
-RSpec.describe Rx::Configuration do
+# rubocop:disable Rspec/SpecFilePathFormat
+RSpec.describe MHVAC::Configuration do
   let(:configuration) { described_class.instance }
 
   describe '#app_token' do
@@ -24,7 +25,7 @@ RSpec.describe Rx::Configuration do
     context 'when Flipper is enabled for API gateway' do
       it 'returns the API gateway base path' do
         allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(true)
         allow(Settings.mhv.api_gateway.hosts).to receive(:pharmacy).and_return('https://api-gateway.example.com')
         allow(Settings.mhv.rx).to receive(:gw_base_path).and_return('v1/')
         expect(configuration.base_path).to eq('https://api-gateway.example.com/v1/')
@@ -32,13 +33,12 @@ RSpec.describe Rx::Configuration do
     end
 
     context 'when flipper is not enabled (bootup)' do
-      it 'returns the old API base path' do
+      it 'returns the default base path' do
         allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(false)
         allow(Settings.mhv.rx).to receive_messages(
           host: 'https://default-api.example.com',
           base_path: 'mhv-api-patient/v1/'
         )
-
         expect(configuration.base_path).to eq('https://default-api.example.com/mhv-api-patient/v1/')
       end
     end
@@ -46,7 +46,7 @@ RSpec.describe Rx::Configuration do
     context 'when Flipper is disabled for API gateway' do
       it 'returns the default base path' do
         allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
         allow(Settings.mhv.rx).to receive_messages(
           host: 'https://default-api.example.com',
           base_path: 'mhv-api-patient/v1/'
@@ -58,7 +58,11 @@ RSpec.describe Rx::Configuration do
     context 'when a NoMethodError occurs' do
       it 'logs the error and returns the default base path' do
         allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).and_raise(NoMethodError, 'undefined method')
+        allow(Flipper)
+          .to receive(:enabled?)
+          .with(:mhv_secure_messaging_migrate_to_api_gateway)
+          .and_raise(NoMethodError, 'undefined method')
+
         allow(Settings.mhv.rx).to receive_messages(
           host: 'https://error-api.example.com',
           base_path: 'mhv-api-patient/v1/'
@@ -69,27 +73,16 @@ RSpec.describe Rx::Configuration do
     end
   end
 
-  describe '#caching_enabled?' do
-    it 'returns true if collection caching is enabled' do
-      allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
-      expect(configuration.caching_enabled?).to be true
-    end
-
-    it 'returns false if collection caching is not enabled' do
-      allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(false)
-      expect(configuration.caching_enabled?).to be false
-    end
-  end
-
   describe '#service_name' do
     it 'returns the service name' do
-      expect(configuration.service_name).to eq('Rx')
+      expect(configuration.service_name).to eq('MHVAcctCreation')
     end
   end
 
   describe '#breakers_error_threshold' do
     it 'returns the error threshold for breakers' do
-      expect(configuration.breakers_error_threshold).to eq(80)
+      expect(configuration.breakers_error_threshold).to eq(50)
     end
   end
 end
+# rubocop:enable Rspec/SpecFilePathFormat
