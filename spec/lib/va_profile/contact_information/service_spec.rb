@@ -55,7 +55,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
 
       it 'returns a status of 404' do
         VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { vet360_id: user.vet360_id },
             { va_profile: :person_not_found },
@@ -134,7 +134,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
 
       it 'returns a status of 404' do
         VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { vet360_id: user.vet360_id },
             { va_profile: :person_not_found },

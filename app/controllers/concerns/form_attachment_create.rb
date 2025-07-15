@@ -1,13 +1,22 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module FormAttachmentCreate
   extend ActiveSupport::Concern
-  include SentryLogging
+  include Vets::SharedLogging
 
   def create
     debug_timestamp = Time.current.iso8601
     if Flipper.enabled?(:hca_log_form_attachment_create)
       log_message_to_sentry(
+        'begin form attachment creation',
+        :info,
+        file_data_present: filtered_params[:file_data].present?,
+        klass: filtered_params[:file_data]&.class&.name,
+        debug_timestamp:
+      )
+      log_message_to_rails(
         'begin form attachment creation',
         :info,
         file_data_present: filtered_params[:file_data].present?,
@@ -24,6 +33,7 @@ module FormAttachmentCreate
 
     if Flipper.enabled?(:hca_log_form_attachment_create)
       log_message_to_sentry('finish form attachment creation', :info, serialized: serialized.present?, debug_timestamp:)
+      log_message_to_rails('finish form attachment creation', :info, serialized: serialized.present?, debug_timestamp:)
     end
 
     render json: serialized
@@ -48,6 +58,13 @@ module FormAttachmentCreate
       klass: filtered_params[:file_data].class.name,
       exception: e.message
     )
+    log_message_to_rails(
+      'form attachment error 1 - validate class',
+      :info,
+      phase: 'FAC_validate',
+      klass: filtered_params[:file_data].class.name,
+      exception: e.message
+    )
     raise e
   end
 
@@ -62,6 +79,14 @@ module FormAttachmentCreate
       phase: 'FAC_cloud',
       exception: e.message
     )
+    log_message_to_rails(
+      'form attachment error 2 - save to cloud',
+      :info,
+      has_pass: filtered_params[:password].present?,
+      ext: File.extname(filtered_params[:file_data]).last(5),
+      phase: 'FAC_cloud',
+      exception: e.message
+    )
     raise e
   end
 
@@ -69,6 +94,13 @@ module FormAttachmentCreate
     form_attachment.save!
   rescue => e
     log_message_to_sentry(
+      'form attachment error 3 - save to db',
+      :info,
+      phase: 'FAC_db',
+      errors: form_attachment.errors,
+      exception: e.message
+    )
+    log_message_to_rails(
       'form attachment error 3 - save to db',
       :info,
       phase: 'FAC_db',

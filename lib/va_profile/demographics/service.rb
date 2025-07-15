@@ -34,6 +34,7 @@ module VAProfile
             { va_profile: :demographics_not_found },
             :warning
           )
+          log_exception_to_rails(e, :warning)
 
           return build_response(404, nil)
         elsif e.status >= 400 && e.status < 500
