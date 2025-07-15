@@ -182,9 +182,9 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   end
 
   describe 'retry configuration' do
-    it 'has retry setting configured to 12' do
+    it 'has retry setting configured to 14' do
       sidekiq_retry_value = described_class.sidekiq_options_hash['retry']
-      expect(sidekiq_retry_value).to eq(12)
+      expect(sidekiq_retry_value).to eq(14)
     end
   end
 

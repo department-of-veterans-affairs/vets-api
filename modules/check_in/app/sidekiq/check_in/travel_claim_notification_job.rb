@@ -18,7 +18,12 @@ module CheckIn
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
     include TravelClaimNotificationUtilities
-    sidekiq_options retry: 12
+
+    # 14 retries to span approximately 25 hours, this is to allow for unexpected outage of the
+    # external messaging service. If the service is down for more than 25 hours, the job will
+    # be sent to the dead queue where it can be manually retried once it is confirmed the service
+    # is back up.
+    sidekiq_options retry: 14
     REQUIRED_FIELDS = %i[phone_number template_id appointment_date].freeze
 
     ##
