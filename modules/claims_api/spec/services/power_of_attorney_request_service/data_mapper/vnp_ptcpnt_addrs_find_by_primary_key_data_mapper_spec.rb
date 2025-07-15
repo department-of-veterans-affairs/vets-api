@@ -11,14 +11,18 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
 =======
 >>>>>>> 4e54955490 (Rubocop linting for mapper and test file changes)
+=======
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
       addrs_one_txt: '2719 Atlas Ave',
       addrs_two_txt: 'Apt 2',
       city_nm: 'Los Angeles',
       cntry_nm: 'USA',
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,11 +60,17 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       zip_first_suffix_nbr: '0200',
       zip_prefix_nbr: '92264'
 >>>>>>> 4e54955490 (Rubocop linting for mapper and test file changes)
+=======
+      postal_cd: 'CA',
+      zip_first_suffix_nbr: '0200',
+      zip_prefix_nbr: '92264'
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
     }
   end
 
   let(:expected_data_obj) do
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -73,15 +83,21 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       'cntry_nm' => 'USA',
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
       'addrs_one_txt' => '2719 Atlas Ave',
       'addrs_two_txt' => 'Apt 2',
       'city_nm' => 'Los Angeles',
       'cntry_nm' => 'USA',
+<<<<<<< HEAD
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
+=======
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
       'postal_cd' => 'CA',
       'zip_prefix_nbr' => '92264',
       'zip_first_suffix_nbr' => '0200',
       'email_addrs_txt' => nil
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
       addrs_one_txt: '2719 Atlas Ave',
@@ -105,6 +121,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
 >>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
 =======
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
+=======
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
     }
   end
 

@@ -23,10 +23,14 @@ module ClaimsApi
 
         # The data structure of the data returned from these calls to
 <<<<<<< HEAD
+<<<<<<< HEAD
         # BEP (BGS) is not uniform. The data returned here is like data['value']
 =======
         # BEP (BGS) is not uniform. The data returned here is like data['...']
 >>>>>>> 4e54955490 (Rubocop linting for mapper and test file changes)
+=======
+        # BEP (BGS) is not uniform. The data returned here is like data['value']
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
         def build_data_object(data)
           return [] if data.nil?
 

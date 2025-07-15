@@ -31,6 +31,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
@@ -49,6 +50,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
 =======
   let(:claimant_ptcpnt_id) { nil }
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
+=======
+  let(:claimant_ptcpnt_id) { nil }
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
 
   context "When the decision is 'Declined'" do
     it 'calls the declined decision service handler' do
@@ -77,6 +81,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       metadata:,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       veteran:,
       claimant:
 =======
@@ -85,6 +90,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
 =======
       claimant_ptcpnt_id:
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
+=======
+      claimant_ptcpnt_id:
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
     )
   end
 end

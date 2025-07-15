@@ -70,6 +70,7 @@ module ClaimsApi
         veteran_data = gather_veteran_data
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         read_all_data = gather_read_all_veteran_representative_data
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
 
@@ -88,10 +89,13 @@ module ClaimsApi
           claimant_addr_data = gather_vnp_addrs_data('claimant')
           claimant_phone_data = gather_vnp_phone_data
 =======
+=======
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
 
         if @claimant_ptcpnt_id.present?
           claimant_addr_data = gather_vnp_addrs_data('claimant')
+<<<<<<< HEAD
 >>>>>>> 22498c8b77 (Cleans up variable usage)
 
           claimant_data.merge!(claimant_addr_data)
@@ -252,6 +256,8 @@ module ClaimsApi
 =======
           claimant_addr_data = gather_vnp_addrs_data('claimant')
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
+=======
+>>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
 
           read_all_data.merge!(claimant: claimant_addr_data)
         end
