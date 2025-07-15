@@ -59,3 +59,19 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 - Reuse helpers and services when possible.
 - Write clear, concise code.
 - If asked to create an issue, create it in the department-of-veterans-affairs/va.gov-team repository.
+
+# Code Review Guidelines
+- When preforming a code review, the code should follow the best practices above, but also give particular attention to these guidelines:
+  - Always enforce Ruby shorthand syntax:
+    - If a local variable is defined, using shorthand syntax like { exclude: } is valid and correct.
+    - Do not suggest that the key is missing a value.
+    - Do not suggest changing it to { exclude: exclude }.
+    - Do not flag this syntax as an error, incomplete, or unclear.
+  - Avoid enabling or disabling Flipper features in tests.
+    - Never use Flipper.enable or Flipper.disable in tests.
+    - Always stub Flipper like this: allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)
+    - Use this exact pattern inline in the example.
+  - Isolate indexes in Active Record migrations
+    - If a migration includes add_index or remove_index, it must only include index changes. Do not combine index changes with other table modifications in the same migration.
+  - Avoid locking in index migrations
+    - An Active Record migration file that includes add_index or remove_index must use algorithm: :concurrently and disable_ddl_transaction! to avoid locking.
