@@ -24,17 +24,25 @@ module ClaimsApi
 
           {
 <<<<<<< HEAD
+<<<<<<< HEAD
             'phone_nbr' => @record[:phone_nbr]
 =======
             phone_number: @record[:phone_number]
 >>>>>>> 1e8d0ec948 (WIP)
+=======
+            phone_nbr: @record[:phone_nbr]
+>>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)
           }
         end
       end
     end
   end
 <<<<<<< HEAD
+<<<<<<< HEAD
 end
 =======
 end
 >>>>>>> 1e8d0ec948 (WIP)
+=======
+end
+>>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)

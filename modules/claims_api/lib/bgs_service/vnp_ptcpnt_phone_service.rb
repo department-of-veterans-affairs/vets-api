@@ -28,6 +28,10 @@ module ClaimsApi
 
     def vnp_ptcpnt_phone_find_by_primary_key(id)
       primary_id = id[:id]
+<<<<<<< HEAD
+=======
+
+>>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <vnpPtcpntPhoneId>#{primary_id}</vnpPtcpntPhoneId>
       EOXML
