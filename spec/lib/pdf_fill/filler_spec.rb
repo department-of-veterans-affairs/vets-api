@@ -61,12 +61,23 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
+    def get_file_append_name(extras_redesign, show_jumplinks)
+      if show_jumplinks
+        '_redesign_extras_jumplinks.pdf'
+      elsif extras_redesign
+        '_redesign_extras.pdf'
+      else
+        '_extras.pdf'
+      end
+    end
+
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
        22-10216 22-10215 22-10215a].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
-        form_types << ['overflow', true] if form_id == '21-0781V2'
-        form_types.each do |type, extras_redesign|
+        # form_types = []
+        form_types << ['overflow', true, true] if form_id == '21-0781V2'
+        form_types.each do |type, extras_redesign, show_jumplinks|
           context "with #{type} test data with extras_redesign #{extras_redesign}" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
@@ -86,13 +97,15 @@ describe PdfFill::Filler, type: :model do
 
               expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student:, show_jumplinks:})
 
               fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
 
+              puts (show_jumplinks)
+
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-                fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+                fixture_pdf = fixture_pdf_base + (get_file_append_name(extras_redesign, show_jumplinks) || '.pdf')
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
