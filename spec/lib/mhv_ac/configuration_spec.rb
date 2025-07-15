@@ -21,6 +21,14 @@ RSpec.describe MHVAC::Configuration do
     end
   end
 
+  describe '#base_path' do
+    it 'returns the RX host with gateway base path' do
+      allow(Settings.mhv.rx).to receive(:host).and_return('https://mhv-api.example.com')
+      allow(Settings.mhv.rx).to receive(:gw_base_path).and_return('v1/')
+      expect(configuration.base_path).to eq('https://mhv-api.example.com/v1/')
+    end
+  end
+
   describe '#service_name' do
     it 'returns the service name' do
       expect(configuration.service_name).to eq('MHVAcctCreation')
