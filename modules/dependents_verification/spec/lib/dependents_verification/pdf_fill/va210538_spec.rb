@@ -43,19 +43,14 @@ describe DependentsVerification::PdfFill::Va210538 do
     ]
   end
 
-  # Override the time for shared examples to ensure consistent timestamps from fixtures
-  around do |example|
-    Timecop.freeze(Time.zone.parse('2025-06-25T00:00:00Z')) do
-      example.run
-    end
-  end
-
   it_behaves_like 'a form filler', {
     form_id: described_class::FORM_ID,
     factory: :dependents_verification_claim,
     test_data_types: %w[kitchen_sink],
     input_data_fixture_dir: "#{DependentsVerification::MODULE_PATH}/spec/fixtures/pdf_fill/#{DependentsVerification::FORM_ID}",
-    output_pdf_fixture_dir: "#{DependentsVerification::MODULE_PATH}/spec/fixtures/pdf_fill/#{DependentsVerification::FORM_ID}"
+    output_pdf_fixture_dir: "#{DependentsVerification::MODULE_PATH}/spec/fixtures/pdf_fill/#{DependentsVerification::FORM_ID}",
+    # Override the time for shared examples to ensure consistent timestamps from fixtures
+    run_at: '2025-06-25 00:00:00 UTC'
   }
 
   describe '#merge_fields' do
