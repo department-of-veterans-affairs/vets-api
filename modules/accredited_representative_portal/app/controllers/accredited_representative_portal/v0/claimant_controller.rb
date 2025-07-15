@@ -15,7 +15,13 @@ module AccreditedRepresentativePortal
           ClaimantPolicy.new(current_user, claimant).power_of_attorney? || poa_requests.any?
         )
 
-        render json: { data: ClaimantSerializer.new(claimant).serializable_hash }, status: :ok
+        active_poa_codes = current_user.user_account.active_power_of_attorney_holders.map(&:poa_code)
+        render json: {
+          data: ClaimantSerializer.new(
+            claimant,
+            { params: { active_poa_codes: } }
+          ).serializable_hash
+        }, status: :ok
       rescue ClaimantSearchService::Error => e
         raise Common::Exceptions::BadRequest.new(detail: e.message, source: ClaimantSearchService)
       end
