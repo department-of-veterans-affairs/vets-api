@@ -56,6 +56,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRep
       claimant_relationship: nil,
       poa_code: '083',
       organization_name: 'DISABLED AMERICAN VETERANS',
+      representativeLawFirmOrAgencyName: nil,
       representative_first_name: 'John',
       representative_last_name: 'Doe',
       representative_title: nil,

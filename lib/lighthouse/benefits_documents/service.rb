@@ -62,6 +62,14 @@ module BenefitsDocuments
       handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/download')
     end
 
+    def validate_claimant_can_upload(document_data)
+      response = config.claimant_can_upload_document(document_data)
+      response.body.dig('data', 'valid') # boolean
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/documents/validate/claimant')
+      false
+    end
+
     private
 
     def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength
@@ -82,6 +90,13 @@ module BenefitsDocuments
       if Flipper.enabled?(:benefits_documents_filter_duplicates) && presumed_duplicate?(claim_id, file)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'Provided document has already been uploaded',
+          source: self.class.name
+        )
+      end
+
+      if Flipper.enabled?(:benefits_documents_validate_claimant) && !validate_claimant_can_upload(document_data)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'Claimant cannot be validated to upload documents to this claim',
           source: self.class.name
         )
       end
