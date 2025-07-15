@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/shared_logging'
+
 module BGS
   class DependencyVerificationService
     include SentryLogging

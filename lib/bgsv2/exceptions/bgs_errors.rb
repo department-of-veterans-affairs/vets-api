@@ -2,6 +2,7 @@
 
 require 'bgsv2/exceptions/service_exception'
 require 'vets/shared_logging'
+
 module BGSV2
   module Exceptions
     module BGSErrors
