@@ -3,6 +3,7 @@
 require 'mpi/responses/profile_parser'
 require 'sentry_logging'
 require 'mpi/errors/errors'
+require 'vets/shared_logging'
 
 module MPI
   module Services

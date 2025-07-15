@@ -9,6 +9,7 @@ require_relative 'vnp_relationships'
 require_relative 'vnp_veteran'
 require_relative 'dependent_higher_ed_attendance'
 require_relative '../bid/awards/service'
+require 'vets/shared_logging'
 
 module BGS
   class Form674

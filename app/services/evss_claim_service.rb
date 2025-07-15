@@ -5,6 +5,7 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
+require 'vets/shared_logging'
 
 # EVSS Claims Status Tool
 class EVSSClaimService

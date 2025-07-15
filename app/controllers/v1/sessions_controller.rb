@@ -7,6 +7,7 @@ require 'saml/responses/login'
 require 'saml/responses/logout'
 require 'saml/ssoe_settings_service'
 require 'login/after_login_actions'
+require 'vets/shared_logging'
 
 module V1
   class SessionsController < ApplicationController

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
 module ClaimFastTracking
   class MaxCfiMetrics
     include SentryLogging

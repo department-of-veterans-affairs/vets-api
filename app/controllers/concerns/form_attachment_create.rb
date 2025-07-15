@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module FormAttachmentCreate
   extend ActiveSupport::Concern
   include SentryLogging

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'service'
+require 'vets/shared_logging'
 
 module BGSV2
   class VnpVeteran

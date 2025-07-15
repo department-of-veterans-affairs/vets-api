@@ -6,6 +6,7 @@ require 'va_profile/service'
 require 'va_profile/stats'
 require_relative 'configuration'
 require_relative 'transaction_response'
+require 'vets/shared_logging'
 
 module VAProfile
   module ContactInformation

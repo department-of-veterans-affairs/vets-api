@@ -2,6 +2,7 @@
 
 require 'common/models/redis_store'
 require 'sentry_logging'
+require 'vets/shared_logging'
 
 class Session < Common::RedisStore
   include SentryLogging

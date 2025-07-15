@@ -2,6 +2,7 @@
 
 require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
+require 'vets/shared_logging'
 
 module BGS
   class Service

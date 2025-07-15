@@ -2,6 +2,7 @@
 
 require 'bgs/utilities/helpers'
 require_relative 'service'
+require 'vets/shared_logging'
 module BGS
   class BenefitClaim
     include SentryLogging

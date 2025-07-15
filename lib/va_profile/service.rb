@@ -7,6 +7,7 @@ require 'common/exceptions/forbidden'
 require_relative 'exceptions/parser'
 require_relative 'models/message'
 require_relative 'stats'
+require 'vets/shared_logging'
 
 module VAProfile
   class Service < Common::Client::Base

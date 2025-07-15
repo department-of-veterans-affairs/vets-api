@@ -7,6 +7,7 @@ require 'va_profile/stats'
 require_relative 'configuration'
 require_relative 'transaction_response'
 require_relative 'person_response'
+require 'vets/shared_logging'
 
 module VAProfile
   module V2

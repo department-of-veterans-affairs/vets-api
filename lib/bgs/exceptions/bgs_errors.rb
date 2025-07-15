@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs/exceptions/service_exception'
+require 'vets/shared_logging'
 module BGS
   module Exceptions
     module BGSErrors

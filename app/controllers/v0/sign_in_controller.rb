@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sign_in/logger'
+require 'vets/shared_logging'
 
 module V0
   class SignInController < SignIn::ApplicationController

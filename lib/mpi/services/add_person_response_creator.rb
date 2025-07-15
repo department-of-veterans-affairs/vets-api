@@ -2,6 +2,7 @@
 
 require 'mpi/responses/add_parser'
 require 'sentry_logging'
+require 'vets/shared_logging'
 
 module MPI
   module Services
