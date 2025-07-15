@@ -258,9 +258,40 @@ module CheckIn
       )
     end
 
+    ##
+    # Determines SMS sender ID based on facility type
+    #
+    # @param facility_type [String] The facility type ('oh' or 'cie')
+    # @return [String] The appropriate SMS sender ID constant
+    def determine_sms_sender_id(facility_type)
+      if facility_type && 'oh'.casecmp?(facility_type)
+        Constants::OH_SMS_SENDER_ID
+      else
+        Constants::CIE_SMS_SENDER_ID
+      end
+    end
+
+    ##
+    # Builds personalisation hash for SMS template
+    #
+    # @param opts [Hash] Options hash containing claim_number_last_four
+    # @param parsed_date [Date] Validated appointment date
+    # @return [Hash] Personalisation data for SMS template
+    def build_personalisation(opts, parsed_date)
+      {
+        claim_number: opts[:claim_number_last_four].presence || 'unknown',
+        appt_date: parsed_date.strftime('%b %d')
+      }
+    end
+
+    ##
+    # Builds callback options for VaNotify service
+    #
+    # @param opts [Hash] Options hash containing job parameters
+    # @return [Hash] Callback configuration for VA Notify delivery status tracking
     def build_callback_options(opts)
       {
-        callback_class: CheckIn::TravelClaimNotificationCallback,
+        callback_klass: CheckIn::TravelClaimNotificationCallback,
         callback_metadata: {
           uuid: opts[:uuid],
           template_id: opts[:template_id],
