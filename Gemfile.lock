@@ -1135,7 +1135,8 @@ GEM
     timecop (0.9.10)
     timeout (0.4.3)
     trailblazer-option (0.1.2)
-    ttfunk (1.7.0)
+    ttfunk (1.8.0)
+      bigdecimal (~> 3.1)
     typhoeus (1.4.1)
       ethon (>= 0.9.0)
     tzinfo (2.0.6)
@@ -1406,7 +1407,7 @@ DEPENDENCIES
   test_user_dashboard!
   timecop
   travel_pay!
-  ttfunk (~> 1.7.0)
+  ttfunk (~> 1.8.0)
   tzinfo-data
   utf8-cleaner
   va_notify!
