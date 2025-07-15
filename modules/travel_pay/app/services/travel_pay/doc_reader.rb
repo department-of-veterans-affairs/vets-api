@@ -24,7 +24,7 @@ module TravelPay
       heading = find_heading(heading_text)
 
       unless heading
-        Rails.logger.error "TravelPay::DocReader: Heading not found for '#{heading_text}'"
+        Rails.logger.error("DocReader: Heading not found for '#{heading_text}'")
         return
       end
 
@@ -40,11 +40,15 @@ module TravelPay
 
       # If a regex pattern is provided, check if the paragraph matches
       if paragraph_includes.nil?
-        Rails.logger.info "TravelPay::DocReader: No regex pattern provided for '#{heading_text}', returning paragraph text"
+        Rails.logger.info(
+          "DocReader: No regex pattern provided for '#{heading_text}', returning paragraph text"
+        )
       elsif paragraph_text.match?(paragraph_includes)
-        Rails.logger.info "TravelPay::DocReader: Regex pattern matched for '#{heading_text}': #{paragraph_includes}"
+        Rails.logger.info("DocReader: Regex pattern matched for '#{heading_text}': #{paragraph_includes}")
       else
-        Rails.logger.error "TravelPay::DocReader: Regex pattern did not match for '#{heading_text}': #{paragraph_includes}"
+        Rails.logger.error(
+          "DocReader: Regex pattern did not match for '#{heading_text}': #{paragraph_includes}"
+        )
         return
       end
 
