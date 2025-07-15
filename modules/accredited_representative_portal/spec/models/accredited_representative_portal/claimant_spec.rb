@@ -15,7 +15,7 @@ module AccreditedRepresentativePortal
         icn:,
         given_names: ['John'],
         family_name: 'Doe',
-        address: instance_double(Address, city: 'Somewhere', state: 'VA', postal_code: '12345')
+        address: double(city: 'Somewhere', state: 'VA', postal_code: '12345')
       )
     end
 
