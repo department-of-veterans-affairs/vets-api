@@ -56,16 +56,16 @@ module DependentsVerification
         # Remove fields that are not needed in the final PDF
 
         updated_form_data = form_data
-        keys_to_remove = [
-          'veteranInformation',
-          'address',
-          'dependents',
-          'email',
-          'phone',
-          'statementOfTruthSignature',
-          'statementOfTruthCertified',
-          'internationalPhone',
-          'electronicCorrespondence'
+        keys_to_remove = %w[
+          veteranInformation
+          address
+          dependents
+          email
+          phone
+          statementOfTruthSignature
+          statementOfTruthCertified
+          internationalPhone
+          electronicCorrespondence
         ]
         keys_to_remove.each { |key| updated_form_data.delete(key) }
 
