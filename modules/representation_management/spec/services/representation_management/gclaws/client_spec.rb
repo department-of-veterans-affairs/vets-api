@@ -34,6 +34,21 @@ RSpec.describe RepresentationManagement::GCLAWS::Client do
         end
       end
 
+      context 'when the request is unauthorized' do
+        it 'logs the error and returns an unauthorized status' do
+          stub_request(:get, Settings.gclaws.accreditation.agents.url)
+            .with(query: { 'page' => 1, 'pageSize' => 100, 'sortColumn' => 'LastName', 'sortOrder' => 'ASC' })
+            .to_raise(Faraday::UnauthorizedError.new('GCLAWS Accreditation unauthorized'))
+
+          expect(Rails.logger).to receive(:error).with("GCLAWS Accreditation unauthorized for #{type}")
+
+          response = subject.get_accredited_entities(type:)
+
+          expect(response.status).to eq(:unauthorized)
+          expect(JSON.parse(response.body)['errors']).to eq('GCLAWS Accreditation unauthorized')
+        end
+      end
+
       context 'when the connection fails' do
         it 'logs the error and returns a service unavailable status' do
           stub_request(:get, Settings.gclaws.accreditation.agents.url)

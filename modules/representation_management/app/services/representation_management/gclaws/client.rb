@@ -15,6 +15,10 @@ module RepresentationManagement
         configuration = GCLAWS::Configuration.new(type:, page:, page_size:)
 
         configuration.connection.get
+      rescue Faraday::UnauthorizedError
+        Rails.logger.error("GCLAWS Accreditation unauthorized for #{type}")
+        Faraday::Response.new(status: :unauthorized,
+                              body: { errors: 'GCLAWS Accreditation unauthorized' }.to_json)
       rescue Faraday::ConnectionFailed
         Rails.logger.error(
           "GCLAWS Accreditation connection failed for #{type}"
