@@ -3,7 +3,7 @@
 module ClaimsApi
   module PowerOfAttorneyRequestService
     module DataMapper
-      class VnpPtcpntAddrsFindByPrimaryKeyService
+      class VnpPtcpntAddrsFindByPrimaryKeyDataMapper
         def initialize(record:)
           @record = record
         end

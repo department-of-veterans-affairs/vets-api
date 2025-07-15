@@ -61,7 +61,7 @@ module ClaimsApi
               .new(external_uid: pctpnt_id, external_key: pctpnt_id)
               .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
 
-        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyService.new(
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
       end

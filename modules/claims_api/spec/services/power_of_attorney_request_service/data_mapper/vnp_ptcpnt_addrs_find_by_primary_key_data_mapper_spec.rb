@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyService do
+describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyDataMapper do
   subject { described_class.new(record:) }
 
   let(:record) do
