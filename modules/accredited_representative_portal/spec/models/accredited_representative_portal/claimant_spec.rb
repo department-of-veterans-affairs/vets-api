@@ -11,11 +11,11 @@ module AccreditedRepresentativePortal
 
     let(:profile) do
       instance_double(
-        'MPI::Models::MviProfile',
-        icn: icn,
+        MPI::Models::MviProfile,
+        icn:,
         given_names: ['John'],
         family_name: 'Doe',
-        address: instance_double('Address', city: 'Somewhere', state: 'VA', postal_code: '12345')
+        address: instance_double(Address, city: 'Somewhere', state: 'VA', postal_code: '12345')
       )
     end
 
@@ -25,7 +25,7 @@ module AccreditedRepresentativePortal
       instance_double(
         PoaLookupService,
         claimant_poa_code: poa_code,
-        representative_name: representative_name
+        representative_name:
       )
     end
 

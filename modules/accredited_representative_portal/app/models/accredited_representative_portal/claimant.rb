@@ -20,11 +20,7 @@ module AccreditedRepresentativePortal
     delegate :claimant_poa_code, to: :poa_lookup_service
 
     def representative
-      if active_poa_codes.include?(claimant_poa_code)
-        poa_lookup_service.representative_name
-      else
-        nil
-      end
+      poa_lookup_service.representative_name if active_poa_codes.include?(claimant_poa_code)
     end
 
     def id
