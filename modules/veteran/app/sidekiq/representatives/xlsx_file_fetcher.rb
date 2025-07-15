@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'octokit'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module Representatives
   # Class responsible for fetching the XLSX file containing representative organization addresses
   # from a specified GitHub repository.
   class XlsxFileFetcher
-    include SentryLogging
+    include Vets::SharedLogging
 
     # Constants defining the GitHub organization, repository, and file path.
     ORG = 'department-of-veterans-affairs'
