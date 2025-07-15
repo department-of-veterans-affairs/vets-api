@@ -39,7 +39,7 @@ module ClaimsApi
             representative_id: @representative_id
           ).call
         end
-
+byebug
         if @decision == 'accepted'
           handler_class.new(
             ptcpnt_id: @ptcpnt_id,
