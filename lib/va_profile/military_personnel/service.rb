@@ -39,6 +39,7 @@ module VAProfile
           log_exception_to_sentry(
             e, { edipi: @user.edipi }, { va_profile: :service_history_not_found }, :warning
           )
+          log_exception_to_rails(e, :warning)
 
           return ServiceHistoryResponse.new(404, episodes: nil)
         elsif error_status && error_status >= 400 && error_status < 500

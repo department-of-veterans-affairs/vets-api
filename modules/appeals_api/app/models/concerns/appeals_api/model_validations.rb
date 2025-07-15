@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ModuleLength
 module AppealsApi
   module ModelValidations
     extend ActiveSupport::Concern
@@ -169,4 +168,3 @@ module AppealsApi
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength

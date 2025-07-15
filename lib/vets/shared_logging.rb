@@ -45,16 +45,19 @@ module Vets
     end
 
     def normalize_shared_level(level, exception)
-      case exception
-      when Pundit::NotAuthorizedError
-        'info'
-      when Common::Exceptions::BaseError
-        # could change this attribute to log_level
-        # to make clear it is not just a Sentry concern
-        exception.sentry_type.to_s
-      else
-        level.to_s
-      end
+      normalized_level = case exception
+                         when Pundit::NotAuthorizedError
+                           'info'
+                         when Common::Exceptions::BaseError
+                           # could change this attribute to log_level
+                           # to make clear it is not just a Sentry concern
+                           exception.sentry_type.to_s
+                         else
+                           level.to_s
+                         end
+      
+      # Convert :warning to :warn for Rails logger compatibility
+      normalized_level == 'warning' ? 'warn' : normalized_level
     end
 
     def non_nil_hash?(h)

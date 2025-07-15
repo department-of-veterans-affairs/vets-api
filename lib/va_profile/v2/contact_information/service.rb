@@ -47,6 +47,7 @@ module VAProfile
               { va_profile: :person_not_found },
               :warning
             )
+            log_exception_to_rails(e, :warning)
 
             return PersonResponse.new(404, person: nil)
           elsif e.status.to_i >= 400 && e.status.to_i < 500

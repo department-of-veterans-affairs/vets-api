@@ -2,9 +2,10 @@
 
 require 'lighthouse/benefits_education/service'
 require 'feature_flipper'
+require 'vets/shared_logging'
 
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
-  include SentryLogging
+  include Vets::SharedLogging
   add_form_and_validation('22-10203')
 
   class Submit10203Error < StandardError

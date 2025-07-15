@@ -73,11 +73,13 @@ module VAProfile
             { va_profile: :veteran_status_title_not_found },
             :warning
           )
+          log_exception_to_rails(e, :warning)
           raise VAProfile::VeteranStatus::VAProfileError.new(status: 404)
         elsif e.status >= 400 && e.status < 500
           log_exception_to_sentry(
             e, additional_params, { va_profile: :client_error_related_to_title38 }, :warning
           )
+          log_exception_to_rails(e, :warning)
           raise VAProfile::VeteranStatus::VAProfileError.new(status: e.status)
         end
         handle_error(e)

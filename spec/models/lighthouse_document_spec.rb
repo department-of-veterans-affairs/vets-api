@@ -16,6 +16,7 @@ RSpec.describe LighthouseDocument do
           allow_any_instance_of(LighthouseDocument).to receive(:log_message_to_sentry) do |_, message, _level|
             error_message = message
           end
+          allow_any_instance_of(LighthouseDocument).to receive(:log_message_to_rails)
 
           tempfile = Tempfile.new(['', "-#{file_name}"])
           file_obj = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf',
