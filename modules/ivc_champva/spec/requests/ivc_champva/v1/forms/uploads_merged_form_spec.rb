@@ -133,13 +133,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
         form = controller.send(:generate_ohi_form, applicant, form_data)
 
         # Verify the form has the correct properties
-        expect(form).to be_a(IvcChampva::VHA107959c)
-        expect(form.data['first_name']).to eq('John')
-        expect(form.data['last_name']).to eq('Doe')
-        expect(form.data['form_number']).to eq('10-7959C')
+        expect(form[0]).to be_a(IvcChampva::VHA107959cRev2025)
+        expect(form[0].data['first_name']).to eq('John')
+        expect(form[0].data['last_name']).to eq('Doe')
+        expect(form[0].data['form_number']).to eq('10-7959C-REV2025')
 
         # Verify the form contains other data from the original form_data
-        expect(form.data['veteran']).to eq(form_data['veteran'])
+        expect(form[0].data['veteran']).to eq(form_data['veteran'])
       end
     end
 
@@ -147,8 +147,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
       it 'creates a persistent attachment record' do
         # Create a mock form with required attributes
         form = instance_double(
-          IvcChampva::VHA107959c,
-          form_id: '10-7959C',
+          IvcChampva::VHA107959cRev2025,
+          form_id: '10-7959C-REV2025',
           uuid: 'test-uuid',
           data: {
             'first_name' => 'John',
@@ -181,7 +181,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
         form = controller.send(:generate_ohi_form, applicant, form_data)
 
         # Call the private method to generate the PDF
-        pdf_path = controller.send(:fill_ohi_and_return_path, form)
+        pdf_path = controller.send(:fill_ohi_and_return_path, form[0])
 
         with_temporary_file(pdf_path) do |path|
           # Verify the PDF file was created
@@ -202,9 +202,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
     describe 'applicants_with_ohi' do
       it 'filters applicants with OHI correctly' do
         applicants = [
-          { 'first_name' => 'John', 'applicant_has_ohi' => { 'has_ohi' => 'yes' } },
-          { 'first_name' => 'Jane', 'applicant_has_ohi' => { 'has_ohi' => 'no' } },
-          { 'first_name' => 'Bob', 'applicant_has_ohi' => { 'has_ohi' => 'yes' } }
+          { 'first_name' => 'John', 'health_insurance' => [{}] },
+          { 'first_name' => 'Jane' },
+          { 'first_name' => 'Bob', 'health_insurance' => [{}] }
         ]
 
         result = controller.send(:applicants_with_ohi, applicants)
@@ -220,9 +220,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
 
       it 'handles missing has_ohi field' do
         applicants = [
-          { 'first_name' => 'John', 'applicant_has_ohi' => { 'has_ohi' => 'yes' } },
-          { 'first_name' => 'Jane' }, # Missing applicant_has_ohi
-          { 'first_name' => 'Bob', 'applicant_has_ohi' => {} } # Empty applicant_has_ohi
+          { 'first_name' => 'John', 'health_insurance' => [{}] },
+          { 'first_name' => 'Jane' },
+          { 'first_name' => 'Bob' }
         ]
 
         result = controller.send(:applicants_with_ohi, applicants)

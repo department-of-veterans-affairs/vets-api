@@ -10,7 +10,10 @@ module IvcChampva
     # Map attachment IDs to their corresponding validators
     # Some attachment IDs are not provided by the UI, so they will be iterated over to determine suitability
     VALIDATOR_MAP = {
-      'Explanation of Benefits' => DocumentOcrValidators::Tesseract::EobTesseractValidator
+      'Social Security card' => DocumentOcrValidators::Tesseract::SocialSecurityCardTesseractValidator,
+      'Explanation of Benefits' => DocumentOcrValidators::Tesseract::EobTesseractValidator,
+      'Superbill' => DocumentOcrValidators::Tesseract::SuperbillTesseractValidator,
+      'Pharmacy Claim' => DocumentOcrValidators::Tesseract::PharmacyClaimTesseractValidator
     }.freeze
 
     def initialize(file_path, form_uuid, attachment_id:)
@@ -69,14 +72,14 @@ module IvcChampva
 
     def convert_pdf_to_image(output_path)
       pdf = MiniMagick::Image.open(@file_path)
-      MiniMagick::Tool::Convert.new do |convert|
-        convert.background 'white'
-        convert.flatten
-        convert.density 150
-        convert.quality 100
-        convert << pdf.pages.first.path
-        convert << output_path
-      end
+      convert = MiniMagick::Tool.new('convert')
+      convert.background 'white'
+      convert.flatten
+      convert.density 150
+      convert.quality 100
+      convert << pdf.pages.first.path
+      convert << output_path
+      convert.call
     end
 
     def pdf_file?

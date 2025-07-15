@@ -9,7 +9,7 @@ module V0
     TTL = 2_592_000
 
     def create
-      email_redis_key = SecureRandom.uuid
+      email_redis_key = Digest::SHA256.hexdigest(create_params)
       Rails.cache.write(email_redis_key, create_params, namespace: NAMESPACE, expires_in: TTL)
 
       Rails.logger.info("[V0][TestAccountUserEmailsController] create, key:#{email_redis_key}")

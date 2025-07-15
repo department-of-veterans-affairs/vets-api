@@ -52,6 +52,54 @@ RSpec.describe IvcChampva::VHA107959a do
     end
   end
 
+  describe '#add_resubmission_properties' do
+    context 'when medical claim resubmission data is present' do
+      let(:medical_resubmission_data) do
+        # update data to reflect a resubmitted medical claim
+        data.merge(
+          {
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'PDI number',
+            'claim_type' => 'medical',
+            'provider_name' => 'BCBS',
+            'beginning_date_of_service' => '01-01-1999',
+            'end_date_of_service' => '01-02-1999'
+          }
+        )
+      end
+
+      let(:vha107959a_medical_resubmission) { described_class.new(medical_resubmission_data) }
+
+      it 'includes a key for each present resubmission property' do
+        res = vha107959a_medical_resubmission.add_resubmission_properties
+        expect(res.keys.include?('claim_status')).to be(true)
+        expect(res.keys.include?('pdi_or_claim_number')).to be(true)
+        expect(res.keys.include?('claim_type')).to be(true)
+        expect(res.keys.include?('provider_name')).to be(true)
+        expect(res.keys.include?('beginning_date_of_service')).to be(true)
+        expect(res.keys.include?('end_date_of_service')).to be(true)
+      end
+
+      it 'contains resubmission data' do
+        res = vha107959a_medical_resubmission.add_resubmission_properties
+        expect(res['claim_status']).to eq('resubmission')
+      end
+    end
+
+    context 'when resubmission properties are missing' do
+      it 'does not interfere with metadata creation' do
+        expect(vha_10_7959a.metadata.keys.include?('veteranFirstName')).to be(true)
+      end
+
+      it 'does not include resubmission property if there is no corresponding value' do
+        # vha_10_7959a was initialized with no resubmission values
+        res = vha_10_7959a.add_resubmission_properties
+        # this key will not be present even though `add_resubmission_properties` attempts to get it from the form data
+        expect(res.keys.include?('claim_status')).to be(false)
+      end
+    end
+  end
+
   describe '#track_email_usage' do
     let(:statsd_key) { 'api.ivc_champva_form.10_7959a' }
 

@@ -61,6 +61,11 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
                                station_number: mock_institution_data.third[:station_number],
                                postal_name: mock_institution_data.third[:street_state_id])
 
+      # Add existing health_facility record that is no longer returned in the api call
+      create(:health_facility, name: 'My Really Old VA Clinic Name',
+                               station_number: '111HB',
+                               postal_name: 'OH')
+
       allow(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
       allow(lighthouse_service).to receive(:get_facilities)
         .and_return(mock_get_facilities_page_one, mock_get_facilities_page_two)
@@ -75,17 +80,20 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
     context 'success' do
       it 'updates HealthFacilities table without duplicating existing records' do
         expect(Rails.logger).to receive(:info).with(
-          '[HCA] - Job started with 2 existing health facilities.'
+          '[HCA] - Job started with 3 existing health facilities.'
         )
         expect(Rails.logger).to receive(:info).with(
           '[HCA] - Job ended with 3 health facilities.'
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[HCA] - Deleted 1 health facilities not present in import.'
         )
 
         expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.health_facilities_import_job_complete")
 
         expect do
           described_class.new.perform
-        end.to change(HealthFacility, :count).by(1)
+        end.not_to change(HealthFacility, :count)
 
         station_numbers = mock_institution_data.map { |institution| institution[:station_number] }
         expect(HealthFacility
@@ -102,14 +110,18 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         before { stub_const("#{described_class}::PER_PAGE", mock_per_page) }
 
         it 'fetches multiple pages of facilities' do
-          expect(lighthouse_service).to receive(:get_facilities).with(type: 'health', per_page: mock_per_page,
-                                                                      page: 1).and_return(mock_get_facilities_page_one)
-          expect(lighthouse_service).to receive(:get_facilities).with(type: 'health', per_page: mock_per_page,
-                                                                      page: 2).and_return(mock_get_facilities_page_two)
+          expect(lighthouse_service).to receive(:get_facilities).with(
+            type: 'health', per_page: mock_per_page,
+            page: 1, mobile: false
+          ).and_return(mock_get_facilities_page_one)
+          expect(lighthouse_service).to receive(:get_facilities).with(
+            type: 'health', per_page: mock_per_page,
+            page: 2, mobile: false
+          ).and_return(mock_get_facilities_page_two)
 
           expect do
             described_class.new.perform
-          end.to change(HealthFacility, :count).by(2)
+          end.to change(HealthFacility, :count).by(1)
 
           # Verify the correct facilities are added
           expect(HealthFacility.pluck(:name)).to contain_exactly(
@@ -119,6 +131,36 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
             'My Other Fake VA Clinic'
           )
         end
+
+        context ':hca_facility_import_job_filter_facilities disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_facility_import_job_filter_facilities).and_return(false)
+          end
+
+          it 'fetches multiple pages of facilities and does not delete old facilities' do
+            expect(lighthouse_service).to receive(:get_facilities).with(
+              type: 'health', per_page: mock_per_page,
+              page: 1, mobile: true
+            ).and_return(mock_get_facilities_page_one)
+            expect(lighthouse_service).to receive(:get_facilities).with(
+              type: 'health', per_page: mock_per_page,
+              page: 2, mobile: true
+            ).and_return(mock_get_facilities_page_two)
+
+            expect do
+              described_class.new.perform
+            end.to change(HealthFacility, :count).by(2)
+
+            # Verify the correct facilities are added
+            expect(HealthFacility.pluck(:name)).to contain_exactly(
+              'My Fake VA Clinic',
+              'Yet Another Clinic Name',
+              'My Great New VA Clinic Name',
+              'My Other Fake VA Clinic',
+              'My Really Old VA Clinic Name' # Does not delete old facilities
+            )
+          end
+        end
       end
     end
 
@@ -126,7 +168,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
       it 'logs errors when API call fails' do
         expect(lighthouse_service).to receive(:get_facilities).and_raise(StandardError, 'something broke')
         expect(Rails.logger).to receive(:info).with(
-          '[HCA] - Job started with 2 existing health facilities.'
+          '[HCA] - Job started with 3 existing health facilities.'
         )
         expect(Rails.logger).to receive(:error).with(
           "[HCA] - Error occurred in #{described_class.name}: something broke"
@@ -157,7 +199,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
 
       it 'enqueues IncomeLimits::StdStateImport and raises error' do
         expect(Rails.logger).to receive(:info).with(
-          '[HCA] - Job started with 2 existing health facilities.'
+          '[HCA] - Job started with 3 existing health facilities.'
         )
         expect(Rails.logger).to receive(:error).with(
           "[HCA] - Error occurred in #{described_class.name}: StdStates missing – triggered import and retrying job"

@@ -20,6 +20,10 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
   describe 'authentication', :aggregate_errors do
     let(:error_detail) { JSON.parse(response.body)['errors'].first['detail'] }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mobile_iam_authentication_disabled).and_return(false)
+    end
+
     context 'with an invalid authorization header' do
       context 'when the Authentication header is missing' do
         it 'returns forbidden' do
@@ -38,6 +42,19 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
 
           expect(response).to have_http_status(:unauthorized)
           expect(error_detail).to eq('Authorization header Bearer token is blank')
+        end
+      end
+
+      context 'with iam authentication disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mobile_iam_authentication_disabled).and_return(true)
+        end
+
+        it 'returns forbidden' do
+          get :index
+
+          expect(response).to have_http_status(:unauthorized)
+          expect(error_detail).to eq('Authentication method not supported')
         end
       end
     end

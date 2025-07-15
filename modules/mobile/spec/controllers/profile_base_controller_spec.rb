@@ -16,6 +16,7 @@ RSpec.shared_examples 'sso logging' do |type|
         # prevent fingerprint mismatch that raises a warning and complicates tests
         request.remote_ip = user.fingerprint
       else
+        allow(Flipper).to receive(:enabled?).with(:mobile_iam_authentication_disabled).and_return(false)
         @new_headers = iam_headers
         iam_sign_in
       end

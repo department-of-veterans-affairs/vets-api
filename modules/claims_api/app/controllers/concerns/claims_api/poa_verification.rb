@@ -83,7 +83,7 @@ module ClaimsApi
         valid_poa_code_for_current_user?(poa_code_to_verify)
       rescue ::Common::Exceptions::UnprocessableEntity
         raise
-      rescue
+      rescue => e
         ClaimsApi::Logger.log 'poa_verification', level: :error, detail: e.message, error_class: e.class.name
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end

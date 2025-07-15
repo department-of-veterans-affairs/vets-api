@@ -41,6 +41,23 @@ RSpec.describe DebtsApi::V0::OneDebtLetterService, type: :service do
           end
         end
       end
+
+      it 'handles errors during PDF combination' do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::OneDebtLetterService::STATS_KEY}.error"
+        )
+
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
+            service = DebtsApi::V0::OneDebtLetterService.new(user)
+            mock_pdf = StringIO.new('%PDF-1.6 mock pdf content')
+            allow(service).to receive(:load_legalese_pdf).and_raise(StandardError, 'PDF load error')
+
+            expect { service.get_pdf(mock_pdf) }.to raise_error(StandardError, 'PDF load error')
+          end
+        end
+      end
     end
   end
 end

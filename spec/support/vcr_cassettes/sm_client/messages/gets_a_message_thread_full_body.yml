@@ -1,96 +1,110 @@
 ---
 http_interactions:
-- request:
-    method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/3188782/allmessagesforthread/1"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Token: "<SESSION_TOKEN>"
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Wed, 20 Dec 2023 16:52:14 GMT
-      Content-Type:
-      - application/json
-      Content-Length:
-      - '6494'
-      X-Amzn-Requestid:
-      - a388af9c-91c3-4290-af31-f0c28e90610a
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
-      X-Amzn-Remapped-Connection:
-      - keep-alive
-      X-Amz-Apigw-Id:
-      - QQFF4HIAPHMFlNw=
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      Expires:
-      - '0'
-      X-Content-Type-Options:
-      - nosniff
-      Pragma:
-      - no-cache
-      X-Amzn-Remapped-Date:
-      - Wed, 20 Dec 2023 16:52:14 GMT
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-    body:
-      encoding: ASCII-8BIT
-      string: '[{"messageId":3207476,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":null,"draftDate":"2023-12-19T17:21:47.000+00:00","triageGroupName":"TG
-        API TESTING","hasAttachments":false,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-2,"messageBody":"TEST0101010101","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3204755,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-18T21:35:53.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":true,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"testing
-        multiple attachments","proxySenderName":null,"readReceipt":null,"attachment1Id":3204753,"attachment1Name":"almost4mbfile.pdf","attachment1Size":3976877,"attachment1MimeType":"application/pdf","attachment2Id":3204754,"attachment2Name":"bb_report
-        (1).pdf","attachment2Size":153692,"attachment2MimeType":"application/pdf","readReceiptDate":null},{"messageId":3203739,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-18T16:31:22.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":false,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"Lorem
-        Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-        Ipsum has been the industry&#39;s standard dummy text ever since the 1500s,
-        when an unknown printer took a galley of type and scrambled it to make a type
-        specimen book. It has survived not only five centuries, but also the leap
-        into electronic typesetting, remaining essentially unchanged. It was popularised
-        in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-        and more recently with desktop publishing software like Aldus PageMaker including
-        versions of Lorem Ipsum.","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3199008,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-15T22:32:41.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":true,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"Abdel-AUTO-save
-        draft edit again","proxySenderName":null,"readReceipt":null,"attachment1Id":3199007,"attachment1Name":"SM.jpeg","attachment1Size":16255,"attachment1MimeType":"image/jpeg","readReceiptDate":null},{"messageId":3193568,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-13T03:21:36.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":false,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"test
-        reply without saving","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3193561,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-13T03:21:21.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":false,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"test
-        reply","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3193542,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-13T03:19:12.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":false,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"test","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3191575,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-12T18:09:53.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":false,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"testDraft
-        1","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3188928,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-11T20:40:41.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":true,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"REPLY
-        DRAFT","proxySenderName":null,"readReceipt":"READ","attachment1Id":3188925,"attachment1Name":"BIRD
-        1.jfif","attachment1Size":31127,"attachment1MimeType":"image/jpeg","attachment2Id":3188926,"attachment2Name":"SPREADSHEET,
-        2021, DOC (1).xlsx","attachment2Size":9500,"attachment2MimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","attachment3Id":3188927,"attachment3Name":"file1.jfif","attachment3Size":80996,"attachment3MimeType":"image/jpeg","readReceiptDate":null},{"messageId":3188885,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-11T20:38:07.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":true,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"REPLY","proxySenderName":null,"readReceipt":null,"attachment1Id":3188883,"attachment1Name":"bb_report.pdf","attachment1Size":153692,"attachment1MimeType":"application/pdf","attachment2Id":3188884,"attachment2Name":"1MBFile.txt","attachment2Size":1056766,"attachment2MimeType":"text/plain","readReceiptDate":null},{"messageId":3188826,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
-        MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-11T20:30:52.000+00:00","draftDate":null,"triageGroupName":"TG
-        API TESTING","hasAttachments":true,"subject":"Test Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"REPLY","proxySenderName":null,"readReceipt":"READ","attachment1Id":3188824,"attachment1Name":"SM.jpeg","attachment1Size":16255,"attachment1MimeType":"image/jpeg","attachment2Id":3188825,"attachment2Name":"BIRD
-        1.jfif","attachment2Size":31127,"attachment2MimeType":"image/jpeg","readReceiptDate":null}]'
-  recorded_at: Wed, 20 Dec 2023 16:52:15 GMT
-recorded_with: VCR 6.2.0
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/3188782/allmessagesforthread/1"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Mon, 30 Jun 2025 14:08:47 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "8585"
+        X-Amzn-Requestid:
+          - 8e2b7b04-8eb6-4f9d-98d3-8e2b67778883
+        X-Xss-Protection:
+          - "0"
+        X-Frame-Options:
+          - DENY
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - M-0RgH9wvHMFktw=
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Expires:
+          - "0"
+        X-Content-Type-Options:
+          - nosniff
+        Pragma:
+          - no-cache
+        X-Amzn-Remapped-Date:
+          - Mon, 30 Jun 2025 14:08:47 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '[{"messageId":3207476,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":null,"draftDate":"2023-12-19T17:21:47.000+00:00","triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":false,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-2,"messageBody":"TEST0101010101","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"isOhMessage":false,"readReceiptDate":null},{"messageId":3204755,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-18T21:35:53.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":true,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"testing multiple
+          attachments","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"attachment1Id":3204753,"attachment1Name":"almost4mbfile.pdf","attachment1Size":3976877,"attachment1MimeType":"application/pdf","attachment2Id":3204754,"attachment2Name":"bb_report
+          (1).pdf","attachment2Size":153692,"attachment2MimeType":"application/pdf","attachments":[{"attachmentId":3204753,"attachmentName":"almost4mbfile.pdf","attachmentSize":3976877,"attachmentMimeType":"application/pdf"},{"attachmentId":3204754,"attachmentName":"bb_report
+          (1).pdf","attachmentSize":153692,"attachmentMimeType":"application/pdf"}],"isOhMessage":false,"readReceiptDate":null},{"messageId":3203739,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-18T16:31:22.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":false,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"Lorem Ipsum
+          is simply dummy text of the printing and typesetting industry. Lorem Ipsum
+          has been the industry&#39;s standard dummy text ever since the 1500s, when
+          an unknown printer took a galley of type and scrambled it to make a type specimen
+          book. It has survived not only five centuries, but also the leap into electronic
+          typesetting, remaining essentially unchanged. It was popularised in the 1960s
+          with the release of Letraset sheets containing Lorem Ipsum passages, and more
+          recently with desktop publishing software like Aldus PageMaker including versions
+          of Lorem Ipsum.","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"isOhMessage":false,"readReceiptDate":null},{"messageId":3199008,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-15T22:32:41.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":true,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"John-AUTO-save
+          draft edit again","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"attachment1Id":3199007,"attachment1Name":"SM.jpeg","attachment1Size":16255,"attachment1MimeType":"image/jpeg","attachments":[{"attachmentId":3199007,"attachmentName":"SM.jpeg","attachmentSize":16255,"attachmentMimeType":"image/jpeg"}],"isOhMessage":false,"readReceiptDate":null},{"messageId":3193568,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-13T03:21:36.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":false,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"test reply
+          without saving","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"isOhMessage":false,"readReceiptDate":null},{"messageId":3193561,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-13T03:21:21.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":false,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"test reply","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"isOhMessage":false,"readReceiptDate":null},{"messageId":3193542,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-13T03:19:12.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":false,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"test","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"isOhMessage":false,"readReceiptDate":null},{"messageId":3191575,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-12T18:09:53.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":false,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"testDraft
+          1","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"isOhMessage":false,"readReceiptDate":null},{"messageId":3188928,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-11T20:40:41.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":true,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"REPLY DRAFT","proxySenderName":null,"proxySenderType":null,"readReceipt":"READ","attachment1Id":3188925,"attachment1Name":"BIRD
+          1.jfif","attachment1Size":31127,"attachment1MimeType":"image/jpeg","attachment2Id":3188926,"attachment2Name":"SPREADSHEET,
+          2021, DOC (1).xlsx","attachment2Size":9500,"attachment2MimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","attachment3Id":3188927,"attachment3Name":"file1.jfif","attachment3Size":80996,"attachment3MimeType":"image/jpeg","attachments":[{"attachmentId":3188925,"attachmentName":"BIRD
+          1.jfif","attachmentSize":31127,"attachmentMimeType":"image/jpeg"},{"attachmentId":3188926,"attachmentName":"SPREADSHEET,
+          2021, DOC (1).xlsx","attachmentSize":9500,"attachmentMimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},{"attachmentId":3188927,"attachmentName":"file1.jfif","attachmentSize":80996,"attachmentMimeType":"image/jpeg"}],"isOhMessage":false,"readReceiptDate":null},{"messageId":3188885,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-11T20:38:07.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":true,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"REPLY","proxySenderName":null,"proxySenderType":null,"readReceipt":null,"attachment1Id":3188883,"attachment1Name":"bb_report.pdf","attachment1Size":153692,"attachment1MimeType":"application/pdf","attachment2Id":3188884,"attachment2Name":"1MBFile.txt","attachment2Size":1056766,"attachment2MimeType":"text/plain","attachments":[{"attachmentId":3188883,"attachmentName":"bb_report.pdf","attachmentSize":153692,"attachmentMimeType":"application/pdf"},{"attachmentId":3188884,"attachmentName":"1MBFile.txt","attachmentSize":1056766,"attachmentMimeType":"text/plain"}],"isOhMessage":false,"readReceiptDate":null},{"messageId":3188826,"threadId":3188781,"senderId":251391,"senderName":"MHVDAYMARK,
+          MARK","recipientId":3188767,"recipientName":"TG API TESTING","sentDate":"2023-12-11T20:30:52.000+00:00","draftDate":null,"triageGroupName":"TG
+          API TESTING","suggestedNameDisplay":null,"hasAttachments":true,"subject":"Test
+          Inquiry","category":"TEST_RESULTS","folderId":-1,"messageBody":"REPLY","proxySenderName":null,"proxySenderType":null,"readReceipt":"READ","attachment1Id":3188824,"attachment1Name":"SM.jpeg","attachment1Size":16255,"attachment1MimeType":"image/jpeg","attachment2Id":3188825,"attachment2Name":"BIRD
+          1.jfif","attachment2Size":31127,"attachment2MimeType":"image/jpeg","attachments":[{"attachmentId":3188824,"attachmentName":"SM.jpeg","attachmentSize":16255,"attachmentMimeType":"image/jpeg"},{"attachmentId":3188825,"attachmentName":"BIRD
+          1.jfif","attachmentSize":31127,"attachmentMimeType":"image/jpeg"}],"isOhMessage":false,"readReceiptDate":null}]'
+    recorded_at: Mon, 30 Jun 2025 14:08:47 GMT
+recorded_with: VCR 6.3.1

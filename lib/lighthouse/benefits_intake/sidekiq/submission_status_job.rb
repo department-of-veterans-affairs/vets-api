@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
+require 'logging/monitor'
 
 # Datadog Dashboard
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking
@@ -76,7 +77,7 @@ module BenefitsIntake
     def log(level, msg, **payload)
       this = self.class.name
       message = format('%<class>s: %<msg>s', { class: this, msg: msg.to_s })
-      Rails.logger.public_send(level, message, class: this, **payload)
+      monitor.track_request(level, message, STATS_KEY, **payload)
     end
 
     # process a set of pending attempts
@@ -228,6 +229,10 @@ module BenefitsIntake
         queue_time:,
         error_message: submission_attempt.error_message
       }
+    end
+
+    def monitor
+      @monitor ||= Logging::Monitor.new('benefits_intake_submission_status_job')
     end
 
     # end class SubmissionStatusJob

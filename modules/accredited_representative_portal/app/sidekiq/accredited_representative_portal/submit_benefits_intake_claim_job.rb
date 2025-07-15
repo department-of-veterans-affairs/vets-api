@@ -57,17 +57,22 @@ module AccreditedRepresentativePortal
       )
     end
 
+    def get_auth_text_stamp
+      timestamp = Time.current
+      current_time = "#{timestamp.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')} UTC"
+      "Submitted via VA.gov at #{current_time}. Signed in and submitted with an identity-verified account."
+    end
+
     ##
     # Overrides parent class.
     #
     def stamp_pdf(record)
       case record
       when PersistentAttachments::VAFormDocumentation
-        ##
-        # TODO: Our documentation attachments probably have some other stamping
-        # requirements than what the parent class does.
-        #
-        super
+        pdf_path = record.to_pdf
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: get_auth_text_stamp, x: 5, y: 5, text_only: true
+        )
       when SavedClaim::BenefitsIntake
         record.to_pdf.tap do |stamped_template_path|
           ##

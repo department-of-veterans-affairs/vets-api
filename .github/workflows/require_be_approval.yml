@@ -151,7 +151,7 @@ jobs:
             ]
             | sort_by(.submitted_at)
             | last
-            | .user.login
+            | .user.login // ""
           ' || true)
 
           echo "Approvals: $APPROVED"
@@ -234,6 +234,10 @@ jobs:
 
       - name: Fail if draft or failures
         if: steps.verify_approval.outputs.approval_status == 'required'
+        run: exit 1
+
+      - name: Fail if backend approval not confirmed
+        if: steps.verify_approval.outputs.approval_status == 'not_confirmed'
         run: exit 1
 
       - name: Exit for non backend approvals

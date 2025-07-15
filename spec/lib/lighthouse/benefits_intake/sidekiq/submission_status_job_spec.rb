@@ -51,7 +51,10 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
     describe '#log' do
       it 'logs info with correct format' do
-        expect(Rails.logger).to receive(:info).with("#{job.class}: test message", class: job.class.name, foo: 'bar')
+        monitor = instance_double(Logging::Monitor)
+        allow(Logging::Monitor).to receive(:new).with('benefits_intake_submission_status_job').and_return(monitor)
+        expect(monitor).to receive(:track_request).with(:info, 'BenefitsIntake::SubmissionStatusJob: test message',
+                                                        described_class::STATS_KEY, foo: 'bar')
         job.send(:log, :info, 'test message', foo: 'bar')
       end
     end
