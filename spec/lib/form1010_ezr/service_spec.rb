@@ -163,7 +163,7 @@ RSpec.describe Form1010Ezr::Service do
 
   describe '#log_submission_failure_to_sentry' do
     it 'logs a failure message to sentry' do
-      expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+      expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
         '1010EZR failure',
         :error,
         {
@@ -357,7 +357,7 @@ RSpec.describe Form1010Ezr::Service do
                 allow(StatsD).to receive(:increment)
 
                 expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-                expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+                expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
                   '1010EZR failure',
                   :error,
                   {
@@ -390,7 +390,7 @@ RSpec.describe Form1010Ezr::Service do
             allow(StatsD).to receive(:increment)
 
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
               '1010EZR failure',
               :error,
               {
