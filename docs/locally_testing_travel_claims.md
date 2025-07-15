@@ -21,30 +21,6 @@
 ### Important Note
 Testing the travel claim async flow locally requires setting up multiple external service mocks and ensuring proper configuration across several systems. **Expect some trial and error** with configuration settings as the system has many interdependent components.
 
-### Required Local Services
-
-Before beginning the testing process, you'll need to have several services running locally. Open separate terminal windows for each of the following:
-
-1. **Rails Server**
-   ```bash
-   bundle exec rails server
-   ```
-   This will start your local vets-api server on port 3000.
-
-2. **Redis Server**
-   ```bash
-   redis-server
-   ```
-   Redis is required for session management and caching user data between LoROTA calls and job execution.
-
-3. **Sidekiq Worker**
-   ```bash
-   bundle exec sidekiq
-   ```
-   Sidekiq processes the asynchronous jobs that handle travel claim submissions.
-
-Keep all these terminal windows open and visible to monitor the request processing and async job execution.
-
 ### Configuration Setup
 
 1. **Betamocks Configuration**
@@ -55,6 +31,38 @@ betamocks:
   recording: false  # Set to true only if you need to record new responses
   cache_dir: "../vets-api-mockdata"
   services_config: config/betamocks/services_config.yml
+check_in:
+   lorota_v2:
+      key_path: tmp/fake_api_path
+      mock: true
+      url: https://lorota-dev.execute-api.us-gov-west-1.vpce.amazonaws.com
+   travel_reimbursement_api_v2:
+      mock: true
+      auth_url: https://login.microsoftonline.us
+      auth_url_v2: https://login.microsoftonline.us
+      claims_base_path: EC/ClaimIngestSvc
+      claims_url: https://travel-reimbursement-api-v2.dev.va.gov
+      claims_url_v2: https://travel-reimbursement-api-v2.dev.va.gov
+vanotify:
+   mock: true
+   services:
+      checkin:
+         api_key: '00000000-0000-0000-0000-000000000000 00000000-0000-0000-0000-000000000000'
+         sms_sender_id: VANOTIFY
+         template_id:
+         claim_submission_duplicate_text: cie_fake_duplicate_template_id
+         claim_submission_error_text: cie_fake_error_template_id
+         claim_submission_failure_text: cie_fake_failure_template_id
+         claim_submission_success_text: cie_fake_success_template_id
+         claim_submission_timeout_text: cie_fake_timeout_template_id
+   oracle_health:
+      sms_sender_id: fake_secret
+      template_id:
+        claim_submission_duplicate_text: fake_template_id
+        claim_submission_error_text: fake_template_id
+        claim_submission_failure_text: oh_fake_failure_template_id
+        claim_submission_success_text: fake_template_id
+        claim_submission_timeout_text: oh_fake_timeout_template_id
 ```
 
 2. **Service Configurations**
@@ -80,12 +88,12 @@ Update the following in `config/betamocks/services_config.yml`:
 ```
 
 3. **Feature Flags**
-Enable these flags in development:
+For each in `config/features.yml` ensure `enable_in_development` is marked `true`:
 ```yaml
-check_in_experience_mock_enabled: true
-check_in_experience_travel_reimbursement: true
-check_in_experience_cerner_travel_claims_enabled: true
-check_in_experience_check_claim_status_on_timeout: true
+check_in_experience_mock_enabled:
+check_in_experience_travel_reimbursement:
+check_in_experience_cerner_travel_claims_enabled:
+check_in_experience_check_claim_status_on_timeout:
 ```
 
 ### Required Mock Data
@@ -120,154 +128,29 @@ The LoROTA service configuration references a key file at `tmp/fake_api_path`. Y
 
 This file is required even when using mock services, as the code path still attempts to load the key file.
 
-## Terminal Window Output Guide
+## Local Testing Walkthrough
 
-As you progress through the testing steps, you should see specific activity in each terminal window:
+Before beginning the testing process, you'll need to have several services running locally. Open separate terminal windows for each of the following:
 
-### Rails Server Window
-- During authentication:
-  ```
-  Started GET "/v0/sign_in/authorize"
-  Processing by V0::SignIn::AuthorizationController#authorize
-  ```
+1. **Rails Server**
+   ```bash
+   bundle exec rails server
+   ```
+   This will start your local vets-api server on port 3000.
 
-- When creating check-in session:
-  ```
-  Started POST "/check_in/v2/sessions"
-  Processing by CheckIn::V2::SessionsController#create
-  ```
+2. **Redis Server**
+   ```bash
+   redis-server
+   ```
+   Redis is required for session management and caching user data between LoROTA calls and job execution.
 
-- When getting patient status:
-  ```
-  Started GET "/check_in/v2/patient_check_ins/[uuid]"
-  Processing by CheckIn::V2::PatientCheckInsController#show
-  [LoROTA] Fetching patient data...
-  ```
+3. **Sidekiq Worker**
+   ```bash
+   bundle exec sidekiq
+   ```
+   Sidekiq processes the asynchronous jobs that handle travel claim submissions.
 
-- When submitting travel claim:
-  ```
-  Started POST "/check_in/v0/travel_claims"
-  Processing by CheckIn::V0::TravelClaimsController#create
-  Enqueuing TravelClaimSubmissionJob
-  ```
-
-### Redis Server Window
-You'll see cache operations happening:
-```
-[timestamp] "set" "[check_in:session:uuid]"  # When session is created
-[timestamp] "get" "[check_in:session:uuid]"  # When retrieving patient data
-[timestamp] "set" "[check_in:travel_claim:uuid]"  # When caching claim data
-```
-
-### Sidekiq Window
-After submitting the travel claim, you'll see this sequence of jobs:
-
-1. Initial claim submission:
-```
-TravelClaimSubmissionJob JID-[some-id] INFO: start
-Processing travel claim for patient [uuid]
-Calling BTSSS API...
-```
-
-2. SMS notification job:
-```
-VANotify::AsyncJob JID-[some-id] INFO: start
-Sending SMS notification to [masked-phone-number]
-```
-
-3. Status update job:
-```
-TravelClaimStatusUpdateJob JID-[some-id] INFO: start
-Updating status for claim [uuid]
-```
-
-Each job will show either:
-```
-INFO: done: [time]s  # For successful completion
-ERROR: fail: [time]s # If there's an error
-```
-
-### Rails Logger Output
-
-During the travel claim process, you should see detailed logging in your Rails server window. Here's what to expect at each step:
-
-#### 1. Session Creation
-```
-[CheckIn::V2::SessionsController] Creating new check-in session
-[CheckIn::V2::SessionsController] Session params: {"uuid"=>"5bcd636c-d4d3-4349-9058-03b2f6b38ced", "facility_type"=>"cie"}
-[CheckIn::V2::LoROTA::Service] Fetching LoROTA token
-[CheckIn::V2::LoROTA::Service] Successfully retrieved LoROTA token
-[CheckIn::V2::SessionsController] Successfully created check-in session
-```
-
-#### 2. Patient Check-In Status
-```
-[CheckIn::V2::PatientCheckInsController] Fetching patient check-in status
-[CheckIn::V2::LoROTA::Service] Fetching patient data for uuid: 5bcd636c-d4d3-4349-9058-03b2f6b38ced
-[CheckIn::V2::LoROTA::Service] Successfully retrieved patient data
-[CheckIn::V2::PatientCheckInsController] Caching patient data for travel claim
-```
-
-#### 3. Travel Claim Submission
-```
-[CheckIn::V0::TravelClaimsController] Initiating travel claim submission
-[CheckIn::TravelClaim::Service] Building travel claim for patient
-[CheckIn::TravelClaim::Service] Retrieved cached patient data
-[CheckIn::TravelClaim::Service] Enqueuing TravelClaimSubmissionJob with uuid: 5bcd636c-d4d3-4349-9058-03b2f6b38ced
-```
-
-#### 4. Background Job Processing
-```
-[TravelClaimSubmissionJob] Starting job for claim uuid: 5bcd636c-d4d3-4349-9058-03b2f6b38ced
-[CheckIn::TravelClaim::Client] Requesting BTSSS authentication token
-[CheckIn::TravelClaim::Client] Successfully obtained BTSSS token
-[CheckIn::TravelClaim::Client] Submitting claim to BTSSS
-[CheckIn::TravelClaim::Client] Claim submitted successfully
-[VANotify::Service] Sending SMS notification for successful claim submission
-[TravelClaimStatusUpdateJob] Scheduling status check for claim
-```
-
-#### 5. Status Updates
-```
-[TravelClaimStatusUpdateJob] Checking status for claim uuid: 5bcd636c-d4d3-4349-9058-03b2f6b38ced
-[CheckIn::TravelClaim::Client] Fetching claim status from BTSSS
-[CheckIn::TravelClaim::Client] Status received: PROCESSED
-[VANotify::Service] Sending final status notification
-```
-
-#### Common Error Logs to Watch For
-
-1. Authentication Issues:
-```
-[CheckIn::V2::LoROTA::Service] Failed to obtain LoROTA token: Unauthorized
-[CheckIn::TravelClaim::Client] BTSSS authentication failed: Invalid credentials
-```
-
-2. Data Validation Issues:
-```
-[CheckIn::V0::TravelClaimsController] Invalid claim parameters: Missing required fields
-[CheckIn::TravelClaim::Service] Failed to build claim: Invalid appointment date
-```
-
-3. Service Integration Issues:
-```
-[CheckIn::TravelClaim::Client] BTSSS API connection timeout
-[VANotify::Service] Failed to send SMS notification: Service unavailable
-```
-
-4. Cache Issues:
-```
-[CheckIn::TravelClaim::Service] Failed to retrieve cached patient data
-[CheckIn::V2::PatientCheckInsController] Session data not found in cache
-```
-
-These logs provide insight into:
-- The flow of data through the system
-- Success/failure of external service calls
-- Background job processing status
-- Error conditions and their causes
-
-When troubleshooting, search for these log patterns to identify where in the process an issue might be occurring.
+Keep all these terminal windows open and visible to monitor the request processing and async job execution.
 
 ## Testing Steps
 
@@ -347,6 +230,99 @@ Accept: application/json
 }
 ```
 
+#### Step 4: Send notification callback request
+This step replicates the request that will be made back to the vets-api's va_notify API in order to
+give a final update on the status of the outgoing SMS message attempt.
+
+First you will need to open the rails console and locate the `VANotify::Notification` record that was
+created upon claim submission, which you can do by accessing the last record created:
+
+`VANotify::Notification.last`
+
+For that record, copy the `notification_id` then in Postman include that in the body for the request:
+
+```
+http
+POST http://localhost:3000/va_notify/callbacks
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "11111111-2222-3333-4444-555555555555",
+  "status": "permanent-failure",
+  "to": "1234567890",
+  "status_reason": "phone number un-reachable",
+  "completed_at": "2025-01-29T16:38:55.000Z",
+  "sent_at": "2025-01-29T16:38:55.000Z"
+}
+```
+
+### Terminal Window Output Guide
+
+As you progress through the testing steps, you should see specific activity in each terminal window:
+
+#### Rails Server Window
+
+- When creating check-in session:
+   ```
+   Started POST "/check_in/v2/sessions"
+   Processing by CheckIn::V2::SessionsController#create...
+   ```
+
+- When getting patient status:
+   ```
+   Started GET "/check_in/v2/patient_check_ins/[uuid]"
+   Processing by CheckIn::V2::PatientCheckInsController#show...
+   ```
+
+- When submitting travel claim:
+   ```
+   Started POST "/check_in/v0/travel_claims"...
+   Processing by CheckIn::V0::TravelClaimsController#create...
+   CheckIn::V0::TravelClaimsController -- Submitted travel claim to background worker...
+   ```
+
+- When sending the notification callback request:
+   ```
+   va_notify callbacks - Updating notification: 139 -- { :source_location => ... travel_claim_notification_job.rb:260 in va_notify_send_sms", :template_id => nil, :callback_metadata => { "uuid" => {vet uuid}, "statsd_tags" => { "service" => "check-in", "function" => "travel-claim-notification" }, "template_id" => "cie_fake_success_template_id" }, :status => "permanent-failure", :status_reason => "phone number un-reachable" }
+
+   Travel Claim Notification SMS delivery permanently failed -- { :notification_id => {notification uuid}, :template_id => "cie_fake_success_template_id", :status => "permanent-failure", :uuid => {vet uuid}, :phone_last_four => "7890", :status_reason => "phone number un-reachable" }
+   ```
+
+   Note that the "status" in the request body will determine the logging seen in the server terminal window,
+   alter this as per the case statement at the top of `CheckIn::TravelClaimNotificationCallback` to verify
+   the logging of the other potential statuses.
+
+#### Sidekiq Window
+After submitting the travel claim, you'll see this sequence of jobs:
+
+1. Initial claim submission:
+```
+TravelClaimSubmissionJob JID-[some-id] INFO: start
+Processing travel claim for patient [uuid]
+```
+
+2. SMS notification job:
+```
+CheckIn::TravelClaimNotificationJob -- { :message => "CheckIn::TravelClaimNotificationJob: Sending Travel Claim Notification SMS", :status => "sending", :template_id => "cie_fake_success_template_id", :phone_last_four => "0101" }...
+
+VANotify notification: 139 saved -- { :source_location => "/Users/philip.defraties/agile6/vets-api/modules/check_in/app/sidekiq/check_in/travel_claim_notification_job.rb:260 in va_notify_send_sms", :template_id => "cie_fake_success_template_id", :callback_metadata => { "uuid" => "5bcd636c-d4d3-4349-9058-03b2f6b38ced", "template_id" => "cie_fake_success_template_id", "statsd_tags" => { "service" => "check-in", "function" => "travel-claim-notification" } }, :callback_klass => "CheckIn::TravelClaimNotificationCallback" }...
+
+CheckIn::TravelClaimNotificationJob -- { :message => "CheckIn::TravelClaimNotificationJob: Travel Claim Notification SMS API request succeeded", :status => "success", :template_id => "cie_fake_success_template_id", :phone_last_four => "0101" }...
+```
+
+3. Status update job:
+```
+TravelClaimStatusUpdateJob JID-[some-id] INFO: start
+Updating status for claim [uuid]
+```
+
+Each job will show either:
+```
+INFO: done: [time]s  # For successful completion
+ERROR: fail: [time]s # If there's an error
+```
+
 ## Troubleshooting Common Issues
 
 Watch for these common issues in the terminal output:
@@ -383,6 +359,9 @@ You can check job queues using the Rails console:
 Sidekiq::Queue.new.size  # Check queue size
 Sidekiq::DeadSet.new.size  # Check dead jobs
 ```
+
+or in your local browser go to http://localhost:3000/sidekiq to utilize sidekiq's helpful dashboard for
+monitoring and managing job queues
 
 #### 2. Redis Data Verification
 Check cached session data in Rails console:
