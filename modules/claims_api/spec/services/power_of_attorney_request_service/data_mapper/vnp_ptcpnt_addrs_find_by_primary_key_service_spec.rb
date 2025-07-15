@@ -20,7 +20,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
     {
       addrs_one_txt: '2719 Atlas Ave',
       addrs_two_txt: 'Apt 2',
-      phone_number: nil,
       city_nm: 'Los Angeles',
       cntry_nm: 'USA',
       prvnc_nm: nil,
