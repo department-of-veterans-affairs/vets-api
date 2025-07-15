@@ -163,8 +163,7 @@ module ClaimsApi
               .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
 
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyService.new(
-          record: res,
-          key:
+          record: res
         ).call
       end
     end

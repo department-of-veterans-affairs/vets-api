@@ -11,7 +11,7 @@ module ClaimsApi
       }.freeze
 
       # rubocop:disable Metrics/ParameterLists
-      def initialize(decision:, proc_id:, registration_number:, poa_code:, metadata:, veteran:, claimant: nil)
+      def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:, claimant_ptcpnt_id:)
         @decision = decision
         @proc_id = proc_id
         @registration_number = registration_number

@@ -78,8 +78,13 @@ module ClaimsApi
           vet_icn = request.veteran_icn
           claimant_icn = request.claimant_icn
 
+<<<<<<< HEAD
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
+=======
+          ptcpnt_id = fetch_ptcpnt_id(vet_icn)
+          claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.blank?
+>>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 
           manage_rep_service = manage_representative_service
 
@@ -88,8 +93,12 @@ module ClaimsApi
                                representative_id:,
                                poa_code: request.poa_code,
                                metadata: request.metadata,
+<<<<<<< HEAD
                                veteran: veteran_data,
                                claimant: claimant_data)
+=======
+                               claimant_ptcpnt_id:)
+>>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
@@ -153,9 +162,16 @@ module ClaimsApi
         private
 
         # rubocop:disable Metrics/ParameterLists
+<<<<<<< HEAD
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
+=======
+        def process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:,
+                                 claimant_ptcpnt_id:)
+          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+            decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:, claimant_ptcpnt_id:
+>>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
           ).call
         end
         # rubocop:enable Metrics/ParameterLists
