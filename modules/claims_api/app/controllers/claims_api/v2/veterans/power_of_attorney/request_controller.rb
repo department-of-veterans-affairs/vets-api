@@ -79,7 +79,7 @@ module ClaimsApi
           claimant_icn = request.claimant_icn
 
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
-          claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.blank?
+          claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
 
           manage_rep_service = manage_representative_service
 
