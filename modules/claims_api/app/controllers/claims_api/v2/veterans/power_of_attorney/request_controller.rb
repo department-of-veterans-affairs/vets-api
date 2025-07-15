@@ -92,9 +92,14 @@ byebug
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 =======
 
+<<<<<<< HEAD
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
 >>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)
+=======
+          veteran_data = build_veteran_or_dependent_data(vet_icn)
+          claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
 
           manage_rep_service = manage_representative_service
 
@@ -104,11 +109,16 @@ byebug
                                poa_code: request.poa_code,
                                metadata: request.metadata,
 <<<<<<< HEAD
+<<<<<<< HEAD
                                veteran: veteran_data,
                                claimant: claimant_data)
 =======
                                claimant_ptcpnt_id:)
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
+=======
+                               veteran: veteran_data,
+                               claimant: claimant_data)
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
@@ -173,6 +183,7 @@ byebug
 
         # rubocop:disable Metrics/ParameterLists
 <<<<<<< HEAD
+<<<<<<< HEAD
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
@@ -182,6 +193,11 @@ byebug
           ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:, claimant_ptcpnt_id:
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
+=======
+        def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
+          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+            decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
           ).call
         end
         # rubocop:enable Metrics/ParameterLists

@@ -14,8 +14,12 @@ module ClaimsApi
       LOG_TAG = 'accepted_decision_handler'
       FORM_TYPE_CODE = '21-22'
 
+<<<<<<< HEAD
       # rubocop:disable Metrics/ParameterLists
       def initialize(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant: nil)
+=======
+      def initialize(proc_id:, poa_code:, metadata:, veteran:, claimant: nil)
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
         @proc_id = proc_id
         @poa_code = poa_code
         @registration_number = registration_number
@@ -39,6 +43,7 @@ module ClaimsApi
       def gather_poa_data
         veteran_data = gather_veteran_data
 
+<<<<<<< HEAD
         read_all_data = gather_read_all_veteran_representative_data
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
 
@@ -87,24 +92,42 @@ module ClaimsApi
           records:
         ).call
 
+=======
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
         read_all_data = gather_read_all_veteran_representative_data
 
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
 
-        read_all_data.merge!(vnp_find_addrs_data)
+        data = veteran_data.merge!(read_all_data)
+        data.merge!(vnp_find_addrs_data)
 
-        if @claimant_ptcpnt_id.present?
+        if @claimant.present?
+          claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')
           claimant_phone_data = gather_vnp_phone_data
 
-          claimant_mapped_data = claimant_addr_data.merge!(claimant_phone_data)
+          claimant_data.merge!(claimant_addr_data)
+          claimant_data.merge!(claimant_phone_data)
 
-          read_all_data.merge!(claimant: claimant_mapped_data)
+          data.merge!(claimant: claimant_data)
         end
 
-        read_all_data
+        data
       end
 
+      def gather_veteran_data
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VeteranDataMapper.new(
+          veteran: @veteran
+        ).call
+      end
+
+      def gather_claimant_data
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ClaimantDataMapper.new(
+          claimant: @claimant
+        ).call
+      end
+
+<<<<<<< HEAD
       # key is 'veteran' or 'claimant'
       def gather_vnp_addrs_data(key)
         ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant&.participant_id
@@ -151,6 +174,12 @@ module ClaimsApi
 
       def poa_code_in_organization?
         ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
+=======
+      def read_all_vateran_representative_records
+        ClaimsApi::VeteranRepresentativeService
+          .new(external_uid: @veteran.participant_id, external_key: @veteran.participant_id)
+          .read_all_veteran_representatives(type_code: FORM_TYPE_CODE, ptcpnt_id: @veteran.participant_id)
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
       end
 
       def gather_read_all_veteran_representative_data
@@ -164,7 +193,7 @@ module ClaimsApi
 
       # key is 'veteran' or 'claimant'
       def gather_vnp_addrs_data(key)
-        ptcpnt_id = key == 'veteran' ? @vet_ptcpnt_id : @claimant_ptcpnt_id
+        ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant.participant_id
         primary_key = @metadata.dig(key, 'vnp_mail_id')
 
         # error if primary_key nil
@@ -181,7 +210,7 @@ module ClaimsApi
         primary_key = @metadata.dig('claimant', 'vnp_phone_id')
 
         res = ClaimsApi::VnpPtcpntPhoneService
-              .new(external_uid: @claimant_ptcpnt_id, external_key: @claimant_ptcpnt_id)
+              .new(external_uid: @claimant.participant_id, external_key: @claimant.participant_id)
               .vnp_ptcpnt_phone_find_by_primary_key(id: primary_key)
 
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(

@@ -3,17 +3,27 @@
 require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
+<<<<<<< HEAD
   subject { described_class.new(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant:) }
 
   let(:clazz) { described_class }
 <<<<<<< HEAD
+=======
+  subject { described_class.new(proc_id:, poa_code:, metadata:, veteran:, claimant:) }
+
+  let(:clazz) { described_class }
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
   let(:veteran) do
     OpenStruct.new(
       icn: '1012861229V078999',
       first_name: 'Ralph',
       last_name: 'Lee',
       middle_name: nil,
+<<<<<<< HEAD
       birls_id: '796378782',
+=======
+      file_number: '796378782',
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
       birth_date: '1948-10-30',
       loa: { current: 3, highest: 3 },
       edipi: nil,
@@ -25,6 +35,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       )
     )
   end
+<<<<<<< HEAD
   let(:proc_id) { '3864182' }
   let(:poa_code) { '083' }
   let(:registration_number) { '12345678' }
@@ -64,18 +75,23 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_dependent') do
         subject.call
 =======
+=======
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
 
   context 'Gathering all the required POA data' do
     context 'for a veteran filing' do
-      let(:ptcpnt_id) { '600045025' }
       let(:proc_id) { '3864182' }
       let(:poa_code) { '083' }
-      let(:claimant_ptcpnt_id) {}
+      let(:claimant) {}
       let(:metadata) do
         { 'veteran' => { 'vnp_phone_id' => '106175', 'vnp_email_id' => '148885', 'vnp_mail_id' => '148886' } }
       end
       let(:expected_veteran_response) do
         {
+          name: 'Ralph Lee',
+          ssn: '796378782',
+          file_number: '796378782',
+          date_of_birth: '1948-10-30',
           service_number: '123678453',
           insurance_numbers: '1234567890',
           phone_number: '5555551234',
@@ -112,10 +128,26 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
     end
 
     context 'for a dependent claimant filing' do
-      let(:ptcpnt_id) { '600045025' }
       let(:proc_id) { '3864182' }
       let(:poa_code) { '083' }
-      let(:claimant_ptcpnt_id) { '600264235' }
+      let(:claimant) do
+        OpenStruct.new(
+          icn: '1013093331V548481',
+          first_name: 'Wally',
+          last_name: 'Morell',
+          file_number: '796378782',
+          middle_name: nil,
+          birth_date: '1948-10-30',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '796378782',
+          participant_id: '600264235',
+          mpi: OpenStruct.new(
+            icn: '1013093331V548481',
+            profile: OpenStruct.new(ssn: '796378782')
+          )
+        )
+      end
       let(:metadata) do
         {
           'veteran' => { 'vnp_mail_id' => '157252', 'vnp_email_id' => '157251', 'vnp_phone_id' => '111641' },
@@ -125,6 +157,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
       let(:expected_dependent_response) do
         {
+          name: 'Ralph Lee',
+          ssn: '796378782',
+          file_number: '796378782',
+          date_of_birth: '1948-10-30',
           service_number: '123678453',
           insurance_numbers: '1234567890',
           phone_number: '5555551234',
@@ -149,6 +185,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           zip_first_suffix_nbr: '0200',
           email_addrs_txt: nil,
           claimant: {
+            name: 'Wally Morell',
+            ssn: '796378782',
+            file_number: '796378782',
+            date_of_birth: '1948-10-30',
             addrs_one_txt: '123 Main St',
             addrs_two_txt: 'Apt 3',
             city_nm: 'Boston',

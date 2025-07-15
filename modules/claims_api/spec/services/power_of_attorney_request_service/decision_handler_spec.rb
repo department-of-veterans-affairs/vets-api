@@ -28,13 +28,19 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
     } }
   end
+<<<<<<< HEAD
 
+=======
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
   let(:claimant) { nil }
 
   let(:declined_subject) { build_subject('declined') }
   let(:accepted_subject) { build_subject('accepted') }
+<<<<<<< HEAD
 
   let(:claimant_ptcpnt_id) { nil }
+=======
+>>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
 
   context "When the decision is 'Declined'" do
     it 'calls the declined decision service handler' do
