@@ -10,21 +10,29 @@ module ClaimsApi
 
       # rubocop:disable Metrics/ParameterLists
 <<<<<<< HEAD
+<<<<<<< HEAD
       def initialize(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant: nil)
 =======
       def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:, claimant_ptcpnt_id:)
 >>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
+=======
+      def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:, claimant_ptcpnt_id:)
+>>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
         @decision = decision
         @proc_id = proc_id
         @registration_number = registration_number
         @poa_code = poa_code
         @metadata = metadata
 <<<<<<< HEAD
+<<<<<<< HEAD
         @veteran = veteran
         @claimant = claimant
 =======
         @claimant_ptcpnt_id = claimant_ptcpnt_id
 >>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
+=======
+        @claimant_ptcpnt_id = claimant_ptcpnt_id
+>>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -52,6 +60,7 @@ module ClaimsApi
             poa_code: @poa_code,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             registration_number: @registration_number,
 =======
             representative_id: @representative_id,
@@ -63,6 +72,10 @@ module ClaimsApi
             metadata: @metadata,
             claimant_ptcpnt_id: @claimant_ptcpnt_id
 >>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
+=======
+            metadata: @metadata,
+            claimant_ptcpnt_id: @claimant_ptcpnt_id
+>>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
           ).call
         end
       end
