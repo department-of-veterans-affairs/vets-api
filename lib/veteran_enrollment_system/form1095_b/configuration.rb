@@ -10,7 +10,7 @@ module VeteranEnrollmentSystem
       end
 
       def service_name
-        'VeteranEnrollmentSystem/form1095b'
+        'VeteranEnrollmentSystem/Form1095B'
       end
 
       def connection

@@ -9,7 +9,7 @@ module VeteranEnrollmentSystem
     ##
     # Service class for fetching Form 1095-B data from the enrollment system.
     # This service handles communication with the upstream enrollment system to retrieve
-    # Form 1095-B tax forms for veterans.
+    # Form 1095-B tax forms for users.
     #
     # @example Fetch form data for a specific user and tax year
     #   service = VeteranEnrollmentSystem::Form1095B::Service.new(user)
@@ -17,18 +17,11 @@ module VeteranEnrollmentSystem
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
-      include SentryLogging
 
       configuration VeteranEnrollmentSystem::Form1095B::Configuration
       STATSD_KEY_PREFIX = 'api.form1095b_enrollment'
 
-      # @param user [User] The user for whom to fetch Form 1095-B data
-      def initialize(user = nil)
-        @user = user
-        super()
-      end
-
-      # Fetch Form 1095-B data by ICN from the enrollment system
+      # Fetch Form 1095-B data by ICN and year from the enrollment system
       #
       # @param icn [String] The ICN of the veteran
       # @param tax_year [Integer] The tax year for which to fetch the form

@@ -4,17 +4,14 @@ require 'rails_helper'
 require 'veteran_enrollment_system/form1095_b/service'
 
 RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
-  subject(:service) { described_class.new(user) }
-
-  let(:user) { build(:user, :loa3) }
-  let(:tax_year) { 2023 }
+  let(:tax_year) { 2024 }
   let(:icn) { '1012667145V762142' }
 
   describe '#get_form_by_icn' do
     context 'when the request is successful' do
       it 'returns the form data from the enrollment system' do
-        VCR.use_cassette('veteran_enrollment_system/form1095b/200', { match_requests_on: %i[method uri] }) do
-          response = service.get_form_by_icn(icn:, tax_year:)
+        VCR.use_cassette('veteran_enrollment_system/form1095b/get_form_success', { match_requests_on: %i[method uri] }) do
+          response = subject.get_form_by_icn(icn:, tax_year:)
 
           expect(response).to eq(
             { 'data' =>
@@ -51,10 +48,10 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
       end
     end
 
-    context 'when error occurs' do
+    context 'when an error status is received' do
       it 'raises an error' do
-        VCR.use_cassette('veteran_enrollment_system/form1095b/error') do
-          expect { service.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
+        VCR.use_cassette('veteran_enrollment_system/form1095b/get_form_error') do
+          expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
         end
       end
     end

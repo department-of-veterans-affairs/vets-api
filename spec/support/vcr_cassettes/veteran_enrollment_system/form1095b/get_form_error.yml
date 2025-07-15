@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-ee-summary-svc/form1095b/1012667145V762142/2023
+    uri: <VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-ee-summary-svc/form1095b/1012667145V762142/2024
     body:
       encoding: US-ASCII
       string: ''
