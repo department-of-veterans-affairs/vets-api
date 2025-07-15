@@ -3,8 +3,16 @@
 # rubocop:disable Metrics/MethodLength
 def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run) # rubocop:disable Metrics/ParameterLists
   delete_claim = false
+
+  # Determine the confirmation method based on the claim type.
+  confirmation_method = if claim.class.name.include?('Pension')
+                          :confirmation_code
+                        else
+                          :confirmationCode
+                        end
+
   attachments.each do |attachment|
-    attachmentt.file_data || attachment.saved_claim_id.nil?
+    attachment.file_data || attachment.saved_claim_id.nil?
   rescue => e
     puts "Attachment #{attachment.id} failed to decrypt: #{e.class}"
     if dry_run
@@ -12,30 +20,36 @@ def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroy
     else
       attachment.destroy!
     end
-    if ipf_form_data
-      form_key = claim.respond_to?(:attachment_key_map) ? (claim.attachment_key_map[key] || key) : key
-      form_data_section = ipf_form_data.send(form_key)
-    elsif claim.form.present?
-      claim_parsed = JSON.parse(claim.form, object_class: OpenStruct)
-      form_data_section = claim_parsed&.send(key)
-    end
 
-    # Lookup the destroyed attachment by matching confirmationCode
+     # Retrieve the proper key for the form data section.
+    form_key = claim.respond_to?(:attachment_key_map) ? (claim.attachment_key_map[key] || key) : key
+
+    # Get the section of the form data either from ipf_form_data or by parsing claim.form.
+    form_data_section = if ipf_form_data
+                          ipf_form_data.send(form_key)
+                        elsif claim.form.present?
+                          JSON.parse(claim.form, object_class: OpenStruct).send(key) rescue nil
+                        end
+
+    # Find the destroyed attachment in the form data section.
     destroyed_attachment = form_data_section&.find do |att|
-      if claim.class.name.include?('Pension')
-        att.respond_to?(:confirmation_code) && att.confirmation_code == attachment.guid
-      else
-        att.respond_to?(:confirmationCode) && att.confirmationCode == attachment.guid
-      end
+      att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
     end
 
     puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
     destroyed_names << destroyed_attachment&.name
 
-    form_data_section&.reject! { |att| att.confirmationCode == attachment.guid }
+    # Remove the destroyed attachment from the section.
+    form_data_section&.reject! do |att|
+      att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
+    end
+
+    # Update ipf_form_data if available.
+    ipf_form_data.send("#{form_key}=", form_data_section) if ipf_form_data
+
     delete_claim = true
   end
-  delete_claim
+  [delete_claim, ipf_form_data ? ipf_form_data : nil]
 end
 # rubocop:enable Metrics/MethodLength
 
@@ -98,6 +112,7 @@ namespace :persistent_attachment_remediation do
       end
 
       # Gather expected attachment GUIDs from the claim's form data
+      updated_ipf_form_data = nil
       if claim.respond_to?(:attachment_keys) && claim.respond_to?(:open_struct_form)
         delete_claim = false
         destroyed_names = []
@@ -106,15 +121,15 @@ namespace :persistent_attachment_remediation do
           guids = Array(claim.open_struct_form.send(key)).map { |att| att.try(:confirmationCode) }
           attachments = PersistentAttachment.where(guid: guids)
 
-          delete_claim = sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run)
+          delete_claim, updated_ipf_form_data = sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run)
         end
       end
 
       if dry_run
         puts "[DRY RUN] Would update InProgressForm #{ipf&.id}"
-      else
+      elsif updated_ipf_form_data
         puts "Step 4: Updating InProgressForm #{ipf&.id} with sanitized form data"
-        ipf.update!(form_data: Common::HashHelpers.deep_to_h(ipf_form_data).to_json)
+        ipf.update!(form_data: Common::HashHelpers.deep_to_h(updated_ipf_form_data).to_json)
       end
 
       if delete_claim
