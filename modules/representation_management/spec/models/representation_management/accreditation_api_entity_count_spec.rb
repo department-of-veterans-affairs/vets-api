@@ -15,10 +15,10 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
   describe '#save_api_counts' do
     before do
       allow(model).to receive(:current_api_counts).and_return({
-                                                                'agents' => 100,
-                                                                'attorneys' => 100,
-                                                                'representatives' => 100,
-                                                                'veteran_service_organizations' => 100
+                                                                agents: 100,
+                                                                attorneys: 100,
+                                                                representatives: 100,
+                                                                veteran_service_organizations: 100
                                                               })
     end
 
@@ -33,19 +33,52 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
     end
 
     it 'only assigns values for valid counts' do
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::AGENTS, notify: false).and_return(false)
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS, notify: false).and_return(true)
-      allow(model).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES,
-                                                  notify: false).and_return(true)
-      allow(model).to receive(:valid_count?).with('veteran_service_organizations', notify: false).and_return(false)
+      # Mock the data sources that valid_count? uses internally
+      allow(model).to receive_messages(
+        current_db_counts: {
+          agents: 100, # Previous count
+          attorneys: 100,
+          representatives: 100,
+          veteran_service_organizations: 100
+        },
+        current_api_counts: {
+          agents: 70, # 30% decrease - exceeds 20% threshold
+          attorneys: 90, # 10% decrease - within 20% threshold
+          representatives: 85, # 15% decrease - within 20% threshold
+          veteran_service_organizations: 60 # 40% decrease - exceeds 20% threshold
+        }
+      )
 
       model.save_api_counts
       model.reload
 
-      expect(model.agents).not_to eq(100)
-      expect(model.attorneys).to eq(100)
-      expect(model.representatives).to eq(100)
-      expect(model.veteran_service_organizations).not_to eq(100)
+      # These should NOT be updated (exceeds threshold)
+      expect(model.agents).not_to eq(70)
+      expect(model.veteran_service_organizations).not_to eq(60)
+
+      # These SHOULD be updated (within threshold)
+      expect(model.attorneys).to eq(90)
+      expect(model.representatives).to eq(85)
+    end
+
+    it 'calls notify_threshold_exceeded when valid_count? is false' do
+      # Setup test data
+      allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 70 })
+
+      # Mock valid_count? to return false for agents
+      allow(model).to receive(:valid_count?).with(:agents).and_return(false)
+      allow(model).to receive(:valid_count?).with(:attorneys).and_return(true)
+      allow(model).to receive(:valid_count?).with(:representatives).and_return(true)
+      allow(model).to receive(:valid_count?).with(:veteran_service_organizations).and_return(true)
+
+      # Mock notify_threshold_exceeded
+      allow(model).to receive(:notify_threshold_exceeded)
+
+      model.save_api_counts
+
+      # Verify notify_threshold_exceeded was called with correct parameters
+      expect(model).to have_received(:notify_threshold_exceeded)
+        .with(:agents, 100, 70, 0.3, described_class::DECREASE_THRESHOLD)
     end
 
     it 'persists the record' do
@@ -130,17 +163,6 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
       it 'returns false' do
         expect(model.valid_count?(type)).to be false
       end
-
-      it 'calls notify_threshold_exceeded by default' do
-        model.valid_count?(type)
-        expect(model).to have_received(:notify_threshold_exceeded)
-          .with(type, 100, 70, 0.3, described_class::DECREASE_THRESHOLD)
-      end
-
-      it 'skips notification when notify is false' do
-        model.valid_count?(type, notify: false)
-        expect(model).not_to have_received(:notify_threshold_exceeded)
-      end
     end
   end
 
@@ -178,7 +200,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
       result = model.send(:get_counts_from_api)
 
       described_class::TYPES.each do |type|
-        expect(result[type]).to eq(100)
+        expect(result[type.to_sym]).to eq(100)
       end
     end
 

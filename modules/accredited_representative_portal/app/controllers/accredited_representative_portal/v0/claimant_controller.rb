@@ -9,13 +9,16 @@ module AccreditedRepresentativePortal
         authorize nil, policy_class: ClaimantPolicy
 
         poa_requests = policy_scope(PowerOfAttorneyRequest).joins(:claimant).where(claimant: { icn: })
-        claimant = Claimant.new(search_result.try(:profile), poa_requests)
+        active_poa_codes = current_user.user_account.active_power_of_attorney_holders.map(&:poa_code)
+        claimant = Claimant.new(search_result.try(:profile), poa_requests, active_poa_codes)
 
         raise Common::Exceptions::RecordNotFound, 'Claimant not found' unless icn.present? && (
           ClaimantPolicy.new(current_user, claimant).power_of_attorney? || poa_requests.any?
         )
 
-        render json: { data: ClaimantSerializer.new(claimant).serializable_hash }, status: :ok
+        render json: {
+          data: ClaimantSerializer.new(claimant).serializable_hash
+        }, status: :ok
       rescue ClaimantSearchService::Error => e
         raise Common::Exceptions::BadRequest.new(detail: e.message, source: ClaimantSearchService)
       end
