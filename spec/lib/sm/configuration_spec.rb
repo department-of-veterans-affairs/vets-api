@@ -16,7 +16,6 @@ RSpec.describe SM::Configuration do
   describe '#base_path' do
     context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is true' do
       it 'returns the new API base path' do
-        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(true)
         allow(Settings.mhv.sm).to receive_messages(
           base_path: 'mhv-sm-api/patient/v1/',
@@ -27,21 +26,8 @@ RSpec.describe SM::Configuration do
       end
     end
 
-    context 'when flipper is not enabled (bootup)' do
-      it 'returns the old API base path' do
-        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(false)
-        allow(Settings.mhv.sm).to receive_messages(
-          host: 'https://old-api.example.com',
-          base_path: 'mhv-sm-api-patient/v1/',
-          gw_base_path: 'v1/sm/patient/'
-        )
-        expect(configuration.base_path).to eq('https://old-api.example.com/mhv-sm-api-patient/v1/')
-      end
-    end
-
     context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is false' do
       it 'returns the old API base path' do
-        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
         allow(Settings.mhv.sm).to receive_messages(
           host: 'https://old-api.example.com',
@@ -49,19 +35,6 @@ RSpec.describe SM::Configuration do
           gw_base_path: 'v1/sm/patient/'
         )
         expect(configuration.base_path).to eq('https://old-api.example.com/mhv-sm-api-patient/v1/')
-      end
-    end
-
-    context 'when a NoMethodError occurs' do
-      it 'logs the error and returns the default base path' do
-        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).and_raise(NoMethodError, 'undefined method')
-        allow(Settings.mhv.sm).to receive_messages(
-          host: 'https://error-api.example.com',
-          base_path: 'mhv-api-patient/v1/'
-        )
-        expect(Rails.logger).to receive(:error).with(/SM:Configuration Flipper error: undefined method/)
-        expect(configuration.base_path).to eq('https://error-api.example.com/mhv-api-patient/v1/')
       end
     end
   end
