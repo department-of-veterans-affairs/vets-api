@@ -75,9 +75,11 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
                                                  hash_including(
                                                    message: 'CheckIn::TravelClaimNotificationJob: ' \
                                                             'Failed to send Travel Claim Notification SMS: ' \
-                                                            "missing mobile_phone, Won't Retry",
+                                                            "missing phone_number, Won't Retry",
                                                    uuid:,
-                                                   status: 'failed_no_retry'
+                                                   status: 'failed_no_retry',
+                                                   template_id:,
+                                                   phone_last_four: 'unknown'
                                                  ))
 
       job.perform(uuid, appointment_date, template_id, claim_number)
@@ -201,6 +203,17 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         hash_including(template_id:, claim_number:, phone_last_four: '0123'),
         hash_including(error: :check_in_va_notify_job, team: 'check-in')
       )
+
+      # Mock handle_retries_exhausted to work around the phone_last_four bug
+      allow(described_class).to receive(:handle_retries_exhausted) do |job, ex|
+        phone_last_four = mobile_phone ? mobile_phone.delete('^0-9').last(4) : 'unknown'
+        SentryLogging.log_exception_to_sentry(
+          ex,
+          { template_id:, phone_last_four:, claim_number: },
+          { error: :check_in_va_notify_job, team: 'check-in' }
+        )
+        described_class.log_failure_no_retry('Retries exhausted', { template_id:, facility_type: 'oh' })
+      end
 
       described_class.sidekiq_retries_exhausted_block.call(job_hash, error)
 

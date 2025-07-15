@@ -10,6 +10,7 @@ module CheckIn
   #
   # @see https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#custom-callback-handler
   class TravelClaimNotificationCallback
+    include TravelClaimNotificationUtilities
     ##
     # Handles VA Notify callback with actual delivery status
     #
@@ -77,9 +78,9 @@ module CheckIn
     # @return [void]
     def self.handle_failure_metrics(metadata)
       template_id = metadata['template_id']
-      facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
+      facility_type = determine_facility_type_from_template(template_id)
 
-      TravelClaimNotificationUtilities.increment_silent_failure_metrics(template_id, facility_type)
+      increment_silent_failure_metrics(template_id, facility_type)
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
     end
 
@@ -93,7 +94,7 @@ module CheckIn
     # @return [void]
     def self.log_notification(notification, metadata, message, level)
       template_id = metadata['template_id']
-      facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
+      facility_type = determine_facility_type_from_template(template_id)
 
       log_data = {
         message:,
@@ -118,7 +119,7 @@ module CheckIn
     # @param notification [VANotify::Notification] notification object
     # @return [String] last four digits of phone number
     def self.phone_last_four_from_notification(notification)
-      TravelClaimNotificationUtilities.phone_last_four(notification.to)
+      phone_last_four(notification.to)
     end
   end
 end

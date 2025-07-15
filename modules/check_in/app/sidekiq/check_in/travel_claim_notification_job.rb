@@ -17,6 +17,7 @@ module CheckIn
   #     '1234'                                # Required - Last four digits of claim number
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
+    include TravelClaimNotificationUtilities
     sidekiq_options retry: 12
     REQUIRED_FIELDS = %i[phone_number template_id appointment_date].freeze
 
@@ -84,6 +85,7 @@ module CheckIn
 
       redis_client = TravelClaim::RedisClient.build
       phone_number = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
+      phone_last_four = phone_last_four(phone_number)
 
       sentry_context = { template_id:, phone_last_four: }
       sentry_context[:claim_number] = claim_number if claim_number
@@ -94,7 +96,7 @@ module CheckIn
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
 
-      facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
+      facility_type = determine_facility_type_from_template(template_id)
       log_failure_no_retry('Retries exhausted', { uuid:, phone_number:, template_id:, facility_type: })
     end
 
@@ -245,7 +247,7 @@ module CheckIn
     # @return [VaNotify::NotificationResponse] The response from the VaNotify send_sms call
     def va_notify_send_sms(opts, parsed_date)
       template_id = opts[:template_id]
-      facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
+      facility_type = determine_facility_type_from_template(template_id)
 
       message = 'Sending Travel Claim Notification SMS'
       log_data = self.class.build_log_data(message, opts, :info)
@@ -290,8 +292,7 @@ module CheckIn
     # @param opts [Hash] Options hash containing job parameters
     # @return [Hash] Callback configuration for VA Notify delivery status tracking
     def build_callback_options(opts)
-      {
-        callback_klass: CheckIn::TravelClaimNotificationCallback,
+      callback_options = {
         callback_metadata: {
           uuid: opts[:uuid],
           template_id: opts[:template_id],
@@ -301,6 +302,12 @@ module CheckIn
           }
         }
       }
+
+      if Flipper.enabled?(:check_in_experience_travel_claim_notification_callback)
+        callback_options[:callback_klass] = CheckIn::TravelClaimNotificationCallback
+      end
+
+      callback_options
     end
   end
 end
