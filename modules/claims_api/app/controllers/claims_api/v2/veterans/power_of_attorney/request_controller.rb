@@ -80,9 +80,9 @@ module ClaimsApi
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-<<<<<<< HEAD
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
+<<<<<<< HEAD
 =======
 =======
 byebug
@@ -104,6 +104,8 @@ byebug
 =======
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
 >>>>>>> 4268f0782a (Fixes conditional)
+=======
+>>>>>>> 38bb5cab32 (Actually took care of all conflicts)
 
           manage_rep_service = manage_representative_service
 
