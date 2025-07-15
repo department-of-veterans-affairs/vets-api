@@ -35,7 +35,7 @@ module Rx
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
+      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
         "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
       else
         "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
