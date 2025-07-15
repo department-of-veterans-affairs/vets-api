@@ -149,7 +149,7 @@ module CheckIn
 
       log_data = { status: }
       log_data[:uuid] = opts[:uuid] if log_level == :error
-      phone_number = opts[:mobile_phone]
+      phone_number = opts[:phone_number]
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
       log_data[:template_id] = opts[:template_id]
       log_data[:phone_last_four] = phone_last_four
@@ -250,7 +250,26 @@ module CheckIn
       message = 'Sending Travel Claim Notification SMS'
       log_data = self.class.build_log_data(message, opts, :info)
       self.class.log_with_context(:info, message, log_data)
-      notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
+      notify_client(build_callback_options(opts)).send_sms(
+        phone_number: opts[:phone_number],
+        template_id:,
+        sms_sender_id: determine_sms_sender_id(facility_type),
+        personalisation: build_personalisation(opts, parsed_date)
+      )
+    end
+
+    def build_callback_options(opts)
+      {
+        callback_class: CheckIn::TravelClaimNotificationCallback,
+        callback_metadata: {
+          uuid: opts[:uuid],
+          template_id: opts[:template_id],
+          statsd_tags: {
+            'service' => 'check-in',
+            'function' => 'travel-claim-notification'
+          }
+        }
+      }
     end
   end
 end
