@@ -18,7 +18,6 @@ module ClaimsApi
           {
             addrs_one_txt: @record[:addrs_one_txt],
             addrs_two_txt: @record[:addrs_two_txt],
-            phone_number: @record[:phone_number], # in this request?
             city_nm: @record[:city_nm],
             cntry_nm: @record[:cntry_nm],
             prvnc_nm: @record[:prvnc_nm],
