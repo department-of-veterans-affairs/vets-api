@@ -119,6 +119,11 @@ RSpec.describe Session, type: :model do
             {},
             session_token: described_class.obscure_token(subject.token)
           )
+          expect(subject).to receive(:log_message_to_rails).with(
+            'Maximum Session Duration Reached',
+            :info,
+            { session_token: described_class.obscure_token(subject.token) }
+          )
           subject.save
         end
       end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 require 'identity/parsers/gc_ids'
 require_relative 'parser_base'
 require 'mpi/models/mvi_profile'
@@ -9,7 +9,7 @@ module MPI
   module Responses
     # Parses a MVI response and returns a MviProfile
     class ProfileParser < ParserBase
-      include SentryLogging
+      include Vets::SharedLogging
       include Identity::Parsers::GCIds
 
       BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
@@ -223,14 +223,20 @@ module MPI
         if (mhv_ids - active_mhv_ids).present?
           log_message_to_sentry('Inactive MHV correlation IDs present', :info,
                                 ids: mhv_ids)
+          log_message_to_rails('Inactive MHV correlation IDs present', :info,
+                               ids: mhv_ids)
         end
         unless active_mhv_ids.include?(mhv_ids.first)
           log_message_to_sentry('Returning inactive MHV correlation ID as first identifier', :warn,
                                 ids: mhv_ids)
+          log_message_to_rails('Returning inactive MHV correlation ID as first identifier', :warn,
+                               ids: mhv_ids)
         end
         if active_mhv_ids.uniq.size > 1
           log_message_to_sentry('Multiple active MHV correlation IDs present', :info,
                                 ids: active_mhv_ids)
+          log_message_to_rails('Multiple active MHV correlation IDs present', :info,
+                               ids: active_mhv_ids)
         end
       end
 

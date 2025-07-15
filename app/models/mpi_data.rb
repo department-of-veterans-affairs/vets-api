@@ -5,14 +5,14 @@ require 'mpi/service'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 require 'mpi/constants'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
 # or from the MVI SOAP service.
 class MPIData < Common::RedisStore
   include Common::CacheAside
-  include SentryLogging
+  include Vets::SharedLogging
 
   REDIS_CONFIG_KEY = :mpi_profile_response
   redis_config_key REDIS_CONFIG_KEY

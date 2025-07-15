@@ -80,6 +80,7 @@ module SignIn
       }.compact
 
       log_message_to_sentry(error.message, :error, context) if context.present?
+      log_message_to_rails(error.message, :error, context) if context.present?
       render json: { errors: error }, status: :unauthorized
     end
 

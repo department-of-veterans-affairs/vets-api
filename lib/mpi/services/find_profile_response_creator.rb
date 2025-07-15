@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'mpi/responses/profile_parser'
-require 'sentry_logging'
+require 'vets/shared_logging'
 require 'mpi/errors/errors'
 
 module MPI
   module Services
     class FindProfileResponseCreator
-      include SentryLogging
+      include Vets::SharedLogging
 
       attr_reader :type, :response, :error
 
@@ -45,6 +45,7 @@ module MPI
       def log_error_response
         if error || profile_parser.multiple_match? || profile_parser.failed_request?
           log_message_to_sentry("MPI #{type} response error", :warn, { error_message: detailed_error&.message })
+          log_message_to_rails("MPI #{type} response error", :warn, { error_message: detailed_error&.message })
         elsif profile_parser.invalid_request? || profile_parser.no_match? || profile_parser.unknown_error?
           info_log("Record Not Found, transaction_id=#{parsed_profile.transaction_id}")
         end

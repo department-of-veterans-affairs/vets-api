@@ -23,9 +23,9 @@ describe MPI::Services::FindProfileResponseCreator do
       let(:sentry_log_level) { :warn }
 
       it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+          expected_error_message, sentry_log_level, sentry_context
+        )
         subject
       end
 
