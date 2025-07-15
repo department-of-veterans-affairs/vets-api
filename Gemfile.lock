@@ -388,9 +388,6 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.6.2)
     docile (1.4.0)
-    docx (0.9.1)
-      nokogiri (~> 1.13, >= 1.13.0)
-      rubyzip (~> 2.0)
     dogstatsd-ruby (5.6.6)
     domain_name (0.6.20240107)
     down (5.4.2)
@@ -1260,7 +1257,6 @@ DEPENDENCIES
   decision_reviews!
   dependents_verification!
   dhp_connected_devices!
-  docx
   dogstatsd-ruby
   dry-struct
   dry-types
