@@ -9,11 +9,14 @@ describe PdfFill::Filler, type: :model do
 
   describe '#combine_extras' do
     subject do
-      described_class.combine_extras(old_file_path, extras_generator)
+      described_class.combine_extras(old_file_path, extras_generator, form_class)
     end
 
     let(:extras_generator) { double }
     let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
+    let(:form_class) do
+      PdfFill::Forms::Va210781v2
+    end
 
     context 'when extras_generator doesnt have text' do
       it 'returns the old_file_path' do
