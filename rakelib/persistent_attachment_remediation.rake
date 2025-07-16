@@ -115,9 +115,9 @@ namespace :persistent_attachment_remediation do
       end
 
       # Gather expected attachment GUIDs from the claim's form data
-      updated_ipf_form_data = nil
+      updated_ipf_form_data = ipf_form_data
       if claim.respond_to?(:attachment_keys) && claim.respond_to?(:open_struct_form)
-        delete_claim = false
+        delete_claim_array = []
         destroyed_names = []
         puts "Step 3: Sanitizing attachments for claim id: #{claim.id}"
         claim.attachment_keys.each do |key|
@@ -127,7 +127,10 @@ namespace :persistent_attachment_remediation do
           attachments = PersistentAttachment.where(guid: guids)
 
           delete_claim, updated_ipf_form_data =
-            sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, delete_claim, dry_run)
+            sanitize_attachments_for_key(claim, key, attachments, updated_ipf_form_data, destroyed_names, delete_claim,
+                                         dry_run)
+
+          delete_claim_array << delete_claim
         end
       end
 
@@ -138,7 +141,7 @@ namespace :persistent_attachment_remediation do
         ipf.update!(form_data: Common::HashHelpers.deep_to_h(updated_ipf_form_data).to_json)
       end
 
-      if delete_claim
+      if delete_claim_array.any?
         if claim.email.present?
           unique_emails_for_notification << claim.email
           data = JSON.parse(claim.form)
