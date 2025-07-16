@@ -40,6 +40,8 @@ module AccreditedRepresentativePortal
           DecisionSerializer
         when PowerOfAttorneyRequestExpiration
           ExpirationSerializer
+        when PowerOfAttorneyRequestWithdrawal
+          WithdrawalSerializer
         end
 
       serializer

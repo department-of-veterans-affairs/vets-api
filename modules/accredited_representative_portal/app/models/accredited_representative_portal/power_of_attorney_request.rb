@@ -127,11 +127,19 @@ module AccreditedRepresentativePortal
         )
     }
 
-    scope :not_withdrawn, lambda {
-      unresolved.or(
-        resolved.where.not(
-          resolution: { resolving_type: PowerOfAttorneyRequestWithdrawal.to_s }
+    scope :not_withdrawn_more_than_60_days_ago, lambda {
+      left_outer_joins(:resolution).where(
+        resolutions: { id: nil }
+      ).or(
+        left_outer_joins(:resolution).where.not(
+          resolutions: { resolving_type: PowerOfAttorneyRequestWithdrawal.to_s }
         )
+      ).or(
+        left_outer_joins(:resolution).where(
+          resolutions: {
+            resolving_type: PowerOfAttorneyRequestWithdrawal.to_s,
+          }
+        ).where('resolutions.created_at >= ?', EXPIRY_DURATION.ago)
       )
     }
 
