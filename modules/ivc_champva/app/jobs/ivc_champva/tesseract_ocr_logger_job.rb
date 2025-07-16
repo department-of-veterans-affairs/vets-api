@@ -16,6 +16,8 @@ module IvcChampva
       )
 
       begin
+        start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+
         # Ensure the file exists before processing
         raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
 
@@ -23,6 +25,10 @@ module IvcChampva
         validator = IvcChampva::SupportingDocumentValidator.new(file_path, uuid, attachment_id:)
         result = validator.process
         Rails.logger.info('IvcChampva::TesseractOcrLoggerJob OCR processing has returned results')
+
+        duration_ms = ((::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time) * 1000).round(2)
+        Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{attachment_id} OCR processing completed in " \
+                          "#{duration_ms} milliseconds")
 
         log_result(result)
       rescue => e

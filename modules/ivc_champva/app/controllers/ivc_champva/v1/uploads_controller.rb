@@ -234,7 +234,7 @@ module IvcChampva
 
           attachment.save
 
-          launch_background_job(attachment, params[:form_id].to_s)
+          launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
 
           render json: PersistentAttachmentSerializer.new(attachment)
         else
@@ -249,31 +249,40 @@ module IvcChampva
       # Launches background jobs for OCR and LLM processing if enabled
       # @param [PersistentAttachments::MilitaryRecords] attachment Persistent attachment object for the uploaded file
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
-      def launch_background_job(attachment, form_id)
-        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) # ||
-          # Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
-
-          # create a temp file from the persistent attachment object
-          tmpfile = tempfile_from_attachment(attachment, form_id)
-
-          if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user)
-            # queue Tesseract OCR job for each file
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, nil, tmpfile.path, attachment.guid)
-            Rails.logger.info(
-              "Tesseract OCR job queued for form_id: #{form_id}, uuid: unknown, attachment_id: #{attachment.guid}"
-            )
-          end
-
-          # if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
-          # queue LLM job for tmpfile
-          # end
-        end
+      def launch_background_job(attachment, form_id, attachment_id)
+        launch_ocr_job(form_id, attachment, attachment_id)
+        launch_llm_job(form_id, attachment, attachment_id)
       rescue Errno::ENOENT
         # Do not log the error details because they may contain PII
         Rails.logger.error 'Unhandled ENOENT error while launching background job(s)'
       rescue => e
         Rails.logger.error "Unhandled error while launching background job(s): #{e.message}"
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      def launch_ocr_job(form_id, attachment, attachment_id)
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user)
+          # create a temp file from the persistent attachment object
+          tmpfile = tempfile_from_attachment(attachment, form_id)
+
+          # queue Tesseract OCR job for tmpfile\
+          # TODO: follow signature changes downstream
+          IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
+          Rails.logger.info(
+            "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+          )
+        end
+      end
+
+      def launch_llm_job(form_id, attachment, attachment_id)
+        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+          # queue LLM job for tmpfile
+          pdf_path = attachment.to_pdf
+          IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+          Rails.logger.info(
+            "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+          )
+        end
       end
 
       ## Saves the attached file as a temporary file
