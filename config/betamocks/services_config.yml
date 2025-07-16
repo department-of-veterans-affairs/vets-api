@@ -189,21 +189,21 @@
         :uid_locator: 'Token'
     # MHV rx active
     - :method: :get
-      :path: "/mhv-api/patient/v1/prescription/getactiverx"
+      :path: "/v1/pharmacy/ess/getactiverx"
       :file_path: "mhv/prescription/getactiverx"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
     # MHV rx medications
     - :method: :get
-      :path: "/mhv-api/patient/v1/prescription/medications"
+      :path: "/v1/pharmacy/ess/medications"
       :file_path: "mhv/prescription/medications"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
     # MHV rx history
     - :method: :get
-      :path: "/mhv-api/patient/v1/prescription/gethistoryrx"
+      :path: "/v1/pharmacy/ess/gethistoryrx"
       :file_path: "mhv/prescription/gethistoryrx"
       :cache_multiple_responses:
         :uid_location: header
@@ -217,7 +217,7 @@
         :uid_locator: 'mhvCorrelationId'
     # MHV rx refill
     - :method: :post
-      :path: "/mhv-api/patient/v1/prescription/rxrefill/*"
+      :path: "/v1/pharmacy/ess/rxrefill/*"
       :file_path: "mhv/prescription/rxrefill"
       :cache_multiple_responses:
         :uid_location: url
