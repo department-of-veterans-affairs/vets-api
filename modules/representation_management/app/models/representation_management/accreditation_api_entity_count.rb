@@ -71,6 +71,19 @@ module RepresentationManagement
     end
 
     def count_report
+      report = "Accreditation API Entity Counts Report:\n"
+      TYPES.each do |type|
+        type = type.to_sym
+        current_count = current_api_counts[type]
+        previous_count = current_db_counts[type]
+        change_percentage = percentage_change(previous_count, current_count)
+
+        report += "#{type.to_s.humanize}: Current: #{current_count}, Previous: #{previous_count}, " \
+                  "Change: #{change_percentage}%\n"
+      end
+      report
+    rescue => e
+      log_error("Error generating count report: #{e.message}")
     end
 
     private
