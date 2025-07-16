@@ -77,8 +77,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
   # of the initiative and all the tests passed even though it would have caused an issue with the spool files.
   describe '#format_application' do
     EducationForm::CreateDailySpoolFiles::LIVE_FORM_TYPES.each do |form_type|
-      next unless form_type.start_with?('22-10297')
-
       form_type.sub!('22-', '')
       form_type.downcase! if %w[1990E 1990N 1990S].include?(form_type)
       form_factory = "va#{form_type}_full_form"
