@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run) # rubocop:disable Metrics/ParameterLists
-  delete_claim = false
-
+def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, delete_claim, dry_run) # rubocop:disable Metrics/ParameterLists
   attachments.each do |attachment|
     attachment.file_data || attachment.saved_claim_id.nil?
   rescue => e
@@ -13,22 +11,14 @@ def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroy
       attachment.destroy!
     end
 
-    ipf_form_data = update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
+    ipf_form_data = update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)
 
     delete_claim = true
   end
   [delete_claim, ipf_form_data || nil]
 end
 
-# rubocop:disable Metrics/MethodLength
-def update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
-  # Determine the confirmation method based on the claim type.
-  confirmation_method = if claim.class.name.include?('Pension')
-                          :confirmation_code
-                        else
-                          :confirmationCode
-                        end
-
+def update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)
   # Retrieve the proper key for the form data section.
   form_key = claim.respond_to?(:attachment_key_map) ? (claim.attachment_key_map[key] || key) : key
 
@@ -41,7 +31,8 @@ def update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
 
   # Find the destroyed attachment in the form data section.
   destroyed_attachment = form_data_section&.find do |att|
-    att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
+    (att.respond_to?(:confirmation_code) && att.confirmation_code == attachment.guid) ||
+      (att.respond_to?(:confirmationCode) && att.confirmationCode == attachment.guid)
   end
 
   puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
@@ -49,7 +40,8 @@ def update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
 
   # Remove the destroyed attachment from the section.
   form_data_section&.reject! do |att|
-    att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
+    (att.respond_to?(:confirmation_code) && att.confirmation_code == attachment.guid) ||
+      (att.respond_to?(:confirmationCode) && att.confirmationCode == attachment.guid)
   end
 
   # Update ipf_form_data if available.
@@ -57,7 +49,6 @@ def update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
 
   ipf_form_data
 end
-# rubocop:enable Metrics/MethodLength
 
 def scrub_email(email)
   prefix, domain = email.split('@')
@@ -111,7 +102,7 @@ namespace :persistent_attachment_remediation do
                           .where('updated_at >= ?', updated_time)
                           .find do |ipf|
         JSON.parse(ipf.form_data).then do |data|
-          email = data['email'] || data['claimantEmail']
+          email = data['email'] || data['claimant_email']
           email == claim_email && data['veteran_social_security_number'] == claim_veteran_ssn
         end
       rescue
@@ -136,7 +127,7 @@ namespace :persistent_attachment_remediation do
           attachments = PersistentAttachment.where(guid: guids)
 
           delete_claim, updated_ipf_form_data =
-            sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run)
+            sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, delete_claim, dry_run)
         end
       end
 
@@ -180,7 +171,8 @@ namespace :persistent_attachment_remediation do
 
     # Send out emails to unique email list
     if unique_emails_for_notification.size.positive?
-      puts "Step 6: Sending remediation email to unique email(s): #{unique_emails_for_notification.to_a.join(', ')}"
+      scrubbed_emails = unique_emails_for_notification.to_a.map { |email| scrub_email(email) }.join(', ')
+      puts "Step 6: Sending remediation email to unique email(s): #{scrubbed_emails}"
       unique_emails_for_notification.each do |email|
         if dry_run
           puts "[DRY RUN] Would send remediation email to #{scrub_email(email)}"
