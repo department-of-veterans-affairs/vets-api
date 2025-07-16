@@ -18,7 +18,7 @@ module ClaimsApi
           return [] if @record.blank?
 
           {
-            phone_nbr: @record[:phone_nbr]
+            'phone_nbr' => @record[:phone_nbr]
           }
         end
       end

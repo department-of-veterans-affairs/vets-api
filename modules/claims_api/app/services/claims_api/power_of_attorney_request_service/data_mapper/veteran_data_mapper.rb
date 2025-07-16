@@ -18,10 +18,10 @@ module ClaimsApi
           return [] if @veteran.blank?
 
           {
-            name: "#{@veteran.first_name} #{@veteran.last_name}",
-            ssn: @veteran.ssn,
-            file_number: @veteran&.birls_id || @veteran&.mpi&.birls_id,
-            date_of_birth: @veteran.birth_date
+            'name' => "#{@veteran.first_name} #{@veteran.last_name}",
+            'ssn' => @veteran.ssn,
+            'file_number' => @veteran&.birls_id || @veteran&.mpi&.birls_id,
+            'date_of_birth' => @veteran.birth_date
           }
         end
       end

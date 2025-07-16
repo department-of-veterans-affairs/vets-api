@@ -12,7 +12,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFin
   end
 
   let(:expected_response_obj) do
-    { phone_nbr: '5555559876' }
+    { 'phone_nbr' => '5555559876' }
   end
 
   context 'Mapping the POA data object' do

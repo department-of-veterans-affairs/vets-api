@@ -28,6 +28,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
     } }
   end
+
   let(:claimant) { nil }
 
   let(:declined_subject) { build_subject('declined') }

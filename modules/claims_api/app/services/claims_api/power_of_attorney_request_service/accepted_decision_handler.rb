@@ -38,7 +38,7 @@ module ClaimsApi
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
-        data.merge!(registration_number: @representative_id)
+        data.merge!('registration_number' => @representative_id)
 
         if @claimant.present?
           claimant_data = gather_claimant_data
@@ -48,9 +48,9 @@ module ClaimsApi
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
 
-          claimant_data.merge!(claimant_id: @claimant.icn)
+          claimant_data.merge!('claimant_id' => @claimant.icn)
 
-          data.merge!(claimant: claimant_data)
+          data.merge!('claimant' => claimant_data)
         end
 
         data
