@@ -582,7 +582,7 @@ module PdfFill
     end
 
     def calculate_text_box_position(pdf, section_label, start_y, section_index)
-      x_same_line_placement = pdf.width_of(@sections[section_index][:label]).to_s + BOUNDING_BOX_X_OFFSET
+      x_same_line_placement = pdf.width_of(@sections[section_index][:label].to_s) + BOUNDING_BOX_X_OFFSET
       y_same_line_placement = start_y - BOUNDING_BOX_Y_OFFSET
       {
         width: pdf.width_of("Back to #{section_label}"),
