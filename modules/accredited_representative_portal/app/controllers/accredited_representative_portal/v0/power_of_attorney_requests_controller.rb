@@ -11,6 +11,13 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:id]
           set_poa_request(id)
+
+          # Return 404 if withdrawn
+          if @poa_request.resolution&.resolving.is_a?(
+            AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal
+          )
+            render json: { errors: ['Record not found'] }, status: :not_found and return
+          end
         end
       end
 
@@ -43,7 +50,14 @@ module AccreditedRepresentativePortal
                           .then { |it| filter_by_current_user(it) }
                           .unredacted
                           .preload(scope_includes)
-                          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .then do |it|
+          if sort_params.present?
+            it.sorted_by(sort_params[:by],
+                         sort_params[:order])
+          else
+            it
+          end
+        end
                           .paginate(page:, per_page:)
       end
 
