@@ -92,7 +92,7 @@ module Eps
         all_slots.concat(current_response[:slots]) if current_response[:slots].present?
 
         next_token = current_response[:next_token]
-        break if next_token.blank? || current_response[:slots].blank?
+        break if next_token.blank?
       end
 
       combined_response = { slots: all_slots, count: all_slots.length }
@@ -110,6 +110,10 @@ module Eps
     # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
+      raise ArgumentError, 'Provider NPI is required and cannot be blank' if npi.blank?
+      raise ArgumentError, 'Provider specialty is required and cannot be blank' if specialty.blank?
+      raise ArgumentError, 'Provider address is required and cannot be blank' if address.blank?
+
       with_monitoring do
         query_params = { npi:, isSelfSchedulable: true }
         response = perform(:get, "/#{config.base_path}/provider-services", query_params,
@@ -170,7 +174,7 @@ module Eps
     def build_slot_params(next_token, opts)
       return { nextToken: next_token } if next_token
 
-      required_params = %i[appointmentTypeId startOnOrAfter startBefore]
+      required_params = %i[appointmentTypeId startOnOrAfter startBefore appointmentId]
       missing_params = required_params - opts.keys
 
       raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?

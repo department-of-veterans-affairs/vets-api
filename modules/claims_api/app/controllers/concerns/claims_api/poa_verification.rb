@@ -26,16 +26,6 @@ module ClaimsApi
       end
 
       #
-      # Validate @current_user is an accredited representative
-      #
-      # @raise [Common::Exceptions::Forbidden] if @current_user is not a representative
-      def validate_user_is_accredited!
-        representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name)
-        raise ::Common::Exceptions::Forbidden if representative.blank?
-      end
-
-      #
       # Validate poa code provided matches one of the poa codes associated with the @current_user
       # @param poa_code [String] poa code to match to @current_user
       #
@@ -93,7 +83,7 @@ module ClaimsApi
         valid_poa_code_for_current_user?(poa_code_to_verify)
       rescue ::Common::Exceptions::UnprocessableEntity
         raise
-      rescue
+      rescue => e
         ClaimsApi::Logger.log 'poa_verification', level: :error, detail: e.message, error_class: e.class.name
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end

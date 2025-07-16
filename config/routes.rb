@@ -122,7 +122,7 @@ Rails.application.routes.draw do
     resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
-        get(:enrollment_status)
+        match(:enrollment_status, via: %i[get post])
         get(:rating_info)
         get(:facilities)
         post(:download_pdf)
@@ -190,9 +190,6 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
-
-    get 'ppiu/payment_information', to: 'ppiu#index'
-    put 'ppiu/payment_information', to: 'ppiu#update'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
@@ -327,6 +324,7 @@ Rails.application.routes.draw do
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
     resources :form1010_ezrs, only: %i[create]
+    post '/form1010_ezrs/download_pdf', to: 'form1010_ezrs#download_pdf'
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 

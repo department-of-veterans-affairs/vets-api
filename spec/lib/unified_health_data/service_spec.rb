@@ -51,6 +51,24 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      context 'logs test code distribution' do
+        it 'logs the test code distribution from parsed records' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+          allow(Rails.logger).to receive(:info)
+
+          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'UHD test code and name distribution',
+              service: 'unified_health_data'
+            )
+          )
+        end
+      end
+
       context 'when Flipper is disabled for all codes' do
         it 'filters out labs/tests' do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
@@ -824,51 +842,39 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#fetch_combined_records' do
-    context 'when body is nil' do
-      it 'returns an empty array' do
-        result = service.send(:fetch_combined_records, nil)
+    describe '#fetch_combined_records' do
+      context 'when body is nil' do
+        it 'returns an empty array' do
+          result = service.send(:fetch_combined_records, nil)
 
-        expect(result).to eq([])
+          expect(result).to eq([])
+        end
       end
     end
-  end
 
-  describe '#fetch_display' do
-    let(:service_instance) { described_class.new(user) }
-
-    it 'returns ServiceRequest code text if present' do
-      record = {
-        'resource' => {
-          'contained' => [
-            { 'resourceType' => 'ServiceRequest', 'code' => { 'text' => 'Blood Test' } }
-          ],
-          'code' => { 'text' => 'Fallback Test' }
+    describe '#fetch_display' do
+      it 'uses code.text if ServiceRequest is not found' do
+        record = {
+          'resource' => {
+            'contained' => [
+              { 'resourceType' => 'OtherType' }
+            ],
+            'code' => { 'text' => 'Fallback Test' }
+          }
         }
-      }
-      expect(service_instance.send(:fetch_display, record)).to eq('Blood Test')
-    end
+        expect(service.send(:fetch_display, record)).to eq('Fallback Test')
+      end
 
-    it 'returns code.text if ServiceRequest is not present' do
-      record = {
-        'resource' => {
-          'contained' => [
-            { 'resourceType' => 'OtherType' }
-          ],
-          'code' => { 'text' => 'Fallback Test' }
+      it 'returns empty string if neither ServiceRequest nor code.text is present' do
+        record = {
+          'resource' => {
+            'contained' => [
+              { 'resourceType' => 'OtherType' }
+            ]
+          }
         }
-      }
-      expect(service_instance.send(:fetch_display, record)).to eq('Fallback Test')
-    end
-
-    it 'returns empty string if neither ServiceRequest nor code.text is present' do
-      record = {
-        'resource' => {
-          'contained' => [
-            { 'resourceType' => 'OtherType' }
-          ]
-        }
-      }
-      expect(service_instance.send(:fetch_display, record)).to eq('')
+        expect(service.send(:fetch_display, record)).to eq('')
+      end
     end
   end
 end

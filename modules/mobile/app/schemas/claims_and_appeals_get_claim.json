@@ -114,7 +114,7 @@
               "type": "string",
               "enum": ["PENDING", "CLAIM_RECEIVED", "INITIAL_REVIEW", "EVIDENCE_GATHERING_REVIEW_DECISION", "PREPARATION_FOR_NOTIFICATION", "COMPLETE", "ERRORED", "CANCELED"]
             },
-            "submitterApplicationCode": { "type": "string" },
+            "submitterApplicationCode": { "type": ["string", "null"] },
             "submitterRoleCode": { "type": "string" },
             "supportingDocuments": {
               "type": "array",
