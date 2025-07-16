@@ -43,7 +43,7 @@ module ClaimsApi
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
 
-          data.merge!(claimant: claimant_data)
+          data.merge!('claimant' => claimant_data)
         end
 
         data
@@ -100,30 +100,6 @@ module ClaimsApi
               .vnp_ptcpnt_phone_find_by_primary_key(id: primary_key)
 
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(
-          record: res
-        ).call
-      end
-
-      def gather_read_all_veteran_representative_data
-        records = read_all_vateran_representative_records
-        # error if records nil
-        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper.new(
-          proc_id: @proc_id,
-          records:
-        ).call
-      end
-
-      # key is 'veteran' or 'claimant'
-      def gather_vnp_addrs_data(key)
-        ptcpnt_id = key == 'veteran' ? @vet_ptcpnt_id : @claimant_ptcpnt_id
-        primary_key = @metadata.dig(key, 'vnp_mail_id')
-
-        # error if primary_key nil
-        res = ClaimsApi::VnpPtcpntAddrsService
-              .new(external_uid: ptcpnt_id, external_key: ptcpnt_id)
-              .vnp_ptcpnt_addrs_find_by_primary_key(id: primary_key)
-
-        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
       end

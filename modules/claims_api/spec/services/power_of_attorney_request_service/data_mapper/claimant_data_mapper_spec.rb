@@ -22,10 +22,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ClaimantDataMappe
 
   let(:expected_response) do
     {
-      name: 'John Doe',
-      ssn: '123456789',
-      file_number: '123456789',
-      date_of_birth: Date.new(1970, 1, 1)
+      'name' => 'John Doe',
+      'ssn' => '123456789',
+      'file_number' => '123456789',
+      'date_of_birth' => Date.new(1970, 1, 1)
     }
   end
 
