@@ -81,6 +81,11 @@ module Common
       save
     end
 
+    def update!(attrs)
+      assign_attributes(attrs)
+      save!
+    end
+
     def destroy
       namespace.del(redis_key_value)
       @destroyed = true
