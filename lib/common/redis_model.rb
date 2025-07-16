@@ -34,7 +34,7 @@ module Common
         return nil if raw.blank?
 
         attrs = JSON.parse(raw)
-        new(attrs.merge(primary_key => key))
+        new(attrs)
       end
 
       def create(attrs)
