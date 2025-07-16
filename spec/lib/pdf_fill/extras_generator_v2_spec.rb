@@ -1038,9 +1038,6 @@ describe PdfFill::ExtrasGeneratorV2 do
     before do
       allow(pdf).to receive(:bounding_box).and_yield
       allow(pdf).to receive(:formatted_text_box)
-      # allow(pdf).to receive(:formatted_text_box).and_return([{ text: 'Back to Section I', color: '005EA2', size: 10.5,
-      #                                                          styles: [:underline] }], { at: [0, 7], width: 63,
-      #                                                                                     height: 15, align: :right })
       allow(pdf).to receive(:cursor).and_return(250)
       allow(pdf).to receive(:markup)
     end

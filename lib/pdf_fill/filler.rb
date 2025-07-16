@@ -100,12 +100,13 @@ module PdfFill
         extras_path = extras_generator.generate
 
         main_reader = PDF::Reader.new(old_file_path)
-        original_page_count = main_reader.page_count
+        main_reader.page_count
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
         # Adds links and destinations to the combined PDF
         if extras_generator.try(:section_coordinates)
-          pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates, form_class)
+          pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates,
+                                                    form_class)
           pdf_post_processor.process!
         end
 
@@ -239,7 +240,7 @@ module PdfFill
         else
           ExtrasGenerator.new
         end
-          HashConverter.new(form_class.date_strftime, extras_generator)
+      HashConverter.new(form_class.date_strftime, extras_generator)
     end
 
     def stamp_form(file_path, submit_date)

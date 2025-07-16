@@ -75,7 +75,6 @@ describe PdfFill::Filler, type: :model do
        22-10216 22-10215 22-10215a].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
-        # form_types = []
         form_types << ['overflow', true, true] if form_id == '21-0781V2'
         form_types.each do |type, extras_redesign, show_jumplinks|
           context "with #{type} test data with extras_redesign #{extras_redesign}" do
@@ -97,11 +96,10 @@ describe PdfFill::Filler, type: :model do
 
               expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student:, show_jumplinks:})
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
+                                                              { extras_redesign:, student:, show_jumplinks: })
 
               fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
-
-              puts (show_jumplinks)
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate

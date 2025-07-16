@@ -553,8 +553,7 @@ module PdfFill
     end
 
     def render_question(pdf, block, section_index, current_section_index, block_heights)
-      page_break_inserted = handle_regular_question_page_break(pdf, block, section_index, block_heights)
-      current_section_index = nil if page_break_inserted
+      handle_regular_question_page_break(pdf, block, section_index, block_heights)
       current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
       block.render(pdf)
 
@@ -562,8 +561,7 @@ module PdfFill
     end
 
     def render_list_question(pdf, block, section_index, current_section_index, block_heights)
-      page_break_inserted = handle_list_title_page_break(pdf, block, section_index, block_heights)
-      current_section_index = nil if page_break_inserted
+      handle_list_title_page_break(pdf, block, section_index, block_heights)
       current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
       block.render_title(pdf)
       render_list_items(pdf, block, block_heights)
@@ -584,10 +582,12 @@ module PdfFill
     end
 
     def calculate_text_box_position(pdf, section_label, start_y, section_index)
+      x_same_line_placement = pdf.width_of(@sections[section_index][:label]).to_s + BOUNDING_BOX_X_OFFSET
+      y_same_line_placement = start_y - BOUNDING_BOX_Y_OFFSET
       {
         width: pdf.width_of("Back to #{section_label}"),
-        x: @sections[section_index][:link_next_line] ? pdf.bounds.left - 10 : pdf.width_of("#{@sections[section_index][:label]}") + BOUNDING_BOX_X_OFFSET,
-        y: @sections[section_index][:link_next_line] ? start_y + 3 : start_y - BOUNDING_BOX_Y_OFFSET
+        x: @sections[section_index][:link_next_line] ? pdf.bounds.left - 10 : x_same_line_placement,
+        y: @sections[section_index][:link_next_line] ? start_y + 3 : y_same_line_placement
       }
     end
 
