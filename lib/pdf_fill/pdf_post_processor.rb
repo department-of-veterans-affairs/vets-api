@@ -45,11 +45,6 @@ module PdfFill
       doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })
     end
 
-    def prepare_link(coord, doc, original_page_count)
-      coord[:page]
-      doc.pages[coord[:page] + original_page_count - 1] # coord[:page] is 1-based, convert to 0-based index
-    end
-
     def create_link(doc, coord)
       doc.add({
                 Type: :Annot,
@@ -66,7 +61,7 @@ module PdfFill
 
     def add_links(doc, section_coordinates, original_page_count)
       section_coordinates.each do |coord|
-        page = prepare_link(coord, doc, original_page_count)
+        page = doc.pages[coord[:page] + original_page_count - 1] # coord[:page] is 1-based, convert to 0-based index
         next unless page
 
         page[:Annots] ||= []
