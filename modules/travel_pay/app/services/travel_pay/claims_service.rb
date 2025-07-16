@@ -194,7 +194,7 @@ module TravelPay
       Rails.logger.error("Error extracting decision reason: #{e.message}")
       nil
     end
-    
+
     def loop_and_paginate_claims(params, veis_token, btsss_token)
       page_number = params[:page_number]
       all_claims = []
