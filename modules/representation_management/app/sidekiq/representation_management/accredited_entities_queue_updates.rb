@@ -154,6 +154,8 @@ module RepresentationManagement
         entities.each { |entity| handle_entity_record(entity, config) }
         page += 1
       end
+    rescue => e
+      log_error("Error updating #{entity_type}s: #{e.message}")
     end
 
     # Fetches VSO data from the GCLAWS API and updates database records

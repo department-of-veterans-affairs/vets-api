@@ -78,7 +78,7 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
       # Verify notify_threshold_exceeded was called with correct parameters
       expect(model).to have_received(:notify_threshold_exceeded)
-        .with(:agents, 100, 70, 0.3, described_class::DECREASE_THRESHOLD)
+        .with(:agents, 100, 70, -30.0)
     end
 
     it 'persists the record' do
@@ -168,13 +168,13 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
   describe '#notify_threshold_exceeded' do
     it 'logs to Slack with the correct message format' do
-      model.send(:notify_threshold_exceeded, :agents, 100, 70, 0.3, 0.2)
+      model.send(:notify_threshold_exceeded, :agents, 100, 70, 30.0)
 
       expected_message = "⚠️ AccreditationApiEntityCount Alert: Agents count decreased beyond threshold!\n" \
                          "Previous: 100\n" \
                          "New: 70\n" \
                          "Decrease: 30.0%\n" \
-                         "Threshold: 20.0%\n" \
+                         "Threshold: -20.0%\n" \
                          'Action: Update skipped, manual review required'
 
       expect(model).to have_received(:log_to_slack_threshold_channel).with(expected_message)
@@ -261,6 +261,104 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
         expect(result[:attorneys]).to eq(attorneys_count)
         expect(result[:representatives]).to eq(representatives_count)
         expect(result[:veteran_service_organizations]).to eq(5)
+      end
+    end
+  end
+
+  describe '#percentage_change' do
+    let(:model) { build(:accreditation_api_entity_count) }
+
+    context 'when previous value is nil' do
+      it 'returns 0.0' do
+        result = model.send(:percentage_change, nil, 100)
+        expect(result).to eq(0.0)
+      end
+    end
+
+    context 'when previous value is zero' do
+      it 'returns 0.0' do
+        result = model.send(:percentage_change, 0, 100)
+        expect(result).to eq(0.0)
+      end
+    end
+
+    context 'when calculating positive changes (increases)' do
+      it 'returns positive percentage for 20% increase' do
+        result = model.send(:percentage_change, 100, 120)
+        expect(result).to eq(20.0)
+      end
+
+      it 'returns positive percentage for 50% increase' do
+        result = model.send(:percentage_change, 100, 150)
+        expect(result).to eq(50.0)
+      end
+
+      it 'returns positive percentage for small increase' do
+        result = model.send(:percentage_change, 100, 105)
+        expect(result).to eq(5.0)
+      end
+
+      it 'returns positive percentage for large increase' do
+        result = model.send(:percentage_change, 50, 100)
+        expect(result).to eq(100.0)
+      end
+    end
+
+    context 'when calculating negative changes (decreases)' do
+      it 'returns negative percentage for 20% decrease' do
+        result = model.send(:percentage_change, 100, 80)
+        expect(result).to eq(-20.0)
+      end
+
+      it 'returns negative percentage for 30% decrease' do
+        result = model.send(:percentage_change, 100, 70)
+        expect(result).to eq(-30.0)
+      end
+
+      it 'returns negative percentage for small decrease' do
+        result = model.send(:percentage_change, 100, 95)
+        expect(result).to eq(-5.0)
+      end
+
+      it 'returns negative percentage for large decrease' do
+        result = model.send(:percentage_change, 100, 25)
+        expect(result).to eq(-75.0)
+      end
+
+      it 'returns -100% for complete decrease to zero' do
+        result = model.send(:percentage_change, 100, 0)
+        expect(result).to eq(-100.0)
+      end
+    end
+
+    context 'when values are equal' do
+      it 'returns 0.0 for no change' do
+        result = model.send(:percentage_change, 100, 100)
+        expect(result).to eq(0.0)
+      end
+    end
+
+    context 'when working with decimal results' do
+      it 'rounds to 2 decimal places for precise calculations' do
+        result = model.send(:percentage_change, 3, 4)
+        expect(result).to eq(33.33) # (4-3)/3 * 100 = 33.333...
+      end
+
+      it 'handles fractional decreases properly' do
+        result = model.send(:percentage_change, 7, 5)
+        expect(result).to eq(-28.57) # (5-7)/7 * 100 = -28.571...
+      end
+    end
+
+    context 'when working with edge cases' do
+      it 'handles very small numbers' do
+        result = model.send(:percentage_change, 1, 2)
+        expect(result).to eq(100.0)
+      end
+
+      it 'handles large numbers' do
+        result = model.send(:percentage_change, 1000, 1200)
+        expect(result).to eq(20.0)
       end
     end
   end
