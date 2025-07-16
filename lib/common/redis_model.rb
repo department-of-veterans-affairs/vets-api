@@ -49,10 +49,6 @@ module Common
         new(attrs).tap(&:save!)
       end
 
-      def delete(key)
-        namespace.del(key)
-      end
-
       delegate :exists?, :keys, to: :namespace
     end
 
