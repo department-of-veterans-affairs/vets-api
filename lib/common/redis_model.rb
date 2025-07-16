@@ -45,6 +45,10 @@ module Common
         new(attrs).tap(&:save)
       end
 
+      def create!(attrs)
+        new(attrs).tap(&:save!)
+      end
+
       def delete(key)
         namespace.del(key)
       end
