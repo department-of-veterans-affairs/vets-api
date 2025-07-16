@@ -184,6 +184,7 @@ namespace :persistent_attachment_remediation do
           VANotify::EmailJob.new.perform(
             email,
             service_config.email.persistent_attachment_error.template_id,
+          VANotify::EmailJob.perform_async(
             personalization,
             service_config.api_key
           )
