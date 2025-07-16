@@ -6,14 +6,16 @@ reg_office = 'Department of Veteran Affairs, Example Address, P.O. Box 0000, Jan
 
 # Dependents Verification Claim Integration
 RSpec.describe Swagger::Requests::DependentsVerificationClaims, type: %i[request serializer] do
+  let(:current_user) { create(:evss_user, :loa3, ssn: '796043735') }
+  let(:full_claim) do
+    build(:dependents_verification_claim).parsed_form
+  end
+
   before do
+    sign_in_as(current_user)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Flipper).to receive(:enabled?).and_call_original
-  end
-
-  let(:full_claim) do
-    build(:dependents_verification_claim).parsed_form
   end
 
   describe 'POST create' do
