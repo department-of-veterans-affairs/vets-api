@@ -76,10 +76,11 @@ module IvcChampva
         document_type = DOCTYPE_DEFINITIONS[key]
         expected_fields = format_expected_fields(EXPECTED_FIELDS[key])
 
-        template.gsub('%DOCUMENT_TYPE%', document_type)
-                .gsub('%EXPECTED_FIELDS%', expected_fields)
+        result = template.gsub('%DOCUMENT_TYPE%', document_type)
+                         .gsub('%EXPECTED_FIELDS%', expected_fields)
 
         Rails.logger.info("IvcChampva::PromptManager generated prompt for #{key}")
+        result
       end
 
       private

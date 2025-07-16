@@ -257,7 +257,6 @@ module IvcChampva
         Rails.logger.error 'Unhandled ENOENT error while launching background job(s)'
       rescue => e
         Rails.logger.error "Unhandled error while launching background job(s): #{e.message}"
-        render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
       end
 
       def launch_ocr_job(form_id, attachment, attachment_id)
