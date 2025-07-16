@@ -13,6 +13,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     allow(Sidekiq::Batch).to receive(:new).and_return(batch)
     allow(batch).to receive(:description=)
     allow(batch).to receive(:jobs).and_yield
+    slack_client = instance_double(SlackNotify::Client)
+    allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
+    allow(slack_client).to receive(:notify)
   end
 
   describe '#perform' do
@@ -60,6 +63,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
+      allow(entity_counts).to receive(:count_report).and_return('Count report generated successfully')
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
@@ -832,6 +836,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.instance_variable_set(:@representative_json_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
       job.instance_variable_set(:@accreditation_ids, [])
+      job.instance_variable_set(:@report, String.new)
 
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
