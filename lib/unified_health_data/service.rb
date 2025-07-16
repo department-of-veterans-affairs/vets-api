@@ -27,7 +27,12 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = parse_labs(combined_records)
-        filter_records(parsed_records)
+        filtered_records = filter_records(parsed_records)
+
+        # Log test code distribution after filtering is applied
+        log_test_code_distribution(parsed_records)
+
+        filtered_records
       end
     end
 
@@ -57,6 +62,8 @@ module UnifiedHealthData
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
         when 'MB'
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+        else
+          false # Reject any other test codes for now, but we'll log them for analysis
         end
       end
     end
@@ -420,6 +427,51 @@ module UnifiedHealthData
       else
         record['resource']['code'] ? record['resource']['code']['text'] : ''
       end
+    end
+
+    # Logs the distribution of test codes and names found in the records for analytics purposes
+    # This helps identify which test codes are common and might be worth filtering in
+    def log_test_code_distribution(records)
+      test_code_counts, test_name_counts = count_test_codes_and_names(records)
+
+      return if test_code_counts.empty? && test_name_counts.empty?
+
+      log_distribution_info(test_code_counts, test_name_counts, records.size)
+    end
+
+    def count_test_codes_and_names(records)
+      test_code_counts = Hash.new(0)
+      test_name_counts = Hash.new(0)
+
+      records.each do |record|
+        test_code = record.attributes.test_code
+        test_name = record.attributes.display
+
+        test_code_counts[test_code] += 1 if test_code.present?
+        test_name_counts[test_name] += 1 if test_name.present?
+      end
+
+      [test_code_counts, test_name_counts]
+    end
+
+    def log_distribution_info(test_code_counts, test_name_counts, total_records)
+      sorted_code_counts = test_code_counts.sort_by { |_, count| -count }
+      sorted_name_counts = test_name_counts.sort_by { |_, count| -count }
+
+      code_count_pairs = sorted_code_counts.map { |code, count| "#{code}:#{count}" }
+      name_count_pairs = sorted_name_counts.map { |name, count| "#{name}:#{count}" }
+
+      Rails.logger.info(
+        {
+          message: 'UHD test code and name distribution',
+          test_code_distribution: code_count_pairs.join(','),
+          test_name_distribution: name_count_pairs.join(','),
+          total_codes: sorted_code_counts.size,
+          total_names: sorted_name_counts.size,
+          total_records:,
+          service: 'unified_health_data'
+        }
+      )
     end
   end
 end

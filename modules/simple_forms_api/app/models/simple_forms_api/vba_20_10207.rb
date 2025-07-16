@@ -145,6 +145,13 @@ module SimpleFormsApi
                         living_situations:, other_reasons:)
     end
 
+    def add_vsi_flash
+      return unless data.dig('other_reasons', 'VSI_SI')
+
+      vsi_service = SimpleFormsApi::VsiFlashService.new(data)
+      vsi_service.add_flash_to_bgs
+    end
+
     def get_attachments
       PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
     end

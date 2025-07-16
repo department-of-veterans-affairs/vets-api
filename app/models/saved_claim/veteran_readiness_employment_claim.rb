@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'res/ch31_form'
+require 'vets/shared_logging'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging

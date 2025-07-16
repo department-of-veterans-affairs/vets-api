@@ -8,6 +8,12 @@ describe TravelPay::ClaimsService do
     let(:user) { build(:user) }
     let(:claims_data) do
       {
+        'statusCode' => 200,
+        'message' => 'Data retrieved successfully.',
+        'success' => true,
+        'pageNumber' => 1,
+        'pageSize' => 50,
+        'totalRecordCount' => 4,
         'data' => [
           {
             'id' => 'uuid1',
@@ -69,40 +75,32 @@ describe TravelPay::ClaimsService do
     it 'returns sorted and parsed claims' do
       expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
 
-      claims = @service.get_claims
+      claims = @service.get_claims({})
       actual_statuses = claims[:data].pluck('claimStatus')
 
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
-    context 'filter by appt date' do
-      it 'returns claims that match appt date if specified' do
-        claims = @service.get_claims({ 'appt_datetime' => '2024-01-01' })
+    it 'passes default params' do
+      expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
+      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token],
+                                                                                   tokens[:btsss_token],
+                                                                                   { page_size: 50, page_number: 1 })
+      claims = @service.get_claims({})
+      actual_statuses = claims[:data].pluck('claimStatus')
 
-        expect(claims.count).to equal(1)
-      end
+      expect(actual_statuses).to match_array(expected_statuses)
+    end
 
-      it 'returns 0 claims if appt date does not match' do
-        claims = @service.get_claims({ 'appt_datetime' => '1700-01-01' })
+    it 'passes params that were given' do
+      expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
+      expect_any_instance_of(TravelPay::ClaimsClient).to receive(:get_claims).with(tokens[:veis_token],
+                                                                                   tokens[:btsss_token],
+                                                                                   { page_size: 10, page_number: 2 })
+      claims = @service.get_claims({ 'page_size' => 10, 'page_number' => 2 })
+      actual_statuses = claims[:data].pluck('claimStatus')
 
-        expect(claims[:data].count).to equal(0)
-      end
-
-      it 'returns all claims if appt date is invalid' do
-        claims = @service.get_claims({ 'appt_datetime' => 'banana' })
-
-        expect(claims[:data].count).to equal(claims_data['data'].count)
-      end
-
-      it 'returns all claims if appt date is not specified' do
-        claims_empty_date = @service.get_claims({ 'appt_datetime' => '' })
-        claims_nil_date = @service.get_claims({ 'appt_datetime' => 'banana' })
-        claims_no_param = @service.get_claims
-
-        expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
-        expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
-        expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
-      end
+      expect(actual_statuses).to match_array(expected_statuses)
     end
   end
 
@@ -287,45 +285,68 @@ describe TravelPay::ClaimsService do
 
   context 'get_claims_by_date_range' do
     let(:user) { build(:user) }
-    let(:claims_by_date_data) do
+    let(:claims_by_date_meta) do
       {
         'statusCode' => 200,
         'message' => 'Data retrieved successfully.',
         'success' => true,
-        'data' => [
-          {
-            'id' => 'uuid1',
-            'claimNumber' => 'TC0000000000001',
-            'claimStatus' => 'InProgress',
-            'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
-            'facilityName' => 'Cheyenne VA Medical Center',
-            'createdOn' => '2024-03-22T21:22:34.465Z',
-            'modifiedOn' => '2024-01-01T16:44:34.465Z'
-          },
-          {
-            'id' => 'uuid2',
-            'claimNumber' => 'TC0000000000002',
-            'claimStatus' => 'InProgress',
-            'appointmentDateTime' => '2024-03-01T16:45:34.465Z',
-            'facilityName' => 'Cheyenne VA Medical Center',
-            'createdOn' => '2024-02-22T21:22:34.465Z',
-            'modifiedOn' => '2024-03-01T00:00:00.0Z'
-          },
-          {
-            'id' => 'uuid3',
-            'claimNumber' => 'TC0000000000002',
-            'claimStatus' => 'Incomplete',
-            'appointmentDateTime' => '2024-02-01T16:45:34.465Z',
-            'facilityName' => 'Cheyenne VA Medical Center',
-            'createdOn' => '2024-01-22T21:22:34.465Z',
-            'modifiedOn' => '2024-02-01T00:00:00.0Z'
-          }
-        ]
+        'totalRecordCount' => 3
       }
     end
-    let(:claims_by_date_response) do
+
+    let(:claims_by_date_data) do
+      [
+        {
+          'id' => 'uuid1',
+          'claimNumber' => 'TC0000000000001',
+          'claimStatus' => 'InProgress',
+          'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+          'facilityName' => 'Cheyenne VA Medical Center',
+          'createdOn' => '2024-03-22T21:22:34.465Z',
+          'modifiedOn' => '2024-01-01T16:44:34.465Z'
+        },
+        {
+          'id' => 'uuid2',
+          'claimNumber' => 'TC0000000000002',
+          'claimStatus' => 'InProgress',
+          'appointmentDateTime' => '2024-03-01T16:45:34.465Z',
+          'facilityName' => 'Cheyenne VA Medical Center',
+          'createdOn' => '2024-02-22T21:22:34.465Z',
+          'modifiedOn' => '2024-03-01T00:00:00.0Z'
+        },
+        {
+          'id' => 'uuid3',
+          'claimNumber' => 'TC0000000000002',
+          'claimStatus' => 'Incomplete',
+          'appointmentDateTime' => '2024-02-01T16:45:34.465Z',
+          'facilityName' => 'Cheyenne VA Medical Center',
+          'createdOn' => '2024-01-22T21:22:34.465Z',
+          'modifiedOn' => '2024-02-01T00:00:00.0Z'
+        }
+      ]
+    end
+    let(:claims_by_date_response1) do
       Faraday::Response.new(
-        body: claims_by_date_data
+        body: {
+          **claims_by_date_meta,
+          'data' => [claims_by_date_data[0]]
+        }
+      )
+    end
+    let(:claims_by_date_response2) do
+      Faraday::Response.new(
+        body: {
+          **claims_by_date_meta,
+          'data' => [claims_by_date_data[1]]
+        }
+      )
+    end
+    let(:claims_by_date_response3) do
+      Faraday::Response.new(
+        body: {
+          **claims_by_date_meta,
+          'data' => [claims_by_date_data[2]]
+        }
       )
     end
 
@@ -335,6 +356,7 @@ describe TravelPay::ClaimsService do
           'statusCode' => 200,
           'message' => 'Data retrieved successfully.',
           'success' => true,
+          'totalRecordCount' => 1,
           'data' => [
             {
               'id' => 'uuid1',
@@ -356,15 +378,20 @@ describe TravelPay::ClaimsService do
           'statusCode' => 200,
           'message' => 'No claims found.',
           'success' => true,
+          'totalRecordCount' => 0,
           'data' => []
         }
       )
     end
 
-    let(:claims_error_response) do
+    let(:claims_all_response) do
       Faraday::Response.new(
         body: {
-          error: 'Generic error.'
+          'statusCode' => 200,
+          'message' => 'No claims found.',
+          'success' => true,
+          'totalRecordCount' => 3,
+          'data' => claims_by_date_data
         }
       )
     end
@@ -374,35 +401,87 @@ describe TravelPay::ClaimsService do
     before do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
       @service = TravelPay::ClaimsService.new(auth_manager, user)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
     end
 
-    it 'returns claims that are in the specified date range' do
+    it 'paginates and returns claims that are in the specified date range' do
+      expected_ids = %w[uuid1 uuid2 uuid3]
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z'
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 1
               })
-        .and_return(claims_by_date_response)
+        .and_return(claims_by_date_response1)
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 2
+              })
+        .and_return(claims_by_date_response2)
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 3
+              })
+        .and_return(claims_by_date_response3)
 
       claims_by_date = @service.get_claims_by_date_range({
                                                            'start_date' => '2024-01-01T16:45:34Z',
-                                                           'end_date' => '2024-03-01T16:45:34Z'
+                                                           'end_date' => '2024-03-01T16:45:34Z',
+                                                           'page_size' => 1
                                                          })
 
-      expect(claims_by_date[:data].count).to equal(3)
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 3 claims in/i
+      )
+      expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
+      expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
+      expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to be(true)
-      expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
+      expect(claims_by_date[:metadata]['pageNumber']).to equal(3)
+    end
+
+    it 'uses all defaults if no params are passed in' do
+      Timecop.freeze(DateTime.new(2024, 4, 1).utc)
+      expected_ids = %w[uuid1 uuid2 uuid3]
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(claims_all_response)
+
+      expect_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T00:00:00Z',
+                end_date: '2024-04-01T00:00:00Z',
+                page_size: 50,
+                page_number: 1
+              }).once # since the default page size is > claims, it should not loop and only call the client once
+
+      claims_by_date = @service.get_claims_by_date_range({})
+
+      expect(claims_by_date[:data].pluck('id')).to match_array(expected_ids)
+      expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
+      expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
+      expect(claims_by_date[:metadata]['status']).to equal(200)
+      expect(claims_by_date[:metadata]['pageNumber']).to equal(1)
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 3 claims in/i
+      )
     end
 
     it 'returns a single claim if dates are the same' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-01-01T16:45:34Z'
-              })
         .and_return(single_claim_by_date_response)
 
       claims_by_date = @service.get_claims_by_date_range({
@@ -410,10 +489,10 @@ describe TravelPay::ClaimsService do
                                                            'end_date' => '2024-01-01T16:45:34Z'
                                                          })
 
-      expect(claims_by_date[:data].count).to equal(1)
-      expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to be(true)
-      expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
+      expect(claims_by_date[:data].count).to equal(claims_by_date[:metadata]['totalRecordCount'])
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 1 claims in/i
+      )
     end
 
     it 'throws an Argument exception if both start and end dates are not provided' do
@@ -427,16 +506,12 @@ describe TravelPay::ClaimsService do
           { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' }
         )
       end
-        .to raise_error(ArgumentError, /Invalid date/i)
+        .to raise_error(ArgumentError, /no time information/i)
     end
 
     it 'returns success but empty array if no claims found' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z'
-              })
         .and_return(claims_no_data_response)
 
       claims_by_date = @service.get_claims_by_date_range({
@@ -445,25 +520,90 @@ describe TravelPay::ClaimsService do
                                                          })
 
       expect(claims_by_date[:data].count).to equal(0)
-      expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to be(true)
-      expect(claims_by_date[:metadata]['message']).to eq('No claims found.')
+      expect(claims_by_date[:metadata]['totalRecordCount']).to equal(0)
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 0 claims in/i
+      )
     end
 
-    it 'returns nil if error' do
+    it 'raises an exception if error and no claims returned' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
-                'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z'
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 1
               })
-        .and_return(claims_error_response)
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'Unauthorized.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
+
+      expect do
+        @service.get_claims_by_date_range({
+                                            'start_date' => '2024-01-01T16:45:34Z',
+                                            'end_date' => '2024-03-01T16:45:34Z',
+                                            'page_size' => 1
+                                          })
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+      expect(Rails.logger).to have_received(:error).with(
+        message: /Could not retrieve claim/i
+      )
+    end
+
+    it 'returns partial success if some claims returned' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 1
+              })
+        .and_return(claims_by_date_response1)
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-03-01T16:45:34Z',
+                page_size: 1,
+                page_number: 2
+              })
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'Unauthorized.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
 
       claims_by_date = @service.get_claims_by_date_range({
                                                            'start_date' => '2024-01-01T16:45:34Z',
-                                                           'end_date' => '2024-03-01T16:45:34Z'
+                                                           'end_date' => '2024-03-01T16:45:34Z',
+                                                           'page_size' => 1
                                                          })
-      expect(claims_by_date).to be_nil
+      expect(Rails.logger).to have_received(:error).with(
+        message: /Retrieved 1 of 3 claims/i
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        message: /Looped through 1 claims in/i
+      )
+      expect(claims_by_date[:data].count).to equal(1)
+      expect(claims_by_date[:metadata]['totalRecordCount']).to equal(3)
+      expect(claims_by_date[:metadata]['pageNumber']).to equal(1)
+      expect(claims_by_date[:metadata]['status']).to equal(206)
     end
   end
 

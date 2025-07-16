@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/services/benefits-documents/v1/documents/validate/claimant"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"docType":"L023","participantId":"796378881","claimId":"600423040"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 14 Jul 2025 18:54:19 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '41'
+      Ratelimit-Limit:
+      - '60'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1753271716", dtSInfo;desc="0"
+      X-Envoy-Upstream-Service-Time:
+      - '323'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"valid":true,"success":{"validationToken":"1.0.0-YNIH+yeWloVcxMJyPF3/eKnRm213Cts/UQRw305qMm88QJFsOlkIBSByeyZtbFLDiqt+aa7bN+/kGSLjdjWzwn9zEn3/itIX84CTuWKD4LPP9MrsNM6lGPV52K/VfTvfI8JJi4C2zfpNRLbbdnX0rxXPKxoLmno=-0f60661e2f6b02d9aed978c25a65d7b3c6ae6e4ad45dc4ef8d4168ac301b94ab","validUntil":1752522859761}}}'
+  recorded_at: Mon, 14 Jul 2025 18:54:19 GMT
+recorded_with: VCR 6.3.1

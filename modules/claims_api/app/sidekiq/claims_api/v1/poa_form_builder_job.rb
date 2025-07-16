@@ -66,6 +66,7 @@ module ClaimsApi
         if poa_code_in_organization?(poa_code)
           ClaimsApi::V1::PoaPdfConstructor::Organization.new
         else
+          @rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).order(created_at: :desc).first
           ClaimsApi::V1::PoaPdfConstructor::Individual.new
         end
       end
@@ -77,6 +78,11 @@ module ClaimsApi
       #
       # @return [Hash] All data to be inserted into pdf
       def data(power_of_attorney)
+        if @rep.present?
+          power_of_attorney.form_data =
+            power_of_attorney.form_data.deep_merge({ 'representative' => { 'type' => @rep.user_types[0] } })
+        end
+
         power_of_attorney.form_data.deep_merge({
                                                  'veteran' => {
                                                    'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],

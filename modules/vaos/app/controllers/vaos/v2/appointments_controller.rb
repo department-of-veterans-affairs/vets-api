@@ -25,6 +25,7 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
+      CC_APPOINTMENT_ERROR_TAG = 'Community Care Appointments'
 
       def index
         appointments[:data].each do |appt|
@@ -76,18 +77,18 @@ module VAOS
         begin
           response_data = process_draft_appointment(referral_id, referral_consult_id)
           if response_data[:success]
-            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
+            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
             ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
             render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
           else
-            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
+            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
             render json: response_data[:json], status: response_data[:status]
           end
         rescue Redis::BaseError => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
           handle_redis_error(e)
         rescue => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
           handle_appointment_creation_error(e)
         end
       end
@@ -126,16 +127,16 @@ module VAOS
 
         if appointment[:error]
           StatsD.increment(APPT_CREATION_FAILURE_METRIC,
-                           tags: ['Community Care Appointments', "error_type:#{appointment[:error]}"])
+                           tags: [CC_APPOINTMENT_ERROR_TAG, "error_type:#{appointment[:error]}"])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         log_referral_booking_duration(submit_params[:referral_number])
 
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ['Community Care Appointments'])
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ['Community Care Appointments'])
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
         handle_appointment_creation_error(e)
       end
 
@@ -513,18 +514,19 @@ module VAOS
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral, provider)
+      def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
         eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
-            startOnOrAfter: Date.parse(referral.referral_date).to_time(:utc).iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
+            startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
+            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
+            appointmentId: draft_appointment_id
           }
         )
       rescue ArgumentError
-        Rails.logger.error('Community Care Appointments: Error fetching provider slots')
+        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Error fetching provider slots")
         nil
       end
 
@@ -560,6 +562,23 @@ module VAOS
         end
 
         self_schedulable_types.first[:id]
+      end
+
+      ##
+      # Builds a standardized error response for draft appointment creation failures.
+      #
+      # This method returns a formatted error response hash using the
+      # {#appt_creation_failed_error} helper, with a specific title and detail
+      # message indicating that an unexpected error occurred while creating the
+      # draft appointment.
+      #
+      # @return [Hash] Formatted error response for draft appointment creation failure
+      #
+      def draft_appointment_creation_failed_error
+        appt_creation_failed_error(
+          title: 'Appointment creation failed',
+          detail: 'An unexpected error occurred while creating the draft appointment'
+        )
       end
 
       ##
@@ -644,7 +663,7 @@ module VAOS
       # @return [void]
       # @see Redis::BaseError
       def handle_redis_error(error)
-        Rails.logger.error("Community Care Appointments: #{error.class}}")
+        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: #{error.class}}")
         render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
@@ -694,6 +713,27 @@ module VAOS
             },
             status: :unprocessable_entity
           }
+        end
+      end
+
+      ##
+      # Validates that a provider is present and has a valid ID
+      #
+      # @param provider [Object, nil] The provider object to validate
+      # @param referral [ReferralDetail] The referral object containing provider details for logging
+      # @return [Hash] Result hash:
+      #   - If provider is valid: { success: true }
+      #   - If provider is invalid: { success: false, json: error_response, status: :not_found }
+      def check_provider_validity(provider, referral)
+        if provider&.id.blank?
+          Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Provider not found while creating draft appointment.",
+                             { provider_address: referral.treating_facility_address,
+                               provider_npi: referral.provider_npi,
+                               provider_specialty: referral.provider_specialty,
+                               tag: CC_APPOINTMENT_ERROR_TAG })
+          { success: false, json: provider_not_found_error, status: :not_found }
+        else
+          { success: true }
         end
       end
 
@@ -749,7 +789,7 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
-        Rails.logger.error("Community Care Appointments: Appointment creation error: #{e.class}")
+        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Appointment creation error: #{e.class}")
         original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
         render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
@@ -816,7 +856,6 @@ module VAOS
       #
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
-
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
 
@@ -826,12 +865,17 @@ module VAOS
         provider = find_provider(npi: referral.provider_npi,
                                  specialty: referral.provider_specialty,
                                  address: referral.treating_facility_address)
-        return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
+        provider_validation = check_provider_validity(provider, referral)
+        return provider_validation unless provider_validation[:success]
 
-        slots = fetch_provider_slots(referral, provider)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        drive_time = fetch_drive_times(provider)
+        unless draft.id
+          return { success: false, json: draft_appointment_creation_failed_error, status: unprocessable_entity }
+        end
 
+        # Bypass drive time calculation if EPS mocks are enabled since we don't have betamocks for vets360
+        drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
+        slots = fetch_provider_slots(referral, provider, draft.id)
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
       end
 
@@ -850,7 +894,7 @@ module VAOS
         return unless start_time
 
         duration_ms = ((Time.current.to_f - start_time) * 1000).round
-        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms, tags: ['Community Care Appointments'])
+        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms, tags: [CC_APPOINTMENT_ERROR_TAG])
       end
     end
   end
