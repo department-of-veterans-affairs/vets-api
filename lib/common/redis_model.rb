@@ -67,9 +67,13 @@ module Common
       return false unless valid?
       return false if redis_key_value.blank?
 
-      namespace.set(redis_key_value, JSON.dump(serializable_hash))
-      namespace.expire(redis_key_value, ttl) if ttl
-      @persisted = true
+      begin
+        namespace.set(redis_key_value, to_json, ex: self.class.ttl)
+        @persisted = true
+      rescue => e
+        errors.add(:base, e.message)
+        false
+      end
     end
 
     def save!
