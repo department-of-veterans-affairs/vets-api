@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents_verification/monitor'
+require 'dependents_verification/benefits_intake/submit_claim_job'
 
 module DependentsVerification
   module V0
@@ -47,7 +48,7 @@ module DependentsVerification
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_lighthouse(in_progress_form, claim)
+        process_and_upload_to_lighthouse(claim)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
@@ -77,7 +78,7 @@ module DependentsVerification
       # @param in_progress_form [Object]
       # @param claim
       # @raise [Exception]
-      def process_and_upload_to_lighthouse(in_progress_form, claim)
+      def process_and_upload_to_lighthouse(claim)
         DependentsVerification::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
       end
 

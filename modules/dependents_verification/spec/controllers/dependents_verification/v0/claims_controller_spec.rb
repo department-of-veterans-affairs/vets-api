@@ -83,7 +83,7 @@ RSpec.describe DependentsVerification::V0::ClaimsController, type: :request do
 
     it 'returns a success' do
       expect(DependentsVerification::BenefitsIntake::SubmitClaimJob).to receive(:perform_async).with(claim.id)
-      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      subject.send(:process_and_upload_to_lighthouse, claim)
     end
   end
 
