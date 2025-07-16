@@ -36,37 +36,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       end
       let(:expected_veteran_response) do
         {
-<<<<<<< HEAD
-          name: 'Ralph Lee',
-          ssn: '796378782',
-          file_number: '796378782',
-          date_of_birth: '1948-10-30',
-          service_number: '123678453',
-          insurance_numbers: '1234567890',
-          phone_number: '5555551234',
-          claimant_relationship: 'Spouse',
-          poa_code: '083',
-          organization_name: 'DISABLED AMERICAN VETERANS',
-          representativeLawFirmOrAgencyName: nil,
-          representative_first_name: 'John',
-          representative_last_name: 'Doe',
-          representative_title: nil,
-          section_7332_auth: 'true',
-          limitation_alcohol: 'true',
-          limitation_drug_abuse: 'true',
-          limitation_hiv: 'true',
-          limitation_sca: 'true',
-          change_address_auth: 'true',
-          addrs_one_txt: '2719 Hyperion Ave',
-          addrs_two_txt: 'Apt 2',
-          city_nm: 'Los Angeles',
-          cntry_nm: 'USA',
-          prvnc_nm: nil,
-          registration_number: '12399998',
-          zip_prefix_nbr: '92264',
-          zip_first_suffix_nbr: '0200',
-          email_addrs_txt: nil
-=======
           'name' => 'Ralph Lee',
           'ssn' => '796378782',
           'file_number' => '796378782',
@@ -92,10 +61,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           'city_nm' => 'Los Angeles',
           'cntry_nm' => 'USA',
           'prvnc_nm' => nil,
+          'registration_number' => '12399998',
           'zip_prefix_nbr' => '92264',
           'zip_first_suffix_nbr' => '0200',
           'email_addrs_txt' => nil
->>>>>>> API-43735-gather-data-for-poa-accept-phone-3
         }
       end
 
@@ -139,52 +108,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
       let(:expected_dependent_response) do
         {
-<<<<<<< HEAD
-          name: 'Ralph Lee',
-          ssn: '796378782',
-          file_number: '796378782',
-          date_of_birth: '1948-10-30',
-          service_number: '123678453',
-          insurance_numbers: '1234567890',
-          phone_number: '5555551234',
-          claimant_relationship: 'Spouse',
-          poa_code: '083',
-          organization_name: 'DISABLED AMERICAN VETERANS',
-          representativeLawFirmOrAgencyName: nil,
-          representative_first_name: 'John',
-          representative_last_name: 'Doe',
-          representative_title: nil,
-          section_7332_auth: 'true',
-          limitation_alcohol: 'true',
-          limitation_drug_abuse: 'true',
-          limitation_hiv: 'true',
-          limitation_sca: 'true',
-          change_address_auth: 'true',
-          addrs_one_txt: '2719 Hyperion Ave',
-          addrs_two_txt: 'Apt 2',
-          city_nm: 'Los Angeles',
-          cntry_nm: 'USA',
-          prvnc_nm: nil,
-          registration_number: '12399998',
-          zip_prefix_nbr: '92264',
-          zip_first_suffix_nbr: '0200',
-          email_addrs_txt: nil,
-          claimant: {
-            claimant_id: '1013093331V548481',
-            name: 'Wally Morell',
-            ssn: '796378782',
-            file_number: '796378782',
-            date_of_birth: '1948-10-30',
-            addrs_one_txt: '123 Main St',
-            addrs_two_txt: 'Apt 3',
-            city_nm: 'Boston',
-            cntry_nm: 'USA',
-            prvnc_nm: nil,
-            zip_prefix_nbr: '02110',
-            zip_first_suffix_nbr: '1000',
-            email_addrs_txt: nil,
-            phone_nbr: '5555559876'
-=======
           'name' => 'Ralph Lee',
           'ssn' => '796378782',
           'file_number' => '796378782',
@@ -210,6 +133,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           'city_nm' => 'Los Angeles',
           'cntry_nm' => 'USA',
           'prvnc_nm' => nil,
+          'registration_number' => '12399998',
           'zip_prefix_nbr' => '92264',
           'zip_first_suffix_nbr' => '0200',
           'email_addrs_txt' => nil,
@@ -221,13 +145,13 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
             'addrs_one_txt' => '123 Main St',
             'addrs_two_txt' => 'Apt 3',
             'city_nm' => 'Boston',
+            'claimant_id' => '1013093331V548481',
             'cntry_nm' => 'USA',
             'prvnc_nm' => nil,
             'zip_prefix_nbr' => '02110',
             'zip_first_suffix_nbr' => '1000',
             'email_addrs_txt' => nil,
             'phone_nbr' => '5555559876'
->>>>>>> API-43735-gather-data-for-poa-accept-phone-3
           }
         }
       end
