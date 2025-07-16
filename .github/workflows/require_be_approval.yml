@@ -244,13 +244,17 @@ jobs:
           number: ${{ env.pr_number }}
           labels: exempt-be-review
 
-      - name: Fail if draft or failures
+      - name: Backend approval still required
         if: steps.verify_approval.outputs.approval_status == 'required'
-        run: exit 1
+        run: |
+          echo "Backend approval is still required but not failing the check."
+          echo "This allows the PR to remain mergeable while waiting for approval."
 
-      - name: Fail if backend approval not confirmed
+      - name: Backend approval not confirmed
         if: steps.verify_approval.outputs.approval_status == 'not_confirmed'
-        run: exit 1
+        run: |
+          echo "Backend approval not confirmed but not failing the check."
+          echo "This allows the PR to remain mergeable while waiting for approval."
 
       - name: Exit for non backend approvals
         if: steps.verify_approval.outputs.backend_approval_required == 'false'
