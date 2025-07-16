@@ -64,7 +64,6 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 When performing a code review, ensure the code follows best practices. Additionally, pay close attention to these specific guidelines:
 
 ## Ruby shorthand syntax
-
 - Always enforce Ruby shorthand syntax.
 - If a local variable is defined, using shorthand syntax like `{ exclude: }` is valid and correct.
 - Do **not** suggest that the key is missing a value.
@@ -72,25 +71,20 @@ When performing a code review, ensure the code follows best practices. Additiona
 - Do **not** flag this syntax as an error, incomplete, or unclear.
 
 ## Flipper usage in tests
-
 - Avoid enabling or disabling Flipper features in tests.
 - **Never** use `Flipper.enable` or `Flipper.disable` in tests.
 - Always stub Flipper like this:
-
   ```ruby
   allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)
   ```
   - Use this exact pattern inline in the example.
 
 ## Active Record index migrations
-
 ### Isolate index changes
-
 - If a migration includes `add_index` or `remove_index`, it must only include index changes.
 - Do **not** combine index changes with other table modifications in the same migration.
 
 ### Avoid locking
-
 - A migration that includes `add_index` or `remove_index` must also:
   - Use `algorithm: :concurrently`
   - Include `disable_ddl_transaction!`
