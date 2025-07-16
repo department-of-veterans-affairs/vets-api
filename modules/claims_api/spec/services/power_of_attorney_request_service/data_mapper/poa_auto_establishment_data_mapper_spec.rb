@@ -19,6 +19,17 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
 
       organization_subject.map_data
     end
+<<<<<<< HEAD
+=======
+
+    it 'when type is 2122a' do
+      expect_any_instance_of(
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper
+      ).to receive(:map_data)
+
+      individual_subject.map_data
+    end
+>>>>>>> 1255e92ce7 (WIP)
   end
 
   context 'maps and validates the form data' do
@@ -28,7 +39,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
       ).to receive(:map_data).and_return(valid_form)
 
       expect_any_instance_of(clazz).to receive(:validate_form_2122_and_2122a_submission_values)
+<<<<<<< HEAD
       expect_any_instance_of(clazz).to receive(:validate_json_schema)
+=======
+>>>>>>> 1255e92ce7 (WIP)
 
       organization_subject.map_data
     end

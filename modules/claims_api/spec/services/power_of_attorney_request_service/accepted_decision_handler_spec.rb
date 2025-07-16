@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 <<<<<<< HEAD
+<<<<<<< HEAD
   subject { described_class.new(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant:) }
 
   let(:clazz) { described_class }
@@ -13,6 +14,12 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
   let(:clazz) { described_class }
 >>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
+=======
+  subject { described_class.new(proc_id:, poa_code:, representative_id:, metadata:, veteran:, claimant:) }
+
+  let(:clazz) { described_class }
+  let(:representative_id) { '12399998' }
+>>>>>>> 1255e92ce7 (WIP)
   let(:veteran) do
     OpenStruct.new(
       icn: '1012861229V078999',
@@ -117,6 +124,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           city_nm: 'Los Angeles',
           cntry_nm: 'USA',
           prvnc_nm: nil,
+          registration_number: '12399998',
           zip_prefix_nbr: '92264',
           zip_first_suffix_nbr: '0200',
           email_addrs_txt: nil
@@ -187,10 +195,12 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           city_nm: 'Los Angeles',
           cntry_nm: 'USA',
           prvnc_nm: nil,
+          registration_number: '12399998',
           zip_prefix_nbr: '92264',
           zip_first_suffix_nbr: '0200',
           email_addrs_txt: nil,
           claimant: {
+            claimant_id: '1013093331V548481',
             name: 'Wally Morell',
             ssn: '796378782',
             file_number: '796378782',

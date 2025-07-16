@@ -15,6 +15,7 @@ module ClaimsApi
       FORM_TYPE_CODE = '21-22'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       # rubocop:disable Metrics/ParameterLists
       def initialize(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant: nil)
 =======
@@ -23,6 +24,13 @@ module ClaimsApi
         @proc_id = proc_id
         @poa_code = poa_code
         @registration_number = registration_number
+=======
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(proc_id:, poa_code:, representative_id:, metadata:, veteran:, claimant: nil)
+        @proc_id = proc_id
+        @poa_code = poa_code
+        @representative_id = representative_id
+>>>>>>> 1255e92ce7 (WIP)
         @metadata = metadata
         @veteran = veteran
         @claimant = claimant
@@ -118,6 +126,8 @@ module ClaimsApi
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
+        data.merge!(registration_number: @representative_id)
+
         if @claimant.present?
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')
@@ -125,6 +135,8 @@ module ClaimsApi
 
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
+
+          claimant_data.merge!(claimant_id: @claimant.icn)
 
           data.merge!(claimant: claimant_data)
         end
@@ -191,6 +203,7 @@ module ClaimsApi
 
       def poa_code_in_organization?
         ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
+<<<<<<< HEAD
 =======
       def read_all_vateran_representative_records
         ClaimsApi::VeteranRepresentativeService
@@ -237,6 +250,8 @@ module ClaimsApi
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
+=======
+>>>>>>> 1255e92ce7 (WIP)
       end
     end
   end

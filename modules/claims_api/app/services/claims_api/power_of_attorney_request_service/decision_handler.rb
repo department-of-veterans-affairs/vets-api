@@ -42,7 +42,11 @@ module ClaimsApi
           handler_class.new(
             proc_id: @proc_id,
             poa_code: @poa_code,
+<<<<<<< HEAD
             registration_number: @registration_number,
+=======
+            representative_id: @representative_id,
+>>>>>>> 1255e92ce7 (WIP)
             metadata: @metadata,
             veteran: @veteran,
             claimant: @claimant

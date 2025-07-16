@@ -5,10 +5,17 @@ module ClaimsApi
     module DataMapper
       class OrganizationDataMapper
         CONSENT_LIMITS = {
+<<<<<<< HEAD
           'limitation_drug_abuse' => 'DRUG_ABUSE',
           'limitation_alcohol' => 'ALCOHOLISM',
           'limitation_hiv' => 'HIV',
           'limitation_sca' => 'SICKLE_CELL'
+=======
+          limitation_drug_abuse: 'DRUG_ABUSE',
+          limitation_alcohol: 'ALCOHOLISM',
+          limitation_hiv: 'HIV',
+          limitation_sca: 'SICKLE_CELL'
+>>>>>>> 1255e92ce7 (WIP)
         }.freeze
 
         def initialize(data:)
@@ -25,7 +32,11 @@ module ClaimsApi
           return [] if @data.blank?
 
           form_data = build_form_data
+<<<<<<< HEAD
           claimant_form_data = build_claimant_form_data if @data['claimant'].present?
+=======
+          claimant_form_data = build_claimant_form_data if @data[:claimant].present?
+>>>>>>> 1255e92ce7 (WIP)
           form_data.merge!(claimant_form_data) if claimant_form_data.present?
 
           { 'data' => { 'attributes' => form_data } }
@@ -35,6 +46,7 @@ module ClaimsApi
           {
             'veteran' => {
               'address' => {
+<<<<<<< HEAD
                 'addressLine1' => @data['addrs_one_txt'],
                 'addressLine2' => @data['addrs_two_txt'],
                 'city' => @data['city_nm'],
@@ -61,11 +73,41 @@ module ClaimsApi
             'consentLimits' => determine_consent_limits,
             'consentAddressChange' => determine_bool_for_form_field(@data['change_address_auth'])
           }.compact
+=======
+                'addressLine1' => @data[:addrs_one_txt],
+                'addressLine2' => @data[:addrs_two_txt],
+                'city' => @data[:city_nm],
+                'stateCode' => @data[:prvnc_nm],
+                'countryCode' => @data[:cntry_nm],
+                'zipCode' => @data[:zip_prefix_nbr],
+                'zipCodeSuffix' => @data[:zip_first_suffix_nbr]
+              },
+              'phone' => {
+                'countryCode' => parse_phone_number(@data[:phone_number])[0],
+                'areaCode' => parse_phone_number(@data[:phone_number])[1],
+                'phoneNumber' => parse_phone_number(@data[:phone_number])[2]
+              },
+              'email' => @data[:email_addrs_txt],
+              'serviceNumber' => @data[:service_number],
+              'insuranceNumber' => @data[:insurance_numbers]
+            },
+            'serviceOrganization' => {
+              'poaCode' => @data[:poa_code],
+              'registrationNumber' => @data[:registraton_number],
+              'jobTitle' => @data[:representative_title]
+              # "email" => @data[:]
+            },
+            'recordConsent' => @data[:section_7332_auth],
+            'consentLimits' => determine_consent_limits,
+            'consentAddressChange' => @data[:changeAddressAuth]
+          }
+>>>>>>> 1255e92ce7 (WIP)
         end
 
         def build_claimant_form_data # rubocop:disable Metrics/MethodLength
           {
             'claimant' => {
+<<<<<<< HEAD
               'claimantId' => @data['claimant']['claimant_id'],
               'address' => {
                 'addressLine1' => @data['claimant']['addrs_one_txt'],
@@ -85,6 +127,27 @@ module ClaimsApi
               'relationship' => @data['claimant_relationship']
             }
           }.compact
+=======
+              'claimantId' => @data[:claimant][:claimant_id],
+              'address' => {
+                'addressLine1' => @data[:claimant][:addrs_one_txt],
+                'addressLine2' => @data[:claimant][:addrs_two_txt],
+                'city' => @data[:claimant][:city_nm],
+                'stateCode' => @data[:claimant][:prvnc_nm],
+                'countryCode' => @data[:claimant][:cntry_nm],
+                'zipCode' => @data[:claimant][:zip_prefix_nbr],
+                'zipCodeSuffix' => @data[:claimant][:zip_first_suffix_nbr]
+              },
+              'phone' => {
+                'countryCode' => parse_phone_number(@data[:claimant][:phone_nbr])[0],
+                'areaCode' => parse_phone_number(@data[:claimant][:phone_nbr])[1],
+                'phoneNumber' => parse_phone_number(@data[:claimant][:phone_nbr])[2]
+              },
+              'email' => @data[:claimant][:email_addrs_txt],
+              'relationship' => @data[:claimant_relationship]
+            }
+          }
+>>>>>>> 1255e92ce7 (WIP)
         end
 
         def parse_phone_number(number)
@@ -103,10 +166,13 @@ module ClaimsApi
           [country_code, area_code, phone_number]
         end
 
+<<<<<<< HEAD
         def determine_bool_for_form_field(val)
           val == 'true'
         end
 
+=======
+>>>>>>> 1255e92ce7 (WIP)
         def determine_consent_limits
           keys = CONSENT_LIMITS.keys
           limits = []
