@@ -92,6 +92,10 @@ module Common
       freeze
     end
 
+    def destroy!
+      destroy || raise("Unable to destroy #{self.class.name} with key: #{redis_key_value}")
+    end
+
     def persisted?
       !!@persisted
     end
