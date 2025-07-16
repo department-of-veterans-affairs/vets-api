@@ -10,9 +10,10 @@ module Lighthouse
 
       sidekiq_options retry: false
 
-      def perform(user_uuid)
+      def perform(user_uuid, service_history)
         start_time = Time.current
-        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(user_uuid)
+        ::BenefitsDiscovery::Params.new(user_uuid, service_history).prepared_params
+        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
         sorted_benefits = sort_benefits(eligible_benefits)
