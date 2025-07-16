@@ -20,7 +20,7 @@ module ClaimsApi
       def call
         data = gather_poa_data
 
-        poa_auto_establishment_mappper(data)
+        poa_auto_establishment_mapper(data)
       end
 
       private
@@ -102,6 +102,10 @@ module ClaimsApi
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
+      end
+
+      def poa_auto_establishment_mapper(data)
+        true
       end
     end
   end

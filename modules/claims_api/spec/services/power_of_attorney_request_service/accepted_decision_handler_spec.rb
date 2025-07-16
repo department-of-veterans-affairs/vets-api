@@ -12,7 +12,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       first_name: 'Ralph',
       last_name: 'Lee',
       middle_name: nil,
-      file_number: '796378782',
+      birls_id: '796378782',
       birth_date: '1948-10-30',
       loa: { current: 3, highest: 3 },
       edipi: nil,
@@ -67,10 +67,11 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       end
 
       it 'returns expected data' do
-        VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_veteran') do
-          res = subject.call
+        expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler)
+          .to receive(:poa_auto_establishment_mapper).with(expected_veteran_response)
 
-          expect(res).to match(expected_veteran_response)
+        VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_veteran') do
+          subject.call
         end
       end
     end
@@ -83,7 +84,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           icn: '1013093331V548481',
           first_name: 'Wally',
           last_name: 'Morell',
-          file_number: '796378782',
           middle_name: nil,
           birth_date: '1948-10-30',
           loa: { current: 3, highest: 3 },
@@ -92,7 +92,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           participant_id: '600264235',
           mpi: OpenStruct.new(
             icn: '1013093331V548481',
-            profile: OpenStruct.new(ssn: '796378782')
+            profile: OpenStruct.new(ssn: '796378782'),
+            birls_id: '796378782'
           )
         )
       end
@@ -152,10 +153,11 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       end
 
       it 'returns expected data' do
-        VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_dependent') do
-          res = subject.call
+        expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler)
+          .to receive(:poa_auto_establishment_mapper).with(expected_dependent_response)
 
-          expect(res).to match(expected_dependent_response)
+        VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_dependent') do
+          subject.call
         end
       end
     end
