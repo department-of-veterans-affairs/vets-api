@@ -53,7 +53,7 @@ module IvcChampva
     end
 
     def self.get_blank_page
-      tmp_path = File.join('tmp', "#{SecureRandom.hex(8)}_blank.pdf")
+      tmp_path = Rails.root.join('tmp', "#{SecureRandom.hex(8)}_blank.pdf").to_path
       blank_page_path = Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path
       FileUtils.cp(blank_page_path, tmp_path)
       tmp_path
