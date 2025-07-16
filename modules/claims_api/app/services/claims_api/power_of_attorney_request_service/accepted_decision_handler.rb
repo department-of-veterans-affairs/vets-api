@@ -30,12 +30,18 @@ module ClaimsApi
       # rubocop:enable Metrics/ParameterLists
 
       def call
+<<<<<<< HEAD
         ClaimsApi::Logger.log(
           LOG_TAG, message: "Starting data gathering for accepted POA with proc #{@proc_id}."
         )
 
         data = gather_poa_data
         poa_auto_establishment_mapper(data)
+=======
+        data = gather_poa_data
+
+        poa_auto_establishment_mappper(data)
+>>>>>>> f17b72c882 (WIP)
       end
 
       private
