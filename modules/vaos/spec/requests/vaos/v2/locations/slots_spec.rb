@@ -134,6 +134,10 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
             end
           end
         end
+
+        context 'using provider-only route' do
+          # it 'returns list of available slots for a provider_id' do
+        end
       end
 
       context 'on a backend service error' do
