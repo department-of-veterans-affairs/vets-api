@@ -12,9 +12,9 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       STATSD_KEY_PREFIX = 'api.my_health.immunizations'
-      FEATURE_TOGGLE = 'mhv_accelerated_delivery_vaccines_enabled'
 
       before_action :check_feature_toggle
+      # skip_before_action :authenticate
 
       def index
         start_date = params[:start_date]
@@ -29,6 +29,31 @@ module MyHealth
           StatsD.gauge("#{STATSD_KEY_PREFIX}.count", immunizations.length)
 
           render json: { data: immunizations }
+        rescue Common::Client::Errors::ClientError,
+               Common::Exceptions::BackendServiceException,
+               StandardError => e
+          handle_error(e)
+        end
+      end
+
+      def show
+        id = params[:id]
+        start_date = params[:start_date]
+        end_date = params[:end_date]
+
+        begin
+          response = client.get_immunizations(start_date:, end_date:)
+          immunization = response.body['entry'].find { |entry| entry['resource']['id'] == id }
+
+          unless immunization
+            raise Common::Client::Errors::ClientError.new('Immunization not found',
+                                                          status: 404)
+          end
+          return_value = Lighthouse::VeteransHealth::Serializers::ImmunizationSerializer
+                         .from_fhir(immunization['resource'])
+          Rails.logger.debug { "Immunization found: #{return_value.inspect}" }
+
+          render json: { data: return_value }
         rescue Common::Client::Errors::ClientError,
                Common::Exceptions::BackendServiceException,
                StandardError => e
@@ -80,7 +105,7 @@ module MyHealth
       end
 
       def check_feature_toggle
-        unless Flipper.enabled?(FEATURE_TOGGLE)
+        unless Flipper.enabled?(:mhv_accelerated_delivery_vaccines_enabled)
           error = {
             title: 'Feature Disabled',
             detail: 'The immunizations feature is currently disabled',

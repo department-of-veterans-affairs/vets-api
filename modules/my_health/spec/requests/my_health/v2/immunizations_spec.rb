@@ -15,7 +15,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
     sign_in_as(current_user)
     # Enable the feature toggle by default for most tests
     allow(Flipper).to receive(:enabled?).with(
-      'mhv_accelerated_delivery_vaccines_enabled'
+      :mhv_accelerated_delivery_vaccines_enabled
     ).and_return(true)
   end
 
@@ -29,6 +29,18 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       it 'returns a successful response' do
         expect(response).to be_successful
+      end
+
+      context 'when date parameters are not provided' do
+        before do
+          VCR.use_cassette(immunizations_cassette) do
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
+          end
+        end
+
+        it 'returns a successful response' do
+          expect(response).to be_successful
+        end
       end
 
       it 'tracks metrics in StatsD with exact immunization count' do
@@ -149,7 +161,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
       before do
         # Override the default and disable the feature toggle
         allow(Flipper).to receive(:enabled?).with(
-          'mhv_accelerated_delivery_vaccines_enabled'
+          :mhv_accelerated_delivery_vaccines_enabled
         ).and_return(false)
 
         get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
@@ -166,6 +178,24 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           'title' => 'Feature Disabled',
           'detail' => 'The immunizations feature is currently disabled'
         )
+      end
+    end
+  end
+
+  describe 'GET /my_health/v2/medical_records/immunizations/:id' do
+    let(:immunization_id) { 'I2-123456' }
+    let(:show_path) { "#{path}/#{immunization_id}" }
+    let(:show_params) { default_params }
+
+    context 'happy path' do
+      before do
+        VCR.use_cassette(immunizations_cassette) do
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
       end
     end
   end
