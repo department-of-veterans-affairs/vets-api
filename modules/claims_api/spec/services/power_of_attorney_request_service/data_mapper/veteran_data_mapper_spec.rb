@@ -18,16 +18,22 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VeteranDataMapper
   let(:expected_response) do
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
       'name' => 'John Doe',
       'ssn' => '123456789',
       'file_number' => '123456789',
       'date_of_birth' => Date.new(1970, 1, 1)
+<<<<<<< HEAD
 =======
       name: 'John Doe',
       ssn: '123456789',
       file_number: '123456789',
       date_of_birth: Date.new(1970, 1, 1)
 >>>>>>> 0f0617637b (Tests veteran and claimant objects matching real records)
+=======
+>>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
     }
   end
 

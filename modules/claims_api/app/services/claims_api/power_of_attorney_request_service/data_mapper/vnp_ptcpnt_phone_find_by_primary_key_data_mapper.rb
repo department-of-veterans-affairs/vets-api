@@ -25,6 +25,7 @@ module ClaimsApi
           {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             'phone_nbr' => @record[:phone_nbr]
 =======
             phone_number: @record[:phone_number]
@@ -32,6 +33,9 @@ module ClaimsApi
 =======
             phone_nbr: @record[:phone_nbr]
 >>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)
+=======
+            'phone_nbr' => @record[:phone_nbr]
+>>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
           }
         end
       end

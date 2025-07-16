@@ -8,10 +8,14 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
   let(:record) do
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
       addrs_one_txt: '2719 Atlas Ave',
       addrs_two_txt: 'Apt 2',
       city_nm: 'Los Angeles',
       cntry_nm: 'USA',
+<<<<<<< HEAD
 <<<<<<< HEAD
       postal_cd: 'CA',
 =======
@@ -26,6 +30,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       'zip_first_suffix_nbr' => '0200',
       'zip_prefix_nbr' => '92264'
 >>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
+=======
+      zip_first_suffix_nbr: '0200',
+      zip_prefix_nbr: '92264'
+>>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
     }
   end
 

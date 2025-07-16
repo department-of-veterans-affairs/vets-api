@@ -187,6 +187,7 @@ module ClaimsApi
           record: res
         ).call
       end
+<<<<<<< HEAD
 
       def poa_auto_establishment_mapper(data)
         type = determine_type
@@ -294,6 +295,8 @@ module ClaimsApi
           record: res
         ).call
       end
+=======
+>>>>>>> 2d0b7b7aa2 (Merges in upstream, fixes conflicts and cleans up requests to match)
     end
   end
 end

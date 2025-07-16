@@ -29,7 +29,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFin
   end
 
   let(:expected_response_obj) do
-    { phone_nbr: '5555559876' }
+    { 'phone_nbr' => '5555559876' }
   end
 >>>>>>> 265ee2cf48 (API-43735-gather-data-for-poa-accept-phone-3)
 
