@@ -37,8 +37,9 @@ class ClaimsEvidenceApi::Submission < Submission
   end
 
   # directly assign a folder identifier; value is split and sent through #x_folder_uri_set
+  #
+  # @param folder_identifier [String] x_folder_uri header value
   def x_folder_uri=(folder_identifier)
-    folder_identifier = ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
     folder_type, identifier_type, id = folder_identifier.split(':', 3)
     x_folder_uri_set(folder_type, identifier_type, id)
   end
