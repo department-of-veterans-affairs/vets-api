@@ -20,7 +20,7 @@ module ClaimsApi
           {
             name: "#{@claimant.first_name} #{@claimant.last_name}",
             ssn: @claimant.ssn,
-            file_number: @claimant.file_number,
+            file_number: @claimant.birls_id || @claimant.mpi.birls_id,
             date_of_birth: @claimant.birth_date
           }
         end

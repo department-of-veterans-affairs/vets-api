@@ -12,7 +12,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       first_name: 'Ralph',
       last_name: 'Lee',
       middle_name: nil,
-      file_number: '796378782',
+      birls_id: '796378782',
       birth_date: '1948-10-30',
       loa: { current: 3, highest: 3 },
       edipi: nil,
@@ -83,7 +83,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           icn: '1013093331V548481',
           first_name: 'Wally',
           last_name: 'Morell',
-          file_number: '796378782',
           middle_name: nil,
           birth_date: '1948-10-30',
           loa: { current: 3, highest: 3 },
@@ -92,7 +91,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
           participant_id: '600264235',
           mpi: OpenStruct.new(
             icn: '1013093331V548481',
-            profile: OpenStruct.new(ssn: '796378782')
+            profile: OpenStruct.new(ssn: '796378782'),
+            birls_id: '796378782'
           )
         )
       end
