@@ -214,6 +214,7 @@ claims_evidence_api:
   breakers_error_threshold: 80
   jwt_secret: fake-secret
   mock: false
+  ssl: false
 clamav:
   host: 0.0.0.0
   mock: true
@@ -904,14 +905,14 @@ mhv:
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:
