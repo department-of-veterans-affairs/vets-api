@@ -9,13 +9,16 @@ module ClaimsApi
     class AcceptedDecisionHandler
       FORM_TYPE_CODE = '21-22'
 
-      def initialize(proc_id:, poa_code:, metadata:, veteran:, claimant: nil)
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(proc_id:, poa_code:, representative_id:, metadata:, veteran:, claimant: nil)
         @proc_id = proc_id
         @poa_code = poa_code
+        @representative_id = representative_id
         @metadata = metadata
         @veteran = veteran
         @claimant = claimant
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def call
         data = gather_poa_data
@@ -35,6 +38,8 @@ module ClaimsApi
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
+        data.merge!(registration_number: @representative_id)
+
         if @claimant.present?
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')
@@ -42,6 +47,8 @@ module ClaimsApi
 
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
+
+          claimant_data.merge!(claimant_id: @claimant.icn)
 
           data.merge!(claimant: claimant_data)
         end
@@ -105,7 +112,24 @@ module ClaimsApi
       end
 
       def poa_auto_establishment_mapper(data)
-        true
+        type = determine_type
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishmentDataMapper.new(
+          type:,
+          data:,
+          veteran: @veteran
+        ).map_data
+      end
+
+      def determine_type
+        if poa_code_in_organization?
+          '2122'
+        else
+          '2122a'
+        end
+      end
+
+      def poa_code_in_organization?
+        ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
       end
     end
   end
