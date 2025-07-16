@@ -29,12 +29,16 @@ module Common
         hash ? self.fallbacks = hash.transform_keys(&:to_sym) : fallbacks
       end
 
-      def find(key)
+      def find_by(key)
         raw = namespace.get(key)
         return nil if raw.blank?
 
         attrs = JSON.parse(raw)
         new(attrs)
+      end
+
+      def find(key)
+        find_by(key) || raise(ActiveRecord::RecordNotFound, "Couldn't find #{name} with #{primary_key}=#{key}")
       end
 
       def create(attrs)
