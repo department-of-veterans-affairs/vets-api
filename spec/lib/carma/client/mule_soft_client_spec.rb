@@ -14,17 +14,8 @@ describe CARMA::Client::MuleSoftClient do
     let(:config) { double('config') }
     let(:timeout) { 60 }
 
-    let(:bearer_token) { 'my-bearer-token' }
-    let(:headers) do
-      {
-        'Authorization' => "Bearer #{bearer_token}",
-        'Content-Type' => 'application/json'
-      }
-    end
-
     before do
       allow(client).to receive(:config).and_return(config)
-      allow(config).to receive_messages(headers:)
     end
 
     describe '#create_submission_v2' do
@@ -62,9 +53,8 @@ describe CARMA::Client::MuleSoftClient do
         let(:mock_response) { double('FaradayResponse', status:, body: response_body) }
 
         before do
-          allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
           allow(client).to receive(:perform)
-            .with(:post, resource, payload.to_json, headers)
+            .with(:post, resource, payload.to_json)
             .and_return(mock_response)
         end
 

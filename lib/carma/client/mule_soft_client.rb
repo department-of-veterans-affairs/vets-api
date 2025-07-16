@@ -37,8 +37,7 @@ module CARMA
           response = perform(
             :post,
             resource,
-            get_body(payload),
-            config.headers
+            get_body(payload)
           )
 
           handle_response(resource, response)
