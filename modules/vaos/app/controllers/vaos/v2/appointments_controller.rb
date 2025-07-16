@@ -27,7 +27,7 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      CC_APPOINTMENTS_TAG = 'Community Care Appointments'
+      CC_APPOINTMENTS = 'Community Care Appointments'
 
       def index
         appointments[:data].each do |appt|
@@ -527,7 +527,7 @@ module VAOS
           }
         )
       rescue ArgumentError
-        Rails.logger.error("#{CC_APPOINTMENTS_TAG}: Error fetching provider slots")
+        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots")
         nil
       end
 
@@ -647,7 +647,7 @@ module VAOS
       # @return [void]
       # @see Redis::BaseError
       def handle_redis_error(error)
-        Rails.logger.error("#{CC_APPOINTMENTS_TAG}: #{error.class}}")
+        Rails.logger.error("#{CC_APPOINTMENTS}: #{error.class}}")
         render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
@@ -752,7 +752,7 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
-        Rails.logger.error("#{CC_APPOINTMENTS_TAG}: Appointment creation error: #{e.class}")
+        Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class}")
         original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
         render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
@@ -883,11 +883,11 @@ module VAOS
       # @return [void]
       #
       def log_provider_not_found_error(referral)
-        Rails.logger.error("#{CC_APPOINTMENTS_TAG}: Provider not found while creating draft appointment.",
+        Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment.",
                            { provider_address: referral.treating_facility_address,
                              provider_npi: referral.provider_npi,
                              provider_specialty: referral.provider_specialty,
-                             tag: CC_APPOINTMENTS_TAG })
+                             tag: CC_APPOINTMENTS })
       end
 
       ##
