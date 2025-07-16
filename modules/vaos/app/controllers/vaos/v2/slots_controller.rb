@@ -34,23 +34,22 @@ module VAOS
       end
 
       def provider_slots
-        if params[:clinical_service]
-          response = systems_service.get_available_slots(location_id:,
-                                                         provider_id:,
-                                                         clinical_service: params[:clinical_service],
-                                                         start_dt:,
-                                                         end_dt:)
-          render json: VAOS::V2::SlotsSerializer.new(response)
-        else
+        if !params[:provider_id] && !params[:clinical_service]
           render status: :bad_request, json: {
             errors: [
               {
                 status: 400,
-                detail: 'clinical_service is required.'
+                detail: 'clinical_service and provider are required.'
               }
             ]
           }
-
+        else
+          response = systems_service.get_available_slots(location_id:,
+                                                         provider_id: params[:provider_id],
+                                                         clinical_service: params[:clinical_service],
+                                                         start_dt:,
+                                                         end_dt:)
+          render json: VAOS::V2::SlotsSerializer.new(response)
         end
       end
 
