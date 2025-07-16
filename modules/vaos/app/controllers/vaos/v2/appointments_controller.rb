@@ -514,14 +514,15 @@ module VAOS
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral, provider)
+      def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
         eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
             startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
+            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
+            appointmentId: draft_appointment_id
           }
         )
       rescue ArgumentError
@@ -561,6 +562,23 @@ module VAOS
         end
 
         self_schedulable_types.first[:id]
+      end
+
+      ##
+      # Builds a standardized error response for draft appointment creation failures.
+      #
+      # This method returns a formatted error response hash using the
+      # {#appt_creation_failed_error} helper, with a specific title and detail
+      # message indicating that an unexpected error occurred while creating the
+      # draft appointment.
+      #
+      # @return [Hash] Formatted error response for draft appointment creation failure
+      #
+      def draft_appointment_creation_failed_error
+        appt_creation_failed_error(
+          title: 'Appointment creation failed',
+          detail: 'An unexpected error occurred while creating the draft appointment'
+        )
       end
 
       ##
@@ -699,6 +717,27 @@ module VAOS
       end
 
       ##
+      # Validates that a provider is present and has a valid ID
+      #
+      # @param provider [Object, nil] The provider object to validate
+      # @param referral [ReferralDetail] The referral object containing provider details for logging
+      # @return [Hash] Result hash:
+      #   - If provider is valid: { success: true }
+      #   - If provider is invalid: { success: false, json: error_response, status: :not_found }
+      def check_provider_validity(provider, referral)
+        if provider&.id.blank?
+          Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Provider not found while creating draft appointment.",
+                             { provider_address: referral.treating_facility_address,
+                               provider_npi: referral.provider_npi,
+                               provider_specialty: referral.provider_specialty,
+                               tag: CC_APPOINTMENT_ERROR_TAG })
+          { success: false, json: provider_not_found_error, status: :not_found }
+        else
+          { success: true }
+        end
+      end
+
+      ##
       # Formats a standardized error response when a provider cannot be found
       #
       # @return [Hash] Error object with title and detail for JSON rendering
@@ -817,7 +856,6 @@ module VAOS
       #
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
-
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
 
@@ -827,20 +865,17 @@ module VAOS
         provider = find_provider(npi: referral.provider_npi,
                                  specialty: referral.provider_specialty,
                                  address: referral.treating_facility_address)
-        if provider&.id.blank?
-          Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Provider not found while creating draft appointment.",
-                             { provider_address: referral.treating_facility_address,
-                               provider_npi: referral.provider_npi,
-                               provider_specialty: referral.provider_specialty,
-                               tag: CC_APPOINTMENT_ERROR_TAG })
-          return { success: false, json: provider_not_found_error, status: :not_found }
+        provider_validation = check_provider_validity(provider, referral)
+        return provider_validation unless provider_validation[:success]
+
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        unless draft.id
+          return { success: false, json: draft_appointment_creation_failed_error, status: unprocessable_entity }
         end
 
-        slots = fetch_provider_slots(referral, provider)
-        draft = eps_appointment_service.create_draft_appointment(referral_id:)
         # Bypass drive time calculation if EPS mocks are enabled since we don't have betamocks for vets360
         drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
-
+        slots = fetch_provider_slots(referral, provider, draft.id)
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
       end
 

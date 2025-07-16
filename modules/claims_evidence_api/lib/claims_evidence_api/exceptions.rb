@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/exceptions/service'
+require 'claims_evidence_api/exceptions/x_folder_uri'
+
 module ClaimsEvidenceApi
   # collection of module exceptions
   module Exceptions
-    # required header is missing
-    class UndefinedXFolderURI < StandardError; end
-
-    # intended upload file not found
-    class FileNotFound < StandardError; end
+    include ClaimsEvidenceApi::Exceptions::Service
+    include ClaimsEvidenceApi::Exceptions::XFolderUri
 
     # ClaimsEvidence API possible error codes
     # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html
