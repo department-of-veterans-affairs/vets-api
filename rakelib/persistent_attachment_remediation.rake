@@ -181,10 +181,9 @@ namespace :persistent_attachment_remediation do
           puts "[DRY RUN] Would send remediation email to #{scrub_email(email)}"
         else
           service_config = Settings.vanotify.services[vanotify_service]
-          VANotify::EmailJob.new.perform(
+          VANotify::EmailJob.perform_async(
             email,
             service_config.email.persistent_attachment_error.template_id,
-          VANotify::EmailJob.perform_async(
             personalization,
             service_config.api_key
           )
