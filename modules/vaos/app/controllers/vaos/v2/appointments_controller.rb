@@ -516,14 +516,15 @@ module VAOS
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral, provider)
+      def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
         eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
             startOnOrAfter: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
-            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601
+            startBefore: Date.parse(referral.expiration_date).to_time(:utc).iso8601,
+            appointmentId: draft_appointment_id
           }
         )
       rescue ArgumentError
@@ -819,9 +820,7 @@ module VAOS
       #
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
-
         log_referral_metrics(referral)
-
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
 
@@ -834,8 +833,16 @@ module VAOS
         provider = provider_result[:provider]
         log_provider_metrics(provider)
 
-        draft_data = build_draft_appointment_data(referral, provider, referral_id)
-        { success: true, data: draft_data }
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        unless draft.id
+          return { success: false, json: draft_appointment_creation_failed_error, status: unprocessable_entity }
+        end
+
+        # Bypass drive time calculation if EPS mocks are enabled since we don't have betamocks for vets360
+        drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
+        slots = fetch_provider_slots(referral, provider, draft.id)
+
+        { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
       end
 
       ##
@@ -903,23 +910,6 @@ module VAOS
           StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC,
                            tags: ['service:community_care_appointments', "network_id:#{network_id}"])
         end
-      end
-
-      ##
-      # Builds the complete draft appointment data including slots and drive time
-      #
-      # @param referral [ReferralDetail] The referral object containing appointment details
-      # @param provider [Object] The provider object
-      # @param referral_id [String] The referral number
-      # @return [OpenStruct] The complete draft appointment response object
-      #
-      def build_draft_appointment_data(referral, provider, referral_id)
-        slots = fetch_provider_slots(referral, provider)
-        draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        # Bypass drive time calculation if EPS mocks are enabled since we don't have betamocks for vets360
-        drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
-
-        build_draft_response(draft, provider, slots, drive_time)
       end
 
       # Records the duration between when a referral booking was started and when it completes

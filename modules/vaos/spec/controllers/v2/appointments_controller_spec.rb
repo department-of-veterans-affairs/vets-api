@@ -92,7 +92,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       )
       allow(controller).to receive(:render)
       allow(StatsD).to receive(:increment)
-      allow(StatsD).to receive(:measure)
+      allow(StatsD).to receive(:histogram)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -112,8 +112,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
           allow(ccra_referral_service).to receive(:get_booking_start_time)
             .with(submit_params[:referral_number], current_user.icn)
             .and_return(booking_start_time)
-
-          allow(StatsD).to receive(:histogram)
 
           controller.submit_referral_appointment
 
@@ -304,6 +302,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         expiration_date: '2024-12-31'
       )
     end
+    let(:draft_appointment_id) { 'draft123' }
     let(:provider) do
       OpenStruct.new(
         id: 'provider123',
@@ -332,14 +331,15 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         end
 
         it 'uses current date instead of past referral date for startOnOrAfter' do
-          result = controller.send(:fetch_provider_slots, referral, provider)
+          result = controller.send(:fetch_provider_slots, referral, provider, draft_appointment_id)
 
           expect(eps_provider_service).to have_received(:get_provider_slots).with(
             'provider123',
             hash_including(
               appointmentTypeId: 'type123',
               startOnOrAfter: '2024-06-15T00:00:00Z',
-              startBefore: '2024-12-31T00:00:00Z'
+              startBefore: '2024-12-31T00:00:00Z',
+              appointmentId: draft_appointment_id
             )
           )
           expect(result).to eq(expected_slots)
@@ -363,14 +363,15 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         end
 
         it 'uses future referral date for startOnOrAfter' do
-          result = controller.send(:fetch_provider_slots, referral, provider)
+          result = controller.send(:fetch_provider_slots, referral, provider, draft_appointment_id)
 
           expect(eps_provider_service).to have_received(:get_provider_slots).with(
             'provider123',
             hash_including(
               appointmentTypeId: 'type123',
               startOnOrAfter: '2024-08-01T00:00:00Z',
-              startBefore: '2024-12-31T00:00:00Z'
+              startBefore: '2024-12-31T00:00:00Z',
+              appointmentId: draft_appointment_id
             )
           )
           expect(result).to eq(expected_slots)
@@ -392,7 +393,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
       it 'raises BackendServiceException before calling get_provider_slots' do
         expect do
-          controller.send(:fetch_provider_slots, referral, provider)
+          controller.send(:fetch_provider_slots, referral, provider, draft_appointment_id)
         end.to raise_error(Common::Exceptions::BackendServiceException) { |e|
           expect(e).to have_attributes(
             key: 'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING'
@@ -416,7 +417,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       end
 
       it 'logs error and returns nil' do
-        result = controller.send(:fetch_provider_slots, referral, provider)
+        result = controller.send(:fetch_provider_slots, referral, provider, draft_appointment_id)
 
         expect(Rails.logger).to have_received(:error).with('Community Care Appointments: Error fetching provider slots')
         expect(result).to be_nil
@@ -437,7 +438,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     end
     let(:mock_provider) { OpenStruct.new(id: 'provider-123') }
     let(:mock_slots) { [{ id: 'slot1' }, { id: 'slot2' }] }
-    let(:mock_draft) { { id: 'draft-789' } }
+    let(:mock_draft) { OpenStruct.new(id: 'draft-789') }
     let(:mock_drive_time) { { duration: 30 } }
 
     let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
