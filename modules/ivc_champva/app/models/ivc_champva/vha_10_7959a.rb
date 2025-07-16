@@ -45,11 +45,14 @@ module IvcChampva
     ##
     # Informs pdf stamper that we want to stamp some arbitrary values on a blank page
     # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
-    # @return [Hash] hash of keys/values we want to stamp on a blank page
+    # @return [Hash] hash of metadata we want to stamp and an attachment ID to associate with the stamped page
     def stamp_metadata
       # If it's a resubmission, we want to stamp resubmission-specific values on a blank
       # page in the PDF
-      [add_resubmission_properties, @data['pdi_or_claim_number']] if @data['claim_status'] == 'resubmission'
+      if @data['claim_status'] == 'resubmission'
+        { metadata: add_resubmission_properties,
+          attachment_id: @data['pdi_or_claim_number'] }
+      end
     end
 
     def desired_stamps

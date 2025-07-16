@@ -1032,7 +1032,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       instance_double(IvcChampva::VHA107959a,
                       form_id: '10-7959A',
                       methods: [:stamp_metadata],
-                      stamp_metadata: [{ 'test_key' => 'test_value' }, 'Test Attachment'])
+                      stamp_metadata: { metadata: { 'test_key' => 'test_value' }, attachment_id: 'Test Attachment' })
     end
 
     it 'creates and adds a supporting document' do

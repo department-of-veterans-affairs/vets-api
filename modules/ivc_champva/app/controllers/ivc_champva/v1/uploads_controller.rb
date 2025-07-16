@@ -580,7 +580,7 @@ module IvcChampva
       ##
       # Add a blank page to the PDF with stamped metadata if the form allows it.
       #
-      # This method checks if the form has a `stamp_metadata` method that returns an array.
+      # This method checks if the form has a `stamp_metadata` method that returns a hash.
       # If so, it creates a blank page, stamps it with the provided metadata values,
       # and adds it as a supporting document to the parsed form data.
       #
@@ -590,11 +590,11 @@ module IvcChampva
       def add_blank_doc_and_stamp(form, parsed_form_data)
         # Only triggers if the form in question has a method that returns values
         # we want to stamp.
-        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Array)
+        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Hash)
           blank_page_path = IvcChampva::Attachments.get_blank_page
-          values, attachment_id = form.stamp_metadata
-          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, values)
-          att = create_custom_attachment(form, blank_page_path, attachment_id)
+          stamps = form.stamp_metadata
+          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
+          att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
           add_supporting_doc(parsed_form_data, att)
         end
       end
