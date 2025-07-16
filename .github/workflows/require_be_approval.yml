@@ -4,7 +4,7 @@ on:
     types: [submitted]
     branches: master
   pull_request:
-    types: [opened, reopened, ready_for_review, converted_to_draft]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
     branches: [master]
 permissions:
   id-token: write
