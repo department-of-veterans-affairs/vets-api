@@ -31,6 +31,7 @@ module ClaimsApi
             claimant_relationship: data['claimantRelationship'],
             poa_code: data['poaCode'],
             organization_name: data['organizationName'],
+            representativeLawFirmOrAgencyName: data['representativeLawFirmOrAgencyName'],
             representative_first_name: data['representativeFirstName'],
             representative_last_name: data['representativeLastName'],
             representative_title: data['representativeTitle'],

@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 82f6fed76802255b901f3415ea3bb4bdfb6c0aac
+  revision: 359d8a8b1cb79145b0595e675353104e0f7cf390
   branch: master
   specs:
-    vets_json_schema (25.1.1)
+    vets_json_schema (25.1.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -711,8 +711,7 @@ GEM
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
-    mini_magick (5.2.0)
-      benchmark
+    mini_magick (5.3.0)
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
