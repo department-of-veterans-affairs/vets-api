@@ -73,9 +73,11 @@ jobs:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: final-review-confirmed
 
-      - name: Fail if draft or failures
+      - name: Skip backend approval for draft PR
         if: steps.pr_data.outputs.pr_draft == 'true'
-        run: exit 1
+        run: |
+          echo "PR is in draft mode. Skipping backend approval requirements."
+          echo "Labels have been removed. No further action needed."
 
   # Fetch approvals when required workflows are successful.
   fetch-pr-reviews:
@@ -102,6 +104,13 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+      - name: Skip backend approval check for draft PR
+        if: env.pr_draft == 'true'
+        run: |
+          echo "PR is in draft mode. Backend approval check not required."
+          echo "This job succeeds to satisfy branch protection requirements."
+          exit 0
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
