@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :job do
+  include ActiveSupport::Testing::TimeHelpers
   subject(:job) { described_class.new }
 
   let(:client) { RepresentationManagement::GCLAWS::Client }
@@ -1317,6 +1318,190 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         .with('Batching representative address updates from GCLAWS Accreditation API')
 
       job.send(:validate_rep_addresses)
+    end
+  end
+
+  describe '#finalize_and_send_report' do
+    let(:job) { described_class.new }
+
+    before do
+      allow(job).to receive(:log_to_slack_channel)
+      job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@start_time, 2.minutes.ago)
+    end
+
+    it 'calculates duration and appends it to the report' do
+      allow(job).to receive(:calculate_duration).and_return('2m 30s')
+
+      job.send(:finalize_and_send_report)
+
+      report = job.instance_variable_get(:@report)
+      expect(report).to include("\nJob Duration: 2m 30s\n")
+    end
+
+    it 'sends the complete report to Slack' do
+      initial_report = String.new('Initial report content')
+      job.instance_variable_set(:@report, initial_report)
+      allow(job).to receive(:calculate_duration).and_return('1m 15s')
+
+      job.send(:finalize_and_send_report)
+
+      expect(job).to have_received(:log_to_slack_channel).with(initial_report)
+    end
+
+    it 'uses Time.current as end_time when called' do
+      freeze_time = Time.parse('2023-12-01 12:00:00 UTC')
+      start_time = freeze_time - 5.minutes
+
+      job.instance_variable_set(:@start_time, start_time)
+
+      travel_to freeze_time do
+        expect(job).to receive(:calculate_duration).with(start_time, freeze_time).and_return('5m 0s')
+        job.send(:finalize_and_send_report)
+      end
+    end
+
+    context 'when @start_time is nil' do
+      before do
+        job.instance_variable_set(:@start_time, nil)
+      end
+
+      it 'handles missing start_time gracefully' do
+        allow(job).to receive(:calculate_duration).and_return('Unknown')
+
+        job.send(:finalize_and_send_report)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).to include("\nJob Duration: Unknown\n")
+      end
+    end
+  end
+
+  describe '#calculate_duration' do
+    let(:job) { described_class.new }
+
+    context 'when calculating duration in seconds only' do
+      it 'returns seconds format for duration under 1 minute' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 45.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('45s')
+      end
+
+      it 'returns seconds format for exactly 59 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 59.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('59s')
+      end
+
+      it 'returns seconds format for 0 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('0s')
+      end
+    end
+
+    context 'when calculating duration in minutes and seconds' do
+      it 'returns minutes and seconds format for exactly 1 minute' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 1.minute
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('1m 0s')
+      end
+
+      it 'returns minutes and seconds format for 2 minutes 30 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 2.minutes + 30.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('2m 30s')
+      end
+
+      it 'returns minutes and seconds format for exactly 59 minutes' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 59.minutes + 45.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('59m 45s')
+      end
+    end
+
+    context 'when calculating duration in hours, minutes and seconds' do
+      it 'returns full format for exactly 1 hour' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 1.hour
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('1h 0m 0s')
+      end
+
+      it 'returns full format for 2 hours 15 minutes 30 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 2.hours + 15.minutes + 30.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('2h 15m 30s')
+      end
+
+      it 'returns full format for long running job' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 5.hours + 42.minutes + 18.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('5h 42m 18s')
+      end
+    end
+
+    context 'when handling edge cases' do
+      it 'handles fractional seconds by truncating to integer' do
+        start_time = Time.parse('2023-12-01 12:00:00.750 UTC')
+        end_time = Time.parse('2023-12-01 12:00:45.250 UTC')
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('44s') # 44.5 seconds truncated to 44
+      end
+
+      it 'handles very long durations correctly' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 25.hours + 70.minutes + 90.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('26h 11m 30s') # 70 minutes = 1h 10m, 90 seconds = 1m 30s
+      end
+
+      it 'handles same start and end times' do
+        time = Time.parse('2023-12-01 12:00:00 UTC')
+
+        result = job.send(:calculate_duration, time, time)
+
+        expect(result).to eq('0s')
+      end
+
+      it 'works with Time objects that have different time zones' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = Time.parse('2023-12-01 13:15:30 EST') # 1h 15m 30s later in UTC
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('6h 15m 30s') # EST is UTC-5, so 13:15:30 EST = 18:15:30 UTC
+      end
     end
   end
 end
