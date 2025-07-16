@@ -84,6 +84,15 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         form5655_submission.submit_to_vba
       end.to change(DebtsApi::V0::Form5655::VBASubmissionJob.jobs, :size).by(1)
     end
+
+    it 'increments StatsD counter' do
+      allow(StatsD).to receive(:increment)
+
+      expect(StatsD).to receive(:increment).with(
+        "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.initiated"
+      )
+      form5655_submission.submit_to_vba
+    end
   end
 
   describe '.submit_to_vha' do

@@ -80,7 +80,7 @@ module EducationForm
 
       # special case 0994
       # special case 10203
-      return :eastern if %w[0994 10203].include?(model.form_type)
+      return :eastern if %w[0994 10203 10297].include?(model.form_type)
 
       # special case Philippines
       return :western if address&.country == 'PHL'

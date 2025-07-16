@@ -11,7 +11,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }
-  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/medications' }
+  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/v1/pharmacy/ess/medications' }
   let(:set_cache) do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
