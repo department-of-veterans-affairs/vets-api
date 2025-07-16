@@ -18,9 +18,9 @@ module ClaimsApi
       end
 
       def call
-        gather_poa_data
+        data = gather_poa_data
 
-        # call sidekiq job
+        poa_auto_establishment_mappper(data)
       end
 
       private
