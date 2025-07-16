@@ -9,6 +9,37 @@ module RepresentationManagement
       DEFAULT_PAGE = 1
       DEFAULT_PAGE_SIZE = 100
 
+      # Retrieves accredited entities from the GCLAWS API with error handling
+      #
+      # This method fetches paginated data for different types of accredited entities
+      # (agents, attorneys, representatives, veteran service organizations) from the
+      # GCLAWS Accreditation API. It includes comprehensive error handling for common
+      # API failure scenarios and returns standardized responses.
+      #
+      # @param type [String] The entity type to retrieve (must be in ALLOWED_TYPES)
+      # @param page [Integer] The page number for pagination (default: 1)
+      # @param page_size [Integer] The number of records per page (default: 100)
+      # @return [Hash, Faraday::Response] Returns empty hash for invalid types,
+      #   successful Faraday response for valid requests, or error response for failures
+      #
+      # @example Successful request
+      #   RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'agents')
+      #   # => Faraday::Response with body containing agents data
+      #
+      # @example Invalid entity type
+      #   RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'invalid')
+      #   # => {}
+      #
+      # @example With pagination
+      #   RepresentationManagement::GCLAWS::Client.get_accredited_entities(
+      #     type: 'attorneys',
+      #     page: 2,
+      #     page_size: 50
+      #   )
+      #
+      # @raise [Faraday::UnauthorizedError] Handled internally, returns 401 error response
+      # @raise [Faraday::ConnectionFailed] Handled internally, returns 503 error response
+      # @raise [Faraday::TimeoutError] Handled internally, returns 408 error response
       def self.get_accredited_entities(type:, page: DEFAULT_PAGE, page_size: DEFAULT_PAGE_SIZE)
         return {} unless ALLOWED_TYPES.include?(type)
 
