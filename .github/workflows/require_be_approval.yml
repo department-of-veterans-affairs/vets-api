@@ -76,6 +76,13 @@ jobs:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: final-review-confirmed
 
+      - name: Remove exempt-be-review label
+        if: steps.pr_data.outputs.pr_draft == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
+          labels: exempt-be-review
+
       - name: Skip backend approval for draft PR
         if: steps.pr_data.outputs.pr_draft == 'true'
         run: |
