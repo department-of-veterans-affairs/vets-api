@@ -4,8 +4,8 @@ on:
     types: [submitted]
     branches: master
   pull_request:
-    types: [opened, ready_for_review, converted_to_draft]
-    branches: master
+    types: [opened, reopened, ready_for_review, converted_to_draft]
+    branches: [master]
 permissions:
   id-token: write
   contents: read
