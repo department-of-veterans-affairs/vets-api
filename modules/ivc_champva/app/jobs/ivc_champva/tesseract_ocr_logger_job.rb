@@ -7,6 +7,12 @@ module IvcChampva
 
     sidekiq_options retry: false, queue: :default
 
+    ## Performs the job
+    # @param form_id [String] The ID of the current form, e.g., 'vha_10_10d'
+    # @param uuid [String, nil] The UUID associated with the attachment
+    # @param file_path [String] The path to the file to be processed
+    # @param attachment_id [String] The attachment type ID of the attachment being processed, see
+    # SupportingDocumentValidator.VALIDATOR_MAP
     def perform(form_id, uuid, file_path, attachment_id)
       return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
 
