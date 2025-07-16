@@ -57,7 +57,8 @@ module IvcChampva
         return {} unless answer_content.is_a?(String)
 
         parse_llm_response(answer_content)
-      rescue JSON::ParserError
+      rescue JSON::ParserError => e
+        Rails.logger.error("IvcChampva::LlmService parse_response failed with error: #{e.message}")
         {}
       end
     end
@@ -69,7 +70,8 @@ module IvcChampva
                                       .gsub(/\n/, '')           # Remove newlines
 
       JSON.parse(cleaned_content)
-    rescue JSON::ParserError
+    rescue JSON::ParserError => e
+      Rails.logger.error("IvcChampva::LlmService parse_llm_response failed with error: #{e.message}")
       {}
     end
   end
