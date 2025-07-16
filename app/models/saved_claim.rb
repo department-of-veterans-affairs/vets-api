@@ -93,7 +93,7 @@ class SavedClaim < ApplicationRecord
       Rails.logger.error('SavedClaim schema failed validation.',
                          { form_id:, errors: schema_errors })
     end
-
+byebug
     validation_errors = validate_form(schema)
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])

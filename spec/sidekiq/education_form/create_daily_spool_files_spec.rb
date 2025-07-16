@@ -72,22 +72,29 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
     end
   end
 
+  # Based on a platform initiative to de-evss-isize vets-api, we need to have a test for each form type that
+  # create_daily_spool_files processes. A problem came up with this where form profile 0994 was removed as part
+  # of the initiative and all the tests passed even though it would have caused an issue with the spool files.
   describe '#format_application' do
-    context 'with a 1990 form' do
-      it 'tracks and returns a form object' do
-        expect(subject).to receive(:track_form_type).with('22-1990', 999)
-        result = subject.format_application(application_1606, rpo: 999)
-        expect(result).to be_a(EducationForm::Forms::VA1990)
-      end
-    end
+    EducationForm::CreateDailySpoolFiles::LIVE_FORM_TYPES.each do |form_type|
+      next unless form_type.start_with?('22-10297')
 
-    context 'with a 1995 form' do
-      let(:application_1606) { create(:va1995_full_form).education_benefits_claim }
+      form_type.sub!('22-', '')
+      form_type.downcase! if %w[1990E 1990N 1990S].include?(form_type)
+      form_factory = "va#{form_type}_full_form"
+      form_class = "EducationForm::Forms::VA#{form_type}"
+      form_number = "22-#{form_type}"
 
-      it 'tracks the 1995 form' do
-        expect(subject).to receive(:track_form_type).with('22-1995', 999)
-        result = subject.format_application(application_1606, rpo: 999)
-        expect(result).to be_a(EducationForm::Forms::VA1995)
+      context "with a #{form_number} form" do
+        subject { described_class.new }
+
+        let(:application_1606) { create(form_factory.downcase.to_sym).education_benefits_claim }
+
+        it 'tracks and returns a form object' do
+          expect(subject).to receive(:track_form_type).with(form_number, 999)
+          result = subject.format_application(application_1606, rpo: 999)
+          expect(result).to be_a(form_class.constantize)
+        end
       end
     end
 
