@@ -30,18 +30,18 @@ module IvcChampva
         Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{attachment_id} OCR processing completed in " \
                           "#{duration_ms} milliseconds")
 
-        log_result(result)
+        log_result(result, uuid)
       rescue => e
         Rails.logger.error("IvcChampva::TesseractOcrLoggerJob failed with error: #{e.message}")
       end
     end
 
-    def log_result(result)
+    def log_result(result, uuid)
       # Log top level results
-      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob validator_type: #{result[:validator_type]}")
-      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob document_type: #{result[:document_type]}")
-      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob is_valid: #{result[:is_valid]}")
-      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob confidence: #{result[:confidence]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{uuid} validator_type: #{result[:validator_type]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{uuid} document_type: #{result[:document_type]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{uuid} is_valid: #{result[:is_valid]}")
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{uuid} confidence: #{result[:confidence]}")
 
       # Log extracted fields but not their values
       # Values are not safe to log as they may contain PII
@@ -49,7 +49,7 @@ module IvcChampva
         type = value.class
         length = value.is_a?(String) ? value.length : nil
         Rails.logger.info(
-          "IvcChampva::TesseractOcrLoggerJob extracted_field: #{key}: " \
+          "IvcChampva::TesseractOcrLoggerJob #{uuid} extracted_field: #{key}: " \
           "type=#{type}#{", length=#{length}" if length}"
         )
       end
