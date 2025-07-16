@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
 def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run) # rubocop:disable Metrics/ParameterLists
   delete_claim = false
-
-  # Determine the confirmation method based on the claim type.
-  confirmation_method = if claim.class.name.include?('Pension')
-                          :confirmation_code
-                        else
-                          :confirmationCode
-                        end
 
   attachments.each do |attachment|
     attachment.file_data || attachment.saved_claim_id.nil?
@@ -21,37 +13,57 @@ def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroy
       attachment.destroy!
     end
 
-     # Retrieve the proper key for the form data section.
-    form_key = claim.respond_to?(:attachment_key_map) ? (claim.attachment_key_map[key] || key) : key
-
-    # Get the section of the form data either from ipf_form_data or by parsing claim.form.
-    form_data_section = if ipf_form_data
-                          ipf_form_data.send(form_key)
-                        elsif claim.form.present?
-                          JSON.parse(claim.form, object_class: OpenStruct).send(key) rescue nil
-                        end
-
-    # Find the destroyed attachment in the form data section.
-    destroyed_attachment = form_data_section&.find do |att|
-      att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
-    end
-
-    puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
-    destroyed_names << destroyed_attachment&.name
-
-    # Remove the destroyed attachment from the section.
-    form_data_section&.reject! do |att|
-      att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
-    end
-
-    # Update ipf_form_data if available.
-    ipf_form_data.send("#{form_key}=", form_data_section) if ipf_form_data
+    ipf_form_data = update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
 
     delete_claim = true
   end
-  [delete_claim, ipf_form_data ? ipf_form_data : nil]
+  [delete_claim, ipf_form_data || nil]
+end
+
+# rubocop:disable Metrics/MethodLength
+def update_ipf_form_data(claim, ipf_form_data, key, destroyed_names)
+  # Determine the confirmation method based on the claim type.
+  confirmation_method = if claim.class.name.include?('Pension')
+                          :confirmation_code
+                        else
+                          :confirmationCode
+                        end
+
+  # Retrieve the proper key for the form data section.
+  form_key = claim.respond_to?(:attachment_key_map) ? (claim.attachment_key_map[key] || key) : key
+
+  # Get the section of the form data either from ipf_form_data or by parsing claim.form.
+  form_data_section = if ipf_form_data
+                        ipf_form_data.send(form_key)
+                      elsif claim.form.present?
+                        JSON.parse(claim.form, object_class: OpenStruct).send(key)
+                      end
+
+  # Find the destroyed attachment in the form data section.
+  destroyed_attachment = form_data_section&.find do |att|
+    att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
+  end
+
+  puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
+  destroyed_names << destroyed_attachment&.name
+
+  # Remove the destroyed attachment from the section.
+  form_data_section&.reject! do |att|
+    att.respond_to?(confirmation_method) && att.send(confirmation_method) == attachment.guid
+  end
+
+  # Update ipf_form_data if available.
+  ipf_form_data&.send("#{form_key}=", form_data_section)
+
+  ipf_form_data
 end
 # rubocop:enable Metrics/MethodLength
+
+def scrub_email(email)
+  prefix, domain = email.split('@')
+  masked_local = prefix[0] + ('*' * (prefix.length - 1))
+  "#{masked_local}@#{domain}"
+end
 
 #
 # bundle exec rake persistent_attachment_remediation:run['264 265 267',true] Burials
@@ -118,10 +130,13 @@ namespace :persistent_attachment_remediation do
         destroyed_names = []
         puts "Step 3: Sanitizing attachments for claim id: #{claim.id}"
         claim.attachment_keys.each do |key|
-          guids = Array(claim.open_struct_form.send(key)).map { |att| att.try(:confirmationCode) }
+          guids = Array(claim.open_struct_form.send(key)).map do |att|
+            att.try(:confirmationCode) || att.try(:confirmation_code)
+          end
           attachments = PersistentAttachment.where(guid: guids)
 
-          delete_claim, updated_ipf_form_data = sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run)
+          delete_claim, updated_ipf_form_data =
+            sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroyed_names, dry_run)
         end
       end
 
@@ -136,7 +151,7 @@ namespace :persistent_attachment_remediation do
         if claim.email.present?
           unique_emails_for_notification << claim.email
           data = JSON.parse(claim.form)
-          if claim.type.include?('Pension')
+          if claim.form_id == '21P-527EZ'
             claim_type = 'Application for Veterans Pension (VA Form 21P-527EZ)'
             url = 'http://va.gov/pension/apply-for-veteran-pension-form-21p-527ez'
           else
@@ -168,12 +183,12 @@ namespace :persistent_attachment_remediation do
       puts "Step 6: Sending remediation email to unique email(s): #{unique_emails_for_notification.to_a.join(', ')}"
       unique_emails_for_notification.each do |email|
         if dry_run
-          puts "[DRY RUN] Would send remediation email to #{email}"
+          puts "[DRY RUN] Would send remediation email to #{scrub_email(email)}"
         else
           service_config = Settings.vanotify.services[vanotify_service]
           VANotify::EmailJob.new.perform(
             email,
-            'abe80469-c61f-4c30-bb24-18e7120d5066',
+            service_config.email.persistent_attachment_error.template_id,
             personalization,
             service_config.api_key
           )
