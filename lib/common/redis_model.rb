@@ -9,7 +9,7 @@ module Common
 
     class_attribute :namespace, instance_writer: false
     class_attribute :ttl, instance_writer: false
-    class_attribute :key_attribute, instance_writer: false
+    class_attribute :primary_key, instance_writer: false
     class_attribute :fallbacks, instance_writer: false, default: {}
 
     class << self
@@ -22,7 +22,7 @@ module Common
       end
 
       def redis_key(attr)
-        self.key_attribute = attr.to_s
+        self.primary_key = attr.to_s
       end
 
       def computed_fallbacks(hash = nil)
@@ -34,7 +34,7 @@ module Common
         return nil if raw.blank?
 
         attrs = JSON.parse(raw)
-        new(attrs.merge(key_attribute => key))
+        new(attrs.merge(primary_key => key))
       end
 
       def create(attrs)
@@ -56,7 +56,7 @@ module Common
     end
 
     def redis_key_value
-      send(self.class.key_attribute)
+      send(self.class.primary_key)
     end
 
     def save
