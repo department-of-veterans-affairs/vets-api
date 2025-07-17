@@ -57,8 +57,6 @@ module DecisionReviews
 
         x.merge!(format_phone_number(vet['phone'])).compact!
 
-        binding.pry
-
         transformed_form4142 = transform_form4142_data(form4142)
         x.merge(transformed_form4142).deep_stringify_keys
       end
