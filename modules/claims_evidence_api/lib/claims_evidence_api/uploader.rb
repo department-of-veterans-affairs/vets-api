@@ -24,7 +24,7 @@ module ClaimsEvidenceApi
     def upload_saved_claim_pdf(saved_claim_id, pdf_path = nil, stamp_set = nil)
       claim = SavedClaim.find(saved_claim_id)
       init_tracking(saved_claim)
-      process_upload(claim, pdf_path, stamp_set)
+      perform_upload(claim, pdf_path, stamp_set)
       update_tracking
     end
 
@@ -32,7 +32,7 @@ module ClaimsEvidenceApi
       claim = SavedClaim.find(saved_claim_id)
       pa = PersistentAttachment.find_by(id: attachment_id, saved_claim_id:)
       init_tracking(claim, pa.id)
-      process_upload(pa, pdf_path, stamp_set)
+      perform_upload(pa, pdf_path, stamp_set)
       update_tracking
     end
 
@@ -50,7 +50,7 @@ module ClaimsEvidenceApi
       @attempt = submission.submission_attempts.create
     end
 
-    def process_upload(evidence, pdf_path = nil, stamp_set = nil)
+    def perform_upload(evidence, pdf_path = nil, stamp_set = nil)
       pdf_path ||= evidence.to_pdf
       pdf_path = stamper(stamp_set).run(pdf_path, timestamp: evidence.created_at) if stamp_set
       submission.update_reference_data(pdf_path:)
@@ -77,8 +77,11 @@ module ClaimsEvidenceApi
       end
 
       submission.file_uuid = response.body['uuid']
-      attempt.response = response.body
+      submission.save
+
       attempt.status = 'accepted'
+      attempt.response = response.body
+      attempt.save
 
       response
     end
