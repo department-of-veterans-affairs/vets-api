@@ -39,7 +39,6 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       job.instance_variable_set(:@monitor, monitor)
     end
 
-
     it 'is unable to find user_account' do
       expect(DependentsVerification::SavedClaim).not_to receive(:find)
       expect(BenefitsIntake::Service).not_to receive(:new)
@@ -232,7 +231,8 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'DependentsVerification::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
+      { 'args' => [], 'class' => 'DependentsVerification::BenefitsIntake::SubmitClaimJob',
+        'error_message' => 'An error occurred',
         'queue' => 'low' }
     end
 

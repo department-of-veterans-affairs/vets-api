@@ -51,8 +51,6 @@ module DependentsVerification
         upload_document
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-        #Flipper.enabled?(:dependents_verification_submitted_email_notification) ? send_submitted_email : send_confirmation_email
-
         @intake_service.uuid
       rescue => e
         monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
@@ -76,7 +74,7 @@ module DependentsVerification
         # UserAccount.find will raise an error if unable to find the user_account record
 
         @claim = DependentsVerification::SavedClaim.find(saved_claim_id)
-        raise DependentsVerificationBenefitIntakeError, "Unable to find DependentsVerification::SavedClaim #{saved_claim_id}" unless @claim
+        raise DependentsVerificationBenefitIntakeError, "Unable to find DependentsVerification::SavedClaim #{saved_claim_id}" unless @claim # rubocop:disable Layout/LineLength
 
         @intake_service = ::BenefitsIntake::Service.new
       end
@@ -103,7 +101,7 @@ module DependentsVerification
       # @param file_path [String] pdf file path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path) # rubocop:disable Metrics/MethodLength
+      def process_document(file_path)
         document = PDFUtilities::DatestampPdf.new(file_path).run(
           text: 'VA.GOV',
           timestamp: @claim.created_at,

@@ -77,7 +77,6 @@ module DependentsVerification
         params.require(short_name.to_sym).permit(:form)
       end
 
-
       ##
       # Processes attachments for the claim and initiates an async task for intake processing
       #
