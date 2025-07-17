@@ -15,35 +15,43 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
           response = subject.get_form_by_icn(icn:, tax_year:)
 
           expect(response).to eq(
-            { 'data' =>
-              { 'issuer' =>
-                { 'issuerName' => 'US Department of Veterans Affairs',
+            {
+              'data' => {
+                'issuer' => {
+                  'issuerName' => 'US Department of Veterans Affairs',
                   'ein' => '54-2002017',
                   'contactPhoneNumber' => '877-222-8387',
-                  'address' =>
-                  { 'street1' => 'PO Box 149975',
+                  'address' => {
+                    'street1' => 'PO Box 149975',
                     'city' => 'Austin',
                     'stateOrProvince' => 'TX',
                     'zipOrPostalCode' => '78714-8975',
-                    'country' => 'USA' } },
-                'responsibleIndividual' =>
-                { 'name' => { 'firstName' => 'VGSSFIFTYSIX', 'lastName' => 'TESTFIFTYSIX' },
-                  'address' =>
-                  { 'street1' => '3015 ASHBURTON MANOR DR',
-                    'city' => 'HERNDON',
-                    'stateOrProvince' => 'VA',
-                    'zipOrPostalCode' => '20171-2270',
-                    'country' => 'USA' },
-                  'ssn' => '101990920',
-                  'dateOfBirth' => '19530907' },
-                'coveredIndividual' =>
-                { 'name' => { 'firstName' => 'VGSSFIFTYSIX', 'lastName' => 'TESTFIFTYSIX' },
-                  'ssn' => '101990920',
-                  'dateOfBirth' => '19530907',
+                    'country' => 'USA'
+                  }
+                },
+                'responsibleIndividual' => {
+                  'name' => { 'firstName' => 'HECTOR', 'lastName' => 'ALLEN' },
+                  'address' => {
+                    'street1' => 'PO BOX 494',
+                    'city' => 'MOCA',
+                    'stateOrProvince' => 'PR',
+                    'zipOrPostalCode' => '00676-0494',
+                    'country' => 'USA'
+                  },
+                  'ssn' => '796126859',
+                  'dateOfBirth' => '19320205'
+                },
+                'coveredIndividual' => {
+                  'name' => { 'firstName' => 'HECTOR', 'lastName' => 'ALLEN' },
+                  'ssn' => '796126859',
+                  'dateOfBirth' => '19320205',
                   'coveredAll12Months' => false,
-                  'monthsCovered' => [] },
-                'taxYear' => '2024' },
-              'messages' => [] }
+                  'monthsCovered' => ['MARCH']
+                },
+                'taxYear' => '2024'
+              },
+              'messages' => []
+            }
           )
         end
       end
@@ -51,7 +59,8 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
 
     context 'when an error status is received' do
       it 'raises an error' do
-        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found', { match_requests_on: %i[method uri] }) do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
+                         { match_requests_on: %i[method uri] }) do
           expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
         end
       end
