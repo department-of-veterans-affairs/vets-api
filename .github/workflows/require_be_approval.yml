@@ -47,7 +47,7 @@ jobs:
           }')
 
           # Assign PR_DRAFT to true if a pull_request action kicked off the workflow
-          if github.event_name == 'pull_request'
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_DRAFT=true
           else
             PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
