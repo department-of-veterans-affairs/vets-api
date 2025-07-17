@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_auth_token_configuration'
+require 'carma/client/mule_soft_auth_token_configuration_v2'
 
 module CARMA
   module Client
@@ -11,7 +12,11 @@ module CARMA
       GRANT_TYPE = 'client_credentials'
       SCOPE = 'DTCWriteResource'
 
-      configuration MuleSoftAuthTokenConfiguration
+      if Flipper.enabled?(:caregiver_mulesoft_config_v2)
+        configuration MuleSoftAuthTokenConfigurationV2
+      else
+        configuration MuleSoftAuthTokenConfiguration
+      end
 
       class GetAuthTokenError < StandardError; end
 
@@ -21,7 +26,7 @@ module CARMA
                              auth_token_path,
                              params,
                              token_headers,
-                             { timeout: config.timeout })
+                             *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [{ timeout: config.timeout }]))
 
           return JSON.parse(response.body)['access_token'] if response.status == 200
 
