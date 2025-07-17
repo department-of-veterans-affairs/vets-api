@@ -53,7 +53,7 @@ jobs:
             PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
           fi
 
-          PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
+          PR_LABELS="$(echo "$PR_INFO" | jq -c '.labels')"
           PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
           echo "PR_LABELS: $PR_LABELS"
           echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
@@ -193,7 +193,8 @@ jobs:
             team_approval_status=confirmed
             approval_status=confirmed
 
-          elif [[ "$PR_LABELS" == *"exempt-be-review"* || "$PR_LABELS" == *"final-review-confirmed"* ]]; then
+          elif echo "$PR_LABELS" | jq -e '. | index("exempt-be-review")' > /dev/null || \
+              echo "$PR_LABELS" | jq -e '. | index("final-review-confirmed")' > /dev/null; then
             team_approval_status=confirmed
             approval_status=confirmed
             backend_approval_required=false
