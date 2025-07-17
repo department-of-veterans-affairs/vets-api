@@ -37,9 +37,7 @@ class ClaimsEvidenceApi::Submission < Submission
     reference_data['data'] = (reference_data['data'] || []) + args
     self.reference_data = self.reference_data.merge kwargs
 
-    if kwargs.key?(:x_folder_uri)
-      self.x_folder_uri = kwargs[:x_folder_uri]
-    end
+    self.x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
   end
 
   # retrieve the header value from encrypted reference_data

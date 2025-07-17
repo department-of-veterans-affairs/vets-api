@@ -8,14 +8,20 @@ module ClaimsEvidenceApi
   # Utility class for uploading claim evidence
   class Uploader
     attr_accessor :content_source
-    attr_reader :attempt, :response, :submission
+    attr_reader :attempt, :folder_identifier, :response, :submission
 
     # @param folder_identifier [String] the upload location; @see ClaimsEvidenceApi::XFolderUri
     # @param content_source [String] the metadata source value for the upload
     def initialize(folder_identifier, content_source: 'va.gov')
       @content_source = content_source
       @service = ClaimsEvidenceApi::Service::Files.new
-      service.x_folder_uri = folder_identifier
+      self.folder_identifier = folder_identifier
+    end
+
+    # change the folder_identifier being uploaded to
+    # @see ClaimsEvidenceApi::XFolderUri
+    def folder_identifier=(folder_identifier)
+      service.x_folder_uri = @folder_identifier = folder_identifier
     end
 
     # upload claim and evidence pdfs
@@ -71,6 +77,7 @@ module ClaimsEvidenceApi
     def init_tracking(saved_claim, persistent_attachment_id = nil)
       @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim:, persistent_attachment_id:,
                                                                     form_id: saved_claim.form_id)
+      # TODO: how to handle different folder_identifier? future ticket
       submission.x_folder_uri = service.x_folder_uri
       submission.save
 

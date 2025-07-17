@@ -40,7 +40,7 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
     it 'accepts unnammed and named values' do
       expect(submission.reference_data).to be_nil
 
-      expected = {'data' => [42], 'foo' => 'bar'}
+      expected = { 'data' => [42], 'foo' => 'bar' }
       submission.update_reference_data(42, foo: 'bar')
       expect(submission.reference_data).to eq expected
     end
@@ -50,7 +50,7 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
       expect(submission).to receive(:x_folder_uri=).and_call_original
 
       expected_uri = 'VETERAN:SSN:123456789'
-      expected_data = {'data' => [42], 'foo' => 'bar', 'x_folder_uri' => expected_uri}
+      expected_data = { 'data' => [42], 'foo' => 'bar', 'x_folder_uri' => expected_uri }
       submission.update_reference_data(42, foo: 'bar', x_folder_uri: expected_uri)
       expect(submission.reference_data).to eq expected_data
       expect(submission.x_folder_uri).to eq expected_uri
@@ -65,7 +65,7 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
     end
 
     it 'update_reference_data raises an error' do
-      expect { submission.update_reference_data(x_folder_uri: invalid_fid)}.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidIdentifierType
+      expect { submission.update_reference_data(x_folder_uri: invalid_fid) }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidIdentifierType
     end
   end
 end
