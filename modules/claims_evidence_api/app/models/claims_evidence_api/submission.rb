@@ -35,9 +35,11 @@ class ClaimsEvidenceApi::Submission < Submission
   def update_reference_data(*args, **kwargs)
     self.reference_data ||= {}
     reference_data['data'] = (reference_data['data'] || []) + args
-    reference_data.merge kwargs
+    self.reference_data = self.reference_data.merge kwargs
 
-    self.x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
+    if kwargs.key?(:x_folder_uri)
+      self.x_folder_uri = kwargs[:x_folder_uri]
+    end
   end
 
   # retrieve the header value from encrypted reference_data
@@ -57,7 +59,7 @@ class ClaimsEvidenceApi::Submission < Submission
   # set the folder identifier that the file will be associated to
   # @see ClaimsEvidenceApi::XFolderUri#generate
   def x_folder_uri_set(folder_type, identifier_type, id)
-    data = reference_data || {}
+    data = self.reference_data || {}
     data['x_folder_uri'] = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
 
     self.reference_data = data
