@@ -55,7 +55,7 @@ jobs:
 
           PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
           PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
-
+          echo "PR_LABELS: $PR_LABELS"
           echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
           echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
           echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
