@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/exceptions'
 require 'claims_evidence_api/service/files'
 require 'pdf_utilities/pdf_stamper'
 
 module ClaimsEvidenceApi
   class Uploader
+
+    attr_accessor :content_source
+    attr_reader :attempt, :response, :submission
 
     def initialize(folder_identifier, content_source: 'va.gov')
       @content_source = content_source
@@ -17,48 +21,66 @@ module ClaimsEvidenceApi
       claim.persistent_attachments.each { |pa| upload_attachment_pdf(saved_claim_id, pa.id, nil, attachment_stamp_set)}
     end
 
-    def upload_saved_claim_pdf(saved_claim_id, file_path = nil, stamp_set = nil)
+    def upload_saved_claim_pdf(saved_claim_id, pdf_path = nil, stamp_set = nil)
       claim = SavedClaim.find(saved_claim_id)
-      file_path ||= claim.to_pdf
-      pdf_path = stamper(stamp_set).run(file_path, timestamp: claim.created_at) if stamp_set
-
-      provider_data = {
-        contentSource: content_source,
-        dateVaReceivedDocument: claim.created_at,
-        documentTypeId: claim.document_type
-      }
-
-      service.upload(pdf_path, provider_data:)
+      init_tracking(saved_claim)
+      process_upload(claim, pdf_path, stamp_set)
+      update_tracking
     end
 
-    def upload_attachment_pdf(saved_claim_id, attachment_id, file_path = nil, stamp_set = nil)
-      pa = PersistentAttachment.where(id: attachment_id, saved_claim_id:).first
-      file_path ||= pa.to_pdf
-      pdf_path = stamper(stamp_set).run(file_path, timestamp: pa.created_at) if stamp_set
-
-      provider_data = {
-        contentSource: content_source,
-        dateVaReceivedDocument: pa.created_at,
-        documentTypeId: pa.document_type
-      }
-
-      service.upload(pdf_path, provider_data:)
+    def upload_attachment_pdf(saved_claim_id, attachment_id, pdf_path = nil, stamp_set = nil)
+      claim = SavedClaim.find(saved_claim_id)
+      pa = PersistentAttachment.find_by(id: attachment_id, saved_claim_id:)
+      init_tracking(claim, pa.id)
+      process_upload(pa, pdf_path, stamp_set)
+      update_tracking
     end
 
     private
 
-    attr_reader :content_source, :service
-
     def stamper(stamp_set)
-      (stamp_set.class == 'Array') ? PDFUtilities::PDFStamper.new(nil, stamps: stamp_set) : PDFUtilities::PDFStamper.new(stamp_set)
+      (stamp_set.class == 'String') ? PDFUtilities::PDFStamper.new(stamp_set) : PDFUtilities::PDFStamper.new(nil, stamps: stamp_set)
     end
 
-    def track_upload(saved_claim_id, persistent_attachment_id = nil)
-      submission = ClaimsEvidenceApi::Submission.where(saved_claim_id:, persistent_attachment_id:).first
-      submission = ClaimsEvidenceApi::Submission.new(saved_claim_id:, persistent_attachment_id:) unless submission
-
+    def init_tracking(saved_claim, persistent_attachment_id = nil)
+      @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim:, persistent_attachment_id:, form_id: saved_claim.form_id)
       submission.x_folder_uri = service.x_folder_uri
+      submission.save
 
+      @attempt = submission.submission_attempts.create
+    end
+
+    def process_upload(evidence, pdf_path = nil, stamp_set = nil)
+      pdf_path ||= evidence.to_pdf
+      pdf_path = stamper(stamp_set).run(pdf_path, timestamp: evidence.created_at) if stamp_set
+      submission.update_reference_data(pdf_path:)
+
+      attempt.metadata = provider_data = {
+        contentSource: content_source,
+        dateVaReceivedDocument: evidence.created_at,
+        documentTypeId: evidence.document_type
+      }
+      attempt.save
+
+      @response = @service.upload(pdf_path, provider_data:)
+    end
+
+    def update_tracking
+      unless response.success?
+        attempt.status = 'failure'
+        attempt.error_message = response.body
+        attempt.save
+
+        error_key = response.body.dig('messages', 'key') || response.body['code']
+        error_msg = response.body.dig('messages', 'text') || response.body['message']
+        raise ClaimsEvidenceApi::Exceptions::VefsError, "#{error_key} - #{error_msg}"
+      end
+
+      submission.file_uuid = response.body['uuid']
+      attempt.response = response.body
+      attempt.status = 'accepted'
+
+      response
     end
   end
 

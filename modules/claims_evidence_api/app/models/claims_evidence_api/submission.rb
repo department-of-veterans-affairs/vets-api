@@ -30,6 +30,11 @@ class ClaimsEvidenceApi::Submission < Submission
 
   alias_attribute :file_uuid, :va_claim_id
 
+  def update_reference_data(*args, **kwargs)
+    super(*args, **kwargs)
+    x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
+  end
+
   # retrieve the header value from encrypted reference_data
   def x_folder_uri
     self.reference_data ||= {}
