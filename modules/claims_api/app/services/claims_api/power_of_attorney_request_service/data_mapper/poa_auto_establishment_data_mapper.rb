@@ -50,7 +50,7 @@ module ClaimsApi
                   @claims_api_forms_validation_errors
           end
 
-          # build_auth_headers
+          @json_form_data
         end
 
         private
