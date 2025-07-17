@@ -121,7 +121,7 @@ module AccreditedRepresentativePortal
 
       def form_class
         SavedClaim::BenefitsIntake::FORM_TYPES.find do |form_class|
-          form_class::PROPER_FORM_ID == form_id
+          form_id == form_class::PROPER_FORM_ID
         end
       end
     end

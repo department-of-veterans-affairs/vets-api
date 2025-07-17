@@ -126,7 +126,7 @@ module SimpleFormsApi
       page = stamp[:page]
       position = stamp[:coords]
       [].tap do |config|
-        ([page, 5].max).times do
+        [page, 5].max.times do
           config << { type: :new_page }
         end
         config[page] = { type: :text, position: }
