@@ -69,7 +69,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        DependentsVerification::BenefitsIntake::SubmitClaimJob::DependentsVerificationBenefitIntakeError,
+        DependentsVerification::BenefitsIntake::SubmitClaimJob::DependentsVerificationBenefitsIntakeError,
         "Unable to find DependentsVerification::SavedClaim #{claim.id}"
       )
     end
@@ -92,7 +92,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     context 'with pending form submission attempt' do
       let(:claim) { create(:dependents_verification_claim, :pending) }
 
-      it 'return true' do
+      it 'returns true' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
       end
     end
@@ -100,7 +100,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     context 'with success form submission attempt' do
       let(:claim) { create(:dependents_verification_claim, :submitted) }
 
-      it 'return true' do
+      it 'returns true' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
       end
     end
@@ -108,7 +108,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     context 'with failure form submission attempt' do
       let(:claim) { create(:dependents_verification_claim, :failure) }
 
-      it 'return false' do
+      it 'returns false' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(false)
       end
     end

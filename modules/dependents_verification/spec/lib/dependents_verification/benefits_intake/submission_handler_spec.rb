@@ -5,7 +5,7 @@ require 'dependents_verification/benefits_intake/submission_handler'
 require 'dependents_verification/monitor'
 require 'dependents_verification/notification_email'
 
-Rspec.describe DependentsVerification::BenefitsIntake::SubmissionHandler do
+RSpec.describe DependentsVerification::BenefitsIntake::SubmissionHandler do
   let(:handler) { DependentsVerification::BenefitsIntake::SubmissionHandler }
   let(:claim) { double(form_id: 'TEST', id: 23) }
   let(:monitor) { double(DependentsVerification::Monitor) }

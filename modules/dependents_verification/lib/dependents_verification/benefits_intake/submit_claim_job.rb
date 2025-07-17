@@ -8,13 +8,13 @@ require 'lighthouse/benefits_intake/service'
 
 module DependentsVerification
   module BenefitsIntake
-    # sidekig job to send dependents_verification pdfs to Lighthouse:BenefitsIntake API
+    # Sidekiq job to send dependents_verification pdfs to Lighthouse:BenefitsIntake API
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
     class SubmitClaimJob
       include Sidekiq::Job
 
       # generic job processing error
-      class DependentsVerificationBenefitIntakeError < StandardError; end
+      class DependentsVerificationBenefitsIntakeError < StandardError; end
 
       # retry for 2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -65,7 +65,7 @@ module DependentsVerification
       # Instantiate instance variables for _this_ job
       #
       # @raise [ActiveRecord::RecordNotFound] if unable to find UserAccount
-      # @raise [DependentsVerificationBenefitIntakeError] if unable to find claim
+      # @raise [DependentsVerificationBenefitsIntakeError] if unable to find claim
       #
       # @param (see #perform)
       def init(saved_claim_id, user_account_uuid)
@@ -74,7 +74,7 @@ module DependentsVerification
         # UserAccount.find will raise an error if unable to find the user_account record
 
         @claim = DependentsVerification::SavedClaim.find(saved_claim_id)
-        raise DependentsVerificationBenefitIntakeError, "Unable to find DependentsVerification::SavedClaim #{saved_claim_id}" unless @claim # rubocop:disable Layout/LineLength
+        raise DependentsVerificationBenefitsIntakeError, "Unable to find DependentsVerification::SavedClaim #{saved_claim_id}" unless @claim # rubocop:disable Layout/LineLength
 
         @intake_service = ::BenefitsIntake::Service.new
       end
@@ -122,7 +122,7 @@ module DependentsVerification
 
       # Upload generated pdf to Benefits Intake API
       #
-      # @raise [DependentsVerificationBenefitIntakeError] on upload failure
+      # @raise [DependentsVerificationBenefitsIntakeError] on upload failure
       def upload_document
         # upload must be performed within 15 minutes of this request
         @intake_service.request_upload
@@ -138,7 +138,7 @@ module DependentsVerification
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
         response = @intake_service.perform_upload(**payload)
-        raise DependentsVerificationBenefitIntakeError, response.to_s unless response.success?
+        raise DependentsVerificationBenefitsIntakeError, response.to_s unless response.success?
       end
 
       # Generate form metadata to send in upload to Benefits Intake API
