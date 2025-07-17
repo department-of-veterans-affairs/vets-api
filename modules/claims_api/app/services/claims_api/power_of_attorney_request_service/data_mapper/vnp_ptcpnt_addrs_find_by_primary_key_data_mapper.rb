@@ -22,7 +22,7 @@ module ClaimsApi
             'addrs_two_txt' => @record[:addrs_two_txt],
             'city_nm' => @record[:city_nm],
             'cntry_nm' => @record[:cntry_nm],
-            'postal_cd' => @record[:postal_cd],
+            'postal_cd' => @record[:postal_cd], # this looks like postal code but is actually the stateCode
             'zip_prefix_nbr' => @record[:zip_prefix_nbr],
             'zip_first_suffix_nbr' => @record[:zip_first_suffix_nbr],
             'email_addrs_txt' => @record[:email_addrs_txt]
