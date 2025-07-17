@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/supporting_document_validator'
+
 # This job runs our Tesseract OCR validator on the specified file and logs the results.
 module IvcChampva
   class TesseractOcrLoggerJob
