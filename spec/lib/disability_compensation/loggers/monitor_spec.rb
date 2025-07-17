@@ -6,7 +6,7 @@ require 'disability_compensation/loggers/monitor'
 RSpec.describe DisabilityCompensation::Loggers::Monitor do
   let(:monitor) { described_class.new }
 
-  # Simple test to insure monitor successfully implements abstract methods in lib/logging/base_monitor.rb
+  # Simple test to ensure monitor successfully implements abstract methods in lib/logging/base_monitor.rb
   describe('#submit_event') do
     it 'logs with the appropriate Disability Compensation key prefixes and metadata' do
       payload = {
