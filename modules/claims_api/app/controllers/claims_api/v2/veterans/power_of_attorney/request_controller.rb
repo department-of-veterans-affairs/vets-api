@@ -125,8 +125,6 @@ byebug
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
 
-          manage_rep_service = manage_representative_service
-
           process_poa_decision(decision:,
                                proc_id:,
                                representative_id:,
@@ -158,7 +156,7 @@ byebug
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
-                                                   service: manage_rep_service)
+                                                   service: manage_representative_service)
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
 
@@ -243,7 +241,7 @@ byebug
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 =======
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
-          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+          @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
 >>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
 =======
@@ -253,8 +251,42 @@ byebug
 =======
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
           ).call
+          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if @claimant
+
+          build_auth_headers(veteran)
+          attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
+
+          power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
+
+          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
+                                                         'post', representative_id)
         end
         # rubocop:enable Metrics/ParameterLists
+
+        def build_auth_headers(veteran)
+          params[:veteranId] = veteran.icn.presence || veteran.mpi.icn
+
+          auth_headers
+        end
+
+        def decide_request_attributes(poa_code:, decide_form_attributes:)
+          {
+            status: ClaimsApi::PowerOfAttorney::PENDING,
+            auth_headers: set_auth_headers,
+            form_data: decide_form_attributes,
+            current_poa: poa_code,
+            header_hash:
+          }
+        end
+        # def save_form(headers_for_auto_establishment)
+
+        #   # if save! works
+        #   auto_establish_form
+        # end
+
+        # def auto_establish_form
+        #   # send to sidekiq job
+        # end
 
         def build_veteran_or_dependent_data(icn)
           build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })

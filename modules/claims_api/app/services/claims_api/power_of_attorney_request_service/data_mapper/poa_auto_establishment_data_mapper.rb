@@ -105,6 +105,7 @@ module ClaimsApi
           end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
           # validate values
           # validate JSON
           # Save in DB
@@ -113,6 +114,9 @@ module ClaimsApi
 =======
           # build_auth_headers
 >>>>>>> 4b90aaed80 (WIP)
+=======
+          @json_form_data
+>>>>>>> 3050b6e3e3 (WIP)
         end
 
         private

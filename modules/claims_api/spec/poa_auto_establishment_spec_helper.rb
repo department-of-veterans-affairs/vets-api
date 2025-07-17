@@ -56,11 +56,15 @@ RSpec.shared_context 'shared POA auto establishment data' do
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 1255e92ce7 (WIP)
 =======
 >>>>>>> 4b90aaed80 (WIP)
   let(:valid_form) do
+=======
+  let(:form_data) do
+>>>>>>> 3050b6e3e3 (WIP)
     {
       'data' => {
         'attributes' => {
@@ -164,51 +168,97 @@ RSpec.shared_context 'shared POA auto establishment data' do
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   let(:invalid_form) do
+=======
+  let(:validated_form_data) do
+>>>>>>> 3050b6e3e3 (WIP)
     {
       'data' => {
         'attributes' => {
           'veteran' => {
+<<<<<<< HEAD
             'phone' => {
               'countryCode' => nil,
               'areaCode' => '555',
               'phoneNumber' => '5551234'
             },
             'email' => nil,
+=======
+            'address' => {
+              'addressLine1' => '2719 Hyperion Ave',
+              'addressLine2' => 'Apt 2',
+              'city' => 'Los Angeles',
+              'stateCode' => 'CA',
+              'countryCode' => 'US',
+              'zipCode' => '92264',
+              'zipCodeSuffix' => '0200'
+            },
+            'phone' => {
+              # 'countryCode' => nil,
+              'areaCode' => '555',
+              'phoneNumber' => '5551234'
+            },
+            # 'email' => nil,
+>>>>>>> 3050b6e3e3 (WIP)
             'serviceNumber' => '123678453',
             'insuranceNumber' => '1234567890'
           },
           'serviceOrganization' => {
             'poaCode' => '083',
+<<<<<<< HEAD
             'registrationNumber' => nil,
             'jobTitle' => nil
           },
           'recordConsent' => 'true',
+=======
+            'registrationNumber' => '12345678'
+            # 'jobTitle' => nil
+          },
+          'recordConsent' => true,
+>>>>>>> 3050b6e3e3 (WIP)
           'consentLimits' => %w[
             DRUG_ABUSE
             ALCOHOLISM
             HIV
             SICKLE_CELL
           ],
+<<<<<<< HEAD
           'consentAddressChange' => nil,
+=======
+          'consentAddressChange' => true,
+>>>>>>> 3050b6e3e3 (WIP)
           'claimant' => {
             'claimantId' => '1013093331V548481',
             'address' => {
               'addressLine1' => '123 Main St',
               'addressLine2' => 'Apt 3',
               'city' => 'Boston',
+<<<<<<< HEAD
               'stateCode ' => nil,
               'countryCode' => 'USA',
+=======
+              'stateCode' => 'MA',
+              'countryCode' => 'US',
+>>>>>>> 3050b6e3e3 (WIP)
               'zipCode' => '02110',
               'zipCodeSuffix' => '1000'
             },
             'phone' => {
+<<<<<<< HEAD
               'countryCode' => nil,
               'areaCode' => '555',
               'phoneNumber' => '5559876'
             },
             'email' => nil,
+=======
+              # 'countryCode' => nil,
+              'areaCode' => '555',
+              'phoneNumber' => '5559876'
+            },
+            # 'email' => nil,
+>>>>>>> 3050b6e3e3 (WIP)
             'relationship' => 'Spouse'
           }
         }
@@ -216,6 +266,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
     }
   end
 
+<<<<<<< HEAD
   let(:data) do
     {
       name: 'Ralph Lee',
@@ -269,6 +320,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
 >>>>>>> 1255e92ce7 (WIP)
 =======
 >>>>>>> 4b90aaed80 (WIP)
+=======
+>>>>>>> 3050b6e3e3 (WIP)
   let(:veteran) do
     OpenStruct.new(
       icn: '1012861229V078999',

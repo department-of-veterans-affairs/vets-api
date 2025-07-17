@@ -11,6 +11,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataM
   it 'maps the data correctly' do
     res = subject.map_data
 
-    expect(res).to eq(valid_form)
+    expect(res).to eq(form_data)
   end
 end

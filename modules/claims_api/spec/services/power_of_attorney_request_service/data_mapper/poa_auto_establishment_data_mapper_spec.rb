@@ -53,7 +53,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
     it 'validates the form data using the custom validations' do
       allow_any_instance_of(
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataMapper
-      ).to receive(:map_data).and_return(valid_form)
+      ).to receive(:map_data).and_return(form_data)
 
       expect_any_instance_of(clazz).to receive(:validate_form_2122_and_2122a_submission_values)
 <<<<<<< HEAD
@@ -65,7 +65,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
       expect_any_instance_of(clazz).to receive(:validate_json_schema)
 >>>>>>> a054b71a57 (Rolls out auth header createion and on to move to a seperate PR since this is probably too big at this point)
 
-      organization_subject.map_data
+      res = organization_subject.map_data
+
+      expect(res).to eq(validated_form_data)
     end
   end
 
