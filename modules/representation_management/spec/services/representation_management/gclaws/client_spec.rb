@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'faraday'
 require 'json'
 
-RSpec.describe RepresentationManagement::GCLAWS::Client, type: :model do
+RSpec.describe RepresentationManagement::GCLAWS::Client do
   subject { described_class }
 
   before do
