@@ -51,7 +51,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
 
     context 'when an error status is received' do
       it 'raises an error' do
-        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found') do
+        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found', { match_requests_on: %i[method uri] }) do
           expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
         end
       end
