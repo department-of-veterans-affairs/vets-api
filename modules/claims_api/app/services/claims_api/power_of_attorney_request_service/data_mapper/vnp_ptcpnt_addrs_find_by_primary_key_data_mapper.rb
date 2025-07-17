@@ -17,6 +17,9 @@ module ClaimsApi
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4e54955490 (Rubocop linting for mapper and test file changes)
         # The data structure of the data returned from these calls to
         # BEP (BGS) is not uniform. The data returned here is like data[:value]
         def build_data_object
