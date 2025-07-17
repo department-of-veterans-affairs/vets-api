@@ -1,0 +1,29 @@
+type: object
+additionalProperties: false
+required:
+- metadata
+- data
+properties:
+  metadata:
+    type: object
+    required:
+    - totalRecordCount
+    - pageNumber
+    - status
+    properties:
+      totalRecordCount:
+        type: integer
+        example: 25
+      pageNumber:
+        type: integer
+        example: 1
+      status:
+        type: integer
+        enum:
+        - 200
+        - 206
+        example: 200
+  data:
+    type: array
+    items:
+      $ref: 'TravelPayClaimSummary.yml'
