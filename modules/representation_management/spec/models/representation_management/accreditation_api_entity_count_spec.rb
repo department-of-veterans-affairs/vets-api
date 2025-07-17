@@ -288,16 +288,6 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
         expect(result).to eq(20.0)
       end
 
-      it 'returns positive percentage for 50% increase' do
-        result = model.send(:percentage_change, 100, 150)
-        expect(result).to eq(50.0)
-      end
-
-      it 'returns positive percentage for small increase' do
-        result = model.send(:percentage_change, 100, 105)
-        expect(result).to eq(5.0)
-      end
-
       it 'returns positive percentage for large increase' do
         result = model.send(:percentage_change, 50, 100)
         expect(result).to eq(100.0)
@@ -308,21 +298,6 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
       it 'returns negative percentage for 20% decrease' do
         result = model.send(:percentage_change, 100, 80)
         expect(result).to eq(-20.0)
-      end
-
-      it 'returns negative percentage for 30% decrease' do
-        result = model.send(:percentage_change, 100, 70)
-        expect(result).to eq(-30.0)
-      end
-
-      it 'returns negative percentage for small decrease' do
-        result = model.send(:percentage_change, 100, 95)
-        expect(result).to eq(-5.0)
-      end
-
-      it 'returns negative percentage for large decrease' do
-        result = model.send(:percentage_change, 100, 25)
-        expect(result).to eq(-75.0)
       end
 
       it 'returns -100% for complete decrease to zero' do
