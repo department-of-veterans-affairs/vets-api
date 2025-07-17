@@ -7,12 +7,13 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
 
   let(:record) do
     {
-      addrs_one_txt: '2719 Atlas Ave',
-      addrs_two_txt: 'Apt 2',
-      city_nm: 'Los Angeles',
-      cntry_nm: 'USA',
-      zip_first_suffix_nbr: '0200',
-      zip_prefix_nbr: '92264'
+      :addrs_one_txt => '2719 Atlas Ave',
+      :addrs_two_txt => 'Apt 2',
+      :city_nm => 'Los Angeles',
+      :cntry_nm => 'USA',
+      :postal_cd => 'CA',
+      :zip_first_suffix_nbr => '0200',
+      :zip_prefix_nbr => '92264'
     }
   end
 
@@ -22,7 +23,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       'addrs_two_txt' => 'Apt 2',
       'city_nm' => 'Los Angeles',
       'cntry_nm' => 'USA',
-      'prvnc_nm' => nil,
+      'postal_cd' => 'CA',
       'zip_prefix_nbr' => '92264',
       'zip_first_suffix_nbr' => '0200',
       'email_addrs_txt' => nil

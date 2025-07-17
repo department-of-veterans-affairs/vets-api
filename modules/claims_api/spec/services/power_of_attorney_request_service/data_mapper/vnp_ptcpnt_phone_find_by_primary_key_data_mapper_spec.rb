@@ -7,7 +7,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFin
 
   let(:record) do
     {
-      phone_nbr: '5555559876'
+      :phone_nbr => '5555559876'
     }
   end
 
