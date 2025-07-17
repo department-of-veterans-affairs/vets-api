@@ -44,18 +44,18 @@ module AccreditedRepresentativePortal
 
       FORM_TYPES = [
         (DependencyClaim =
-          define_claim_type(
-            form_id: '21-686C_BENEFITS-INTAKE',
-            proper_form_id: '21-686c',
-            business_line: BusinessLines::COMPENSATION
-          )
+           define_claim_type(
+             form_id: '21-686C_BENEFITS-INTAKE',
+             proper_form_id: '21-686c',
+             business_line: BusinessLines::COMPENSATION
+           )
         ),
-        (DisabilityClaim = 
-          define_claim_type(
-            form_id: '21-526EZ_BENEFITS-INTAKE',
-            proper_form_id: '21-526EZ',
-            business_line: BusinessLines::COMPENSATION
-          )
+        (DisabilityClaim =
+           define_claim_type(
+             form_id: '21-526EZ_BENEFITS-INTAKE',
+             proper_form_id: '21-526EZ',
+             business_line: BusinessLines::COMPENSATION
+           )
         )
       ].freeze
 
