@@ -83,6 +83,7 @@ jobs:
   fetch-pr-reviews:
     name: Succeed if backend approval is confirmed
     needs: [get-pr-data]
+    if: needs.get-pr-data.outputs.pr_draft == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
