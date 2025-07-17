@@ -53,21 +53,6 @@ module ClaimsApi
           # build_auth_headers
         end
 
-        # def build_auth_headers
-        #   # auth_headers
-        #   # if built
-        #   save_form
-        # end
-
-        # def save_form
-        #   # if save! works
-        #   auto_establish_form
-        # end
-
-        # def auto_establish_form
-        #   # send to sidekiq job
-        # end
-
         private
 
         def form_type_name
@@ -81,51 +66,6 @@ module ClaimsApi
 
         def form_attributes
           @json_form_data&.dig('data', 'attributes') || {}
-        end
-
-        # def build_auth_headers(_data)
-        #   {
-        #     'va_eauth_csid' => '',
-        #     'va_eauth_authenticationmethod' => '',
-        #     'va_eauth_pnidtype' => '',
-        #     'va_eauth_assurancelevel' => '',
-        #     'va_eauth_firstName' => '',
-        #     'va_eauth_lastName' => '',
-        #     'va_eauth_issueinstant' => '',
-        #     'va_eauth_dodedipnid' => '',
-        #     'va_eauth_birlsfilenumber' => '',
-        #     'va_eauth_pid' => '',
-        #     'va_eauth_pnid' => '',
-        #     'va_eauth_birthdate' => '',
-        #     'va_eauth_authorization' => authorization_object,
-        #     'va_eauth_authenticationauthority' => '',
-        #     "va_eauth_service_transaction_id"=>"",
-        #     'va_notify_recipient_identifier' => ''
-        #   }
-        # end
-
-        # Taken directly from the application controller
-        def auth_headers
-          evss_headers = EVSS::DisabilityCompensationAuthHeaders
-                         .new(@veteran)
-                         .add_headers(
-                           EVSS::AuthHeaders.new(@veteran).to_h
-                         )
-          evss_headers['va_eauth_pnid'] = @veteran.mpi.profile.ssn
-
-          if request.headers['Mock-Override'] &&
-             Settings.claims_api.disability_claims_mock_override
-            evss_headers['Mock-Override'] = request.headers['Mock-Override']
-            claims_v2_logging('mock_override', message: 'ClaimsApi: Mock Override Engaged in app_controller_v2')
-          end
-
-          evss_headers
-        end
-
-        def authorization_object
-          { authorizationResponse: { status: '', idType: '', id: '', edi: '',
-                                     firstName: '', lastName: '', birthDate: '',
-                                     gender: '' } }
         end
 
         def deep_compact(obj)
