@@ -15,12 +15,12 @@ class Shrine
           image_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.jpg").to_s
           file = get.download
           pdf = MiniMagick::Image.open(file.path)
-          MiniMagick::Tool::Convert.new do |convert|
+          MiniMagick.convert do |convert|
+            convert << pdf.pages.first.path
             convert.background 'white'
             convert.flatten
             convert.density 150
             convert.quality 100
-            convert << pdf.pages.first.path
             convert << image_path
           end
           file_as_string = RTesseract.new(image_path).to_s

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -143,6 +143,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "can_accept_digital_poa_requests", default: false, null: false
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
@@ -330,6 +331,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
     t.string "type", null: false
     t.uuid "creator_id", null: false
     t.integer "declination_reason"
+    t.string "power_of_attorney_holder_type"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["creator_id"], name: "index_ar_power_of_attorney_request_decisions_on_creator_id"
   end
 
@@ -726,6 +730,26 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["key"], name: "index_devices_on_key", unique: true
+  end
+
+  create_table "digital_dispute_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_uuid", null: false
+    t.uuid "user_account_id"
+    t.jsonb "debt_identifiers", default: [], null: false
+    t.jsonb "public_metadata", default: {}
+    t.text "form_data_ciphertext"
+    t.text "metadata_ciphertext"
+    t.text "encrypted_kms_key"
+    t.integer "state", default: 0, null: false
+    t.string "error_message"
+    t.string "reference_id"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
+    t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
+    t.index ["user_account_id"], name: "index_digital_dispute_submissions_on_user_account_id"
+    t.index ["user_uuid"], name: "index_digital_dispute_submissions_on_user_uuid"
   end
 
   create_table "directory_applications", force: :cascade do |t|
@@ -2078,6 +2102,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_154315) do
   add_foreign_key "claims_evidence_api_submission_attempts", "claims_evidence_api_submissions", column: "claims_evidence_api_submissions_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "digital_dispute_submissions", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"

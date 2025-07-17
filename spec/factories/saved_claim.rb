@@ -10,6 +10,10 @@ class SavedClaim::Test < SavedClaim
   def form_matches_schema
     true
   end
+
+  def attachment_keys
+    [:files]
+  end
 end
 
 FactoryBot.define do
