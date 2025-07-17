@@ -17,9 +17,13 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       cntry_nm: 'USA',
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       postal_cd: 'CA',
 =======
 >>>>>>> 05485bf6ad (Fixes naming on files to be inline with previous mapper files)
+=======
+      postal_cd: 'CA',
+>>>>>>> 4b90aaed80 (WIP)
       zip_first_suffix_nbr: '0200',
       zip_prefix_nbr: '92264'
 =======
@@ -46,6 +50,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       'addrs_one_txt' => '2719 Atlas Ave',
       'addrs_two_txt' => 'Apt 2',
       'city_nm' => 'Los Angeles',
+<<<<<<< HEAD
       'cntry_nm' => 'USA',
 <<<<<<< HEAD
       'postal_cd' => 'CA',
@@ -64,6 +69,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
 >>>>>>> 05485bf6ad (Fixes naming on files to be inline with previous mapper files)
 =======
       'prvnc_nm' => nil,
+=======
+      'cntry_nm' => 'USA', # mapping does not happen here
+      'postal_cd' => 'CA',
+>>>>>>> 4b90aaed80 (WIP)
       'zip_prefix_nbr' => '92264',
       'zip_first_suffix_nbr' => '0200',
       'email_addrs_txt' => nil

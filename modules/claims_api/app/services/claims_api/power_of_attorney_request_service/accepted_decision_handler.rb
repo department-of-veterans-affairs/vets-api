@@ -73,7 +73,12 @@ module ClaimsApi
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
+<<<<<<< HEAD
         data.merge!('registration_number' => @registration_number.to_s)
+=======
+        data.merge!('registration_number' => @representative_id.to_s)
+
+>>>>>>> 4b90aaed80 (WIP)
         if @claimant.present?
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')

@@ -2,6 +2,9 @@
 
 RSpec.shared_context 'shared POA auto establishment data' do
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4b90aaed80 (WIP)
   let(:data) do
     {
       'name' => 'Ralph Lee',
@@ -52,8 +55,11 @@ RSpec.shared_context 'shared POA auto establishment data' do
     }
   end
 
+<<<<<<< HEAD
 =======
 >>>>>>> 1255e92ce7 (WIP)
+=======
+>>>>>>> 4b90aaed80 (WIP)
   let(:valid_form) do
     {
       'data' => {
@@ -64,12 +70,17 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'addressLine2' => 'Apt 2',
               'city' => 'Los Angeles',
 <<<<<<< HEAD
+<<<<<<< HEAD
               'stateCode' => 'CA',
               'countryCode' => 'US',
 =======
               'stateCode' => nil,
               'countryCode' => 'USA',
 >>>>>>> 1255e92ce7 (WIP)
+=======
+              'stateCode' => 'CA',
+              'countryCode' => 'US',
+>>>>>>> 4b90aaed80 (WIP)
               'zipCode' => '92264',
               'zipCodeSuffix' => '0200'
             },
@@ -85,6 +96,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
           'serviceOrganization' => {
             'poaCode' => '083',
 <<<<<<< HEAD
+<<<<<<< HEAD
             'registrationNumber' => '12345678',
             'jobTitle' => nil
           },
@@ -95,6 +107,12 @@ RSpec.shared_context 'shared POA auto establishment data' do
           },
           'recordConsent' => 'true',
 >>>>>>> 1255e92ce7 (WIP)
+=======
+            'registrationNumber' => '12345678',
+            'jobTitle' => nil
+          },
+          'recordConsent' => true,
+>>>>>>> 4b90aaed80 (WIP)
           'consentLimits' => %w[
             DRUG_ABUSE
             ALCOHOLISM
@@ -102,10 +120,14 @@ RSpec.shared_context 'shared POA auto establishment data' do
             SICKLE_CELL
           ],
 <<<<<<< HEAD
+<<<<<<< HEAD
           'consentAddressChange' => true,
 =======
           'consentAddressChange' => nil,
 >>>>>>> 1255e92ce7 (WIP)
+=======
+          'consentAddressChange' => true,
+>>>>>>> 4b90aaed80 (WIP)
           'claimant' => {
             'claimantId' => '1013093331V548481',
             'address' => {
@@ -113,12 +135,17 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'addressLine2' => 'Apt 3',
               'city' => 'Boston',
 <<<<<<< HEAD
+<<<<<<< HEAD
               'stateCode' => 'MA',
               'countryCode' => 'US',
 =======
               'stateCode' => nil,
               'countryCode' => 'USA',
 >>>>>>> 1255e92ce7 (WIP)
+=======
+              'stateCode' => 'MA',
+              'countryCode' => 'US',
+>>>>>>> 4b90aaed80 (WIP)
               'zipCode' => '02110',
               'zipCodeSuffix' => '1000'
             },
@@ -135,6 +162,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
     }
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   let(:invalid_form) do
@@ -239,6 +267,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
   end
 
 >>>>>>> 1255e92ce7 (WIP)
+=======
+>>>>>>> 4b90aaed80 (WIP)
   let(:veteran) do
     OpenStruct.new(
       icn: '1012861229V078999',
