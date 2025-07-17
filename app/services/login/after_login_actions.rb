@@ -19,6 +19,7 @@ module Login
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       id_mismatch_validations
       create_mhv_account
+      current_user.fetch_ssoe_traits_async
       current_user.provision_cerner_async(source: :ssoe)
 
       if Settings.test_user_dashboard.env == 'staging'

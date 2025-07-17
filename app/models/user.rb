@@ -466,6 +466,12 @@ class User < Common::RedisStore
     MHV::AccountCreatorJob.perform_async(user_verification_id)
   end
 
+  def get_ssoe_traits_async
+    return unless loa3? && user_verification_id.present?
+
+    Identity::GetSSOeTraitsByCspidJob.perform_async(user_verification_id)
+  end
+
   def provision_cerner_async(source: nil)
     return unless cerner_eligible?
 
