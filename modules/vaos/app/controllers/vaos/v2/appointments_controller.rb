@@ -525,7 +525,7 @@ module VAOS
           }
         )
       rescue ArgumentError
-        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Error fetching provider slots")
+        Rails.logger.error('Community Care Appointments: Error fetching provider slots')
         nil
       end
 
