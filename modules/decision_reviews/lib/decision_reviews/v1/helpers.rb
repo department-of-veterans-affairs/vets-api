@@ -24,16 +24,16 @@ module DecisionReviews
       end
 
       def format_phone_number(phone)
-        return {} if phone.present?
+        return {} unless phone.present?
 
         country_code = phone['countryCode'] || ''
         area_code = phone['areaCode'] || ''
         number = phone['phoneNumber']
 
-        if country_code == '1'
+        if country_code == '1' || country_code.blank?
           { veteranPhone: "#{area_code}#{number}" }
         else
-          { internationalPhoneNumber: "+#{country_code} #{number}" }
+          { internationalPhoneNumber: "+#{country_code} #{area_code}#{number}" }
         end
       end
 
