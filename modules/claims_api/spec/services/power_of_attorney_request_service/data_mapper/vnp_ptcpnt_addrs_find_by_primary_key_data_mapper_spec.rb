@@ -22,7 +22,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntAddrsFin
       'addrs_one_txt' => '2719 Atlas Ave',
       'addrs_two_txt' => 'Apt 2',
       'city_nm' => 'Los Angeles',
-      'cntry_nm' => 'USA', # mapping does not happen here
+      'cntry_nm' => 'USA',
       'postal_cd' => 'CA',
       'zip_prefix_nbr' => '92264',
       'zip_first_suffix_nbr' => '0200',
