@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       include PowerOfAttorneyRequests
+      include AccreditedRepresentativePortal::V0::WithdrawalGuard
+
       before_action do
         authorize PowerOfAttorneyRequest
       end
@@ -11,13 +13,7 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:id]
           set_poa_request(id)
-
-          # Return 404 if withdrawn
-          if @poa_request.resolution&.resolving.is_a?(
-            AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal
-          )
-            render json: { errors: ['Record not found'] }, status: :not_found
-          end
+          render_404_if_withdrawn!(@poa_request)
         end
       end
 

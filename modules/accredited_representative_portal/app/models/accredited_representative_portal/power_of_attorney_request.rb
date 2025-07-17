@@ -111,9 +111,7 @@ module AccreditedRepresentativePortal
     scope :unredacted, -> { where(redacted_at: nil) }
     scope :redacted, -> { where.not(redacted_at: nil) }
 
-    scope :unresolved, lambda {
-      left_outer_joins(:resolution).where(resolution: { id: nil }) # rubocop:disable Rails/WhereMissing
-    }
+    scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, lambda {
       left_outer_joins(:resolution).where.not(resolution: { id: nil })
     }
@@ -128,7 +126,7 @@ module AccreditedRepresentativePortal
     }
 
     scope :not_withdrawn, lambda {
-      unresolved.or(
+      where.missing(:resolution).or(
         resolved.where.not(
           resolution: { resolving_type: PowerOfAttorneyRequestWithdrawal.to_s }
         )
