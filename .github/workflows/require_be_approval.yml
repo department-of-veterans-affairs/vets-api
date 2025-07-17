@@ -73,14 +73,17 @@ jobs:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: final-review-confirmed
 
-      - name: Fail if draft or failures
+      - name: Skip backend approval for draft PR
         if: steps.pr_data.outputs.pr_draft == 'true'
-        run: exit 1
+        run: |
+          echo "PR is in draft mode. Skipping backend approval requirements."
+          echo "Labels have been removed. No further action needed."
 
   # Fetch approvals when required workflows are successful.
   fetch-pr-reviews:
     name: Succeed if backend approval is confirmed
     needs: [get-pr-data]
+    if: needs.get-pr-data.outputs.pr_draft == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:

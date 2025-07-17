@@ -110,10 +110,6 @@ jobs:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: ready-for-review
 
-      - name: Fail if draft
-        if: steps.get_pr_data.outputs.pr_draft == 'true'
-        run: exit 1
-
   check-workflow-status:
     name: Check Workflow Statuses
     needs: [get-pr-data]
