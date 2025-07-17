@@ -26,9 +26,9 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when 'ezr_associations_api_enabled' flipper is disabled" do
+    context "when 'ezr_emergency_contacts_enabled' flipper is disabled" do
       before do
-        allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
       end
 
       context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
@@ -54,9 +54,9 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when 'ezr_associations_api_enabled' flipper is enabled" do
+    context "when 'ezr_emergency_contacts_enabled' flipper is enabled" do
       before do
-        allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
       end
 
       context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do

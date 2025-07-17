@@ -72,7 +72,7 @@ module HCA
           ezr_data.merge!(spouse)
         end
 
-        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_associations_api_enabled)
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_emergency_contacts_enabled)
 
         OpenStruct.new(ezr_data)
       end
