@@ -8,12 +8,12 @@ module Common
       File.delete(path) if path && File.exist?(path)
     end
 
-    def random_file_path
-      "tmp/#{SecureRandom.hex}"
+    def random_file_path(file_ext = '')
+      "tmp/#{SecureRandom.hex}#{file_ext}"
     end
 
-    def generate_random_file(file_body)
-      file_path = random_file_path
+    def generate_random_file(file_body, file_ext = '')
+      file_path = random_file_path(file_ext)
 
       File.binwrite(file_path, file_body)
 

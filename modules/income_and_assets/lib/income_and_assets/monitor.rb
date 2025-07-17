@@ -64,12 +64,5 @@ module IncomeAndAssets
     def form_id
       IncomeAndAssets::FORM_ID
     end
-
-    ##
-    # Class name for notification email
-    # @return [Class]
-    def send_email(claim_id, email_type)
-      IncomeAndAssets::NotificationEmail.new(claim_id).deliver(email_type)
-    end
   end
 end

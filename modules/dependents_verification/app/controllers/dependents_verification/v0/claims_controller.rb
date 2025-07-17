@@ -35,7 +35,7 @@ module DependentsVerification
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim = claim_class.new(form: filtered_params[:form])
+        claim = claim_class.new(form: form_data_with_ssn.to_json)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -49,16 +49,22 @@ module DependentsVerification
 
         # TODO: Submit claim
 
-        monitor.track_create_success(in_progress_form&.id, claim, current_user)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
-        monitor.track_create_error(in_progress_form&.id, claim, current_user, e)
+        monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
       end
 
       private
+
+      def form_data_with_ssn
+        form_data_as_sym = JSON.parse(filtered_params[:form]).deep_symbolize_keys
+        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn)
+        form_data_as_sym
+      end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.
       def check_flipper_flag

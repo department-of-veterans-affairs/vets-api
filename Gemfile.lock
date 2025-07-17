@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 82f6fed76802255b901f3415ea3bb4bdfb6c0aac
+  revision: 359d8a8b1cb79145b0595e675353104e0f7cf390
   branch: master
   specs:
-    vets_json_schema (25.1.1)
+    vets_json_schema (25.1.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -245,7 +245,7 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1124.0)
+    aws-partitions (1.1128.0)
     aws-sdk-core (3.226.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -259,7 +259,7 @@ GEM
     aws-sdk-kms (1.106.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.192.0)
+    aws-sdk-s3 (1.193.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -331,7 +331,7 @@ GEM
       committee (>= 5.1.0)
       railties (>= 6.0)
     concurrent-ruby (1.3.5)
-    config (5.5.2)
+    config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
     connection_pool (2.5.3)
@@ -388,7 +388,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.6.2)
     docile (1.4.0)
-    dogstatsd-ruby (5.6.6)
+    dogstatsd-ruby (5.7.0)
     domain_name (0.6.20240107)
     down (5.4.2)
       addressable (~> 2.8)
@@ -495,9 +495,9 @@ GEM
       oauth2 (~> 2.0)
     flipper (1.3.5)
       concurrent-ruby (< 2)
-    flipper-active_record (1.3.4)
+    flipper-active_record (1.3.5)
       activerecord (>= 4.2, < 9)
-      flipper (~> 1.3.4)
+      flipper (~> 1.3.5)
     flipper-active_support_cache_store (1.3.5)
       activesupport (>= 4.2, < 9)
       flipper (~> 1.3.5)
@@ -711,8 +711,7 @@ GEM
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
-    mini_magick (5.2.0)
-      benchmark
+    mini_magick (5.3.0)
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
@@ -786,7 +785,7 @@ GEM
     operating_hours (0.1.0)
     optimist (3.2.1)
     os (1.1.4)
-    ostruct (0.6.1)
+    ostruct (0.6.2)
     ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
@@ -797,7 +796,7 @@ GEM
       racc
     patience_diff (1.2.0)
       optimist (~> 3.0)
-    pdf-core (0.10.0)
+    pdf-core (0.9.0)
     pdf-forms (1.5.2)
       cliver (~> 0.3.2)
       rexml (~> 3.2, >= 3.2.6)
@@ -819,10 +818,9 @@ GEM
     pkce_challenge (1.0.0)
     pp (0.6.2)
       prettyprint
-    prawn (2.5.0)
-      matrix (~> 0.4)
-      pdf-core (~> 0.10.0)
-      ttfunk (~> 1.8)
+    prawn (2.4.0)
+      pdf-core (~> 0.9.0)
+      ttfunk (~> 1.7)
     prawn-markup (1.1.0)
       nokogiri
       prawn
@@ -1136,8 +1134,7 @@ GEM
     timecop (0.9.10)
     timeout (0.4.3)
     trailblazer-option (0.1.2)
-    ttfunk (1.8.0)
-      bigdecimal (~> 3.1)
+    ttfunk (1.7.0)
     typhoeus (1.4.1)
       ethon (>= 0.9.0)
     tzinfo (2.0.6)
@@ -1342,7 +1339,7 @@ DEPENDENCIES
   pg_query
   pg_search
   pkce_challenge
-  prawn
+  prawn (~> 2.4.0)
   prawn-markup
   prawn-table
   pry-byebug
@@ -1408,6 +1405,7 @@ DEPENDENCIES
   test_user_dashboard!
   timecop
   travel_pay!
+  ttfunk (~> 1.7.0)
   tzinfo-data
   utf8-cleaner
   va_notify!
