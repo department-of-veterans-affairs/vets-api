@@ -30,9 +30,14 @@ class ClaimsEvidenceApi::Submission < Submission
 
   alias_attribute :file_uuid, :va_claim_id
 
+  # insert values into the reference data field
+  # unnammed values will be appended to the reference_data['data'] array
   def update_reference_data(*args, **kwargs)
-    super(*args, **kwargs)
-    x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
+    self.reference_data ||= {}
+    reference_data['data'] = (reference_data['data'] || []) + args
+    reference_data.merge kwargs
+
+    self.x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
   end
 
   # retrieve the header value from encrypted reference_data

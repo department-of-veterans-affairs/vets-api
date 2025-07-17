@@ -176,7 +176,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def upload_to_vbms(path:, doc_type: nil)
-    doc_type = doc_type || self.document_type
+    doc_type ||= document_type
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],

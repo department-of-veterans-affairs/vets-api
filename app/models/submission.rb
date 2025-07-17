@@ -25,10 +25,4 @@ class Submission < ApplicationRecord
   def latest_attempt
     submission_attempts&.order(created_at: :desc)&.first
   end
-
-  def update_reference_data(*args, **kwargs)
-    self.reference_data ||= {}
-    reference_data['data'] = args
-    reference_data.merge kwargs
-  end
 end
