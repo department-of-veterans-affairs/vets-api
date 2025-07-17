@@ -115,21 +115,6 @@ module ClaimsApi
 >>>>>>> 4b90aaed80 (WIP)
         end
 
-        # def build_auth_headers
-        #   # auth_headers
-        #   # if built
-        #   save_form
-        # end
-
-        # def save_form
-        #   # if save! works
-        #   auto_establish_form
-        # end
-
-        # def auto_establish_form
-        #   # send to sidekiq job
-        # end
-
         private
 
 <<<<<<< HEAD
@@ -147,6 +132,7 @@ module ClaimsApi
           @json_form_data&.dig('data', 'attributes') || {}
         end
 
+<<<<<<< HEAD
         def deep_compact(obj)
           case obj
           when Hash
@@ -229,6 +215,8 @@ module ClaimsApi
                                      gender: '' } }
         end
 
+=======
+>>>>>>> a054b71a57 (Rolls out auth header createion and on to move to a seperate PR since this is probably too big at this point)
         def deep_compact(obj)
           case obj
           when Hash
