@@ -24,7 +24,7 @@ module DecisionReviews
       end
 
       def format_phone_number(phone)
-        return {} unless phone.present?
+        return {} if phone.blank?
 
         country_code = phone['countryCode'] || ''
         area_code = phone['areaCode'] || ''
