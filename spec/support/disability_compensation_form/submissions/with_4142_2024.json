@@ -267,10 +267,7 @@
       "state": "OR"
     },
     "email": "test@email.com",
-    "veteranPhone": {
-      "number": "202456111184",
-      "countryCode": "84"
-    },
+    "veteranPhone": "2024561111",
     "veteranServiceNumber": "23784678"
   },
   "form0781": null,

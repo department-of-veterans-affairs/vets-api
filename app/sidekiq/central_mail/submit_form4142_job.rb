@@ -181,7 +181,6 @@ module CentralMail
 
       payload = payload_hash(lighthouse_service.location)
       response = lighthouse_service.upload_doc(**payload)
-      binding.pry
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)

@@ -107,6 +107,16 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
         expect(subject.new.decrypt_form(enc_payload)).to eq(payload)
       end
 
+      # TODO: add for int'l number
+      #       it '#decrypt_form properly decrypts encrypted payloads' do
+      #   form4142 = request_body['form4142']
+      #   payload = get_and_rejigger_required_info(
+      #     request_body:, form4142:, user:
+      #   )
+      #   enc_payload = payload_encrypted_string(payload)
+      #   expect(subject.new.decrypt_form(enc_payload)).to eq(payload)
+      # end
+
       it 'generates a 4142 PDF and sends it to Lighthouse API' do
         allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)

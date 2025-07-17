@@ -17,9 +17,6 @@
     "state": "MD"
   },
   "email": "testy.testerson@gmail.com",
-  "veteranPhone": {
-    "number": "2123456789",
-    "countryCode": "1"
-  },
+  "veteranPhone": "2123456789",
   "signatureDate": "2016-01-31"
 }

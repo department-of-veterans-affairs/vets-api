@@ -399,16 +399,9 @@ module PdfFill
 
       def expand_phone_number_field
         phone = @form_data['veteranPhone']
-        return if phone.blank?
+        return nil if phone.blank?
 
-        if phone['countryCode'].blank? || phone['countryCode'] == '1'
-          ['', '1', '2', '3'].each do |suffix|
-            @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone['number'])
-          end
-        else
-          @form_data['veteranPhone'] = ''
-          @form_data['internationalPhoneNumber'] = "+#{phone['countryCode']} #{phone['number']}"
-        end
+        @form_data['veteranPhone'] = expand_phone_number(phone)
       end
 
       def expand_claimant_address

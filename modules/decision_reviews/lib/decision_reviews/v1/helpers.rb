@@ -24,22 +24,24 @@ module DecisionReviews
       end
 
       def format_phone_number(phone)
-        return unless phone
+        return {} if phone.present?
 
         country_code = phone['countryCode'] || ''
         area_code = phone['areaCode'] || ''
         number = phone['phoneNumber']
 
-        {
-          'number' => "#{area_code}#{number}",
-          'countryCode' => country_code
-        }
+        if country_code == '1'
+          { veteranPhone: "#{area_code}#{number}" }
+        else
+          { internationalPhoneNumber: "+#{country_code} #{number}" }
+        end
       end
 
       def get_and_rejigger_required_info(request_body:, form4142:, user:)
         data = request_body['data']
         attrs = data['attributes']
         vet = attrs['veteran']
+
         x = {
           vaFileNumber: user.ssn.to_s.strip.presence,
           veteranSocialSecurityNumber: user.ssn.to_s.strip.presence,
@@ -50,9 +52,12 @@ module DecisionReviews
           },
           veteranDateOfBirth: user.birth_date.to_s.strip.presence,
           veteranAddress: transform_address_fields(vet['address']),
-          email: vet['email'],
-          veteranPhone: format_phone_number(vet['phone'])
+          email: vet['email']
         }
+
+        x.merge!(format_phone_number(vet['phone'])).compact!
+
+        binding.pry
 
         transformed_form4142 = transform_form4142_data(form4142)
         x.merge(transformed_form4142).deep_stringify_keys
