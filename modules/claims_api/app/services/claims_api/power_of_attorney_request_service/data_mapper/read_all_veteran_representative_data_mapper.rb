@@ -22,7 +22,7 @@ module ClaimsApi
         end
 
         # The data structure of the data returned from these calls to
-        # BEP (BGS) is not uniform. The data returned here is like data['...']
+        # BEP (BGS) is not uniform. The data returned here is like data['value']
         def build_data_object(data)
           return [] if data.nil?
 
