@@ -21,7 +21,7 @@ module DependentsVerification
       end
     end
 
-    
+
     initializer 'dependents_verification.benefits_intake.register_handler' do |app|
       app.config.to_prepare do
         require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
