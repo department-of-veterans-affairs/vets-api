@@ -53,32 +53,73 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
 
     let(:mock_token_response) { Faraday::Response.new(response_body:, status: 200) }
 
-    context 'successfully gets token' do
-      it 'calls perform with expected params' do
-        expect(client).to receive(:perform)
-          .with(
-            :post,
-            config.settings.auth_token_path,
-            token_params, token_headers, options
-          )
-          .and_return(mock_token_response)
+    context ':caregiver_mulesoft_config_v2 toggle disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft_config_v2).and_return(false)
+      end
 
-        expect(subject).to eq token
+      context 'successfully gets token' do
+        it 'calls perform with expected params' do
+          expect(client).to receive(:perform)
+            .with(
+              :post,
+              config.settings.auth_token_path,
+              token_params, token_headers, options
+            )
+            .and_return(mock_token_response)
+
+          expect(subject).to eq token
+        end
+      end
+
+      context 'error getting token' do
+        let(:mock_error_token_response) { Faraday::Response.new(response_body: { sad: true }, status: 400) }
+
+        it 'raises error' do
+          expect(client).to receive(:perform)
+            .with(:post, config.settings.auth_token_path, token_params, token_headers, options)
+            .and_return(mock_error_token_response)
+
+          expect do
+            subject
+          end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError,
+                             "Response: #{mock_error_token_response}")
+        end
       end
     end
 
-    context 'error getting token' do
-      let(:mock_error_token_response) { Faraday::Response.new(response_body: { sad: true }, status: 400) }
+    context ':caregiver_mulesoft_config_v2 toggle enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft_config_v2).and_return(true)
+      end
 
-      it 'raises error' do
-        expect(client).to receive(:perform)
-          .with(:post, config.settings.auth_token_path, token_params, token_headers, options)
-          .and_return(mock_error_token_response)
+      context 'successfully gets token' do
+        it 'calls perform with expected params' do
+          expect(client).to receive(:perform)
+            .with(
+              :post,
+              config.settings.auth_token_path,
+              token_params, token_headers
+            )
+            .and_return(mock_token_response)
 
-        expect do
-          subject
-        end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError,
-                           "Response: #{mock_error_token_response}")
+          expect(subject).to eq token
+        end
+      end
+
+      context 'error getting token' do
+        let(:mock_error_token_response) { Faraday::Response.new(response_body: { sad: true }, status: 400) }
+
+        it 'raises error' do
+          expect(client).to receive(:perform)
+            .with(:post, config.settings.auth_token_path, token_params, token_headers)
+            .and_return(mock_error_token_response)
+
+          expect do
+            subject
+          end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError,
+                             "Response: #{mock_error_token_response}")
+        end
       end
     end
   end

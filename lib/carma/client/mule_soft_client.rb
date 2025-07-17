@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_configuration'
+require 'carma/client/mule_soft_configuration_v2'
 require 'carma/client/mule_soft_auth_token_client'
 
 module CARMA
@@ -8,7 +9,11 @@ module CARMA
     class MuleSoftClient < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
-      configuration MuleSoftConfiguration
+      if Flipper.enabled?(:caregiver_mulesoft_config_v2)
+        configuration MuleSoftConfigurationV2
+      else
+        configuration MuleSoftConfiguration
+      end
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
@@ -38,8 +43,8 @@ module CARMA
             :post,
             resource,
             get_body(payload),
-            headers,
-            { timeout: config.settings.async_timeout }
+            *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [headers]),
+            *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [{ timeout: config.settings.async_timeout }])
           )
 
           handle_response(resource, response)
