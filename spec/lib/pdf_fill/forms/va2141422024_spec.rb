@@ -181,13 +181,7 @@ describe PdfFill::Forms::Va2141422024 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                              'phone_last_four_numbers' => '1234' },
-          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' }
+                              'phone_last_four_numbers' => '1234' }
         )
       end
     end
