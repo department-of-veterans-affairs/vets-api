@@ -66,8 +66,7 @@ module MHV
       def authenticated_header(icn:)
         {
           'Authorization' => "Bearer #{config.sts_token(user_identifier: icn)}",
-          'x-api-key' => config.access_key,
-          'mhvapi-idempotency-key' => icn
+          'x-api-key' => config.access_key
         }
       end
 
