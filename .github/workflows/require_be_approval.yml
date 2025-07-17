@@ -3,9 +3,6 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
-  pull_request:
-    types: [converted_to_draft]
-    branches: master
 permissions:
   id-token: write
   contents: read
@@ -35,24 +32,19 @@ jobs:
         run: |
           # Pull recent data
           ORG="department-of-veterans-affairs"
+          REPO="department-of-veterans-affairs/vets-api"
           PR_NUMBER="${{ github.event.pull_request.number }}"
 
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
           # Fetch PR details from GitHub API
-          PR_INFO=$(gh api /repos/department-of-veterans-affairs/vets-api/pulls/${PR_NUMBER} --jq '{
+          PR_INFO=$(gh api /repos/${REPO}/pulls/${PR_NUMBER} --jq '{
             draft: .draft,
             labels: [.labels[].name],
             head_ref: .head.ref
           }')
 
-          # Assign PR_DRAFT to true if a pull_request action kicked off the workflow
-          if github.event_name == 'pull_request'
-            PR_DRAFT=true
-          else
-            PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
-          fi
-
+          PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
           PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
           PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
 
@@ -80,13 +72,6 @@ jobs:
         with:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: final-review-confirmed
-
-      - name: Remove exempt-be-review label
-        if: steps.pr_data.outputs.pr_draft == 'true'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ steps.get_pr_data.outputs.pr_number }}
-          labels: exempt-be-review
 
       - name: Skip backend approval for draft PR
         if: steps.pr_data.outputs.pr_draft == 'true'
@@ -192,17 +177,15 @@ jobs:
             backend_approval_required=false
             team_approval_status=confirmed
             approval_status=confirmed
-
-          elif [[ "$PR_LABELS" == *"exempt-be-review"* || "$PR_LABELS" == *"final-review-confirmed"* ]]; then
+          elif echo "$PR_LABELS" | jq -e '. | index("exempt-be-review")' > /dev/null || \
+              echo "$PR_LABELS" | jq -e '. | index("final-review-confirmed")' > /dev/null; then
             team_approval_status=confirmed
             approval_status=confirmed
             backend_approval_required=false
-
           else
             backend_approval_required=true
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
-
             if [ -z "$BE_APPROVALS" ]; then
               echo "BE APPROVAL NOT CONFIRMED"
               approval_status=not_confirmed
