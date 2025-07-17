@@ -40,7 +40,7 @@ module DisabilityCompensation
       end
 
       ##
-      # Stats key for Sidekiq DD logging???
+      # Stats key for Sidekiq DD logging
       # @return [String]
       def submission_stats_key
         SUBMISSION_STATS_KEY
