@@ -81,6 +81,7 @@ module RepresentationManagement
         report += "#{type.to_s.humanize}: Current: #{current_count}, Previous: #{previous_count}, " \
                   "Change: #{change_percentage}%\n"
       end
+      report << db_record_count_report
       report
     rescue => e
       log_error("Error generating count report: #{e.message}")
@@ -188,6 +189,20 @@ module RepresentationManagement
                                              channel: '#benefits-representation-management-notifications',
                                              username: 'RepresentationManagement::AccreditationApiEntityCount')
       slack_client.notify(message)
+    end
+
+    def db_record_count_report
+      report = String.new("Accreditation Entity Database Record Counts Report:\n")
+      AccreditedIndividual.individual_types.each_key do |type|
+        count = AccreditedIndividual.where(individual_type: type).count
+        count_with_location = AccreditedIndividual.where(individual_type: type).where.not(location: nil).count
+        percentage_with_location = count_with_location.to_f / count * 100
+        report << "#{type.to_s.humanize}: #{count} (#{percentage_with_location.round(2)}% with location)\n"
+      end
+      report << "Veteran Service Organizations: #{AccreditedOrganization.count} (No location data)\n"
+      report
+    rescue => e
+      log_error("Error generating database record count report: #{e.message}")
     end
 
     # Logs an error message to the Rails logger

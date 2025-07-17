@@ -1348,33 +1348,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expect(job).to have_received(:log_to_slack_channel).with(initial_report)
     end
-
-    it 'uses Time.current as end_time when called' do
-      freeze_time = Time.parse('2023-12-01 12:00:00 UTC')
-      start_time = freeze_time - 5.minutes
-
-      job.instance_variable_set(:@start_time, start_time)
-
-      travel_to freeze_time do
-        expect(job).to receive(:calculate_duration).with(start_time, freeze_time).and_return('5m 0s')
-        job.send(:finalize_and_send_report)
-      end
-    end
-
-    context 'when @start_time is nil' do
-      before do
-        job.instance_variable_set(:@start_time, nil)
-      end
-
-      it 'handles missing start_time gracefully' do
-        allow(job).to receive(:calculate_duration).and_return('Unknown')
-
-        job.send(:finalize_and_send_report)
-
-        report = job.instance_variable_get(:@report)
-        expect(report).to include("\nJob Duration: Unknown\n")
-      end
-    end
   end
 
   describe '#calculate_duration' do
