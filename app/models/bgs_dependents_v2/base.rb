@@ -168,7 +168,6 @@ module BGSDependentsV2
         frgn_postal_code = address['postal_code']
         state = nil
       end
-      state = 
       {
         efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: participant_id,
@@ -185,7 +184,7 @@ module BGSDependentsV2
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
         zip_prefix_nbr: address['postal_code'],
-        prvnc_nm: state,
+        prvnc_nm: address['state'],
         email_addrs_txt: payload['email_address']
       }
     end

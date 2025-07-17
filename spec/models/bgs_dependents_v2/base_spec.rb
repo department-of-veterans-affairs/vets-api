@@ -108,13 +108,9 @@ RSpec.describe BGSDependentsV2::Base do
         address['country'] = 'ITA'
         address['international_postal_code'] = '12345'
         address['state'] = 'Tuscany'
-        base.dependent_address(
-          dependents_application: sample_v2_dependent_application,
-          lives_with_vet: true,
-          alt_address: nil
-        )
-        expect(address['postal_cd']).to eq(nil)
-        expect(address['prvnc_nm']).to eq(nil)
+        params = base.create_address_params('1', '1', address)
+        expect(params[:postal_cd]).to be_nil
+        expect(params[:prvnc_nm]).to eq('Tuscany')
       end
     end
   end
