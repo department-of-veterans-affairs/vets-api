@@ -67,7 +67,7 @@ jobs:
 
               # Extract and store individual fields
               PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
-              PR_LABELS="$(echo "$PR_INFO" | jq -c '.labels')"
+              PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
 
               echo "pr_draft=$PR_DRAFT" >> $GITHUB_OUTPUT
               echo "pr_labels=$PR_LABELS" >> $GITHUB_OUTPUT
