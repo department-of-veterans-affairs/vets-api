@@ -91,7 +91,7 @@ module AccreditedRepresentativePortal
         submission = request.power_of_attorney_form_submission
         resolution = request.resolution
 
-        unless Flipper.enabled?(:accredited_representative_portal_faux_redaction)
+        if Flipper.enabled?(:accredited_representative_portal_full_poa_redaction)
           # 1. Delete associated form
           form&.delete
 

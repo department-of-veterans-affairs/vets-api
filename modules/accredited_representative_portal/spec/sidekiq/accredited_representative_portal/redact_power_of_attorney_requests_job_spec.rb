@@ -10,7 +10,9 @@ Sidekiq::Testing.fake!
 module AccreditedRepresentativePortal
   RSpec.describe RedactPowerOfAttorneyRequestsJob, type: :job do
     before do
-      Flipper.disable(:accredited_representative_portal_faux_redaction)
+      allow(Flipper).to receive(:enabled?).with(
+        :accredited_representative_portal_full_poa_redaction
+      ).and_return(true)
     end
 
     # Helper to add redactable data to a submission
@@ -379,11 +381,15 @@ module AccreditedRepresentativePortal
 
       context 'Feature flag disables actual deletion' do
         before do
-          Flipper.enable(:accredited_representative_portal_faux_redaction)
+          allow(Flipper).to receive(:enabled?).with(
+            :accredited_representative_portal_full_poa_redaction
+          ).and_return(false)
         end
 
         after do
-          Flipper.disable(:accredited_representative_portal_faux_redaction)
+          allow(Flipper).to receive(:enabled?).with(
+            :accredited_representative_portal_full_poa_redaction
+          ).and_return(true)
         end
 
         it 'does NOT destroys the associated form if present' do
