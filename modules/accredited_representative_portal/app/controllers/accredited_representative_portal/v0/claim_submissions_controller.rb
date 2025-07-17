@@ -3,7 +3,7 @@
 module AccreditedRepresentativePortal
   module V0
     class ClaimSubmissionsController < ApplicationController
-      before_action :deny_access_unless_686c_enabled, only: [:index]
+      before_action :deny_access_unless_submissions_enabled, only: [:index]
 
       def index
         authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy

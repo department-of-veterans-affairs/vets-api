@@ -125,13 +125,10 @@ module SimpleFormsApi
     def get_page_configuration(stamp)
       page = stamp[:page]
       position = stamp[:coords]
-      [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page }
-      ].tap do |config|
+      [].tap do |config|
+        ([page, 5].max).times do
+          config << { type: :new_page }
+        end
         config[page] = { type: :text, position: }
       end
     end
