@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_discovery/params'
 
 RSpec.describe BenefitsDiscovery::Params do
-  subject { described_class.new(user.uuid) }
+  subject { described_class.new(user) }
 
   let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
@@ -58,6 +58,13 @@ RSpec.describe BenefitsDiscovery::Params do
           end
         end
       end
+    end
+  end
+
+  describe '.service_history_params' do
+    it 'returns params' do
+      service_history_episodes = [build(:service_history)]
+      expect(described_class.service_history_params(service_history_episodes)).to eq({})
     end
   end
 end

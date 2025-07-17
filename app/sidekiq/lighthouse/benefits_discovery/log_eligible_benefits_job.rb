@@ -12,6 +12,9 @@ module Lighthouse
 
       def perform(user_uuid, service_history)
         start_time = Time.current
+        user = User.find(user_uuid)
+        raise Common::Exceptions::RecordNotFound, user_uuid if user.nil?
+
         ::BenefitsDiscovery::Params.new(user_uuid, service_history).prepared_params
         eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits
         execution_time = Time.current - start_time

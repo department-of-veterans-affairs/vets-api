@@ -2,9 +2,8 @@
 
 module BenefitsDiscovery
   class Params
-    def initialize(user_uuid)
-      @user = User.find(user_uuid)
-      raise Common::Exceptions::RecordNotFound, user_uuid if @user.nil?
+    def initialize(user)
+      @user = user
     end
 
     def prepared_params(service_history_params)
@@ -16,12 +15,11 @@ module BenefitsDiscovery
 
     class << self
       # may be wise to rescue in order to ensure we don't introduce errors
-      def service_history_params(service_history)
-        episodes = service_history.episodes
+      def service_history_params(service_history_episodes)
         {
-          dischargeStatus: discharge_status(episodes),
-          branchOfService: episodes.map { |sh| sh.branch_of_service&.upcase },
-          serviceDates: episodes.map { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
+          dischargeStatus: discharge_status(service_history_episodes),
+          branchOfService: service_history_episodes.map { |sh| sh.branch_of_service&.upcase },
+          serviceDates: service_history_episodes.map { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
         }.compact_blank
       end
 
@@ -42,6 +40,15 @@ module BenefitsDiscovery
     end
 
     private
+
+    # method is currently not in use. it will be in a later phase of development
+    def service_history
+      @service_history ||= begin
+        service = VAProfile::MilitaryPersonnel::Service.new(@user)
+        response = service.get_service_history
+        response.episodes
+      end
+    end
 
     def disability_rating
       service = VeteranVerification::Service.new
