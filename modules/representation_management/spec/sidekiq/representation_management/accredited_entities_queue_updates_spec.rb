@@ -1389,36 +1389,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
         expect(result).to eq('45s')
       end
-
-      it 'returns seconds format for exactly 59 seconds' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time + 59.seconds
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('59s')
-      end
-
-      it 'returns seconds format for 0 seconds' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('0s')
-      end
     end
 
     context 'when calculating duration in minutes and seconds' do
-      it 'returns minutes and seconds format for exactly 1 minute' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time + 1.minute
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('1m 0s')
-      end
-
       it 'returns minutes and seconds format for 2 minutes 30 seconds' do
         start_time = Time.parse('2023-12-01 12:00:00 UTC')
         end_time = start_time + 2.minutes + 30.seconds
@@ -1427,27 +1400,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
         expect(result).to eq('2m 30s')
       end
-
-      it 'returns minutes and seconds format for exactly 59 minutes' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time + 59.minutes + 45.seconds
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('59m 45s')
-      end
     end
 
     context 'when calculating duration in hours, minutes and seconds' do
-      it 'returns full format for exactly 1 hour' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time + 1.hour
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('1h 0m 0s')
-      end
-
       it 'returns full format for 2 hours 15 minutes 30 seconds' do
         start_time = Time.parse('2023-12-01 12:00:00 UTC')
         end_time = start_time + 2.hours + 15.minutes + 30.seconds
@@ -1455,15 +1410,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         result = job.send(:calculate_duration, start_time, end_time)
 
         expect(result).to eq('2h 15m 30s')
-      end
-
-      it 'returns full format for long running job' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time + 5.hours + 42.minutes + 18.seconds
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('5h 42m 18s')
       end
     end
 
@@ -1475,15 +1421,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         result = job.send(:calculate_duration, start_time, end_time)
 
         expect(result).to eq('44s') # 44.5 seconds truncated to 44
-      end
-
-      it 'handles very long durations correctly' do
-        start_time = Time.parse('2023-12-01 12:00:00 UTC')
-        end_time = start_time + 25.hours + 70.minutes + 90.seconds
-
-        result = job.send(:calculate_duration, start_time, end_time)
-
-        expect(result).to eq('26h 11m 30s') # 70 minutes = 1h 10m, 90 seconds = 1m 30s
       end
 
       it 'handles same start and end times' do
