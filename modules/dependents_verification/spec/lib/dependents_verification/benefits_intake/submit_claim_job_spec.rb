@@ -90,7 +90,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     end
 
     context 'with pending form submission attempt' do
-      let(:claim) { create(:burials_saved_claim, :pending) }
+      let(:claim) { create(:dependents_verification_claim, :pending) }
 
       it 'return true' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
@@ -98,7 +98,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     end
 
     context 'with success form submission attempt' do
-      let(:claim) { create(:burials_saved_claim, :submitted) }
+      let(:claim) { create(:dependents_verification_claim, :submitted) }
 
       it 'return true' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
@@ -106,7 +106,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     end
 
     context 'with failure form submission attempt' do
-      let(:claim) { create(:burials_saved_claim, :failure) }
+      let(:claim) { create(:dependents_verification_claim, :failure) }
 
       it 'return false' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(false)

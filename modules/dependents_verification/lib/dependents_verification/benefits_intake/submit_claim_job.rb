@@ -122,7 +122,7 @@ module DependentsVerification
 
       # Upload generated pdf to Benefits Intake API
       #
-      # @raise [BurialsBenefitIntakeError] on upload failure
+      # @raise [DependentsVerificationBenefitIntakeError] on upload failure
       def upload_document
         # upload must be performed within 15 minutes of this request
         @intake_service.request_upload
