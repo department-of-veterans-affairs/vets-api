@@ -11,6 +11,7 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
       create_list(:power_of_attorney, 10)
       ClaimsApi::PowerOfAttorney.update_all(header_hash: nil) # rubocop:disable Rails/SkipsModelValidations
     end
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_run_header_hash_filler_job).and_return true
   end
 
   describe '#perform' do
@@ -45,6 +46,13 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
       )
 
       subject.perform 'ClaimsApi::PowerOfAttorney'
+    end
+
+    it 'skips processing if feature flag is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_run_header_hash_filler_job).and_return false
+      expect do
+        subject.perform 'ClaimsApi::PowerOfAttorney'
+      end.not_to(change { ClaimsApi::PowerOfAttorney.where(header_hash: nil).count })
     end
 
     it 'logs an error and returns cleanly if filling header_hash fails' do

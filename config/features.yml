@@ -382,6 +382,10 @@ features:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
     enable_in_development: true
+  lighthouse_claims_api_run_header_hash_filler_job:
+    actor_type: user
+    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms

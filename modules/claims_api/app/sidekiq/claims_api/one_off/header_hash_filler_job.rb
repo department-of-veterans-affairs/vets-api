@@ -9,6 +9,7 @@ module ClaimsApi::OneOff
     LOG_TAG = 'header_hash_filler_job'
 
     def perform(model = 'ClaimsApi::PowerOfAttorney', ids = [], batch_size: 5_000)
+      return unless Flipper.enabled? :lighthouse_claims_api_run_header_hash_filler_job
       return unless args_are_valid?(model, ids)
 
       relation = model.constantize.where(header_hash: nil)
