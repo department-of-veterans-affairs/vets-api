@@ -21,7 +21,7 @@ module ClaimsApi
           @records.find { |record| record['procId'] == @proc_id }
         end
 
-        # The data structure of the data returned from these calls to 
+        # The data structure of the data returned from these calls to
         # BEP (BGS) is not uniform. The data returned here is like data['...']
         def build_data_object(data)
           return [] if data.nil?
