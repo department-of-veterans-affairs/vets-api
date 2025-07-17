@@ -61,7 +61,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
       it 'sends failure message after max retries' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.appointment_status_check.failure',
-          tags: ['Community Care Appointments']
+          tags: ['appointment_type:community_care']
         )
 
         expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
@@ -100,7 +100,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
       it 'sends failure message after max retries' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.appointment_status_check.failure',
-          tags: ['Community Care Appointments']
+          tags: ['appointment_type:community_care']
         )
         expect(Rails.logger).to receive(:error).with(
           'Community Care Appointments: EpsAppointmentJob failed to get appointment status',
@@ -128,7 +128,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
         )
         expect(StatsD).to receive(:increment).with(
           'api.vaos.appointment_status_check.failure',
-          tags: ['Community Care Appointments']
+          tags: ['appointment_type:community_care']
         )
         worker.perform(user.uuid, appointment_id_last4)
       end
