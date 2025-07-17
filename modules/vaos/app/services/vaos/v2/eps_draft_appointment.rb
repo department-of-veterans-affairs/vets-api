@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'eps_draft_appointment_error'
+
 module VAOS
   module V2
     class EpsDraftAppointment
-      CC_APPOINTMENTS = 'Community Care Appointments'
+      LOGGER_TAG = 'Community Care Appointments'
       REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_station_id.access'
       PROVIDER_DRAFT_NETWORK_ID_METRIC = 'api.vaos.provider_draft_network_id.access'
 
@@ -12,141 +14,74 @@ module VAOS
       end
 
       def call(referral_id, referral_consult_id)
-        referral = ccra_referral_service.get_referral(referral_consult_id, @current_user.icn)
-        log_referral_metrics(referral)
+        referral = get_and_validate_referral(referral_consult_id)
+        validate_referral_not_used(referral_id)
+        provider = get_and_validate_provider(referral)
+        draft = create_draft_appointment(referral_id)
 
-        return validation_error(referral) unless referral_data_valid?(referral)
-
-        check = appointments_service.referral_appointment_already_exists?(referral_id)
-        return usage_error(check) if check[:error] || check[:exists]
-
-        provider = find_provider(referral)
-        log_provider_metrics(provider)
-        return provider_error(referral) if provider&.id.blank?
-
-        draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        return draft_creation_error unless draft.id
-
-        # Bypass drive time calculation if EPS mocks are enabled
         drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
         slots = fetch_provider_slots(referral, provider, draft.id)
 
-        success_response(build_draft_response(draft, provider, slots, drive_time))
-      rescue Redis::BaseError => e
-        redis_error(e)
-      rescue => e
-        general_error(e)
+        build_draft_response(draft, provider, slots, drive_time)
       end
 
       private
 
       # =============================================================================
-      # ERROR HANDLING - DRY and reusable error response methods
+      # ORCHESTRATION METHODS
       # =============================================================================
 
-      def success_response(data)
-        { success: true, data: }
-      end
-
-      def error_response(json:, status:)
-        { success: false, json:, status: }
-      end
-
-      def validation_error(referral)
+      def get_and_validate_referral(referral_consult_id)
+        referral = ccra_referral_service.get_referral(referral_consult_id, @current_user.icn)
         validation_result = validate_referral_data(referral)
-        missing_attributes = validation_result[:missing_attributes]
 
-        error_response(
-          json: {
-            errors: [{
-              title: 'Invalid referral data',
-              detail: "Required referral data is missing or incomplete: #{missing_attributes}"
-            }]
-          },
-          status: :unprocessable_entity
-        )
+        unless validation_result[:valid]
+          raise EpsDraftAppointmentError.new(
+            "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
+            title: 'Invalid referral data'
+          )
+        end
+
+        log_referral_metrics(referral)
+        referral
+      rescue Redis::BaseError => e
+        Rails.logger.error("#{LOGGER_TAG}: #{e.class}}")
+        raise EpsDraftAppointmentError.new('Redis connection error', status_code: :bad_gateway)
       end
 
-      def usage_error(check)
+      def validate_referral_not_used(referral_id)
+        check = appointments_service.referral_appointment_already_exists?(referral_id)
         if check[:error]
-          error_response(
-            json: {
-              errors: [{
-                title: 'Appointment creation failed',
-                detail: "Error checking existing appointments: #{check[:failures]}"
-              }]
-            },
-            status: :bad_gateway
+          raise EpsDraftAppointmentError.new(
+            "Error checking existing appointments: #{check[:failures]}",
+            status_code: :bad_gateway
           )
-        else
-          error_response(
-            json: {
-              errors: [{
-                title: 'Appointment creation failed',
-                detail: 'No new appointment created: referral is already used'
-              }]
-            },
-            status: :unprocessable_entity
-          )
+        elsif check[:exists]
+          raise EpsDraftAppointmentError, 'No new appointment created: referral is already used'
         end
       end
 
-      def provider_error(referral)
-        log_provider_not_found_error(referral)
-        error_response(
-          json: {
-            errors: [{
-              title: 'Appointment creation failed',
-              detail: 'Provider not found'
-            }]
-          },
-          status: :not_found
-        )
+      def get_and_validate_provider(referral)
+        provider = find_provider(referral)
+        log_provider_metrics(provider)
+        if provider&.id.blank?
+          log_provider_not_found_error(referral)
+          raise EpsDraftAppointmentError.new('Provider not found', status_code: :not_found)
+        end
+
+        provider
       end
 
-      def draft_creation_error
-        error_response(
-          json: {
-            errors: [{
-              title: 'Appointment creation failed',
-              detail: 'Could not create draft appointment'
-            }]
-          },
-          status: :unprocessable_entity
-        )
-      end
+      def create_draft_appointment(referral_id)
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        raise EpsDraftAppointmentError, 'Could not create draft appointment' unless draft.id
 
-      def redis_error(error)
-        Rails.logger.error("#{CC_APPOINTMENTS}: #{error.class}}")
-        error_response(
-          json: {
-            errors: [{
-              title: 'Appointment creation failed',
-              detail: 'Redis connection error'
-            }]
-          },
-          status: :bad_gateway
-        )
-      end
-
-      def general_error(error)
-        Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{error.class}")
-        original_status = error.respond_to?(:original_status) ? error.original_status : nil
-        status_code = appointment_error_status(original_status)
-
-        error_response(
-          json: appointment_creation_failed_error(error:, status: original_status),
-          status: status_code
-        )
+        draft
       end
 
       # =============================================================================
       # VALIDATION METHODS
       # =============================================================================
-
-      def referral_data_valid?(referral)
-        validate_referral_data(referral)[:valid]
-      end
 
       def validate_referral_data(referral)
         return { valid: false, missing_attributes: 'all required attributes' } if referral.nil?
@@ -198,28 +133,24 @@ module VAOS
           }
         )
       rescue ArgumentError
-        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots")
+        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots")
         nil
       end
 
       def get_provider_appointment_type_id(provider)
         if provider.appointment_types.blank?
-          raise Common::Exceptions::BackendServiceException.new(
-            'PROVIDER_APPOINTMENT_TYPES_MISSING',
-            {},
-            502,
-            'Provider appointment types data is not available'
+          raise EpsDraftAppointmentError.new(
+            'Provider appointment types data is not available',
+            status_code: :bad_gateway
           )
         end
 
         self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
 
         if self_schedulable_types.blank?
-          raise Common::Exceptions::BackendServiceException.new(
-            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
-            {},
-            502,
-            'No self-schedulable appointment types available for this provider'
+          raise EpsDraftAppointmentError.new(
+            'No self-schedulable appointment types available for this provider',
+            status_code: :bad_gateway
           )
         end
 
@@ -249,6 +180,8 @@ module VAOS
       # =============================================================================
 
       def log_referral_metrics(referral)
+        return if referral.nil?
+
         referring_provider_id = sanitize_log_value(referral.referring_facility_code)
         referral_provider_id = sanitize_log_value(referral.provider_npi)
 
@@ -269,55 +202,17 @@ module VAOS
       end
 
       def log_provider_not_found_error(referral)
-        Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment.",
+        Rails.logger.error("#{LOGGER_TAG}: Provider not found while creating draft appointment.",
                            { provider_address: referral.treating_facility_address,
                              provider_npi: referral.provider_npi,
                              provider_specialty: referral.provider_specialty,
-                             tag: CC_APPOINTMENTS })
+                             tag: LOGGER_TAG })
       end
 
       def sanitize_log_value(value)
         return 'no_value' if value.blank?
 
         value.to_s.gsub(/\s+/, '_')
-      end
-
-      # =============================================================================
-      # ERROR HANDLING HELPERS (from original controller)
-      # =============================================================================
-
-      def appointment_error_status(error_code)
-        case error_code
-        when 'not-found', 404
-          :not_found
-        when 'conflict', 409
-          :conflict
-        when 'bad-request', 400
-          :bad_request
-        when 'internal-error', 500
-          :bad_gateway
-        else
-          :unprocessable_entity
-        end
-      end
-
-      def appointment_creation_failed_error(error: nil, title: nil, detail: nil, status: nil)
-        default_title = 'Appointment creation failed'
-        default_detail = 'Could not create appointment'
-        status_code = error.respond_to?(:original_status) ? error.original_status : status
-
-        {
-          errors: [{
-            title: title || default_title,
-            detail: detail || default_detail,
-            meta: {
-              original_detail: error.try(:response_values)&.dig(:detail),
-              original_error: error.try(:message) || 'Unknown error',
-              code: status_code,
-              backend_response: error.try(:original_body)
-            }
-          }]
-        }
       end
 
       # =============================================================================
