@@ -36,14 +36,14 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     and "cst_include_ddl_5103_letters" and "cst_include_ddl_sqd_letters" are disabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_boa_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_boa_letters, anything)
+          .and_return(true)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_5103_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_5103_letters, anything)
+          .and_return(false)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_sqd_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_sqd_letters, anything)
+          .and_return(false)
       end
 
       it 'lists correct documents' do
@@ -59,14 +59,14 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     and "cst_include_ddl_boa_letters" and "cst_include_ddl_sqd_letters" are disabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_5103_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_5103_letters, anything)
+          .and_return(true)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_boa_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_boa_letters, anything)
+          .and_return(false)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_sqd_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_sqd_letters, anything)
+          .and_return(false)
       end
 
       it 'lists correct documents' do
@@ -82,14 +82,14 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     and "cst_include_ddl_boa_letters" and "cst_include_ddl_5103_letters" are disabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_5103_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_5103_letters, anything)
+          .and_return(false)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_boa_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_boa_letters, anything)
+          .and_return(false)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_sqd_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_sqd_letters, anything)
+          .and_return(true)
       end
 
       it 'lists correct documents' do
@@ -105,14 +105,14 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     and "cst_include_ddl_sqd_letters" feature flags are disabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_5103_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_5103_letters, anything)
+          .and_return(false)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_boa_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_boa_letters, anything)
+          .and_return(false)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_sqd_letters, anything)
-                            .and_return(false)
+          .with(:cst_include_ddl_sqd_letters, anything)
+          .and_return(false)
       end
 
       it 'lists correct documents' do
@@ -128,14 +128,14 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     and "cst_include_ddl_sqd_letters" feature flags are all enabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_5103_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_5103_letters, anything)
+          .and_return(true)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_boa_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_boa_letters, anything)
+          .and_return(true)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_sqd_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_sqd_letters, anything)
+          .and_return(true)
       end
 
       it 'lists correct documents' do
@@ -174,14 +174,14 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     context 'DDL Logging' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_5103_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_5103_letters, anything)
+          .and_return(true)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_boa_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_boa_letters, anything)
+          .and_return(true)
         allow(Flipper).to receive(:enabled?)
-                            .with(:cst_include_ddl_sqd_letters, anything)
-                            .and_return(true)
+          .with(:cst_include_ddl_sqd_letters, anything)
+          .and_return(true)
         allow(Rails.logger).to receive(:info)
       end
 
@@ -456,15 +456,23 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
 
   def mock_lighthouse_provider(current_user)
     mock_provider = instance_double(LighthouseClaimLettersProvider)
-    # Setup get_letters to filter based on allowed doctypes for this user
+
+    allow_get_letters(mock_provider, current_user)
+    allow_get_letter(mock_provider, current_user)
+
+    mock_provider
+  end
+
+  # Setup get_letters to filter based on allowed doctypes for this user
+  def allow_get_letters(mock_provider, current_user)
     allow(mock_provider).to receive(:get_letters) do
       # Get allowed doctypes for the current user based on feature flags
       allowed_doctypes = ClaimLetters::DoctypeService.allowed_for_user(current_user)
 
       # Filter and transform test data
       filtered_data = ClaimLetterTestData::TEST_DATA
-                        .select { |doc| allowed_doctypes.include?(doc.doc_type) }
-                        .select do |doc|
+                      .select { |doc| allowed_doctypes.include?(doc.doc_type) }
+                      .select do |doc|
         # Apply BOA filtering
         if doc.doc_type == '27' && doc.received_at
           doc.received_at < 2.days.ago
@@ -483,8 +491,10 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
         .sort_by { |doc| doc[:received_at] || Time.zone.local(1900, 1, 1) }
         .reverse
     end
+  end
 
-    # Setup get_letter to respect allowed doctypes
+  # Setup get_letter to respect allowed doctypes
+  def allow_get_letter(mock_provider, current_user)
     allow(mock_provider).to receive(:get_letter) do |doc_id, &block|
       doc = ClaimLetterTestData::TEST_DATA.find { |d| d.document_id == doc_id }
       allowed_doctypes = ClaimLetters::DoctypeService.allowed_for_user(current_user)
@@ -496,7 +506,5 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
 
       block.call(test_pdf_content, 'application/pdf', 'attachment', filename)
     end
-
-    mock_provider
   end
 end
