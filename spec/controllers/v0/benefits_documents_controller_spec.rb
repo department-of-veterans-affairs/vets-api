@@ -93,7 +93,7 @@ RSpec.describe V0::BenefitsDocumentsController, type: :controller do
                   expect(json_response['code']).to eq('422')
                   expect(json_response['status']).to eq('422')
                   expect(json_response['source']).to eq('BenefitsDocuments::Service')
-                  expect(json_response['detail']).to eq('Provided document has already been uploaded')
+                  expect(json_response['detail']).to eq('DOC_UPLOAD_DUPLICATE')
                 end
               end
 
@@ -117,7 +117,7 @@ RSpec.describe V0::BenefitsDocumentsController, type: :controller do
                   expect(json_response['status']).to eq('422')
                   expect(json_response['source']).to eq('BenefitsDocuments::Service')
                   expect(json_response['detail'])
-                    .to eq('Claimant cannot be validated to upload documents to this claim')
+                    .to eq('DOC_UPLOAD_INVALID_CLAIMANT')
                 end
               end
             end

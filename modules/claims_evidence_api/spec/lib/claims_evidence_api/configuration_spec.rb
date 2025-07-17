@@ -14,7 +14,7 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
                      breakers_error_threshold: 42,
                      jwt_secret: 'some-long-hash-value',
                      mock: false,
-                     read_timeout: 23
+                     ssl: false
                    })
   end
 
@@ -49,10 +49,6 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
     it 'returns breakers_error_threshold' do
       expect(config.breakers_error_threshold).to eq(42)
     end
-
-    it 'returns read_timeout' do
-      expect(config.service_settings.read_timeout).to eq(23)
-    end
   end
 
   describe '#base_request_headers' do
@@ -84,7 +80,12 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
     end
 
     it 'creates the connection' do
-      expect(Faraday).to receive(:new).with('service_path', headers: 'base_request_headers', request: 'request_options')
+      options = {
+        headers: 'base_request_headers',
+        request: 'request_options',
+        ssl: { verify: false }
+      }
+      expect(Faraday).to receive(:new).with('service_path', **options)
 
       expect(faraday).to receive(:use).once.with(:breakers, { service_name: config.service_name })
       expect(faraday).to receive(:use).once.with(Faraday::Response::RaiseError)
