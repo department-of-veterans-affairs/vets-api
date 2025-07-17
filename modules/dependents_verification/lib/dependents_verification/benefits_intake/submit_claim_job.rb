@@ -149,14 +149,14 @@ module DependentsVerification
       # @return [Hash] generated metadata for upload
       def generate_metadata
         form = @claim.parsed_form
-        veteran_full_name = form['veteranFullName']
-        address = form['claimantAddress'] || form['veteranAddress']
+        veteran_full_name = form['veteranInformation']['fullName']
+        address = form['address']
 
         # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           veteran_full_name['first'],
           veteran_full_name['last'],
-          form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+          form['veteranInformation']['ssn'],
           address['postalCode'],
           self.class.to_s,
           @claim.form_id,
