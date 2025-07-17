@@ -51,7 +51,6 @@ module MyHealth
           end
           return_value = Lighthouse::VeteransHealth::Serializers::ImmunizationSerializer
                          .from_fhir(immunization['resource'])
-          Rails.logger.debug { "Immunization found: #{return_value.inspect}" }
 
           render json: { data: return_value }
         rescue Common::Client::Errors::ClientError,
