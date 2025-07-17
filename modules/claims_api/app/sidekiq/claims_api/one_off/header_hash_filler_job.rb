@@ -20,7 +20,6 @@ module ClaimsApi::OneOff
         next if record.header_hash.present?
 
         begin
-          # Since
           record.save! touch: false
           count += 1
         rescue => e
