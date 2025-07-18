@@ -9,6 +9,16 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
+  notify:
+    api_key: test-api-key
+    email:
+      received:
+        flipper_id: arp_received_email_notification
+        template_id: test-received-template-id
+      error:
+        flipper_id: arp_error_email_notification
+        template_id: test-error-template-id
+
 adapted_housing:
   prefill: true
 argocd:

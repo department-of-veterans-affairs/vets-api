@@ -10,6 +10,16 @@ accredited_representative_portal:
       base_uri: ~
       path: ~
       repo: ~
+  notify:
+    api_key: dummy-api-key
+    email:
+      received:
+        flipper_id: arp_received_email_notification
+        template_id: dummy-received-template-id
+      error:
+        flipper_id: arp_error_email_notification
+        template_id: dummy-error-template-id
+
 adapted_housing:
   prefill: true
 argocd:
