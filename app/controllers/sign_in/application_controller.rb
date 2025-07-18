@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module SignIn
   class ApplicationController < ActionController::API
     include SignIn::Authentication
@@ -9,7 +11,7 @@ module SignIn
     include ExceptionHandling
     include Headers
     include ControllerLoggingContext
-    include SentryLogging
+    include Vets::SharedLogging
     include SentryControllerLogging
     include Traceable
     service_tag 'identity'

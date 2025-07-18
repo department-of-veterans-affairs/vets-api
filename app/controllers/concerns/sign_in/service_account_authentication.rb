@@ -33,6 +33,7 @@ module SignIn
 
     def handle_authenticate_error(error)
       log_message_to_sentry(error.message, :error, { access_token_authorization_header: bearer_token })
+      log_message_to_rails(error.message, :error, { access_token_authorization_header: bearer_token })
       render json: { errors: error }, status: :unauthorized
     end
 

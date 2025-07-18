@@ -34,9 +34,9 @@ RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
       end
 
       it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+          expected_error, sentry_log_level, sentry_context
+        )
         subject
       end
     end
