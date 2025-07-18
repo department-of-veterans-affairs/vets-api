@@ -73,8 +73,6 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
         "Unable to find DependentsVerification::SavedClaim #{claim.id}"
       )
     end
-
-    # perform
   end
 
   describe '#lighthouse_submission_pending_or_success' do
@@ -283,6 +281,4 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       end
     end
   end
-
-  # Rspec.describe
 end
