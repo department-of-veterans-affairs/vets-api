@@ -596,6 +596,8 @@ ivc_champva_ves_api:
   api_key: <%= ENV['ivc_champva_ves_api__api_key'] %>
   app_id: <%= ENV['ivc_champva_ves_api__app_id'] %>
   host: <%= ENV['ivc_champva_ves_api__host'] %>
+  mock: false
+  subject: "Proxy Client"
 ivc_forms:
   form_status_job:
     enabled: <%= ENV['ivc_forms__form_status_job__enabled'] %>
