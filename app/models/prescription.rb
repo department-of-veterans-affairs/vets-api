@@ -52,7 +52,7 @@ class Prescription
   attribute :facility_name, String, filterable: %w[eq not_eq]
   attribute :facility_api_name, String
   attribute :ordered_date, Vets::Type::UTCTime
-  attribute :quantity, Integer
+  attribute :quantity, Float
   attribute :expiration_date, Vets::Type::UTCTime, filterable: %w[eq lteq gteq]
   attribute :prescription_number, String
   attribute :sig, String

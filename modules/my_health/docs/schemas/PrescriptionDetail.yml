@@ -70,13 +70,15 @@ properties:
         format: datetime
         example: 2023-08-04T04:00:00.000Z
       quantity:
-        type: integer
-        example: 30
+        type: number
+        format: float
+        example: 30.5
       expirationDate:
         type: string
-        format: datetime
-        example: 2023-08-04T04:00:00.000Z
-      dispensedDate:
+        quantity:
+          type: number
+          format: float
+          example: 30.5
         type: string
         nullable: true
         format: datetime
