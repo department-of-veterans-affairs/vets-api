@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -847,6 +847,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
+  create_table "event_bus_gateway_notifications", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.string "va_notify_id", null: false
+    t.string "template_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_event_bus_gateway_notifications_on_user_account_id"
+  end
+
   create_table "evidence_submissions", force: :cascade do |t|
     t.string "job_id"
     t.string "job_class"
@@ -1209,9 +1218,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
     t.boolean "email_sent", default: false, null: false
     t.uuid "application_uuid"
     t.string "ves_status"
-    t.text "ves_data_ciphertext"
-    t.text "encrypted_kms_key"
     t.text "ves_request_data_ciphertext"
+    t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
     t.index ["needs_kms_rotation"], name: "index_ivc_champva_forms_on_needs_kms_rotation"
@@ -2105,6 +2113,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "digital_dispute_submissions", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "event_bus_gateway_notifications", "user_accounts"
   add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
