@@ -21,7 +21,7 @@ module ClaimsEvidenceApi
     # change the folder_identifier being uploaded to
     # @see ClaimsEvidenceApi::XFolderUri
     def folder_identifier=(folder_identifier)
-      service.x_folder_uri = @folder_identifier = folder_identifier
+      @service.x_folder_uri = @folder_identifier = folder_identifier
     end
 
     # upload claim and evidence pdfs
@@ -33,7 +33,7 @@ module ClaimsEvidenceApi
     # @param claim_stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
     # @param attachment_stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
     def upload_saved_claim_evidence(saved_claim_id, claim_stamp_set = nil, attachment_stamp_set = nil)
-      upload_saved_claim_pdf(saved_claim_id, nil, claim_stamp_set)
+      claim = upload_saved_claim_pdf(saved_claim_id, nil, claim_stamp_set)
       claim.persistent_attachments.each { |pa| upload_attachment_pdf(saved_claim_id, pa.id, nil, attachment_stamp_set) }
     end
 
@@ -43,11 +43,15 @@ module ClaimsEvidenceApi
     # @param saved_claim_id [Integer] the db id for the claim
     # @param pdf_path [String] file path of the pdf to upload
     # @param stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
+    #
+    # @return [SavedClaim] the claim uploaded
     def upload_saved_claim_pdf(saved_claim_id, pdf_path = nil, stamp_set = nil)
       claim = SavedClaim.find(saved_claim_id)
-      init_tracking(saved_claim)
+      init_tracking(claim)
       perform_upload(claim, pdf_path, stamp_set)
       update_tracking
+
+      claim
     end
 
     # upload a claim evidence (persistent_attachment) pdf
@@ -57,12 +61,16 @@ module ClaimsEvidenceApi
     # @param attachment_id [Integer] the db id for the attachment
     # @param pdf_path [String] file path of the pdf to upload
     # @param stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
+    #
+    # @return [PersistentAttachment] the attachment uploaded
     def upload_attachment_pdf(saved_claim_id, attachment_id, pdf_path = nil, stamp_set = nil)
       claim = SavedClaim.find(saved_claim_id)
       pa = PersistentAttachment.find_by(id: attachment_id, saved_claim_id:)
       init_tracking(claim, pa.id)
       perform_upload(pa, pdf_path, stamp_set)
       update_tracking
+
+      pa
     end
 
     private
@@ -78,7 +86,7 @@ module ClaimsEvidenceApi
       @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim:, persistent_attachment_id:,
                                                                     form_id: saved_claim.form_id)
       # TODO: how to handle different folder_identifier? future ticket
-      submission.x_folder_uri = service.x_folder_uri
+      submission.x_folder_uri = @service.x_folder_uri
       submission.save
 
       @attempt = submission.submission_attempts.create
@@ -114,8 +122,8 @@ module ClaimsEvidenceApi
         attempt.error_message = response.body
         attempt.save
 
-        error_key = response.body.dig('messages', 'key') || response.body['code']
-        error_msg = response.body.dig('messages', 'text') || response.body['message']
+        error_key = response.body.dig('messages', 0, 'key') || response.body['code']
+        error_msg = response.body.dig('messages', 0, 'text') || response.body['message']
         raise ClaimsEvidenceApi::Exceptions::VefsError, "#{error_key} - #{error_msg}"
       end
 
