@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
-  subject { described_class.new(current_user) }
+  subject { described_class.new(current_user, referral_id, referral_consult_id) }
 
   let(:current_user) { build(:user, :vaos) }
   let(:referral_id) { 'test-referral-123' }
@@ -47,10 +47,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   # Shared examples for error scenarios
   shared_examples 'returns error response' do |expected_message_match, expected_status|
     it "returns error response with #{expected_message_match}" do
-      result = subject.call(referral_id, referral_consult_id)
-      expect(result[:success]).to be false
-      expect(result[:error][:message]).to match(expected_message_match)
-      expect(result[:error][:status]).to eq(expected_status)
+      expect(subject.error).to be_present
+      expect(subject.error[:message]).to match(expected_message_match)
+      expect(subject.error[:status]).to eq(expected_status)
     end
   end
 
@@ -73,17 +72,15 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       before { setup_successful_services }
 
       it 'returns a successful response with all data' do
-        result = subject.call(referral_id, referral_consult_id)
-
-        expect(result[:success]).to be true
-        expect(result[:data].id).to eq('draft-123')
-        expect(result[:data].provider).to eq(provider_data)
-        expect(result[:data].slots).to eq(slots_data)
-        expect(result[:data].drive_time).to eq(drive_time_data)
+        expect(subject.error).to be_nil
+        expect(subject.id).to eq('draft-123')
+        expect(subject.provider).to eq(provider_data)
+        expect(subject.slots).to eq(slots_data)
+        expect(subject.drive_time).to eq(drive_time_data)
       end
 
       it 'calls all services with correct parameters' do
-        subject.call(referral_id, referral_consult_id)
+        subject
 
         expect(ccra_referral_service).to have_received(:get_referral)
           .with(referral_consult_id, current_user.icn)
@@ -101,8 +98,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         it 'skips drive time calculation' do
-          result = subject.call(referral_id, referral_consult_id)
-          expect(result[:data].drive_time).to be_nil
+          expect(subject.drive_time).to be_nil
           expect(eps_provider_service).not_to have_received(:get_drive_times)
         end
       end
@@ -113,8 +109,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         it 'returns nil for drive time' do
-          result = subject.call(referral_id, referral_consult_id)
-          expect(result[:data].drive_time).to be_nil
+          expect(subject.drive_time).to be_nil
           expect(eps_provider_service).not_to have_received(:get_drive_times)
         end
       end
@@ -215,7 +210,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       end
 
       it 'allows BackendServiceException to bubble up' do
-        expect { subject.call(referral_id, referral_consult_id) }
+        expect { subject }
           .to raise_error(Common::Exceptions::BackendServiceException)
       end
     end
@@ -238,9 +233,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         it 'returns successful response with nil slots' do
-          result = subject.call(referral_id, referral_consult_id)
-          expect(result[:success]).to be true
-          expect(result[:data].slots).to be_nil
+          expect(subject.error).to be_nil
+          expect(subject.slots).to be_nil
         end
       end
 
@@ -255,9 +249,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         it 'returns successful response with nil slots' do
-          result = subject.call(referral_id, referral_consult_id)
-          expect(result[:success]).to be true
-          expect(result[:data].slots).to be_nil
+          expect(subject.error).to be_nil
+          expect(subject.slots).to be_nil
         end
       end
     end
@@ -282,7 +275,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           'api.vaos.provider_draft_network_id.access',
           tags: ['service:community_care_appointments', 'network_id:network-2']
         )
-        subject.call(referral_id, referral_consult_id)
+        subject
       end
 
       it 'logs provider not found error when provider is nil' do
@@ -295,9 +288,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             tag: 'Community Care Appointments'
           )
         )
-        result = subject.call(referral_id, referral_consult_id)
-        expect(result[:success]).to be false
-        expect(result[:error][:message]).to eq('Provider not found')
+        expect(subject.error).to be_present
+        expect(subject.error[:message]).to eq('Provider not found')
       end
     end
 
@@ -324,8 +316,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             'provider-123',
             hash_including(startOnOrAfter: Date.current.to_time(:utc).iso8601)
           )
-          result = subject.call(referral_id, referral_consult_id)
-          expect(result[:data].id).to eq('draft-123')
+          expect(subject.id).to eq('draft-123')
         end
       end
 
@@ -335,36 +326,39 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         it 'handles gracefully and returns nil slots' do
-          result = subject.call(referral_id, referral_consult_id)
-          expect(result[:data].slots).to be_nil
+          expect(subject.slots).to be_nil
         end
       end
     end
   end
 
   describe 'private method testing' do
+    let(:service_instance) { described_class.allocate.tap { |instance| instance.instance_variable_set(:@current_user, current_user) } }
+
     describe '#sanitize_log_value' do
       it 'removes spaces and returns sanitized value' do
-        result = subject.send(:sanitize_log_value, 'test value with spaces')
+        result = service_instance.send(:sanitize_log_value, 'test value with spaces')
         expect(result).to eq('test_value_with_spaces')
       end
 
       it 'returns no_value for nil input' do
-        result = subject.send(:sanitize_log_value, nil)
+        result = service_instance.send(:sanitize_log_value, nil)
         expect(result).to eq('no_value')
       end
 
       it 'returns no_value for empty string' do
-        result = subject.send(:sanitize_log_value, '')
+        result = service_instance.send(:sanitize_log_value, '')
         expect(result).to eq('no_value')
       end
     end
   end
 
   describe '#validate_referral_data' do
+    let(:service_instance) { described_class.allocate.tap { |instance| instance.instance_variable_set(:@current_user, current_user) } }
+
     context 'with valid referral data' do
       it 'returns valid true' do
-        result = subject.send(:validate_referral_data, referral_data)
+        result = service_instance.send(:validate_referral_data, referral_data)
         expect(result[:valid]).to be true
         expect(result[:missing_attributes]).to be_empty
       end
@@ -374,7 +368,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       let(:invalid_referral) { OpenStruct.new(provider_npi: nil, referral_date: '', expiration_date: '2024-04-15') }
 
       it 'returns valid false with missing attributes' do
-        result = subject.send(:validate_referral_data, invalid_referral)
+        result = service_instance.send(:validate_referral_data, invalid_referral)
         expect(result[:valid]).to be false
         expect(result[:missing_attributes]).to include('provider_npi', 'referral_date')
       end
