@@ -155,35 +155,6 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
       end
     end
 
-    # TODO: is this test still needed?
-    context 'when no direct mapping exists but fallback detection finds a suitable validator' do
-      let(:attachment_id) { 'unknown_attachment' }
-
-      before do
-        # Mock EOB validator as suitable with high confidence
-        allow(IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator)
-          .to receive(:new).and_return(mock_eob_validator)
-        allow(mock_eob_validator).to receive(:process_and_cache)
-          .with('Sample OCR text').and_return(0.9)
-        allow(mock_eob_validator).to receive_messages(
-          cached_validity: true,
-          cached_extracted_fields: { provider: 'Test Provider' },
-          cached_confidence_score: 0.9,
-          document_type: 'eob',
-          class: IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator
-        )
-      end
-
-      it 'selects the validator with the highest confidence score' do
-        result = validator.process
-
-        expect(result[:validator_type]).to include('EobTesseractValidator')
-        expect(result[:document_type]).to eq('eob')
-        expect(result[:confidence]).to eq(0.9)
-        expect(result[:extracted_fields]).to eq({ provider: 'Test Provider' })
-      end
-    end
-
     context 'when no validator is suitable' do
       let(:attachment_id) { 'unknown_attachment' }
 

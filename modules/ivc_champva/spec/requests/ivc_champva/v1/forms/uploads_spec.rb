@@ -1150,7 +1150,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       it 'does not queue TesseractOcrLoggerJob' do
         job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
-        expect(job).not_to receive(:new)
+        expect(job).not_to receive(:perform_async)
 
         controller.send(:launch_background_job, attachment, form_id)
       end

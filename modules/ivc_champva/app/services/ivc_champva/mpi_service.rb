@@ -48,12 +48,30 @@ module IvcChampva
       {
         first_name: person_data.dig(name_field, 'first'),
         last_name: person_data.dig(name_field, 'last'),
-        birth_date: person_data[dob_field],
+        birth_date: format_date(person_data[dob_field]),
         ssn: person_data['ssn_or_tin'],
         person_type:
       }
     rescue => e
       Rails.logger.error "Error extracting user attributes for #{person_type}: #{e.class.name}"
+      nil
+    end
+
+    def format_date(date_string)
+      return nil if date_string.blank?
+
+      # Return as-is if already in correct YYYY-MM-DD format
+      return date_string if date_string.match?(/^\d{4}-\d{1,2}-\d{1,2}$/)
+
+      # Convert MM-DD-YYYY to YYYY-MM-DD
+      if date_string.match?(/^\d{1,2}-\d{1,2}-\d{4}$/)
+        return Date.strptime(date_string, '%m-%d-%Y').strftime('%Y-%m-%d')
+      end
+
+      # Unrecognized format
+      nil
+    rescue ArgumentError => e
+      Rails.logger.warn "Invalid date value '#{date_string}': #{e.message}"
       nil
     end
 
