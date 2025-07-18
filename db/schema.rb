@@ -1209,8 +1209,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
     t.boolean "email_sent", default: false, null: false
     t.uuid "application_uuid"
     t.string "ves_status"
-    t.text "ves_request_data_ciphertext"
+    t.text "ves_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.text "ves_request_data_ciphertext"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
     t.index ["needs_kms_rotation"], name: "index_ivc_champva_forms_on_needs_kms_rotation"
