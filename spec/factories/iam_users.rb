@@ -31,41 +31,10 @@ FactoryBot.define do
       user.instance_variable_set(:@identity, user_identity)
     end
 
-    after(:build) do
-      stub_mpi(
-        build(
-          :mpi_profile,
-          icn: '24811694708759028',
-          edipi: '1005079124',
-          birls_id: '796121200',
-          participant_id: '796121200',
-          birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-          vet360_id: '1',
-          vha_facility_ids: %w[757 358],
-          cerner_facility_ids: ['757'],
-          cerner_id: '9923454432'
-        )
-      )
-    end
-
     trait :no_edipi_id do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity, iam_edipi: nil)
         user.instance_variable_set(:@identity, user_identity)
-      end
-
-      after(:build) do
-        stub_mpi(
-          build(
-            :mpi_profile,
-            icn: '24811694708759028',
-            edipi: nil,
-            birls_id: '796121200',
-            participant_id: '796121200',
-            birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-            vet360_id: '1'
-          )
-        )
       end
     end
 
@@ -74,20 +43,6 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity, birth_date: nil)
         user.instance_variable_set(:@identity, user_identity)
       end
-
-      after(:build) do
-        stub_mpi(
-          build(
-            :mpi_profile,
-            icn: '24811694708759028',
-            edipi: nil,
-            birls_id: '796121200',
-            participant_id: '796121200',
-            birth_date: nil,
-            vet360_id: '1'
-          )
-        )
-      end
     end
 
     trait :no_vet360_id do
@@ -95,40 +50,13 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
       end
-
-      after(:build) do
-        stub_mpi(
-          build(
-            :mpi_profile,
-            icn: '24811694708759028',
-            edipi: '1005079124',
-            birls_id: '796121200',
-            participant_id: '796121200',
-            birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-            vet360_id: nil
-          )
-        )
-      end
     end
 
     trait :id_theft_flag do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
-      end
-
-      after(:build) do
-        stub_mpi(
-          build(
-            :mpi_profile,
-            icn: '24811694708759028',
-            edipi: '1005079124',
-            birls_id: '796121200',
-            participant_id: '796121200',
-            birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-            id_theft_flag: true
-          )
-        )
+        stub_mpi(build(:mpi_profile, ssn: user_identity.ssn, icn: user_identity.icn, id_theft_flag: true))
       end
     end
 
@@ -162,35 +90,12 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
       end
-
-      after(:build) do
-        stub_mpi(
-          build(
-            :mpi_profile,
-            icn: '24811694708759028',
-            edipi: '1005079124',
-            birls_id: '796121200',
-            participant_id: nil,
-            birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-            vet360_id: '1'
-          )
-        )
-      end
     end
 
     trait :no_vha_facilities do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity)
         user.instance_variable_set(:@identity, user_identity)
-      end
-
-      after(:build) do
-        stub_mpi(
-          build(
-            :mpi_profile,
-            vha_facility_ids: {}
-          )
-        )
       end
     end
 
@@ -203,16 +108,6 @@ FactoryBot.define do
       transient do
         facility_ids { [] }
         cerner_facility_ids { [] }
-      end
-
-      after(:build) do |_user, evaluator|
-        stub_mpi(
-          build(
-            :mpi_profile,
-            vha_facility_ids: evaluator.facility_ids,
-            cerner_facility_ids: evaluator.cerner_facility_ids
-          )
-        )
       end
     end
 

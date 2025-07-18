@@ -479,6 +479,10 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         sis_user(:api_auth, :loa1, icn: '1008596379V859838', participant_id: nil)
       end
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: '1008596379V859838', participant_id: nil))
+      end
+
       it 'returns 403 status' do
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do

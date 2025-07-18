@@ -51,6 +51,10 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
     context 'user without access' do
       let!(:user) { sis_user(participant_id: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, participant_id: nil))
+      end
+
       it 'returns 403' do
         get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
 

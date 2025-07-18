@@ -9,6 +9,10 @@ describe BGSPolicy do
     context 'with a user who has the required bgs attributes' do
       let(:user) { build(:user, :loa3) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       it 'grants access' do
         expect(subject).to permit(user, :bgs)
       end
@@ -27,6 +31,10 @@ describe BGSPolicy do
 
     context 'with a user who does not have the required bgs attributes' do
       let(:user) { build(:user, :loa3, ssn: nil, participant_id: nil, icn: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
 
       it 'denies access' do
         expect(subject).not_to permit(user, :bgs)

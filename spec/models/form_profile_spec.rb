@@ -15,6 +15,7 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     stub_evss_pciu(user)
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, suffix: 'Jr.', address: user.address))
     described_class.instance_variable_set(:@mappings, nil)
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(false)

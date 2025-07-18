@@ -7,6 +7,15 @@ RSpec.describe 'relationships', :skip_mvi, type: :request do
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow(Flipper).to receive(:enabled?).and_return(true)
+    # Stub MPI with VAOS-specific profile data
+    stub_mpi(build(:mpi_profile,
+                   icn: '1012845331V153043',
+                   given_names: ['Judy'],
+                   family_name: 'Morrison',
+                   ssn: '796061976',
+                   edipi: '1259897978',
+                   gender: 'F',
+                   birth_date: '1953-04-01'))
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }

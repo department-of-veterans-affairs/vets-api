@@ -11,6 +11,18 @@ describe VAOS::JwtWrapper do
   # JWT REGEX has 3 base64 url encoded parts (header, payload signature) and more importantly is non empty.
   let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
+  before do
+    # Stub MPI with VAOS-specific profile data
+    stub_mpi(build(:mpi_profile,
+                   icn: '1012845331V153043',
+                   given_names: ['Judy'],
+                   family_name: 'Morrison',
+                   ssn: '796061976',
+                   edipi: '1259897978',
+                   gender: 'F',
+                   birth_date: '1953-04-01'))
+  end
+
   describe '#token' do
     before do
       allow(File).to receive(:read).and_return(rsa_private)

@@ -170,6 +170,10 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
+
       it 'returns forbidden' do
         get '/mobile/v0/letters', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
@@ -235,6 +239,10 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
+
       it 'returns forbidden' do
         get '/mobile/v0/letters/beneficiary', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
@@ -256,6 +264,10 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   describe 'POST /mobile/v0/letters/:type/download' do
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+      end
 
       it 'returns forbidden' do
         post '/mobile/v0/letters/benefit_summary/download', headers: sis_headers
@@ -377,6 +389,10 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   describe 'Error Handling' do
     context 'when user is not authorized to use lighthouse' do
       let!(:user) { sis_user(icn: '24811694708759028', participant_id: nil) }
+
+      before do
+        stub_mpi(build(:mpi_profile, ssn: nil, icn: '24811694708759028', participant_id: nil))
+      end
 
       it 'returns 403 forbidden' do
         get '/mobile/v0/letters', headers: sis_headers
