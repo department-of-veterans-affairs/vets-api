@@ -47,6 +47,7 @@ module RepresentationManagement
       @force_update_types = force_update_types
       initialize_instance_variables
       @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
+      setup_daily_report
 
       # Don't save fresh API counts if updates are forced
       @entity_counts.save_api_counts unless @force_update_types.any?
@@ -58,11 +59,15 @@ module RepresentationManagement
       delete_removed_accreditations
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
+    ensure
+      finalize_and_send_report
     end
 
     private
 
     def initialize_instance_variables
+      @start_time = Time.current
+      @report = String.new
       @agent_ids = []
       @attorney_ids = []
       @vso_ids = []
@@ -72,6 +77,20 @@ module RepresentationManagement
       @representative_json_for_address_validation = []
       @rep_to_vso_associations = {}
       @accreditation_ids = []
+    end
+
+    def setup_daily_report
+      @report << 'RepresentationManagement::AccreditedEntitiesQueueUpdates Report'
+      @report << "📊 **Entity Counts:**\n"
+      @report << "```\n#{@entity_counts&.count_report || 'Entity counts unavailable'}\n```\n"
+    end
+
+    def finalize_and_send_report
+      end_time = Time.current
+      duration = calculate_duration(@start_time, end_time)
+
+      @report << "\nJob Duration: #{duration}\n"
+      log_to_slack_channel(@report)
     end
 
     # Processes entities of a specific type based on count validation and force update settings
@@ -85,9 +104,11 @@ module RepresentationManagement
       if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
         if entity_type == AGENTS
           update_agents
+          @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
           validate_agent_addresses
         else # attorneys
           update_attorneys
+          @report << "Attorneys processed: #{@attorney_ids.uniq.compact.size}\n"
           validate_attorney_addresses
         end
       else
@@ -115,9 +136,11 @@ module RepresentationManagement
 
       # Process VSOs first (must exist before representatives can reference them)
       update_vsos
+      @report << "VSOs processed: #{@vso_ids.uniq.compact.size}\n"
 
       # Process representatives
       update_reps
+      @report << "Representatives processed: #{@representative_ids.uniq.compact.size} (deduplicated)\n"
       validate_rep_addresses
 
       # Create or update join records
@@ -154,6 +177,8 @@ module RepresentationManagement
         entities.each { |entity| handle_entity_record(entity, config) }
         page += 1
       end
+    rescue => e
+      log_error("Error updating #{entity_type}s: #{e.message}")
     end
 
     # Fetches VSO data from the GCLAWS API and updates database records
@@ -542,7 +567,30 @@ module RepresentationManagement
     # @param message [String] The error message to log
     # @return [void]
     def log_error(message)
+      log_to_slack_channel("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
       Rails.logger.error("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
+    end
+
+    def log_to_slack_channel(message)
+      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                             channel: '#benefits-representation-management-notifications',
+                                             username: 'RepresentationManagement::AccreditationApiEntityCountBot')
+      slack_client.notify(message)
+    end
+
+    def calculate_duration(start_time, end_time)
+      total_seconds = (end_time - start_time).to_i
+      hours = total_seconds / 3600
+      minutes = (total_seconds % 3600) / 60
+      seconds = total_seconds % 60
+
+      if hours.positive?
+        "#{hours}h #{minutes}m #{seconds}s"
+      elsif minutes.positive?
+        "#{minutes}m #{seconds}s"
+      else
+        "#{seconds}s"
+      end
     end
 
     # Helper method to get array of org and rep types

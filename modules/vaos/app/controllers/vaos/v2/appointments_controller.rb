@@ -567,6 +567,23 @@ module VAOS
       end
 
       ##
+      # Builds a standardized error response for draft appointment creation failures.
+      #
+      # This method returns a formatted error response hash using the
+      # {#appt_creation_failed_error} helper, with a specific title and detail
+      # message indicating that an unexpected error occurred while creating the
+      # draft appointment.
+      #
+      # @return [Hash] Formatted error response for draft appointment creation failure
+      #
+      def draft_appointment_creation_failed_error
+        appt_creation_failed_error(
+          title: 'Appointment creation failed',
+          detail: 'An unexpected error occurred while creating the draft appointment'
+        )
+      end
+
+      ##
       # Fetches drive time information from the user's residential address to the provider's location.
       # Uses the EPS provider service to calculate drive times between the current user's address
       # and the specified provider's coordinates.
@@ -698,6 +715,27 @@ module VAOS
             },
             status: :unprocessable_entity
           }
+        end
+      end
+
+      ##
+      # Validates that a provider is present and has a valid ID
+      #
+      # @param provider [Object, nil] The provider object to validate
+      # @param referral [ReferralDetail] The referral object containing provider details for logging
+      # @return [Hash] Result hash:
+      #   - If provider is valid: { success: true }
+      #   - If provider is invalid: { success: false, json: error_response, status: :not_found }
+      def check_provider_validity(provider, referral)
+        if provider&.id.blank?
+          Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Provider not found while creating draft appointment.",
+                             { provider_address: referral.treating_facility_address,
+                               provider_npi: referral.provider_npi,
+                               provider_specialty: referral.provider_specialty,
+                               tag: CC_APPOINTMENT_ERROR_TAG })
+          { success: false, json: provider_not_found_error, status: :not_found }
+        else
+          { success: true }
         end
       end
 
