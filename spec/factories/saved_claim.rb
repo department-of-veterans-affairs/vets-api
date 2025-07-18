@@ -48,6 +48,5 @@ FactoryBot.define do
     trait :with_attachments do
       persistent_attachments { create_list(:claim_evidence, 2) }
     end
-
   end
 end

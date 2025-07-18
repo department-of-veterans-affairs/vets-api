@@ -36,7 +36,8 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
     it 'creates tracking entries on successful upload' do
       expect(uploader).to receive(:upload_attachment_pdf).twice
 
-      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id).and_return submission
+      args = { saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id }
+      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
       provider_data = {
@@ -58,7 +59,8 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with pdf_path provided and no stamp set' do
     it 'successfully uploads an attachment' do
-      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(saved_claim: claim, persistent_attachment_id: pa.id, form_id: claim.form_id).and_return submission
+      args = { saved_claim: claim, persistent_attachment_id: pa.id, form_id: claim.form_id }
+      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
       expect(pa).not_to receive(:to_pdf)
@@ -83,7 +85,8 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with unsuccessful upload' do
     it 'raises an exception on unauthorized' do
-      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id).and_return submission
+      args = { saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id }
+      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
       provider_data = {
@@ -96,16 +99,19 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       error_key = response.body.dig('messages', 0, 'key')
       error_msg = response.body.dig('messages', 0, 'text')
-      expect { uploader.upload_saved_claim_pdf(claim.id, pdf_path) }.to raise_error ClaimsEvidenceApi::Exceptions::VefsError, "#{error_key} - #{error_msg}"
+      expect do
+        uploader.upload_saved_claim_pdf(claim.id, pdf_path)
+      end.to raise_error ClaimsEvidenceApi::Exceptions::VefsError, "#{error_key} - #{error_msg}"
 
-      expect(submission.file_uuid).to be nil
+      expect(submission.file_uuid).to be_nil
       expect(attempt.status).to eq 'failure'
       expect(attempt.metadata).to eq JSON.parse(provider_data.to_json)
       expect(attempt.error_message).to eq response.body
     end
 
     it 'raises an exception on endpoint error' do
-      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id).and_return submission
+      args = { saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id }
+      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
       provider_data = {
@@ -118,9 +124,11 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       error_key = response.body['code']
       error_msg = response.body['message']
-      expect { uploader.upload_saved_claim_pdf(claim.id, pdf_path) }.to raise_error ClaimsEvidenceApi::Exceptions::VefsError, "#{error_key} - #{error_msg}"
+      expect do
+        uploader.upload_saved_claim_pdf(claim.id, pdf_path)
+      end.to raise_error ClaimsEvidenceApi::Exceptions::VefsError, "#{error_key} - #{error_msg}"
 
-      expect(submission.file_uuid).to be nil
+      expect(submission.file_uuid).to be_nil
       expect(attempt.status).to eq 'failure'
       expect(attempt.metadata).to eq JSON.parse(provider_data.to_json)
       expect(attempt.error_message).to eq response.body
