@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::Auditor do
+  logger_prefix = described_class::LOGGER_PREFIX
+
   describe '::metrics' do
     it 'provides StatsD metric values' do
       expect(
@@ -102,8 +104,8 @@ RSpec.describe Form1010cg::Auditor do
     end
 
     context 'logs' do
-      it '[Form 10-10CG] Submission Failed: invalid data provided by client' do
-        expected_message = '[Form 10-10CG] Submission Failed: invalid data provided by client'
+      it "[#{logger_prefix}] - Submission Failed: invalid data provided by client" do
+        expected_message = "[#{logger_prefix}] - Submission Failed: invalid data provided by client"
         expected_context = { errors: %w[error1 error2], claim_guid: 'uuid-123' }
 
         expect(Rails.logger).to receive(:info).with(expected_message, expected_context)
@@ -132,8 +134,8 @@ RSpec.describe Form1010cg::Auditor do
     end
 
     context 'logs' do
-      it '[Form 10-10CG] Submission Failed: qualifications not met' do
-        expected_message = '[Form 10-10CG] Submission Failed: qualifications not met'
+      it "[#{logger_prefix}] - Submission Failed: qualifications not met" do
+        expected_message = "[#{logger_prefix}] - Submission Failed: qualifications not met"
         expected_context = { claim_guid: 'uuid-123' }
 
         expect(Rails.logger).to receive(:info).with(expected_message, expected_context)
@@ -165,8 +167,8 @@ RSpec.describe Form1010cg::Auditor do
     end
 
     context 'logs' do
-      it '[Form 10-10CG] Attachments Delivered' do
-        expected_message = '[Form 10-10CG] Attachments Delivered'
+      it "[#{logger_prefix}] - Attachments Delivered" do
+        expected_message = "[#{logger_prefix}] - Attachments Delivered"
         expected_context = { claim_guid: 'uuid-123', carma_case_id: 'CASE_123', attachments: :ATTACHMENTS_HASH }
 
         expect(Sidekiq.logger).to receive(:info).with(expected_message, expected_context)
@@ -196,39 +198,39 @@ RSpec.describe Form1010cg::Auditor do
         [
           {
             input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :found },
-            expectation: '[Form 10-10CG] MPI Profile found for Veteran'
+            expectation: "[#{logger_prefix}] - MPI Profile found for Veteran"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :not_found },
-            expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Veteran'
+            expectation: "[#{logger_prefix}] - MPI Profile NOT FOUND for Veteran"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :skipped },
-            expectation: '[Form 10-10CG] MPI Profile search was skipped for Veteran'
+            expectation: "[#{logger_prefix}] - MPI Profile search was skipped for Veteran"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :found },
-            expectation: '[Form 10-10CG] MPI Profile found for Primary Caregiver'
+            expectation: "[#{logger_prefix}] - MPI Profile found for Primary Caregiver"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :not_found },
-            expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Primary Caregiver'
+            expectation: "[#{logger_prefix}] - MPI Profile NOT FOUND for Primary Caregiver"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :skipped },
-            expectation: '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver'
+            expectation: "[#{logger_prefix}] - MPI Profile search was skipped for Primary Caregiver"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :found },
-            expectation: '[Form 10-10CG] MPI Profile found for Secondary Caregiver One'
+            expectation: "[#{logger_prefix}] - MPI Profile found for Secondary Caregiver One"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :not_found },
-            expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Secondary Caregiver One'
+            expectation: "[#{logger_prefix}] - MPI Profile NOT FOUND for Secondary Caregiver One"
           },
           {
             input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :skipped },
-            expectation: '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One'
+            expectation: "[#{logger_prefix}] - MPI Profile search was skipped for Secondary Caregiver One"
           }
         ].each do |options|
           expect(Rails.logger).to receive(:info).with(options[:expectation], claim_guid: options[:input][:claim_guid])
@@ -320,7 +322,8 @@ RSpec.describe Form1010cg::Auditor do
       context = { veteran_name: 'My name' }
       expected_context = { veteran_name: ActiveSupport::ParameterFilter::FILTERED }
 
-      expect(Rails.logger).to receive(:info).with("[#{described_class::LOGGER_PREFIX}] #{message}", **expected_context)
+      expect(Rails.logger).to receive(:info).with("[#{logger_prefix}] - #{message}",
+                                                  **expected_context)
 
       described_class.new.send(:log, message, context)
     end

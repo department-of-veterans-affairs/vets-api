@@ -5,7 +5,7 @@ module Form1010cg
     attr_reader :logger
 
     STATSD_KEY_PREFIX   = 'api.form1010cg'
-    LOGGER_PREFIX       = 'Form 10-10CG'
+    LOGGER_PREFIX       = '10-10CG'
     LOGGER_FILTER_KEYS  = [:veteran_name].freeze
 
     METRICS = lambda do
@@ -142,7 +142,7 @@ module Form1010cg
     end
 
     def log(message, context_hash = {})
-      logger.send(:info, "[#{LOGGER_PREFIX}] #{message}", **deep_apply_filter(context_hash))
+      logger.send(:info, "[#{LOGGER_PREFIX}] - #{message}", **deep_apply_filter(context_hash))
     end
 
     def deep_apply_filter(value)
