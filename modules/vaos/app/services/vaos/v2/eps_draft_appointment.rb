@@ -177,10 +177,7 @@ module VAOS
               longitude: provider.location[:longitude]
             }
           },
-          origin: {
-            latitude: user_address.latitude,
-            longitude: user_address.longitude
-          }
+          origin: { latitude: user_address.latitude, longitude: user_address.longitude }
         )
       end
 
