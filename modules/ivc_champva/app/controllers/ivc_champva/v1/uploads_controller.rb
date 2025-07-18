@@ -250,11 +250,8 @@ module IvcChampva
       # @param [PersistentAttachments::MilitaryRecords] attachment Persistent attachment object for the uploaded file
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
       def launch_background_job(attachment, form_id, attachment_id)
-        # create a temp file from the persistent attachment object
-        tmpfile = tempfile_from_attachment(attachment, form_id)
-      
-        launch_ocr_job(form_id, attachment, tempfile, attachment_id)
-        launch_llm_job(form_id, attachment, tempfile, attachment_id)
+        launch_ocr_job(form_id, attachment, attachment_id)
+        launch_llm_job(form_id, attachment, attachment_id)
       rescue Errno::ENOENT
         # Do not log the error details because they may contain PII
         Rails.logger.error 'Unhandled ENOENT error while launching background job(s)'
@@ -262,21 +259,27 @@ module IvcChampva
         Rails.logger.error "Unhandled error while launching background job(s): #{e.message}"
       end
 
-      def launch_ocr_job(form_id, attachment, tempfile, attachment_id)
+      def launch_ocr_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user)
+          # create a temp file from the persistent attachment object
+          tmpfile = tempfile_from_attachment(attachment, form_id)
 
-          # queue Tesseract OCR job for tmpfile
-          IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tempfile.path, attachment_id)
+          # queue Tesseract OCR job for tmpfile\
+          # TODO: follow signature changes downstream
+          IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
           Rails.logger.info(
             "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
           )
         end
       end
 
-      def launch_llm_job(form_id, attachment, tempfile, attachment_id)
+      def launch_llm_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+          # create a temp file from the persistent attachment object
+          tmpfile = tempfile_from_attachment(attachment, form_id)
+
           # queue LLM job for tmpfile
-          pdf_path = Common::ConvertToPdf.new(tempfile).run
+          pdf_path = Common::ConvertToPdf.new(tmpfile).run
           IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
           Rails.logger.info(
             "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
