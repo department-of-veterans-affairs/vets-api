@@ -1,0 +1,98 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-ee-summary-svc/form1095b/1012667145V762142/2024
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 01 May 2025 17:03:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '43'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-188950051"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data": {
+            "issuer": {
+              "issuerName":"US Department of Veterans Affairs",
+              "ein":"54-2002017",
+              "contactPhoneNumber":"877-222-8387",
+              "address":{
+                "street1":"PO Box 149975",
+                "city":"Austin",
+                "stateOrProvince":"TX",
+                "zipOrPostalCode":"78714-8975",
+                "country":"USA"
+              }
+            },
+            "responsibleIndividual":{
+              "name":{
+                "firstName":"HECTOR",
+                "lastName":"ALLEN"
+              },
+              "address":{
+                "street1":"PO BOX 494",
+                "city":"MOCA",
+                "stateOrProvince":"PR",
+                "zipOrPostalCode":"00676-0494",
+                "country":"USA"
+              },
+              "ssn":"796126859",
+              "dateOfBirth":"19320205"
+            },
+            "coveredIndividual":{
+              "name":{
+                "firstName":"HECTOR",
+                "lastName":"ALLEN"
+              },
+              "ssn":"796126859",
+              "dateOfBirth":"19320205",
+              "coveredAll12Months":false,
+              "monthsCovered":["MARCH"]
+            },
+            "taxYear":"2024"
+          },
+          "messages":[]
+        }
+  recorded_at: Thu, 01 May 2025 17:03:17 GMT
+recorded_with: VCR 6.3.1

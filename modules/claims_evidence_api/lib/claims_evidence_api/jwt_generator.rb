@@ -12,7 +12,7 @@ module ClaimsEvidenceApi
   # > token = encoder.encode_jwt
   # Use token:
   # > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
-  # > -- 'Authentication: Bearer {token}'
+  # > -- 'Authentication: Bearer [TOKEN]'
   class JwtGenerator
     # Issuer assigned by Claim Evidence API team
     ISSUER = 'VAGOV'

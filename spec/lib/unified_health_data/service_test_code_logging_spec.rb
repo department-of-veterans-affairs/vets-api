@@ -92,9 +92,11 @@ RSpec.describe UnifiedHealthData::Service do
       # Verify that the logger was called with the correct distribution data
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
-          message: 'UHD test code distribution',
+          message: 'UHD test code and name distribution',
           test_code_distribution: 'CH:3,SP:1,CY:1,MB:1',
+          test_name_distribution: 'Chemistry Test:3,Surgical Pathology Test:1,Cytology Test:1,Microbiology Test:1',
           total_codes: 4,
+          total_names: 4,
           total_records: 6,
           service: 'unified_health_data'
         )
@@ -129,8 +131,72 @@ RSpec.describe UnifiedHealthData::Service do
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
           test_code_distribution: 'CH:1,SP:1',
+          test_name_distribution: 'Chemistry Test:1,Unknown Test:1,Surgical Pathology Test:1',
           total_codes: 2,
+          total_names: 3,
           total_records: 3
+        )
+      )
+    end
+
+    it 'handles records with missing test names' do
+      record_with_no_name = UnifiedHealthData::LabOrTest.new(
+        id: '123',
+        type: 'DiagnosticReport',
+        attributes: UnifiedHealthData::Attributes.new(
+          display: '',
+          test_code: 'CH',
+          date_completed: '2023-01-01',
+          sample_tested: '',
+          encoded_data: '',
+          location: '',
+          ordered_by: '',
+          observations: [],
+          body_site: ''
+        )
+      )
+
+      records = [ch_record, record_with_no_name, sp_record]
+      service.send(:log_test_code_distribution, records)
+
+      expect(Rails.logger).to have_received(:info).with(
+        hash_including(
+          test_code_distribution: 'CH:2,SP:1',
+          test_name_distribution: 'Chemistry Test:1,Surgical Pathology Test:1',
+          total_codes: 2,
+          total_names: 2,
+          total_records: 3
+        )
+      )
+    end
+
+    it 'handles records with special characters in test names' do
+      record_with_special_chars = UnifiedHealthData::LabOrTest.new(
+        id: '123',
+        type: 'DiagnosticReport',
+        attributes: UnifiedHealthData::Attributes.new(
+          display: 'Test: Blood, Chemistry & More',
+          test_code: 'CH',
+          date_completed: '2023-01-01',
+          sample_tested: '',
+          encoded_data: '',
+          location: '',
+          ordered_by: '',
+          observations: [],
+          body_site: ''
+        )
+      )
+
+      records = [record_with_special_chars, sp_record]
+      service.send(:log_test_code_distribution, records)
+
+      expect(Rails.logger).to have_received(:info).with(
+        hash_including(
+          test_code_distribution: 'CH:1,SP:1',
+          test_name_distribution: 'Test: Blood, Chemistry & More:1,Surgical Pathology Test:1',
+          total_codes: 2,
+          total_names: 2,
+          total_records: 2
         )
       )
     end

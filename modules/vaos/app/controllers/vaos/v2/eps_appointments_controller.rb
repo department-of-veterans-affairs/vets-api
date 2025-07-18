@@ -12,7 +12,7 @@ module VAOS
         )
 
         response_object = assemble_appt_response_object(appointment)
-        StatsD.increment(STATSD_KEY, tags: ['Community Care Appointments'])
+        StatsD.increment(STATSD_KEY, tags: ['service:community_care_appointments'])
         render json: response_object
       end
 

@@ -52,6 +52,29 @@ module IvcChampva
       file_paths
     end
 
+    def self.get_blank_page
+      tmp_path = Rails.root.join('tmp', "#{SecureRandom.hex(8)}_blank.pdf").to_path
+      blank_page_path = Rails.root.join('modules', 'ivc_champva', 'templates', 'blank_page.pdf').to_path
+      FileUtils.cp(blank_page_path, tmp_path)
+      tmp_path
+    end
+
+    ##
+    # Serializes a persistent attachment into a specific format for use in the API.
+    # This method transforms a persistent attachment into a hash structure compatible with
+    # the format used when users directly upload a supporting attachment.
+    #
+    # @param attachment [PersistentAttachment] The attachment object to serialize
+    # @param attachment_id [String] The ID to associate with the attachment
+    # @return [Hash] A hash containing the serialized attachment data with attachment_id
+    def self.serialize_attachment(attachment, attachment_id)
+      PersistentAttachmentSerializer.new(attachment)
+                                    .serializable_hash
+                                    .dig(:data, :attributes)
+                                    .merge!('attachment_id' => attachment_id)
+                                    .stringify_keys!
+    end
+
     private
 
     def get_attachments

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents_verification/notification_email'
 require 'logging/base_monitor'
 
 module DependentsVerification
@@ -16,6 +17,8 @@ module DependentsVerification
   class Monitor < ::Logging::BaseMonitor
     # statsd key for api
     CLAIM_STATS_KEY = 'api.dependents_verification'
+    # statsd key for sidekiq
+    SUBMISSION_STATS_KEY = 'app.dependents_verification.submit_benefits_intake_claim'
 
     attr_reader :tags
 
@@ -63,6 +66,13 @@ module DependentsVerification
     end
 
     ##
+    # Stats key for Sidekiq DD logging
+    # @return [String]
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
+    end
+
+    ##
     # Class name for log messages
     # @return [String]
     def name
@@ -74,6 +84,13 @@ module DependentsVerification
     # @return [String]
     def form_id
       DependentsVerification::FORM_ID
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(claim_id, email_type)
+      DependentsVerification::NotificationEmail.new(claim_id).deliver(email_type)
     end
   end
 end

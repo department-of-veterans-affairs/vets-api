@@ -6,6 +6,7 @@ module VAOS
     # It uses the Ccra::ReferralService to interact with the underlying CCRA API
     class ReferralsController < VAOS::BaseController
       REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
+      REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
 
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
@@ -39,7 +40,16 @@ module VAOS
         # Add uuid to the detailed response
         response.uuid = referral_uuid
 
-        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: ['Community Care Appointments'])
+        # Log referral provider IDs for tracking
+        referring_provider_id = sanitize_log_value(response.referring_facility_code)
+        referral_provider_id = sanitize_log_value(response.provider_npi)
+
+        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
+                           'service:community_care_appointments',
+                           "referring_provider_id:#{referring_provider_id}",
+                           "referral_provider_id:#{referral_provider_id}"
+                         ])
+
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
 
@@ -96,6 +106,15 @@ module VAOS
       # @return [Ccra::ReferralService] the referral service
       def referral_service
         @referral_service ||= Ccra::ReferralService.new(current_user)
+      end
+
+      # Sanitizes log values by removing spaces and providing fallback for nil/empty values
+      # @param value [String, nil] the value to sanitize
+      # @return [String] sanitized value or "no_value" if blank
+      def sanitize_log_value(value)
+        return 'no_value' if value.blank?
+
+        value.to_s.gsub(/\s+/, '_')
       end
     end
   end

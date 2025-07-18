@@ -787,17 +787,32 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
-      it 'supports getting the hca enrollment status' do
+      context 'authorized user' do
+        it 'supports getting the hca enrollment status' do
+          expect(HealthCareApplication).to receive(:enrollment_status).with(
+            user.icn, true
+          ).and_return(parsed_status: login_required)
+
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/enrollment_status',
+            200,
+            headers
+          )
+        end
+      end
+
+      it 'supports getting the hca enrollment status with post call' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           '123', nil
         ).and_return(parsed_status: login_required)
 
         expect(subject).to validate(
-          :get,
+          :post,
           '/v0/health_care_applications/enrollment_status',
           200,
-          '_query_string' => {
+          '_data' => {
             userAttributes: {
               veteranFullName: {
                 first: 'First',
@@ -807,7 +822,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
               veteranSocialSecurityNumber: '111-11-1234',
               gender: 'F'
             }
-          }.to_query
+          }
         )
       end
 

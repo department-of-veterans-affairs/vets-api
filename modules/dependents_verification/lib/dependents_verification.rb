@@ -23,4 +23,9 @@ module DependentsVerification
   # @see lib/pdf_fill
   module PdfFill
   end
+
+  # BenefitsIntake
+  # @see lib/lighthouse/benefits_intake
+  module BenefitsIntake
+  end
 end

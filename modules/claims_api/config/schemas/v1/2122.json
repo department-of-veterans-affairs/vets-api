@@ -296,7 +296,7 @@
       }
     },
     "serviceOrganization": {
-      "description": "Details of the Service Organization representing the veteran.",
+      "description": "Details of the service organization or individual representing the veteran.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -304,7 +304,7 @@
       ],
       "properties": {
         "poaCode": {
-          "description": "The POA code of the organization.",
+          "description": "The POA code of the organization or individual representative",
           "type": "string",
           "example": "A1Q"
         },
@@ -314,7 +314,7 @@
           "example": "I help vets LLC."
         },
         "firstName": {
-          "description": "First Name of the representative.",
+          "description": "First Name of the representative",
           "type": "string",
           "example": "John"
         },
@@ -324,12 +324,13 @@
           "example": "Doe"
         },
         "jobTitle": {
-          "description": "Job title of the representative.",
+          "description": "Job title of the representative",
           "type": "string",
           "example": "Veteran Service representative"
         },
         "address": {
           "type": "object",
+          "description": "address details for an individual representative",
           "additionalProperties": false,
           "required": [
             "numberAndStreet",

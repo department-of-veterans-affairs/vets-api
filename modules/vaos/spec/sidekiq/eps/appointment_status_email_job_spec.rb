@@ -208,7 +208,7 @@ RSpec.describe Eps::AppointmentStatusEmailJob, type: :job do
   def check_statsd_failure_increment
     expect(StatsD).to have_received(:increment).with(
       "#{described_class::STATSD_KEY}.failure",
-      tags: ['Community Care Appointments']
+      tags: ['service:community_care_appointments']
     )
     expect(StatsD).to have_received(:increment).with(
       described_class::STATSD_NOTIFY_SILENT_FAILURE,

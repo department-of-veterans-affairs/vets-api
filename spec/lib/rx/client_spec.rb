@@ -182,15 +182,6 @@ describe Rx::Client do
         expect(config.x_api_key).to eq('test-api-key')
       end
     end
-
-    context 'when mhv_medications_migrate_to_api_gateway flipper flag is false' do
-      it 'returns nil for x-api-key' do
-        result = client.send(:auth_headers)
-        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
-        allow(client).to receive(:auth_headers).and_return(headers)
-        expect(result).not_to include('x-api-key')
-      end
-    end
   end
 
   def cache_key_for(collection)

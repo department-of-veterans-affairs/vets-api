@@ -38,14 +38,14 @@ module DependentsVerification
     #
     # @return [String]
     def veteran_first_name
-      parsed_form.dig('veteranFullName', 'first')
+      parsed_form.dig('veteranInformation', 'fullName', 'first')
     end
 
     # Utility function to retrieve veteran last name from form
     #
     # @return [String]
     def veteran_last_name
-      parsed_form.dig('veteranFullName', 'last')
+      parsed_form.dig('veteranInformation', 'fullName', 'last')
     end
   end
 end

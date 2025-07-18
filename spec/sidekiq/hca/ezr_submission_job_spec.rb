@@ -73,7 +73,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             allow(VANotify::EmailJob).to receive(:perform_async)
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
               '1010EZR total failure',
               :error,
               {
@@ -113,7 +113,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
               '1010EZR total failure',
               :error,
               {

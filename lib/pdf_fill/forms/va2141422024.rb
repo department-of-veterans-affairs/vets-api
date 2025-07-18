@@ -259,7 +259,10 @@ module PdfFill
           }
         },
         'internationalPhoneNumber' => {
-          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]'
+          key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]',
+          limit: 14,
+          question_text: 'International Phone Number',
+          question_num: 7
         },
         'email' => {
           key: 'F[0].Page_1[0].E_Mail_Address[0]',
@@ -396,11 +399,9 @@ module PdfFill
 
       def expand_phone_number_field
         phone = @form_data['veteranPhone']
-        return if phone.blank?
+        return nil if phone.blank?
 
-        ['', '1', '2', '3'].each do |suffix|
-          @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone)
-        end
+        @form_data['veteranPhone'] = expand_phone_number(phone)
       end
 
       def expand_claimant_address

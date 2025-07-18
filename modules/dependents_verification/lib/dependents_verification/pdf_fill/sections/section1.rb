@@ -142,39 +142,29 @@ module DependentsVerification
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        veteran_information = form_data.dig('dependencyVerification', 'veteranInformation') || {}
+        veteran_information = form_data['veteranInformation'] || {}
 
         full_name = extract_middle_i(veteran_information, 'fullName') || {}
         full_name.delete('middle')
 
         form_data['veteranFullName'] = full_name
         form_data['veteranSSN'] = split_ssn(veteran_information['ssn'])
-        form_data['veteranFileNumber'] = veteran_information['fileNumber']
-        form_data['veteranDOB'] = split_date(veteran_information['dateOfBirth'])
-        form_data['veteranAddress'] = expand_address(veteran_information['address'])
-        form_data['veteranEmail'] = expand_email(veteran_information['email'])
-        form_data['veteranEmailAgree'] = select_checkbox(veteran_information['emailAgree'])
+        form_data['veteranFileNumber'] = veteran_information['vaFileNumber']
+        form_data['veteranDOB'] = split_date(veteran_information['birthDate'])
+        form_data['veteranAddress'] = expand_address(form_data['address'])
+        form_data['veteranEmail'] = expand_email(form_data['email'])
+        form_data['veteranEmailAgree'] = select_checkbox(form_data['electronicCorrespondence'])
 
         expand_phone_numbers(form_data)
         form_data
       end
 
       def expand_phone_numbers(form_data)
-        veteran_information = form_data.dig('dependencyVerification', 'veteranInformation') || {}
-        form_data['veteranPhone'] = if us_phone?(veteran_information['usPhone'])
-                                      expand_phone_number(veteran_information['usPhone'])
-                                    elsif us_phone?(veteran_information['mobilePhone'])
-                                      expand_phone_number(veteran_information['mobilePhone'])
-                                    elsif us_phone?(veteran_information['homePhone'])
-                                      expand_phone_number(veteran_information['homePhone'])
-                                    end
-        form_data['veteranInternationalPhone'] = if international_phone?(veteran_information['mobilePhone'])
-                                                   veteran_information['mobilePhone']
-                                                 elsif international_phone?(veteran_information['homePhone'])
-                                                   veteran_information['homePhone']
-                                                 elsif international_phone?(veteran_information['usPhone'])
-                                                   veteran_information['usPhone']
-                                                 end
+        form_data['veteranPhone'] = expand_phone_number(form_data['phone']) if us_phone?(form_data['phone'])
+
+        if international_phone?(form_data['internationalPhone'])
+          form_data['veteranInternationalPhone'] = form_data['internationalPhone']
+        end
       end
 
       def international_phone?(phone_number)

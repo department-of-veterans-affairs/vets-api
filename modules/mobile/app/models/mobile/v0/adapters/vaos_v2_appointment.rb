@@ -42,9 +42,10 @@ module Mobile
 
         # ADHOC is a staging value used in place of MOBILE_ANY
         VIDEO_CODE = %w[
+          ADHOC
           MOBILE_ANY
           MOBILE_ANY_GROUP
-          ADHOC
+          MOBILE_GFE
         ].freeze
 
         # Only a subset of types of service that requires human readable conversion
@@ -300,7 +301,7 @@ module Mobile
 
           vvs_kind = appointment.dig(:telehealth, :vvs_kind)
           if VIDEO_CODE.include?(vvs_kind)
-            if appointment.dig(:extension, :patient_has_mobile_gfe)
+            if vvs_kind == 'MOBILE_GFE' || appointment.dig(:extension, :patient_has_mobile_gfe)
               APPOINTMENT_TYPES[:va_video_connect_gfe]
             else
               APPOINTMENT_TYPES[:va_video_connect_home]
@@ -454,6 +455,7 @@ module Mobile
         def travel_pay_eligible?
           [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
+            appointment[:kind] != PHONE_KIND &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
             appointment.start < Time.now.utc # verify it's a past appointment
         end

@@ -43,14 +43,32 @@ module DependentsVerification
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
         form_data['dateStamp'] = created_at || Time.zone.now
-        expand_signature(form_data['dependencyVerification']['veteranInformation']['fullName'],
+        expand_signature(form_data['veteranInformation']['fullName'],
                          created_at&.to_date || Time.zone.today)
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
-        # Remove the dependencyVerification key from the form data
-        # as it is not needed in the final output
-        form_data.delete('dependencyVerification')
-        form_data
+        remove_fields(form_data)
+      end
+
+      private
+
+      # Remove fields that are not needed in the final PDF
+      def remove_fields(form_data)
+        updated_form_data = form_data.deep_dup
+        keys_to_remove = %w[
+          veteranInformation
+          address
+          dependents
+          email
+          phone
+          statementOfTruthSignature
+          statementOfTruthCertified
+          internationalPhone
+          electronicCorrespondence
+        ]
+        keys_to_remove.each { |key| updated_form_data.delete(key) }
+
+        updated_form_data
       end
     end
   end
