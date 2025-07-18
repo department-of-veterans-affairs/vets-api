@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claim_letters/claim_letter_downloader'
+require 'claim_letters/providers/claim_letters/lighthouse_claim_letters_provider'
 
 module V0
   class ClaimLettersController < ApplicationController
