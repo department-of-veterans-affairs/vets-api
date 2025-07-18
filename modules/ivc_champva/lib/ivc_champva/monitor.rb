@@ -198,6 +198,27 @@ module IvcChampva
     end
 
     ##
+    # Logs response from LLM processor after submitting a document
+    #
+    # @param [String] transaction_uuid UUID of the processing transaction
+    # @param [Integer] status HTTP status code received from LLM processor
+    # @param [String] messages Full response received from LLM processor
+    def track_llm_processor_response(transaction_uuid, status, messages)
+      additional_context = { transaction_uuid:, status:, messages: }
+      if status == 200
+        track_request('info',
+                      "IVC ChampVa Forms - Successful submission to LLM processor for transaction #{transaction_uuid}",
+                      "#{STATS_KEY}.llm_processor_response.success",
+                      call_location: caller_locations.first, **additional_context)
+      else
+        track_request('error',
+                      "IVC ChampVa Forms - Error on submission to LLM processor for transaction #{transaction_uuid}",
+                      "#{STATS_KEY}.llm_processor_response.failure",
+                      call_location: caller_locations.first, **additional_context)
+      end
+    end
+
+    ##
     # Logs when an MPI service call fails
     #
     # @param [String] person_type Type of person ('applicant' or 'veteran')
