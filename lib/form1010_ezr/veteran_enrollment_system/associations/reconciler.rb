@@ -31,7 +31,11 @@ module Form1010Ezr
         # to ensure we are sending the correct data to the Associations API in case any records were deleted.
         # @return [Array] The reconciled associations data that will be sent to the Associations API
         def reconcile_associations
-          transformed_ves_associations = transform_ves_associations(@ves_associations)
+          # As of 07/18/2025, we are not sending OTHER_NEXT_OF_KIN or OTHER_EMERGENCY_CONTACT data to the Associations API
+          transformed_ves_associations = 
+            transform_ves_associations(
+              @ves_associations.reject { |obj| obj['role'] == 'OTHER_NEXT_OF_KIN' || obj['role'] == 'OTHER_EMERGENCY_CONTACT' }
+            )
           # Create a lookup set of contactTypes in the submitted array.
           # We'll use this to find missing association objects (e.g. associations that were deleted on the frontend)
           submitted_contact_types = @form_associations.map { |obj| obj['contactType']&.downcase }.compact.to_set

@@ -13,6 +13,23 @@ describe HCA::EnrollmentEligibility::Service do
       data.merge('previousFinancialInfo' => financial_info)
     end
 
+    let(:veteran_data_without_secondary_associations) do
+      data = veteran_data.dup
+      
+      {
+        'emergencyContacts' => 'Other emergency contact',
+        'nextOfKins' => 'Other Next of Kin'
+      }.each do |contact_key, contact_type|
+        next unless data[contact_key]
+        
+        data[contact_key] = data[contact_key].reject do |contact|
+          contact['contactType'] == contact_type
+        end
+      end
+
+      data
+    end
+
     def expect_veteran_data_to_match(veteran_data)
       VCR.use_cassette(
         'form1010_ezr/lookup_user_with_ezr_prefill_data',
@@ -65,7 +82,7 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data with contacts, providers and dependents' do
-          expect_veteran_data_to_match(veteran_data)
+          expect_veteran_data_to_match(veteran_data_without_secondary_associations)
         end
       end
 
@@ -75,7 +92,7 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data with contacts, but without providers and dependents' do
-          expect_veteran_data_to_match(veteran_data.except('providers', 'dependents'))
+          expect_veteran_data_to_match(veteran_data_without_secondary_associations.except('providers', 'dependents'))
         end
       end
     end

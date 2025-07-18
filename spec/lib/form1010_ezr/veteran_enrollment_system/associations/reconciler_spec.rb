@@ -80,5 +80,41 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
         )
       end
     end
+
+    it 'does not return OTHER_NEXT_OF_KIN or OTHER_EMERGENCY_CONTACT data' do
+      reconciled_associations = described_class.new(
+        get_fixture('veteran_enrollment_system/associations/associations_maximum'),
+        []
+      ).reconcile_associations
+
+      expect(reconciled_associations.count).to eq(2)
+      expect(reconciled_associations.find { |a| a['contactType'] == 'Other Next of Kin' }).to be_nil
+      expect(reconciled_associations.find { |a| a['contactType'] == 'Other emergency contact' }).to be_nil
+      expect(reconciled_associations).to eq(
+        [
+          {
+            'contactType' => 'Primary Next of Kin',
+            'fullName' => {
+              'first' => 'FIRSTNOKA',
+              'middle' => 'MIDDLENOKA',
+              'last' => 'LASTNOKA',
+              'suffix' => 'JR.'
+            },
+            'relationship' => 'SON',
+            'deleteIndicator' => true
+          },
+          {
+            'contactType' => 'Emergency Contact',
+            'fullName' => {
+              'first' => 'FIRSTECA',
+              'middle' => 'MIDDLEECA',
+              'last' => 'LASTECA'
+            },
+            'relationship' => 'BROTHER',
+            'deleteIndicator' => true
+          }
+        ]
+      )
+    end
   end
 end
