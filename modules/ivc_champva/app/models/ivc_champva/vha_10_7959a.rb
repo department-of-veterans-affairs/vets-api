@@ -120,7 +120,7 @@ module IvcChampva
       {
         'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
         'claim_number' => pdi_or_claim == 'Claim control number' ? identifying_number : ''
-      }.reject { |_k, v| v == '' }
+      }.compact_blank
     end
   end
 end
