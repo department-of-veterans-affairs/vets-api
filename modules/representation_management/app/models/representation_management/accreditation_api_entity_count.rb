@@ -196,7 +196,7 @@ module RepresentationManagement
       AccreditedIndividual.individual_types.each_key do |type|
         count = AccreditedIndividual.where(individual_type: type).count
         count_with_location = AccreditedIndividual.where(individual_type: type).where.not(location: nil).count
-        percentage_with_location = count_with_location.to_f / count * 100
+        percentage_with_location = count.zero? ? 0.0 : (count_with_location.to_f / count * 100)
         report << "#{type.to_s.humanize}: #{count} (#{percentage_with_location.round(2)}% with location)\n"
       end
       report << "Veteran Service Organizations: #{AccreditedOrganization.count} (No location data)\n"
