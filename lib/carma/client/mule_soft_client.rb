@@ -9,12 +9,6 @@ module CARMA
     class MuleSoftClient < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
-      if Flipper.enabled?(:caregiver_mulesoft_config_v2)
-        configuration MuleSoftConfigurationV2
-      else
-        configuration MuleSoftConfiguration
-      end
-
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
       class RecordParseError < StandardError; end
@@ -33,6 +27,14 @@ module CARMA
       end
 
       private
+
+      def config
+        if Flipper.enabled?(:caregiver_mulesoft_config_v2)
+          MuleSoftConfigurationV2.instance
+        else
+          MuleSoftConfiguration.instance
+        end
+      end
 
       def perform_post(payload)
         resource = 'v2/application/1010CG/submit'

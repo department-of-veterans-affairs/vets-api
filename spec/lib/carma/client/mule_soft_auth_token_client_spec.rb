@@ -58,6 +58,11 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
         allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft_config_v2).and_return(false)
       end
 
+      it 'uses MuleSoftAuthTokenConfiguration config' do
+        allow(client).to receive(:config).and_call_original
+        expect(client.send(:config)).to be_a(CARMA::Client::MuleSoftAuthTokenConfiguration)
+      end
+
       context 'successfully gets token' do
         it 'calls perform with expected params' do
           expect(client).to receive(:perform)
@@ -91,6 +96,11 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
     context ':caregiver_mulesoft_config_v2 toggle enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft_config_v2).and_return(true)
+      end
+
+      it 'uses MuleSoftAuthTokenConfigurationV2 config' do
+        allow(client).to receive(:config).and_call_original
+        expect(client.send(:config)).to be_a(CARMA::Client::MuleSoftAuthTokenConfigurationV2)
       end
 
       context 'successfully gets token' do

@@ -12,12 +12,6 @@ module CARMA
       GRANT_TYPE = 'client_credentials'
       SCOPE = 'DTCWriteResource'
 
-      if Flipper.enabled?(:caregiver_mulesoft_config_v2)
-        configuration MuleSoftAuthTokenConfigurationV2
-      else
-        configuration MuleSoftAuthTokenConfiguration
-      end
-
       class GetAuthTokenError < StandardError; end
 
       def new_bearer_token
@@ -35,6 +29,14 @@ module CARMA
       end
 
       private
+
+      def config
+        if Flipper.enabled?(:caregiver_mulesoft_config_v2)
+          MuleSoftAuthTokenConfigurationV2.instance
+        else
+          MuleSoftAuthTokenConfiguration.instance
+        end
+      end
 
       def params
         URI.encode_www_form({

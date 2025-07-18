@@ -12,21 +12,20 @@ describe CARMA::Client::MuleSoftClient do
 
   describe 'submitting 10-10CG' do
     context ':caregiver_mulesoft_config_v2 toggle disabled' do
-      let(:config) { double('config') }
-      let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
-      let(:timeout) { 60 }
-
       before do
         allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft_config_v2).and_return(false)
-        allow(client).to receive(:config).and_return(config)
-        allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
-                                          settings: OpenStruct.new(
-                                            async_timeout: timeout
-                                          ))
+      end
+
+      it 'uses MuleSoftConfiguration config' do
+        expect(client.send(:config)).to be_a(CARMA::Client::MuleSoftConfiguration)
       end
 
       describe '#create_submission_v2' do
         subject { client.create_submission_v2(payload) }
+
+        let(:config) { double('config') }
+        let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
+        let(:timeout) { 60 }
 
         let(:resource) { 'v2/application/1010CG/submit' }
         let(:payload) { {} }
@@ -34,6 +33,11 @@ describe CARMA::Client::MuleSoftClient do
         let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
 
         before do
+          allow(client).to receive(:config).and_return(config)
+          allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
+                                            settings: OpenStruct.new(
+                                              async_timeout: timeout
+                                            ))
           allow(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new).and_return(mulesoft_auth_token_client)
         end
 
@@ -190,28 +194,31 @@ describe CARMA::Client::MuleSoftClient do
     end
 
     context ':caregiver_mulesoft_config_v2 toggle enabled' do
-      let(:config) { double('config') }
-      let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
-      let(:timeout) { 60 }
-
       before do
         allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft_config_v2).and_return(true)
-        allow(client).to receive(:config).and_return(config)
-        allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
-                                          settings: OpenStruct.new(
-                                            async_timeout: timeout
-                                          ))
       end
 
       it 'uses MuleSoftConfigurationV2 config' do
-        expect(described_class.configuration).to be_a(CARMA::Client::MuleSoftConfigurationV2)
+        expect(client.send(:config)).to be_a(CARMA::Client::MuleSoftConfigurationV2)
       end
 
       describe '#create_submission_v2' do
         subject { client.create_submission_v2(payload) }
 
+        let(:config) { double('config') }
+        let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
+        let(:timeout) { 60 }
+
         let(:resource) { 'v2/application/1010CG/submit' }
         let(:payload) { {} }
+
+        before do
+          allow(client).to receive(:config).and_return(config)
+          allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
+                                            settings: OpenStruct.new(
+                                              async_timeout: timeout
+                                            ))
+        end
 
         context 'successfully gets token' do
           let(:bearer_token) { 'my-bearer-token' }
