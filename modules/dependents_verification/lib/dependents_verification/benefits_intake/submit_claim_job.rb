@@ -74,7 +74,10 @@ module DependentsVerification
         # UserAccount.find will raise an error if unable to find the user_account record
 
         @claim = DependentsVerification::SavedClaim.find(saved_claim_id)
-        raise DependentsVerificationBenefitsIntakeError, "Unable to find DependentsVerification::SavedClaim #{saved_claim_id}" unless @claim # rubocop:disable Layout/LineLength
+        unless @claim
+          raise DependentsVerificationBenefitsIntakeError,
+                "Unable to find DependentsVerification::SavedClaim #{saved_claim_id}"
+        end
 
         @intake_service = ::BenefitsIntake::Service.new
       end
