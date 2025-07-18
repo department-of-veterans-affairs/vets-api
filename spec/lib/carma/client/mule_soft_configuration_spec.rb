@@ -7,43 +7,71 @@ describe CARMA::Client::MuleSoftConfiguration do
   subject { described_class.instance }
 
   let(:host) { 'https://www.somesite.gov' }
+  let(:bearer_token) { 'test_bearer_token' }
 
   describe 'connection' do
-    let(:faraday) { double('Faraday::Connection') }
+    let(:faraday) { double('Faraday::Connection', options: double('Faraday::Options')) }
+
+    before do
+      allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token)
+        .and_return(bearer_token)
+    end
 
     it 'creates a new Faraday connection with the correct base path' do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
-      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/")
+      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/", {
+                                              headers: { 'Accept' => 'application/json',
+                                                         'Authorization' => "Bearer #{bearer_token}",
+                                                         'Content-Type' => 'application/json',
+                                                         'User-Agent' => 'Vets.gov Agent' }
+                                            })
       subject.connection
     end
 
     it 'creates the connection' do
       allow(Faraday).to receive(:new).and_yield(faraday)
+      allow(faraday.options).to receive(:timeout=)
 
       expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
-      expect(faraday).to receive(:request).once.with(:instrumentation, { name: 'CARMA::Client::MuleSoftConfiguration' })
+      expect(faraday).to receive(:request).once.with(:instrumentation,
+                                                     { name: 'CARMA::Client::MuleSoftConfiguration' })
       expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+      expect(faraday.options).to receive(:timeout=).once.with(subject.timeout)
 
       subject.connection
     end
   end
 
-  describe 'id and secret' do
+  describe 'base_request_headers' do
+    let(:base_request_headers) { subject.base_request_headers }
+
     before do
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
+      subject.instance_variable_set(:@bearer_token, nil)
     end
 
-    context 'have values' do
-      subject { super().base_request_headers }
+    context 'successfully fetches bearer token' do
+      before do
+        allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token)
+          .and_return(bearer_token)
+      end
 
-      let(:fake_id) { 'BEEFCAFE1234' }
-      let(:fake_secret) { 'C0FFEEFACE4321' }
+      it 'includes the Authorization header with the bearer token' do
+        expect(base_request_headers).to eq({ 'Accept' => 'application/json',
+                                             'Content-Type' => 'application/json',
+                                             'User-Agent' => 'Vets.gov Agent',
+                                             'Authorization' => "Bearer #{bearer_token}" })
+      end
+    end
 
-      describe '#base_request_headers' do
-        it 'contains the configured values' do
-          expect(subject[:client_id]).to eq(fake_id)
-          expect(subject[:client_secret]).to eq(fake_secret)
-        end
+    context 'error getting bearer token' do
+      before do
+        allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token).and_raise(
+          StandardError, 'Token fetch error'
+        )
+      end
+
+      it 'raises an error when fetching the bearer token fails' do
+        expect { base_request_headers }.to raise_error(StandardError, 'Token fetch error')
       end
     end
   end
@@ -53,7 +81,7 @@ describe CARMA::Client::MuleSoftConfiguration do
   end
 
   describe 'timeout' do
-    subject { super().timeout }
+    let(:timeout) { subject.timeout }
 
     context 'has a configured value' do
       before do
@@ -61,7 +89,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the configured value' do
-        expect(subject).to eq(23)
+        expect(timeout).to eq(23)
       end
     end
 
@@ -71,7 +99,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the default value' do
-        expect(subject).to eq(10)
+        expect(timeout).to eq(600)
       end
     end
   end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_configuration'
-require 'carma/client/mule_soft_configuration_v2'
 require 'carma/client/mule_soft_auth_token_client'
 
 module CARMA
@@ -10,6 +9,8 @@ module CARMA
       include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
+
+      configuration MuleSoftConfiguration
 
       class RecordParseError < StandardError; end
 
@@ -28,14 +29,6 @@ module CARMA
 
       private
 
-      def config
-        if Flipper.enabled?(:caregiver_mulesoft_config_v2)
-          MuleSoftConfigurationV2.instance
-        else
-          MuleSoftConfiguration.instance
-        end
-      end
-
       def perform_post(payload)
         resource = 'v2/application/1010CG/submit'
         with_monitoring do
@@ -44,24 +37,11 @@ module CARMA
           response = perform(
             :post,
             resource,
-            get_body(payload),
-            *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [headers]),
-            *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [{ timeout: config.settings.async_timeout }])
+            get_body(payload)
           )
 
           handle_response(resource, response)
         end
-      end
-
-      def bearer_token
-        @bearer_token ||= CARMA::Client::MuleSoftAuthTokenClient.new.new_bearer_token
-      end
-
-      def headers
-        {
-          'Authorization' => "Bearer #{bearer_token}",
-          'Content-Type' => 'application/json'
-        }
       end
 
       def get_body(payload)
