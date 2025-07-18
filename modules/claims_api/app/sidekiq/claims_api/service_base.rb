@@ -4,6 +4,7 @@ require 'sidekiq'
 require 'claims_api/claim_logger'
 require 'sidekiq/monitored_worker'
 require 'vets/shared_logging'
+require 'fes_service/base'
 
 module ClaimsApi
   class ServiceBase
@@ -252,6 +253,24 @@ module ClaimsApi
 
     def evss_service
       ClaimsApi::EVSSService::Base.new
+    end
+
+    def fes_service
+      ClaimsApi::FesService::Base.new
+    end
+
+    # Returns the appropriate submission service based on feature flags
+    # This base implementation checks both V1 and V2 flags since ServiceBase is used by both
+    def submission_service
+      # Check V1 flag for V1 endpoints (ClaimEstablisher)
+      if Flipper.enabled?(:claims_api_v1_lh_fes_auto_establish_claim_enabled)
+        fes_service
+      # Check V2 flag for V2 endpoints (V2::DisabilityCompensationDockerContainerUpload)
+      elsif Flipper.enabled?(:claims_api_v2_lh_fes_auto_establish_claim_enabled) # rubocop:disable Lint/DuplicateBranch
+        fes_service
+      else
+        evss_service
+      end
     end
 
     def rescue_generic_errors(power_of_attorney, e)

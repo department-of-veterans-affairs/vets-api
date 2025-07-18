@@ -7,6 +7,7 @@ require './modules/claims_api/app/services/claims_api/disability_compensation/do
 describe ClaimsApi::DisabilityCompensation::DockerContainerService do
   before do
     stub_claims_api_auth_token
+    Flipper.disable(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
   end
 
   let(:docker_container_service) { ClaimsApi::DisabilityCompensation::DockerContainerService.new }
@@ -93,6 +94,51 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
                                                'code' => 'VA900', 'status' => '400' }])
           expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
           expect(e.message).to include 'Unprocessable Entity'
+        end
+      end
+    end
+
+    context 'with FES feature flag enabled' do
+      before do
+        Flipper.enable(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
+        allow_any_instance_of(ClaimsApi::FesService::Base).to receive(:submit)
+          .and_return({ claimId: '600236153' })
+      end
+
+      after do
+        Flipper.disable(:claims_api_v2_lh_fes_auto_establish_claim_enabled)
+      end
+
+      it 'uses FES service when feature flag is enabled' do
+        expect_any_instance_of(ClaimsApi::FesService::Base).to receive(:submit)
+          .with(claim, anything)
+          .and_return({ claimId: '600236153' })
+
+        docker_container_service.send(:upload, claim.id)
+        claim.reload
+        expect(claim.evss_id).to eq(600_236_153)
+      end
+
+      it 'logs FES submission' do
+        allow(ClaimsApi::Logger).to receive(:log)
+        expect(ClaimsApi::Logger).to receive(:log)
+          .with('526_v2_Docker_Container_service',
+                hash_including(detail: 'Submitting mapped data to FES'))
+          .at_least(:once)
+
+        docker_container_service.send(:upload, claim.id)
+      end
+    end
+
+    context 'with EVSS feature flag disabled (default)' do
+      it 'uses EVSS service when feature flag is disabled' do
+        VCR.use_cassette('/claims_api/evss/submit') do
+          allow(ClaimsApi::Logger).to receive(:log)
+          expect(ClaimsApi::Logger).to receive(:log)
+            .with('526_v2_Docker_Container_service',
+                  hash_including(detail: 'Submitting mapped data to EVSS Docker container'))
+            .at_least(:once)
+          docker_container_service.send(:upload, claim.id)
         end
       end
     end

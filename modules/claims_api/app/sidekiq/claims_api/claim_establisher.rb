@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
+require 'fes_service/base'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
 require 'evss_service/base'
@@ -118,7 +119,7 @@ module ClaimsApi
 
     def service(auth_headers)
       if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-        ClaimsApi::EVSSService::Base.new
+        submission_service
       elsif Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
         ClaimsApi::DisabilityCompensation::MockOverrideService.new(auth_headers)
       else

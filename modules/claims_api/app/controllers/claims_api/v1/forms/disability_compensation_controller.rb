@@ -7,6 +7,7 @@ require 'evss/error_middleware'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
+require 'fes_service/base'
 
 module ClaimsApi
   module V1
@@ -156,14 +157,7 @@ module ClaimsApi
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
 
-          service =
-            if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-              ClaimsApi::EVSSService::Base.new
-            elsif Flipper.enabled? :form526_legacy
-              EVSS::DisabilityCompensationForm::Service.new(auth_headers)
-            else
-              EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
-            end
+          service = submission_service
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
@@ -286,6 +280,18 @@ module ClaimsApi
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]
           }.to_json
+        end
+
+        def submission_service
+          if Flipper.enabled? :claims_api_v1_lh_fes_auto_establish_claim_enabled
+            ClaimsApi::FesService::Base.new
+          elsif Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
+            ClaimsApi::EVSSService::Base.new
+          elsif Flipper.enabled? :form526_legacy
+            EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+          else
+            EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
+          end
         end
       end
     end

@@ -365,6 +365,14 @@ features:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
     enable_in_development: true
+  claims_api_v1_lh_fes_auto_establish_claim_enabled:
+    actor_type: user
+    description: Use Form526 Establishment Service (FES) for v1 disability compensation claims auto-establishment
+    enable_in_development: true
+  claims_api_v2_lh_fes_auto_establish_claim_enabled:
+    actor_type: user
+    description: Use Form526 Establishment Service (FES) for v2 disability compensation claims auto-establishment
+    enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic

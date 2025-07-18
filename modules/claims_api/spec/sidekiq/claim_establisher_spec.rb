@@ -9,6 +9,8 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:claims_status_v1_lh_auto_establish_claim_enabled).and_return true
+    allow(Flipper).to receive(:enabled?).with(:claims_api_v1_lh_fes_auto_establish_claim_enabled).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_v2_lh_fes_auto_establish_claim_enabled).and_return false
     stub_claims_api_auth_token
   end
 
@@ -195,6 +197,23 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
           error: error_msg
         )
       end
+    end
+  end
+
+  describe 'with FES feature flag enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_v1_lh_fes_auto_establish_claim_enabled).and_return true
+    end
+
+    it 'uses FES service when feature flag is enabled' do
+      fes_service_stub = instance_double(ClaimsApi::FesService::Base)
+      allow(ClaimsApi::FesService::Base).to receive(:new) { fes_service_stub }
+      allow(fes_service_stub).to receive(:submit).and_return({ claimId: 600_236_153 })
+
+      subject.new.perform(claim.id)
+      claim.reload
+      expect(claim.evss_id).to eq(600_236_153)
+      expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
     end
   end
 end
