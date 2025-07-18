@@ -35,7 +35,7 @@ def update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)
       (att.respond_to?(:confirmationCode) && att.confirmationCode == attachment.guid)
   end
 
-  puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
+  puts "Add destroyed attachment file to list: #{mask_file_name(destroyed_attachment&.name)}"
   destroyed_names << destroyed_attachment&.name
 
   # Remove the destroyed attachment from the section.
@@ -54,6 +54,22 @@ def scrub_email(email)
   prefix, domain = email.split('@')
   masked_local = prefix[0] + ('*' * (prefix.length - 1))
   "#{masked_local}@#{domain}"
+end
+
+def mask_file_name(filename)
+  return filename if filename.nil? || filename.strip.empty?
+
+  ext = File.extname(filename)
+  base = File.basename(filename, ext)
+
+  # If the base is too short, just return the filename unchanged.
+  return filename if base.length <= 4
+
+  first_two = base[0, 2]
+  last_two  = base[-2, 2]
+  stars = '*' * (base.length - 4)
+
+  "#{first_two}#{stars}#{last_two}#{ext}"
 end
 
 #
@@ -158,7 +174,7 @@ namespace :persistent_attachment_remediation do
             claim_type:,
             url:,
             file_count: destroyed_names.size,
-            file_names: destroyed_names.join(",\n ")
+            file_names: destroyed_names.map { |name| mask_file_name(name) }.join(",\n ")
           }
         end
         puts "Step 5: Destroying claim #{claim.id} due to invalid attachments"
