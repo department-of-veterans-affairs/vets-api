@@ -36,10 +36,17 @@ module IvcChampva
       }.merge(add_resubmission_properties)
     end
 
+    ##
+    # Extracts resubmission-related properties from the submission data
+    # and formats claim/PDI number fields according to the submission type.
+    # @return [Hash] A hash containing all resubmission properties
     def add_resubmission_properties
-      # TODO: When the frontend adds the actual PDI number field, add to this list
-      @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type', 'provider_name', 'beginning_date_of_service',
-                  'end_date_of_service', 'medication_name', 'prescription_fill_date')
+      # Extract relevant fields for resubmission
+      @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type',
+                  'provider_name', 'beginning_date_of_service',
+                  'end_date_of_service', 'medication_name',
+                  'prescription_fill_date')
+           .merge(claim_number_fields)
     end
 
     ##
@@ -97,6 +104,23 @@ module IvcChampva
 
     def respond_to_missing?(_method_name, _include_private = false)
       true
+    end
+
+    private
+
+    ##
+    # Associates the resubmitted submission's identifying_number with the appropriate
+    # metadata key to be processed by Pega.
+    # @return [Hash] hash with the appropriate metadata key populated (empty hash
+    # if no appropriate number present)
+    def claim_number_fields
+      pdi_or_claim = @data['pdi_or_claim_number']
+      identifying_number = @data['identifying_number']
+
+      {
+        'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
+        'claim_number' => pdi_or_claim == 'Claim control number' ? identifying_number : ''
+      }.compact_blank
     end
   end
 end
