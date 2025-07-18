@@ -592,8 +592,6 @@ ivc_champva:
 ivc_champva_llm_processor_api:
   api_key: <%= ENV['ivc_champva_llm_processor_api__api_key'] %>
   host: <%= ENV['ivc_champva_llm_processor_api__host'] %>
-  mock: false
-  subject: "Proxy Client"
 ivc_champva_ves_api:
   api_key: <%= ENV['ivc_champva_ves_api__api_key'] %>
   app_id: <%= ENV['ivc_champva_ves_api__app_id'] %>
