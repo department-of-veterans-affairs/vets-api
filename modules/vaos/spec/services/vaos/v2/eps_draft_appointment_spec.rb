@@ -123,7 +123,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_referral)
         end
 
-                  include_examples 'returns error response', /Required referral data is missing/, :unprocessable_entity
+        include_examples 'returns error response', /Required referral data is missing/, :unprocessable_entity
       end
 
       context 'when referral data is nil' do
@@ -131,7 +131,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(nil)
         end
 
-                  include_examples 'returns error response', /all required attributes/, :unprocessable_entity
+        include_examples 'returns error response', /all required attributes/, :unprocessable_entity
       end
 
       context 'when Redis connection fails' do
@@ -139,7 +139,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_raise(Redis::BaseError, 'Connection refused')
         end
 
-                  include_examples 'returns error response', 'Redis connection error', :bad_gateway
+        include_examples 'returns error response', 'Redis connection error', :bad_gateway
       end
     end
 
@@ -154,7 +154,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return({ error: true, failures: 'Service unavailable' })
         end
 
-                  include_examples 'returns error response', /Error checking existing appointments/, :bad_gateway
+        include_examples 'returns error response', /Error checking existing appointments/, :bad_gateway
       end
 
       context 'when referral is already used' do
@@ -163,7 +163,8 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return({ error: false, exists: true })
         end
 
-                  include_examples 'returns error response', 'No new appointment created: referral is already used', :unprocessable_entity
+        include_examples 'returns error response', 'No new appointment created: referral is already used',
+                         :unprocessable_entity
       end
     end
 
@@ -179,7 +180,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
         end
 
-                  include_examples 'returns error response', 'Provider not found', :not_found
+        include_examples 'returns error response', 'Provider not found', :not_found
       end
     end
 
@@ -197,7 +198,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return(OpenStruct.new(id: nil))
         end
 
-                  include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_entity
+        include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_entity
       end
     end
 
@@ -320,8 +321,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           expect(subject.id).to eq('draft-123')
         end
       end
-
-
     end
   end
 
