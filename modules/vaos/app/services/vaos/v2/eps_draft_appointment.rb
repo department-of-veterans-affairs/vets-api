@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'eps_draft_appointment_error'
-
 module VAOS
   module V2
     class EpsDraftAppointment
@@ -14,15 +12,23 @@ module VAOS
       end
 
       def call(referral_id, referral_consult_id)
-        referral = get_and_validate_referral(referral_consult_id)
-        validate_referral_not_used(referral_id)
-        provider = get_and_validate_provider(referral)
-        draft = create_draft_appointment(referral_id)
+        referral_result = get_and_validate_referral(referral_consult_id)
+        return referral_result unless referral_result[:success]
 
-        drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
-        slots = fetch_provider_slots(referral, provider, draft.id)
+        usage_result = validate_referral_not_used(referral_id)
+        return usage_result unless usage_result[:success]
 
-        build_draft_response(draft, provider, slots, drive_time)
+        provider_result = get_and_validate_provider(referral_result[:data])
+        return provider_result unless provider_result[:success]
+
+        draft_result = create_draft_appointment(referral_id)
+        return draft_result unless draft_result[:success]
+
+        drive_time = fetch_drive_times(provider_result[:data]) unless eps_appointment_service.config.mock_enabled?
+        slots = fetch_provider_slots(referral_result[:data], provider_result[:data], draft_result[:data].id)
+
+        response_data = build_draft_response(draft_result[:data], provider_result[:data], slots, drive_time)
+        { success: true, data: response_data }
       end
 
       private
@@ -36,47 +42,54 @@ module VAOS
         validation_result = validate_referral_data(referral)
 
         unless validation_result[:valid]
-          raise EpsDraftAppointmentError.new(
+          return error_response(
             "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
-            title: 'Invalid referral data'
+            :unprocessable_entity
           )
         end
 
         log_referral_metrics(referral)
-        referral
+        { success: true, data: referral }
       rescue Redis::BaseError => e
         Rails.logger.error("#{LOGGER_TAG}: #{e.class}}")
-        raise EpsDraftAppointmentError.new('Redis connection error', status_code: :bad_gateway)
+        error_response('Redis connection error', :bad_gateway)
       end
 
       def validate_referral_not_used(referral_id)
         check = appointments_service.referral_appointment_already_exists?(referral_id)
         if check[:error]
-          raise EpsDraftAppointmentError.new(
+          return error_response(
             "Error checking existing appointments: #{check[:failures]}",
-            status_code: :bad_gateway
+            :bad_gateway
           )
         elsif check[:exists]
-          raise EpsDraftAppointmentError, 'No new appointment created: referral is already used'
+          return error_response(
+            'No new appointment created: referral is already used',
+            :unprocessable_entity
+          )
         end
+
+        { success: true }
       end
 
       def get_and_validate_provider(referral)
         provider = find_provider(referral)
-        log_provider_metrics(provider)
         if provider&.id.blank?
           log_provider_not_found_error(referral)
-          raise EpsDraftAppointmentError.new('Provider not found', status_code: :not_found)
+          return error_response('Provider not found', :not_found)
         end
 
-        provider
+        log_provider_metrics(provider)
+        { success: true, data: provider }
       end
 
       def create_draft_appointment(referral_id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        raise EpsDraftAppointmentError, 'Could not create draft appointment' if draft.id.blank?
+        if draft.id.blank?
+          return error_response('Could not create draft appointment', :unprocessable_entity)
+        end
 
-        draft
+        { success: true, data: draft }
       end
 
       # =============================================================================
@@ -123,6 +136,8 @@ module VAOS
 
       def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
+        return nil if appointment_type_id.nil?
+
         eps_provider_service.get_provider_slots(
           provider.id,
           {
@@ -138,20 +153,17 @@ module VAOS
       end
 
       def get_provider_appointment_type_id(provider)
+        # Let external service BackendServiceExceptions bubble up naturally
         if provider.appointment_types.blank?
-          raise EpsDraftAppointmentError.new(
-            'Provider appointment types data is not available',
-            status_code: :bad_gateway
-          )
+          Rails.logger.error("#{LOGGER_TAG}: Provider appointment types data is not available")
+          return nil
         end
 
         self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
 
         if self_schedulable_types.blank?
-          raise EpsDraftAppointmentError.new(
-            'No self-schedulable appointment types available for this provider',
-            status_code: :bad_gateway
-          )
+          Rails.logger.error("#{LOGGER_TAG}: No self-schedulable appointment types available for this provider")
+          return nil
         end
 
         self_schedulable_types.first[:id]
@@ -213,6 +225,20 @@ module VAOS
         return 'no_value' if value.blank?
 
         value.to_s.gsub(/\s+/, '_')
+      end
+
+      # =============================================================================
+      # HELPER METHODS
+      # =============================================================================
+
+      def error_response(message, status)
+        {
+          success: false,
+          error: {
+            message:,
+            status:
+          }
+        }
       end
 
       # =============================================================================

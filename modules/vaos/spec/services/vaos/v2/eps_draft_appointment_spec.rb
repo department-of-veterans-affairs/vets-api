@@ -45,14 +45,12 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   end
 
   # Shared examples for error scenarios
-  shared_examples 'raises EpsDraftAppointmentError' do |expected_title, expected_detail_match, expected_status|
-    it "raises EpsDraftAppointmentError with #{expected_title}" do
-      expect { subject.call(referral_id, referral_consult_id) }
-        .to raise_error(VAOS::V2::EpsDraftAppointmentError) do |error|
-        expect(error.title).to eq(expected_title)
-        expect(error.detail).to match(expected_detail_match)
-        expect(error.status_code).to eq(expected_status)
-      end
+  shared_examples 'returns error response' do |expected_message_match, expected_status|
+    it "returns error response with #{expected_message_match}" do
+      result = subject.call(referral_id, referral_consult_id)
+      expect(result[:success]).to be false
+      expect(result[:error][:message]).to match(expected_message_match)
+      expect(result[:error][:status]).to eq(expected_status)
     end
   end
 
@@ -77,10 +75,11 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'returns a successful response with all data' do
         result = subject.call(referral_id, referral_consult_id)
 
-        expect(result.id).to eq('draft-123')
-        expect(result.provider).to eq(provider_data)
-        expect(result.slots).to eq(slots_data)
-        expect(result.drive_time).to eq(drive_time_data)
+        expect(result[:success]).to be true
+        expect(result[:data].id).to eq('draft-123')
+        expect(result[:data].provider).to eq(provider_data)
+        expect(result[:data].slots).to eq(slots_data)
+        expect(result[:data].drive_time).to eq(drive_time_data)
       end
 
       it 'calls all services with correct parameters' do
@@ -103,7 +102,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
         it 'skips drive time calculation' do
           result = subject.call(referral_id, referral_consult_id)
-          expect(result.drive_time).to be_nil
+          expect(result[:data].drive_time).to be_nil
           expect(eps_provider_service).not_to have_received(:get_drive_times)
         end
       end
@@ -115,7 +114,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
         it 'returns nil for drive time' do
           result = subject.call(referral_id, referral_consult_id)
-          expect(result.drive_time).to be_nil
+          expect(result[:data].drive_time).to be_nil
           expect(eps_provider_service).not_to have_received(:get_drive_times)
         end
       end
@@ -128,8 +127,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_referral)
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Invalid referral data',
-                         /Required referral data is missing/, :unprocessable_entity
+                  include_examples 'returns error response', /Required referral data is missing/, :unprocessable_entity
       end
 
       context 'when referral data is nil' do
@@ -137,8 +135,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(nil)
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Invalid referral data', /all required attributes/,
-                         :unprocessable_entity
+                  include_examples 'returns error response', /all required attributes/, :unprocessable_entity
       end
 
       context 'when Redis connection fails' do
@@ -146,8 +143,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_raise(Redis::BaseError, 'Connection refused')
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Appointment creation failed', 'Redis connection error',
-                         :bad_gateway
+                  include_examples 'returns error response', 'Redis connection error', :bad_gateway
       end
     end
 
@@ -162,8 +158,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return({ error: true, failures: 'Service unavailable' })
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Appointment creation failed',
-                         /Error checking existing appointments/, :bad_gateway
+                  include_examples 'returns error response', /Error checking existing appointments/, :bad_gateway
       end
 
       context 'when referral is already used' do
@@ -172,8 +167,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return({ error: false, exists: true })
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Appointment creation failed',
-                         'No new appointment created: referral is already used', :unprocessable_entity
+                  include_examples 'returns error response', 'No new appointment created: referral is already used', :unprocessable_entity
       end
     end
 
@@ -189,8 +183,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Appointment creation failed', 'Provider not found',
-                         :not_found
+                  include_examples 'returns error response', 'Provider not found', :not_found
       end
     end
 
@@ -208,8 +201,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return(OpenStruct.new(id: nil))
         end
 
-        include_examples 'raises EpsDraftAppointmentError', 'Appointment creation failed',
-                         'Could not create draft appointment', :unprocessable_entity
+                  include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_entity
       end
     end
 
@@ -225,6 +217,146 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'allows BackendServiceException to bubble up' do
         expect { subject.call(referral_id, referral_consult_id) }
           .to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+
+    context 'provider appointment type validation' do
+      before do
+        allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
+        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+          .and_return({ error: false, exists: false })
+        allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
+                                                           config: OpenStruct.new(mock_enabled?: false))
+        allow(eps_provider_service).to receive(:get_provider_slots).and_return(slots_data)
+        allow(current_user).to receive(:vet360_contact_info).and_return(nil)
+      end
+
+      context 'when provider has no appointment types' do
+        before do
+          provider_without_types = OpenStruct.new(id: 'provider-123', appointment_types: [])
+          allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_without_types)
+        end
+
+        it 'returns successful response with nil slots' do
+          result = subject.call(referral_id, referral_consult_id)
+          expect(result[:success]).to be true
+          expect(result[:data].slots).to be_nil
+        end
+      end
+
+      context 'when provider has no self-schedulable types' do
+        before do
+          provider_without_self_schedulable = OpenStruct.new(
+            id: 'provider-123',
+            appointment_types: [{ id: 'type-1', is_self_schedulable: false }]
+          )
+          allow(eps_provider_service).to receive(:search_provider_services)
+            .and_return(provider_without_self_schedulable)
+        end
+
+        it 'returns successful response with nil slots' do
+          result = subject.call(referral_id, referral_consult_id)
+          expect(result[:success]).to be true
+          expect(result[:data].slots).to be_nil
+        end
+      end
+    end
+
+    context 'metrics and logging validation' do
+      before { setup_successful_services }
+
+      it 'logs referral metrics with correct tags' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.referral_draft_station_id.access',
+          tags: [
+            'service:community_care_appointments',
+            'referring_provider_id:FAC123',
+            'referral_provider_id:1234567890'
+          ]
+        )
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_draft_network_id.access',
+          tags: ['service:community_care_appointments', 'network_id:network-1']
+        )
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_draft_network_id.access',
+          tags: ['service:community_care_appointments', 'network_id:network-2']
+        )
+        subject.call(referral_id, referral_consult_id)
+      end
+
+      it 'logs provider not found error when provider is nil' do
+        allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: Provider not found while creating draft appointment.',
+          hash_including(
+            provider_npi: '1234567890',
+            provider_specialty: 'Cardiology',
+            tag: 'Community Care Appointments'
+          )
+        )
+        result = subject.call(referral_id, referral_consult_id)
+        expect(result[:success]).to be false
+        expect(result[:error][:message]).to eq('Provider not found')
+      end
+    end
+
+    context 'date handling and slot fetching' do
+      before do
+        allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
+        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+          .and_return({ error: false, exists: false })
+        allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_data)
+        allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
+                                                           config: OpenStruct.new(mock_enabled?: false))
+        allow(current_user).to receive(:vet360_contact_info).and_return(nil)
+      end
+
+      context 'when referral date is in the past' do
+        before do
+          past_date_referral = referral_data.dup
+          past_date_referral.referral_date = '2020-01-15'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(past_date_referral)
+        end
+
+        it 'uses current date as start date for slots' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(startOnOrAfter: Date.current.to_time(:utc).iso8601)
+          )
+          result = subject.call(referral_id, referral_consult_id)
+          expect(result[:data].id).to eq('draft-123')
+        end
+      end
+
+      context 'when slot fetching fails with ArgumentError' do
+        before do
+          allow(eps_provider_service).to receive(:get_provider_slots).and_raise(ArgumentError)
+        end
+
+        it 'handles gracefully and returns nil slots' do
+          result = subject.call(referral_id, referral_consult_id)
+          expect(result[:data].slots).to be_nil
+        end
+      end
+    end
+  end
+
+  describe 'private method testing' do
+    describe '#sanitize_log_value' do
+      it 'removes spaces and returns sanitized value' do
+        result = subject.send(:sanitize_log_value, 'test value with spaces')
+        expect(result).to eq('test_value_with_spaces')
+      end
+
+      it 'returns no_value for nil input' do
+        result = subject.send(:sanitize_log_value, nil)
+        expect(result).to eq('no_value')
+      end
+
+      it 'returns no_value for empty string' do
+        result = subject.send(:sanitize_log_value, '')
+        expect(result).to eq('no_value')
       end
     end
   end
