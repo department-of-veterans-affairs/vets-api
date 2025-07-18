@@ -7,6 +7,7 @@ require 'bgs_service/vnp_ptcpnt_phone_service'
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class AcceptedDecisionHandler
+      LOG_TAG = 'accepted_decision_handler'
       FORM_TYPE_CODE = '21-22'
 
       def initialize(proc_id:, poa_code:, metadata:, veteran:, claimant: nil)
@@ -18,8 +19,11 @@ module ClaimsApi
       end
 
       def call
-        gather_poa_data
+        ClaimsApi::Logger.log(
+          LOG_TAG, message: "Starting data gathering for accepted POA with proc #{@proc_id}."
+        )
 
+        gather_poa_data
         # poa_auto_establishment_mapper(data)
       end
 
