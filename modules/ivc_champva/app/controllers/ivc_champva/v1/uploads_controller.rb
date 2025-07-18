@@ -264,8 +264,7 @@ module IvcChampva
           # create a temp file from the persistent attachment object
           tmpfile = tempfile_from_attachment(attachment, form_id)
 
-          # queue Tesseract OCR job for tmpfile\
-          # TODO: follow signature changes downstream
+          # queue Tesseract OCR job for tmpfile
           IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
           Rails.logger.info(
             "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
