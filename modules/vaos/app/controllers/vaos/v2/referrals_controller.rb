@@ -29,26 +29,11 @@ module VAOS
       # Fetches a specific referral by its encrypted UUID
       # Decrypts the UUID to retrieve the referral consult ID
       def show
-        # Decrypt the referral UUID from the request parameters
         decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_uuid)
-
-        response = referral_service.get_referral(
-          decrypted_id,
-          current_user.icn
-        )
-
-        # Add uuid to the detailed response
+        response = referral_service.get_referral(decrypted_id, current_user.icn)
         response.uuid = referral_uuid
 
-        # Log referral provider IDs for tracking
-        referring_provider_id = sanitize_log_value(response.referring_facility_code)
-        referral_provider_id = sanitize_log_value(response.provider_npi)
-
-        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
-                           'service:community_care_appointments',
-                           "referring_provider_id:#{referring_provider_id}",
-                           "referral_provider_id:#{referral_provider_id}"
-                         ])
+        log_referral_provider_metrics(response)
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
@@ -115,6 +100,47 @@ module VAOS
         return 'no_value' if value.blank?
 
         value.to_s.gsub(/\s+/, '_')
+      end
+
+      # Logs referral provider metrics and errors for missing provider IDs
+      # @param response [Ccra::ReferralDetail] the referral response object
+      def log_referral_provider_metrics(response)
+        # Check original values before sanitization for logging
+        original_referring_id = response.referring_facility_code
+        original_referral_id = response.provider_npi
+
+        # Sanitize for metrics
+        referring_provider_id = sanitize_log_value(original_referring_id)
+        referral_provider_id = sanitize_log_value(original_referral_id)
+
+        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
+                           'service:community_care_appointments',
+                           "referring_provider_id:#{referring_provider_id}",
+                           "referral_provider_id:#{referral_provider_id}"
+                         ])
+
+        log_missing_provider_ids(original_referring_id, original_referral_id)
+      end
+
+      # Logs specific errors when provider IDs are missing
+      # @param referring_provider_id [String] the original referring provider ID
+      # @param referral_provider_id [String] the original referral provider ID
+      def log_missing_provider_ids(referring_provider_id, referral_provider_id)
+        missing_fields = []
+        missing_fields << 'referring provider ID' if referring_provider_id.blank?
+        missing_fields << 'referral provider ID' if referral_provider_id.blank?
+
+        return if missing_fields.empty?
+
+        description = case missing_fields.size
+                      when 1
+                        "#{missing_fields.first} is"
+                      else
+                        'both referring and referral provider IDs are'
+                      end
+
+        Rails.logger.error("Community Care Appointments: Referral detail view: #{description} blank for user: " \
+                           "#{current_user.uuid}")
       end
     end
   end

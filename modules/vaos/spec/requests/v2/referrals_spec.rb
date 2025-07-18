@@ -185,6 +185,45 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         get "/vaos/v2/referrals/#{encrypted_uuid}"
       end
 
+      context 'when provider IDs are missing' do
+        shared_examples 'logs missing provider ID error' do |facility_code, npi, expected_message|
+          before do
+            test_referral = build(:ccra_referral_detail, referral_number:,
+                                                         referring_facility_code: facility_code, provider_npi: npi)
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(test_referral)
+          end
+
+          it 'logs the appropriate error message' do
+            expect(Rails.logger).to receive(:error)
+              .with("Community Care Appointments: Referral detail view: #{expected_message} blank for user: " \
+                    "#{user.uuid}")
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+
+        context 'when both IDs are missing' do
+          include_examples 'logs missing provider ID error', nil, '', 'both referring and referral provider IDs are'
+        end
+
+        context 'when referring provider ID is missing' do
+          include_examples 'logs missing provider ID error', '', '1234567890', 'referring provider ID is'
+        end
+
+        context 'when referral provider ID is missing' do
+          include_examples 'logs missing provider ID error', '552', nil, 'referral provider ID is'
+        end
+
+        context 'when both provider IDs are present' do
+          it 'does not log any error' do
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(referral)
+            expect(Rails.logger).not_to receive(:error)
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+      end
+
       context 'when fetching the same referral multiple times' do
         let(:initial_time) { Time.current.to_f }
         let(:client) { Ccra::RedisClient.new }
