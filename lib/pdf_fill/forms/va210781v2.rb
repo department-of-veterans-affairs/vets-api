@@ -630,27 +630,51 @@ module PdfFill
       SECTIONS = [
         {
           label: "Section I: Veteran's Identification Information",
-          question_nums: %w[1 2 3 4 5 6 7]
+          question_nums: %w[1 2 3 4 5 6 7],
+          page: 1,
+          dest_name: 'Section_I',
+          dest_y_coord: 650,
+          link_next_line: false
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
-          question_nums: %w[8 9]
+          question_nums: %w[8 9],
+          page: 1,
+          dest_name: 'Section_II',
+          dest_y_coord: 500,
+          link_next_line: false
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: %w[10 10C 11 11.5 12]
+          question_nums: %w[10 10C 11 11.5 12],
+          page: 2,
+          dest_name: 'Section_III',
+          dest_y_coord: 650,
+          link_next_line: true
         },
         {
           label: 'Section IV: Treatment Information',
-          question_nums: %w[13]
+          question_nums: %w[13],
+          page: 3,
+          dest_name: 'Section_IV',
+          dest_y_coord: 180,
+          link_next_line: false
         },
         {
           label: 'Section V: Remarks',
-          question_nums: %w[14]
+          question_nums: %w[14],
+          page: 4,
+          dest_name: 'Section_V',
+          dest_y_coord: 600,
+          link_next_line: false
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: %w[16]
+          question_nums: %w[16],
+          page: 4,
+          dest_name: 'Section_VII',
+          dest_y_coord: 85,
+          link_next_line: false
         }
       ].freeze
 
