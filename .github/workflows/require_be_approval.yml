@@ -3,6 +3,9 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
+  pull_request:
+    types: [converted_to_draft]
+    branches: master
 permissions:
   id-token: write
   contents: read
@@ -32,19 +35,24 @@ jobs:
         run: |
           # Pull recent data
           ORG="department-of-veterans-affairs"
-          REPO="department-of-veterans-affairs/vets-api"
           PR_NUMBER="${{ github.event.pull_request.number }}"
 
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
           # Fetch PR details from GitHub API
-          PR_INFO=$(gh api /repos/${REPO}/pulls/${PR_NUMBER} --jq '{
+          PR_INFO=$(gh api /repos/department-of-veterans-affairs/vets-api/pulls/${PR_NUMBER} --jq '{
             draft: .draft,
             labels: [.labels[].name],
             head_ref: .head.ref
           }')
 
-          PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
+          # Assign PR_DRAFT to true if a pull_request action kicked off the workflow
+          if github.event_name == 'pull_request'
+            PR_DRAFT=true
+          else
+            PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
+          fi
+
           PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
           PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
 
@@ -73,14 +81,24 @@ jobs:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: final-review-confirmed
 
-      - name: Fail if draft or failures
+      - name: Remove exempt-be-review label
         if: steps.pr_data.outputs.pr_draft == 'true'
-        run: exit 1
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
+          labels: exempt-be-review
+
+      - name: Skip backend approval for draft PR
+        if: steps.pr_data.outputs.pr_draft == 'true'
+        run: |
+          echo "PR is in draft mode. Skipping backend approval requirements."
+          echo "Labels have been removed. No further action needed."
 
   # Fetch approvals when required workflows are successful.
   fetch-pr-reviews:
     name: Succeed if backend approval is confirmed
     needs: [get-pr-data]
+    if: needs.get-pr-data.outputs.pr_draft == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -174,15 +192,17 @@ jobs:
             backend_approval_required=false
             team_approval_status=confirmed
             approval_status=confirmed
-          elif echo "$PR_LABELS" | jq -e '. | index("exempt-be-review")' > /dev/null || \
-              echo "$PR_LABELS" | jq -e '. | index("final-review-confirmed")' > /dev/null; then
+
+          elif [[ "$PR_LABELS" == *"exempt-be-review"* || "$PR_LABELS" == *"final-review-confirmed"* ]]; then
             team_approval_status=confirmed
             approval_status=confirmed
             backend_approval_required=false
+
           else
             backend_approval_required=true
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
+
             if [ -z "$BE_APPROVALS" ]; then
               echo "BE APPROVAL NOT CONFIRMED"
               approval_status=not_confirmed
