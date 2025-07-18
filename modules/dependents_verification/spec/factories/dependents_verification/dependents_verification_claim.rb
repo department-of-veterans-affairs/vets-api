@@ -52,5 +52,23 @@ FactoryBot.define do
         statementOfTruthCertified: true
       }.to_json
     end
+
+    trait :pending do
+      after(:create) do |claim|
+        create(:lighthouse_submission, :pending, saved_claim_id: claim.id)
+      end
+    end
+
+    trait :submitted do
+      after(:create) do |claim|
+        create(:lighthouse_submission, :submitted, saved_claim_id: claim.id)
+      end
+    end
+
+    trait :failure do
+      after(:create) do |claim|
+        create(:lighthouse_submission, :failure, saved_claim_id: claim.id)
+      end
+    end
   end
 end
