@@ -33,11 +33,6 @@
     }
   },
   "email": "myemail72585885",
-  "veteranPhone": {
-    "phone_area_code": "619",
-    "phone_first_three_numbers": "555",
-    "phone_last_four_numbers": "1234"
-  },
   "privacyAgreementAccepted": true,
   "limitedConsent": "Yes",
   "signatureDate": {
@@ -62,6 +57,7 @@
     "second": "12",
     "third": "6859"
   },
+  "internationalPhoneNumber": "+84 489372676",
   "veteranFullName1": {
     "first": "Hector",
     "middle": "Nick",
