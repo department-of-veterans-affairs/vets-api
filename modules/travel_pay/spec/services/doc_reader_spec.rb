@@ -49,16 +49,8 @@ RSpec.describe TravelPay::DocReader do
 
     context 'when heading is not found' do
       it 'returns nil and logs error when heading not found' do
-        expect(Rails.logger).to receive(:error).with("DocReader: Heading not found for 'Denial Reason'")
+        expect(Rails.logger).to receive(:error).with("DocReader: Heading not found for 'Denial Reason(s)'")
         result = missing_heading_letter_reader.denial_reasons
-        expect(result).to be_nil
-      end
-    end
-
-    context 'when regex pattern does not match' do
-      it 'returns nil and logs error when pattern does not match' do
-        expect(Rails.logger).to receive(:error).with(/Regex pattern did not match for 'Denial Reason'/)
-        result = missing_decision_reason_letter_reader.denial_reasons
         expect(result).to be_nil
       end
     end
@@ -73,13 +65,6 @@ RSpec.describe TravelPay::DocReader do
     it 'returns nil when no partial payment reasons are found' do
       result = rejection_letter_reader.partial_payment_reasons
       expect(result).to be_nil
-    end
-
-    it 'logs info message when no regex pattern is provided' do
-      expect(Rails.logger).to receive(:info).with(
-        "DocReader: No regex pattern provided for 'Partial Payment Reason', returning paragraph text"
-      )
-      partial_payment_letter_reader.partial_payment_reasons
     end
   end
 

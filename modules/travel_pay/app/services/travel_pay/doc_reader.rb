@@ -11,16 +11,16 @@ module TravelPay
     end
 
     def denial_reasons
-      reasons('Denial Reason', /Authority \d+ CFR \d+\.\d+/)
+      reasons('Denial Reason(s)')
     end
 
     def partial_payment_reasons
-      reasons('Partial Payment Reason')
+      reasons('Partial Payment Reason(s)')
     end
 
     private
 
-    def reasons(heading_text, paragraph_includes = nil)
+    def reasons(heading_text)
       heading = find_heading(heading_text)
 
       unless heading
@@ -36,23 +36,7 @@ module TravelPay
       # .next_sibling: <w:p>NEW_LINE</w:p>
       # .next_sibling: <w:p>Partially paid for the following reason:</w:p>
       # .next_sibling: <w:p>ACTUAL TEXT</w:p>
-      paragraph_text = heading.next_sibling.next_sibling.next_sibling.text.strip
-
-      # If a regex pattern is provided, check if the paragraph matches
-      if paragraph_includes.nil?
-        Rails.logger.info(
-          "DocReader: No regex pattern provided for '#{heading_text}', returning paragraph text"
-        )
-      elsif paragraph_text.match?(paragraph_includes)
-        Rails.logger.info("DocReader: Regex pattern matched for '#{heading_text}': #{paragraph_includes}")
-      else
-        Rails.logger.error(
-          "DocReader: Regex pattern did not match for '#{heading_text}': #{paragraph_includes}"
-        )
-        return
-      end
-
-      paragraph_text
+      heading.next_sibling.next_sibling.next_sibling.text.strip
     end
 
     def find_heading(heading_text)
