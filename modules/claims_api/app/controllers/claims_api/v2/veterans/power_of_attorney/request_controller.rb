@@ -82,6 +82,7 @@ module ClaimsApi
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
@@ -120,6 +121,8 @@ byebug
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
 =======
+=======
+>>>>>>> 5892135824 (Cleaned up request controlloer linting)
 
           ptcpnt_id = fetch_ptcpnt_id(vet_icn)
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
@@ -131,6 +134,7 @@ byebug
                                representative_id:,
                                poa_code: request.poa_code,
                                metadata: request.metadata,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -154,6 +158,10 @@ byebug
 =======
                                claimant_ptcpnt_id:)
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
+=======
+                               veteran: veteran_data,
+                               claimant: claimant_data)
+>>>>>>> 5892135824 (Cleaned up request controlloer linting)
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
@@ -222,6 +230,7 @@ byebug
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
@@ -241,12 +250,15 @@ byebug
 <<<<<<< HEAD
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 =======
+=======
+>>>>>>> 5892135824 (Cleaned up request controlloer linting)
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           claims_v2_logging('process_poa_decision',
                             message: "Beginning to process poa #{decision} decision for proc #{proc_id}")
 
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
+<<<<<<< HEAD
 >>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
 =======
 >>>>>>> 58184e4087 (API-43735-gather-data-for-poa-accept-2)
@@ -254,6 +266,8 @@ byebug
 >>>>>>> 56a1343d6f (API-43735-gather-data-for-poa-accept-2)
 =======
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
+=======
+>>>>>>> 5892135824 (Cleaned up request controlloer linting)
           ).call
 
           @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant
@@ -290,15 +304,6 @@ byebug
             header_hash:
           }
         end
-        # def save_form(headers_for_auto_establishment)
-
-        #   # if save! works
-        #   auto_establish_form
-        # end
-
-        # def auto_establish_form
-        #   # send to sidekiq job
-        # end
 
         def build_veteran_or_dependent_data(icn)
           build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
