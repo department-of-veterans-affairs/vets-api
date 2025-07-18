@@ -74,7 +74,7 @@ module VAOS
 
       def create_draft_appointment(referral_id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        raise EpsDraftAppointmentError, 'Could not create draft appointment' unless draft.id
+        raise EpsDraftAppointmentError, 'Could not create draft appointment' if draft.id.blank?
 
         draft
       end
