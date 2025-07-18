@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
       def search
         authorize nil, policy_class: ClaimantPolicy
 
-        poa_requests = policy_scope(PowerOfAttorneyRequest).joins(:claimant).where(claimant: { icn: })
+        poa_requests = policy_scope(PowerOfAttorneyRequest).joins(:claimant).where(claimant: { icn: }).not_withdrawn
         active_poa_codes = current_user.user_account.active_power_of_attorney_holders.map(&:poa_code)
         claimant = Claimant.new(search_result.try(:profile), poa_requests, active_poa_codes)
 

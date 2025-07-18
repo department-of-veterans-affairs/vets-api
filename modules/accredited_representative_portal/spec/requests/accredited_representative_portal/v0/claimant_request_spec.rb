@@ -129,6 +129,33 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
                                                                                            ])
         end
       end
+
+      context 'when there is a withdrawn poa request' do
+        let!(:withdrawn_poa_request) do
+          create(:power_of_attorney_request, :with_veteran_claimant,
+                 poa_code:, accredited_individual: representative,
+                 accredited_organization: vso, claimant:).tap do |req|
+            req.mark_replaced!(create(:power_of_attorney_request))
+          end
+        end
+
+        it 'does not return the withdrawn poa request' do
+          VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+            VCR.use_cassette(
+              'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
+              'lighthouse/benefits_claims/200_response'
+            ) do
+              post('/accredited_representative_portal/v0/claimant/search', params: {
+                     first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: '666-66-6666'
+                   })
+            end
+          end
+          parsed_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:ok)
+          returned_ids = parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }
+          expect(returned_ids).not_to include(withdrawn_poa_request.id)
+        end
+      end
     end
   end
 end
