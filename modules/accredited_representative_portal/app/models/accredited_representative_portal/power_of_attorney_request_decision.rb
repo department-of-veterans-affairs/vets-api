@@ -40,6 +40,12 @@ module AccreditedRepresentativePortal
     end
 
     belongs_to :creator, class_name: 'UserAccount'
+    # rubocop:disable Rails/InverseOf
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative',
+                                       foreign_key: :accredited_individual_registration_number,
+                                       primary_key: :representative_id,
+                                       optional: true
+    # rubocop:enable Rails/InverseOf
 
     validates :type, inclusion: { in: Types::ALL }
 
