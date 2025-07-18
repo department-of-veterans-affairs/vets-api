@@ -61,6 +61,7 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
 
   it 'includes the quantity' do
     expect(attributes['quantity']).to eq(prescription.quantity)
+    expect(attributes['quantity']).to be_a(Float)
   end
 
   it 'includes the expiration_date' do

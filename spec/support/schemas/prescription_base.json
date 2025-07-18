@@ -33,7 +33,7 @@
         "refill_remaining": { "type": "integer" },
         "facility_name": { "type": "string" },
         "ordered_date": { "type": "string", "format": "date" },
-        "quantity": { "type": "integer" },
+        "quantity": { "type": "number" },
         "expiration_date": { "type": "string", "format": "date" },
         "dispensed_date": { "type": ["string", "null"], "format": "date" },
         "station_number": { "type": "string" },

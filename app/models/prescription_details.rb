@@ -3,6 +3,7 @@
 require 'vets/model'
 
 class PrescriptionDetails < Prescription
+  attribute :quantity, Float
   attribute :cmop_division_phone, String
   attribute :in_cerner_transition, Bool
   attribute :not_refillable_display_message, String
