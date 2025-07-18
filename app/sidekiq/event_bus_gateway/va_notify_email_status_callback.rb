@@ -7,6 +7,22 @@ module EventBusGateway
 
       add_metrics(status)
       add_log(notification) if notification.status != 'delivered'
+      if notification.status == 'temporary-failure' && Flipper.enabled?(:event_bus_gateway_retry_emails)
+        retry_email(notification)
+      end
+    end
+
+    def self.retry_email(notification)
+      ebg_noti = EventBusGatewayNotification.find_by(va_notify_id: notification.id)
+      icn = ebg_noti.user_account.icn
+      profile = MPI::Service.new.find_profile_by_identifier(
+        identifier: icn,
+        identifier_type: MPI::Constants::ICN
+      ).profile
+      EventBusGateway::LetterReadyEmailJob.perform_async(
+        profile.participant_id,
+        ebg_noti.template_id
+      )
     end
 
     def self.add_log(notification)

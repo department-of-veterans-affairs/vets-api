@@ -763,6 +763,10 @@ features:
     actor_type: user
     description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
     enable_in_development: true
+  event_bus_gateway_retry_emails:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
+    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
