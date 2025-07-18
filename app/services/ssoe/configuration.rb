@@ -22,7 +22,7 @@ module SSOe
     end
 
     def base_path
-      'https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService'
+      'https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService' # dev endpoint
     end
 
     def service_name

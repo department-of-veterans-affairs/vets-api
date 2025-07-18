@@ -4,14 +4,13 @@ module Identity
 
     sidekiq_options retry: false, unique_for: 5.minutes
 
-    def perform(user_verification_id)
-      user_verification = UserVerification.find(user_verification_id)
-      user = user_verification.user
+    def perform(cache_key)
+      user_attributes = Sidekiq::AttrPackage.find(cache_key)
 
       response = SSOe::Service.new.get_traits(
         credential_method: user.identity.sign_in[:service_name],
         credential_id: user.identity.uuid,
-        first_name: user.first_name,
+        first_name: user_attributes[:first_name],
         last_name: user.last_name,
         birth_date: user.birth_date&.strftime('%Y%m%d'),
         ssn: user.ssn,
@@ -30,9 +29,6 @@ module Identity
         Rails.logger.warn("[GetSSOeTraitsByCspidJob] Failure for user #{user.uuid}", response)
         StatsD.increment('ssoe.traits_fetch.failure')
       end
-    rescue ActiveRecord::RecordNotFound
-      Rails.logger.error("[GetSSOeTraitsByCspidJob] UserVerification not found for ID #{user_verification_id}")
-      StatsD.increment('ssoe.traits_fetch.user_verification_not_found')
     rescue => e
       Rails.logger.error("[GetSSOeTraitsByCspidJob] Unexpected error: #{e.message}")
       StatsD.increment('ssoe.traits_fetch.unexpected_error')

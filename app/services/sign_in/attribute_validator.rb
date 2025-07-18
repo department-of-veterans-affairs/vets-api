@@ -32,6 +32,7 @@ module SignIn
       @mhv_icn = user_attributes[:mhv_icn]
       @edipi = user_attributes[:edipi]
       @mhv_credential_uuid = user_attributes[:mhv_credential_uuid]
+      @user_attributes = user_attributes
     end
 
     def perform
@@ -50,7 +51,15 @@ module SignIn
         validate_existing_mpi_attributes
       end
 
+      # could call getSSOeTraits here
       verified_icn
+    end
+
+    def get_ssoe_traits_async
+      return unless mhv_icn
+      cache_key = Sidekiq::AttrPackage.create(expires_in: 30.minutes, user_attributes)
+  
+      Identity::GetSSOeTraitsByCspidJob.perform_async(cache_key)
     end
 
     private

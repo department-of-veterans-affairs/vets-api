@@ -52,6 +52,7 @@ module SSOe
         parse_response(raw_response.body)
       end
     rescue *CONNECTION_ERRORS => e
+      # errors that don't come from the service
       nil
     end
 
