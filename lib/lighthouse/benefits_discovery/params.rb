@@ -41,15 +41,6 @@ module BenefitsDiscovery
 
     private
 
-    # method is currently not in use. it will be in a later phase of development
-    def service_history
-      @service_history ||= begin
-        service = VAProfile::MilitaryPersonnel::Service.new(@user)
-        response = service.get_service_history
-        response.episodes
-      end
-    end
-
     def disability_rating
       service = VeteranVerification::Service.new
       response = service.get_rated_disabilities(@user.icn)

@@ -15,8 +15,8 @@ module Lighthouse
         user = User.find(user_uuid)
         raise Common::Exceptions::RecordNotFound, user_uuid if user.nil?
 
-        ::BenefitsDiscovery::Params.new(user_uuid, service_history).prepared_params
-        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits
+        prepared_params = ::BenefitsDiscovery::Params.new(user).prepared_params(service_history)
+        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(prepared_params)
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
         sorted_benefits = sort_benefits(eligible_benefits)
