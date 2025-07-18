@@ -86,7 +86,7 @@ module ClaimsApi
 =======
 =======
           ClaimsApi::Logger.log(LOG_TAG,
-                                message: "Begnning to map the #{@type} data")
+                                message: "Beginning to map the #{@type} data")
 
 >>>>>>> a17896afdc (Adds some logging for traceability, full path for an org has been tested)
           mapper_class = DATA_MAPPERS[@type].new(data: @data)
@@ -100,7 +100,7 @@ module ClaimsApi
 
         def validate_data
           ClaimsApi::Logger.log(LOG_TAG,
-                                message: 'Begnning to validate the data')
+                                message: 'Beginning to validate the data')
           # custom validations, must come first
           @poa_auto_establish_validation_errors = validate_form_2122_and_2122a_submission_values(
             user_profile: nil, veteran_participant_id: @veteran.participant_id, poa_code: @data[:poa_code],

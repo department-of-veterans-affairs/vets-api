@@ -93,8 +93,14 @@ module ClaimsApi
 
             # Section II
             # Item 10
+<<<<<<< HEAD
             "#{base_form}.Claimants_FirstName[0]": data.dig('dependent', 'first_name'),
             "#{base_form}.Claimants_LastName[0]": data.dig('dependent', 'last_name'),
+=======
+            "#{base_form}.Claimants_FirstName[0]": 'Wally',
+            "#{base_form}.Claimants_MiddleInitial1[0]": data.dig('claimant', 'middleInitial'),
+            "#{base_form}.Claimants_LastName[0]": 'Morrell',
+>>>>>>> 64313c7753 (Adds location headers to response from decide)
             # Item 11
             "#{base_form}.Claimants_MailingAddress_NumberAndStreet[0]": data.dig('claimant', 'address', 'addressLine1'),
             "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[0]": data.dig('claimant', 'address', 'addressLine2'),

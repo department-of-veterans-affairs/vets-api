@@ -129,7 +129,7 @@ byebug
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
 
           # poa here means the poa record saved in our DB, not the poa request record
-          process_poa_decision(decision:,
+          poa = process_poa_decision(decision:,
                                proc_id:,
                                representative_id:,
                                poa_code: request.poa_code,
@@ -169,9 +169,11 @@ byebug
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                         view: :index_or_show,
-                                                                                         root: :data), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            get_poa_response, view: :index_or_show, root: :data), 
+          status: :ok, location: url_for(
+            controller: 'power_of_attorney/base', action: 'show', id: poa.id, veteranId: vet_icn
+          )
         end
 
         def create # rubocop:disable Metrics/MethodLength
@@ -277,7 +279,7 @@ byebug
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
 
-          if power_of_attorney.presesnt?
+          if power_of_attorney.present?
             ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
                                                            'post', representative_id)
 
@@ -286,6 +288,8 @@ byebug
         rescue => e
           claims_v2_logging('process_poa_decision',
                             message: "Failed to save power of attorney record. Error: #{e}")
+
+          raise e
         end
         # rubocop:enable Metrics/ParameterLists
 
