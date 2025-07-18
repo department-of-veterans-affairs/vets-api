@@ -399,7 +399,7 @@ module BBInternal
     end
 
     def with_custom_base_path(custom_base_path)
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway) && custom_base_path
+      if custom_base_path
         BBInternal::Configuration.custom_base_path = custom_base_path
       end
       yield

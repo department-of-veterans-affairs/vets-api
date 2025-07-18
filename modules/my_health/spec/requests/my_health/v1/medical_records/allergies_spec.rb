@@ -15,7 +15,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_allergy).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
@@ -65,7 +64,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
     end
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mr_client/get_a_list_of_allergies') do
+      VCR.use_cassette 'mr_client/apigw_get_a_list_of_allergies' do
         get '/my_health/v1/medical_records/allergies'
       end
 
@@ -74,7 +73,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
     end
 
     it 'responds to GET #show' do
-      VCR.use_cassette('mr_client/get_an_allergy') do
+      VCR.use_cassette('mr_client/apigw_get_an_allergy') do
         get '/my_health/v1/medical_records/allergies/30242'
       end
 
