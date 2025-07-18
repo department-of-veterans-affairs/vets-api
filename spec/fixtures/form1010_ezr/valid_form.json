@@ -112,5 +112,9 @@
   "deductibleMedicalExpenses": 33.3,
   "deductibleFuneralExpenses": 44.44,
   "deductibleEducationExpenses": 77.77,
+  "lastServiceBranch": "merchant seaman",
+  "lastEntryDate": "1980-03-07",
+  "lastDischargeDate": "1984-07-08",
+  "dischargeType": "general",
   "privacyAgreementAccepted": true
 }

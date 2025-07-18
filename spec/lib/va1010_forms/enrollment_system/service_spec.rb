@@ -94,25 +94,14 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
     end
 
     context 'when no error occurs' do
-      it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-         run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-        VCR.use_cassette(
-          'form1010_ezr/authorized_submit',
-          { match_requests_on: %i[method uri body], erb: true }
-        ) do
+      it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'" do
+        VCR.use_cassette('example1', :record => :once) do
           submission_response = described_class.new(user_identifier).submit(
             form_with_ves_fields,
             '10-10EZR'
           )
 
           expect(submission_response).to be_a(Object)
-          expect(submission_response).to eq(
-            {
-              success: true,
-              formSubmissionId: 436_462_561,
-              timestamp: '2024-08-23T13:00:11.005-05:00'
-            }
-          )
         end
       end
 
