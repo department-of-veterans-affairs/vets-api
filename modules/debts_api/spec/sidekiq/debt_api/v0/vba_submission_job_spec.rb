@@ -111,7 +111,7 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission_no_user_data)
 
         expect do
-          described_class.new.perform(form_submission_no_user_data.id, user_data.uuid)
+          described_class.new.perform(form_submission_no_user_data.id, user.uuid)
         end.to raise_error(described_class::MissingUserAttributesError)
       end
     end
