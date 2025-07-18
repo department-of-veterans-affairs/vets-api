@@ -588,16 +588,15 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: fake_llm_api_key
+  host: https://spd-devtest-openai-pdf2image-llm-processor-func.vac20spddevintase801.appserviceenvironment.us
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
   host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
-
-ivc_champva_llm_processor_api:
-  api_key: fake_llm_api_key
-  host: https://spd-devtest-openai-pdf2image-llm-processor-func.vac20spddevintase801.appserviceenvironment.us
 ivc_forms:
   form_status_job:
     enabled: ~
