@@ -421,6 +421,8 @@ app/services/mhv_account_type_service.rb @department-of-veterans-affairs/octo-id
 app/services/mhv/user_account @department-of-veterans-affairs/octo-identity
 app/services/rapid_ready_for_decision @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/services/sign_in @department-of-veterans-affairs/octo-identity
+app/services/ssoe/messages/get_ssoe_traits_by_cspid_message.rb @department-of-veterans-affairs/octo-identity
+spec/services/ssoe/messages/get_ssoe_traits_by_cspid_message_spec.rb @department-of-veterans-affairs/octo-identity
 app/services/terms_of_use @department-of-veterans-affairs/octo-identity
 app/services/user_audit.rb @department-of-veterans-affairs/octo-identity
 app/services/user_audit/ @department-of-veterans-affairs/octo-identity
