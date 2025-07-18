@@ -209,10 +209,6 @@ features:
     actor_type: user
     description: Enables emergency contact experience for 10-10EZR applicants.
     enable_in_development: true
-  ezr_next_of_kin_enabled:
-    actor_type: user
-    description: Enables next of kin experience for 10-10EZR applicants.
-    enable_in_development: true
   ezr_use_va_notify_on_submission_failure:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
@@ -228,13 +224,6 @@ features:
   ezr_form_prefill_with_providers_and_dependents:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
-    enable_in_development: true
-  ezr_associations_api_enabled:
-    actor_type: user
-    description: Enables VES's Associations REST API
-  ezr_prefill_contacts:
-    actor_type: user
-    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user

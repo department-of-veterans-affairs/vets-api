@@ -10,8 +10,11 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
   let(:representative_id) { '11' }
   let(:poa_code) { '087' }
   let(:metadata) do
-    { 'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886' }
+    { 'veteran' => {
+      'vnp_phone_id' => '106175', 'vnp_email_addr_id' => '148885', 'vnp_mailing_addr_id' => '148886'
+    } }
   end
+  let(:claimant_ptcpnt_id) { nil }
 
   context "When the decision is 'Declined'" do
     it 'calls the declined decision service handler' do
@@ -38,7 +41,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
       proc_id:,
       representative_id:,
       poa_code:,
-      metadata:
+      metadata:,
+      claimant_ptcpnt_id:
     )
   end
 end
