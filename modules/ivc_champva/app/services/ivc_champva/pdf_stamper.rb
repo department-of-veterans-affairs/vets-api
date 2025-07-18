@@ -9,6 +9,13 @@ module IvcChampva
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
+    # Constant dimensions for stamping on a blank page
+    PAGE_HEIGHT = 792    # Total height of the blank page
+    TOP_MARGIN = 20      # Top margin
+    BOTTOM_MARGIN = 50   # Bottom margin where we'll stop adding content
+    LINE_HEIGHT = 20     # Height of each metadata line
+    LEFT_MARGIN = 25     # Left margin for text
+
     ##
     # Stamps a PDF with all necessary data
     #
@@ -238,6 +245,44 @@ module IvcChampva
       ].tap do |config|
         config[page] = { type: :text, position: }
       end
+    end
+
+    ##
+    # Stamps metadata items on a PDF document at specified coordinates.
+    #
+    # @param pdf_path [String] The file path to the PDF document to be stamped
+    # @param metadata [Hash] A hash containing key-value pairs to be stamped on the PDF
+    # @param start_y [Integer] The starting Y-coordinate position for the first metadata item
+    # @param page_number [Integer] The page number on which to stamp the metadata
+    #
+    # @return [Array<Array, Hash>] A tuple containing:
+    #   - An array of keys that were successfully stamped
+    #   - A hash of remaining metadata items that couldn't be stamped (due to space constraints)
+    #
+    # @example
+    #   stamped, remaining = stamp_metadata_items('path/to/file.pdf', {'name' => 'John Doe'}, 700, 1)
+    #
+    # @note This method will stop stamping when it reaches the bottom margin defined by BOTTOM_MARGIN
+    #       and will return any unstamped metadata items
+    def self.stamp_metadata_items(pdf_path, metadata, start_y = PAGE_HEIGHT, page_number = 0)
+      y_position = start_y
+      already_stamped = []
+
+      metadata.each do |key, value|
+        # If we hit the bottom margin, return what's left to process
+        return [already_stamped, metadata.except(*already_stamped)] if y_position < BOTTOM_MARGIN
+
+        # Format and stamp the metadata text
+        text = "#{key.humanize}: #{value}"
+        y_position -= LINE_HEIGHT
+        desired_stamp = { coords: [LEFT_MARGIN, y_position], text:, page: page_number }
+
+        stamp(desired_stamp, pdf_path)
+        already_stamped << key
+      end
+
+      # All items stamped successfully
+      [already_stamped, {}]
     end
 
     ##

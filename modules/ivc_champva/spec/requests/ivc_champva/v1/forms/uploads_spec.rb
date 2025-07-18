@@ -1036,6 +1036,49 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#add_blank_doc_and_stamp integration' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) { { 'form_number' => '10-7959A', 'supporting_docs' => [] } }
+
+    # Basic test form class with stamp_metadata method to verify
+    # it properly gates the functionality
+    let(:form) do
+      instance_double(IvcChampva::VHA107959a,
+                      form_id: '10-7959A',
+                      methods: [:stamp_metadata],
+                      stamp_metadata: { metadata: { 'test_key' => 'test_value' }, attachment_id: 'Test Attachment' })
+    end
+
+    it 'creates and adds a supporting document' do
+      # Mock out the PDF operations to avoid actually creating files
+      expect(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
+      expect(controller).to receive(:create_custom_attachment).and_return({ 'attachment_id' => 'doc1' })
+
+      # Check that a supporting doc gets added to the form_data
+      expect do
+        controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)
+      end.to change { parsed_form_data['supporting_docs'].length }.from(0).to(1)
+
+      expect(parsed_form_data['supporting_docs']).to include({ 'attachment_id' => 'doc1' })
+    end
+  end
+
+  describe '#add_blank_doc_and_stamp without stamp_metadata method' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form) { instance_double(IvcChampva::VHA1010d) }
+    let(:parsed_form_data) { { 'form_number' => '10-10D' } }
+
+    before do
+      allow(form).to receive(:methods).and_return([])
+    end
+
+    it 'does nothing when form has no stamp_metadata method' do
+      expect(IvcChampva::PdfStamper).not_to receive(:stamp_metadata_items)
+
+      controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)
+    end
+  end
+
   describe '#validate_mpi_profiles' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:parsed_form_data) do

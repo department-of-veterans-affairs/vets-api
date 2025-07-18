@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :job do
+  include ActiveSupport::Testing::TimeHelpers
   subject(:job) { described_class.new }
 
   let(:client) { RepresentationManagement::GCLAWS::Client }
@@ -13,6 +14,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     allow(Sidekiq::Batch).to receive(:new).and_return(batch)
     allow(batch).to receive(:description=)
     allow(batch).to receive(:jobs).and_yield
+    slack_client = instance_double(SlackNotify::Client)
+    allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
+    allow(slack_client).to receive(:notify)
   end
 
   describe '#perform' do
@@ -60,6 +64,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
+      allow(entity_counts).to receive(:count_report).and_return('Count report generated successfully')
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
@@ -832,6 +837,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.instance_variable_set(:@representative_json_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
       job.instance_variable_set(:@accreditation_ids, [])
+      job.instance_variable_set(:@report, String.new)
 
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
@@ -1312,6 +1318,100 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         .with('Batching representative address updates from GCLAWS Accreditation API')
 
       job.send(:validate_rep_addresses)
+    end
+  end
+
+  describe '#finalize_and_send_report' do
+    let(:job) { described_class.new }
+
+    before do
+      allow(job).to receive(:log_to_slack_channel)
+      job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@start_time, 2.minutes.ago)
+    end
+
+    it 'calculates duration and appends it to the report' do
+      allow(job).to receive(:calculate_duration).and_return('2m 30s')
+
+      job.send(:finalize_and_send_report)
+
+      report = job.instance_variable_get(:@report)
+      expect(report).to include("\nJob Duration: 2m 30s\n")
+    end
+
+    it 'sends the complete report to Slack' do
+      initial_report = String.new('Initial report content')
+      job.instance_variable_set(:@report, initial_report)
+      allow(job).to receive(:calculate_duration).and_return('1m 15s')
+
+      job.send(:finalize_and_send_report)
+
+      expect(job).to have_received(:log_to_slack_channel).with(initial_report)
+    end
+  end
+
+  describe '#calculate_duration' do
+    let(:job) { described_class.new }
+
+    context 'when calculating duration in seconds only' do
+      it 'returns seconds format for duration under 1 minute' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 45.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('45s')
+      end
+    end
+
+    context 'when calculating duration in minutes and seconds' do
+      it 'returns minutes and seconds format for 2 minutes 30 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 2.minutes + 30.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('2m 30s')
+      end
+    end
+
+    context 'when calculating duration in hours, minutes and seconds' do
+      it 'returns full format for 2 hours 15 minutes 30 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 2.hours + 15.minutes + 30.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('2h 15m 30s')
+      end
+    end
+
+    context 'when handling edge cases' do
+      it 'handles fractional seconds by truncating to integer' do
+        start_time = Time.parse('2023-12-01 12:00:00.750 UTC')
+        end_time = Time.parse('2023-12-01 12:00:45.250 UTC')
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('44s') # 44.5 seconds truncated to 44
+      end
+
+      it 'handles same start and end times' do
+        time = Time.parse('2023-12-01 12:00:00 UTC')
+
+        result = job.send(:calculate_duration, time, time)
+
+        expect(result).to eq('0s')
+      end
+
+      it 'works with Time objects that have different time zones' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = Time.parse('2023-12-01 13:15:30 EST') # 1h 15m 30s later in UTC
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('6h 15m 30s') # EST is UTC-5, so 13:15:30 EST = 18:15:30 UTC
+      end
     end
   end
 end
