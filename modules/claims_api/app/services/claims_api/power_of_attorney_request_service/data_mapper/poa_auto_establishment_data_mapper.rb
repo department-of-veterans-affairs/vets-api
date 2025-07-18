@@ -25,6 +25,7 @@ module ClaimsApi
 <<<<<<< HEAD
         include ClaimsApi::V2::JsonFormatValidation
 
+<<<<<<< HEAD
         LOG_TAG = 'poa_auto_establishment_data_mapper'
         DATA_MAPPERS = {
 =======
@@ -32,6 +33,9 @@ module ClaimsApi
         include ClaimsApi::V2::JsonFormatValidation
 >>>>>>> 4b90aaed80 (WIP)
 
+=======
+        LOG_TAG = 'poa_auto_establish_data_mapper'
+>>>>>>> a17896afdc (Adds some logging for traceability, full path for an org has been tested)
         DATA_MAPPERS = {
           '2122a' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper,
 >>>>>>> 1255e92ce7 (WIP)
@@ -45,6 +49,7 @@ module ClaimsApi
         end
 
         def map_data
+<<<<<<< HEAD
 <<<<<<< HEAD
           ClaimsApi::Logger.log(
             LOG_TAG, message: 'Starting poa auto establish data mapping.'
@@ -79,6 +84,11 @@ module ClaimsApi
                   @claims_api_forms_validation_errors
           end
 =======
+=======
+          ClaimsApi::Logger.log(LOG_TAG,
+                                message: "Begnning to map the #{@type} data")
+
+>>>>>>> a17896afdc (Adds some logging for traceability, full path for an org has been tested)
           mapper_class = DATA_MAPPERS[@type].new(data: @data)
           return unless mapper_class
 
@@ -89,6 +99,8 @@ module ClaimsApi
         end
 
         def validate_data
+          ClaimsApi::Logger.log(LOG_TAG,
+                                message: 'Begnning to validate the data')
           # custom validations, must come first
           @poa_auto_establish_validation_errors = validate_form_2122_and_2122a_submission_values(
             user_profile: nil, veteran_participant_id: @veteran.participant_id, poa_code: @data[:poa_code],

@@ -125,6 +125,7 @@ byebug
           claimant_ptcpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn.present?
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
 
+          # poa here means the poa record saved in our DB, not the poa request record
           process_poa_decision(decision:,
                                proc_id:,
                                representative_id:,
@@ -241,6 +242,9 @@ byebug
 >>>>>>> ce9fc3954a (API-43735-gather-data-for-poa-accept-2)
 =======
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
+          claims_v2_logging('process_poa_decision',
+                            message: "Beginning to process poa #{decision} decision for proc #{proc_id}")
+
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
 >>>>>>> 421a7105da (API-43735-gather-data-for-poa-accept-phone-3)
@@ -251,15 +255,23 @@ byebug
 =======
 >>>>>>> efdc6de40f (API-43735-gather-data-for-poa-accept-2)
           ).call
-          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if @claimant
+
+          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant
 
           build_auth_headers(veteran)
           attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
 
-          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
-                                                         'post', representative_id)
+          if power_of_attorney.presesnt?
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
+                                                           'post', representative_id)
+
+            power_of_attorney
+          end
+        rescue => e
+          claims_v2_logging('process_poa_decision',
+                            message: "Failed to save power of attorney record. Error: #{e}")
         end
         # rubocop:enable Metrics/ParameterLists
 
