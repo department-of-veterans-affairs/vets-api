@@ -168,12 +168,12 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
   describe '#notify_threshold_exceeded' do
     it 'logs to Slack with the correct message format' do
-      model.send(:notify_threshold_exceeded, :agents, 100, 70, 30.0)
+      model.send(:notify_threshold_exceeded, :agents, 100, 70, -30.0)
 
       expected_message = "⚠️ AccreditationApiEntityCount Alert: Agents count decreased beyond threshold!\n" \
                          "Previous: 100\n" \
                          "New: 70\n" \
-                         "Decrease: 30.0%\n" \
+                         "Decrease: -30.0%\n" \
                          "Threshold: -20.0%\n" \
                          'Action: Update skipped, manual review required'
 
