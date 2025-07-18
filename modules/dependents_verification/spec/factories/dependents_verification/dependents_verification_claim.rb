@@ -2,9 +2,13 @@
 
 FactoryBot.define do
   factory :dependents_verification_claim, class: 'DependentsVerification::SavedClaim' do
+    transient do
+      veteran_ssn { '123456789' }
+    end
+
     form_id { '21-0538' }
     form do
-      {
+      form_data = {
         veteranInformation: {
           fullName: {
             first: 'Jane',
@@ -50,7 +54,12 @@ FactoryBot.define do
         electronicCorrespondence: 'true',
         statementOfTruthSignature: 'Jane Elizabeth Maximal',
         statementOfTruthCertified: true
-      }.to_json
+      }
+
+      # Add SSN if provided
+      form_data[:veteranInformation][:ssn] = veteran_ssn
+
+      form_data.to_json
     end
 
     trait :pending do
