@@ -6,6 +6,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   subject { described_class.new(current_user, referral_id, referral_consult_id) }
 
   let(:current_user) { build(:user, :vaos) }
+
   let(:referral_id) { 'test-referral-123' }
   let(:referral_consult_id) { 'consult-456' }
   let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
@@ -67,7 +68,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     )
   end
 
-  describe '#call' do
+  describe '#initialize' do
     context 'when all services return successfully' do
       before { setup_successful_services }
 
@@ -320,20 +321,12 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
       end
 
-      context 'when slot fetching fails with ArgumentError' do
-        before do
-          allow(eps_provider_service).to receive(:get_provider_slots).and_raise(ArgumentError)
-        end
 
-        it 'handles gracefully and returns nil slots' do
-          expect(subject.slots).to be_nil
-        end
-      end
     end
   end
 
   describe 'private method testing' do
-    let(:service_instance) { described_class.allocate.tap { |instance| instance.instance_variable_set(:@current_user, current_user) } }
+    let(:service_instance) { allocate_service_instance }
 
     describe '#sanitize_log_value' do
       it 'removes spaces and returns sanitized value' do
@@ -354,7 +347,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   end
 
   describe '#validate_referral_data' do
-    let(:service_instance) { described_class.allocate.tap { |instance| instance.instance_variable_set(:@current_user, current_user) } }
+    let(:service_instance) { allocate_service_instance }
 
     context 'with valid referral data' do
       it 'returns valid true' do
@@ -373,5 +366,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         expect(result[:missing_attributes]).to include('provider_npi', 'referral_date')
       end
     end
+  end
+
+  def allocate_service_instance
+    described_class.allocate.tap { |instance| instance.instance_variable_set(:@current_user, current_user) }
   end
 end

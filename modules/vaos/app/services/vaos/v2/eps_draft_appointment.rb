@@ -17,6 +17,17 @@ module VAOS
         @drive_time = nil
         @error = nil
 
+        if invalid_parameters?(current_user, referral_id, referral_consult_id)
+          set_error('Missing required parameters', :bad_request)
+          return
+        end
+
+        build_appointment_draft(referral_id, referral_consult_id)
+      end
+
+      private
+
+      def build_appointment_draft(referral_id, referral_consult_id)
         referral = get_and_validate_referral(referral_consult_id)
         return if @error
 
@@ -35,8 +46,6 @@ module VAOS
         @provider = provider
       end
 
-      private
-
       # =============================================================================
       # ORCHESTRATION METHODS
       # =============================================================================
@@ -46,36 +55,25 @@ module VAOS
         validation_result = validate_referral_data(referral)
 
         unless validation_result[:valid]
-          @error = {
-            message: "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
-            status: :unprocessable_entity
-          }
-          return nil
+          return set_error(
+            "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
+            :unprocessable_entity
+          )
         end
 
         log_referral_metrics(referral)
         referral
       rescue Redis::BaseError => e
-        Rails.logger.error("#{LOGGER_TAG}: #{e.class}}")
-        @error = {
-          message: 'Redis connection error',
-          status: :bad_gateway
-        }
-        nil
+        Rails.logger.error("#{LOGGER_TAG}: Redis error - #{e.class}: #{e.message}")
+        set_error('Redis connection error', :bad_gateway)
       end
 
       def validate_referral_not_used(referral_id)
         check = appointments_service.referral_appointment_already_exists?(referral_id)
         if check[:error]
-          @error = {
-            message: "Error checking existing appointments: #{check[:failures]}",
-            status: :bad_gateway
-          }
+          set_error("Error checking existing appointments: #{check[:failures]}", :bad_gateway)
         elsif check[:exists]
-          @error = {
-            message: 'No new appointment created: referral is already used',
-            status: :unprocessable_entity
-          }
+          set_error('No new appointment created: referral is already used', :unprocessable_entity)
         end
       end
 
@@ -83,11 +81,7 @@ module VAOS
         provider = find_provider(referral)
         if provider&.id.blank?
           log_provider_not_found_error(referral)
-          @error = {
-            message: 'Provider not found',
-            status: :not_found
-          }
-          return nil
+          return set_error('Provider not found', :not_found)
         end
 
         log_provider_metrics(provider)
@@ -96,13 +90,7 @@ module VAOS
 
       def create_draft_appointment(referral_id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        if draft.id.blank?
-          @error = {
-            message: 'Could not create draft appointment',
-            status: :unprocessable_entity
-          }
-          return nil
-        end
+        return set_error('Could not create draft appointment', :unprocessable_entity) if draft.id.blank?
 
         draft
       end
@@ -121,11 +109,17 @@ module VAOS
         }
 
         missing_attributes = required_attributes.select { |_, value| value.blank? }.keys
+        return { valid: false, missing_attributes: missing_attributes.join(', ') } unless missing_attributes.empty?
 
-        {
-          valid: missing_attributes.empty?,
-          missing_attributes: missing_attributes.join(', ')
-        }
+        # Validate date formats
+        begin
+          Date.parse(referral.referral_date)
+          Date.parse(referral.expiration_date)
+        rescue ArgumentError
+          return { valid: false, missing_attributes: 'invalid date format' }
+        end
+
+        { valid: true, missing_attributes: [] }
       end
 
       # =============================================================================
@@ -140,8 +134,6 @@ module VAOS
         )
       end
 
-
-
       def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
         return nil if appointment_type_id.nil?
@@ -155,9 +147,6 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
-      rescue ArgumentError
-        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots")
-        nil
       end
 
       def get_provider_appointment_type_id(provider)
@@ -236,8 +225,17 @@ module VAOS
       end
 
       # =============================================================================
-      # SERVICE INITIALIZATION
+      # HELPER METHODS & SERVICE INITIALIZATION
       # =============================================================================
+
+      def set_error(message, status)
+        @error = { message:, status: }
+        nil
+      end
+
+      def invalid_parameters?(current_user, referral_id, referral_consult_id)
+        current_user.nil? || referral_id.blank? || referral_consult_id.blank? || current_user.icn.blank?
+      end
 
       def ccra_referral_service
         @ccra_referral_service ||= Ccra::ReferralService.new(@current_user)
