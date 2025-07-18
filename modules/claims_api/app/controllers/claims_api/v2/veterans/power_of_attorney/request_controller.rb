@@ -81,6 +81,7 @@ module ClaimsApi
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
 
+          # poa here means the poa record saved in our DB, not the poa request record
           process_poa_decision(decision:,
                                proc_id:,
                                representative_id:,
@@ -152,18 +153,29 @@ module ClaimsApi
 
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
+          claims_v2_logging('process_poa_decision',
+                            message: "Beginning to process poa #{decision} decision for proc #{proc_id}")
+
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
           ).call
-          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if @claimant
+
+          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant
 
           build_auth_headers(veteran)
           attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
 
-          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
-                                                         'post', representative_id)
+          if power_of_attorney.presesnt?
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
+                                                           'post', representative_id)
+
+            power_of_attorney
+          end
+        rescue => e
+          claims_v2_logging('process_poa_decision',
+                            message: "Failed to save power of attorney record. Error: #{e}")
         end
         # rubocop:enable Metrics/ParameterLists
 
