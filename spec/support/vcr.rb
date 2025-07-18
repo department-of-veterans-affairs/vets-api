@@ -46,6 +46,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<VETS360_URL>') { Settings.vet360.url }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
+  c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM>') { Settings.hca.endpoint }
   c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
   c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.hostname }
   c.filter_sensitive_data('<X_API_KEY>') { Settings.mhv.rx.x_api_key }
