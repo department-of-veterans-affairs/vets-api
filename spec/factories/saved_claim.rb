@@ -44,5 +44,9 @@ FactoryBot.define do
     after(:build) do |saved_claim, evaluator|
       stub_const("#{saved_claim.class}::FORM", evaluator.form_id)
     end
+
+    trait :with_attachments do
+      persistent_attachments { create_list(:claim_evidence, 2) }
+    end
   end
 end

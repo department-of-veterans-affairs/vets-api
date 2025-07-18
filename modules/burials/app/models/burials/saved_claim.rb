@@ -97,6 +97,11 @@ module Burials
       'NCA'
     end
 
+    # the VBMS document type for _this_ claim type
+    def document_type
+      133
+    end
+
     ##
     # Utility function to retrieve veteran first name from form
     #
