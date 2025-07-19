@@ -83,7 +83,6 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           let(:mpi_profile) { build(:mpi_profile) }
           let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
           let(:user_account) { create(:user_account, icn: mpi_profile_response.profile.icn) }
-          let(:template_id) { '5678' }
           let(:ebg_noti) do
             create(:event_bus_gateway_notification, user_account:, va_notify_id: notification_record.id)
           end
@@ -95,7 +94,11 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           end
 
           it 'attempts to send the email again' do
-            expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_in).with(
+              1.hour,
+              mpi_profile.participant_id,
+              ebg_noti.template_id
+            )
             described_class.call(notification_record)
           end
 

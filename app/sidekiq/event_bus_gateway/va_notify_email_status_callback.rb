@@ -19,7 +19,8 @@ module EventBusGateway
         identifier: icn,
         identifier_type: MPI::Constants::ICN
       ).profile
-      EventBusGateway::LetterReadyEmailJob.perform_async(
+      EventBusGateway::LetterReadyEmailJob.perform_in(
+        1.hour,
         profile.participant_id,
         ebg_noti.template_id
       )
