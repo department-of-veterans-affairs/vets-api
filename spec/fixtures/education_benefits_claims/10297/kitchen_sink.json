@@ -3,8 +3,8 @@
     "first": "Test",
     "last": "Personage"
   },
-  "applicantSocialSecurityNumber": "123456789",
-  "applicantFileNumber": "123456789",
+  "ssn": "123456789",
+  "vaFileNumber": "123456789",
   "mailingAddress" :{
     "street": "123 Test St",
     "street2": "Apt B",
