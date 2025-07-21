@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
+  include ActiveSupport::Testing::TimeHelpers
   subject { described_class.new(current_user, referral_id, referral_consult_id) }
 
   let(:current_user) { build(:user, :vaos) }
@@ -70,6 +71,34 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   end
 
   describe '#initialize' do
+    context 'parameter validation' do
+      context 'when current_user is nil' do
+        let(:current_user) { nil }
+
+        include_examples 'returns error response', 'Missing required parameters', :bad_request
+      end
+
+      context 'when referral_id is blank' do
+        let(:referral_id) { '' }
+
+        include_examples 'returns error response', 'Missing required parameters', :bad_request
+      end
+
+      context 'when referral_consult_id is nil' do
+        let(:referral_consult_id) { nil }
+
+        include_examples 'returns error response', 'Missing required parameters', :bad_request
+      end
+
+      context 'when current_user.icn is blank' do
+        before do
+          allow(current_user).to receive(:icn).and_return('')
+        end
+
+        include_examples 'returns error response', 'Missing required parameters', :bad_request
+      end
+    end
+
     context 'when all services return successfully' do
       it 'returns a successful response with all data' do
         expect(subject.error).to be_nil
@@ -131,6 +160,26 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         include_examples 'returns error response', /all required attributes/, :unprocessable_entity
+      end
+
+      context 'when referral date format is invalid' do
+        before do
+          invalid_date_referral = referral_data.dup
+          invalid_date_referral.referral_date = 'invalid-date-format'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
+        end
+
+        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
+      end
+
+      context 'when expiration date format is invalid' do
+        before do
+          invalid_date_referral = referral_data.dup
+          invalid_date_referral.expiration_date = 'another-invalid-date'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
+        end
+
+        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
       end
 
       context 'when Redis connection fails' do
@@ -310,6 +359,43 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           expect(eps_provider_service).to receive(:get_provider_slots).with(
             'provider-123',
             hash_including(startOnOrAfter: Date.current.to_time(:utc).iso8601)
+          )
+          expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when referral date is in the future' do
+        before do
+          # Freeze time to ensure consistent behavior
+          travel_to Time.parse('2024-12-01T00:00:00Z')
+          future_date_referral = referral_data.dup
+          future_date_referral.referral_date = '2025-01-15'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(future_date_referral)
+        end
+
+        after do
+          travel_back
+        end
+
+        it 'uses future referral date as start date for slots' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(startOnOrAfter: '2025-01-15T00:00:00Z')
+          )
+          expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when slot fetching includes all required parameters' do
+        it 'passes correct parameters to get_provider_slots' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(
+              appointmentTypeId: 'type-1',
+              startOnOrAfter: kind_of(String),
+              startBefore: '2024-04-15T00:00:00Z',
+              appointmentId: 'draft-123'
+            )
           )
           expect(subject.id).to eq('draft-123')
         end
