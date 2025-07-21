@@ -232,9 +232,11 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_without_types)
         end
 
-        it 'returns successful response with nil slots' do
-          expect(subject.error).to be_nil
-          expect(subject.slots).to be_nil
+        it 'raises BackendServiceException' do
+          expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.original_status).to eq(502)
+            expect(error.original_body).to include('Provider appointment types data is not available')
+          end
         end
       end
 
@@ -248,9 +250,11 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             .and_return(provider_without_self_schedulable)
         end
 
-        it 'returns successful response with nil slots' do
-          expect(subject.error).to be_nil
-          expect(subject.slots).to be_nil
+        it 'raises BackendServiceException' do
+          expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.original_status).to eq(502)
+            expect(error.original_body).to include('No self-schedulable appointment types available')
+          end
         end
       end
     end

@@ -267,22 +267,35 @@ module VAOS
       # Extract the first self-schedulable appointment type ID from provider
       #
       # Filters the provider's appointment types to find self-schedulable options
-      # and returns the ID of the first available type. Logs errors if none found.
+      # and returns the ID of the first available type. Raises BackendServiceException
+      # if provider data is invalid or no self-schedulable types are available.
       #
       # @param provider [OpenStruct] The provider containing appointment types
-      # @return [String, nil] The appointment type ID, or nil if none available
+      # @return [String] The appointment type ID
+      # @raise [Common::Exceptions::BackendServiceException] When appointment types are missing
+      #   or no self-schedulable types are available
       def get_provider_appointment_type_id(provider)
         # Let external service BackendServiceExceptions bubble up naturally
         if provider.appointment_types.blank?
           Rails.logger.error("#{LOGGER_TAG}: Provider appointment types data is not available")
-          return nil
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_APPOINTMENT_TYPES_MISSING',
+            {},
+            502,
+            'Provider appointment types data is not available'
+          )
         end
 
         self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
 
         if self_schedulable_types.blank?
           Rails.logger.error("#{LOGGER_TAG}: No self-schedulable appointment types available for this provider")
-          return nil
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
+            {},
+            502,
+            'No self-schedulable appointment types available for this provider'
+          )
         end
 
         self_schedulable_types.first[:id]
