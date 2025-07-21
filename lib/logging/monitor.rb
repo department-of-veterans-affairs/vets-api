@@ -23,7 +23,7 @@ module Logging
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)
 
-      filtered_context = context.present? ? ParameterFilterHelper.filter_params(context) : {}
+      filtered_context = ParameterFilterHelper.filter_params(context || {})
 
       if %w[debug info warn error fatal unknown].include?(error_level.to_s)
         payload = {
