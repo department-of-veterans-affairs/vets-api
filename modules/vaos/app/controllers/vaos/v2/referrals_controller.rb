@@ -7,6 +7,8 @@ module VAOS
     class ReferralsController < VAOS::BaseController
       REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
       REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
+      REFERRING_PROVIDER_ID = 'referring provider ID'
+      REFERRAL_PROVIDER_ID = 'referral provider ID'
 
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
@@ -127,17 +129,12 @@ module VAOS
       # @param referral_provider_id [String] the original referral provider ID
       def log_missing_provider_ids(referring_provider_id, referral_provider_id)
         missing_fields = []
-        missing_fields << 'referring provider ID' if referring_provider_id.blank?
-        missing_fields << 'referral provider ID' if referral_provider_id.blank?
+        missing_fields << REFERRING_PROVIDER_ID if referring_provider_id.blank?
+        missing_fields << REFERRAL_PROVIDER_ID if referral_provider_id.blank?
 
         return if missing_fields.empty?
 
-        description = case missing_fields.size
-                      when 1
-                        "#{missing_fields.first} is"
-                      else
-                        'both referring and referral provider IDs are'
-                      end
+        description = missing_fields.size == 1 ? "#{missing_fields.first} is" : 'both referring and referral provider IDs are'
 
         Rails.logger.error("Community Care Appointments: Referral detail view: #{description} blank for user: " \
                            "#{current_user.uuid}")
