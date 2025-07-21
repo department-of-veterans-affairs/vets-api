@@ -7,6 +7,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
   let(:clazz) { described_class }
   let(:representative_id) { '12399998' }
+
   let(:veteran) do
     OpenStruct.new(
       icn: '1012861229V078999',
@@ -25,6 +26,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       )
     )
   end
+  let(:proc_id) { '3864182' }
+  let(:poa_code) { '083' }
 
   context 'for a valid decide request' do
     let(:proc_id) { '3864182' }

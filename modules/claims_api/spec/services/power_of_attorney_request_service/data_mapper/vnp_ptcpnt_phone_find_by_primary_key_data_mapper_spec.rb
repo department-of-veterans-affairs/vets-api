@@ -6,9 +6,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFin
   subject { described_class.new(record:) }
 
   let(:record) do
-    {
-      phone_nbr: '5555559876'
-    }
+    { phone_nbr: '5555559876' }
   end
 
   let(:expected_response_obj) do

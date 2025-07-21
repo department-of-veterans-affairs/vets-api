@@ -22,7 +22,10 @@ http_interactions:
             </vaws:VaServiceHeaders>
           </wsse:Security>
         </env:Header>
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
           <env:Body>
             <tns:vnpPtcpntPhoneFindByPrimaryKey><vnpPtcpntPhoneId>111642</vnpPtcpntPhoneId>
         </tns:vnpPtcpntPhoneFindByPrimaryKey>
@@ -67,4 +70,8 @@ http_interactions:
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntPhoneFindByPrimaryKeyResponse
         xmlns:ns0="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>111642</vnpPtcpntPhoneId><vnpProcId>3864182</vnpProcId><vnpPtcpntId>196704</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555559876</phoneNbr><efctvDt>2025-07-15T12:50:50-05:00</efctvDt><jrnDt>2025-07-15T12:50:51-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAGOVAPI</jrnUserId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnObjId>VAGOVAPI</jrnObjId></return></ns0:vnpPtcpntPhoneFindByPrimaryKeyResponse></S:Body></S:Envelope>
   recorded_at: Thu, 17 Jul 2025 18:05:58 GMT
+<<<<<<< HEAD
 recorded_with: VCR 6.3.1
+=======
+recorded_with: VCR 6.3.1
+>>>>>>> master

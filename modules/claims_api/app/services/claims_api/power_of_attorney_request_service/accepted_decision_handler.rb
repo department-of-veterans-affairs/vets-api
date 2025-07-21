@@ -7,6 +7,7 @@ require 'bgs_service/vnp_ptcpnt_phone_service'
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class AcceptedDecisionHandler
+      LOG_TAG = 'accepted_decision_handler'
       FORM_TYPE_CODE = '21-22'
 
       # rubocop:disable Metrics/ParameterLists
@@ -32,14 +33,12 @@ module ClaimsApi
         veteran_data = gather_veteran_data
 
         read_all_data = gather_read_all_veteran_representative_data
-
         vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
 
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
-        data.merge!('registration_number' => @representative_id.to_s)
-
+        data.merge!('registration_number' => @representative_id.to_s)r
         if @claimant.present?
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')
@@ -47,7 +46,6 @@ module ClaimsApi
 
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
-
           claimant_data.merge!('claimant_id' => @claimant.icn)
 
           data.merge!('claimant' => claimant_data)
@@ -68,15 +66,6 @@ module ClaimsApi
         ).call
       end
 
-      def gather_read_all_veteran_representative_data
-        records = read_all_vateran_representative_records
-        # error if records nil
-        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper.new(
-          proc_id: @proc_id,
-          records:
-        ).call
-      end
-
       def read_all_vateran_representative_records
         ClaimsApi::VeteranRepresentativeService
           .new(external_uid: @veteran.participant_id, external_key: @veteran.participant_id)
@@ -86,7 +75,6 @@ module ClaimsApi
       # key is 'veteran' or 'claimant'
       def gather_vnp_addrs_data(key)
         ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant&.participant_id
-
         primary_key = @metadata.dig(key, 'vnp_mail_id')
 
         # error if primary_key nil

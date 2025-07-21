@@ -22,7 +22,6 @@ http_interactions:
             </vaws:VaServiceHeaders>
           </wsse:Security>
         </env:Header>
-
           <env:Body>
             <tns:readAllVeteranRepresentatives><data:CorpPtcpntIdFormTypeCode>
           <veteranCorpPtcpntId>600045025</veteranCorpPtcpntId>
@@ -419,7 +418,6 @@ http_interactions:
             </vaws:VaServiceHeaders>
           </wsse:Security>
         </env:Header>
-
           <env:Body>
             <tns:vnpPtcpntAddrsFindByPrimaryKey><vnpPtcpntAddrsId>148886</vnpPtcpntAddrsId>
         </tns:vnpPtcpntAddrsFindByPrimaryKey>
