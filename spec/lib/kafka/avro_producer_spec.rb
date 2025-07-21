@@ -47,21 +47,13 @@ describe Kafka::AvroProducer do
     end
 
     context 'in other environments' do
-      around do |example|
-        # Reset singleton before changing environment
+      before do
+        allow(Rails.env).to receive(:test?).and_return(false)
         Singleton.__init__(Kafka::ProducerManager)
+      end
 
-        original_env = ENV.fetch('RAILS_ENV', nil)
-        # Temporarily change environment
-        begin
-          ENV['RAILS_ENV'] = 'production'
-          Rails.instance_variable_set(:@_env, nil)
-          example.run
-        ensure
-          ENV['RAILS_ENV'] = original_env
-          Rails.instance_variable_set(:@_env, nil)
-          Singleton.__init__(Kafka::ProducerManager)
-        end
+      after do
+        Singleton.__init__(Kafka::ProducerManager)
       end
 
       it 'uses the Rdkafka client' do
