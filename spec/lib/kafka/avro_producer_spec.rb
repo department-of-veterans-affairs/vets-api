@@ -26,8 +26,7 @@ describe Kafka::AvroProducer do
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
   let(:schema) do
     VCR.use_cassette('kafka/topics') do
-      response = Kafka::SchemaRegistry::Service.new.subject_version('submission_trace_form_status_change_test',
-                                                                    'latest')
+      response = Kafka::SchemaRegistry::Service.new.subject_version('submission_trace_form_status_change_test', 'latest')
 
       schema = response['schema']
       Avro::Schema.parse(schema)
@@ -35,29 +34,38 @@ describe Kafka::AvroProducer do
   end
 
   before do
-    allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
-    allow(Flipper).to receive(:enabled?).with(:kafka_producer).and_return(true)
     allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
   end
 
   context 'using the correct client' do
     context 'in the test environment' do
-      before do
-        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
-        Kafka::ProducerManager.instance.send(:setup_producer) # Reinitialize the producer with the mocked environment
-        allow(avro_producer).to receive(:get_schema).and_return(schema)
-      end
-
       it 'uses the Buffered client' do
         expect(avro_producer.producer.client).to be_a(WaterDrop::Clients::Buffered)
       end
     end
 
     context 'in other environments' do
-      before do
-        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
-        Kafka::ProducerManager.instance.send(:setup_producer) # Reinitialize the producer with the mocked environment
-        allow(avro_producer).to receive(:get_schema).and_return(schema)
+      around do |example|
+        # Reset singleton before changing environment
+        Singleton.__init__(Kafka::ProducerManager)
+
+        original_env = ENV['RAILS_ENV']
+        
+        # Temporarily change environment
+        begin
+          ENV['RAILS_ENV'] = 'production'
+          Rails.instance_variable_set(:@_env, nil)
+          
+          example.run
+        ensure
+          ENV['RAILS_ENV'] = original_env
+          Rails.instance_variable_set(:@_env, nil)
+          
+          Singleton.__init__(Kafka::ProducerManager)
+        end
+        
+        # Reset singleton after test
+        Singleton.__init__(Kafka::ProducerManager)
       end
 
       it 'uses the Rdkafka client' do
