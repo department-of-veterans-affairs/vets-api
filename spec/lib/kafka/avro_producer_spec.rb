@@ -63,9 +63,6 @@ describe Kafka::AvroProducer do
           
           Singleton.__init__(Kafka::ProducerManager)
         end
-        
-        # Reset singleton after test
-        Singleton.__init__(Kafka::ProducerManager)
       end
 
       it 'uses the Rdkafka client' do
