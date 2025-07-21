@@ -68,7 +68,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           # Verify pagination info exists and indicates more data
           expect(json['data']['attributes']['metadata']).to have_key('pageNumber')
           expect(json['data']['attributes']['metadata']).to have_key('totalRecordCount')
-          expect(json['data']['attributes']['metadata']['pageNumber']).to eq(2)  # Known cassette issue
+          expect(json['data']['attributes']['metadata']['pageNumber']).to eq(2)
           
           # Verify some claims data is returned (not empty)
           expect(json['data']['attributes']['data']).to be_an(Array)
@@ -96,23 +96,6 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
     end
 
     context 'failure paths' do
-      it 'returns bad request if travel pay api fails' do
-        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
-          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
-
-        VCR.use_cassette('travel_pay/400_claims', match_requests_on: %i[method path]) do
-          params = {
-            'start_date' => '2024-01-01',
-            'end_date' => '2024-03-31'
-          }
-
-          get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
-
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to include('Failed to retrieve claims')
-        end
-      end
-
       it 'returns unprocessable entity when start_date is missing' do
         params = { 'end_date' => '2024-03-31' }
 
@@ -140,6 +123,23 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
+      it 'returns an internal server error when Travel Pay API fails while fetching claims' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claims_by_date_range)
+          .and_raise(Common::Exceptions::ExternalServerInternalServerError.new(
+            errors: [{ title: 'Something went wrong.', status: 500 }]
+          ))
+
+        params = {
+          'start_date' => '2024-04-01',
+          'end_date' => '2024-04-30',
+        }
+
+        get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
   end
 
