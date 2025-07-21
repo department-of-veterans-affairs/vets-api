@@ -154,7 +154,7 @@ module ClaimsApi
 
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
-          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+          @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
           ).call
         end

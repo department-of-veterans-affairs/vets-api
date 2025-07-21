@@ -23,8 +23,8 @@ module ClaimsApi
           LOG_TAG, message: "Starting data gathering for accepted POA with proc #{@proc_id}."
         )
 
-        gather_poa_data
-        # poa_auto_establishment_mapper(data)
+        data = gather_poa_data
+        poa_auto_establishment_mapper(data)
       end
 
       private
@@ -45,6 +45,8 @@ module ClaimsApi
 
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
+          claimant_data.merge!('claimant_id' => @claimant.icn)
+
           data.merge!('claimant' => claimant_data)
         end
 
@@ -103,6 +105,27 @@ module ClaimsApi
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
+      end
+
+      def poa_auto_establishment_mapper(data)
+        type = determine_type
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishmentDataMapper.new(
+          type:,
+          data:,
+          veteran: @veteran
+        ).map_data
+      end
+
+      def determine_type
+        if poa_code_in_organization?
+          '2122'
+        else
+          '2122a'
+        end
+      end
+
+      def poa_code_in_organization?
+        ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
       end
     end
   end
