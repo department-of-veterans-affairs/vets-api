@@ -58,10 +58,6 @@ module MyHealth
       def search_params
         params.permit(:exact_match, :sender, :subject, :category, :recipient, :from_date, :to_date, :message_id)
       end
-
-      def requires_oh_messages
-        params[:requires_oh_messages].try(:to_s)
-      end
     end
   end
 end

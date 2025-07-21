@@ -25,5 +25,16 @@ module MyHealth
     def use_cache?
       params[:useCache]&.downcase == 'true'
     end
+
+    ##
+    # Determines the value for requires_oh_messages parameter based on the
+    # mhv_secure_messaging_cerner_pilot flipper flag.
+    #
+    # @return [String] '1' if the flipper is enabled for the current user, '0' otherwise
+    def requires_oh_messages
+      return '1' if Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+
+      '0'
+    end
   end
 end
