@@ -392,7 +392,7 @@ module AccreditedRepresentativePortal
           ).and_return(true)
         end
 
-        it 'does NOT destroys the associated form if present' do
+        it 'does NOT destroy the associated form if present' do
           if form.present? # Only run expectation if form was created
             expect do
               job.send(:redact_request, request)
