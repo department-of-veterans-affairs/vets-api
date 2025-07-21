@@ -134,7 +134,11 @@ module VAOS
 
         return if missing_fields.empty?
 
-        description = missing_fields.size == 1 ? "#{missing_fields.first} is" : 'both referring and referral provider IDs are'
+        description = if missing_fields.size == 1
+                        "#{missing_fields.first} is"
+                      else
+                        'both referring and referral provider IDs are'
+                      end
 
         Rails.logger.error("Community Care Appointments: Referral detail view: #{description} blank for user: " \
                            "#{current_user.uuid}")
