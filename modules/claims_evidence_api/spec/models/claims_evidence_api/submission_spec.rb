@@ -37,7 +37,7 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
       submission.reference_data = nil
     end
 
-    it 'accepts unnammed and named values' do
+    it 'accepts unnamed and named values' do
       expect(submission.reference_data).to be_nil
 
       expected = { 'data' => [42], 'foo' => 'bar' }

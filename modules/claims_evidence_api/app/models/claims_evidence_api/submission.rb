@@ -31,7 +31,7 @@ class ClaimsEvidenceApi::Submission < Submission
   alias_attribute :file_uuid, :va_claim_id
 
   # insert values into the reference data field
-  # unnammed values will be appended to the reference_data['data'] array
+  # unnamed values will be appended to the reference_data['data'] array
   def update_reference_data(*args, **kwargs)
     self.reference_data ||= {}
     reference_data['data'] = (reference_data['data'] || []) + args

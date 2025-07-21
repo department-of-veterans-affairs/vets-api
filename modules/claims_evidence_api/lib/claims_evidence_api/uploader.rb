@@ -85,7 +85,8 @@ module ClaimsEvidenceApi
     def init_tracking(saved_claim, persistent_attachment_id = nil)
       @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim:, persistent_attachment_id:,
                                                                     form_id: saved_claim.form_id)
-      # TODO: how to handle different folder_identifier? future ticket
+      # TODO: handle when submission already has a different identifier
+      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/114773
       submission.x_folder_uri = @service.x_folder_uri
       submission.save
 

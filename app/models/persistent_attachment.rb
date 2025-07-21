@@ -37,6 +37,8 @@ class PersistentAttachment < ApplicationRecord
     Common::ConvertToPdf.new(file).run
   end
 
+  # Returns the document type associated with the attachment.
+  # Fallback to a default value of 10 - generic or unspecified document type.
   def document_type
     doctype || 10
   end
