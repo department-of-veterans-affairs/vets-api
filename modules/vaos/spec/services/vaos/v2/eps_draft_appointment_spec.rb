@@ -234,6 +234,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
         it 'raises BackendServiceException' do
           expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.key).to eq('PROVIDER_APPOINTMENT_TYPES_MISSING')
             expect(error.original_status).to eq(502)
             expect(error.original_body).to include('Provider appointment types data is not available')
           end
@@ -252,6 +253,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
         it 'raises BackendServiceException' do
           expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.key).to eq('PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING')
             expect(error.original_status).to eq(502)
             expect(error.original_body).to include('No self-schedulable appointment types available')
           end
