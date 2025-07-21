@@ -307,9 +307,13 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['senderId']).to eq(251_391)
       end
 
-      it 'responds to GET #thread when requires_oh_messages param is provided' do
+      it 'responds to GET #thread when requires_oh_messages flipper is provided' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_secure_messaging_cerner_pilot, anything)
+          .and_return(true)
+
         VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
-          get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
         end
 
         expect(response).to be_successful
