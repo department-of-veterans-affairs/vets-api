@@ -40,4 +40,4 @@ http_interactions:
       string: ''
     http_version: 
   recorded_at: Fri, 12 May 2017 16:15:22 GMT
-recorded_with: VCR 3.0.3 
+recorded_with: VCR 3.0.3
