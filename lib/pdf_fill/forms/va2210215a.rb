@@ -85,7 +85,11 @@ module PdfFill
               question_num: 7,
               question_suffix: 'B',
               question_text: 'SUPPORTED STUDENTS',
-              transform: ->(value) { value.present? ? format('%.2f', value) : value }
+              transform: ->(value) { 
+                return value unless value.present?
+                return '--' if value.to_f == 0
+                format('%.2f', value)
+              }
             },
             'nonSupported' => {
               key: 'numNonSupported%iterator%',
@@ -93,7 +97,11 @@ module PdfFill
               question_num: 7,
               question_suffix: 'C',
               question_text: 'NON-SUPPORTED STUDENTS',
-              transform: ->(value) { value.present? ? format('%.2f', value) : value }
+              transform: ->(value) { 
+                return value unless value.present?
+                return '--' if value.to_f == 0
+                format('%.2f', value)
+              }
             },
             'totalFTE' => {
               key: 'enrolledFTE%iterator%',
@@ -101,7 +109,10 @@ module PdfFill
               question_num: 7,
               question_suffix: 'D',
               question_text: 'TOTAL FTE',
-              transform: ->(value) { "#{value}%" }
+              transform: ->(value) { 
+                return '--' if value.to_f == 0
+                "#{value}%"
+              }
             },
             'supportedPercentageFTE' => {
               key: 'supportedFTE%iterator%',
@@ -109,7 +120,10 @@ module PdfFill
               question_num: 7,
               question_suffix: 'E',
               question_text: 'SUPPORTED PERCENTAGE FTE',
-              transform: ->(value) { "#{value}%" }
+              transform: ->(value) { 
+                return 'N/A' if value.to_f == 0
+                "#{value}%"
+              }
             }
           },
           'programDateOfCalculation' => {
@@ -170,7 +184,12 @@ module PdfFill
             program['programDateOfCalculation'] = calculation_date
 
             if program['fte'] && program['fte']['supportedPercentageFTE'].present?
-              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
+              # Check if the value is 0 and set to 'N/A', otherwise add percentage
+              if program['fte']['supportedPercentageFTE'].to_f == 0
+                program['fte']['supportedPercentageFTE'] = 'N/A'
+              else
+                program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
+              end
             end
           end
         end
