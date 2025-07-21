@@ -50,21 +50,22 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRep
 
   let(:expected_data_obj) do
     {
-      service_number: '123678453',
-      insurance_numbers: '1234567890',
-      phone_number: '5555551234',
-      claimant_relationship: nil,
-      poa_code: '083',
-      organization_name: 'DISABLED AMERICAN VETERANS',
-      representative_first_name: 'John',
-      representative_last_name: 'Doe',
-      representative_title: nil,
-      section_7332_auth: 'true',
-      limitation_alcohol: 'true',
-      limitation_drug_abuse: 'true',
-      limitation_hiv: 'true',
-      limitation_sca: 'true',
-      change_address_auth: 'true'
+      'service_number' => '123678453',
+      'insurance_numbers' => '1234567890',
+      'phone_number' => '5555551234',
+      'claimant_relationship' => nil,
+      'poa_code' => '083',
+      'organization_name' => 'DISABLED AMERICAN VETERANS',
+      'representativeLawFirmOrAgencyName' => nil,
+      'representative_first_name' => 'John',
+      'representative_last_name' => 'Doe',
+      'representative_title' => nil,
+      'section_7332_auth' => 'true',
+      'limitation_alcohol' => 'true',
+      'limitation_drug_abuse' => 'true',
+      'limitation_hiv' => 'true',
+      'limitation_sca' => 'true',
+      'change_address_auth' => 'true'
     }
   end
 

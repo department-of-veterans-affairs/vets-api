@@ -23,7 +23,7 @@ module HCA
       health_facilities = facilities_with_postal_names(facilities_from_lighthouse)
 
       HealthFacility.upsert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
-      delete_old_facilities(health_facilities) if Flipper.enabled?(:hca_facility_import_job_filter_facilities)
+      delete_old_facilities(health_facilities)
 
       Rails.logger.info("[HCA] - Job ended with #{HealthFacility.count} health facilities.")
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_import_job_complete")
@@ -44,7 +44,7 @@ module HCA
           type: 'health',
           per_page: PER_PAGE,
           page:,
-          mobile: !Flipper.enabled?(:hca_facility_import_job_filter_facilities)
+          mobile: false
         )
         all_facilities.concat(facilities.map do |facility|
           {
