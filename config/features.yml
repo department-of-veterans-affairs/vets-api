@@ -147,6 +147,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  caregiver_mulesoft_config_v2:
+    actor_type: user
+    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -209,10 +212,6 @@ features:
     actor_type: user
     description: Enables emergency contact experience for 10-10EZR applicants.
     enable_in_development: true
-  ezr_next_of_kin_enabled:
-    actor_type: user
-    description: Enables next of kin experience for 10-10EZR applicants.
-    enable_in_development: true
   ezr_use_va_notify_on_submission_failure:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
@@ -228,13 +227,6 @@ features:
   ezr_form_prefill_with_providers_and_dependents:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
-    enable_in_development: true
-  ezr_associations_api_enabled:
-    actor_type: user
-    description: Enables VES's Associations REST API
-  ezr_prefill_contacts:
-    actor_type: user
-    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
@@ -377,10 +369,6 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
-  claims_api_poa_v1_pdf_gen_fixup_job:
-    actor_type: user
-    description: Enables POA pdfs to be regenerated & sent to VBMS without requesting a POA change
-    enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
@@ -392,6 +380,10 @@ features:
   lighthouse_claims_api_v2_enable_FES:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
+    enable_in_development: true
+  lighthouse_claims_api_run_header_hash_filler_job:
+    actor_type: user
+    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -1893,10 +1885,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_online_scheduling_fe_source_of_truth_telehealth:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true

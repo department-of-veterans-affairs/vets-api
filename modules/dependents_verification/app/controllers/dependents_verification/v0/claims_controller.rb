@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents_verification/monitor'
+require 'dependents_verification/benefits_intake/submit_claim_job'
 
 module DependentsVerification
   module V0
@@ -47,8 +48,7 @@ module DependentsVerification
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        # TODO: Submit claim
-
+        process_and_upload_to_lighthouse(claim)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
@@ -75,6 +75,16 @@ module DependentsVerification
       # Filters out the parameters to form access.
       def filtered_params
         params.require(short_name.to_sym).permit(:form)
+      end
+
+      ##
+      # Processes attachments for the claim and initiates an async task for intake processing
+      #
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
+      def process_and_upload_to_lighthouse(claim)
+        DependentsVerification::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
       end
 
       ##
