@@ -68,10 +68,7 @@ module ClaimsApi
 
     def organization_accepted_email_contents(poa, org)
       {
-        recipient_identifier: {
-          id_type: 'ICN',
-          id_value: icn_for_vanotify(poa.auth_headers)
-        },
+        email_address: 'rockwell.rice@va.gov',
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           org_name: value_or_default_for_field(org.name),
