@@ -424,7 +424,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           claim = build(:new_veteran_readiness_employment_claim, email: invalid_input, is_moving: invalid_input,
                                                                  years_of_ed: invalid_input, first: invalid_input,
                                                                  last: invalid_input, dob: invalid_input,
-                                                                 privacyStatementAcknowledged: invalid_input)
+                                                                 privacyAgreementAccepted: invalid_input)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/email')
@@ -546,12 +546,12 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   ['true', 1, 0, [], nil].each do |invalid_type|
-    context "when privacyStatementAcknowledged receives #{invalid_type} data type" do
+    context "when privacyAgreementAccepted receives #{invalid_type} data type" do
       it 'fails validation' do
-        claim = build(:new_veteran_readiness_employment_claim, privacyStatementAcknowledged: invalid_type)
+        claim = build(:new_veteran_readiness_employment_claim, privacyAgreementAccepted: invalid_type)
 
         expect(claim).not_to be_valid
-        expect(claim.errors.attribute_names).to include(:'/privacyStatementAcknowledged')
+        expect(claim.errors.attribute_names).to include(:'/privacyAgreementAccepted')
       end
     end
   end

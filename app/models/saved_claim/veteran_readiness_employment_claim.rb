@@ -410,7 +410,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def validate_required_fields
     required_fields = %w[email isMoving yearsOfEducation veteranInformation/fullName veteranInformation/fullName/first
-                         veteranInformation/fullName/last veteranInformation/dob privacyStatementAcknowledged]
+                         veteranInformation/fullName/last veteranInformation/dob privacyAgreementAccepted]
     required_fields.each do |field|
       value = parsed_form.dig(*field.split('/'))
       value = value.to_s if [true, false].include?(value)
@@ -428,7 +428,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def validate_boolean_fields
-    boolean_fields = %w[isMoving privacyStatementAcknowledged]
+    boolean_fields = %w[isMoving privacyAgreementAccepted]
     boolean_fields.each do |field|
       errors.add("/#{field}", 'must be a boolean') unless [true, false].include?(parsed_form[field])
     end
