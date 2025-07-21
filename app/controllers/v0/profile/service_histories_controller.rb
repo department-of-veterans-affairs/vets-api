@@ -45,10 +45,7 @@ module V0
         handle_errors!(response.episodes)
         report_results(response.episodes)
 
-        if Flipper.enabled?(:log_eligible_benefits) # and success?
-          params = ::BenefitsDiscovery::Params.service_history_params(response.episodes)
-          Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob.perform_async(current_user.uuid, params)
-        end
+        log_eligible_benefits(response.episodes) if Flipper.enabled?(:log_eligible_benefits)
 
         service_history_json = JSON.parse(response.to_json, symbolize_names: true)
         options = { is_collection: false }
@@ -84,6 +81,13 @@ module V0
         tag = response.present? ? 'present:true' : 'present:false'
 
         StatsD.increment("#{key}.service_history", tags: [tag])
+      end
+
+      def log_eligible_benefits(episodes)
+        params = ::BenefitsDiscovery::Params.service_history_params(episodes)
+        Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob.perform_async(current_user.uuid, params)
+      rescue => e
+        Rails.logger.error("Error logging eligible benefits: #{e.message}")
       end
     end
   end

@@ -161,7 +161,14 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
         context 'when service history response succeeds' do
           it 'logs eligible benefits' do
-            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).to receive(:perform_async)
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).to receive(:perform_async).with(
+              user.uuid,
+              {
+                dischargeStatus: ['GENERAL_DISCHARGE'],
+                branchOfService: ['ARMY'],
+                serviceDates: [{ beginDate: '2002-02-02', endDate: '2008-12-01' }]
+              }
+            )
             VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
               get '/v0/profile/service_history'
             end
@@ -178,6 +185,19 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
             end
 
             expect(response).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'when params creation fails' do
+          it 'logs error and does not cause request error' do
+            allow(BenefitsDiscovery::Params).to receive(:service_history_params).and_raise(StandardError.new('oops'))
+            expect(Rails.logger).to receive(:error).with('Error logging eligible benefits: oops')
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+              get '/v0/profile/service_history'
+            end
+
+            expect(response).to have_http_status(:ok)
           end
         end
       end
