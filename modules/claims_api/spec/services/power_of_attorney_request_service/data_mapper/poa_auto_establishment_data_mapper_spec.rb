@@ -8,23 +8,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
 
   let(:individual_subject) { build_subject('2122a') }
   let(:organization_subject) { build_subject('2122') }
-  let(:veteran) do
-    OpenStruct.new(
-      icn: '1012861229V078999',
-      first_name: 'Ralph',
-      last_name: 'Lee',
-      middle_name: nil,
-      birls_id: '796378782',
-      birth_date: '1948-10-30',
-      loa: { current: 3, highest: 3 },
-      ssn: '796378782',
-      participant_id: '600043284',
-      mpi: OpenStruct.new(
-        icn: '1012861229V078999',
-        profile: OpenStruct.new(ssn: '796378782')
-      )
-    )
-  end
 
   include_context 'shared POA auto establishment data'
 
@@ -35,14 +18,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
       ).to receive(:map_data)
 
       organization_subject.map_data
-    end
-
-    it 'when type is 2122a' do
-      expect_any_instance_of(
-        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper
-      ).to receive(:map_data)
-
-      individual_subject.map_data
     end
   end
 

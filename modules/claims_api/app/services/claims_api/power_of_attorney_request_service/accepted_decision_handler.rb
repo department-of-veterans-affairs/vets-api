@@ -10,13 +10,16 @@ module ClaimsApi
       LOG_TAG = 'accepted_decision_handler'
       FORM_TYPE_CODE = '21-22'
 
-      def initialize(proc_id:, poa_code:, metadata:, veteran:, claimant: nil)
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant: nil)
         @proc_id = proc_id
         @poa_code = poa_code
+        @registration_number = registration_number
         @metadata = metadata
         @veteran = veteran
         @claimant = claimant
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def call
         ClaimsApi::Logger.log(
@@ -38,6 +41,7 @@ module ClaimsApi
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
+        data.merge!('registration_number' => @registration_number.to_s)
         if @claimant.present?
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')

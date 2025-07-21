@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'individual_data_mapper'
 require_relative 'organization_data_mapper'
 require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
@@ -15,7 +14,6 @@ module ClaimsApi
 
         LOG_TAG = 'poa_auto_establishment_data_mapper'
         DATA_MAPPERS = {
-          '2122a' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper,
           '2122' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataMapper
         }.freeze
 
