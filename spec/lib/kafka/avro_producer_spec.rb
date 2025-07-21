@@ -26,7 +26,9 @@ describe Kafka::AvroProducer do
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
   let(:schema) do
     VCR.use_cassette('kafka/topics') do
-      response = Kafka::SchemaRegistry::Service.new.subject_version('submission_trace_form_status_change_test', 'latest')
+      response = Kafka::SchemaRegistry::Service.new.subject_version(
+        'submission_trace_form_status_change_test', 'latest'
+      )
 
       schema = response['schema']
       Avro::Schema.parse(schema)
@@ -49,18 +51,15 @@ describe Kafka::AvroProducer do
         # Reset singleton before changing environment
         Singleton.__init__(Kafka::ProducerManager)
 
-        original_env = ENV['RAILS_ENV']
-        
+        original_env = ENV.fetch('RAILS_ENV', nil)
         # Temporarily change environment
         begin
           ENV['RAILS_ENV'] = 'production'
           Rails.instance_variable_set(:@_env, nil)
-          
           example.run
         ensure
           ENV['RAILS_ENV'] = original_env
           Rails.instance_variable_set(:@_env, nil)
-          
           Singleton.__init__(Kafka::ProducerManager)
         end
       end
