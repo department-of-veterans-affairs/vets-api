@@ -9,6 +9,7 @@ module VAOS
       REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
       REFERRING_PROVIDER_ID = 'referring provider ID'
       REFERRAL_PROVIDER_ID = 'referral provider ID'
+      BOTH_PROVIDER_IDS = 'both referring and referral provider IDs are'
 
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
@@ -138,7 +139,7 @@ module VAOS
         description = if missing_fields.size == 1
                         "#{missing_fields.first} is"
                       else
-                        'both referring and referral provider IDs are'
+                        BOTH_PROVIDER_IDS
                       end
 
         sanitized_station_id = sanitize_log_value(station_id)

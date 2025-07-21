@@ -207,7 +207,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         end
 
         context 'when both IDs are missing' do
-          include_examples 'logs missing provider ID error', nil, '', 'both referring and referral provider IDs are'
+          include_examples 'logs missing provider ID error', nil, '', VAOS::V2::ReferralsController::BOTH_PROVIDER_IDS
         end
 
         context 'when referring provider ID is missing' do
@@ -230,7 +230,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
           it 'logs with sanitized station_id as no_value' do
             expect(Rails.logger).to receive(:error)
-              .with("Community Care Appointments: Referral detail view: referring provider ID is blank for user: " \
+              .with('Community Care Appointments: Referral detail view: referring provider ID is blank for user: ' \
                     "#{user.uuid}, station_id: no_value")
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
