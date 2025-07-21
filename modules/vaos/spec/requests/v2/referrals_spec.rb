@@ -187,17 +187,21 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
       context 'when provider IDs are missing' do
         shared_examples 'logs missing provider ID error' do |facility_code, npi, expected_message|
+          let(:test_station_id) { '646' }
+
           before do
             test_referral = build(:ccra_referral_detail, referral_number:,
-                                                         referring_facility_code: facility_code, provider_npi: npi)
+                                                         referring_facility_code: facility_code,
+                                                         provider_npi: npi,
+                                                         station_id: test_station_id)
             allow(service_double).to receive(:get_referral)
               .with(referral_number, icn).and_return(test_referral)
           end
 
-          it 'logs the appropriate error message' do
+          it 'logs the appropriate error message with station_id' do
             expect(Rails.logger).to receive(:error)
               .with("Community Care Appointments: Referral detail view: #{expected_message} blank for user: " \
-                    "#{user.uuid}")
+                    "#{user.uuid}, station_id: #{test_station_id}")
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
         end
@@ -212,6 +216,24 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         context 'when referral provider ID is missing' do
           include_examples 'logs missing provider ID error', '552', nil, 'referral provider ID is'
+        end
+
+        context 'when station_id is blank' do
+          before do
+            test_referral = build(:ccra_referral_detail, referral_number:,
+                                                         referring_facility_code: nil,
+                                                         provider_npi: '1234567890',
+                                                         station_id: '')
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(test_referral)
+          end
+
+          it 'logs with sanitized station_id as no_value' do
+            expect(Rails.logger).to receive(:error)
+              .with("Community Care Appointments: Referral detail view: referring provider ID is blank for user: " \
+                    "#{user.uuid}, station_id: no_value")
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
         end
 
         context 'when both provider IDs are present' do

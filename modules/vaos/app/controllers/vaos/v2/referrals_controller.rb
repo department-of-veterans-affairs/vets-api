@@ -108,8 +108,8 @@ module VAOS
       # @param response [Ccra::ReferralDetail] the referral response object
       def log_referral_provider_metrics(response)
         # Check original values before sanitization for logging
-        original_referring_id = response.referring_facility_code
-        original_referral_id = response.provider_npi
+        original_referring_id = response&.referring_facility_code
+        original_referral_id = response&.provider_npi
 
         # Sanitize for metrics
         referring_provider_id = sanitize_log_value(original_referring_id)
@@ -121,13 +121,14 @@ module VAOS
                            "referral_provider_id:#{referral_provider_id}"
                          ])
 
-        log_missing_provider_ids(original_referring_id, original_referral_id)
+        log_missing_provider_ids(original_referring_id, original_referral_id, response&.station_id)
       end
 
       # Logs specific errors when provider IDs are missing
       # @param referring_provider_id [String] the original referring provider ID
       # @param referral_provider_id [String] the original referral provider ID
-      def log_missing_provider_ids(referring_provider_id, referral_provider_id)
+      # @param station_id [String] the station ID of the referral
+      def log_missing_provider_ids(referring_provider_id, referral_provider_id, station_id)
         missing_fields = []
         missing_fields << REFERRING_PROVIDER_ID if referring_provider_id.blank?
         missing_fields << REFERRAL_PROVIDER_ID if referral_provider_id.blank?
@@ -140,8 +141,10 @@ module VAOS
                         'both referring and referral provider IDs are'
                       end
 
+        sanitized_station_id = sanitize_log_value(station_id)
+
         Rails.logger.error("Community Care Appointments: Referral detail view: #{description} blank for user: " \
-                           "#{current_user.uuid}")
+                           "#{current_user.uuid}, station_id: #{sanitized_station_id}")
       end
     end
   end
