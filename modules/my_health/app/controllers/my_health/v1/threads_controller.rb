@@ -24,8 +24,7 @@ module MyHealth
           page_size: params[:page_size],
           page_number: params[:page_number],
           sort_field: params[:sort_field],
-          sort_order: params[:sort_order],
-          requires_oh_messages:
+          sort_order: params[:sort_order]
         }
         client.get_folder_threads(params[:folder_id].to_s, options)
       rescue => e
