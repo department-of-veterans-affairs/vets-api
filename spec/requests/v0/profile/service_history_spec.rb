@@ -153,5 +153,47 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
         end
       end
     end
+
+    describe 'eligible benefits logging' do
+      context 'with log_eligible_benefits feature flag on' do
+        before { Flipper.enable(:log_eligible_benefits) }
+        after { Flipper.disable(:log_eligible_benefits) }
+
+        context 'when service history response succeeds' do
+          it 'logs eligible benefits' do
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).to receive(:perform_async)
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+              get '/v0/profile/service_history'
+            end
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'when service history response fails' do
+          it 'does not log eligible benefits' do
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
+              get '/v0/profile/service_history'
+            end
+
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
+      end
+
+      context 'with log_eligible_benefits feature flag off' do
+        before { Flipper.disable(:log_eligible_benefits) }
+        after { Flipper.enable(:log_eligible_benefits) }
+
+        it 'does not log eligible benefits' do
+          expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+            get '/v0/profile/service_history'
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
   end
 end

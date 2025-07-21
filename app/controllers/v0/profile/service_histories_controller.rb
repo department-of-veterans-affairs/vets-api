@@ -46,7 +46,7 @@ module V0
         report_results(response.episodes)
 
         if Flipper.enabled?(:log_eligible_benefits) # and success?
-          params = ::BenefitsDiscovery::Params.service_history_params(response)
+          params = ::BenefitsDiscovery::Params.service_history_params(response.episodes)
           Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob.perform_async(current_user.uuid, params)
         end
 
