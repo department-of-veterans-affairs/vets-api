@@ -64,6 +64,24 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(attributes['quantity']).to be_a(Float)
   end
 
+  context 'when quantity is a whole number' do
+    let(:prescription) { build(:prescription_details, quantity: 30.0) }
+
+    it 'returns quantity as an integer' do
+      expect(attributes['quantity']).to eq(30)
+      expect(attributes['quantity']).to be_a(Integer)
+    end
+  end
+
+  context 'when quantity has decimal places' do
+    let(:prescription) { build(:prescription_details, quantity: 30.5) }
+
+    it 'returns quantity as a float' do
+      expect(attributes['quantity']).to eq(30.5)
+      expect(attributes['quantity']).to be_a(Float)
+    end
+  end
+
   it 'includes the expiration_date' do
     expect(attributes['expiration_date']).to eq(prescription.expiration_date.strftime('%Y-%m-%dT%H:%M:%S.%LZ'))
   end

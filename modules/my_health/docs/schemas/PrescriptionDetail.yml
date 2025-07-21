@@ -70,9 +70,13 @@ properties:
         format: datetime
         example: 2023-08-04T04:00:00.000Z
       quantity:
-        type: number
-        format: float
-        example: 30.5
+        oneOf:
+          - type: integer
+            example: 30
+          - type: number
+            format: float
+            example: 30.5
+        description: "Quantity of medication. Returns as integer for whole numbers, float for decimal values."
       expirationDate:
         type: string
         format: datetime

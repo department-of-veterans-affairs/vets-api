@@ -29,7 +29,10 @@ module MyHealth
       end
 
       attribute :ordered_date
-      attribute :quantity
+      attribute :quantity do |object|
+        quantity = object.quantity
+        quantity == quantity.to_i ? quantity.to_i : quantity
+      end
       attribute :expiration_date
       attribute :dispensed_date
       attribute :station_number
