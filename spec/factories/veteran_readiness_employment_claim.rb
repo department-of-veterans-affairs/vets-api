@@ -69,6 +69,7 @@ FactoryBot.define do
       middle { 'Middle' }
       last { 'Last' }
       dob { '1980-01-01' }
+      privacyStatementAcknowledged { true }
     end
 
     form {
@@ -101,7 +102,8 @@ FactoryBot.define do
             'suffix' => 'III'
           },
           'dob' => dob
-        }
+        },
+        'privacyStatementAcknowledged' => privacyStatementAcknowledged
       }.to_json
     }
   end
@@ -120,7 +122,8 @@ FactoryBot.define do
             'last' => 'Last'
           },
           'dob' => '1980-01-01'
-        }
+        },
+        'privacyStatementAcknowledged' => true
       }.to_json
     }
   end
