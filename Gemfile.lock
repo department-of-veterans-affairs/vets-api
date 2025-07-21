@@ -1109,7 +1109,7 @@ GEM
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
-    socksify (1.8.0)
+    socksify (1.8.1)
     spoon (0.0.6)
       ffi
     ssrf_filter (1.2.0)
