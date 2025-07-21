@@ -75,19 +75,19 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       context 'when current_user is nil' do
         let(:current_user) { nil }
 
-        include_examples 'returns error response', 'Missing required parameters', :bad_request
+        include_examples 'returns error response', 'User authentication required', :unauthorized
       end
 
       context 'when referral_id is blank' do
         let(:referral_id) { '' }
 
-        include_examples 'returns error response', 'Missing required parameters', :bad_request
+        include_examples 'returns error response', /Missing required parameters: referral_id/, :bad_request
       end
 
       context 'when referral_consult_id is nil' do
         let(:referral_consult_id) { nil }
 
-        include_examples 'returns error response', 'Missing required parameters', :bad_request
+        include_examples 'returns error response', /Missing required parameters: referral_consult_id/, :bad_request
       end
 
       context 'when current_user.icn is blank' do
@@ -95,7 +95,22 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(current_user).to receive(:icn).and_return('')
         end
 
-        include_examples 'returns error response', 'Missing required parameters', :bad_request
+        include_examples 'returns error response', /Missing required parameters: user ICN/, :bad_request
+      end
+
+      context 'when multiple parameters are missing' do
+        let(:referral_id) { '' }
+        let(:referral_consult_id) { nil }
+
+        before do
+          allow(current_user).to receive(:icn).and_return('')
+        end
+
+        it 'reports all missing parameters' do
+          expect(subject.error).to be_present
+          expect(subject.error[:message]).to eq('Missing required parameters: referral_id, referral_consult_id, user ICN')
+          expect(subject.error[:status]).to eq(:bad_request)
+        end
       end
     end
 
@@ -418,6 +433,55 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'returns no_value for empty string' do
         result = subject.send(:sanitize_log_value, '')
         expect(result).to eq('no_value')
+      end
+    end
+
+    describe '#invalid_parameters?' do
+      it 'returns true when referral_id is blank' do
+        result = service_instance.send(:invalid_parameters?, '', 'consult-123', 'icn-123')
+        expect(result).to be true
+      end
+
+      it 'returns true when referral_consult_id is blank' do
+        result = service_instance.send(:invalid_parameters?, 'ref-123', nil, 'icn-123')
+        expect(result).to be true
+      end
+
+      it 'returns true when user_icn is blank' do
+        result = service_instance.send(:invalid_parameters?, 'ref-123', 'consult-123', '')
+        expect(result).to be true
+      end
+
+      it 'returns false when all parameters are valid' do
+        result = service_instance.send(:invalid_parameters?, 'ref-123', 'consult-123', 'icn-123')
+        expect(result).to be false
+      end
+    end
+
+    describe '#get_missing_parameters' do
+      it 'identifies missing referral_id' do
+        result = service_instance.send(:get_missing_parameters, '', 'consult-123', 'icn-123')
+        expect(result).to eq(['referral_id'])
+      end
+
+      it 'identifies missing referral_consult_id' do
+        result = service_instance.send(:get_missing_parameters, 'ref-123', nil, 'icn-123')
+        expect(result).to eq(['referral_consult_id'])
+      end
+
+      it 'identifies missing user ICN' do
+        result = service_instance.send(:get_missing_parameters, 'ref-123', 'consult-123', '')
+        expect(result).to eq(['user ICN'])
+      end
+
+      it 'identifies multiple missing parameters' do
+        result = service_instance.send(:get_missing_parameters, '', nil, '')
+        expect(result).to eq(['referral_id', 'referral_consult_id', 'user ICN'])
+      end
+
+      it 'returns empty array when all parameters are present' do
+        result = service_instance.send(:get_missing_parameters, 'ref-123', 'consult-123', 'icn-123')
+        expect(result).to be_empty
       end
     end
   end
