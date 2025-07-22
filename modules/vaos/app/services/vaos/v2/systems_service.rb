@@ -14,10 +14,10 @@ module VAOS
         end
       end
 
-      def get_available_slots(location_id:, clinic_id:, clinical_service:, start_dt:, end_dt:, provider_id: nil)
+      def get_available_slots(location_id:, clinic_id:, clinical_service:, start_dt:, end_dt:, provider_id:)
         with_monitoring do
           response = if Flipper.enabled?(:va_online_scheduling_use_vpg, user) &&
-                        Flipper.enabled?(:va_online_scheduling_enable_OH_slots_search, user)
+                        Flipper.enabled?(:va_online_scheduling_enable_OH_slots_search, user) && !provider_id.nil?
                        get_slots_vpg(location_id:, clinic_id:, clinical_service:, provider_id:, start_dt:, end_dt:)
                      else
                        get_slots_vaos(location_id:, clinic_id:, start_dt:, end_dt:)

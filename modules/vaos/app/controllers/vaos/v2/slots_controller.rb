@@ -7,6 +7,7 @@ module VAOS
         response = systems_service.get_available_slots(location_id:,
                                                        clinic_id:,
                                                        clinical_service: nil,
+                                                       provider_id: nil,
                                                        start_dt:,
                                                        end_dt:)
         render json: VAOS::V2::SlotsSerializer.new(response)
@@ -27,6 +28,7 @@ module VAOS
           response = systems_service.get_available_slots(location_id:,
                                                          clinic_id: params[:clinic_id],
                                                          clinical_service: params[:clinical_service],
+                                                         provider_id: params[:provider_id],
                                                          start_dt:,
                                                          end_dt:)
           render json: VAOS::V2::SlotsSerializer.new(response)
