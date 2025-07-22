@@ -8,7 +8,6 @@ describe MedicalRecords::Client do
   context 'using API Gateway endpoints' do
     context 'when a valid session exists', :vcr do
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_allergy).and_return(false)
 
         VCR.use_cassette('user_eligibility_client/apigw_perform_an_eligibility_check_for_premium_user',

@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/DocumentReference/1175305"
+      uri: "<MHV_MR_HOST>/v1/fhir/DocumentReference/1175305"
       body:
         encoding: US-ASCII
         string: ""

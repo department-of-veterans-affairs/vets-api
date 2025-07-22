@@ -20,10 +20,6 @@ RSpec.describe MHVAccountTypeService do
     )
   end
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-  end
-
   context 'no mhv_correlation_id' do
     let(:user) { instance_double(User, mhv_correlation_id: nil) }
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+    uri: "<MHV_HOST>/v1/bluebutton/ess/geteligibledataclass"
     body:
       encoding: US-ASCII
       string: ''
