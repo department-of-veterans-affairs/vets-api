@@ -125,7 +125,7 @@ module VAOS
       #
       # @param referring_facility_code [String] the sanitized referring facility code ('no_value' if originally blank)
       # @param provider_npi [String] the sanitized provider NPI ('no_value' if originally blank)
-      # @param station_id [String, nil] the station ID of the referral (unsanitized)
+      # @param station_id [String, nil] the station ID of the referral (sanitized)
       # @return [void]
       def log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
         missing_fields = []
