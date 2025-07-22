@@ -3698,6 +3698,80 @@
         "summary": "/v0/enrollment-status"
       }
     },
+    "/v0/feature-toggles": {
+      "get": {
+        "description": "Returns feature toggle values for mobile applications",
+        "parameters": [
+          {
+            "description": "Comma-separated list of feature toggle names to check",
+            "in": "query",
+            "name": "features",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Cookie ID for anonymous users",
+            "in": "query",
+            "name": "cookie_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "example": "feature_toggles"
+                        },
+                        "features": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "example": "featureName"
+                              },
+                              "value": {
+                                "type": "boolean",
+                                "example": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Feature toggle values"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [],
+        "summary": "/v0/feature-toggles"
+      }
+    },
     "/v0/facilities-info": {
       "get": {
         "description": "Retrieves facilities info for a user's va treatment facilities",
@@ -9680,6 +9754,12 @@
                 "nullable": true,
                 "example": "COMPENSATION & PENSION"
               },
+              "travelPayEligible": {
+                "type": "boolean",
+                "nullable": true,
+                "description": "Whether or not the appointment is eligible to file for travel pay reimbursement.",
+                "example": true
+              },
               "travelPayClaim": {
                 "type": "object",
                 "nullable": true,
@@ -9785,6 +9865,11 @@
                     }
                   }
                 }
+              },
+              "showScheduleLink": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
               }
             }
           }
@@ -19998,7 +20083,8 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "prescriptionStatusCount"
+              "prescriptionStatusCount",
+              "hasNonVaMeds"
             ],
             "properties": {
               "prescriptionStatusCount": {
@@ -20018,6 +20104,10 @@
                   "unknown": 2,
                   "total": 14
                 }
+              },
+              "hasNonVaMeds": {
+                "type": "boolean",
+                "description": "Notifies if user has any prescriptions that are Non-VA (NV). This boolean will be set regardless of\nthe set of data returned in the \"data\" section of the response (ie. this will still be set to \"true\"\nif the user has Non-VA meds but the current page of the response does not show any).\n"
               }
             }
           }
@@ -22173,6 +22263,7 @@
                     "triageTeamId",
                     "name",
                     "stationNumber",
+                    "preferredTeam",
                     "relationType",
                     "locationName",
                     "suggestedNameDisplay",
@@ -22929,6 +23020,7 @@
         "required": [
           "appointmentDateTime",
           "facilityStationNumber",
+          "facilityName",
           "appointmentType",
           "isComplete"
         ],
@@ -22942,6 +23034,11 @@
             "type": "string",
             "description": "The station number of the VA facility where the appointment is registered.",
             "example": "983GC"
+          },
+          "facilityName": {
+            "type": "string",
+            "description": "The name of the VA facility where the appointment is registered.",
+            "example": "Cheyenne VA Medical Center"
           },
           "appointmentType": {
             "type": "string",

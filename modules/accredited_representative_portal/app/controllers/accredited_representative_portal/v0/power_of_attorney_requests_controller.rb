@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       include PowerOfAttorneyRequests
+      include AccreditedRepresentativePortal::V0::WithdrawalGuard
+
       before_action do
         authorize PowerOfAttorneyRequest
       end
@@ -11,6 +13,7 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:id]
           set_poa_request(id)
+          render_404_if_withdrawn!(@poa_request)
         end
       end
 
@@ -40,9 +43,17 @@ module AccreditedRepresentativePortal
 
       def poa_requests
         @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
-                          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .then { |it| filter_by_current_user(it) }
                           .unredacted
                           .preload(scope_includes)
+                          .then do |it|
+          if sort_params.present?
+            it.sorted_by(sort_params[:by],
+                         sort_params[:order])
+          else
+            it
+          end
+        end
                           .paginate(page:, per_page:)
       end
 
@@ -90,6 +101,23 @@ module AccreditedRepresentativePortal
         return query if sort_params.present?
 
         query.order(resolution: { created_at: :desc })
+      end
+
+      def as_selected_individual?
+        params[:as_selected_individual].present? && params[:as_selected_individual] == 'true'
+      end
+
+      def filter_by_current_user(relation)
+        return relation unless as_selected_individual?
+
+        relation.for_accredited_individual(
+          current_user.user_account.get_registration_number(
+            PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
+          )
+        )
+      rescue => e
+        Rails.logger.error("Error filtering by current user as selected individual: #{e.message}")
+        relation
       end
 
       def scope_includes

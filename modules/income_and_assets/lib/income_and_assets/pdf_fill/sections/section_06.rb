@@ -26,12 +26,15 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship to Veteran',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship6[#{ITERATOR}]",
             question_num: 6,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: 'RELATIONSHIP TYPE OTHER',
             question_label: 'Relationship Type'
           },
@@ -53,7 +56,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(3)',
             question_text: 'SPECIFY HOW INCOME IS GENERATED',
-            question_label: 'Income Generation Method'
+            question_label: 'Income Generation Method',
+            format_options: {
+              humanize: {
+                'MINERALS_LUMBER' => 'Minerals / Lumber'
+                # All other values are humanized versions of IncomeAndAssets::Constants::INCOME_GENERATION_TYPES
+              }
+            }
           },
           'otherIncomeType' => {
             limit: 73,
@@ -76,6 +85,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 6,
             question_suffix: '(4)',
             question_text: 'GROSS MONTHLY INCOME',
@@ -97,6 +107,7 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
+            dollar: true,
             question_num: 6,
             question_suffix: '(5)',
             question_text: 'SPECIFY FAIR MARKET VALUE OF THIS ASSET',
@@ -110,7 +121,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(6)',
             question_text: 'CAN THIS ASSET BE SOLD?',
-            question_label: 'Can Be Sold'
+            question_label: 'Can Be Sold',
+            format_options: {
+              humanize: {
+                'true' => 'Yes',
+                'false' => 'No'
+              }
+            }
           },
           # Q7
           'mitigatingCircumstances' => {
@@ -161,9 +178,9 @@ module IncomeAndAssets
           'incomeGenerationMethod' => IncomeAndAssets::Constants::INCOME_GENERATION_TYPES[income_type],
           'incomeGenerationMethodOverflow' => income_type,
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'fairMarketValue' => split_currency_amount_lg(fair_market_value),
-          'fairMarketValueOverflow' => number_to_currency(fair_market_value),
+          'fairMarketValueOverflow' => fair_market_value,
           'canBeSold' => item['canBeSold'] ? 0 : 1,
           'canBeSoldOverflow' => item['canBeSold']
         }

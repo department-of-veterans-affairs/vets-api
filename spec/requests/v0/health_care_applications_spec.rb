@@ -99,119 +99,221 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     end
   end
 
-  describe 'GET enrollment_status' do
-    let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
-    let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
+  describe 'enrollment_status' do
     let(:success_response) do
       { application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        parsed_status: inelig_character_of_discharge,
+        parsed_status: HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE,
         primary_eligibility: 'SC LESS THAN 50%',
         can_submit_financial_info: true }
     end
+
     let(:loa1_response) do
-      { parsed_status: login_required }
+      { parsed_status: HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
     end
 
-    context 'with user attributes' do
-      let(:user_attributes) do
-        {
-          userAttributes: build(:health_care_application).parsed_form.slice(
-            'veteranFullName', 'veteranDateOfBirth',
-            'veteranSocialSecurityNumber', 'gender'
-          )
-        }
-      end
-
-      it 'logs user loa' do
-        allow(Sentry).to receive(:set_extras)
-        expect(Sentry).to receive(:set_extras).with(user_loa: nil)
-
-        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-      end
-
-      it 'returns the enrollment status data' do
-        expect(HealthCareApplication).to receive(:user_icn).and_return('123')
-        expect(HealthCareApplication).to receive(:enrollment_status).with(
-          '123', nil
-        ).and_return(loa1_response)
-
-        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-
-        expect(response.body).to eq(loa1_response.to_json)
-      end
-
-      context 'when the request is rate limited' do
-        it 'returns 429' do
-          expect(HCA::RateLimitedSearch).to receive(
-            :create_rate_limited_searches
-          ).and_raise(RateLimitedSearch::RateLimitedError)
-
-          get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-          expect(response).to have_http_status(:too_many_requests)
-        end
-      end
-    end
-
-    context 'with a signed in user' do
-      let(:current_user) { build(:user, :loa3) }
-
-      before do
-        sign_in_as(current_user)
-      end
-
-      context 'with a user with no icn' do
-        before do
-          allow_any_instance_of(User).to receive(:icn).and_return(nil)
-        end
-
-        it 'returns 404' do
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form }
-          )
-          expect(response).to have_http_status(:not_found)
-        end
-      end
-
-      context 'with user passed attributes' do
-        it 'returns the enrollment status data' do
-          expect(HealthCareApplication).to receive(:enrollment_status).with(
-            current_user.icn, true
-          ).and_return(success_response)
-
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form }
-          )
-
-          expect(response.body).to eq(success_response.to_json)
-        end
-      end
-
-      context 'without user passed attributes' do
-        let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
-        let(:success_response) do
+    context 'GET enrollment_status' do
+      context 'with user attributes' do
+        let(:user_attributes) do
           {
-            application_date: '2018-12-27T00:00:00.000-06:00',
-            enrollment_date: '2018-12-27T17:15:39.000-06:00',
-            preferred_facility: '988 - DAYT20',
-            effective_date: '2019-01-02T21:58:55.000-06:00',
-            primary_eligibility: 'SC LESS THAN 50%',
-            priority_group: 'Group 3',
-            can_submit_financial_info: true,
-            parsed_status: enrolled
+            userAttributes: build(:health_care_application).parsed_form.slice(
+              'veteranFullName', 'veteranDateOfBirth',
+              'veteranSocialSecurityNumber', 'gender'
+            )
           }
         end
 
-        it 'returns the enrollment status data' do
-          allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+        context ':hca_enrollment_status_filter_get enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_filter_get).and_return(true)
+          end
 
-          VCR.use_cassette('hca/ee/lookup_user', erb: true) do
+          it 'returns 404 unless signed in' do
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+            allow(HealthCareApplication).to receive(:enrollment_status).with(
+              '123', nil
+            ).and_return(loa1_response)
+
+            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        context ':hca_enrollment_status_filter_get disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_filter_get).and_return(false)
+          end
+
+          it 'returns 200' do
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+            allow(HealthCareApplication).to receive(:enrollment_status).with(
+              '123', nil
+            ).and_return(loa1_response)
+
+            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'with a signed in user' do
+        let(:current_user) { build(:user, :loa3) }
+
+        before do
+          sign_in_as(current_user)
+        end
+
+        context 'with a user with no icn' do
+          before do
+            allow_any_instance_of(User).to receive(:icn).and_return(nil)
+          end
+
+          it 'returns 404' do
             get(enrollment_status_v0_health_care_applications_path)
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        context 'without user passed attributes' do
+          let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
+          let(:success_response) do
+            {
+              application_date: '2018-12-27T00:00:00.000-06:00',
+              enrollment_date: '2018-12-27T17:15:39.000-06:00',
+              preferred_facility: '988 - DAYT20',
+              effective_date: '2019-01-02T21:58:55.000-06:00',
+              primary_eligibility: 'SC LESS THAN 50%',
+              priority_group: 'Group 3',
+              can_submit_financial_info: true,
+              parsed_status: enrolled
+            }
+          end
+
+          before do
+            allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+          end
+
+          it 'returns the enrollment status data' do
+            VCR.use_cassette('hca/ee/lookup_user', erb: true) do
+              get(enrollment_status_v0_health_care_applications_path)
+
+              expect(response.body).to eq(success_response.to_json)
+            end
+          end
+        end
+      end
+    end
+
+    context 'POST enrollment_status' do
+      let(:headers) do
+        {
+          'ACCEPT' => 'application/json',
+          'CONTENT_TYPE' => 'application/json'
+        }
+      end
+
+      context 'with user attributes' do
+        let(:params) do
+          {
+            user_attributes: build(:health_care_application).parsed_form.deep_transform_keys(&:underscore).slice(
+              'veteran_full_name', 'veteran_date_of_birth',
+              'veteran_social_security_number', 'gender'
+            )
+          }.to_json
+        end
+
+        it 'logs user loa' do
+          allow(Sentry).to receive(:set_extras)
+          expect(Sentry).to receive(:set_extras).with(user_loa: nil)
+          post(enrollment_status_v0_health_care_applications_path, params:, headers:)
+        end
+
+        it 'returns the enrollment status data' do
+          expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+          expect(HealthCareApplication).to receive(:enrollment_status).with(
+            '123', nil
+          ).and_return(loa1_response)
+
+          post(enrollment_status_v0_health_care_applications_path, params:, headers:)
+
+          expect(response.body).to eq(loa1_response.to_json)
+        end
+
+        context 'when the request is rate limited' do
+          it 'returns 429' do
+            expect(HCA::RateLimitedSearch).to receive(
+              :create_rate_limited_searches
+            ).and_raise(RateLimitedSearch::RateLimitedError)
+
+            post(enrollment_status_v0_health_care_applications_path, params:, headers:)
+            expect(response).to have_http_status(:too_many_requests)
+          end
+        end
+      end
+
+      context 'with a signed in user' do
+        let(:current_user) { build(:user, :loa3) }
+        let(:params) { { userAttributes: build(:health_care_application).parsed_form }.to_json }
+
+        before do
+          sign_in_as(current_user)
+        end
+
+        context 'with a user with no icn' do
+          before do
+            allow_any_instance_of(User).to receive(:icn).and_return(nil)
+          end
+
+          it 'returns 404' do
+            post(
+              enrollment_status_v0_health_care_applications_path,
+              params:,
+              headers:
+            )
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        context 'with user passed attributes' do
+          it 'returns the enrollment status data' do
+            expect(HealthCareApplication).to receive(:enrollment_status).with(
+              current_user.icn, true
+            ).and_return(success_response)
+
+            post(
+              enrollment_status_v0_health_care_applications_path,
+              params:,
+              headers:
+            )
 
             expect(response.body).to eq(success_response.to_json)
+          end
+        end
+
+        context 'without user passed attributes' do
+          let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
+          let(:success_response) do
+            {
+              application_date: '2018-12-27T00:00:00.000-06:00',
+              enrollment_date: '2018-12-27T17:15:39.000-06:00',
+              preferred_facility: '988 - DAYT20',
+              effective_date: '2019-01-02T21:58:55.000-06:00',
+              primary_eligibility: 'SC LESS THAN 50%',
+              priority_group: 'Group 3',
+              can_submit_financial_info: true,
+              parsed_status: enrolled
+            }
+          end
+
+          it 'returns the enrollment status data' do
+            allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+
+            VCR.use_cassette('hca/ee/lookup_user', erb: true) do
+              post(enrollment_status_v0_health_care_applications_path)
+
+              expect(response.body).to eq(success_response.to_json)
+            end
           end
         end
       end
@@ -296,38 +398,15 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         }
       end
 
-      context ':hca_json_schemer_validation enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(true)
-        end
+      it 'shows the validation errors' do
+        subject
 
-        it 'shows the validation errors' do
-          subject
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(
-            JSON.parse(response.body)['errors'][0]['detail'].include?(
-              'form - object at root is missing required properties: privacyAgreementAccepted'
-            )
-          ).to be(true)
-        end
-      end
-
-      context ':hca_json_schemer_validation disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(false)
-        end
-
-        it 'shows the validation errors' do
-          subject
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(
-            JSON.parse(response.body)['errors'][0]['detail'].include?(
-              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-            )
-          ).to be(true)
-        end
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            'form - object at root is missing required properties: privacyAgreementAccepted'
+          )
+        ).to be(true)
       end
     end
 

@@ -85,6 +85,10 @@ module V0
         key :name, 'banners'
         key :description, 'VAMC Situation Update Banners'
       end
+      tag do
+        key :name, 'digital_disputes'
+        key :description, 'Submit digital dispute PDFs to the Debt Management Center and VBS'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -121,6 +125,7 @@ module V0
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::Banners,
+      Swagger::Requests::DatadogAction,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimDocuments,
@@ -130,11 +135,13 @@ module V0
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
+      Swagger::Requests::DigitalDisputes,
       Swagger::Requests::DependentsVerifications,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::DisabilityCompensationInProgressForms,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Efolder,
+      Swagger::Requests::EventBusGateway,
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
       Swagger::Requests::Form1010cg::Attachments,
@@ -158,7 +165,7 @@ module V0
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::MyVA::SubmissionStatuses,
       Swagger::Requests::IncomeAndAssetsClaims,
-      Swagger::Requests::PPIU,
+      Swagger::Requests::PensionClaims,
       Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Profile,
       Swagger::Requests::Search,
@@ -171,7 +178,6 @@ module V0
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
-      Swagger::Requests::VirtualAgentToken,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,
@@ -224,7 +230,6 @@ module V0
       Swagger::Schemas::MaintenanceWindows,
       Swagger::Schemas::OnsiteNotifications,
       Swagger::Schemas::PhoneNumber,
-      Swagger::Schemas::PPIU,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::SignIn,
       Swagger::Schemas::States,
@@ -244,7 +249,6 @@ module V0
       Swagger::Schemas::Vet360::Countries,
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
-      Swagger::Schemas::VirtualAgentWebchatToken,
       FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze

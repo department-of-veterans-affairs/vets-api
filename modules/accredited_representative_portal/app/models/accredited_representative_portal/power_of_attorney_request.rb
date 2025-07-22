@@ -112,7 +112,9 @@ module AccreditedRepresentativePortal
     scope :redacted, -> { where.not(redacted_at: nil) }
 
     scope :unresolved, -> { where.missing(:resolution) }
-    scope :resolved, -> { joins(:resolution) }
+    scope :resolved, lambda {
+      left_outer_joins(:resolution).where.not(resolution: { id: nil })
+    }
 
     scope :decisioned, lambda {
       joins(:resolution)
@@ -121,6 +123,14 @@ module AccreditedRepresentativePortal
             resolving_type: PowerOfAttorneyRequestDecision.to_s
           }
         )
+    }
+
+    scope :not_withdrawn, lambda {
+      where.missing(:resolution).or(
+        resolved.where.not(
+          resolution: { resolving_type: PowerOfAttorneyRequestWithdrawal.to_s }
+        )
+      )
     }
 
     scope :sorted_by, lambda { |sort_column, direction|
@@ -206,6 +216,10 @@ module AccreditedRepresentativePortal
       values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
 
       where(prefixed_names => values)
+    }
+
+    scope :for_accredited_individual, lambda { |accredited_individual_registration_number|
+      where(accredited_individual_registration_number:)
     }
 
     private

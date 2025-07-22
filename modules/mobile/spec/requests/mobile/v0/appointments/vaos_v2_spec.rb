@@ -237,37 +237,55 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
+          # Only one of the appointments should be eligible to file for travel pay
+          expected_eligible_count = response.parsed_body['data'].count do |appt|
+            appt['attributes']['travelPayEligible'] &&
+              appt['attributes']['kind'] != 'phone' &&
+              appt['attributes']['startDateUtc'] >= 30.days.ago.utc &&
+              appt['attributes']['travelPayClaim']['claim'].nil?
+          end
+
+          expect(expected_eligible_count).to eq(1)
+          expect(response.parsed_body['meta']['travelPayEligibleCount']).to eq(expected_eligible_count)
+          expect(response.parsed_body['meta']['travelPayDaysLimit']).to eq(30)
+
+          eligible_appt_types = response.parsed_body['data'].count do |appt|
+            appt['attributes']['travelPayEligible']
+          end
+
+          # All three appointments should be eligible appt types for travel pay
+          expect(eligible_appt_types).to eq(3)
           # The first appointment should have a claim attached
-          travel_pay_claim = response.parsed_body.dig('data', 0, 'attributes', 'travelPayClaim')
-          expect(travel_pay_claim).to eq({
-                                           'metadata' => {
-                                             'status' => 200,
-                                             'message' => 'nice job everyone',
-                                             'success' => true
-                                           },
-                                           'claim' => {
-                                             'id' => 'claim_id_1',
-                                             'claimNumber' => 'TC0928098230498',
-                                             'claimStatus' => 'In process',
-                                             'appointmentDateTime' => '2021-09-02T10:00:00Z',
-                                             'facilityId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                                             'facilityName' => 'Cheyenne VA Medical Center',
-                                             'totalCostRequested' => 4.52,
-                                             'reimbursementAmount' => 0,
-                                             'createdOn' => '2024-04-22T21:22:34.465Z',
-                                             'modifiedOn' => '2024-04-23T16:44:34.465Z'
-                                           }
-                                         })
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'travelPayClaim'))
+            .to eq({
+                     'metadata' => {
+                       'status' => 200,
+                       'message' => 'nice job everyone',
+                       'success' => true
+                     },
+                     'claim' => {
+                       'id' => 'claim_id_1',
+                       'claimNumber' => 'TC0928098230498',
+                       'claimStatus' => 'In process',
+                       'appointmentDateTime' => '2021-09-02T10:00:00Z',
+                       'facilityId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                       'facilityName' => 'Cheyenne VA Medical Center',
+                       'totalCostRequested' => 4.52,
+                       'reimbursementAmount' => 0,
+                       'createdOn' => '2024-04-22T21:22:34.465Z',
+                       'modifiedOn' => '2024-04-23T16:44:34.465Z'
+                     }
+                   })
 
           # The second appointment should only have metadata, but no claim
-          meta_only_appt = response.parsed_body.dig('data', 1, 'attributes', 'travelPayClaim')
-          expect(meta_only_appt).to eq({
-                                         'metadata' => {
-                                           'status' => 200,
-                                           'message' => 'nice job everyone',
-                                           'success' => true
-                                         }
-                                       })
+          expect(response.parsed_body.dig('data', 1, 'attributes', 'travelPayClaim'))
+            .to eq({
+                     'metadata' => {
+                       'status' => 200,
+                       'message' => 'nice job everyone',
+                       'success' => true
+                     }
+                   })
         end
 
         it 'does not append claim info when flag is not passed' do
@@ -289,8 +307,10 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           expect(response).to have_http_status(:ok)
           # The appointments should not have any claim information attached
+          expect(response.parsed_body['meta']['travelPayEligibleCount']).to be_nil
           expect(response.parsed_body.dig('data', 0, 'attributes', 'travelPayClaim')).to be_nil
           expect(response.parsed_body.dig('data', 1, 'attributes', 'travelPayClaim')).to be_nil
+          expect(response.parsed_body.dig('data', 2, 'attributes', 'travelPayEligible')).to be_nil
         end
       end
 

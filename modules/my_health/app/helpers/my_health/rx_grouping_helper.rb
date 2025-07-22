@@ -32,7 +32,32 @@ module MyHealth
 
     def get_single_rx_from_grouped_list(prescriptions, id)
       grouped_list = group_prescriptions(prescriptions)
-      grouped_list.find { |rx| rx['prescription_id'] == id }
+      grouped_list.find { |rx| rx.prescription_id == id }
+    end
+
+    def count_grouped_prescriptions(prescriptions)
+      return 0 if prescriptions.nil?
+
+      prescriptions = prescriptions.dup
+      count = 0
+
+      prescriptions.sort_by!(&:prescription_number)
+
+      while prescriptions.any?
+        prescription = prescriptions[0]
+        related = select_related_rxs(prescriptions, prescription)
+
+        if related.length <= 1
+          count += 1
+          prescriptions.delete(prescription)
+          next
+        end
+
+        count += 1
+        related.each { |rx| prescriptions.delete(rx) }
+      end
+
+      count
     end
 
     private

@@ -23,15 +23,15 @@
       :response_delay: 0.3
     ## Travel Pay
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
+      :path: "/veis/api/btsss/travelclaim/api/v2/Auth/access-token"
       :file_path: "/travel_pay/btsss_token/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/search-by-appointment-date"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/search-by-appointment-date"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
@@ -42,26 +42,26 @@
         :uid_location: url
         :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*"
       :file_path: "/travel_pay/claims/show/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/appointments"
+      :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
     - :method: :patch
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*/submit"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/submit"
       :file_path: "/travel_pay/claims/submit"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v1\.2\/claims\/(.+)\/submit'
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/submit'
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/expenses/mileage"
+      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
       :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
     - :method: :get
@@ -111,6 +111,12 @@
   - :method: :post
     :path: "/api/v1/digital-services/financial-status-report/formtopdf"
     :file_path: "debt_management_center/financial_status_reports/create"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'fileNumber":"(\w+)"'
+  - :method: :post
+    :path: "/api/v1/digital-services/dispute-debt"
+    :file_path: "debt_management_center/digital_dispute/create"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
@@ -183,21 +189,21 @@
         :uid_locator: 'Token'
     # MHV rx active
     - :method: :get
-      :path: "/mhv-api/patient/v1/prescription/getactiverx"
+      :path: "/v1/pharmacy/ess/getactiverx"
       :file_path: "mhv/prescription/getactiverx"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
     # MHV rx medications
     - :method: :get
-      :path: "/mhv-api/patient/v1/prescription/medications"
+      :path: "/v1/pharmacy/ess/medications"
       :file_path: "mhv/prescription/medications"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
     # MHV rx history
     - :method: :get
-      :path: "/mhv-api/patient/v1/prescription/gethistoryrx"
+      :path: "/v1/pharmacy/ess/gethistoryrx"
       :file_path: "mhv/prescription/gethistoryrx"
       :cache_multiple_responses:
         :uid_location: header
@@ -211,7 +217,7 @@
         :uid_locator: 'mhvCorrelationId'
     # MHV rx refill
     - :method: :post
-      :path: "/mhv-api/patient/v1/prescription/rxrefill/*"
+      :path: "/v1/pharmacy/ess/rxrefill/*"
       :file_path: "mhv/prescription/rxrefill"
       :cache_multiple_responses:
         :uid_location: url
@@ -356,14 +362,6 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
-
-  # PPIU payment information
-  - :method: :get
-    :path: "/wss-ppiu-services-web/rest/ppiuServices/v1/paymentInformation"
-    :file_path: "evss/ppiu/payment_information"
-  - :method: :post
-    :path: "/wss-ppiu-services-web/rest/ppiuServices/v1/paymentInformation"
-    :file_path: "evss/ppiu/update_payment_information"
 
   # Intent To File
   - :method: :get
@@ -693,7 +691,7 @@
       :cache_multiple_responses:
         :uid_location: 'url'
         :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
-    
+
     # Get referral list
     - :method: :get
       :path: "/vaos/v1/patients/*/referrals"
@@ -906,6 +904,12 @@
         :uid_location: url
         :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
     - :method: :get
+      :path: "/services/fhir/v0/r4/Immunization"
+      :file_path: "/lighthouse/veterans_health/Immunization/index"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
       :path: "/services/fhir/v0/r4/AllergyIntolerance"
       :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"
       :cache_multiple_responses:
@@ -926,12 +930,12 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)'
-        
+
     # Get list of appointments
     - :method: :get
       :path: "/care-navigation/v1/appointments"
       :file_path: "vaos/eps/appointments/get_appointments/default"
-        
+
     # Get appointment details
     - :method: :get
       :path: "/care-navigation/v1/appointments/*"
@@ -939,7 +943,7 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)'
-        
+
     # Get provider service slots
     - :method: :get
       :path: "/care-navigation/v1/provider-services/*/slots"
@@ -947,7 +951,7 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)\/slots'
-    
+
     # Create draft appointment
     - :method: :post
       :path: "/care-navigation/v1/appointments"
@@ -955,7 +959,7 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'referralNumber":"(\w+)"'
-    
+
     # Submit appointment
     - :method: :post
       :path: "/care-navigation/v1/appointments/*/submit"

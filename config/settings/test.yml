@@ -210,8 +210,11 @@ claims_api:
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
 claims_evidence_api:
-  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
-  jwt_secret: 'fake_api_key'
+  base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
 clamav:
   host: 0.0.0.0
   mock: true
@@ -258,6 +261,8 @@ decision_review:
   v1:
     url: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews
 dependents:
+  prefill: true
+dependents_verification:
   prefill: true
 dgi:
   jwt:
@@ -397,13 +402,10 @@ evss:
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
-  mock_ppiu: true
   mock_vso_search: false
   pciu:
     timeout: 30
   pciu_address:
-    timeout: 30
-  ppiu:
     timeout: 30
   prefill: true
   root_cert_path: ~
@@ -505,6 +507,8 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    icn:
+      url: http://localhost:5000/api/v2/accreditations/icn
     origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
@@ -586,7 +590,7 @@ ivc_champva:
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
-  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
 ivc_forms:
@@ -646,6 +650,10 @@ lighthouse:
       use_mocks: false
     host: https://sandbox-api.va.gov
     use_mocks: false
+  benefits_discovery:
+    host: 'https://sandbox.lighthouse.va.gov'
+    x_api_key: ~
+    x_app_id: ~
   benefits_documents:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -782,6 +790,7 @@ maintenance:
     caseflow: ~
     cie: ~
     coe: PSY4HU1
+    decision_reviews: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
@@ -800,7 +809,7 @@ maintenance:
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: PGT74RC
     mhv: PP2ZZ2V
     mhv_meds: ~
     mhv_mr: ~
@@ -813,7 +822,6 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
-    staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
     travel_pay: ~
@@ -897,24 +905,26 @@ mhv:
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
     app_token: faketoken
-    host: https://example.myhealth.va.gov
+    host: https://mhv-api.example.com
+    labs_logging_date_range_days: 30
     mock: false
-    security_host: https://security.example.myhealth.va.gov
+    security_host: https://mhv-api.example.com
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
@@ -1174,6 +1184,7 @@ saml:
   key_path: spec/support/certificates/ruby-saml.key
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: TESTKEY
@@ -1263,6 +1274,7 @@ va_forms:
     channel_id: ~
     enabled: ~
 va_mobile:
+  claims_path: /services/claims/v2/veterans
   key_path: "/fake/client/key/path"
   mock: false
   patients_path: /vaos/v1/patients
@@ -1315,12 +1327,27 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21_0538: &vanotify_services_dependents_verification
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_error
+        received:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_received
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_submitted
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: form0969_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: form0969_persistent_attachment_error_email_template_id
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: form0969_received_email_template_id
@@ -1336,6 +1363,9 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
         received:
           flipper_id: pension_received_email_notification
           template_id: form527ez_received_email_template_id
@@ -1351,6 +1381,9 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: burial_claim_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: burial_persistent_attachment_error_email_template_id
         received:
           flipper_id: burial_received_email_notification
           template_id: burial_received_email_template_id
@@ -1405,6 +1438,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
       template_id:
@@ -1551,6 +1585,7 @@ vaos:
     api_url: https://api.ccra.placeholder.va.local
     base_path: vaos/v1/patients
     mock: false
+    redis_referral_expiry: 3600
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1562,7 +1597,7 @@ vaos:
     key_path: modules/vaos/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
-    redis_token_expiry: 3500
+    pagination_timeout_seconds: 45
     scopes: care-nav
   referral:
     encryption:
@@ -1657,6 +1692,8 @@ veteran_enrollment_system:
   associations:
     api_key: ~
   ee_summary:
+    api_key: ~
+  form1095b:
     api_key: ~
   host: https://localhost
   open_timeout: 10
@@ -1766,15 +1803,7 @@ virtual_agent:
   cxdw_client_secret: fake_secret
   cxdw_dataverse_uri: fake_dataverse_uri
   cxdw_table_prefix: fake_table_prefix
-  lighthouse_api_key: fake_api_key
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
-  speech_token_subscription_key: fake_speech_token_subscription_key
-  webchat_pva2_secret: fake_secret
   webchat_root_bot_secret: fake_secret
-  webchat_secret: fake_secret
-  webchat_secret_msft: fake_secret
-  webchat_secret_nlu: fake_secret
 virtual_hosts:
   - www.example.com
   - localhost

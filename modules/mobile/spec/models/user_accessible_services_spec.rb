@@ -139,7 +139,9 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
 
     describe 'genderIdentity and preferredName' do
       context 'when user does not have demographics access' do
-        let(:user) { build(:user, :loa3, idme_uuid: nil, logingov_uuid: nil) }
+        let(:user) do
+          build(:user, :loa3, uuid: 'some-uuid', idme_uuid: nil, logingov_uuid: nil, user_verification: nil)
+        end
 
         it 'is false' do
           expect(user_services.service_auth_map[:preferredName]).to be(false)

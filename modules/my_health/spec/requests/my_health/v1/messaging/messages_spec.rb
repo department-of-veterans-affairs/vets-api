@@ -121,7 +121,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       end
       let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
       let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
-      let(:params_with_attachments) { { message: params }.merge(uploads:) }
+      let(:params_with_attachments) { { message: params, uploads: } }
 
       context 'message' do
         it 'without attachments' do
@@ -313,6 +313,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         expect(response).to be_successful
+
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
+
+        first_message = data.first['attributes']
+        expect(first_message['is_oh_message']).to be(true)
       end
     end
 
@@ -339,6 +345,22 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
         expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
+      end
+    end
+
+    describe 'POST create with large attachments feature flag' do
+      let(:attachment_type) { 'image/jpg' }
+      let(:large_upload) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type) }
+      let(:uploads) { [large_upload] }
+      let(:message_params) { attributes_for(:message, subject: 'Large File', body: 'Test') }
+      let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+      let(:params_with_attachments) { { message: params, uploads: } }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(flag_enabled)
+        allow(large_upload).to receive(:size).and_return(file_size)
+        allow_any_instance_of(SM::Client).to receive(:post_create_message_with_lg_attachments).and_call_original
+        allow_any_instance_of(SM::Client).to receive(:post_create_message_with_attachment).and_call_original
       end
     end
   end

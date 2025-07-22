@@ -26,10 +26,11 @@ class SavedClaim < ApplicationRecord
   has_encrypted :form, key: :kms_key, **lockbox_options
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
+  has_many :claim_va_notifications, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
   has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
   has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
-  has_many :claim_va_notifications, dependent: :destroy
+  has_many :claims_evidence_api_submissions, class_name: 'ClaimsEvidenceApi::Submission', dependent: :nullify
 
   belongs_to :user_account, optional: true
 
@@ -120,6 +121,12 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
+  # the VBMS document type for _this_ claim type
+  # @see modules/claims_evidence_api/documentation/doctypes.json
+  def document_type
+    10 # Unknown
+  end
+
   def email
     nil
   end
@@ -175,27 +182,18 @@ class SavedClaim < ApplicationRecord
   # the error logging smooth and identical for both options.
   # This method also filters out the `data` key because it could
   # potentially contain pii.
-  def reformatted_schemer_errors(errors) # rubocop:disable Metrics/MethodLength
-    if Flipper.enabled?(:filter_saved_claim_logs)
-      errors.map do |error|
-        symbolized = error.symbolize_keys
-        {
-          data_pointer: symbolized[:data_pointer],
-          error: symbolized[:error],
-          details: symbolized[:details],
-          schema: symbolized[:schema],
-          root_schema: symbolized[:root_schema],
-          message: symbolized[:error],
-          fragment: symbolized[:data_pointer]
-        }
-      end
-    else
-      errors.map!(&:symbolize_keys)
-      errors.each do |error|
-        error[:fragment] = error[:data_pointer]
-        error[:message] = error[:error]
-      end
-      errors
+  def reformatted_schemer_errors(errors)
+    errors.map do |error|
+      symbolized = error.symbolize_keys
+      {
+        data_pointer: symbolized[:data_pointer],
+        error: symbolized[:error],
+        details: symbolized[:details],
+        schema: symbolized[:schema],
+        root_schema: symbolized[:root_schema],
+        message: symbolized[:error],
+        fragment: symbolized[:data_pointer]
+      }
     end
   end
 

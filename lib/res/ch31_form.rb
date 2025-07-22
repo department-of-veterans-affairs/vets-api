@@ -22,7 +22,7 @@ module RES
     #
     def submit
       if @claim.nil?
-        Rails.logger.error('Ch31NilClaimError. user uuid:', @user.uuid)
+        Rails.logger.error('Ch31NilClaimError. user uuid:', @user&.uuid)
         raise Ch31NilClaimError
       end
 
@@ -31,6 +31,7 @@ module RES
 
       raise Ch31Error if response_body['success_message'].blank?
 
+      Rails.logger.info('VRE Submit1900Job successful, Ch 31 claim sent to RES.')
       response_body
     rescue Ch31Error => e
       process_ch_31_error(e, response_body)
@@ -42,7 +43,6 @@ module RES
 
     def format_payload_for_res
       form_data = claim_form_hash
-
       res_payload = {
         useEva: form_data['useEva'],
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
@@ -115,6 +115,8 @@ module RES
     end
 
     def mapped_address_hash(client_hash)
+      return nil unless client_hash
+
       {
         country: client_hash['country'],
         street: client_hash['street'],

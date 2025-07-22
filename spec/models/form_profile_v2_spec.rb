@@ -15,7 +15,10 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1') }
+  let(:user) do
+    build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
+                                     address: build(:va_profile_v3_address), vet360_id: '1')
+  end
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
@@ -346,6 +349,24 @@ RSpec.describe FormProfile, type: :model do
       'dateOfBirth' => user.birth_date,
       'applicantSocialSecurityNumber' => user.ssn,
       'emailAddress' => user.va_profile_email
+    }
+  end
+  let(:v22_10297_expected) do
+    {
+      'activeDuty' => false,
+      'mailingAddress' => address,
+      'applicantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize
+      },
+      'contactInfo' => {
+        'homePhone' => us_phone,
+        'mobilePhone' => mobile_phone,
+        'emailAddress' => user.va_profile_email
+      },
+      'dateOfBirth' => user.birth_date,
+      'applicantFileNumber' => user.ssn
     }
   end
   let(:v22_1990_n_expected) do
@@ -1381,6 +1402,51 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with VA Profile prefill for 10297' do
+        before do
+          expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                             .and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 10297' do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                           allow_playback_repeats: true) do
+            expect_prefilled('22-10297')
+          end
+        end
+      end
+
+      context 'with VA Profile and ppiu prefill for 10297' do
+        before do
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('usyergd')
+          can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                             .and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10297_expected['bankAccount'] = {
+            'bankAccountNumber' => '******7890',
+            'bankAccountType' => 'Checking',
+            'bankName' => 'WELLS FARGO BANK',
+            'bankRoutingNumber' => '*****0503'
+          }
+        end
+
+        it 'prefills 10297 with VA Profile and payment information' do
+          VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                                 allow_playback_repeats: true) do
+                  expect_prefilled('22-10297')
+                end
+              end
+            end
+          end
+        end
+      end
+
       context 'with VA Profile prefill for 0873' do
         let(:info) do
           {
@@ -1530,8 +1596,8 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:va_profile_v3_address),
-                                vet360_id: '1781151')
+            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_v3_address),
+                                             vet360_id: '1781151')
           end
 
           before do

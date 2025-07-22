@@ -37,6 +37,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
+      expect(claim).not_to receive(:process_attachments!)
       expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
       expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
@@ -46,13 +47,16 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
 
     it('returns a serialized claim') do
+      allow(Pensions::SavedClaim).to receive(:new).and_return(claim)
+
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
+      expect(claim).to receive(:process_attachments!).once
+      expect(Pensions::BenefitsIntake::SubmitClaimJob).to receive(:perform_async).once
 
       response = post(:create, params: { param_name => { form: claim.form } })
 
-      expect(JSON.parse(response.body)['data']['attributes']['form']).to eq(form_id)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:success)
     end
   end
 
@@ -87,24 +91,50 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
   end
 
-  describe '#process_and_upload_to_lighthouse' do
-    let(:claim) { build(:pensions_saved_claim) }
+  describe '#process_attachments' do
+    let(:claim) { create(:pensions_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
+    let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
+    let(:error) { StandardError.new('Something went wrong') }
+
+    before do
+      form_data = {
+        files: [{ 'confirmationCode' => bad_attachment.guid }]
+      }
+      in_progress_form.update!(form_data: form_data.to_json)
+
+      allow(claim).to receive_messages(
+        attachment_keys: [:files],
+        open_struct_form: OpenStruct.new(files: [OpenStruct.new(confirmationCode: bad_attachment.guid)])
+      )
+      allow_any_instance_of(PersistentAttachment).to receive(:file_data).and_raise(error)
+      allow(Flipper).to receive(:enabled?)
+                    .with(:pension_persistent_attachment_error_email_notification).and_return(true)
+    end
+
+    it 'removes bad attachments, updates the in_progress_form, and destroys the claim if all attachments are bad' do
+      allow(claim).to receive(:process_attachments!).and_raise(error)
+      expect(claim).to receive(:send_email).with(:persistent_attachment_error)
+
+      aggregate_failures do
+        expect do
+          subject.send(:process_attachments, in_progress_form, claim)
+        rescue
+          # Swallow error to test side effects
+        end.to change { PersistentAttachment.where(id: bad_attachment.id).count }
+          .from(1).to(0)
+          .and change { Pensions::SavedClaim.where(id: claim.id).count }
+          .from(1).to(0)
+      end
+
+      expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
+      expect(JSON.parse(in_progress_form.reload.form_data)['files']).to be_empty
+    end
 
     it 'returns a success' do
       expect(claim).to receive(:process_attachments!)
 
-      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
-    end
-
-    it 'raises an error' do
-      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
-      expect(monitor).to receive(:track_process_attachment_error).once
-      expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
-
-      expect do
-        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
-      end.to raise_error(StandardError, 'mock error')
+      subject.send(:process_attachments, in_progress_form, claim)
     end
   end
 
@@ -114,19 +144,95 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     let(:bpds_submission) { double('BPDS::Submission', id: '12345') }
     let(:bpds_monitor) { double('BPDS::Monitor') }
     let(:current_user) { create(:user) }
+    let(:participant_id) { mpi_profile.participant_id }
+    let(:encrypted_payload) { KmsEncrypted::Box.new.encrypt({ participant_id: }.to_json) }
+    let(:mpi_profile) { build(:mpi_profile) }
+    let(:mpi_response) { build(:find_profile_response, profile: mpi_profile) }
 
     before do
       allow(BPDS::Monitor).to receive(:new).and_return(bpds_monitor)
       allow(bpds_monitor).to receive(:track_submit_begun)
+      allow(bpds_monitor).to receive(:track_get_user_identifier)
+      allow(bpds_monitor).to receive(:track_get_user_identifier_result)
+      allow(bpds_monitor).to receive(:track_get_user_identifier_file_number_result)
+      allow(bpds_monitor).to receive(:track_skip_bpds_job)
       allow(BPDS::Submission).to receive(:create).and_return(bpds_submission)
       allow(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async)
     end
 
-    it 'tracks the submission and enqueues the job' do
-      expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
-      expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id).once
+    context 'when the user is LOA3' do
+      let!(:user) { create(:user, :loa3) }
 
-      subject.send(:process_and_upload_to_bpds, claim)
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa3').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('mpi', true).once
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_file_number_result)
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+          .with(identifier: user.icn, identifier_type: MPI::Constants::ICN)
+          .and_return(mpi_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
+    end
+
+    context 'when the user is LOA1 and participant_id is present' do
+      let!(:user) { create(:user, :loa1) }
+      let(:encrypted_payload_bgs) { KmsEncrypted::Box.new.encrypt({ participant_id: '1234567890' }.to_json) }
+      let(:bgs_response) { BGS::People::Response.new({ ptcpnt_id: '1234567890' }) }
+
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('bgs', true).once
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_file_number_result)
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+        expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
+                                                                                               .and_return(bgs_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload_bgs).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
+    end
+
+    context 'when the user is LOA1 and participant_id is not present but file number is present' do
+      let!(:user) { create(:user, :loa1) }
+      let(:encrypted_payload_bgs) { KmsEncrypted::Box.new.encrypt({ file_number: '1234567890' }.to_json) }
+      let(:bgs_response) { BGS::People::Response.new({ file_nbr: '1234567890' }) }
+
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('bgs', false).once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_file_number_result).with(true).once
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+        expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
+                                                                                               .and_return(bgs_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload_bgs).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
+    end
+
+    context 'when the user is not authenticated and no identifier is available' do
+      it 'tracks the submission and does not enqueue the job' do
+        allow(subject).to receive(:current_user).and_return(nil) # rubocop:disable RSpec/SubjectStub
+
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('unauthenticated').once
+        expect(bpds_monitor).to receive(:track_skip_bpds_job).with(claim.id).once
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_result)
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_result_file_number)
+        expect(bpds_monitor).not_to receive(:track_submit_begun)
+        expect_any_instance_of(BGS::People::Request).not_to receive(:find_person_by_participant_id)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
     end
   end
 

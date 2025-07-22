@@ -79,4 +79,31 @@ RSpec.describe IncomeAndAssets::SavedClaim do
       instance.process_attachments!
     end
   end
+
+  describe '#to_pdf' do
+    it 'calls PdfFill::Filler.fill_form' do
+      expect(PdfFill::Filler).to receive(:fill_form).with(subject, nil, {})
+      subject.to_pdf
+    end
+
+    [true, false].each do |extras_redesign|
+      it "calls PdfFill::Filler.fill_form with extras_redesign: #{extras_redesign}" do
+        expect(PdfFill::Filler).to receive(:fill_form).with(subject, nil, { extras_redesign: })
+        subject.to_pdf(nil, { extras_redesign: })
+      end
+    end
+  end
+
+  describe '#send_email' do
+    it 'calls IncomeAndAssets::NotificationEmail with the claim id and delivers the email' do
+      claim = build(:income_and_assets_claim)
+      email_type = :error
+      notification_double = instance_double(IncomeAndAssets::NotificationEmail)
+
+      expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_double)
+      expect(notification_double).to receive(:deliver).with(email_type)
+
+      claim.send_email(email_type)
+    end
+  end
 end

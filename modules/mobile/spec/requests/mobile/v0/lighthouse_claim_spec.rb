@@ -11,6 +11,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
   include CommitteeHelper
 
   let!(:user) { sis_user(icn: '1008596379V859838') }
+  let(:user_account) { create(:user_account) }
 
   describe 'GET /v0/claim/:id with lighthouse upstream service' do
     before do
@@ -121,6 +122,23 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').map { |h| h['displayName'] }
           expect(display_names.size).to eq(20)
           expect(display_names).to include('Attorney Fees')
+        end
+      end
+
+      context 'when :schema_contract_claims_and_appeals_get_claim is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with('schema_contract_claims_and_appeals_get_claim').and_return(true)
+
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        it 'validates schema' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+          SchemaContract::ValidationJob.drain
+          expect(SchemaContract::Validation.last.status).to eq('success')
         end
       end
     end

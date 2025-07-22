@@ -4,6 +4,7 @@ require 'kafka/concerns/kafka'
 require 'pensions/benefits_intake/submit_claim_job'
 require 'pensions/monitor'
 require 'bpds/sidekiq/submit_to_bpds_job'
+require 'persistent_attachments/sanitizer'
 
 module Pensions
   module V0
@@ -61,7 +62,9 @@ module Pensions
         # Submit to BPDS if the feature is enabled
         process_and_upload_to_bpds(claim)
 
-        process_and_upload_to_lighthouse(in_progress_form, claim)
+        process_attachments(in_progress_form, claim)
+
+        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -86,16 +89,17 @@ module Pensions
         )
       end
 
-      # link the form to the uploaded attachments and perform submission job
+      ##
+      # Processes attachments for the claim
       #
-      # @param in_progress_form [InProgressForm]
-      # @param claim [Pensions::SavedClaim]
-      def process_and_upload_to_lighthouse(in_progress_form, claim)
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
+      def process_attachments(in_progress_form, claim)
         claim.process_attachments!
-
-        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        sanitize_attachments(claim, in_progress_form)
         raise e
       end
 
@@ -109,9 +113,70 @@ module Pensions
       def process_and_upload_to_bpds(claim)
         return nil unless Flipper.enabled?(:bpds_service_enabled)
 
+        # Get an identifier associated with the user
+        payload = get_user_identifier_for_bpds
+        if payload.nil? || (payload[:participant_id].blank? && payload[:file_number].blank?)
+          bpds_monitor.track_skip_bpds_job(claim.id)
+          return
+        end
+
+        encrypted_payload = KmsEncrypted::Box.new.encrypt(payload.to_json)
+
         # Submit to BPDS
-        BPDS::Monitor.new.track_submit_begun(claim.id)
-        BPDS::Sidekiq::SubmitToBPDSJob.perform_async(claim.id)
+        bpds_monitor.track_submit_begun(claim.id)
+        BPDS::Sidekiq::SubmitToBPDSJob.perform_async(claim.id, encrypted_payload)
+      end
+
+      # Retrieves an identifier for the current user for association with a BDPS submission.
+      # The participant id or file number is sourced from MPI or BGS depending on the user's
+      # LOA or if they are unauthenticated.
+      #
+      # @return [Hash, nil] Returns a hash containing the participant id or file number, or nil
+      def get_user_identifier_for_bpds
+        # user is LOA3 so we can use MPI service to get the user's MPI profile
+        if current_user&.loa3?
+          bpds_monitor.track_get_user_identifier('loa3')
+
+          # Get profile participant_id from MPI service
+          response = MPI::Service.new.find_profile_by_identifier(identifier: current_user.icn,
+                                                                 identifier_type: MPI::Constants::ICN)
+          participant_id = response.profile&.participant_id
+          bpds_monitor.track_get_user_identifier_result('mpi', participant_id.present?)
+
+          return { participant_id: }
+        end
+
+        # user is LOA1 so we need to use BGS
+        if current_user&.loa&.dig(:current).try(:to_i) == LOA::ONE
+          bpds_monitor.track_get_user_identifier('loa1')
+          return get_participant_id_or_file_number_from_bgs
+        end
+
+        # user is unauthenticated so we need to use BGS
+        bpds_monitor.track_get_user_identifier('unauthenticated')
+        get_participant_id_or_file_number_from_bgs
+      end
+
+      # Retrieves an identifier of the current user for association with a BDPS submission.
+      # This uses the BGS service to get the participant id or file number.
+      #
+      # @return [Hash, nil] Returns a hash containing the participant id or file number, or nil
+      def get_participant_id_or_file_number_from_bgs
+        return nil if current_user.nil?
+
+        # Get profile participant_id from BGS service
+        response = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
+        bpds_monitor.track_get_user_identifier_result('bgs', response.participant_id.present?)
+
+        return { participant_id: response.participant_id } if response.participant_id.present?
+
+        # Get file_number as participant_id is not present
+        file_number = response.file_number
+        bpds_monitor.track_get_user_identifier_file_number_result(file_number.present?)
+
+        return { file_number: } if file_number.present?
+
+        nil
       end
 
       # Filters out the parameters to form access.
@@ -133,12 +198,43 @@ module Pensions
       end
 
       ##
-      # retreive a monitor for tracking
+      # Sanitizes attachments for a claim and handles persistent attachment errors.
+      #
+      # This method checks a feature flag to determine if
+      # persistent attachment error handling should be enabled. If enabled, it:
+      #   - Calls the PersistentAttachments::Sanitizer to remove bad attachments and update the in_progress_form.
+      #   - Sends a persistent attachment error email notification if the claim supports it.
+      #   - Destroys the claim if attachment processing fails.
+      #
+      # @param claim [Pensions::SavedClaim] The claim whose attachments are being sanitized.
+      # @param in_progress_form [InProgressForm] The in-progress form associated with the claim.
+      # @return [void]
+      def sanitize_attachments(claim, in_progress_form)
+        feature_flag = Settings.vanotify.services['21p_527ez'].email.persistent_attachment_error.flipper_id
+
+        if Flipper.enabled?(feature_flag.to_sym)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.send_email(:persistent_attachment_error) if claim.respond_to?(:send_email)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
+      end
+
+      ##
+      # retrieve a monitor for tracking
       #
       # @return [Pensions::Monitor]
       #
       def monitor
         @monitor ||= Pensions::Monitor.new
+      end
+
+      ##
+      # retrieve a BPDS monitor for tracking
+      #
+      # @return [BPDS::Monitor]
+      #
+      def bpds_monitor
+        @bpds_monitor ||= BPDS::Monitor.new
       end
     end
   end

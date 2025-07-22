@@ -33,6 +33,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     child_marriage
     report_child18_or_older_is_not_attending_school
     add_spouse
+    add_disabled_child
   ].freeze
 
   FORM686 = '21-686c'
@@ -45,12 +46,8 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   attr_accessor :use_v2
 
   after_initialize do
-    self.form_id = if Flipper.enabled?(:va_dependents_v2)
-                     if use_v2 || form_id == '686C-674-V2'
-                       '686C-674-V2'
-                     else
-                       self.class::FORM.upcase
-                     end
+    self.form_id = if use_v2 || form_id == '686C-674-V2'
+                     '686C-674-V2'
                    else
                      self.class::FORM.upcase
                    end
@@ -174,14 +171,19 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     end
   end
 
-  def upload_to_vbms(path:, doc_type: '148')
+  def document_type
+    148
+  end
+
+  def upload_to_vbms(path:, doc_type: nil)
+    doc_type ||= document_type
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type:
+      doc_type: doc_type.to_s
     )
 
-    uploader.upload!
+    uploader.upload! unless Rails.env.development?
   end
 
   # temporarily commented out before v2 rolls out. will be updated before v2's release.

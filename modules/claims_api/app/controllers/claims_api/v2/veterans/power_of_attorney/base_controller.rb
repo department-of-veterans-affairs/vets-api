@@ -20,8 +20,9 @@ module ClaimsApi
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
         def show
-          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
+          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
+
           if poa_code.blank?
             render json: { data: }
           else
@@ -81,11 +82,14 @@ module ClaimsApi
         end
 
         def attributes
+          base = form_attributes.key?('serviceOrganization') ? 'serviceOrganization' : 'representative'
+          new_poa_code = form_attributes.dig(base, 'poaCode')
+
           {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: set_auth_headers,
             form_data: form_attributes,
-            current_poa: current_poa_code,
+            current_poa: new_poa_code,
             header_hash:
           }
         end
@@ -221,10 +225,10 @@ module ClaimsApi
         def nullable_icn
           current_user.icn
         rescue => e
-          log_message_to_sentry('Failed to retrieve icn for consumer',
-                                :warning,
-                                body: e.message)
-
+          ClaimsApi::Logger.log 'POABaseController',
+                                level: :warn,
+                                detail: 'Failed to retrieve icn for consumer',
+                                error_message: e.message
           nil
         end
 

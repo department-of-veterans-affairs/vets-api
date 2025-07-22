@@ -33,7 +33,6 @@ require 'support/rx_spec_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
-require 'support/sign_in/certifiable_shared_examples'
 require 'support/sign_in/service_account_authorization_context'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
@@ -123,7 +122,7 @@ end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_paths = Array(Rails.root / 'spec/fixtures')
+  # config.fixture_paths = Array(Rails.root / 'spec/fixtures')
 
   config.include(ValidationHelpers, type: :model)
   %i[controller model].each do |type|

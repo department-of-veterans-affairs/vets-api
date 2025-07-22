@@ -6,6 +6,18 @@ require_relative '../../../../rails_helper'
 Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type: :request do
   include ClaimsApi::Engine.routes.url_helpers
 
+  let(:address_expected) do
+    { 'city' => 'Bourges', 'stateCode' => nil, 'zipCode' => '00123', 'countryCode' => 'France' }
+  end
+
+  let(:veteran_expected) do
+    { 'firstName' => '[Vet First Name]', 'middleName' => nil, 'lastName' => '[Vet Last Name]' }
+  end
+
+  let(:claimant_expected) do
+    { 'firstName' => '[Claimant First Name]', 'lastName' => '[Claimant Last Name]' }
+  end
+
   describe '#index' do
     let(:scopes) { %w[claim.read] }
     let(:page_params) { { page: { size: '10', number: '2' } } }
@@ -43,7 +55,14 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             index_request_with(poa_codes:, auth_header:)
 
             expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body)['data'].size).to eq(3)
+            parsed_response = JSON.parse(response.body)['data']
+            veteran = parsed_response[0]['attributes']['veteran']
+            claimant = parsed_response[0]['attributes']['claimant']
+            address = parsed_response[2]['attributes']['address']
+            expect(veteran).to eq(veteran_expected)
+            expect(claimant).to eq(claimant_expected)
+            expect(address).to eq(address_expected)
+            expect(parsed_response.size).to eq(3)
           end
         end
       end
@@ -192,6 +211,35 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#show' do
     let(:scopes) { %w[claim.read] }
+    let(:mock_get_poa) do
+      { 'VSOUserEmail' => nil,
+        'VSOUserFirstName' => 'Joe',
+        'VSOUserLastName' => 'BestRep',
+        'changeAddressAuth' => 'Y',
+        'claimantCity' => 'Charlottesville',
+        'claimantCountry' => 'USA',
+        'claimantMilitaryPO' => nil,
+        'claimantMilitaryPostalCode' => nil,
+        'claimantState' => nil,
+        'claimantZip' => '00123',
+        'dateRequestActioned' => '2024-05-25T13:45:00-05:00',
+        'dateRequestReceived' => '2012-11-23T16:49:16-06:00',
+        'declinedReason' => nil,
+        'healthInfoAuth' => 'Y',
+        'poaCode' => '083',
+        'procID' => '11027',
+        'secondaryStatus' => 'New',
+        'vetFirstName' => '[Vet First Name]',
+        'vetLastName' => '[Vet Last Name]',
+        'vetMiddleName' => nil,
+        'vetPtcpntID' => '111',
+        'claimantFirstName' => '[Claimant First Name]',
+        'claimantLastName' => '[Claimant Last Name]',
+        'id' => nil }
+    end
+    let(:address_expected) do
+      { 'city' => 'Charlottesville', 'stateCode' => nil, 'zipCode' => '00123', 'countryCode' => 'USA' }
+    end
 
     it 'returns a not found status if the PowerOfAttorneyRequest is not found' do
       mock_ccg(scopes) do |auth_header|
@@ -207,7 +255,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
       before do
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
-        allow(service).to receive(:get_poa_request).and_return({})
+        allow(service).to receive(:get_poa_request).and_return(mock_get_poa)
       end
 
       it 'returns a successful response' do
@@ -215,6 +263,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           show_request_with(id: poa_request.id, auth_header:)
 
           expect(response).to have_http_status(:ok)
+          parsed_response = JSON.parse(response.body)['data']
+          veteran = parsed_response['attributes']['veteran']
+          claimant = parsed_response['attributes']['claimant']
+          address = parsed_response['attributes']['address']
+          expect(veteran).to eq(veteran_expected)
+          expect(claimant).to eq(claimant_expected)
+          expect(address).to eq(address_expected)
         end
       end
     end
@@ -287,6 +342,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
         allow(service).to receive(:get_poa_request).and_return({})
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
+          .to receive(:process_poa_decision).and_return(nil)
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -322,42 +379,19 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
         allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)
                                                                  .and_return(poa_request_response)
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
       end
 
-      context 'when the feature flag is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return(true)
-        end
+      it 'calls the decision handler' do
+        mock_ccg(scopes) do |auth_header|
+          expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
 
-        it 'enqueues the VANotifyDeclinedJob' do
-          mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('mpi/find_candidate/valid') do
-              expect do
-                decide_request_with(id:, decision:, auth_header:,
-                                    representative_id:)
-              end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
-            end
-          end
-        end
-      end
-
-      context 'when the feature flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return(false)
-        end
-
-        it 'does not enqueue the VANotifyDeclinedJob' do
-          VCR.use_cassette('mpi/find_candidate/valid') do
-            mock_ccg(scopes) do |auth_header|
-              expect do
-                decide_request_with(id:, decision:, auth_header:,
-                                    representative_id:)
-              end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
-            end
-          end
+          decide_request_with(id:, decision:, auth_header:,
+                              representative_id:)
         end
       end
     end
