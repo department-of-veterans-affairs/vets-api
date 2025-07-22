@@ -27,6 +27,11 @@ module ClaimsEvidenceApi
         super
       end
 
+      def perform(*args, **kwargs)
+
+        super(*args, **kwargs)
+      end
+
       # directly assign a folder identifier
       # @see ClaimsEvidenceApi::XFolderUri#validate
       # @param folder_identifier [String] x_folder_uri header value
@@ -38,6 +43,12 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::XFolderUri#generate
       def x_folder_uri_set(folder_type, identifier_type, id)
         @x_folder_uri = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
+      end
+
+      private
+
+      def statsd
+        self.class.to_s.downcase.gsub(/:+/, '_')
       end
     end
 
