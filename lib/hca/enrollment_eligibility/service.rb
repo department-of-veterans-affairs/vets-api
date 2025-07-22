@@ -371,7 +371,8 @@ module HCA
 
       def fill_contact_full_name_from_association(contact, association)
         NAME_MAPPINGS.each do |mapping|
-          # VES saves association data in all caps, so we need to update certain suffixes before saving it to the contact
+          # When association data gets stored in HL7, it gets converted to all caps.
+          # We need to update certain suffixes before saving it to the contact in order to match the schema.
           contact[:fullName][mapping.first] = get_locate_value(
             association, %w[JR. SR.].include?(mapping.last.to_s) ? mapping.last.to_s.capitalize : mapping.last.to_s
           )
