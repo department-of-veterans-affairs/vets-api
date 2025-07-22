@@ -210,12 +210,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
 
-          context 'with retry feature enabled' do
-            before do
-              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
-            end
-          end
-
           it 'retries VES submission if it fails' do
             with_settings(Settings, vsp_environment: 'staging') do
               if data['form_number'] == '10-10D'
