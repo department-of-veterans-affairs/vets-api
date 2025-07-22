@@ -187,7 +187,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       end
 
       context 'when provider IDs are missing' do
-        shared_examples 'logs missing provider ID error' do |facility_code, npi, expected_message|
+        shared_examples 'logs missing provider ID error' do |facility_code, npi, expected_missing_fields|
           let(:test_station_id) { '646' }
 
           before do
@@ -200,16 +200,6 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           end
 
           it 'logs the appropriate error message with station_id' do
-            expected_missing_fields = case expected_message
-                                      when 'referring provider ID is'
-                                        [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD]
-                                      when 'referral provider ID is'
-                                        [VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD]
-                                      when 'both referring and referral provider IDs are'
-                                        [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD,
-                                         VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD]
-                                      end
-
             expect(Rails.logger).to receive(:error)
               .with('Community Care Appointments: Referral detail view: Missing provider data', {
                       missing_data: expected_missing_fields,
@@ -221,15 +211,22 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         end
 
         context 'when both IDs are missing' do
-          include_examples 'logs missing provider ID error', nil, '', 'both referring and referral provider IDs are'
+          include_examples 'logs missing provider ID error', nil, '', [
+            VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD,
+            VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD
+          ]
         end
 
         context 'when referring provider ID is missing' do
-          include_examples 'logs missing provider ID error', '', '1234567890', 'referring provider ID is'
+          include_examples 'logs missing provider ID error', '', '1234567890', [
+            VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD
+          ]
         end
 
         context 'when referral provider ID is missing' do
-          include_examples 'logs missing provider ID error', '552', nil, 'referral provider ID is'
+          include_examples 'logs missing provider ID error', '552', nil, [
+            VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD
+          ]
         end
 
         context 'when station_id is blank' do
