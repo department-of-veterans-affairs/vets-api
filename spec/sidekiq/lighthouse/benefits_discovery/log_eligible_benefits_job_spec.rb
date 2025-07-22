@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/benefits_discovery/service'
-require 'lighthouse/benefits_discovery/params'
 
 RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job do
   let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
@@ -24,12 +22,8 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
       'not_recommended' => []
     }
   end
-  let(:prepared_params) do
-    {
-      doesnot: 'matter'
-    }
-  end
-  let(:prepared_service_history) { { who: 'cares' } }
+  let(:prepared_params) { { doesnt: 'matter' } }
+  let(:prepared_service_history) { { stilldoesnt: 'matter' } }
 
   describe '#perform' do
     before do
@@ -126,6 +120,13 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
         allow(service_instance).to receive(:get_eligible_benefits).with(user.uuid).and_return(reordered_benefits)
         expect(StatsD).to receive(:increment).with(expected_logged_error)
         described_class.new.perform(user.uuid, prepared_service_history)
+      end
+    end
+
+    context 'when user cannot be found' do
+      it 'raises error' do
+        expect { described_class.new.perform('abc123', prepared_service_history) }.to \
+          raise_error(Common::Exceptions::RecordNotFound, 'Record not found')
       end
     end
 

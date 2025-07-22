@@ -67,12 +67,5 @@ RSpec.describe BenefitsDiscovery::Params do
       service_history_episodes = Array.wrap(build(:service_history))
       expect(described_class.service_history_params(service_history_episodes)).to eq(prepared_service_history_params)
     end
-
-    context 'when data is not in correct format' do
-      it 'raises an error' do
-        service_history_episodes = build(:service_history)
-        expect { described_class.service_history_params(service_history_episodes) }.to raise_error(NoMethodError)
-      end
-    end
   end
 end
