@@ -177,12 +177,7 @@ module PdfFill
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
-      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
-      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
-      # implemented in lib/pdf_fill/extras_generator_v2.rb.
-      if fill_options.fetch(:extras_redesign, false) && submit_date.present?
-        file_path = stamp_form(file_path, submit_date)
-      end
+      file_path = optionally_stamp_form(file_path, fill_options, submit_date)
       output = combine_extras(file_path, hash_converter.extras_generator)
       Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
@@ -227,7 +222,12 @@ module PdfFill
       HashConverter.new(form_class.date_strftime, extras_generator)
     end
 
-    def stamp_form(file_path, submit_date)
+    def optionally_stamp_form(file_path, fill_options, submit_date)
+      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
+      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
+      # implemented in lib/pdf_fill/extras_generator_v2.rb.
+      return file_path if fill_options[:omit_esign_stamp] || !(fill_options[:extras_redesign] && submit_date.present?)
+
       original_path = file_path
       sig = "Signed electronically and submitted via VA.gov at #{format_timestamp(submit_date)}. " \
             'Signee signed with an identity-verified account.'
