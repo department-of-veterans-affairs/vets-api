@@ -22,7 +22,7 @@ module Mobile
         %i[lighthouse claims],
         %i[lighthouse_direct_deposit direct_deposit_benefits],
         %i[lighthouse disability_rating],
-        %i[evss letters_and_documents],
+        %i[lighthouse letters_and_documents],
         %i[lighthouse immunizations],
         %i[mhv_platform mhv_sm],
         %i[mhv_platform mhv_meds],
