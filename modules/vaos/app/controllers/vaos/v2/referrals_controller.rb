@@ -114,15 +114,16 @@ module VAOS
         # Sanitize for metrics
         referring_facility_code = sanitize_log_value(original_facility_code)
         provider_npi = sanitize_log_value(original_provider_npi)
+        station_id = sanitize_log_value(response&.station_id)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
                            'service:community_care_appointments',
                            "referring_facility_code:#{referring_facility_code}",
                            "referral_provider_npi:#{provider_npi}",
-                           "station_id:#{response&.station_id}"
+                           "station_id:#{station_id}"
                          ])
 
-        log_missing_provider_ids(original_facility_code, original_provider_npi, response&.station_id)
+        log_missing_provider_ids(original_facility_code, original_provider_npi, station_id)
       end
 
       # Logs specific errors when provider IDs are missing
@@ -138,7 +139,7 @@ module VAOS
 
         Rails.logger.error('Community Care Appointments: Referral detail view: Missing provider data', {
                              missing_data: missing_fields,
-                             station_id: sanitize_log_value(station_id),
+                             station_id: station_id,
                              user_uuid: current_user.uuid
                            })
       end
