@@ -124,7 +124,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'notifies slack' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
+        expect_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
         Veteran::VSOReloader.new.perform
       end
     end
@@ -135,8 +136,9 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'notifies slack' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-        subject.new.perform
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
+        expect_any_instance_of(Veteran::VSOReloader).to receive(:log_to_slack)
+        Veteran::VSOReloader.new.perform
       end
     end
 
@@ -206,9 +208,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
       it 'blocks updates when decrease exceeds threshold' do
         # 75 attorneys is a 25% decrease, which exceeds 20% threshold
-        expect(SlackNotify::Client).to receive(:new).with(
-          hash_including(channel: '#benefits-representation-management-notifications')
-        ).and_return(double(notify: true))
         expect(reloader.send(:valid_count?, :attorneys, 75)).to be false
       end
 
@@ -261,23 +260,17 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     describe '#notify_threshold_exceeded' do
       before { reloader.send(:ensure_initial_counts) }
 
-      it 'sends notification to the correct Slack channel' do
-        expect(SlackNotify::Client).to receive(:new).with(
-          hash_including(
-            webhook_url: Settings.claims_api.slack.webhook_url,
-            channel: '#benefits-representation-management-notifications',
-            username: 'VSOReloader'
-          )
-        ).and_return(double(notify: true))
+      it 'sends a notification to Slack' do
+        allow(reloader).to receive(:log_to_slack_threshold_channel)
+
+        expect(reloader).to receive(:log_to_slack_threshold_channel).with(
+          include('Attorneys count decreased beyond threshold!')
+        )
 
         reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.20)
       end
 
       it 'logs to Sentry' do
-        expect(SlackNotify::Client).to receive(:new).with(
-          hash_including(channel: '#benefits-representation-management-notifications')
-        ).and_return(double(notify: true))
-
         expect(reloader).to receive(:log_message_to_sentry).with(
           'VSO Reloader threshold exceeded for attorneys',
           :warn,
