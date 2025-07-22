@@ -47,6 +47,10 @@ module EducationForm::Forms
     end
 
     def applicant_ssn
+      @applicant.ssn
+    end
+
+    def applicant_va_file_number
       @applicant.vaFileNumber
     end
 
