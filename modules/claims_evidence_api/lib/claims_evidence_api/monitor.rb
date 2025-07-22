@@ -12,10 +12,18 @@ module ClaimsEvidenceApi
     end
 
     class Service
+      def initialize(service_route)
+        @service_route = service_route
+      end
+
+      def track_api_request(method, path, response, call_location: nil)
+        metric = 'module.claims_evidence_api.request'
+        #track_request(error_level, message, metric, call_location: nil, **context)
+      end
     end
 
     class Uploader
-      def track_upload_begun
+      def track_upload_begin
       end
 
       def track_upload_attempt

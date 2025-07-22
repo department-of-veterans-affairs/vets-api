@@ -2,6 +2,7 @@
 
 require 'claims_evidence_api/configuration'
 require 'claims_evidence_api/exceptions/service'
+require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/validation'
 require 'claims_evidence_api/x_folder_uri'
 require 'common/client/base'
@@ -27,9 +28,15 @@ module ClaimsEvidenceApi
         super
       end
 
-      def perform(*args, **kwargs)
-
-        super(*args, **kwargs)
+      # @see Common::Client::Base#perform
+      def perform(method, path, params, headers = nil, options = nil)
+        call_location = caller_locations.first
+        response = super(method, path, params, headers, options)
+        monitor.track_api_request(method, path, response, call_location:)
+        response
+      rescue Common::Client::Errors::ClientError => e
+        monitor.track_api_request(method, path, e, call_location:)
+        raise e
       end
 
       # directly assign a folder identifier
@@ -47,8 +54,8 @@ module ClaimsEvidenceApi
 
       private
 
-      def statsd
-        self.class.to_s.downcase.gsub(/:+/, '_')
+      def monitor
+        @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
       end
     end
 

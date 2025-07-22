@@ -51,7 +51,7 @@ module ClaimsEvidenceApi
     #
     # @return [SavedClaim] the claim referenced for evidence
     def upload_evidence_pdf(saved_claim_id, pa_id = nil, pdf_path = nil, stamp_set = nil)
-      monitor.track_upload_begun
+      monitor.track_upload_begin
 
       claim = SavedClaim.find(saved_claim_id)
       pa = PersistentAttachment.find_by(id: pa_id, saved_claim_id:) if pa_id
@@ -115,22 +115,15 @@ module ClaimsEvidenceApi
       attempt.save
 
       @response = @service.upload(pdf_path, provider_data:)
+    rescue => e
+      attempt.status = 'failure'
+      attempt.error_message = e.body || e.message
+      attempt.save
     end
 
     # update the tracking records with the result of the attempt
     # @raise [ClaimsEvidenceApi::Exceptions::VefsError] if upload is not successful
     def update_tracking
-      unless response.success?
-        attempt.status = 'failure'
-        attempt.error_message = response.body
-        attempt.save
-
-        error_key = response.body.dig('messages', 0, 'key') || response.body['code']
-        error_msg = response.body.dig('messages', 0, 'text') || response.body['message']
-        message = (error_key && error_msg) ? "#{error_key} - #{error_msg}" : response.body
-        raise ClaimsEvidenceApi::Exceptions::VefsError, message
-      end
-
       submission.file_uuid = response.body['uuid']
       submission.save
 
