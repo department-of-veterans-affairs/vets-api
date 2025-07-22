@@ -211,6 +211,14 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(reloader.send(:valid_count?, :attorneys, 75)).to be false
       end
 
+      it 'notifies slack when the decrease exceeds threshold' do
+        allow(reloader).to receive(:notify_threshold_exceeded)
+        expect(reloader).to receive(:notify_threshold_exceeded).with(
+          :attorneys, 100, 75, anything, anything
+        )
+        reloader.send(:valid_count?, :attorneys, 75)
+      end
+
       it 'allows updates when decrease is within threshold' do
         # 85 attorneys is a 15% decrease, which is within 20% threshold
         expect(reloader.send(:valid_count?, :attorneys, 85)).to be true
