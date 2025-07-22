@@ -19,6 +19,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     token = 'abcdefghijklmnop'
     allow_any_instance_of(BGS::People::Response).to receive(:file_number).and_return('12345')
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
+    allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_document_upload,
                                               instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,

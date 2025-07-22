@@ -47,21 +47,21 @@ RSpec.describe ClaimsEvidenceApi::XFolderUri do
       expect(folder_identifier).not_to receive(:validate_identifier_type)
 
       args = %w[INVALID FILENUMBER 987267855]
-      expect { folder_identifier.generate(*args) }.to raise_error ArgumentError
+      expect { folder_identifier.generate(*args) }.to raise_error folder_identifier::InvalidFolderType
     end
 
     it 'errors on invalid identifier_type' do
       expect(folder_identifier).not_to receive(:validate_id)
 
       args = %w[VETERAN INVALID 987267855]
-      expect { folder_identifier.generate(*args) }.to raise_error ArgumentError
+      expect { folder_identifier.generate(*args) }.to raise_error folder_identifier::InvalidIdentifierType
     end
 
     it 'errors on invalid folder_type and identifier_type combination' do
       expect(folder_identifier).not_to receive(:validate_id)
 
       args = %w[PERSON SSN 987267855]
-      expect { folder_identifier.generate(*args) }.to raise_error ArgumentError
+      expect { folder_identifier.generate(*args) }.to raise_error folder_identifier::InvalidIdentifierType
     end
   end
 end
