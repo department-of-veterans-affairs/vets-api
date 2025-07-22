@@ -123,26 +123,6 @@
         "postalCode": "20101-0101"
       },
       "primaryPhone": "1239131234"
-    },
-    {
-      "fullName": {
-        "first": "FirstNoKB",
-        "middle": "MiddleNoKB",
-        "last": "LastNoKB"
-      },
-      "contactType": "Other Next of Kin",
-      "relationship": "DAUGHTER",
-      "address": {
-        "street": "834 NE 36th St",
-        "street2": "",
-        "street3": "",
-        "city": "Ontario",
-        "country": "CAN",
-        "state": "ON",
-        "provinceCode": "ProvinceName",
-        "postalCode": "21534"
-      },
-      "primaryPhone": "1239183546"
     }
   ],
   "emergencyContacts": [
@@ -164,25 +144,6 @@
         "postalCode": "20101-0101"
       },
       "primaryPhone": "7452743546"
-    },
-    {
-      "fullName": {
-        "first": "FirstECB",
-        "middle": "MiddleECB",
-        "last": "LastECB"
-      },
-      "contactType": "Other emergency contact",
-      "relationship": "UNRELATED FRIEND",
-      "address": {
-        "street": "823 SE 2nd St",
-        "street2": "",
-        "street3": "",
-        "city": "Blacksburg",
-        "country": "USA",
-        "state": "VA",
-        "postalCode": "24060"
-      },
-      "primaryPhone": "9564738265"
     }
   ],
   "veteranGrossIncome": 123.33,
