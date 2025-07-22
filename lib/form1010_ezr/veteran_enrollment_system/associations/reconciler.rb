@@ -23,7 +23,7 @@ module Form1010Ezr
         # @param [Array] ves_associations The associations data from VES
         # @param [Array] form_associations The associations data in the submitted form
         def initialize(ves_associations, form_associations)
-          # As of 07/18/2025, we are not sending OTHER_NEXT_OF_KIN or OTHER_EMERGENCY_CONTACT data to the Associations API
+          # We are not sending OTHER_NEXT_OF_KIN or OTHER_EMERGENCY_CONTACT data to the Associations API
           @ves_associations = ves_associations.reject do |obj|
             %w[OTHER_NEXT_OF_KIN OTHER_EMERGENCY_CONTACT].include?(obj['role'])
           end

@@ -37,7 +37,7 @@ module HCA
         'Divorced'
       ].freeze
 
-      # As of 07/18/2025, we are not sending OTHER_NEXT_OF_KIN or OTHER_EMERGENCY_CONTACT data for prefill
+      # We are not sending OTHER_NEXT_OF_KIN or OTHER_EMERGENCY_CONTACT data for prefill
       CONTACT_TYPES = [
         'Primary Next of Kin',
         'Emergency Contact'
