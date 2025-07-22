@@ -7,8 +7,8 @@ module VAOS
     class ReferralsController < VAOS::BaseController
       REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
       REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
-      REFERRING_PROVIDER_ID_FIELD = 'referring_provider_id'
-      REFERRAL_PROVIDER_ID_FIELD = 'referral_provider_id'
+      REFERRING_FACILITY_CODE_FIELD = 'referring_facility_code'
+      REFERRAL_PROVIDER_NPI_FIELD = 'referral_provider_npi'
 
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
@@ -108,30 +108,31 @@ module VAOS
       # @param response [Ccra::ReferralDetail] the referral response object
       def log_referral_provider_metrics(response)
         # Check original values before sanitization for logging
-        original_referring_id = response&.referring_facility_code
-        original_referral_id = response&.provider_npi
+        original_facility_code = response&.referring_facility_code
+        original_provider_npi = response&.provider_npi
 
         # Sanitize for metrics
-        referring_provider_id = sanitize_log_value(original_referring_id)
-        referral_provider_id = sanitize_log_value(original_referral_id)
+        referring_facility_code = sanitize_log_value(original_facility_code)
+        provider_npi = sanitize_log_value(original_provider_npi)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
                            'service:community_care_appointments',
-                           "referring_provider_id:#{referring_provider_id}",
-                           "referral_provider_id:#{referral_provider_id}"
+                           "referring_facility_code:#{referring_facility_code}",
+                           "referral_provider_npi:#{provider_npi}",
+                           "station_id:#{response&.station_id}"
                          ])
 
-        log_missing_provider_ids(original_referring_id, original_referral_id, response&.station_id)
+        log_missing_provider_ids(original_facility_code, original_provider_npi, response&.station_id)
       end
 
       # Logs specific errors when provider IDs are missing
-      # @param referring_provider_id [String] the original referring provider ID
-      # @param referral_provider_id [String] the original referral provider ID
+      # @param referring_facility_code [String] the original referring facility code
+      # @param provider_npi [String] the original provider NPI
       # @param station_id [String] the station ID of the referral
-      def log_missing_provider_ids(referring_provider_id, referral_provider_id, station_id)
+      def log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
         missing_fields = []
-        missing_fields << REFERRING_PROVIDER_ID_FIELD if referring_provider_id.blank?
-        missing_fields << REFERRAL_PROVIDER_ID_FIELD if referral_provider_id.blank?
+        missing_fields << REFERRING_FACILITY_CODE_FIELD if referring_facility_code.blank?
+        missing_fields << REFERRAL_PROVIDER_NPI_FIELD if provider_npi.blank?
 
         return if missing_fields.empty?
 

@@ -175,8 +175,9 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           .with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC,
                 tags: [
                   'service:community_care_appointments',
-                  'referring_provider_id:552',
-                  'referral_provider_id:1234567890'
+                  'referring_facility_code:552',
+                  'referral_provider_npi:1234567890',
+                  'station_id:528A6'
                 ])
           .once
 
@@ -199,14 +200,14 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           end
 
           it 'logs the appropriate error message with station_id' do
-            expected_missing_fields = case expected_message
+                        expected_missing_fields = case expected_message
                                       when 'referring provider ID is'
-                                        [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD]
+                                        [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD]
                                       when 'referral provider ID is'
-                                        [VAOS::V2::ReferralsController::REFERRAL_PROVIDER_ID_FIELD]
+                                        [VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD]
                                       when 'both referring and referral provider IDs are'
-                                        [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD,
-                                         VAOS::V2::ReferralsController::REFERRAL_PROVIDER_ID_FIELD]
+                                        [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD,
+                                         VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD]
                                       end
 
             expect(Rails.logger).to receive(:error)
@@ -241,13 +242,13 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
               .with(referral_number, icn).and_return(test_referral)
           end
 
-          it 'logs with sanitized station_id as no_value' do
+                    it 'logs with sanitized station_id as no_value' do
             expect(Rails.logger).to receive(:error)
               .with('Community Care Appointments: Referral detail view: Missing provider data', {
-                      missing_data: [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD],
-                      station_id: 'no_value',
-                      user_uuid: user.uuid
-                    })
+                missing_data: [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD],
+                station_id: 'no_value',
+                user_uuid: user.uuid
+              })
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
         end
