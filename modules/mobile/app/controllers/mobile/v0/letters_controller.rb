@@ -41,7 +41,7 @@ module Mobile
           Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name])
         end
 
-        render json: Mobile::V0::LettersSerializer.new(@current_user, response)
+        render json: Mobile::V0::LettersSerializer.new(@current_user, response.select(&:displayable?).sort_by(&:name))
       end
 
       # returns options and info needed to create user form required for benefit letter download
