@@ -210,11 +210,11 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
                                       end
 
             expect(Rails.logger).to receive(:error)
-              .with("Community Care Appointments: Referral detail view: Missing provider data", {
-                missing_data: expected_missing_fields,
-                station_id: test_station_id,
-                user_uuid: user.uuid
-              })
+              .with('Community Care Appointments: Referral detail view: Missing provider data', {
+                      missing_data: expected_missing_fields,
+                      station_id: test_station_id,
+                      user_uuid: user.uuid
+                    })
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
         end
@@ -244,10 +244,10 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           it 'logs with sanitized station_id as no_value' do
             expect(Rails.logger).to receive(:error)
               .with('Community Care Appointments: Referral detail view: Missing provider data', {
-                missing_data: [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD],
-                station_id: 'no_value',
-                user_uuid: user.uuid
-              })
+                      missing_data: [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD],
+                      station_id: 'no_value',
+                      user_uuid: user.uuid
+                    })
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
         end

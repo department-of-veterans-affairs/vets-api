@@ -138,7 +138,7 @@ module VAOS
         Rails.logger.error('Community Care Appointments: Referral detail view: Missing provider data', {
                              missing_data: missing_fields,
                              station_id: sanitize_log_value(station_id),
-                             user_uuid: current_user.uuid,
+                             user_uuid: current_user.uuid
                            })
       end
     end
