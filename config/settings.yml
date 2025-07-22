@@ -212,7 +212,10 @@ claims_api:
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
 claims_evidence_api:
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
+  breakers_error_threshold: 80
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
+  mock: false
+  ssl: true
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -401,13 +404,10 @@ evss:
   mock_letters: <%= ENV['evss__mock_letters'] %>
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
-  mock_ppiu: <%= ENV['evss__mock_ppiu'] %>
   mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
   pciu:
     timeout: 30
   pciu_address:
-    timeout: 30
-  ppiu:
     timeout: 30
   prefill: true
   root_cert_path: <%= ENV['evss__root_cert_path'] %>
@@ -906,6 +906,7 @@ mhv:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
     app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
     host: <%= ENV['mhv__uhd__host'] %>
+    labs_logging_date_range_days: <%= ENV['mhv__uhd__labs_logging_date_range_days'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
@@ -1308,12 +1309,27 @@ vanotify:
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
     va_gov: <%= ENV['vanotify__service_callback_tokens__va_gov'] %>
   services:
+    21_0538: &vanotify_services_dependents_verification
+      api_key: <%= ENV['vanotify__services__dependents__api_key'] %>
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: <%= ENV['vanotify__services__21_0538__email__error__template_id'] %>
+        received:
+          flipper_id: dv_email_notification
+          template_id: <%= ENV['vanotify__services__21_0538__email__received__template_id'] %>
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: <%= ENV['vanotify__services__21_0538__email__submitted__template_id'] %>
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: <%= ENV['vanotify__services__21p_0969__email__error__template_id'] %>
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__persistent_attachment_error__template_id'] %>
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: <%= ENV['vanotify__services__21p_0969__email__received__template_id'] %>
@@ -1329,6 +1345,9 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__error__template_id'] %>
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: <%= ENV['vanotify__services__21p_527ez__email__persistent_attachment_error__template_id'] %>
         received:
           flipper_id: pension_received_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__received__template_id'] %>
@@ -1344,6 +1363,9 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: <%= ENV['vanotify__services__21p_530ez__email__error__template_id'] %>
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: <%= ENV['vanotify__services__21p_530ez__email__persistent_attachment_error__template_id'] %>
         received:
           flipper_id: burial_received_email_notification
           template_id: <%= ENV['vanotify__services__21p_530ez__email__received__template_id'] %>
@@ -1398,6 +1420,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__dependents__email__submitted686__template_id'] %>
         submitted686c674:
           template_id: <%= ENV['vanotify__services__dependents__email__submitted686c674__template_id'] %>
+    dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
@@ -1650,6 +1673,8 @@ veteran_enrollment_system:
     api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
   ee_summary:
     api_key: ~
+  form1095b:
+    api_key: <%= ENV['veteran_enrollment_system__form1095b__api_key'] %>
   host: <%= ENV['veteran_enrollment_system__host'] %>
   open_timeout: 10
   port: <%= ENV['veteran_enrollment_system__port'] %>

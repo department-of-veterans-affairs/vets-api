@@ -20,11 +20,22 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#merge_fields' do
-    it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
-      .merge_fields.to_json)).to eq(
-        JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
-      )
+    context 'form data with a domestic phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
+        )
+      end
+    end
+
+    context 'form data with an international phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink_intl_phone'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields_intl_phone').to_json)
+        )
+      end
     end
   end
 
@@ -170,13 +181,7 @@ describe PdfFill::Forms::Va2141422024 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                              'phone_last_four_numbers' => '1234' },
-          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' }
+                              'phone_last_four_numbers' => '1234' }
         )
       end
     end
@@ -510,7 +515,7 @@ describe PdfFill::Forms::Va2141422024 do
 
           Conditions Treated: Hypertension
 
-          Treatment Date Ranges: from: 2010-01-01 to: 2011-01-01
+          Treatment Date Ranges: from: 01-01-2010 to: 01-01-2011
         TEXT
 
         expect(overflow_text1).to include('Provider or Facility Name:')
@@ -518,7 +523,7 @@ describe PdfFill::Forms::Va2141422024 do
         expect(overflow_text1).to include('Address:')
         expect(overflow_text1).to include('Conditions Treated: Hypertension')
         expect(overflow_text1).to include('Treatment Date Ranges:')
-        expect(overflow_text1).to include('from: 2010-01-01 to: 2011-01-01')
+        expect(overflow_text1).to include('from: 01-01-2010 to: 01-01-2011')
 
         # Provider 2: Long address should overflow
         expect(form_data_result['provider2']['completeProviderInfo']).to be_present
@@ -534,7 +539,7 @@ describe PdfFill::Forms::Va2141422024 do
 
           Conditions Treated: Diabetes Type 2
 
-          Treatment Date Ranges: from: 2011-01-01 to: 2012-01-01
+          Treatment Date Ranges: from: 01-01-2011 to: 01-01-2012
         TEXT
 
         expect(overflow_text2).to include('Conditions Treated:')
@@ -650,7 +655,7 @@ describe PdfFill::Forms::Va2141422024 do
     end
   end
 
-  describe '#combine_date_ranges' do
+  describe '#combine_date_ranges_for_overflow' do
     it 'combines multiple date ranges correctly' do
       date_ranges = [
         {
@@ -662,8 +667,8 @@ describe PdfFill::Forms::Va2141422024 do
           'to' => '1987-1-1'
         }
       ]
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
-        "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq(
+        "from: 01-01-1980 to: 01-01-1985\nfrom: 01-01-1986 to: 01-01-1987"
       )
     end
 
@@ -674,14 +679,19 @@ describe PdfFill::Forms::Va2141422024 do
           'to' => '1985-1-1'
         }
       ]
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
-        'from: 1980-1-1 to: 1985-1-1'
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq(
+        'from: 01-01-1980 to: 01-01-1985'
       )
     end
 
     it 'handles no date ranges' do
       date_ranges = []
-      expect(new_form_class.combine_date_ranges(date_ranges)).to eq('')
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq('')
+    end
+
+    it 'handles nil date ranges' do
+      date_ranges = nil
+      expect(new_form_class.combine_date_ranges_for_overflow(date_ranges)).to eq('')
     end
   end
 end

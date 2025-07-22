@@ -33,7 +33,33 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s
-      }
+      }.merge(add_resubmission_properties)
+    end
+
+    ##
+    # Extracts resubmission-related properties from the submission data
+    # and formats claim/PDI number fields according to the submission type.
+    # @return [Hash] A hash containing all resubmission properties
+    def add_resubmission_properties
+      # Extract relevant fields for resubmission
+      @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type',
+                  'provider_name', 'beginning_date_of_service',
+                  'end_date_of_service', 'medication_name',
+                  'prescription_fill_date')
+           .merge(claim_number_fields)
+    end
+
+    ##
+    # Informs pdf stamper that we want to stamp some arbitrary values on a blank page
+    # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
+    # @return [Hash] hash of metadata we want to stamp and an attachment ID to associate with the stamped page
+    def stamp_metadata
+      # If it's a resubmission, we want to stamp resubmission-specific values on a blank
+      # page in the PDF
+      if @data['claim_status'] == 'resubmission'
+        { metadata: add_resubmission_properties,
+          attachment_id: @data['pdi_or_claim_number'] }
+      end
     end
 
     def desired_stamps
@@ -78,6 +104,23 @@ module IvcChampva
 
     def respond_to_missing?(_method_name, _include_private = false)
       true
+    end
+
+    private
+
+    ##
+    # Associates the resubmitted submission's identifying_number with the appropriate
+    # metadata key to be processed by Pega.
+    # @return [Hash] hash with the appropriate metadata key populated (empty hash
+    # if no appropriate number present)
+    def claim_number_fields
+      pdi_or_claim = @data['pdi_or_claim_number']
+      identifying_number = @data['identifying_number']
+
+      {
+        'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
+        'claim_number' => pdi_or_claim == 'Claim control number' ? identifying_number : ''
+      }.compact_blank
     end
   end
 end

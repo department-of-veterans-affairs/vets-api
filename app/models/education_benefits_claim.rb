@@ -114,7 +114,7 @@ class EducationBenefitsClaim < ApplicationRecord
       benefits = parsed_form.slice(*APPLICATION_TYPES)
     when '1990n'
       return benefits
-    when '0994'
+    when '0994', '10297'
       benefits['vettec'] = true
     when '1990s'
       benefits['vrrap'] = true

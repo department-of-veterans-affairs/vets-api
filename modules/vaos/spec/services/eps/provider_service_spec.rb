@@ -191,7 +191,8 @@ describe Eps::ProviderService do
       {
         appointmentTypeId: 'type123',
         startOnOrAfter: '2024-01-01T00:00:00Z',
-        startBefore: '2024-01-02T00:00:00Z'
+        startBefore: '2024-01-02T00:00:00Z',
+        appointmentId: '123'
       }
     end
 
@@ -256,6 +257,12 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, /Missing required parameters: startBefore/)
       end
 
+      it 'raises ArgumentError when appointmentId is missing' do
+        expect do
+          service.get_provider_slots(provider_id, required_params.except(:appointmentId))
+        end.to raise_error(ArgumentError, /Missing required parameters: appointmentId/)
+      end
+
       it 'raises ArgumentError when multiple required parameters are missing' do
         expect do
           service.get_provider_slots(provider_id, required_params.except(:startOnOrAfter, :startBefore))
@@ -269,7 +276,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('53mL4LAZ', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result).to be_a(OpenStruct)
@@ -284,7 +292,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('53mL4LAZ', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result.to_h).not_to have_key(:next_token)
@@ -299,7 +308,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('9mN718pH', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result.slots).to eq([])
@@ -326,7 +336,8 @@ describe Eps::ProviderService do
               service.get_provider_slots('TIMEOUT_TEST', {
                                            appointmentTypeId: 'ov',
                                            startOnOrAfter: '2025-01-01T00:00:00Z',
-                                           startBefore: '2025-01-03T00:00:00Z'
+                                           startBefore: '2025-01-03T00:00:00Z',
+                                           appointmentId: '123'
                                          })
             end.to raise_error(Common::Exceptions::BackendServiceException) { |error|
               expect(error.key).to eq('PROVIDER_SLOTS_TIMEOUT')
@@ -365,7 +376,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('TEST123', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result).to be_a(OpenStruct)
@@ -374,7 +386,7 @@ describe Eps::ProviderService do
           expect(result.slots.map { |slot| slot[:id] }).to include(
             'page1-slot1|2025-01-02T09:00:00Z',
             'page1-slot2|2025-01-02T10:00:00Z',
-            'page2-slot1|2025-01-02T14:00:00Z'
+            'page3-slot1|2025-01-02T14:00:00Z'
           )
           expect(result.to_h).not_to have_key(:next_token)
         end
@@ -392,6 +404,56 @@ describe Eps::ProviderService do
         state: 'FL',
         zip: '32901'
       }
+    end
+
+    context 'when required parameters are missing or blank' do
+      it 'raises ArgumentError when npi is nil' do
+        expect do
+          service.search_provider_services(npi: nil, specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when npi is empty string' do
+        expect do
+          service.search_provider_services(npi: '', specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when npi is blank' do
+        expect do
+          service.search_provider_services(npi: '   ', specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is nil' do
+        expect do
+          service.search_provider_services(npi:, specialty: nil, address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is empty string' do
+        expect do
+          service.search_provider_services(npi:, specialty: '', address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is blank' do
+        expect do
+          service.search_provider_services(npi:, specialty: '   ', address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when address is nil' do
+        expect do
+          service.search_provider_services(npi:, specialty:, address: nil)
+        end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when address is empty hash' do
+        expect do
+          service.search_provider_services(npi:, specialty:, address: {})
+        end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
+      end
     end
 
     context 'when the request is successful' do
