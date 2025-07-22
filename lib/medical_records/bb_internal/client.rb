@@ -399,9 +399,7 @@ module BBInternal
     end
 
     def with_custom_base_path(custom_base_path)
-      if custom_base_path
-        BBInternal::Configuration.custom_base_path = custom_base_path
-      end
+      BBInternal::Configuration.custom_base_path = custom_base_path if custom_base_path
       yield
     end
 

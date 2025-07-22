@@ -65,6 +65,7 @@ module BB
     def post_generate(params)
       form = BB::GenerateReportRequestForm.new(self, params)
       raise Common::Exceptions::ValidationErrors, form unless form.valid?
+
       BB::Configuration.custom_base_path = APIGW_BASE_PATH
       perform(:post, 'v1/bluebutton/ess/generate', form.params, token_headers).body
     end

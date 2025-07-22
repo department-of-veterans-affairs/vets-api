@@ -5,7 +5,6 @@ require 'medical_records/client_session'
 require_relative '../../../../../lib/common/client/concerns/mhv_jwt_session_client'
 
 describe Common::Client::Concerns::MHVJwtSessionClient do
-
   let(:dummy_class) do
     Class.new do
       include Common::Client::Concerns::MHVJwtSessionClient
