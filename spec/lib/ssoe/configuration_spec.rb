@@ -23,19 +23,21 @@ RSpec.describe SSOe::Configuration do
   end
 
   describe '#base_path' do
-    context 'when environment is staging' do
-      before { allow(Settings).to receive(:vsp_environment).and_return('staging') }
+    {
+      'development' => 'https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService',
+      'staging' => 'https://sqa.services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService',
+      'production' => 'https://services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService'
+    }.each do |env, expected_url|
+      context "when environment is #{env}" do
+        let(:ssoe_get_traits_double) { instance_double(SSOeTraits, url: expected_url) }
 
-      it 'returns staging URL' do
-        expect(config.base_path).to eq('https://sqa.services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService')
-      end
-    end
+        before do
+          allow(IdentitySettings).to receive(:ssoe_get_traits).and_return(ssoe_get_traits_double)
+        end
 
-    context 'when environment is not staging or production' do
-      before { allow(Settings).to receive(:vsp_environment).and_return('development') }
-
-      it 'returns dev URL' do
-        expect(config.base_path).to eq('https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService')
+        it "returns the correct URL for #{env}" do
+          expect(config.base_path).to eq(expected_url)
+        end
       end
     end
   end

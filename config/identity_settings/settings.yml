@@ -96,6 +96,16 @@ ssoe_eauth_cookie:
   name: vagov_saml_request_localhost
   secure: false
 
+ssoe_get_traits:
+  client_cert_path: config/certs/vetsgov-localhost.crt
+  client_key_path: config/certs/vetsgov-localhost.key
+  mock: true
+  open_timeout: 15
+  pii_logging: false
+  processing_code: T
+  timeout: 30
+  url: https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService
+
 terms_of_use:
   current_version: v1
   enabled_clients: mhv, myvahealth, vaweb

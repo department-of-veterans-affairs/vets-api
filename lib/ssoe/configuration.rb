@@ -5,11 +5,11 @@ require 'common/client/configuration/base'
 module SSOe
   class Configuration < Common::Client::Configuration::SOAP
     def self.ssl_cert_path
-      IdentitySettings.mvi.client_cert_path
+      IdentitySettings.ssoe_get_traits.client_cert_path
     end
 
     def self.ssl_key_path
-      IdentitySettings.mvi.client_key_path
+      IdentitySettings.ssoe_get_traits.client_key_path
     end
 
     def ssl_options
@@ -22,11 +22,7 @@ module SSOe
     end
 
     def base_path
-      if Settings.vsp_environment == 'staging'
-        'https://sqa.services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService' # staging
-      else
-        'https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService' # dev
-      end
+      IdentitySettings.ssoe_get_traits.url
     end
 
     def service_name
