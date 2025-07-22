@@ -62,7 +62,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'UHD test code distribution',
+              message: 'UHD test code and name distribution',
               service: 'unified_health_data'
             )
           )
