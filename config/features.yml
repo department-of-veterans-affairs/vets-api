@@ -147,6 +147,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  caregiver_mulesoft_config_v2:
+    actor_type: user
+    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -274,6 +277,9 @@ features:
   champva_enable_claim_resubmit_question:
     actor_type: user
     description: Enables the claim resubmission screener question page on form 10-7959a
+  champva_enable_ocr_on_submit:
+    actor_type: user
+    description: Enables background OCR scanning and logging on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -366,10 +372,6 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
-  claims_api_poa_v1_pdf_gen_fixup_job:
-    actor_type: user
-    description: Enables POA pdfs to be regenerated & sent to VBMS without requesting a POA change
-    enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
@@ -381,6 +383,10 @@ features:
   lighthouse_claims_api_v2_enable_FES:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
+    enable_in_development: true
+  lighthouse_claims_api_run_header_hash_filler_job:
+    actor_type: user
+    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -1349,10 +1355,6 @@ features:
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
-    enable_in_development: true
-  mhv_medications_display_refill_content:
-    actor_type: user
-    description: Enables/disables refill-related content for Medications on VA.gov
     enable_in_development: true
   mhv_medications_display_documentation_content:
     actor_type: user
@@ -2334,3 +2336,6 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  accredited_representative_portal_full_poa_redaction:
+    actor_type: user
+    description: Enables redaction for the Accredited Representative Portal POA requests
