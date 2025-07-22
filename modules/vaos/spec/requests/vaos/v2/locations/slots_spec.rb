@@ -95,8 +95,11 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
         context 'using facility-only route' do
           it 'returns list of available slots for a clinic_id' do
             VCR.use_cassette('vaos/v2/systems/get_available_slots_vpg_200', match_requests_on: %i[method path query]) do
-              get '/vaos/v2/locations/983/slots?end=2021-12-30T23:59:59Z&start=2021-10-26T00:00:00Z&clinic_id=1081',
+              get '/vaos/v2/locations/983/slots?end=2021-12-30T23:59:59Z&start=2021-10-26T00:00:00Z' \
+                  '&clinic_id=1081' \
+                  '&provider_id=provider',
                   headers: inflection_header
+
               expect(response).to have_http_status(:ok)
               expect(response.body).to match_camelized_schema('vaos/v2/slots', { strict: false })
 
