@@ -118,17 +118,19 @@ module VAOS
                            "station_id:#{station_id}"
                          ])
 
-        log_missing_provider_ids(response&.referring_facility_code, response&.provider_npi, response&.station_id)
+        log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
       end
 
-      # Logs specific errors when provider IDs are missing
-      # @param referring_facility_code [String] the original referring facility code
-      # @param provider_npi [String] the original provider NPI
-      # @param station_id [String] the station ID of the referral
+      # Logs specific errors when provider IDs are missing using structured logging
+      #
+      # @param referring_facility_code [String] the sanitized referring facility code ('no_value' if originally blank)
+      # @param provider_npi [String] the sanitized provider NPI ('no_value' if originally blank)
+      # @param station_id [String, nil] the station ID of the referral (unsanitized)
+      # @return [void]
       def log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
         missing_fields = []
-        missing_fields << REFERRING_FACILITY_CODE_FIELD if referring_facility_code.blank?
-        missing_fields << REFERRAL_PROVIDER_NPI_FIELD if provider_npi.blank?
+        missing_fields << REFERRING_FACILITY_CODE_FIELD if referring_facility_code == 'no_value'
+        missing_fields << REFERRAL_PROVIDER_NPI_FIELD if provider_npi == 'no_value'
 
         return if missing_fields.empty?
 
