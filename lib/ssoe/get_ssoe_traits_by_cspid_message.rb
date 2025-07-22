@@ -15,20 +15,35 @@ module SSOe
                 :state,
                 :zipcode
 
-    def initialize(**params)
-      @credential_method = params[:credential_method]
-      @credential_id     = params[:credential_id]
-      @first_name        = params[:first_name]
-      @last_name         = params[:last_name]
-      @birth_date        = params[:birth_date]
-      @ssn               = params[:ssn]
-      @email             = params[:email]
-      @phone             = params[:phone]
-      @street1           = params[:street1]
-      @city              = params[:city]
-      @state             = params[:state]
-      @zipcode           = params[:zipcode]
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(
+      credential_method:,
+      credential_id:,
+      first_name:,
+      last_name:,
+      birth_date:,
+      ssn:,
+      email:,
+      phone:,
+      street1:,
+      city:,
+      state:,
+      zipcode:
+    )
+      @credential_method = credential_method
+      @credential_id     = credential_id
+      @first_name        = first_name
+      @last_name         = last_name
+      @birth_date        = birth_date
+      @ssn               = ssn
+      @email             = email
+      @phone             = phone
+      @street1           = street1
+      @city              = city
+      @state             = state
+      @zipcode           = zipcode
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def perform
       <<~XML

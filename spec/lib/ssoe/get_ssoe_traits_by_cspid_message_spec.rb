@@ -3,6 +3,7 @@
 # rubocop:disable RSpec/SpecFilePathFormat
 
 require 'rails_helper'
+require 'ssoe/get_ssoe_traits_by_cspid_message'
 
 RSpec.describe SSOe::GetSSOeTraitsByCspidMessage do
   let(:message) do
