@@ -84,6 +84,7 @@ describe VAOS::V2::SystemsService do
               subject.get_available_slots(location_id: '983',
                                           clinic_id: '1081',
                                           clinical_service: nil,
+                                          provider_id: nil,
                                           start_dt: '2021-10-01T00:00:00Z',
                                           end_dt: '2021-12-31T23:59:59Z')
             end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_502/)
@@ -97,6 +98,7 @@ describe VAOS::V2::SystemsService do
             available_slots = subject.get_available_slots(location_id: '983',
                                                           clinic_id: '1081',
                                                           clinical_service: nil,
+                                                          provider_id: nil,
                                                           start_dt: '2021-10-26T00:00:00Z',
                                                           end_dt: '2021-12-30T23:59:59Z')
             expect(available_slots.size).to eq(730)
@@ -105,43 +107,6 @@ describe VAOS::V2::SystemsService do
             expect(available_slots[400].end).to eq('2021-12-01T21:30:00Z')
           end
         end
-      end
-    end
-
-    context 'using VPG' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
-
-        # context 'when the upstream server returns status code 500' do
-        #   it 'raises a backend exception' do
-        #     VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method path query]) do
-        #       expect do
-        #         subject.get_available_slots(location_id: '983',
-        #                                     clinic_id: '1081',
-        #                                     clinical_service: nil,
-        #                                     start_dt: '2021-10-01T00:00:00Z',
-        #                                     end_dt: '2021-12-31T23:59:59Z')
-        #       end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_502/)
-        #     end
-        #   end
-        end
-
-        # context 'when the upstream server returns status code 200' do
-        #   it 'returns a list of available slots' do
-        #     VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method path query]) do
-        #       available_slots = subject.get_available_slots(location_id: '983',
-        #                                                     clinic_id: '1081',
-        #                                                     clinical_service: nil,
-        #                                                     start_dt: '2021-10-26T00:00:00Z',
-        #                                                     end_dt: '2021-12-30T23:59:59Z')
-        #       expect(available_slots.size).to eq(730)
-        #       expect(available_slots[400].id).to eq('3230323131323031323130303A323032313132303132313330')
-        #       expect(available_slots[400].start).to eq('2021-12-01T21:00:00Z')
-        #       expect(available_slots[400].end).to eq('2021-12-01T21:30:00Z')
-        #     end
-        #   end
-        # end
       end
     end
   end
