@@ -84,46 +84,28 @@ module PdfFill
               limit: 10,
               question_num: 7,
               question_suffix: 'B',
-              question_text: 'SUPPORTED STUDENTS',
-              transform: ->(value) { 
-                return value unless value.present?
-                return '--' if value.to_f == 0
-                format('%.2f', value)
-              }
+              question_text: 'SUPPORTED STUDENTS'
             },
             'nonSupported' => {
               key: 'numNonSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'C',
-              question_text: 'NON-SUPPORTED STUDENTS',
-              transform: ->(value) { 
-                return value unless value.present?
-                return '--' if value.to_f == 0
-                format('%.2f', value)
-              }
+              question_text: 'NON-SUPPORTED STUDENTS'
             },
             'totalFTE' => {
               key: 'enrolledFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'D',
-              question_text: 'TOTAL FTE',
-              transform: ->(value) { 
-                return '--' if value.to_f == 0
-                "#{value}%"
-              }
+              question_text: 'TOTAL FTE'
             },
             'supportedPercentageFTE' => {
               key: 'supportedFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'E',
-              question_text: 'SUPPORTED PERCENTAGE FTE',
-              transform: ->(value) { 
-                return 'N/A' if value.to_f == 0
-                "#{value}%"
-              }
+              question_text: 'SUPPORTED PERCENTAGE FTE'
             }
           },
           'programDateOfCalculation' => {
@@ -165,42 +147,47 @@ module PdfFill
       }.freeze
 
       def merge_fields(options = {})
-        # Deep copy to avoid modifying original data
         form_data = JSON.parse(JSON.generate(@form_data))
 
-        # Combine first and last name into fullName
-        if form_data['certifyingOfficial']
-          official = form_data['certifyingOfficial']
-          official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
+        combine_official_name(form_data)
+        process_programs(form_data)
+        handle_page_numbering(form_data, options)
+
+        form_data
+      end
+
+      private
+
+      def combine_official_name(form_data)
+        official = form_data['certifyingOfficial']
+        return unless official
+
+        official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
+      end
+
+      def process_programs(form_data)
+        return unless form_data['programs']
+
+        calculation_date = form_data.dig('institutionDetails', 'dateOfCalculations')
+
+        form_data['programs'].each do |program|
+          program['programDateOfCalculation'] = calculation_date if calculation_date
+          process_fte(program['fte']) if program['fte']
         end
+      end
 
-        # Process programs array - add programDateOfCalculation for each valid row
-        if form_data['programs'] && form_data['institutionDetails'] &&
-           form_data['institutionDetails']['dateOfCalculations']
-          calculation_date = form_data['institutionDetails']['dateOfCalculations']
+      def process_fte(fte)
+        fte['supported'] = format_zero_as(fte['supported'], '--')
+        fte['nonSupported'] = format_zero_as(fte['nonSupported'], '--')
+        fte['totalFTE'] = format_zero_as(fte['totalFTE'], '--')
+        fte['supportedPercentageFTE'] = format_zero_as(fte['supportedPercentageFTE'], 'N/A')
+      end
 
-          form_data['programs'].each do |program|
-            # Add programDateOfCalculation to each valid program entry
-            program['programDateOfCalculation'] = calculation_date
-
-            if program['fte'] && program['fte']['supportedPercentageFTE'].present?
-              # Check if the value is 0 and set to 'N/A', otherwise add percentage
-              if program['fte']['supportedPercentageFTE'].to_f == 0
-                program['fte']['supportedPercentageFTE'] = 'N/A'
-              else
-                program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
-              end
-            end
-          end
-        end
-
-        # Handle page numbering for continuation sheets
+      def handle_page_numbering(form_data, options)
         page_number = options[:page_number] || 1
         total_pages = options[:total_pages] || 1
         form_data['pageNumber'] = page_number.to_s
         form_data['totalPages'] = total_pages.to_s
-
-        form_data
       end
     end
   end

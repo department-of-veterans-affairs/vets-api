@@ -127,6 +127,18 @@ module PdfFill
         bool_attribute ? 'Yes' : 'No'
       end
 
+      def format_phone_number(phone_number)
+        phone_number.gsub(/(\d{3})(\d{3})(\d{4})/, '(\1) \2-\3')
+      end
+
+      def format_zero_as(value, replacement)
+        value.to_f.zero? ? replacement : value
+      end
+
+      def format_boolean_as_checkbox(bool)
+        bool ? 1 : 0
+      end
+
       # Further readability improvements require various refactoring and code
       # de-duplication across different forms.
       module PhoneNumberFormatting
