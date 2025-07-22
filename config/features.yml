@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_custom_login:
+    actor_type: cookie_id
+    description: Controls whether the ARP application uses its custom login page or the platform login.
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -147,6 +151,9 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  caregiver_mulesoft_config_v2:
+    actor_type: user
+    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -172,9 +179,6 @@ features:
   hca_enrollment_status_filter_get:
     actor_type: user
     description: Filters out query params from GET requests for the enrollment_status endpoint.
-  hca_facility_import_job_filter_facilities:
-    actor_type: user
-    description: Delete facilities that were previously imported but no longer exist in Lighthouse and filter on mobile.
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -212,10 +216,6 @@ features:
     actor_type: user
     description: Enables emergency contact experience for 10-10EZR applicants.
     enable_in_development: true
-  ezr_next_of_kin_enabled:
-    actor_type: user
-    description: Enables next of kin experience for 10-10EZR applicants.
-    enable_in_development: true
   ezr_use_va_notify_on_submission_failure:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
@@ -231,13 +231,6 @@ features:
   ezr_form_prefill_with_providers_and_dependents:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
-    enable_in_development: true
-  ezr_associations_api_enabled:
-    actor_type: user
-    description: Enables VES's Associations REST API
-  ezr_prefill_contacts:
-    actor_type: user
-    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
@@ -288,6 +281,9 @@ features:
   champva_enable_claim_resubmit_question:
     actor_type: user
     description: Enables the claim resubmission screener question page on form 10-7959a
+  champva_enable_ocr_on_submit:
+    actor_type: user
+    description: Enables background OCR scanning and logging on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -380,10 +376,6 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
-  claims_api_poa_v1_pdf_gen_fixup_job:
-    actor_type: user
-    description: Enables POA pdfs to be regenerated & sent to VBMS without requesting a POA change
-    enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
@@ -395,6 +387,10 @@ features:
   lighthouse_claims_api_v2_enable_FES:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
+    enable_in_development: true
+  lighthouse_claims_api_run_header_hash_filler_job:
+    actor_type: user
+    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -700,6 +696,10 @@ features:
   disability_compensation_temp_toxic_exposure_optional_dates_fix:
     actor_type: user
     description: enables removing malformed optional dates from the Toxic Exposure node of a Form526Submission at SavedClaim creation.
+  disability_compensation_toxic_exposure_destruction_modal:
+    actor_type: user
+    description: enables confirmation modal when removing toxic exposure data from Form 526
+    enable_in_development: true
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -1360,10 +1360,6 @@ features:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
     enable_in_development: true
-  mhv_medications_display_refill_content:
-    actor_type: user
-    description: Enables/disables refill-related content for Medications on VA.gov
-    enable_in_development: true
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
@@ -1892,10 +1888,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_online_scheduling_fe_source_of_truth_telehealth:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
@@ -2348,3 +2340,6 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  accredited_representative_portal_full_poa_redaction:
+    actor_type: user
+    description: Enables redaction for the Accredited Representative Portal POA requests

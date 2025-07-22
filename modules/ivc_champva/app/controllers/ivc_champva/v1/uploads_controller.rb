@@ -3,6 +3,8 @@
 require 'datadog'
 require 'ves_api/client'
 
+# rubocop:disable Metrics/ClassLength
+# Note: Disabling this rule is temporary, refactoring of this class is planned
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
@@ -72,7 +74,8 @@ module IvcChampva
           # more than 2 healthInsurance policies
           ohi_forms = generate_ohi_form(app, parsed_form_data)
           ohi_forms.each do |f|
-            ohi_supporting_doc = create_ohi_attachment(f)
+            ohi_path = fill_ohi_and_return_path(f)
+            ohi_supporting_doc = create_custom_attachment(f, ohi_path, 'VA form 10-7959c')
             add_supporting_doc(parsed_form_data, ohi_supporting_doc)
           end
         end
@@ -238,6 +241,9 @@ module IvcChampva
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
+
+          launch_background_job(attachment, params[:form_id].to_s)
+
           render json: PersistentAttachmentSerializer.new(attachment)
         else
           raise Common::Exceptions::UnprocessableEntity.new(
@@ -245,6 +251,55 @@ module IvcChampva
             source: 'IvcChampva::V1::UploadsController'
           )
         end
+      end
+
+      ##
+      # Launches background jobs for OCR and LLM processing if enabled
+      # @param [PersistentAttachments::MilitaryRecords] attachment Persistent attachment object for the uploaded file
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      def launch_background_job(attachment, form_id)
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) # ||
+          # Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+
+          # create a temp file from the persistent attachment object
+          tmpfile = tempfile_from_attachment(attachment, form_id)
+
+          if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user)
+            # queue Tesseract OCR job for each file
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, nil, tmpfile.path, attachment.guid)
+            Rails.logger.info(
+              "Tesseract OCR job queued for form_id: #{form_id}, uuid: unknown, attachment_id: #{attachment.guid}"
+            )
+          end
+
+          # if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+          # queue LLM job for tmpfile
+          # end
+        end
+      rescue Errno::ENOENT
+        # Do not log the error details because they may contain PII
+        Rails.logger.error 'Unhandled ENOENT error while launching background job(s)'
+      rescue => e
+        Rails.logger.error "Unhandled error while launching background job(s): #{e.message}"
+        render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      ## Saves the attached file as a temporary file
+      # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      def tempfile_from_attachment(attachment, form_id)
+        original_filename = if attachment.file.respond_to?(:original_filename)
+                              attachment.file.original_filename
+                            else
+                              File.basename(attachment.file.path)
+                            end
+        # base = File.basename(original_filename, File.extname(original_filename))
+        ext = File.extname(original_filename)
+        tmpfile = Tempfile.new(["#{form_id}_attachment_", ext]) # a timestamp and unique ID are added automatically
+        tmpfile.binmode
+        tmpfile.write(attachment.file.read)
+        tmpfile.flush
+        tmpfile
       end
 
       private
@@ -342,8 +397,7 @@ module IvcChampva
         end
       end
 
-      def create_ohi_attachment(form)
-        file_path = fill_ohi_and_return_path(form)
+      def create_custom_attachment(form, file_path, attachment_id)
         # Create attachment
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: form.form_id)
 
@@ -356,17 +410,9 @@ module IvcChampva
           # Clean up the file
           FileUtils.rm_f(file_path)
 
-          # Get serialized attachment data -
-          # This is a lot chained together, but basically have to take the
-          # persistentattachment and turn it into the same hash structure as
-          # produced when the user directly uploads a supporting attachment.
-          PersistentAttachmentSerializer.new(attachment)
-                                        .serializable_hash
-                                        .dig(:data, :attributes)
-                                        .merge!('attachment_id' => 'VA form 10-7959c')
-                                        .stringify_keys!
+          IvcChampva::Attachments.serialize_attachment(attachment, attachment_id)
         rescue => e
-          Rails.logger.error "Failed to process OHI form: #{e.message}"
+          Rails.logger.error "Failed to process new custom attachment: #{e.message}"
           FileUtils.rm_f(file_path)
           raise
         end
@@ -554,6 +600,10 @@ module IvcChampva
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
         form = form_class.new(parsed_form_data)
+
+        # Optionally add a supporting document with arbitrary form-defined values.
+        add_blank_doc_and_stamp(form, parsed_form_data)
+
         # DataDog Tracking
         form.track_user_identity
         form.track_current_user_loa(@current_user)
@@ -585,10 +635,33 @@ module IvcChampva
         attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
+      ##
+      # Add a blank page to the PDF with stamped metadata if the form allows it.
+      #
+      # This method checks if the form has a `stamp_metadata` method that returns a hash.
+      # If so, it creates a blank page, stamps it with the provided metadata values,
+      # and adds it as a supporting document to the parsed form data.
+      #
+      # @param form [Object] The form object that may contain stamp_metadata method
+      # @param parsed_form_data [Hash] The parsed form data where the supporting document will be added
+      # @return [nil] This method doesn't return any value
+      def add_blank_doc_and_stamp(form, parsed_form_data)
+        # Only triggers if the form in question has a method that returns values
+        # we want to stamp.
+        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Hash)
+          blank_page_path = IvcChampva::Attachments.get_blank_page
+          stamps = form.stamp_metadata
+          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
+          att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
+          add_supporting_doc(parsed_form_data, att)
+        end
+      end
+
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
         filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
@@ -635,3 +708,4 @@ module IvcChampva
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
