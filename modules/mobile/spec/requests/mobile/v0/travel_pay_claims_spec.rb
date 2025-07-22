@@ -8,7 +8,6 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
   let!(:user) { sis_user }
 
   describe '#index' do
-
     context 'happy path' do
       it 'returns claims within the date range' do
         allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
@@ -23,18 +22,18 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
-          expect(response).to have_http_status(:ok)          
+          expect(response).to have_http_status(:ok)
           json = response.parsed_body
           expect(json['data']['type']).to eq('travelPayClaims')
           expect(json['data']['attributes']['metadata']['status']).to eq(200)
           expect(json['data']['attributes']['metadata']['pageNumber']).to eq(1)
           expect(json['data']['attributes']['data']).to be_an(Array)
-          
+
           # Validate response structure
           expect(json['data']['attributes']).to have_key('metadata')
           expect(json['data']['attributes']).to have_key('data')
           expect(json['data']['attributes']['metadata']['totalRecordCount']).to eq(3)
-          
+
           # Validate individual claim structure if claims exist
           if json['data']['attributes']['data'].any?
             claim = json['data']['attributes']['data'].first
@@ -54,36 +53,36 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
         VCR.use_cassette('travel_pay/206_search_claims_partial_response', match_requests_on: %i[method path]) do
           params = {
             'start_date' => '2024-01-01',
-            'end_date' => '2024-03-31',
+            'end_date' => '2024-03-31'
           }
 
           get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
-          expect(response).to have_http_status(:ok)          
+          expect(response).to have_http_status(:ok)
           json = response.parsed_body
-          
+
           # Verify 206 status indicates partial content
           expect(json['data']['attributes']['metadata']['status']).to eq(206)
-          
+
           # Verify pagination info exists and indicates more data
           expect(json['data']['attributes']['metadata']).to have_key('pageNumber')
           expect(json['data']['attributes']['metadata']).to have_key('totalRecordCount')
           expect(json['data']['attributes']['metadata']['pageNumber']).to eq(2)
-          
+
           # Verify some claims data is returned (not empty)
           expect(json['data']['attributes']['data']).to be_an(Array)
           expect(json['data']['attributes']['data']).not_to be_empty
-          
+
           # Verify total count indicates more records exist than returned
           total_count = json['data']['attributes']['metadata']['totalRecordCount']
           returned_count = json['data']['attributes']['data'].length
           expect(total_count).to be > returned_count
-          
+
           # Verify response structure is valid
           expect(json['data']['type']).to eq('travelPayClaims')
           expect(json['data']['attributes']).to have_key('metadata')
           expect(json['data']['attributes']).to have_key('data')
-          
+
           # Verify individual claim has required fields
           if json['data']['attributes']['data'].any?
             claim = json['data']['attributes']['data'].first
@@ -128,12 +127,12 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           .and_return({ veis_token: 'vt', btsss_token: 'bt' })
         allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claims_by_date_range)
           .and_raise(Common::Exceptions::ExternalServerInternalServerError.new(
-            errors: [{ title: 'Something went wrong.', status: 500 }]
-          ))
+                       errors: [{ title: 'Something went wrong.', status: 500 }]
+                     ))
 
         params = {
           'start_date' => '2024-04-01',
-          'end_date' => '2024-04-30',
+          'end_date' => '2024-04-30'
         }
 
         get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)

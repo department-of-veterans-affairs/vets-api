@@ -11,4 +11,4 @@ module Mobile
       attribute :page_number, Types::Integer
     end
   end
-end 
+end
