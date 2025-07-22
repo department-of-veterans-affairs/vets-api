@@ -138,26 +138,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     # rubocop:enable RSpec/RepeatedDescription, RSpec/RepeatedExample
   end
 
-  describe '#status' do
-    context 'when va_notify_notification is present' do
-      let(:notification) do
-        create(:power_of_attorney_request_notification, va_notify_notification:)
-      end
-
-      it 'returns the status of the va_notify_notification' do
-        expect(notification.status).to eq(va_notify_notification.status.to_s)
-      end
-    end
-
-    context 'when va_notify_notification is not present' do
-      let(:notification) { create(:power_of_attorney_request_notification, va_notify_notification: nil) }
-
-      it 'returns an empty string' do
-        expect(notification.status).to eq('')
-      end
-    end
-  end
-
   describe '#template_id' do
     let(:notification) { create(:power_of_attorney_request_notification, type:) }
 

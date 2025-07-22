@@ -10,9 +10,9 @@ module AccreditedRepresentativePortal
 
       before do
         # Stub Flipper feature flags
-        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_claimant_notification)
+        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_claimant_failure_notification)
                                             .and_return(claimant_enabled)
-        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_rep_notification)
+        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_rep_failure_notification)
                                             .and_return(rep_enabled)
       end
 
