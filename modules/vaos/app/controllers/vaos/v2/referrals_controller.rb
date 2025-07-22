@@ -64,7 +64,7 @@ module VAOS
       def log_referral_count(referrals)
         count = referrals&.size || 0
         Rails.logger.info("CCRA referrals retrieved: #{count}", { referral_count: count }.to_json)
-        StatsD.increment('api.vaos.referrals.retrieved', tags: ["count:#{count}", "has_referrals:#{count.positive?}"])
+        StatsD.gauge('api.vaos.referrals.retrieved', count, tags: ["has_referrals:#{count.positive?}"])
       end
 
       # Adds encrypted UUIDs to referrals for use in URLs to prevent PII in logs
