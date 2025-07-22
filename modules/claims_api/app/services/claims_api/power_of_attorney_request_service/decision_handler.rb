@@ -11,14 +11,14 @@ module ClaimsApi
       }.freeze
 
       # rubocop:disable Metrics/ParameterLists
-      def initialize(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:, claimant_ptcpnt_id:)
+      def initialize(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant: nil)
         @decision = decision
-        @ptcpnt_id = ptcpnt_id
         @proc_id = proc_id
         @representative_id = representative_id
         @poa_code = poa_code
         @metadata = metadata
-        @claimant_ptcpnt_id = claimant_ptcpnt_id
+        @veteran = veteran
+        @claimant = claimant
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -34,7 +34,7 @@ module ClaimsApi
       def make_call_for_decision(handler_class)
         if @decision == 'declined'
           handler_class.new(
-            ptcpnt_id: @ptcpnt_id,
+            ptcpnt_id: @veteran.participant_id,
             proc_id: @proc_id,
             representative_id: @representative_id
           ).call
@@ -42,11 +42,11 @@ module ClaimsApi
 
         if @decision == 'accepted'
           handler_class.new(
-            ptcpnt_id: @ptcpnt_id,
             proc_id: @proc_id,
             poa_code: @poa_code,
             metadata: @metadata,
-            claimant_ptcpnt_id: @claimant_ptcpnt_id
+            veteran: @veteran,
+            claimant: @claimant
           ).call
         end
       end
