@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # HealthFacilitiesImportJob
+#
 
 # This Sidekiq job imports and synchronizes VA health facility data from the Lighthouse API
 # into the HealthFacility table. It ensures that the local database reflects the current
