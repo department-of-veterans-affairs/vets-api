@@ -15,13 +15,13 @@ describe HCA::EnrollmentEligibility::Service do
 
     let(:veteran_data_without_secondary_associations) do
       data = veteran_data.dup
-      
+
       {
         'emergencyContacts' => 'Other emergency contact',
         'nextOfKins' => 'Other Next of Kin'
       }.each do |contact_key, contact_type|
         next unless data[contact_key]
-        
+
         data[contact_key] = data[contact_key].reject do |contact|
           contact['contactType'] == contact_type
         end
