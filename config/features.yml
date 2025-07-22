@@ -280,6 +280,9 @@ features:
   champva_enable_llm_on_submit:
     actor_type: user
     description: Enables background LLM validation and logging on form submissions
+  champva_claims_llm_validation:
+    actor_type: user
+    description: Enables LLM validation of claims on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences

@@ -244,7 +244,15 @@ module IvcChampva
 
           launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
 
-          render json: PersistentAttachmentSerializer.new(attachment)
+          # Prepare the base response
+          response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
+
+          # Add LLM analysis if enabled (convert form_id to mapped format)
+          mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
+          llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
+          response_data[:llm_response] = llm_result if llm_result.present?
+
+          render json: response_data
         else
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "Unsupported form_id: #{params[:form_id]}",
@@ -282,15 +290,61 @@ module IvcChampva
 
       def launch_llm_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
-          # create a temp file from the persistent attachment object
+          begin
+            # create a temp file from the persistent attachment object
+            tmpfile = tempfile_from_attachment(attachment, form_id)
+
+            # queue LLM job for tmpfile
+            pdf_path = Common::ConvertToPdf.new(tmpfile).run
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+            Rails.logger.info(
+              "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+            )
+          rescue => e
+            Rails.logger.error "Error launching LLM job: #{e.message}"
+          ensure
+            # Clean up temporary files
+            tmpfile&.close
+            tmpfile&.unlink
+            File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
+          end
+        end
+      end
+
+      ##
+      # Calls the LLM service synchronously if enabled and returns the analysis result
+      # @param [PersistentAttachments::MilitaryRecords] attachment Persistent attachment object for the uploaded file
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [String] attachment_id The document type/attachment ID for the file
+      # @return [Hash] LLM analysis result or empty hash if disabled/error
+      def call_llm_service(attachment, form_id, attachment_id)
+        return {} unless Flipper.enabled?(:champva_claims_llm_validation, @current_user) && form_id == 'vha_10_7959a'
+
+        begin
+          # Create a temp file from the persistent attachment object
           tmpfile = tempfile_from_attachment(attachment, form_id)
 
-          # queue LLM job for tmpfile
+          # Convert to PDF if needed (same as background job)
           pdf_path = Common::ConvertToPdf.new(tmpfile).run
-          IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
-          Rails.logger.info(
-            "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+
+          # Call the LLM service synchronously
+          llm_service = IvcChampva::LlmService.new
+          result = llm_service.process_document(
+            form_id:,
+            file_path: pdf_path,
+            uuid: attachment.guid,
+            attachment_id:
           )
+
+          result
+        rescue => e
+          Rails.logger.error("LLM analysis failed for attachment #{attachment.guid}: #{e.message}")
+          {}
+        ensure
+          # Clean up temporary files
+          tmpfile&.close
+          tmpfile&.unlink
+          File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
         end
       end
 

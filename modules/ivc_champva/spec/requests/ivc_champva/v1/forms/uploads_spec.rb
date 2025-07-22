@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'ves_api/client'
+require 'common/convert_to_pdf'
 
 RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
@@ -331,6 +332,121 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           resp = JSON.parse(response.body)
           expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
           expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+        end
+      end
+    end
+
+    context 'LLM response integration' do
+      let(:clamscan) { double(safe?: true) }
+
+      before do
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      end
+
+      context 'when LLM conditions are met' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(true)
+        end
+
+        it 'includes llm_response in the JSON for vha_10_7959a form' do
+          # Set up AWS mocking for individual test runs (prevents real AWS calls)
+          original_aws_config = Aws.config.dup
+          Aws.config.update(stub_responses: true)
+
+          # Ensure virus scan mock is set up for individual test runs
+          clamscan = double(safe?: true)
+          allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+          # Mock background job launching to prevent OCR job from hanging on file I/O
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Create a mock response that matches the structure returned by MockClient
+          mock_response = {
+            body: {
+              answer: '```json
+                      {
+                        "doc_type": "EOB",
+                        "doc_type_matches": true,
+                        "valid": false,
+                        "confidence": 0.9,
+                        "missing_fields": [
+                          "Provider NPI (10-digit)",
+                          "Services Paid For (CPT/HCPCS code or description)"
+                        ],
+                        "present_fields": {
+                          "Date of Service": "01/29/13",
+                          "Provider Name": "Smith, Robert",
+                          "Amount Paid by Insurance": "0.00"
+                        },
+                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and Services Paid For."
+                      }
+                      ```'
+            }.to_json
+          }
+
+          # Parse the response the same way call_llm_service does
+          parsed_response = JSON.parse(mock_response[:body])
+          answer_content = parsed_response['answer']
+          cleaned_content = answer_content.strip.gsub(/^```json\s*/, '').gsub(/\s*```$/, '')
+          mock_client_response = JSON.parse(cleaned_content)
+
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:call_llm_service)
+            .and_return(mock_client_response)
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data that matches MockClient structure
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to eq(mock_client_response)
+        ensure
+          # Restore original AWS config
+          Aws.config = original_aws_config if defined?(original_aws_config)
+        end
+
+        it 'does not include llm_response for non-7959A forms even when flipper is enabled' do
+          data = { form_id: '10-10D', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should NOT have LLM response data
+          expect(resp).not_to have_key('llm_response')
+        end
+      end
+
+      context 'when LLM conditions are not met' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(false)
+        end
+
+        it 'does not include llm_response when flipper is disabled' do
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should NOT have LLM response data
+          expect(resp).not_to have_key('llm_response')
         end
       end
     end
