@@ -10,7 +10,7 @@
 # - Supports privacy and security by removing attachments that are no longer needed.
 #
 # How:
-# - Identifies uploads older than the configured expiration time (30 days).
+# - Identifies uploads older than the configured expiration time (defined by EXPIRATION_TIME).
 # - Deletes expired attachments for the Caregiver Assistance form.
 # - Can be extended to support additional attachment classes or forms if needed.
 
