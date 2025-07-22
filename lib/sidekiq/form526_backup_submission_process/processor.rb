@@ -358,7 +358,8 @@ module Sidekiq
           sea = SupportingEvidenceAttachment.find_by(guid:)
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
-          filename = File.basename(file.path, ".*")[0..100]
+
+          filename = File.basename(file.path, '.*')[0..100]
           file_extension = File.extname(file.path)
           entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{filename}#{file_extension}"
           File.binwrite(entropied_fname, file.read)
