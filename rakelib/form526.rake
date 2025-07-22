@@ -713,41 +713,21 @@ namespace :form526 do
 
   desc 'Set new return url data for in-progress Form 526 submissions'
   task in_progress_forms_return_point: :environment do
-    new_return_url = '/new-disabilities/add'
+    MAX_NUMBER_OF_FORMS = 10_000
 
-    # reduce scope to iterate/check only those created in bug window
-    date_range = Date.parse('2025-06-26').beginning_of_day..Date.parse('2025-06-30').end_of_day
-    potentially_affected_forms = InProgressForm.where(form_id: '21-526EZ')
-                                               .where(created_at: date_range)
-    # I think we dont actually care if they have attempted to submit or not, they could still be affected
-    # .where("metadata->'submission'->>'has_attempted_submit' = 'true'")
-    count = potentially_affected_forms.count
-    puts "Found #{count} potentially affected forms."
-    if count.zero?
-      puts 'Nothing found, done.'
-    else
-      potentially_affected_forms.each do |form|
-        id = form.id
-        form_parsed = JSON.parse(form.form_data)
-        nd = form_parsed['new_disabilities']
-        # skip if no new_disabilities key
-        next if nd.nil?
-
-        # they are affected if the new_disabilities key has a condition key
-        # and the only key in the new_disabilities is condition
-        # meaning they were not able to enter in the additional required information about the condition
-        is_affected = nd.any? { |d| d.keys.size == 1 && d.key?('condition') }
-        if is_affected
-          # reset the return_url to the new value
-          # have to set the whole metadata object
-          form.metadata = form.metadata.merge('return_url' => new_return_url)
-          form.save!
-          puts "Updated form with ID: #{id}"
-          affected << id
-        end
-      end
-      puts affected
+    
+    all_ipfs = InProgressForm.where(form_id: '21-526EZ').pluck(:id)
+    chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS)
+    Rails.logger.info("Found #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS, job_count: chunked_ipfs.count)
+    jids = []
+    batch = Sidekiq::Batch.new
+    batch.description = 'Form 526 In Progress Form Modifier - Resetting Return URLs for 4142 IPFs'
+    batch.jobs do
+      chunked_ipfs.each do |ipf_ids|
+        jids << Form526InProgressFormModifier.perform_async(ipf_ids)
+      end      
     end
+    Rails.logger.info("Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})", job_ids: jids, batch_id: batch.bid)
   end
 
   # Check a selected collection of form526_submissions
