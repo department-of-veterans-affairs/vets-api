@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+# LogEmailDiffJob
+#
+# This Sidekiq job logs whether the email address in an in-progress form matches the user's VA Profile email.
+#
+# Why:
+# - Tracks discrepancies between user-provided emails and VA Profile emails for analytics and troubleshooting.
+# - Helps identify cases where users may be using different emails for forms and their official profile.
+#
+# How:
+# - Checks if a log already exists for the given user and form.
+# - Loads the in-progress form and parses the email.
+# - Compares the form email to the user's VA Profile email.
+# - Logs the result as 'same' or 'different' and increments a StatsD metric.
+#
+# See also: FormEmailMatchesProfileLog model for storage details.
+
 module HCA
   class LogEmailDiffJob
     include Sidekiq::Job
