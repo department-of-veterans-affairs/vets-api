@@ -48,6 +48,7 @@ module RES
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
         useTelecounseling: form_data['useTelecounseling'],
         appointmentTimePreferences: form_data['appointmentTimePreferences'],
+        privacyStatementAcknowledged: form_data['privacyAgreementAccepted'],
         yearsOfEducation: form_data['yearsOfEducation'],
         isMoving: form_data['isMoving'],
         mainPhone: form_data['mainPhone'],
