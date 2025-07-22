@@ -220,23 +220,14 @@ module Burials
               question_text: "CLAIMANT'S ADDRESS - CITY"
             },
             'state' => {
-              key: 'form1[0].#subform[82].CurrentMailingAddress_StateOrProvince[0]',
-              limit: 2,
-              question_num: 10,
-              question_text: "CLAIMANT'S ADDRESS - STATE"
+              key: 'form1[0].#subform[82].CurrentMailingAddress_StateOrProvince[0]'
             },
             'country' => {
-              key: 'form1[0].#subform[82].CurrentMailingAddress_Country[0]',
-              limit: 2,
-              question_num: 10,
-              question_text: "CLAIMANT'S ADDRESS - COUNTRY"
+              key: 'form1[0].#subform[82].CurrentMailingAddress_Country[0]'
             },
             'postalCode' => {
               'firstFive' => {
-                key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
-                limit: 5,
-                question_num: 10,
-                question_text: "CLAIMANT'S ADDRESS - POSTAL CODE - FIRST FIVE"
+                key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
               },
               'lastFour' => {
                 key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',

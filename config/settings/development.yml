@@ -211,8 +211,11 @@ claims_api:
         notification_client_secret: ~
         notify_service_id: ~
 claims_evidence_api:
-  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
-  jwt_secret: 'fake_api_key'
+  base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
 clamav:
   host: 0.0.0.0
   mock: true
@@ -400,13 +403,10 @@ evss:
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
-  mock_ppiu: true
   mock_vso_search: false
   pciu:
     timeout: 30
   pciu_address:
-    timeout: 30
-  ppiu:
     timeout: 30
   prefill: true
   root_cert_path: ~
@@ -920,6 +920,7 @@ mhv:
     app_id: 1000
     app_token: faketoken
     host: https://example.myhealth.va.gov
+    labs_logging_date_range_days: 30
     mock: true
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
@@ -1327,12 +1328,27 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21_0538: &vanotify_services_dependents_verification
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_error
+        received:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_received
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_submitted
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: form0969_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: form0969_persistent_attachment_error_email_template_id
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: form0969_received_email_template_id
@@ -1348,6 +1364,9 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
         received:
           flipper_id: pension_received_email_notification
           template_id: form527ez_received_email_template_id
@@ -1363,6 +1382,9 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: burial_claim_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: burial_persistent_attachment_error_email_template_id
         received:
           flipper_id: burial_received_email_notification
           template_id: burial_received_email_template_id
@@ -1417,6 +1439,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
       template_id:
@@ -1670,6 +1693,8 @@ veteran_enrollment_system:
   associations:
     api_key: ~
   ee_summary:
+    api_key: ~
+  form1095b:
     api_key: ~
   host: https://localhost
   open_timeout: 10
