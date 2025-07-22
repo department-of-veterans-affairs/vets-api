@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
     end
 
     def accredited_individual_email_address
-      if accredited_individual.present? && accredited_individual&.email.present?
+      if accredited_individual&.email.present?
         accredited_individual&.email
       else
         raise Common::Exceptions::InternalServerError, 'No representative email address found'
