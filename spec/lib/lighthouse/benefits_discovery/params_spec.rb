@@ -43,19 +43,36 @@ RSpec.describe BenefitsDiscovery::Params do
       end
     end
 
+    it 'omits any missing params' do
+      VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+        expect(subject.prepared_params({})).to eq({
+                                                    dateOfBirth: '1809-02-12',
+                                                    disabilityRating: 100
+                                                  })
+      end
+    end
+
     context 'when veteran verification service fails' do
       it 'raises error' do
         VCR.use_cassette('lighthouse/veteran_verification/disability_rating/504_response') do
-          expect { subject.prepared_params(prepared_service_history_params) }.to raise_error(Common::Exceptions::GatewayTimeout, 'Gateway timeout')
+          expect { subject.prepared_params(prepared_service_history_params) }.to \
+            raise_error(Common::Exceptions::GatewayTimeout, 'Gateway timeout')
         end
       end
     end
   end
 
   describe '.service_history_params' do
-    it 'returns params' do
+    it 'returns discharge status, branch of service, and service dates' do
       service_history_episodes = Array.wrap(build(:service_history))
       expect(described_class.service_history_params(service_history_episodes)).to eq(prepared_service_history_params)
+    end
+
+    context 'when data is not in correct format' do
+      it 'raises an error' do
+        service_history_episodes = build(:service_history)
+        expect { described_class.service_history_params(service_history_episodes) }.to raise_error(NoMethodError)
+      end
     end
   end
 end

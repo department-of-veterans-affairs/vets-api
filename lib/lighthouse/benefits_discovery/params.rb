@@ -14,13 +14,12 @@ module BenefitsDiscovery
     end
 
     class << self
-      # may be wise to rescue in order to ensure we don't introduce errors
       def service_history_params(service_history_episodes)
         {
           dischargeStatus: discharge_status(service_history_episodes),
           branchOfService: service_history_episodes.map { |sh| sh.branch_of_service&.upcase },
           serviceDates: service_history_episodes.map { |sh| { beginDate: sh.begin_date, endDate: sh.end_date } }
-        }.compact_blank
+        }
       end
 
       private
