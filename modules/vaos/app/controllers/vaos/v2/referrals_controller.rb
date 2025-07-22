@@ -118,7 +118,7 @@ module VAOS
                            "station_id:#{station_id}"
                          ])
 
-        log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
+        log_missing_provider_ids(response&.referring_facility_code, response&.provider_npi, response&.station_id)
       end
 
       # Logs specific errors when provider IDs are missing
