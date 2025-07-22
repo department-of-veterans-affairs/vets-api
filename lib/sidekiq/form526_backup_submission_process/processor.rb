@@ -360,7 +360,7 @@ module Sidekiq
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
           fname = File.basename(file.path)
-          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{fname}"
+          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{fname}"
           File.binwrite(entropied_fname, file.read)
           docs << upload.merge!(file: entropied_fname, type: FORM_526_UPLOADS_DOC_TYPE,
                                 evssDocType: upload['attachmentId'])
