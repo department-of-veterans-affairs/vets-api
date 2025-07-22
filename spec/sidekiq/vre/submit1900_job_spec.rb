@@ -61,7 +61,7 @@ describe VRE::Submit1900Job do
           allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
           allow(VRE::Monitor).to receive(:new).and_return(monitor)
           allow(monitor).to receive :track_submission_exhaustion
-          Flipper.enable(:vre_trigger_action_needed_email)
+          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
         end
 
         it 'when queue is exhausted' do
@@ -89,7 +89,7 @@ describe VRE::Submit1900Job do
           allow(VRE::Monitor).to receive(:new).and_return(monitor)
           allow(monitor).to receive :track_submission_exhaustion
           user_struct.va_profile_email = nil
-          Flipper.enable(:vre_trigger_action_needed_email)
+          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
         end
 
         it 'when queue is exhausted with no email' do
