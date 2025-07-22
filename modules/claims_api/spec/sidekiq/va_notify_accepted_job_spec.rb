@@ -303,6 +303,31 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
     end
   end
 
+  describe '#claimant_first_name' do
+    let(:expected) { 'Ralph' }
+
+    it 'returns expected name for v1 forms' do
+      poa = {
+        'form_data' => { 'claimant' => { 'firstName' => 'Ralph' } }
+      }
+
+      res = subject.send(:claimant_first_name, OpenStruct.new(poa))
+
+      expect(res).to eq(expected)
+    end
+
+    it 'returns expected name for v2 forms' do
+      poa = {
+        'form_data' => { 'claimant' => { 'claimantId' => '1012667169V030190' } },
+        'auth_headers' => { 'dependent' => { 'first_name' => 'Ralph' } }
+      }
+
+      res = subject.send(:claimant_first_name, OpenStruct.new(poa))
+
+      expect(res).to eq(expected)
+    end
+  end
+
   describe '#build_address' do
     it 'formats the values correctly with line1 & line2 & line3' do
       expected = "123 First St.\n Apt. 2\n Suite 5"
