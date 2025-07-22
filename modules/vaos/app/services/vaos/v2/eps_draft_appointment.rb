@@ -324,13 +324,14 @@ module VAOS
       def log_referral_metrics(referral)
         return if referral.nil?
 
-        referring_provider_id = sanitize_log_value(referral.referring_facility_code)
-        referral_provider_id = sanitize_log_value(referral.provider_npi)
+        referring_facility_code = sanitize_log_value(referral.referring_facility_code)
+        provider_npi = sanitize_log_value(referral.provider_npi)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
                            'service:community_care_appointments',
-                           "referring_provider_id:#{referring_provider_id}",
-                           "referral_provider_id:#{referral_provider_id}"
+                           "referring_facility_code:#{referring_facility_code}",
+                           "provider_npi:#{provider_npi}",
+                           "station_id:#{referral.station_id}"
                          ])
       end
 
