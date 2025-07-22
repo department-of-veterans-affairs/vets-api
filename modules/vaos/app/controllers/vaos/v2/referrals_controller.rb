@@ -107,13 +107,8 @@ module VAOS
       # Logs referral provider metrics and errors for missing provider IDs
       # @param response [Ccra::ReferralDetail] the referral response object
       def log_referral_provider_metrics(response)
-        # Check original values before sanitization for missing data validation and logging
-        original_facility_code = response&.referring_facility_code
-        original_provider_npi = response&.provider_npi
-
-        # Sanitize for metrics
-        referring_facility_code = sanitize_log_value(original_facility_code)
-        provider_npi = sanitize_log_value(original_provider_npi)
+        referring_facility_code = sanitize_log_value(response&.referring_facility_code)
+        provider_npi = sanitize_log_value(response&.provider_npi)
         station_id = sanitize_log_value(response&.station_id)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
