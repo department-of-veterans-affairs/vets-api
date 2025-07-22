@@ -210,6 +210,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
 
+          context 'with retry feature enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
+            end
+          end
+
           it 'retries VES submission if it fails' do
             with_settings(Settings, vsp_environment: 'staging') do
               if data['form_number'] == '10-10D'
@@ -1160,46 +1166,42 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#launch_background_job' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:form_id) { 'vha_10_10d' }
-    let(:file_path) { '/tmp/vha_10_10d_attachment_12345.pdf' }
+    let(:file_path) { '/tmp/some_file.pdf' }
     let(:attachment_guid) { '12345' }
     let(:mock_file) do
       double('File', respond_to?: true, original_filename: 'some_file.pdf', read: 'content', path: file_path)
     end
-    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
+    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
 
     context 'when OCR feature is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(false)
-        allow(Tempfile).to receive(:new).and_return(tmpfile)
-        allow(controller).to receive(:tempfile_from_attachment).and_return(tmpfile)
       end
 
       it 'queues TesseractOcrLoggerJob with correct arguments' do
         job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
         expect(job).to receive(:perform_async).with(
           form_id,
-          attachment_guid,
+          nil,
           match(%r{^/.*vha_10_10d_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
           attachment_guid
         )
 
-        controller.send(:launch_background_job, attachment, form_id, attachment_guid)
+        controller.send(:launch_background_job, attachment, form_id)
       end
     end
 
     context 'when OCR feature is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(false)
       end
 
       it 'does not queue TesseractOcrLoggerJob' do
         job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
         expect(job).not_to receive(:perform_async)
 
-        controller.send(:launch_background_job, attachment, form_id, attachment_guid)
+        controller.send(:launch_background_job, attachment, form_id)
       end
     end
   end

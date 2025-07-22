@@ -49,6 +49,8 @@ module DependentsVerification
         @metadata = generate_metadata
 
         upload_document
+
+        send_submitted_email
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
         @intake_service.uuid
@@ -186,13 +188,6 @@ module DependentsVerification
         end
 
         Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
-      end
-
-      # VANotify job to send email to veteran
-      def send_confirmation_email
-        DependentsVerification::NotificationEmail.new(@claim.id).deliver(:confirmation)
-      rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'confirmation', e)
       end
 
       # VANotify job to send Submission in Progress email to veteran
