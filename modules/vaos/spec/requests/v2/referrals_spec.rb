@@ -199,15 +199,28 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           end
 
           it 'logs the appropriate error message with station_id' do
+            expected_missing_fields = case expected_message
+                                      when 'referring provider ID is'
+                                        [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD]
+                                      when 'referral provider ID is'
+                                        [VAOS::V2::ReferralsController::REFERRAL_PROVIDER_ID_FIELD]
+                                      when 'both referring and referral provider IDs are'
+                                        [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD,
+                                         VAOS::V2::ReferralsController::REFERRAL_PROVIDER_ID_FIELD]
+                                      end
+
             expect(Rails.logger).to receive(:error)
-              .with("Community Care Appointments: Referral detail view: #{expected_message} blank for user: " \
-                    "#{user.uuid}, station_id: #{test_station_id}")
+              .with("Community Care Appointments: Referral detail view: Missing provider data", {
+                missing_data: expected_missing_fields,
+                station_id: test_station_id,
+                user_uuid: user.uuid
+              })
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
         end
 
         context 'when both IDs are missing' do
-          include_examples 'logs missing provider ID error', nil, '', VAOS::V2::ReferralsController::BOTH_PROVIDER_IDS
+          include_examples 'logs missing provider ID error', nil, '', 'both referring and referral provider IDs are'
         end
 
         context 'when referring provider ID is missing' do
@@ -230,8 +243,11 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
           it 'logs with sanitized station_id as no_value' do
             expect(Rails.logger).to receive(:error)
-              .with('Community Care Appointments: Referral detail view: referring provider ID is blank for user: ' \
-                    "#{user.uuid}, station_id: no_value")
+              .with('Community Care Appointments: Referral detail view: Missing provider data', {
+                missing_data: [VAOS::V2::ReferralsController::REFERRING_PROVIDER_ID_FIELD],
+                station_id: 'no_value',
+                user_uuid: user.uuid
+              })
             get "/vaos/v2/referrals/#{encrypted_uuid}"
           end
         end

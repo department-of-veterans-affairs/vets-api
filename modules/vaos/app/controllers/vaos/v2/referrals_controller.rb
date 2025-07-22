@@ -7,9 +7,8 @@ module VAOS
     class ReferralsController < VAOS::BaseController
       REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
       REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
-      REFERRING_PROVIDER_ID = 'referring provider ID'
-      REFERRAL_PROVIDER_ID = 'referral provider ID'
-      BOTH_PROVIDER_IDS = 'both referring and referral provider IDs are'
+      REFERRING_PROVIDER_ID_FIELD = 'referring_provider_id'
+      REFERRAL_PROVIDER_ID_FIELD = 'referral_provider_id'
 
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
@@ -131,21 +130,16 @@ module VAOS
       # @param station_id [String] the station ID of the referral
       def log_missing_provider_ids(referring_provider_id, referral_provider_id, station_id)
         missing_fields = []
-        missing_fields << REFERRING_PROVIDER_ID if referring_provider_id.blank?
-        missing_fields << REFERRAL_PROVIDER_ID if referral_provider_id.blank?
+        missing_fields << REFERRING_PROVIDER_ID_FIELD if referring_provider_id.blank?
+        missing_fields << REFERRAL_PROVIDER_ID_FIELD if referral_provider_id.blank?
 
         return if missing_fields.empty?
 
-        description = if missing_fields.size == 1
-                        "#{missing_fields.first} is"
-                      else
-                        BOTH_PROVIDER_IDS
-                      end
-
-        sanitized_station_id = sanitize_log_value(station_id)
-
-        Rails.logger.error("Community Care Appointments: Referral detail view: #{description} blank for user: " \
-                           "#{current_user.uuid}, station_id: #{sanitized_station_id}")
+        Rails.logger.error('Community Care Appointments: Referral detail view: Missing provider data', {
+                             missing_data: missing_fields,
+                             station_id: sanitize_log_value(station_id),
+                             user_uuid: current_user.uuid,
+                           })
       end
     end
   end
