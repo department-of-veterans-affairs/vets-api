@@ -35,7 +35,7 @@ def update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)
       (att.respond_to?(:confirmationCode) && att.confirmationCode == attachment.guid)
   end
 
-  puts "Add destroyed attachment file to list: #{mask_file_name(destroyed_attachment&.name)}"
+  puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
   destroyed_names << destroyed_attachment&.name
 
   # Remove the destroyed attachment from the section.
