@@ -20,10 +20,25 @@ module Mobile
           serializable_resource[:type] = appeal['type']
           serializable_resource
         rescue EVSS::ErrorMiddleware::EVSSError => e
+          # TODO: Determine if EVSS errors can even be raised here (Caseflow)
           handle_middleware_error(e)
         end
 
+        def get_all_appeals
+          lambda {
+            begin
+              { list: appeals_service.get_appeals(@user).body['data'], errors: nil }
+            rescue => e
+              { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'appeals') }
+            end
+          }
+        end
+
         private
+
+        def appeals_service
+          @appeals_service ||= Caseflow::Service.new
+        end
 
         def handle_middleware_error(error)
           response_values = {
