@@ -1,0 +1,128 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require 'carma/client/mule_soft_configuration_v2'
+
+describe CARMA::Client::MuleSoftConfigurationV2 do
+  subject { described_class.instance }
+
+  let(:host) { 'https://www.somesite.gov' }
+  let(:bearer_token) { 'test_bearer_token' }
+
+  describe 'connection' do
+    let(:faraday) { double('Faraday::Connection', options: double('Faraday::Options')) }
+
+    before do
+      allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token)
+        .and_return(bearer_token)
+    end
+
+    it 'creates a new Faraday connection with the correct base path' do
+      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
+      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/", {
+                                              headers: { 'Accept' => 'application/json',
+                                                         'Authorization' => "Bearer #{bearer_token}",
+                                                         'Content-Type' => 'application/json',
+                                                         'User-Agent' => 'Vets.gov Agent' }
+                                            })
+      subject.connection
+    end
+
+    it 'creates the connection' do
+      allow(Faraday).to receive(:new).and_yield(faraday)
+      allow(faraday.options).to receive(:timeout=)
+
+      expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
+      expect(faraday).to receive(:request).once.with(:instrumentation,
+                                                     { name: 'CARMA::Client::MuleSoftConfigurationV2' })
+      expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+      expect(faraday.options).to receive(:timeout=).once.with(subject.timeout)
+
+      subject.connection
+    end
+  end
+
+  describe 'base_request_headers' do
+    let(:base_request_headers) { subject.base_request_headers }
+
+    before do
+      subject.instance_variable_set(:@bearer_token, nil)
+    end
+
+    context 'successfully fetches bearer token' do
+      before do
+        allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token)
+          .and_return(bearer_token)
+      end
+
+      it 'includes the Authorization header with the bearer token' do
+        expect(base_request_headers).to eq({ 'Accept' => 'application/json',
+                                             'Content-Type' => 'application/json',
+                                             'User-Agent' => 'Vets.gov Agent',
+                                             'Authorization' => "Bearer #{bearer_token}" })
+      end
+    end
+
+    context 'error getting bearer token' do
+      before do
+        allow_any_instance_of(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new_bearer_token).and_raise(
+          StandardError, 'Token fetch error'
+        )
+      end
+
+      it 'raises an error when fetching the bearer token fails' do
+        expect { base_request_headers }.to raise_error(StandardError, 'Token fetch error')
+      end
+    end
+  end
+
+  it 'returns class name as service_name' do
+    expect(subject.service_name).to eq('CARMA::Client::MuleSoftConfigurationV2')
+  end
+
+  describe 'timeout' do
+    let(:timeout) { subject.timeout }
+
+    context 'has a configured value' do
+      before do
+        allow(Settings.form_10_10cg.carma.mulesoft).to receive(:timeout).and_return(23)
+      end
+
+      it 'returns the configured value' do
+        expect(timeout).to eq(23)
+      end
+    end
+
+    context 'does not have a configured value' do
+      before do
+        allow(Settings.form_10_10cg.carma.mulesoft).to receive(:key?).and_return(nil)
+      end
+
+      it 'returns the default value' do
+        expect(timeout).to eq(600)
+      end
+    end
+  end
+
+  describe 'settings' do
+    let(:expected_settings) { 'my_fake_settings_value' }
+
+    before do
+      allow(Settings.form_10_10cg.carma).to receive(:mulesoft).and_return(expected_settings)
+    end
+
+    it 'returns expected settings path' do
+      expect(subject.settings).to eq(expected_settings)
+    end
+  end
+
+  describe 'base_path' do
+    before do
+      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
+    end
+
+    it 'returns the correct value' do
+      expect(subject.send(:base_path)).to eq("#{host}/va-carma-caregiver-papi/api/")
+    end
+  end
+end

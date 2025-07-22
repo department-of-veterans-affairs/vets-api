@@ -12,7 +12,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
   stub_virus_scan
 
   let(:job) { described_class.new }
-  let(:claim) { create(:dependents_verification_claim) }
+  let(:claim) { create(:dependents_verification_claim, veteran_ssn: '999999999') }
   let(:service) { double('service') }
   let(:monitor) { DependentsVerification::Monitor.new }
   let(:user_account_uuid) { 123 }
@@ -27,6 +27,8 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
 
       job.instance_variable_set(:@claim, claim)
       allow(DependentsVerification::SavedClaim).to receive(:find).and_return(claim)
+      allow(claim).to receive(:to_pdf).with(claim.id).and_return(pdf_path)
+      allow(claim).to receive(:persistent_attachments).and_return([])
       allow(claim).to receive_messages(to_pdf: pdf_path)
 
       job.instance_variable_set(:@intake_service, service)
@@ -36,7 +38,25 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       allow(service).to receive_messages(location:, perform_upload: response)
       allow(response).to receive(:success?).and_return true
 
+      allow_any_instance_of(DependentsVerification::NotificationEmail).to receive(:deliver)
+
       job.instance_variable_set(:@monitor, monitor)
+    end
+
+    it 'submits the saved claim successfully' do
+      allow(job).to receive(:process_document).and_return(pdf_path)
+
+      expect(Lighthouse::Submission).to receive(:create)
+      expect(Lighthouse::SubmissionAttempt).to receive(:create)
+      expect(Datadog::Tracing).to receive(:active_trace)
+      expect(UserAccount).to receive(:find)
+
+      expect(service).to receive(:perform_upload).with(
+        upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
+      )
+      expect(job).to receive(:cleanup_file_paths)
+
+      job.perform(claim.id, :user_account_uuid)
     end
 
     it 'is unable to find user_account' do
@@ -44,7 +64,6 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
-      expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
       expect(monitor).to receive(:track_submission_retry)
@@ -63,7 +82,6 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
-      expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
       expect(monitor).to receive(:track_submission_retry)
@@ -180,28 +198,6 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
     it 'errors and logs but does not reraise' do
       expect(monitor).to receive(:track_file_cleanup_error)
       job.send(:cleanup_file_paths)
-    end
-  end
-
-  describe '#send_confirmation_email' do
-    let(:monitor_error) { create(:monitor_error) }
-    let(:notification) { double('notification') }
-
-    before do
-      job.instance_variable_set(:@claim, claim)
-
-      allow(DependentsVerification::NotificationEmail).to receive(:new).and_return(notification)
-      allow(notification).to receive(:deliver).and_raise(monitor_error)
-
-      job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive(:track_send_email_failure)
-    end
-
-    it 'errors and logs but does not reraise' do
-      expect(DependentsVerification::NotificationEmail).to receive(:new).with(claim.id)
-      expect(notification).to receive(:deliver).with(:confirmation)
-      expect(monitor).to receive(:track_send_email_failure)
-      job.send(:send_confirmation_email)
     end
   end
 
