@@ -29,7 +29,7 @@ RSpec.describe SSOe::Configuration do
       'production' => 'https://services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService'
     }.each do |env, expected_url|
       context "when environment is #{env}" do
-        let(:ssoe_get_traits_double) { instance_double(SSOeTraits, url: expected_url) }
+        let(:ssoe_get_traits_double) { double(url: expected_url) }
 
         before do
           allow(IdentitySettings).to receive(:ssoe_get_traits).and_return(ssoe_get_traits_double)
