@@ -51,26 +51,29 @@ module ClaimsEvidenceApi
     #
     # @return [SavedClaim] the claim referenced for evidence
     def upload_evidence_pdf(saved_claim_id, pa_id = nil, pdf_path = nil, stamp_set = nil)
-      monitor.track_upload_begin
+      context = { saved_claim_id:, pa_id:, pdf_path:, stamp_set: }
+      monitor.track_upload_begun(**context)
 
       claim = SavedClaim.find(saved_claim_id)
       pa = PersistentAttachment.find_by(id: pa_id, saved_claim_id:) if pa_id
       evidence = pa || claim
-
-      init_tracking(claim, pa_id)
+      context[:form_id] = claim.form_id
 
       pdf_path ||= evidence.to_pdf
       pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pdf_path, timestamp: evidence.created_at) if stamp_set
+      context[:pdf_path] = pdf_path
 
-      monitor.track_upload_attempt
+      init_tracking(claim, pa_id)
+
+      monitor.track_upload_attempt(**context)
       perform_upload(evidence, pdf_path)
 
       update_tracking
-      monitor.track_upload_success
+      monitor.track_upload_success(**context)
 
       claim
     rescue => e
-      monitor.track_upload_failure
+      monitor.track_upload_failure(e.message, **context)
       raise e
     end
 
@@ -119,6 +122,8 @@ module ClaimsEvidenceApi
       attempt.status = 'failure'
       attempt.error_message = e.body || e.message
       attempt.save
+
+      raise e
     end
 
     # update the tracking records with the result of the attempt
@@ -130,8 +135,6 @@ module ClaimsEvidenceApi
       attempt.status = 'accepted'
       attempt.response = response.body
       attempt.save
-
-      response
     end
   end
 

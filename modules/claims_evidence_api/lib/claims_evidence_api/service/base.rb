@@ -30,13 +30,12 @@ module ClaimsEvidenceApi
 
       # @see Common::Client::Base#perform
       def perform(method, path, params, headers = nil, options = nil)
-        call_location = caller_locations.first
+        call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
         response = super(method, path, params, headers, options)
-        monitor.track_api_request(method, path, response, call_location:)
-        response
-      rescue Common::Client::Errors::ClientError => e
-        monitor.track_api_request(method, path, e, call_location:)
-        raise e
+      rescue Common::Client::Errors::ClientError => error
+        raise error
+      ensure
+        monitor.track_api_request(method, path, response || error, call_location:)
       end
 
       # directly assign a folder identifier

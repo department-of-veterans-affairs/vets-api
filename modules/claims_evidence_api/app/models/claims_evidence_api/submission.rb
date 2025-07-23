@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/x_folder_uri'
 
 # Representation of a submission to ClaimsEvidence API
@@ -27,8 +28,30 @@ class ClaimsEvidenceApi::Submission < Submission
                                  foreign_key: :claims_evidence_api_submissions_id,
                                  dependent: :destroy, inverse_of: :submission
   belongs_to :saved_claim, optional: true
+  belongs_to :persistent_attachment, optional: true
 
   alias_attribute :file_uuid, :va_claim_id
+
+  before_validation { self.form_id ||= saved_claim.form_id }
+
+  after_create { monitor.track_event(:create, **tracking_attributes)}
+  after_update { monitor.track_event(:update, **tracking_attributes)}
+  after_destroy { monitor.track_event(:destory, **tracking_attributes)}
+
+  # @see ClaimsEvidenceApi::Monitor::Record
+  def monitor
+    @monitor ||= ClaimsEvidenceApi::Monitor::Record.new(self)
+  end
+
+  # utility function to acquire the tracking attributes for _this_ record
+  def tracking_attributes
+    { id:, file_uuid:, form_id:, saved_claim_id:, persistent_attachment_id:, document_type: }
+  end
+
+  # retrieve the document_type of the associated evidence [PersistentAttachment|SavedClaim]
+  def document_type
+    persistent_attachment&.document_type || saved_claim&.document_type
+  end
 
   # insert values into the reference data field
   # unnamed values will be appended to the reference_data['data'] array

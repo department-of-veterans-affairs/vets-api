@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/monitor'
+
 # Representation of a submission attempt to ClaimsEvidence API
 # https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#model-payload
 #
@@ -25,4 +27,18 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
                           foreign_key: :claims_evidence_api_submissions_id,
                           inverse_of: :submission_attempts
   has_one :saved_claim, through: :submission
+
+  after_create { monitor.track_event(:create, **tracking_attributes)}
+  after_update { monitor.track_event(:update, **tracking_attributes)}
+  after_destroy { monitor.track_event(:destory, **tracking_attributes)}
+
+  # @see ClaimsEvidenceApi::Monitor::Record
+  def monitor
+    @monitor ||= ClaimsEvidenceApi::Monitor::Record.new(self)
+  end
+
+  # utility function to acquire the tracking attributes for _this_ record
+  def tracking_attributes
+    { id:, status:, submission_id: submission.id, saved_claim_id: saved_claim.id, form_id: saved_claim.form_id }
+  end
 end
