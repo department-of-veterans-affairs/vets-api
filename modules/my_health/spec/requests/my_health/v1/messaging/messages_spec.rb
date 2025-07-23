@@ -364,7 +364,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           get "/my_health/v1/messaging/messages/#{thread_id}/thread"
         end
       end
-      puts response
       expect(response).to be_successful
 
       json_response = JSON.parse(response.body)
