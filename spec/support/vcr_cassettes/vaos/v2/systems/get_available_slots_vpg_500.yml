@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vpg/v1/slots?clinic=1081&end=2021-12-31T23:59:59Z&location=983&start=2021-10-01T00:00:00Z
+      uri: https://veteran.apps.va.gov/vpg/v1/slots?clinic=1081&end=2021-12-31T23:59:59Z&location=983&start=2021-10-01T00:00:00Z&provider=provider
       body:
         encoding: US-ASCII
         string: ''
