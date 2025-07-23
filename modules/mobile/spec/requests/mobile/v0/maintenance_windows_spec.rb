@@ -201,8 +201,12 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         expect(lighthouse_windows.pluck('service')).to eq(lighthouse_services)
-        expect(lighthouse_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_earliest_start_time])
-        expect(lighthouse_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_earliest_end_time])
+        expect(lighthouse_windows.map do |w|
+          Time.parse(w['startTime']).iso8601
+        end.uniq).to eq([lighthouse_earliest_start_time])
+        expect(lighthouse_windows.map do |w|
+          Time.parse(w['endTime']).iso8601
+        end.uniq).to eq([lighthouse_earliest_end_time])
         expect(bgs_windows.pluck('service')).to eq(bgs_services)
         expect(bgs_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([bgs_earliest_start_time])
         expect(bgs_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([bgs_earliest_end_time])
@@ -220,7 +224,9 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         expect(lighthouse_windows.pluck('service')).to eq(lighthouse_services)
-        expect(lighthouse_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_latest_start_time])
+        expect(lighthouse_windows.map do |w|
+          Time.parse(w['startTime']).iso8601
+        end.uniq).to eq([lighthouse_latest_start_time])
         expect(lighthouse_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_latest_end_time])
         expect(bgs_windows.pluck('service')).to eq(bgs_services)
         expect(bgs_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([bgs_latest_start_time])
