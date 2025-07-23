@@ -53,6 +53,7 @@ module BenefitsDiscovery
       end.compact
     end
 
+    # this is also temporary code used for discovery purposes
     class << self
       def service_history_params(service_history_episodes)
         {

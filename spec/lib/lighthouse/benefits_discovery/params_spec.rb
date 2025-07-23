@@ -45,14 +45,16 @@ RSpec.describe BenefitsDiscovery::Params do
       end
     end
 
-    # it 'omits any missing params' do
-    #   VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
-    #     expect(subject.prepared_params).to eq({
-    #                                                 dateOfBirth: '1809-02-12',
-    #                                                 disabilityRating: 100
-    #                                               })
-    #   end
-    # end
+    it 'omits any missing params' do
+      VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
+          expect(subject.prepared_params).to eq({
+                                                  dateOfBirth: '1809-02-12',
+                                                  disabilityRating: 100
+                                                })
+        end
+      end
+    end
 
     context 'when veteran verification service fails' do
       it 'raises error' do
