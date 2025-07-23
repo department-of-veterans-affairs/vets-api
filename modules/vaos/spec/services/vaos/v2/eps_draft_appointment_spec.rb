@@ -108,7 +108,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
         it 'reports all missing parameters' do
           expect(subject.error).to be_present
-          expect(subject.error[:message]).to eq('Missing required parameters: referral_id, referral_consult_id, user ICN')
+          expect(subject.error[:message]).to eq(
+            'Missing required parameters: referral_id, referral_consult_id, user ICN'
+          )
           expect(subject.error[:status]).to eq(:bad_request)
         end
       end
