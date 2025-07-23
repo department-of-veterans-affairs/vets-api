@@ -16,7 +16,6 @@ module Mobile
         %i[arcgis facility_locator],
         %i[caseflow appeals],
         %i[vapro_military_info military_service_history],
-        %i[vbms evss],
         %i[vbms lighthouse],
         %i[vbms efolder],
         %i[lighthouse claims],
