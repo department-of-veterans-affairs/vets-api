@@ -62,8 +62,7 @@ module VAOS
         @error = nil
 
         if invalid_parameters?(current_user, referral_id, referral_consult_id)
-          set_error('Missing required parameters', :bad_request)
-          return
+          return set_error('Missing required parameters', :bad_request)
         end
 
         build_appointment_draft(referral_id, referral_consult_id)
@@ -326,12 +325,13 @@ module VAOS
 
         referring_facility_code = sanitize_log_value(referral.referring_facility_code)
         provider_npi = sanitize_log_value(referral.provider_npi)
+        station_id = sanitize_log_value(referral.station_id)
 
         StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
                            'service:community_care_appointments',
                            "referring_facility_code:#{referring_facility_code}",
                            "provider_npi:#{provider_npi}",
-                           "station_id:#{referral.station_id}"
+                           "station_id:#{station_id}"
                          ])
       end
 

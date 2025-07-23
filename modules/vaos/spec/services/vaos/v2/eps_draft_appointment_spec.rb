@@ -43,6 +43,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     allow(Eps::AppointmentService).to receive(:new).and_return(eps_appointment_service)
     allow(Eps::ProviderService).to receive(:new).and_return(eps_provider_service)
     allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+    setup_successful_services
   end
 
   # Shared examples for error scenarios
@@ -68,10 +69,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     )
   end
 
+
   describe '#initialize' do
     context 'when all services return successfully' do
-      before { setup_successful_services }
-
       it 'returns a successful response with all data' do
         expect(subject.error).to be_nil
         expect(subject.id).to eq('draft-123')
@@ -212,8 +212,7 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       end
 
       it 'allows BackendServiceException to bubble up' do
-        expect { subject }
-          .to raise_error(Common::Exceptions::BackendServiceException)
+        expect { subject }.to raise_error(Common::Exceptions::BackendServiceException)
       end
     end
 
@@ -258,15 +257,14 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     end
 
     context 'metrics and logging validation' do
-      before { setup_successful_services }
-
       it 'logs referral metrics with correct tags' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.referral_draft_station_id.access',
           tags: [
             'service:community_care_appointments',
-            'referring_provider_id:FAC123',
-            'referral_provider_id:1234567890'
+            'referring_facility_code:FAC123',
+            'provider_npi:1234567890',
+            'station_id:no_value'
           ]
         )
         expect(StatsD).to receive(:increment).with(
@@ -296,16 +294,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     end
 
     context 'date handling and slot fetching' do
-      before do
-        allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
-        allow(appointments_service).to receive(:referral_appointment_already_exists?)
-          .and_return({ error: false, exists: false })
-        allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_data)
-        allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
-                                                           config: OpenStruct.new(mock_enabled?: false))
-        allow(current_user).to receive(:vet360_contact_info).and_return(nil)
-      end
-
       context 'when referral date is in the past' do
         before do
           past_date_referral = referral_data.dup
@@ -325,32 +313,28 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   end
 
   describe 'private method testing' do
-    let(:service_instance) { allocate_service_instance }
-
     describe '#sanitize_log_value' do
       it 'removes spaces and returns sanitized value' do
-        result = service_instance.send(:sanitize_log_value, 'test value with spaces')
+        result = subject.send(:sanitize_log_value, 'test value with spaces')
         expect(result).to eq('test_value_with_spaces')
       end
 
       it 'returns no_value for nil input' do
-        result = service_instance.send(:sanitize_log_value, nil)
+        result = subject.send(:sanitize_log_value, nil)
         expect(result).to eq('no_value')
       end
 
       it 'returns no_value for empty string' do
-        result = service_instance.send(:sanitize_log_value, '')
+        result = subject.send(:sanitize_log_value, '')
         expect(result).to eq('no_value')
       end
     end
   end
 
   describe '#validate_referral_data' do
-    let(:service_instance) { allocate_service_instance }
-
     context 'with valid referral data' do
       it 'returns valid true' do
-        result = service_instance.send(:validate_referral_data, referral_data)
+        result = subject.send(:validate_referral_data, referral_data)
         expect(result[:valid]).to be true
         expect(result[:missing_attributes]).to be_empty
       end
@@ -360,14 +344,10 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       let(:invalid_referral) { OpenStruct.new(provider_npi: nil, referral_date: '', expiration_date: '2024-04-15') }
 
       it 'returns valid false with missing attributes' do
-        result = service_instance.send(:validate_referral_data, invalid_referral)
+        result = subject.send(:validate_referral_data, invalid_referral)
         expect(result[:valid]).to be false
         expect(result[:missing_attributes]).to include('provider_npi', 'referral_date')
       end
     end
-  end
-
-  def allocate_service_instance
-    described_class.allocate.tap { |instance| instance.instance_variable_set(:@current_user, current_user) }
   end
 end
