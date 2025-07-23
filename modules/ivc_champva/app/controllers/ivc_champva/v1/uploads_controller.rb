@@ -5,6 +5,8 @@ require 'ves_api/client'
 
 # rubocop:disable Metrics/ClassLength
 # Note: Disabling this rule is temporary, refactoring of this class is planned
+# rubocop:disable Metrics/ClassLength
+# Note: Disabling this rule is temporary, refactoring of this class is planned
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
@@ -664,6 +666,10 @@ module IvcChampva
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
         form = form_class.new(parsed_form_data)
+
+        # Optionally add a supporting document with arbitrary form-defined values.
+        add_blank_doc_and_stamp(form, parsed_form_data)
+
         # DataDog Tracking
         form.track_user_identity
         form.track_current_user_loa(@current_user)
@@ -722,9 +728,6 @@ module IvcChampva
 
         filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
 
-        # Optionally add a supporting document with arbitrary form-defined values.
-        add_blank_doc_and_stamp(form, parsed_form_data)
-
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
@@ -771,4 +774,5 @@ module IvcChampva
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/ClassLength

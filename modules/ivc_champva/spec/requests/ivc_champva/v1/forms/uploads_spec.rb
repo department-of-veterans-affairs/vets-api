@@ -211,6 +211,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
 
+          context 'with retry feature enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
+            end
+          end
+
           it 'retries VES submission if it fails' do
             with_settings(Settings, vsp_environment: 'staging') do
               if data['form_number'] == '10-10D'
@@ -309,6 +315,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
   describe '#submit_supporting_documents' do
     let(:file) { fixture_file_upload('doctors-note.gif') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
@@ -470,6 +480,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#unlock_file' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
