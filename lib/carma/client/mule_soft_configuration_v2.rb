@@ -4,7 +4,7 @@ module CARMA
   module Client
     class MuleSoftConfigurationV2 < Common::Client::Configuration::REST
       def connection
-        Faraday.new(base_path, headers: base_request_headers) do |conn|
+        Faraday.new(base_path) do |conn|
           conn.use(:breakers, service_name:)
           conn.request :instrumentation, name: service_name
           conn.options.timeout = timeout
@@ -27,21 +27,11 @@ module CARMA
         Settings.form_10_10cg.carma.mulesoft
       end
 
-      def base_request_headers
-        super.merge(
-          'Authorization' => "Bearer #{bearer_token}"
-        )
-      end
-
       private
 
       # @return [String]
       def base_path
         "#{settings.host}/va-carma-caregiver-papi/api/"
-      end
-
-      def bearer_token
-        @bearer_token ||= CARMA::Client::MuleSoftAuthTokenClient.new.new_bearer_token
       end
     end
   end
