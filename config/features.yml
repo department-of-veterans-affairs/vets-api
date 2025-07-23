@@ -679,6 +679,10 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
+  disability_526_enable_2024_form4142:
+    actor_type: user
+    description: enables the 2024 version of form 4142 in the disability 526 submission workflow
+    enable_in_development: true  
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
