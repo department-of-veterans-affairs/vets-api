@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_custom_login:
+    actor_type: cookie_id
+    description: Controls whether the ARP application uses its custom login page or the platform login.
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -277,6 +281,9 @@ features:
   champva_enable_claim_resubmit_question:
     actor_type: user
     description: Enables the claim resubmission screener question page on form 10-7959a
+  champva_enable_ocr_on_submit:
+    actor_type: user
+    description: Enables background OCR scanning and logging on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1353,10 +1360,6 @@ features:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
     enable_in_development: true
-  mhv_medications_display_refill_content:
-    actor_type: user
-    description: Enables/disables refill-related content for Medications on VA.gov
-    enable_in_development: true
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
@@ -2001,15 +2004,6 @@ features:
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
-  mobile_lighthouse_claims:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
-  mobile_lighthouse_request_decision:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our request decision endpoints upstream service
-  mobile_lighthouse_document_upload:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our document uploads
   mobile_military_indicator_logger:
     actor_type: user
     description: For mobile app, enables logging of military discharge codes
@@ -2337,3 +2331,6 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  accredited_representative_portal_full_poa_redaction:
+    actor_type: user
+    description: Enables redaction for the Accredited Representative Portal POA requests
