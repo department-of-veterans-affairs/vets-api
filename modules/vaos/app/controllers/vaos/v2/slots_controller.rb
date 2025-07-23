@@ -63,7 +63,7 @@ module VAOS
       end
 
       def provider_id
-        params.permit(:provider_id)
+        params.require(:provider_id)
       end
 
       def start_dt
