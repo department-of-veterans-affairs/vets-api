@@ -62,7 +62,8 @@ module VAOS
         @error = nil
 
         if invalid_parameters?(current_user, referral_id, referral_consult_id)
-          return set_error('Missing required parameters', :bad_request)
+          set_error('Missing required parameters', :bad_request)
+          return
         end
 
         build_appointment_draft(referral_id, referral_consult_id)
