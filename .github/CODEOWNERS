@@ -961,6 +961,7 @@ lib/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms 
 lib/slack @department-of-veterans-affairs/backend-review-group
 lib/sm @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/source_app_middleware.rb @department-of-veterans-affairs/backend-review-group
+lib/ssoe/configuration.rb @department-of-veterans-affairs/octo-identity
 lib/ssoe/get_ssoe_traits_by_cspid_message.rb @department-of-veterans-affairs/octo-identity
 lib/stats_d_metric.rb @department-of-veterans-affairs/backend-review-group
 lib/statsd_middleware.rb @department-of-veterans-affairs/backend-review-group
@@ -1455,6 +1456,7 @@ spec/lib/simple_forms_api_submission @department-of-veterans-affairs/platform-va
 spec/lib/slack/service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/sm @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/source_app_middleware_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/ssoe/configuration_spec.rb @department-of-veterans-affairs/octo-identity
 spec/lib/ssoe/get_ssoe_traits_by_cspid_message_spec.rb @department-of-veterans-affairs/octo-identity
 spec/lib/string_helpers_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/tasks/support/schema_camelizer_spec.rb @department-of-veterans-affairs/backend-review-group
