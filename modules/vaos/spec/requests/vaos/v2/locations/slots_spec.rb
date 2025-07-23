@@ -155,12 +155,19 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
       end
 
       context 'on a bad request' do
-        it 'requires clinic_id or clinical_service' do
+        it 'requires clinic_id or clinical_service if no provider_id is passed' do
           get '/vaos/v2/locations/983/slots?end=2021-12-31T23:59:59Z&start=2021-10-01T00:00:00Z'
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'][0]['detail'])
             .to eq('clinic_id or clinical_service is required.')
+        end
+
+        it 'requires clinical_service if provider_id is passed' do
+          get '/vaos/v2/locations/983/slots?end=2021-12-31T23:59:59Z&start=2021-10-01T00:00:00Z&provider_id=provider'
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'][0]['detail'])
+            .to eq('provider_id and clinical_service is required.')
         end
       end
     end
