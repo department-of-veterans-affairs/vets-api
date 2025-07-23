@@ -50,6 +50,39 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         .choose_provider(auth_headers, ApiProviderFactory::API_PROVIDER[:lighthouse])
     end
 
+    describe '#get_uploads' do
+      let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
+      let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
+
+      before do
+        upload_data.each do |ud|
+          filename = ud['name']
+          file_path = Rails.root.join('spec', 'fixtures', 'files', filename)
+          raise "File not found: #{file_path}" unless File.exist?(file_path)
+
+          file = Rack::Test::UploadedFile.new(file_path, 'application/pdf')
+          sea = SupportingEvidenceAttachment.find_or_create_by(guid: ud['confirmationCode'])
+          sea.set_file_data!(file)
+          sea.save!
+        end
+      end
+
+      it 'calls process with correct filename path' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              processor = described_class.new(submission.id)
+              processed_files = processor.get_uploads
+              processed_files.each do |processed_file|
+                expect(processed_file[:file]).to match(/^[a-zA-Z0-9_\-\.]+\.pdf$/) # Example formatting constraint
+                expect(processed_file[:file].length).to be <= 255 # Example length constraint
+              end
+            end
+          end
+        end
+      end
+    end
+
     it 'pulls from the correct Lighthouse provider according to the startedFormVersion' do
       allow_any_instance_of(LighthouseGeneratePdfProvider).to receive(:generate_526_pdf)
         .and_return(Faraday::Response.new(
