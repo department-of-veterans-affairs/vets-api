@@ -28,9 +28,9 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
                           inverse_of: :submission_attempts
   has_one :saved_claim, through: :submission
 
-  after_create { monitor.track_event(:create, **tracking_attributes)}
-  after_update { monitor.track_event(:update, **tracking_attributes)}
-  after_destroy { monitor.track_event(:destory, **tracking_attributes)}
+  after_create { monitor.track_event(:create, **tracking_attributes) }
+  after_update { monitor.track_event(:update, **tracking_attributes) }
+  after_destroy { monitor.track_event(:destory, **tracking_attributes) }
 
   # @see ClaimsEvidenceApi::Monitor::Record
   def monitor

@@ -34,9 +34,9 @@ class ClaimsEvidenceApi::Submission < Submission
 
   before_validation { self.form_id ||= saved_claim.form_id }
 
-  after_create { monitor.track_event(:create, **tracking_attributes)}
-  after_update { monitor.track_event(:update, **tracking_attributes)}
-  after_destroy { monitor.track_event(:destory, **tracking_attributes)}
+  after_create { monitor.track_event(:create, **tracking_attributes) }
+  after_update { monitor.track_event(:update, **tracking_attributes) }
+  after_destroy { monitor.track_event(:destory, **tracking_attributes) }
 
   # @see ClaimsEvidenceApi::Monitor::Record
   def monitor

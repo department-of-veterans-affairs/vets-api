@@ -5,7 +5,6 @@ require 'logging/monitor'
 module ClaimsEvidenceApi
   # @see Logging::BaseMonitor
   class Monitor < ::Logging::Monitor
-
     def initialize
       super('claims-evidence-api')
     end
@@ -35,12 +34,13 @@ module ClaimsEvidenceApi
       attr_reader :record
 
       def initialize(record)
+        super
         @record = record
       end
 
       def track_event(action, **attributes)
         message = format_message("#{record.class} #{action}")
-        tags = format_tags({ class: record.class.to_s.downcase.gsub(/:+/, '_', action: })
+        tags = format_tags({ class: record.class.to_s.downcase.gsub(/:+/, '_'), action: })
 
         track_request(:info, message, METRIC, tags:, **attributes)
       end
@@ -49,12 +49,14 @@ module ClaimsEvidenceApi
     class Service < Monitor
       METRIC = 'module.claims_evidence_api.service.request'
 
-      def track_api_request(method, path, response, call_location: nil)
-        message = format_message(response.message)
-        tags = format_tags({ method:, route_root: path.split('/').first, response_status: response.status })
-        level = (response.instance_of?(Common::Client::Errors::ClientError)) ? :error : :info
+      def track_api_request(method, path, code, reason, call_location: nil)
+        call_location ||= caller_locations.first
 
-        track_request(level, message, METRIC, call_location:, tags:)
+        message = format_message(reason)
+        tags = { method:, code:, reason:, route_root: path.split('/').first }
+        level = /^2\d{2,}$/.match?(code.to_s.strip) ? :info : :error
+
+        track_request(level, message, METRIC, call_location:, tags: format_tags(tags), **tags)
       end
     end
 
@@ -62,21 +64,21 @@ module ClaimsEvidenceApi
       METRIC = 'module.claims_evidence_api.uploader'
 
       def track_upload_begun(**context)
-        message = format_message("upload begun")
+        message = format_message('upload begun')
         tags = format_tags({ action: 'begun' })
 
         track_request(:info, message, METRIC, call_location:, tags:, **context)
       end
 
       def track_upload_attempt(**context)
-        message = format_message("upload attempt")
+        message = format_message('upload attempt')
         tags = format_tags({ action: 'attempt' })
 
         track_request(:info, message, METRIC, call_location:, tags:, **context)
       end
 
       def track_upload_success(**context)
-        message = format_message("upload success")
+        message = format_message('upload success')
         tags = format_tags({ action: 'success' })
 
         track_request(:info, message, METRIC, call_location:, tags:, **context)
@@ -96,6 +98,5 @@ module ClaimsEvidenceApi
         caller_locations.second
       end
     end
-
   end
 end
