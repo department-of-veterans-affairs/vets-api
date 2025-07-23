@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# SubmissionJob
+#
+# This Sidekiq job processes and submits 10-10CG (Caregiver Assistance) claims to the CARMA backend.
+# It manages the full lifecycle of a claim submission, including error handling, logging, and notification.
+#
+# Why:
+# - Automates the asynchronous submission of caregiver claims, improving reliability and scalability.
+# - Ensures claims are processed even if the web request fails or times out.
+# - Provides robust error handling, retry logic, and user notification on failure.
+#
+# How:
+# - Loads the claim by ID and processes it using Form1010cg::Service.
+# - Destroys the claim after successful processing to prevent duplicate submissions.
+# - Handles and logs errors, including parsing errors from CARMA and general exceptions.
+# - Sends failure notification emails to users if submission fails after all retries.
+# - Tracks job metrics and durations for monitoring and analytics.
+
 require 'sidekiq/monitored_worker'
 
 module Form1010cg
