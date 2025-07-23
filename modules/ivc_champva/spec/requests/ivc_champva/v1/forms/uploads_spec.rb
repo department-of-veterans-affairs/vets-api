@@ -211,12 +211,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
 
-          context 'with retry feature enabled' do
-            before do
-              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
-            end
-          end
-
           it 'retries VES submission if it fails' do
             with_settings(Settings, vsp_environment: 'staging') do
               if data['form_number'] == '10-10D'
@@ -320,10 +314,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
     end
 
-    before do
-      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
-    end
-
     context 'successful transaction' do
       it 'renders the attachment as json' do
         clamscan = double(safe?: true)
@@ -389,7 +379,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                           "Provider Name": "Smith, Robert",
                           "Amount Paid by Insurance": "0.00"
                         },
-                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and Services Paid For."
+                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and \
+                        Services Paid For."
                       }
                       ```'
             }.to_json
@@ -480,10 +471,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#unlock_file' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
-    end
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
