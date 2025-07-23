@@ -53,8 +53,11 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
     describe '#get_uploads' do
       let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
+      let(:mock_random_file_path) { 'tmp/mock_random_file_path' }
+      let(:mock_timestamp) { 1234567890 }
 
       before do
+        allow(Common::FileHelpers).to receive(:random_file_path).and_return(mock_random_file_path)
         upload_data.each do |ud|
           filename = ud['name']
           file_path = Rails.root.join('spec', 'fixtures', 'files', filename)
@@ -74,9 +77,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
               processed_files.each do |processed_file|
                 if processed_file['name'].length > 101
                   expect(processed_file[:file].length).to be <= processed_file['name'].length
-                  expect(processed_file[:file].length).to eq("#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{processed_file['name'][0..100]}.pdf".length)
+                  expect(processed_file[:file].length).to eq("#{mock_random_file_path}.#{mock_timestamp}.#{processed_file['name'][0..described_class::MAX_FILENAME_LENGTH]}.pdf".length)
                 else
-                  expect(processed_file[:file].length).to eq("#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{processed_file['name']}".length)
+                  expect(processed_file[:file].length).to eq("#{mock_random_file_path}.#{mock_timestamp}.#{processed_file['name']}".length)
                 end
                 expect(processed_file[:file]).to match(/^tmp\/[a-zA-Z0-9_\-\.]+\.pdf$/)
                 expect(processed_file[:file].length).to be <= 255
