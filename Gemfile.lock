@@ -649,7 +649,7 @@ GEM
     jsonapi-parser (0.1.1)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
-    jwe (1.0.0)
+    jwe (1.1.0)
       base64
     jwt (2.10.2)
       base64
