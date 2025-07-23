@@ -72,8 +72,14 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
               processor = described_class.new(submission.id)
               processed_files = processor.get_uploads
               processed_files.each do |processed_file|
-                expect(processed_file[:file]).to match(/^[a-zA-Z0-9_\-\.]+\.pdf$/) # Example formatting constraint
-                expect(processed_file[:file].length).to be <= 255 # Example length constraint
+                if processed_file['name'].length > 101
+                  expect(processed_file[:file].length).to be <= processed_file['name'].length
+                  expect(processed_file[:file].length).to eq("#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{processed_file['name'][0..100]}.pdf".length)
+                else
+                  expect(processed_file[:file].length).to eq("#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{processed_file['name']}".length)
+                end
+                expect(processed_file[:file]).to match(/^tmp\/[a-zA-Z0-9_\-\.]+\.pdf$/)
+                expect(processed_file[:file].length).to be <= 255
               end
             end
           end
