@@ -116,11 +116,11 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
                                 '["Childcare", "Education"]], ["undetermined", ["Job Assistance", "Wealth"]]]'
         allow(service_instance).to receive(:get_eligible_benefits).and_return(benefits)
         expect(StatsD).to receive(:increment).with(expected_logged_error)
-        described_class.new.perform(user.uuid, {})
+        described_class.new.perform(user.uuid, prepared_service_history)
 
         allow(service_instance).to receive(:get_eligible_benefits).and_return(reordered_benefits)
         expect(StatsD).to receive(:increment).with(expected_logged_error)
-        described_class.new.perform(user.uuid, {})
+        described_class.new.perform(user.uuid, prepared_service_history)
       end
     end
 
