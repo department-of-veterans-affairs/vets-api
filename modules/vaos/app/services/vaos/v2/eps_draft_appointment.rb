@@ -314,7 +314,7 @@ module VAOS
       # =============================================================================
 
       ##
-      # Log metrics for referral draft creation
+      # Log metrics for referral fetch
       #
       # Records StatsD metrics with sanitized referring provider and referral provider IDs
       # for monitoring and analytics purposes.
