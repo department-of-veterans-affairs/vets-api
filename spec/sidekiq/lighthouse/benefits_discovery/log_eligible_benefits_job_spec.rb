@@ -29,7 +29,8 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
     before do
       allow(BenefitsDiscovery::Service).to receive(:new).and_return(service_instance)
       allow(BenefitsDiscovery::Params).to receive(:new).and_return(params_instance)
-      allow(params_instance).to receive(:prepared_params).with(prepared_service_history).and_return(prepared_params)
+      allow(params_instance).to \
+        receive(:build_from_service_history).with(prepared_service_history).and_return(prepared_params)
     end
 
     context 'when all upstream services work' do

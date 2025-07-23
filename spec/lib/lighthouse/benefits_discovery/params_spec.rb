@@ -81,7 +81,7 @@ RSpec.describe BenefitsDiscovery::Params do
     end
   end
 
-  describe '#merge_service_history' do
+  describe '#build_from_service_history' do
     it 'returns the correct prepared parameters' do
       expected_params = {
         dateOfBirth: '1809-02-12',
@@ -92,23 +92,23 @@ RSpec.describe BenefitsDiscovery::Params do
       }
 
       VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
-        expect(subject.merge_service_history(prepared_service_history_params)).to eq(expected_params)
+        expect(subject.build_from_service_history(prepared_service_history_params)).to eq(expected_params)
       end
     end
 
     it 'omits any missing params' do
       VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
-        expect(subject.merge_service_history({})).to eq({
-                                                          dateOfBirth: '1809-02-12',
-                                                          disabilityRating: 100
-                                                        })
+        expect(subject.build_from_service_history({})).to eq({
+                                                               dateOfBirth: '1809-02-12',
+                                                               disabilityRating: 100
+                                                             })
       end
     end
 
     context 'when veteran verification service fails' do
       it 'raises error' do
         VCR.use_cassette('lighthouse/veteran_verification/disability_rating/504_response') do
-          expect { subject.merge_service_history(prepared_service_history_params) }.to \
+          expect { subject.build_from_service_history(prepared_service_history_params) }.to \
             raise_error(Common::Exceptions::GatewayTimeout, 'Gateway timeout')
         end
       end

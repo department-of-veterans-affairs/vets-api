@@ -17,7 +17,7 @@ module BenefitsDiscovery
     end
 
     # this is a temporary method used for discovery purposes
-    def merge_service_history(service_history_params)
+    def build_from_service_history(service_history_params)
       {
         dateOfBirth: @user.birth_date,
         disabilityRating: disability_rating
