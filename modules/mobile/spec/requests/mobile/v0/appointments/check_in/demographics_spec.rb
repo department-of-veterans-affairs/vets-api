@@ -21,6 +21,10 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request
     )
   end
 
+  before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+  end
+
   describe 'GET /mobile/v0/appointments/check-in/demographics' do
     context 'test' do
       it 'returns expected check in demographics data' do

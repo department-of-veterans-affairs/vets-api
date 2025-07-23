@@ -186,6 +186,10 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
     describe 'GET last visited clinic' do
       let(:user) { build(:user, :vaos) }
 
+      before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
+      end
+
       context 'using VAOS' do
         context 'on successful query for last visited clinic' do
           it 'returns the last visited clinic' do

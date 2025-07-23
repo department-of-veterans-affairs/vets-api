@@ -12,6 +12,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
   describe 'contact information v1' do
     before do
+      stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id: user.vet360_id))
       Timecop.freeze(time)
       sign_in_as(user)
     end
@@ -104,12 +105,18 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       end
 
       context 'with a 403 response' do
-        it 'returns a forbidden response' do
-          VCR.use_cassette('va_profile/contact_information/post_telephone_status_403') do
-            post('/v0/profile/telephones', params: telephone.to_json, headers:)
+        let(:user) { build(:user, :loa3, vet360_id: nil) }
+        let(:telephone) { build(:telephone, vet360_id: nil) }
 
-            expect(response).to have_http_status(:forbidden)
-          end
+        before do
+          stub_mpi(build(:mpi_profile, icn: nil, vet360_id: nil))
+          sign_in_as(user)
+        end
+
+        it 'returns a forbidden response' do
+          post('/v0/profile/telephones', params: telephone.to_json, headers:)
+
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
@@ -241,6 +248,10 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       let(:id_in_cassette) { 42 }
 
       before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id: user.vet360_id))
+        allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
+        allow_any_instance_of(User).to receive(:icn).and_return(user.icn)
+        sign_in_as(user)
         telephone.id = id_in_cassette
       end
 
@@ -272,6 +283,9 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     let(:user) { build(:user, :loa3, icn: '123498767V234859') }
 
     before do
+      stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id: user.vet360_id))
+      allow_any_instance_of(User).to receive(:icn).and_return(user.icn)
+      allow_any_instance_of(User).to receive(:vet360_id).and_return(user.vet360_id)
       sign_in_as(user)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
@@ -332,12 +346,18 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       end
 
       context 'with a 403 response' do
-        it 'returns a forbidden response' do
-          VCR.use_cassette('va_profile/v2/contact_information/post_telephone_status_403') do
-            post('/v0/profile/telephones', params: telephone.to_json, headers:)
+        let(:user) { build(:user, :loa3, icn: nil) }
+        let(:telephone) { build(:telephone, :contact_info_v2, vet360_id: nil) }
 
-            expect(response).to have_http_status(:forbidden)
-          end
+        before do
+          stub_mpi(build(:mpi_profile, icn: nil, vet360_id: nil))
+          sign_in_as(user)
+        end
+
+        it 'returns a forbidden response' do
+          post('/v0/profile/telephones', params: telephone.to_json, headers:)
+
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
@@ -428,6 +448,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
         end
 
         before do
+          stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id: user.vet360_id))
           Timecop.freeze(time)
           sign_in_as(user)
         end
@@ -460,6 +481,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'POST /v0/profile/telephones/create_or_update v2' do
       before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id: user.vet360_id))
         Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
       end
 
@@ -482,6 +504,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'DELETE /v0/profile/telephones v2' do
       before do
+        stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn, vet360_id: user.vet360_id))
         Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
       end
 

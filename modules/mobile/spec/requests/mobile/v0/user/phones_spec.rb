@@ -12,8 +12,28 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
   end
 
   before do
+    stub_mpi(build(:mpi_profile, ssn: user.ssn, icn: user.icn))
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
+
+    # Stub VA Profile contact information service layer for phones
+    telephones = [build(:telephone, :contact_info_v2, id: 458_781, phone_type: VAProfile::Models::Telephone::HOME)]
+    emails = [build(:email, :contact_info_v2, id: 318_927)]
+    addresses = [build(:va_profile_v3_address, id: 577_127, address_pou: VAProfile::Models::V3::Address::RESIDENCE)]
+    person = build(:person_v2, telephones:, emails:, addresses:)
+    person_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+    va_profile_response = VAProfile::V2::ContactInformation::PersonResponse.from(person_response)
+
+    # Stub the service layer
+    allow_any_instance_of(VAProfile::V2::ContactInformation::Service)
+      .to receive(:get_person).and_return(va_profile_response)
+
+    # Stub demographics service
+    allow_any_instance_of(VAProfile::Demographics::Service).to receive(:get_demographics).and_return(nil)
+
+    # Stub facilities helper
+    facility_names = ['Test Facility']
+    allow(Mobile::FacilitiesHelper).to receive(:get_facility_names).and_return(facility_names)
   end
 
   after do

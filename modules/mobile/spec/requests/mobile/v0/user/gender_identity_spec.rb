@@ -104,6 +104,10 @@ RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
           sis_user(icn: nil, ssn: nil)
         end
 
+        before do
+          stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
+        end
+
         it 'returns 403', :aggregate_failures do
           get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
           expect(response).to have_http_status(:forbidden)
@@ -128,6 +132,10 @@ RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
       context 'without mpi access' do
         let!(:user) do
           sis_user(icn: nil, ssn: nil)
+        end
+
+        before do
+          stub_mpi(build(:mpi_profile, ssn: nil, icn: nil, participant_id: nil))
         end
 
         it 'returns 403', :aggregate_failures do
