@@ -24,19 +24,18 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           expect(response).to have_http_status(:ok)
           json = response.parsed_body
-          expect(json['data']['type']).to eq('travelPayClaims')
-          expect(json['data']['attributes']['metadata']['status']).to eq(200)
-          expect(json['data']['attributes']['metadata']['pageNumber']).to eq(1)
-          expect(json['data']['attributes']['data']).to be_an(Array)
+          expect(json['data']).to be_an(Array)
+          expect(json['meta']['status']).to eq(200)
+          expect(json['meta']['pageNumber']).to eq(1)
 
           # Validate response structure
-          expect(json['data']['attributes']).to have_key('metadata')
-          expect(json['data']['attributes']).to have_key('data')
-          expect(json['data']['attributes']['metadata']['totalRecordCount']).to eq(3)
+          expect(json).to have_key('meta')
+          expect(json).to have_key('data')
+          expect(json['meta']['totalRecordCount']).to eq(3)
 
           # Validate individual claim structure if claims exist
-          if json['data']['attributes']['data'].any?
-            claim = json['data']['attributes']['data'].first
+          if json['data'].any?
+            claim = json['data'].first
             expect(claim).to have_key('id')
             expect(claim['attributes']).to have_key('claimNumber')
             expect(claim['attributes']).to have_key('claimStatus')
@@ -58,34 +57,33 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
-          expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:partial_content)
           json = response.parsed_body
 
           # Verify 206 status indicates partial content
-          expect(json['data']['attributes']['metadata']['status']).to eq(206)
+          expect(json['meta']['status']).to eq(206)
 
           # Verify pagination info exists and indicates more data
-          expect(json['data']['attributes']['metadata']).to have_key('pageNumber')
-          expect(json['data']['attributes']['metadata']).to have_key('totalRecordCount')
-          expect(json['data']['attributes']['metadata']['pageNumber']).to eq(2)
+          expect(json['meta']).to have_key('pageNumber')
+          expect(json['meta']).to have_key('totalRecordCount')
+          expect(json['meta']['pageNumber']).to eq(2)
 
           # Verify some claims data is returned (not empty)
-          expect(json['data']['attributes']['data']).to be_an(Array)
-          expect(json['data']['attributes']['data']).not_to be_empty
+          expect(json['data']).to be_an(Array)
+          expect(json['data']).not_to be_empty
 
           # Verify total count indicates more records exist than returned
-          total_count = json['data']['attributes']['metadata']['totalRecordCount']
-          returned_count = json['data']['attributes']['data'].length
+          total_count = json['meta']['totalRecordCount']
+          returned_count = json['data'].length
           expect(total_count).to be > returned_count
 
           # Verify response structure is valid
-          expect(json['data']['type']).to eq('travelPayClaims')
-          expect(json['data']['attributes']).to have_key('metadata')
-          expect(json['data']['attributes']).to have_key('data')
+          expect(json).to have_key('meta')
+          expect(json).to have_key('data')
 
           # Verify individual claim has required fields
-          if json['data']['attributes']['data'].any?
-            claim = json['data']['attributes']['data'].first
+          if json['data'].any?
+            claim = json['data'].first
             expect(claim['attributes']).to have_key('id')
             expect(claim['attributes']).to have_key('claimNumber')
             expect(claim['attributes']).to have_key('claimStatus')

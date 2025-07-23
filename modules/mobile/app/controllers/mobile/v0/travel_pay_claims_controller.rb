@@ -13,9 +13,10 @@ module Mobile
       def index
         claims_response = fetch_claims_from_service
         claims = transform_claims_data(claims_response[:data])
-        response = build_travel_pay_response(claims, claims_response)
+        status = claims_response[:metadata]['status'] == 206 ? :partial_content : :ok
 
-        render json: TravelPayClaimsSerializer.new(response)
+        render json: Mobile::V0::TravelPayClaimSummarySerializer.new(claims, { meta: claims_response[:metadata] }),
+               status:
       end
 
       def create
@@ -68,15 +69,6 @@ module Mobile
             modifiedOn: claim_data['modifiedOn']
           )
         end
-      end
-
-      def build_travel_pay_response(claims, claims_response)
-        TravelPayClaims.new(
-          id: SecureRandom.uuid,
-          claims:,
-          total_count: claims_response.dig(:metadata, 'totalRecordCount'),
-          page_number: claims_response.dig(:metadata, 'pageNumber')
-        )
       end
 
       def validate_index_params
