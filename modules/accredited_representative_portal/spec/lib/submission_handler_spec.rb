@@ -13,9 +13,12 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
   let(:instance) { handler.new('fake-claim-id') }
 
   before do
-    allow(AccreditedRepresentativePortal::SavedClaim).to receive(:find).and_return claim
-    allow(AccreditedRepresentativePortal::Monitor).to receive(:new).and_return monitor
-    allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+    allow(SavedClaim).to receive(:find).and_return(claim)
+
+    allow(AccreditedRepresentativePortal::Monitor).to receive(:new).and_return(monitor)
+
+    allow(AccreditedRepresentativePortal::NotificationEmail)
+      .to receive(:new).with(claim.id).and_return(notification)
   end
 
   describe '.pending_attempts' do
@@ -40,15 +43,20 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
   describe '#on_failure' do
     it 'logs silent failure avoided' do
       expect(notification).to receive(:deliver).with(:error).and_return true
-      expect(monitor).to receive(:log_silent_failure_avoided).with(hash_including(claim_id: claim.id),
-                                                                   call_location: nil)
+      expect(monitor).to receive(:log_silent_failure_avoided).with(
+        hash_including(claim_id: claim.id),
+        call_location: nil
+      )
       instance.handle(:failure)
     end
 
     it 'logs silent failure and raises' do
       expect(notification).to receive(:deliver).with(:error).and_return false
       message = "#{handler}: on_failure silent failure not avoided"
-      expect(monitor).to receive(:log_silent_failure).with(hash_including(message:), call_location: nil)
+      expect(monitor).to receive(:log_silent_failure).with(
+        hash_including(message:),
+        call_location: nil
+      )
       expect { instance.handle(:failure) }.to raise_error message
     end
   end

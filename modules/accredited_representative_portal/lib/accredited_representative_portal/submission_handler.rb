@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
     private
 
     def claim_class
-      AccreditedRepresentativePortal::SavedClaim
+      ::SavedClaim
     end
 
     def monitor
