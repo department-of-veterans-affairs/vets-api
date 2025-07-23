@@ -27,7 +27,7 @@ RSpec.describe Kafka::EnhancedListener do
             'state' => 'UP',
             'connects' => 5,
             'disconnects' => 2,
-            'rxidle' => 1029387488
+            'rxidle' => 1_029_387_488
           }
         }
       }
@@ -42,14 +42,13 @@ RSpec.describe Kafka::EnhancedListener do
 
   describe 'service check functionality' do
     context 'when broker state is UP' do
-
       it 'sends OK status to Datadog' do
         listener.on_statistics_emitted(event)
 
         expect(mock_statsd_client).to have_received(:service_check).with(
           'waterdrop.brokers.state',
           Datadog::Statsd::OK,
-          { tags: ["environment:test", "broker:localhost:9092"] }
+          { tags: ['environment:test', 'broker:localhost:9092'] }
         )
       end
     end
@@ -67,7 +66,7 @@ RSpec.describe Kafka::EnhancedListener do
             expect(mock_statsd_client).to have_received(:service_check).with(
               'waterdrop.brokers.state',
               Datadog::Statsd::WARNING,
-              { tags: ["environment:test", "broker:localhost:9092"] }
+              { tags: ['environment:test', 'broker:localhost:9092'] }
             )
           end
         end
@@ -85,7 +84,7 @@ RSpec.describe Kafka::EnhancedListener do
         expect(mock_statsd_client).to have_received(:service_check).with(
           'waterdrop.brokers.state',
           Datadog::Statsd::CRITICAL,
-          { tags: ["environment:test", "broker:localhost:9092"] }
+          { tags: ['environment:test', 'broker:localhost:9092'] }
         )
       end
     end
@@ -101,14 +100,13 @@ RSpec.describe Kafka::EnhancedListener do
         expect(mock_statsd_client).to have_received(:service_check).with(
           'waterdrop.brokers.state',
           Datadog::Statsd::UNKNOWN,
-          { tags: ["environment:test", "broker:localhost:9092"] }
+          { tags: ['environment:test', 'broker:localhost:9092'] }
         )
       end
     end
   end
 
   describe 'count metrics' do
-
     before do
       event[:statistics]['brokers']['localhost:9092/1001']['connects'] = 10
       event[:statistics]['brokers']['localhost:9092/1001']['disconnects'] = 3
@@ -120,20 +118,20 @@ RSpec.describe Kafka::EnhancedListener do
       expect(mock_statsd_client).to have_received(:count).with(
         'waterdrop.brokers.connects',
         10,
-        { tags: ["environment:test", "broker:localhost:9092"] }
+        { tags: ['environment:test', 'broker:localhost:9092'] }
       )
 
       expect(mock_statsd_client).to have_received(:count).with(
         'waterdrop.brokers.disconnects',
         3,
-        { tags: ["environment:test", "broker:localhost:9092"] }
+        { tags: ['environment:test', 'broker:localhost:9092'] }
       )
     end
   end
 
   describe 'gauge metrics' do
     before do
-      event[:statistics]['brokers']['localhost:9092/1001']['rxidle'] = 1234567890
+      event[:statistics]['brokers']['localhost:9092/1001']['rxidle'] = 1_234_567_890
     end
 
     it 'sends gauge metrics for rxidle' do
@@ -141,8 +139,8 @@ RSpec.describe Kafka::EnhancedListener do
 
       expect(mock_statsd_client).to have_received(:gauge).with(
         'waterdrop.brokers.rxidle',
-        1234567890,
-        { tags: ["environment:test", "broker:localhost:9092"] }
+        1_234_567_890,
+        { tags: ['environment:test', 'broker:localhost:9092'] }
       )
     end
   end
@@ -154,11 +152,11 @@ RSpec.describe Kafka::EnhancedListener do
           'brokers' => {
             'localhost:9092/1001' => {
               'nodename' => 'localhost:9092',
-              'state' => 'UP',          
+              'state' => 'UP',
               'connects' => 5
             },
             'localhost:9093/1002' => {
-              'nodename' => 'localhost:9093',     
+              'nodename' => 'localhost:9093',
               'state' => 'DOWN',
               'disconnects' => 1
             }
@@ -168,26 +166,26 @@ RSpec.describe Kafka::EnhancedListener do
     end
 
     it 'sends service checks and counts for all brokers' do
-      listener.on_statistics_emitted(event_with_multiple_brokers)   
+      listener.on_statistics_emitted(event_with_multiple_brokers)
       expect(mock_statsd_client).to have_received(:service_check).with(
         'waterdrop.brokers.state',
         Datadog::Statsd::OK,
-        { tags: ["environment:test", "broker:localhost:9092"] }
-      )     
+        { tags: ['environment:test', 'broker:localhost:9092'] }
+      )
       expect(mock_statsd_client).to have_received(:service_check).with(
         'waterdrop.brokers.state',
         Datadog::Statsd::CRITICAL,
-        { tags: ["environment:test", "broker:localhost:9093"] }
-      )   
+        { tags: ['environment:test', 'broker:localhost:9093'] }
+      )
       expect(mock_statsd_client).to have_received(:count).with(
         'waterdrop.brokers.connects',
         5,
-        { tags: ["environment:test", "broker:localhost:9092"] }
+        { tags: ['environment:test', 'broker:localhost:9092'] }
       )
       expect(mock_statsd_client).to have_received(:count).with(
-        'waterdrop.brokers.disconnects',      
+        'waterdrop.brokers.disconnects',
         1,
-        { tags: ["environment:test", "broker:localhost:9093"] }
+        { tags: ['environment:test', 'broker:localhost:9093'] }
       )
     end
   end
