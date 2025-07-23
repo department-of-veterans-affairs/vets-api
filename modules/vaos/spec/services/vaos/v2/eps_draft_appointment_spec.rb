@@ -69,7 +69,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
     )
   end
 
-
   describe '#initialize' do
     context 'when all services return successfully' do
       it 'returns a successful response with all data' do
