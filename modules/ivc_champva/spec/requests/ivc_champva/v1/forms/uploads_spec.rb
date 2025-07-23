@@ -1312,10 +1312,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           form_id,
           attachment_guid,
           match(%r{^/.*vha_10_10d_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
-          attachment_guid
+          'EOB'
         )
 
-        controller.send(:launch_background_job, attachment, form_id, attachment_guid)
+        controller.send(:launch_background_job, attachment, form_id, 'EOB')
       end
     end
 
@@ -1329,7 +1329,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
         expect(job).not_to receive(:perform_async)
 
-        controller.send(:launch_background_job, attachment, form_id, attachment_guid)
+        controller.send(:launch_background_job, attachment, form_id, 'EOB')
       end
     end
   end
