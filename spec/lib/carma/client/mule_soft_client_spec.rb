@@ -212,12 +212,15 @@ describe CARMA::Client::MuleSoftClient do
         let(:resource) { 'v2/application/1010CG/submit' }
         let(:payload) { {} }
 
+        let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
+
         before do
           allow(client).to receive(:config).and_return(config)
           allow(config).to receive_messages(base_request_headers: exp_headers, timeout: 10,
                                             settings: OpenStruct.new(
                                               async_timeout: timeout
                                             ))
+          allow(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new).and_return(mulesoft_auth_token_client)
         end
 
         context 'successfully gets token' do
@@ -251,8 +254,9 @@ describe CARMA::Client::MuleSoftClient do
           let(:mock_response) { double('FaradayResponse', status:, body: response_body) }
 
           before do
+            allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
             allow(client).to receive(:perform)
-              .with(:post, resource, payload.to_json)
+              .with(:post, resource, payload.to_json, headers)
               .and_return(mock_response)
           end
 
@@ -355,6 +359,17 @@ describe CARMA::Client::MuleSoftClient do
                 end
               end
             end
+          end
+        end
+
+        context 'error getting token' do
+          it 'logs error' do
+            expect(mulesoft_auth_token_client).to receive(:new_bearer_token)
+              .and_raise(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
+
+            expect do
+              subject
+            end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
           end
         end
       end

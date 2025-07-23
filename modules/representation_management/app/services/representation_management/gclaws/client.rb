@@ -110,8 +110,10 @@ module RepresentationManagement
       #
       # @param message [String] The message to send to Slack
       def self.log_to_slack_api_channel(message)
+        return unless Settings.vsp_environment == 'production'
+
         slack_client = SlackNotify::Client.new(
-          webhook_url: Settings.claims_api.slack.webhook_url,
+          webhook_url: Settings.edu.slack.webhook_url,
           channel: '#benefits-representation-management-notifications',
           username: 'RepresentationManagement::GCLAWS::ClientBot'
         )
