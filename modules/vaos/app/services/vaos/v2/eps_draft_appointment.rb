@@ -13,7 +13,9 @@ module VAOS
     # - Fetching available appointment slots and drive time calculations
     #
     # The class follows an error-presence pattern where the presence of the +error+ attribute
-    # indicates a failure, making success determination implicit.
+    # indicates a failure, making success determination implicit. Business logic errors are
+    # captured in +error+ with format { message: "...", status: :symbol }, while
+    # BackendServiceException errors from external services bubble up naturally.
     #
     # @example Basic usage
     #   draft = EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
