@@ -77,9 +77,9 @@ module IvcChampva
 
     def parse_llm_response(answer_content)
       cleaned_content = answer_content.strip
-                                      .gsub(/^```json\s*/, '')  # Remove opening ```json
-                                      .gsub(/\s*```$/, '')      # Remove closing ```
-                                      .gsub(/\n/, '')           # Remove newlines
+                                      .gsub(/^```json[ \t]*/, '')  # Remove opening ```json with limited whitespace
+                                      .gsub(/[ \t]*```$/, '')      # Remove closing ``` with limited whitespace
+                                      .gsub(/\n/, '')              # Remove newlines
 
       JSON.parse(cleaned_content)
     rescue JSON::ParserError => e
