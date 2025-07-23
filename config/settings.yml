@@ -177,6 +177,15 @@ claims_api:
     client_id: <%= ENV['claims_api__evss_container__client_id'] %>
     client_key: <%= ENV['claims_api__evss_container__client_key'] %>
     client_secret: <%= ENV['claims_api__evss_container__client_secret'] %>
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: <%= ENV['claims_api__fes__auth__ccg__aud_claim_url'] %>
+        # Temporarily using BDS client_id until FES gets its own
+        client_id: <%= ENV['claims_api__benefits_documents__auth__ccg__client_id'] %>
+        # Temporarily using BDS rsa_key until FES gets its own
+        rsa_key: <%= ENV['claims_api__benefits_documents__auth__ccg__rsa_key'] %>
+    host: <%= ENV['claims_api__fes__host'] %>
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
