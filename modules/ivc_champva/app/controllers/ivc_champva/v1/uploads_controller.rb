@@ -5,8 +5,6 @@ require 'ves_api/client'
 
 # rubocop:disable Metrics/ClassLength
 # Note: Disabling this rule is temporary, refactoring of this class is planned
-# rubocop:disable Metrics/ClassLength
-# Note: Disabling this rule is temporary, refactoring of this class is planned
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
@@ -774,5 +772,4 @@ module IvcChampva
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/ClassLength
