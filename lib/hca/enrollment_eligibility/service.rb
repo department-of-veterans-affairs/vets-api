@@ -371,15 +371,11 @@ module HCA
 
       def fill_contact_full_name_from_association(contact, association)
         NAME_MAPPINGS.each do |mapping|
-          stringify_value = mapping.last.to_s
-          is_jr_or_sr = %w[JR. SR.].include?(stringify_value)
-          # When association data gets stored in HL7, it gets converted to all caps.
-          # We need to update certain suffixes before saving it to the contact in order to match the schema.
-          contact[:fullName][mapping.first] = get_locate_value(
-            association,
-            mapping == NAME_MAPPINGS.last && is_jr_or_sr ? stringify_value.capitalize : stringify_value
-          )
+          contact[:fullName][mapping.first] = get_locate_value(association, mapping.last.to_s)
         end
+        # When association data gets stored in HL7, it gets converted to all caps.
+        # We need to update certain suffixes before saving it to the contact in order to match the schema.
+        contact[:fullName][:suffix].capitalize! if %w[JR. SR.].include?(contact[:fullName][:suffix])
       end
 
       def parse_insurance_providers(response)
