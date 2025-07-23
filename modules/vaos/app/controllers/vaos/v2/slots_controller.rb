@@ -14,12 +14,13 @@ module VAOS
       end
 
       def facility_slots
-        if !params[:clinic_id] && !params[:clinical_service]
+        error  = bad_request(params)
+        if error
           render status: :bad_request, json: {
             errors: [
               {
                 status: 400,
-                detail: 'clinic_id or clinical_service is required.'
+                detail: error
               }
             ]
           }
@@ -39,6 +40,18 @@ module VAOS
 
       def systems_service
         VAOS::V2::SystemsService.new(current_user)
+      end
+
+      def bad_request(params)
+        # If provider_id is passed, clinical_service is also required
+        return 'provider_id and clinical_service is required.' if params[:provider_id] && !params[:clinical_service]
+
+        # If provider_is is NOT passed, clinical_service OR clinic_id is required
+        if !params[:provider_id] && !params[:clinic_id] && !params[:clinical_service]
+          return 'clinic_id or clinical_service is required.'
+        end
+
+        false
       end
 
       def location_id
