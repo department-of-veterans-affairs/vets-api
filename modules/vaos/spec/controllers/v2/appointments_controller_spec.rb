@@ -92,7 +92,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       )
       allow(controller).to receive(:render)
       allow(StatsD).to receive(:increment)
-      allow(StatsD).to receive(:measure)
+      allow(StatsD).to receive(:histogram)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -121,12 +121,12 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
           )
           expect(StatsD).to have_received(:increment).with(
             described_class::APPT_CREATION_SUCCESS_METRIC,
-            tags: ['Community Care Appointments']
+            tags: ['service:community_care_appointments']
           )
-          expect(StatsD).to have_received(:measure).with(
+          expect(StatsD).to have_received(:histogram).with(
             described_class::APPT_CREATION_DURATION_METRIC,
             5000,
-            tags: ['Community Care Appointments']
+            tags: ['service:community_care_appointments']
           )
         end
       end
@@ -149,7 +149,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         )
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
-          tags: ['Community Care Appointments', 'error_type:conflict']
+          tags: ['service:community_care_appointments', 'error_type:conflict']
         )
       end
     end
@@ -168,7 +168,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         expect(controller).to have_received(:handle_appointment_creation_error).with(error)
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
       end
     end
