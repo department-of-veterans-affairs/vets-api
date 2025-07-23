@@ -38,7 +38,7 @@ module AccreditedRepresentativePortal
                 after: :append_lib_to_autoload_paths do |app|
       app.config.to_prepare do
         require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
-        require 'burials/benefits_intake/submission_handler'
+        require 'accredited_representative_portal/submission_handler'
 
         # Register our Claims Benefits Intake Submission Handler
         ::BenefitsIntake::SubmissionStatusJob.register_handler(

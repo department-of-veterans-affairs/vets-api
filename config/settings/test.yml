@@ -9,16 +9,6 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
-  notify:
-    api_key: test-api-key
-    email:
-      received:
-        flipper_id: arp_received_email_notification
-        template_id: test-received-template-id
-      error:
-        flipper_id: arp_error_email_notification
-        template_id: test-error-template-id
-
 adapted_housing:
   prefill: true
 argocd:
@@ -1380,6 +1370,12 @@ vanotify:
           template_id: burial_submitted_email_template_id
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: fake_secret
+      email:
+        error:
+          template_id: arp_error_email_template_id
+          flipper_id: false
     benefits_decision_review:
       api_key: fake_secret
       template_id:
