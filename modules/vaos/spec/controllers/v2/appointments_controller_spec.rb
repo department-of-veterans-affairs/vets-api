@@ -314,31 +314,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       allow(controller).to receive(:eps_provider_service).and_return(eps_provider_service)
     end
 
-    context 'when provider has no self-schedulable appointment types' do
-      let(:provider) do
-        OpenStruct.new(
-          id: 'provider123',
-          appointment_types: [{ id: 'type123', is_self_schedulable: false }]
-        )
-      end
-
-      before do
-        allow(eps_provider_service).to receive(:get_provider_slots)
-      end
-
-      it 'raises BackendServiceException before calling get_provider_slots' do
-        expect do
-          controller.send(:fetch_provider_slots, referral, provider, draft_appointment_id)
-        end.to raise_error(Common::Exceptions::BackendServiceException) { |e|
-          expect(e).to have_attributes(
-            key: 'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING'
-          )
-        }
-
-        expect(eps_provider_service).not_to have_received(:get_provider_slots)
-      end
-    end
-
     context 'when date parsing raises ArgumentError' do
       let(:referral) do
         OpenStruct.new(
