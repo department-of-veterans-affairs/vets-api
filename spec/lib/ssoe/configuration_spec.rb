@@ -67,22 +67,47 @@ RSpec.describe SSOe::Configuration do
   end
 
   describe '#ssl_options' do
-    it 'returns OpenSSL objects for client_cert and client_key' do
-      ssl_opts = config.send(:ssl_options)
-      expect(ssl_opts).to be_a(Hash)
-      expect(ssl_opts[:client_cert]).to be_a(OpenSSL::X509::Certificate)
-      expect(ssl_opts[:client_key]).to be_a(OpenSSL::PKey::RSA)
-    end
-
-    it 'returns nil if cert or key files are missing' do
-      config_class = Class.new(SSOe::Configuration) do
-        def self.ssl_cert_path = '/missing/path.crt'
-        def self.ssl_key_path = '/missing/path.key'
-        def base_path = 'https://unused.url'
+    context 'when cert and key are valid' do
+      it 'returns OpenSSL objects for client_cert and client_key' do
+        ssl_opts = config.send(:ssl_options)
+        expect(ssl_opts).to be_a(Hash)
+        expect(ssl_opts[:client_cert]).to be_a(OpenSSL::X509::Certificate)
+        expect(ssl_opts[:client_key]).to be_a(OpenSSL::PKey::RSA)
       end
 
-      missing_config = config_class.send(:new)
-      expect(missing_config.send(:ssl_options)).to be_nil
+      context 'when cert and key are not valid' do
+        it 'raises an error if cert or key files are missing' do
+          config_class = Class.new(SSOe::Configuration) do
+            def ssl_cert = nil
+            def ssl_key = nil
+          end
+
+          missing_config = config_class.send(:new)
+
+          expect do
+            missing_config.send(:ssl_options)
+          end.to raise_error('SSL options not defined')
+        end
+
+        it 'logs and raises OpenSSL error' do
+          config_class = Class.new(SSOe::Configuration) do
+            def ssl_cert
+              raise OpenSSL::OpenSSLError, 'bad cert'
+            end
+
+            def ssl_key
+              OpenSSL::PKey::RSA.new(2048)
+            end
+          end
+
+          config = config_class.send(:new)
+          expect(Rails.logger).to receive(:error).with(/\[SSOe::Configuration\] SSL error: bad cert/)
+
+          expect do
+            config.send(:ssl_options)
+          end.to raise_error(OpenSSL::OpenSSLError, 'bad cert')
+        end
+      end
     end
   end
 

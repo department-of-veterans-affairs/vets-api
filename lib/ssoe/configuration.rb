@@ -32,7 +32,7 @@ module SSOe
     private
 
     def ssl_options
-      return unless ssl_cert && ssl_key
+      raise 'SSL options not defined' unless ssl_cert && ssl_key
 
       {
         client_cert: ssl_cert,
@@ -40,21 +40,17 @@ module SSOe
       }
     rescue OpenSSL::OpenSSLError, Errno::ENOENT => e
       Rails.logger.error("[SSOe::Configuration] SSL error: #{e.message}")
-      nil
+      raise
     end
 
     def ssl_cert
-      @ssl_cert ||= begin
-        path = self.class.ssl_cert_path
-        OpenSSL::X509::Certificate.new(File.read(path)) if File.exist?(path)
-      end
+      path = IdentitySettings.ssoe_get_traits.client_cert_path
+      OpenSSL::X509::Certificate.new(File.read(path)) if File.exist?(path)
     end
 
     def ssl_key
-      @ssl_key ||= begin
-        path = self.class.ssl_key_path
-        OpenSSL::PKey::RSA.new(File.read(path)) if File.exist?(path)
-      end
+      path = IdentitySettings.ssoe_get_traits.client_key_path
+      OpenSSL::PKey::RSA.new(File.read(path)) if File.exist?(path)
     end
 
     def base_path
