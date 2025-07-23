@@ -307,11 +307,26 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
       end
 
+      context 'when provider has nil appointment types' do
+        before do
+          provider_with_nil_types = OpenStruct.new(id: 'provider-123', appointment_types: nil)
+          allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_with_nil_types)
+        end
+
+        it 'raises BackendServiceException' do
+          expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.key).to eq('PROVIDER_APPOINTMENT_TYPES_MISSING')
+            expect(error.original_status).to eq(502)
+            expect(error.original_body).to include('Provider appointment types data is not available')
+          end
+        end
+      end
+
       context 'when provider has no self-schedulable types' do
         before do
           provider_without_self_schedulable = OpenStruct.new(
             id: 'provider-123',
-            appointment_types: [{ id: 'type-1', is_self_schedulable: false }]
+            appointment_types: [{ id: '1', is_self_schedulable: false }, { id: '2' }]
           )
           allow(eps_provider_service).to receive(:search_provider_services)
             .and_return(provider_without_self_schedulable)
@@ -323,6 +338,54 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             expect(error.original_status).to eq(502)
             expect(error.original_body).to include('No self-schedulable appointment types available')
           end
+        end
+      end
+
+      context 'when provider has self-schedulable appointment types' do
+        before do
+          provider_with_self_schedulable = OpenStruct.new(
+            id: 'provider-123',
+            appointment_types: [
+              { id: '1', is_self_schedulable: false },
+              { id: '2', is_self_schedulable: true },
+              { id: '3', is_self_schedulable: true }
+            ]
+          )
+          allow(eps_provider_service).to receive(:search_provider_services)
+            .and_return(provider_with_self_schedulable)
+        end
+
+        it 'uses the first self-schedulable appointment type for slot fetching' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(appointmentTypeId: '2')
+          )
+          expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when provider has mixed appointment types with different is_self_schedulable values' do
+        before do
+          provider_with_mixed_types = OpenStruct.new(
+            id: 'provider-123',
+            appointment_types: [
+              { id: '1' }, # missing property
+              { id: '2', is_self_schedulable: nil },
+              { id: '3', is_self_schedulable: false },
+              { id: '4', is_self_schedulable: true },
+              { id: '5', is_self_schedulable: true }
+            ]
+          )
+          allow(eps_provider_service).to receive(:search_provider_services)
+            .and_return(provider_with_mixed_types)
+        end
+
+        it 'uses the first appointment type where is_self_schedulable is explicitly true' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(appointmentTypeId: '4')
+          )
+          expect(subject.id).to eq('draft-123')
         end
       end
     end
@@ -417,6 +480,21 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           expect(subject.id).to eq('draft-123')
         end
       end
+
+      context 'when date parsing raises ArgumentError' do
+        before do
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs error and returns nil for slots' do
+          invalid_date_referral = referral_data.dup
+          invalid_date_referral.referral_date = 'invalid-date'
+
+          expect(Rails.logger).to receive(:error).with('Community Care Appointments: Error fetching provider slots')
+          result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
+          expect(result).to be_nil
+        end
+      end
     end
   end
 
@@ -440,49 +518,49 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
 
     describe '#invalid_parameters?' do
       it 'returns true when referral_id is blank' do
-        result = service_instance.send(:invalid_parameters?, '', 'consult-123', 'icn-123')
+        result = subject.send(:invalid_parameters?, '', 'consult-123', 'icn-123')
         expect(result).to be true
       end
 
       it 'returns true when referral_consult_id is blank' do
-        result = service_instance.send(:invalid_parameters?, 'ref-123', nil, 'icn-123')
+        result = subject.send(:invalid_parameters?, 'ref-123', nil, 'icn-123')
         expect(result).to be true
       end
 
       it 'returns true when user_icn is blank' do
-        result = service_instance.send(:invalid_parameters?, 'ref-123', 'consult-123', '')
+        result = subject.send(:invalid_parameters?, 'ref-123', 'consult-123', '')
         expect(result).to be true
       end
 
       it 'returns false when all parameters are valid' do
-        result = service_instance.send(:invalid_parameters?, 'ref-123', 'consult-123', 'icn-123')
+        result = subject.send(:invalid_parameters?, 'ref-123', 'consult-123', 'icn-123')
         expect(result).to be false
       end
     end
 
     describe '#get_missing_parameters' do
       it 'identifies missing referral_id' do
-        result = service_instance.send(:get_missing_parameters, '', 'consult-123', 'icn-123')
+        result = subject.send(:get_missing_parameters, '', 'consult-123', 'icn-123')
         expect(result).to eq(['referral_id'])
       end
 
       it 'identifies missing referral_consult_id' do
-        result = service_instance.send(:get_missing_parameters, 'ref-123', nil, 'icn-123')
+        result = subject.send(:get_missing_parameters, 'ref-123', nil, 'icn-123')
         expect(result).to eq(['referral_consult_id'])
       end
 
       it 'identifies missing user ICN' do
-        result = service_instance.send(:get_missing_parameters, 'ref-123', 'consult-123', '')
+        result = subject.send(:get_missing_parameters, 'ref-123', 'consult-123', '')
         expect(result).to eq(['user ICN'])
       end
 
       it 'identifies multiple missing parameters' do
-        result = service_instance.send(:get_missing_parameters, '', nil, '')
+        result = subject.send(:get_missing_parameters, '', nil, '')
         expect(result).to eq(['referral_id', 'referral_consult_id', 'user ICN'])
       end
 
       it 'returns empty array when all parameters are present' do
-        result = service_instance.send(:get_missing_parameters, 'ref-123', 'consult-123', 'icn-123')
+        result = subject.send(:get_missing_parameters, 'ref-123', 'consult-123', 'icn-123')
         expect(result).to be_empty
       end
     end
