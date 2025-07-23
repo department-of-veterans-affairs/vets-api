@@ -8,7 +8,10 @@ require 'gi/client'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
+  let(:user) do
+    build(:user, :loa3, :legacy_icn, suffix: 'Jr.', idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+                                     address: build(:mpi_profile_address))
+  end
 
   before do
     stub_evss_pciu(user)
@@ -1356,7 +1359,7 @@ RSpec.describe FormProfile, type: :model do
         context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
-            allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
           end
 
           let(:v10_10_ezr_expected) do
@@ -1374,9 +1377,9 @@ RSpec.describe FormProfile, type: :model do
             end
           end
 
-          context "and the 'ezr_prefill_contacts' flipper is enabled" do
+          context "and the 'ezr_emergency_contacts_enabled' flipper is enabled" do
             before do
-              allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
             end
 
             let(:v10_10_ezr_expected) do
@@ -1402,7 +1405,7 @@ RSpec.describe FormProfile, type: :model do
             allow(Flipper).to receive(:enabled?).with(
               :ezr_form_prefill_with_providers_and_dependents
             ).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
           end
 
           let(:v10_10_ezr_expected) do
@@ -1426,9 +1429,9 @@ RSpec.describe FormProfile, type: :model do
             end
           end
 
-          context "and the 'ezr_prefill_contacts' flipper is enabled" do
+          context "and the 'ezr_emergency_contacts_enabled' flipper is enabled" do
             before do
-              allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
             end
 
             let(:v10_10_ezr_expected) do
@@ -1866,7 +1869,7 @@ RSpec.describe FormProfile, type: :model do
           # NOTE: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
             let(:user) do
-              build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:mpi_profile_address))
+              build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:mpi_profile_address))
             end
 
             before do
@@ -1895,7 +1898,7 @@ RSpec.describe FormProfile, type: :model do
         context 'without Lighthouse direct deposit' do
           context 'when Vet360 prefill is enabled' do
             let(:user) do
-              build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:mpi_profile_address))
+              build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:mpi_profile_address))
             end
 
             before do

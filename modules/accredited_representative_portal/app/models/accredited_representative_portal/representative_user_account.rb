@@ -13,6 +13,11 @@ module AccreditedRepresentativePortal
       @all_emails = all_emails
     end
 
+    ##
+    # TODO: Rename or otherwise refactor callers. `active_` does not helpfully
+    # describe the purpose of this method, which is to return POA holders that
+    # accept digital POA requests.
+    #
     def active_power_of_attorney_holders
       power_of_attorney_holders
         .select(&:accepts_digital_power_of_attorney_requests?)
@@ -69,6 +74,8 @@ module AccreditedRepresentativePortal
       end
     end
 
+    private
+
     def map_user_type(user_type)
       case user_type
       when 'veteran_service_officer'
@@ -83,7 +90,7 @@ module AccreditedRepresentativePortal
       registration_nums = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
 
       if registration_nums.blank?
-        representatives = Veteran::Service::Representative.where(email: @all_emails)
+        representatives = Veteran::Service::Representative.where('LOWER(email) IN (?)', @all_emails.map(&:downcase))
 
         if representatives.empty?
           raise Common::Exceptions::Forbidden, detail: 'No representatives found for this user.'
@@ -111,8 +118,6 @@ module AccreditedRepresentativePortal
       end
     end
     # rubocop:enable Metrics/MethodLength
-
-    private
 
     def get_organizations(representative_id)
       representative =

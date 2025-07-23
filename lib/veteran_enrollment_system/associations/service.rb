@@ -43,8 +43,10 @@ module VeteranEnrollmentSystem
 
       ERROR_MAP = {
         400 => Common::Exceptions::BadRequest,
+        403 => Common::Exceptions::Forbidden,
         404 => Common::Exceptions::ResourceNotFound,
         500 => Common::Exceptions::ExternalServerInternalServerError,
+        502 => Common::Exceptions::BadGateway,
         504 => Common::Exceptions::GatewayTimeout
       }.freeze
 
@@ -65,7 +67,9 @@ module VeteranEnrollmentSystem
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.get_associations.failed")
-        Rails.logger.error("#{form_id} retrieve associations failed: #{e.errors.first[:detail]}")
+        Rails.logger.error(
+          "#{form_id} get associations failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+        )
 
         raise e
       end
@@ -86,7 +90,9 @@ module VeteranEnrollmentSystem
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
-        Rails.logger.error("#{form_id} update associations failed: #{e.errors.first[:detail]}")
+        Rails.logger.error(
+          "#{form_id} update associations failed: #{e.respond_to?(:errors) ? e.errors.first[:detail] : e.message}"
+        )
 
         raise e
       end
@@ -148,7 +154,7 @@ module VeteranEnrollmentSystem
       def raise_error(response)
         message = response.body['messages']&.pluck('description')&.join(', ') || response.body
         # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
-        raise ERROR_MAP[response.status].new(detail: message) ||
+        raise ERROR_MAP[response.status]&.new(detail: message) ||
               Common::Exceptions::BackendServiceException.new(nil, detail: message)
       end
 

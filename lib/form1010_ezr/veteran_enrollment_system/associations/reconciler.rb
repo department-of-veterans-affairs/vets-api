@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/hash_helpers'
+
 module Form1010Ezr
   module VeteranEnrollmentSystem
     module Associations
@@ -9,14 +11,6 @@ module Form1010Ezr
           %w[middle middleName],
           %w[last familyName],
           %w[suffix suffix]
-        ].freeze
-
-        ADDRESS_MAPPINGS = [
-          %w[street line1],
-          %w[street2 line2],
-          %w[street3 line3],
-          %w[city city],
-          %w[country country]
         ].freeze
 
         VES_ROLE_MAPPINGS = {
@@ -60,64 +54,21 @@ module Form1010Ezr
 
         private
 
-        # Transform the VES Associations API data to match the EZR veteranContacts schema
+        # Transform the VES Associations API data to match the EZR 'nextOfKins' and 'emergencyContacts' schemas.
         def transform_ves_association(association)
-          transformed_association = {
-            'address' => get_address_from_association(association),
-            'alternatePhone' => sanitize_phone_number(association['alternatePhone']),
-            'contactType' => VES_ROLE_MAPPINGS[association['role']],
-            'fullName' => {},
-            'primaryPhone' => sanitize_phone_number(association['primaryPhone']),
-            'relationship' => remove_underscores(association['relationType'])
-          }
+          validate_required_fields!(association)
+
+          transformed_association = build_transformed_association(association)
           fill_association_full_name_from_ves_association(transformed_association, association)
 
-          Common::HashHelpers.deep_compact(transformed_association)
+          Common::HashHelpers.deep_remove_blanks(transformed_association).compact_blank
+        rescue => e
+          Rails.logger.error("Error transforming VES association: #{e.message}")
+          raise e
         end
 
         def transform_ves_associations(associations)
           associations.map { |association| transform_ves_association(association) }
-        end
-
-        def get_address_from_association(association)
-          address = {}
-          fill_address_mappings_from_association(address, association)
-          fill_address_region_from_association(address, association)
-          address
-        end
-
-        def fill_address_mappings_from_association(address, association)
-          ADDRESS_MAPPINGS.each do |address_map|
-            address[address_map.first] = association['address'][address_map.last.to_s]
-          end
-        end
-
-        def fill_address_region_from_association(address, association)
-          case address['country']
-          when 'MEX'
-            fill_mexico_address_from_association(address, association)
-          when 'USA'
-            fill_usa_address_from_association(address, association)
-          else
-            fill_other_address_from_association(address, association)
-          end
-        end
-
-        def fill_mexico_address_from_association(address, association)
-          address['state'] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address['state']]
-          address['postalCode'] = association['address']['postalCode']
-        end
-
-        def fill_usa_address_from_association(address, association)
-          address['state'] = association['address']['state']
-          zip_code = association['address']['zipCode']
-          zip_plus4 = association['address']['zipPlus4']
-          address['postalCode'] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
-        end
-
-        def fill_other_address_from_association(address, association)
-          address['state'] = association['address']['provinceCode']
-          address['postalCode'] = association['address']['postalCode']
         end
 
         def fill_association_full_name_from_ves_association(association, ves_association)
@@ -126,12 +77,32 @@ module Form1010Ezr
           end
         end
 
-        def remove_underscores(string)
-          string.gsub(/_/, ' ').split.join(' ')
+        # There are instances where a VES association may have a 'relationship' field
+        def handle_relationship(association)
+          relationship = association['relationship'] || association['relationType']
+
+          return relationship if relationship.blank?
+
+          relationship.gsub(/_/, ' ').split.join(' ')
         end
 
-        def sanitize_phone_number(phone_number)
-          phone_number.gsub(/[()\-]/, '')
+        def validate_required_fields!(association)
+          missing_fields = []
+          missing_fields << 'role' if association['role'].blank?
+          missing_fields << 'name' if association['name'].blank?
+          missing_fields << 'relationship' if handle_relationship(association).blank?
+
+          return if missing_fields.empty?
+
+          raise StandardError, "VES association is missing the following field(s): #{missing_fields.join(', ')}"
+        end
+
+        def build_transformed_association(association)
+          {
+            'contactType' => VES_ROLE_MAPPINGS[association['role']],
+            'fullName' => {},
+            'relationship' => handle_relationship(association)
+          }
         end
       end
     end

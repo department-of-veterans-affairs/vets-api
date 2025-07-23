@@ -3,6 +3,8 @@
 module AccreditedRepresentativePortal
   module V0
     class ClaimSubmissionsController < ApplicationController
+      before_action :deny_access_unless_686c_enabled, only: [:index]
+
       def index
         authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy
         serializer = SavedClaimClaimantRepresentativeSerializer.new(claim_submissions)
@@ -53,7 +55,10 @@ module AccreditedRepresentativePortal
       end
 
       def scope_includes
-        [{ saved_claim: %i[lighthouse_submissions persistent_attachments] }]
+        [{ saved_claim: [
+          { form_submissions: :form_submission_attempts },
+          %i[form_attachment persistent_attachments]
+        ] }]
       end
     end
   end

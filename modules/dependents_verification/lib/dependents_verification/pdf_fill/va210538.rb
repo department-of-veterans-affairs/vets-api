@@ -3,7 +3,10 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+require 'dependents_verification/pdf_fill/sections/section0'
 require 'dependents_verification/pdf_fill/sections/section1'
+require 'dependents_verification/pdf_fill/sections/section2'
+require 'dependents_verification/pdf_fill/sections/section5'
 
 module DependentsVerification
   module PdfFill
@@ -21,7 +24,7 @@ module DependentsVerification
       TEMPLATE = DependentsVerification::PDF_PATH
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section1].freeze
+      SECTION_CLASSES = [Section0, Section1, Section2, Section5].freeze
 
       key = {}
 
@@ -37,14 +40,35 @@ module DependentsVerification
       #
       # @return [Hash] the processed form data
       #
-      def merge_fields(_options = {})
+      def merge_fields(options = {})
+        created_at = options[:created_at] if options[:created_at].present?
+        form_data['dateStamp'] = created_at || Time.zone.now
+        expand_signature(form_data['veteranInformation']['fullName'],
+                         created_at&.to_date || Time.zone.today)
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
-        # Remove the dependencyVerification key from the form data
-        # as it is not needed in the final output
-        form_data.delete('dependencyVerification')
+        remove_fields(form_data)
+      end
 
-        form_data
+      private
+
+      # Remove fields that are not needed in the final PDF
+      def remove_fields(form_data)
+        updated_form_data = form_data.deep_dup
+        keys_to_remove = %w[
+          veteranInformation
+          address
+          dependents
+          email
+          phone
+          statementOfTruthSignature
+          statementOfTruthCertified
+          internationalPhone
+          electronicCorrespondence
+        ]
+        keys_to_remove.each { |key| updated_form_data.delete(key) }
+
+        updated_form_data
       end
     end
   end

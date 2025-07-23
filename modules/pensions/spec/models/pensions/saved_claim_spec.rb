@@ -78,4 +78,17 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
       expect(instance.first_name).to eq('Test')
     end
   end
+
+  describe '#send_email' do
+    it 'calls Pensions::NotificationEmail with the claim id and delivers the email' do
+      claim = build(:pensions_saved_claim)
+      email_type = :error
+      notification_double = instance_double(Pensions::NotificationEmail)
+
+      expect(Pensions::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_double)
+      expect(notification_double).to receive(:deliver).with(email_type)
+
+      claim.send_email(email_type)
+    end
+  end
 end

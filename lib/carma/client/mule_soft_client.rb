@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_configuration'
+require 'carma/client/mule_soft_configuration_v2'
 require 'carma/client/mule_soft_auth_token_client'
 
 module CARMA
@@ -8,23 +9,32 @@ module CARMA
     class MuleSoftClient < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
-      configuration MuleSoftConfiguration
-
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
       class RecordParseError < StandardError; end
 
       def create_submission_v2(payload)
         with_monitoring do
-          res = perform_post(payload)
+          response = perform_post(payload)
 
-          raise RecordParseError if res.dig('record', 'hasErrors')
+          if response.dig('record', 'hasErrors')
+            log_response_errors(response)
+            raise RecordParseError
+          end
 
-          res
+          response
         end
       end
 
       private
+
+      def config
+        if Flipper.enabled?(:caregiver_mulesoft_config_v2)
+          MuleSoftConfigurationV2.instance
+        else
+          MuleSoftConfiguration.instance
+        end
+      end
 
       def perform_post(payload)
         resource = 'v2/application/1010CG/submit'
@@ -36,7 +46,7 @@ module CARMA
             resource,
             get_body(payload),
             headers,
-            { timeout: config.settings.async_timeout }
+            *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [{ timeout: config.settings.async_timeout }])
           )
 
           handle_response(resource, response)
@@ -68,7 +78,26 @@ module CARMA
         Rails.logger.info "[Form 10-10CG] Submission to '#{resource}' resource resulted in response code #{status}"
         return if [200, 201, 202].include? status
 
+        Rails.logger.error "[Form 10-10CG] Submission expected 200 status but received #{status}"
         raise Common::Exceptions::SchemaValidationErrors, ["Expecting 200 status but received #{status}"]
+      end
+
+      def log_response_errors(response)
+        carma_case_metadata = response.dig('data', 'carmacase') || {}
+        attachment_data = (response.dig('record', 'results') || []).map do |attachment|
+          {
+            reference_id: attachment['referenceId'] || '',
+            id: attachment['id'] || '',
+            errors: attachment['errors'] || []
+          }
+        end
+
+        Rails.logger.error '[Form 10-10CG] response contained attachment errors',
+                           {
+                             created_at: carma_case_metadata['createdAt'] || '',
+                             id: carma_case_metadata['id'] || '',
+                             attachments: attachment_data
+                           }
       end
     end
   end

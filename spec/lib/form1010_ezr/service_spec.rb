@@ -163,7 +163,7 @@ RSpec.describe Form1010Ezr::Service do
 
   describe '#log_submission_failure_to_sentry' do
     it 'logs a failure message to sentry' do
-      expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+      expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
         '1010EZR failure',
         :error,
         {
@@ -187,6 +187,11 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when no error occurs' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
+        end
+
         it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
@@ -202,21 +207,26 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
 
-        context "when the 'ezr_associations_api_enabled' flipper is enabled" do
+        context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
             allow_any_instance_of(
               HCA::EnrollmentEligibility::Service
             ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
             allow_any_instance_of(
               Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
-            ).to receive(:reconcile_and_update_associations).and_return(
+            ).to receive(:update_associations).and_return(
               {
                 status: 'success',
                 message: 'All associations were updated successfully',
                 timestamp: '2025-06-08T18:00:00Z'
               }
+            )
+            allow_any_instance_of(
+              VeteranEnrollmentSystem::Associations::Service
+            ).to receive(:get_associations).and_return(
+              get_fixture('/veteran_enrollment_system/associations/associations_maximum')
             )
             # Call the submit_sync method instead of submit_async so that we can ensure that
             # the associations are removed from the form before it is submitted
@@ -228,17 +238,17 @@ RSpec.describe Form1010Ezr::Service do
           end
 
           it 'removes the associations from the form and returns a success object',
-             run_at: 'Mon, 09 Jun 2025 20:30:18 GMT' do
+             run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
             VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_updated_associations',
+              'form1010_ezr/authorized_submit_with_associations_removed',
               match_requests_on: %i[method uri body],
               erb: true
             ) do
               expect(service.submit_form(form_with_associations)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 442_951_612,
-                  timestamp: '2025-06-09T15:30:18.643-05:00'
+                  formSubmissionId: 443_145_123,
+                  timestamp: '2025-06-18T11:12:43.943-05:00'
                 }
               )
             end
@@ -321,10 +331,10 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
 
-        context "when the 'ezr_associations_api_enabled' flipper is enabled" do
+        context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
           end
 
           context 'when an error occurs in the associations service' do
@@ -347,7 +357,7 @@ RSpec.describe Form1010Ezr::Service do
                 allow(StatsD).to receive(:increment)
 
                 expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-                expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+                expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
                   '1010EZR failure',
                   :error,
                   {
@@ -380,7 +390,7 @@ RSpec.describe Form1010Ezr::Service do
             allow(StatsD).to receive(:increment)
 
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
               '1010EZR failure',
               :error,
               {
@@ -495,16 +505,16 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'when the form includes next of kin and/or emergency contact info' do
-          it 'returns a success object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
+          it 'returns a success object', run_at: 'Wed, 18 Jun 2025 18:58:43 GMT' do
             VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
+              'form1010_ezr/authorized_submit_with_associations',
               { match_requests_on: %i[method uri body], erb: true }
             ) do
               expect(service.submit_sync(form_with_associations)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 436_462_887,
-                  timestamp: '2024-08-23T13:22:29.157-05:00'
+                  formSubmissionId: 443_148_464,
+                  timestamp: '2025-06-18T13:58:43.116-05:00'
                 }
               )
             end

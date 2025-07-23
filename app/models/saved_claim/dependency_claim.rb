@@ -33,6 +33,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     child_marriage
     report_child18_or_older_is_not_attending_school
     add_spouse
+    add_disabled_child
   ].freeze
 
   FORM686 = '21-686c'
@@ -170,7 +171,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     end
   end
 
-  def upload_to_vbms(path:, doc_type: '148')
+  def document_type
+    148
+  end
+
+  def upload_to_vbms(path:, doc_type: nil)
+    doc_type ||= document_type
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],

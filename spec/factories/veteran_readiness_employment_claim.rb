@@ -7,6 +7,7 @@ FactoryBot.define do
     transient do
       regional_office { '317 - St. Petersburg' }
       country { 'USA' }
+      first { 'Homer' }
     end
 
     form {
@@ -38,7 +39,7 @@ FactoryBot.define do
         'email' => 'test@gmail.xom',
         'veteranInformation' => {
           'fullName' => {
-            'first' => 'Homer',
+            'first' => first,
             'middle' => 'John',
             'last' => 'Simpson'
           },
@@ -53,39 +54,76 @@ FactoryBot.define do
   end
 
   factory :new_veteran_readiness_employment_claim, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
-    form_id { '28-1900' }
+    form_id { '28-1900-V2' }
+
+    transient do
+      main_phone { '2222222222' }
+      cell_phone { '3333333333' }
+      international_number { '+4444444444' }
+      email { 'email@test.com' }
+      is_moving { true }
+      years_of_ed { '10' }
+      country { 'USA' }
+      postal_code { '10001' }
+      first { 'First' }
+      middle { 'Middle' }
+      last { 'Last' }
+      dob { '1980-01-01' }
+      privacyAgreementAccepted { true }
+    end
 
     form {
       {
-        'mainPhone' => '2222222222',
-        'cellPhone' => '3333333333',
-        'internationalNumber' => '+4444444444',
-        'email' => 'email@test.com',
+        'mainPhone' => main_phone,
+        'cellPhone' => cell_phone,
+        'internationalNumber' => international_number,
+        'email' => email,
         'newAddress' => {
-          'country' => 'USA',
+          'country' => country,
           'street' => '13 usa street',
           'city' => 'New York',
           'state' => 'NY',
-          'postalCode' => '10001'
+          'postalCode' => postal_code
         },
-        'isMoving' => true,
+        'isMoving' => is_moving,
         'veteranAddress' => {
-          'country' => 'USA',
+          'country' => country,
           'street' => '12 usa street',
           'city' => 'New York',
           'state' => 'NY',
-          'postalCode' => '10001'
+          'postalCode' => postal_code
         },
+        'yearsOfEducation' => years_of_ed,
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => first,
+            'middle' => middle,
+            'last' => last,
+            'suffix' => 'III'
+          },
+          'dob' => dob
+        },
+        'privacyAgreementAccepted' => privacyAgreementAccepted
+      }.to_json
+    }
+  end
+
+  factory :new_veteran_readiness_employment_claim_minimal, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
+    form_id { '28-1900-V2' }
+
+    form {
+      {
+        'email' => 'email@test.com',
+        'isMoving' => false,
         'yearsOfEducation' => '10',
         'veteranInformation' => {
           'fullName' => {
             'first' => 'First',
-            'middle' => 'Middle',
-            'last' => 'Last',
-            'suffix' => 'III'
+            'last' => 'Last'
           },
           'dob' => '1980-01-01'
-        }
+        },
+        'privacyAgreementAccepted' => true
       }.to_json
     }
   end

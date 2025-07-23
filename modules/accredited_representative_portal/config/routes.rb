@@ -4,23 +4,12 @@ AccreditedRepresentativePortal::Engine.routes.draw do
   namespace :v0, defaults: { format: :json } do
     get 'user', to: 'representative_users#show'
 
-    ##
-    # While these endpoints are still under development, they should be
-    # inaccessible in production. For now, this check is extra stringent, and
-    # makes these endpoints inaccessible anywhere outside development and test.
-    # But once development on these features picks back up, we want them to be
-    # accessible in staging too.
-    #
-    # TODO: Carry out this per-environment guard of these endpoints by using
-    # Flipper feature toggling and controller before actions instead.
-    #
-    if Rails.env.development? || Rails.env.test?
-      post 'form21a', to: 'form21a#submit'
-      resources :in_progress_forms, only: %i[update show destroy]
-    end
+    post 'form21a', to: 'form21a#submit'
+    resources :in_progress_forms, only: %i[update show destroy]
 
     post '/submit_representative_form', to: 'representative_form_upload#submit'
     post '/representative_form_upload', to: 'representative_form_upload#upload_scanned_form'
+    post '/upload_supporting_documents', to: 'representative_form_upload#upload_supporting_documents'
 
     resources :claim_submissions, only: :index
 
