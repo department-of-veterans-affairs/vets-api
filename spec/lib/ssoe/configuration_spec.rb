@@ -36,7 +36,7 @@ RSpec.describe SSOe::Configuration do
         end
 
         it "returns the correct URL for #{env}" do
-          expect(config.base_path).to eq(expected_url)
+          expect(config.send(:base_path)).to eq(expected_url)
         end
       end
     end
@@ -44,14 +44,14 @@ RSpec.describe SSOe::Configuration do
 
   describe '#ssl_options' do
     it 'returns a hash with client_cert and client_key if present' do
-      expect(config_with_keys.ssl_options).to eq(
+      expect(config_with_keys.send(:ssl_options)).to eq(
         client_cert: 'fake_cert',
         client_key: 'fake_key'
       )
     end
 
     it 'returns nil if cert or key is missing' do
-      expect(config_without_keys.ssl_options).to be_nil
+      expect(config_without_keys.send(:ssl_options)).to be_nil
     end
   end
 
@@ -59,7 +59,7 @@ RSpec.describe SSOe::Configuration do
     it 'creates a Faraday connection' do
       connection = config.connection
       expect(connection).to be_a(Faraday::Connection)
-      expect(connection.url_prefix.to_s).to eq(config.base_path)
+      expect(connection.url_prefix.to_s).to eq(config.send(:base_path))
     end
   end
 end

@@ -12,19 +12,6 @@ module SSOe
       IdentitySettings.ssoe_get_traits.client_key_path
     end
 
-    def ssl_options
-      if ssl_cert && ssl_key
-        {
-          client_cert: ssl_cert,
-          client_key: ssl_key
-        }
-      end
-    end
-
-    def base_path
-      IdentitySettings.ssoe_get_traits.url
-    end
-
     def service_name
       'SSOe'
     end
@@ -40,6 +27,21 @@ module SSOe
         faraday.response(:logger, ::Logger.new($stdout), bodies: true)
         faraday.adapter Faraday.default_adapter
       end
+    end
+
+    private
+
+    def ssl_options
+      if ssl_cert && ssl_key
+        {
+          client_cert: ssl_cert,
+          client_key: ssl_key
+        }
+      end
+    end
+
+    def base_path
+      IdentitySettings.ssoe_get_traits.url
     end
   end
 end
