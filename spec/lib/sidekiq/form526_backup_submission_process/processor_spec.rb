@@ -58,8 +58,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         upload_data.each do |ud|
           filename = ud['name']
           file_path = Rails.root.join('spec', 'fixtures', 'files', filename)
-          raise "File not found: #{file_path}" unless File.exist?(file_path)
-
           file = Rack::Test::UploadedFile.new(file_path, 'application/pdf')
           sea = SupportingEvidenceAttachment.find_or_create_by(guid: ud['confirmationCode'])
           sea.set_file_data!(file)
