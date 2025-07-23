@@ -726,7 +726,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.15.0)
+    multi_json (1.17.0)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
