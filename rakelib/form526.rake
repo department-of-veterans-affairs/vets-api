@@ -715,19 +715,21 @@ namespace :form526 do
   task in_progress_forms_return_point: :environment do
     MAX_NUMBER_OF_FORMS = 10_000
 
-    
     all_ipfs = InProgressForm.where(form_id: '21-526EZ').pluck(:id)
     chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS)
-    Rails.logger.info("Found #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS, job_count: chunked_ipfs.count)
+    Rails.logger.info("Found #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS,
+                                                                   job_count: chunked_ipfs.count)
     jids = []
     batch = Sidekiq::Batch.new
     batch.description = 'Form 526 In Progress Form Modifier - Resetting Return URLs for 4142 IPFs'
     batch.jobs do
       chunked_ipfs.each do |ipf_ids|
         jids << Form526InProgressFormModifier.perform_async(ipf_ids)
-      end      
+      end
     end
-    Rails.logger.info("Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})", job_ids: jids, batch_id: batch.bid)
+    Rails.logger.info(
+      "Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})", job_ids: jids, batch_id: batch.bid
+    )
   end
 
   # Check a selected collection of form526_submissions
