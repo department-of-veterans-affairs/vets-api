@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'va_profile/person/service'
 require 'va_profile/v2/person/service'
 
 # This job is run when a user does not have a vet360_id, which indicates that the user does not have an account on the
@@ -38,11 +37,7 @@ module Mobile
           mobile_user.vet360_linked = false
         end
 
-        result = if Flipper.enabled?(:remove_pciu)
-                   VAProfile::V2::Person::Service.new(user).init_vet360_id
-                 else
-                   VAProfile::Person::Service.new(user).init_vet360_id
-                 end
+        result = VAProfile::V2::Person::Service.new(user).init_vet360_id
 
         mobile_user.save
 
