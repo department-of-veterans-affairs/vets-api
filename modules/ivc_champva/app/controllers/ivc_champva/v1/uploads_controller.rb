@@ -277,9 +277,9 @@ module IvcChampva
           Rails.logger.info(
             "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
           )
-        rescue => e
-          Rails.logger.error "Error launching OCR job: #{e.message}"
         end
+      rescue => e
+        Rails.logger.error "Error launching OCR job: #{e.message}"
       end
 
       def launch_llm_job(form_id, attachment, attachment_id)
@@ -293,9 +293,9 @@ module IvcChampva
           Rails.logger.info(
             "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
           )
-        rescue => e
-          Rails.logger.error "Error launching LLM job: #{e.message}"
         end
+      rescue => e
+        Rails.logger.error "Error launching LLM job: #{e.message}"
       end
 
       ## Saves the attached file as a temporary file

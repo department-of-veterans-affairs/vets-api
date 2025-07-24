@@ -1159,7 +1159,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
   describe '#launch_background_job' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-    let(:form_id) { 'vha_10_10d' }
     let(:file_path) { '/tmp/some_file.pdf' }
     let(:attachment_guid) { '12345' }
     let(:mock_file) do
@@ -1168,41 +1167,98 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
 
-    context 'when OCR feature is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+    context 'when form_id is vha_10_7959a' do
+      let(:form_id) { 'vha_10_7959a' }
+
+      context 'when OCR feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
+        end
+
+        it 'queues TesseractOcrLoggerJob with correct arguments' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).to receive(:perform_async).with(
+            form_id,
+            attachment_guid,
+            match(%r{^/.*vha_10_7959a_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
+            'EOB'
+          )
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'queues LlmLoggerJob with correct arguments' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).to receive(:perform_async).with(
+            form_id,
+            attachment_guid,
+            match(%r{^/.*\.pdf$}), # PDF path after conversion
+            'EOB'
+          )
+          # Mock the tempfile_from_attachment method to return a temp file
+          allow(controller).to receive(:tempfile_from_attachment).and_return(double(path: '/tmp/test_file.pdf'))
+          # Mock the Common::ConvertToPdf class to avoid loading issues
+          converter_double = double('ConvertToPdf')
+          allow(converter_double).to receive(:run).and_return('/tmp/converted.pdf')
+          stub_const('Common::ConvertToPdf', double('Class'))
+          allow(Common::ConvertToPdf).to receive(:new).and_return(converter_double)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
       end
 
-      it 'queues TesseractOcrLoggerJob with correct arguments' do
-        job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
-        expect(job).to receive(:perform_async).with(
-          form_id,
-          attachment_guid,
-          match(%r{^/.*vha_10_10d_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
-          'EOB'
-        )
+      context 'when OCR feature is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(false)
+        end
 
-        controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        it 'does not queue TesseractOcrLoggerJob' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'does not queue LlmLoggerJob' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
       end
     end
 
-    context 'when OCR feature is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
-      end
+    context 'when form_id is not vha_10_7959a' do
+      let(:form_id) { 'vha_10_10d' }
 
-      it 'does not queue TesseractOcrLoggerJob' do
-        job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
-        expect(job).not_to receive(:perform_async)
+      context 'when OCR feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
+        end
 
-        controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        it 'does not queue TesseractOcrLoggerJob' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'does not queue LlmLoggerJob' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
       end
     end
   end
 
   describe '#tempfile_from_attachment' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-    let(:form_id) { 'vha_10_10d' }
+    let(:form_id) { 'vha_10_7959a' }
     let(:file_content) { 'test file content' }
 
     context 'when attachment.file responds to original_filename' do
@@ -1220,7 +1276,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^vha_10_10d_attachment_[\w\-]+\.gif$/)
+        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.gif$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
@@ -1243,7 +1299,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^vha_10_10d_attachment_[\w\-]+\.png$/)
+        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.png$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
