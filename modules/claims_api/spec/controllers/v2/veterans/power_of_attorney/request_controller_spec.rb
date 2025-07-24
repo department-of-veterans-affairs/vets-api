@@ -343,7 +343,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
         allow(service).to receive(:get_poa_request).and_return({})
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
-          .to receive(:process_poa_decision).and_return(nil)
+          .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do

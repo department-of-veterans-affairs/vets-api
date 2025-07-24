@@ -51,7 +51,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
     }
   end
 
-  let(:valid_form) do
+  let(:mapper_returned_data) do
     {
       'data' => {
         'attributes' => {
@@ -104,6 +104,61 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'phoneNumber' => '5559876'
             },
             'email' => nil,
+            'relationship' => 'Spouse'
+          }
+        }
+      }
+    }
+  end
+
+  let(:prepared_form_data) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'address' => {
+              'addressLine1' => '2719 Hyperion Ave',
+              'addressLine2' => 'Apt 2',
+              'city' => 'Los Angeles',
+              'stateCode' => 'CA',
+              'countryCode' => 'US',
+              'zipCode' => '92264',
+              'zipCodeSuffix' => '0200'
+            },
+            'phone' => {
+              'areaCode' => '555',
+              'phoneNumber' => '5551234'
+            },
+            'serviceNumber' => '123678453',
+            'insuranceNumber' => '1234567890'
+          },
+          'serviceOrganization' => {
+            'poaCode' => '083',
+            'registrationNumber' => '12345678'
+          },
+          'recordConsent' => true,
+          'consentLimits' => %w[
+            DRUG_ABUSE
+            ALCOHOLISM
+            HIV
+            SICKLE_CELL
+          ],
+          'consentAddressChange' => true,
+          'claimant' => {
+            'claimantId' => '1013093331V548481',
+            'address' => {
+              'addressLine1' => '123 Main St',
+              'addressLine2' => 'Apt 3',
+              'city' => 'Boston',
+              'stateCode' => 'MA',
+              'countryCode' => 'US',
+              'zipCode' => '02110',
+              'zipCodeSuffix' => '1000'
+            },
+            'phone' => {
+              'areaCode' => '555',
+              'phoneNumber' => '5559876'
+            },
             'relationship' => 'Spouse'
           }
         }

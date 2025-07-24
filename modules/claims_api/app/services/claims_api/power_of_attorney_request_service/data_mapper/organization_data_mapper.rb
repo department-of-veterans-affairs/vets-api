@@ -60,7 +60,7 @@ module ClaimsApi
             'recordConsent' => determine_bool_for_form_field(@data['section_7332_auth']),
             'consentLimits' => determine_consent_limits,
             'consentAddressChange' => determine_bool_for_form_field(@data['change_address_auth'])
-          }.compact
+          }
         end
 
         def build_claimant_form_data # rubocop:disable Metrics/MethodLength
@@ -84,7 +84,7 @@ module ClaimsApi
               'email' => @data['claimant']['email_addrs_txt'],
               'relationship' => @data['claimant_relationship']
             }
-          }.compact
+          }
         end
 
         def parse_phone_number(number)

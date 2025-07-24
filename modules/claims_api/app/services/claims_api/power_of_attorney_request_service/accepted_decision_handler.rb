@@ -69,14 +69,14 @@ module ClaimsApi
         ).call
       end
 
-      def read_all_vateran_representative_records
+      def read_all_veteran_representative_records
         ClaimsApi::VeteranRepresentativeService
           .new(external_uid: @veteran.participant_id, external_key: @veteran.participant_id)
           .read_all_veteran_representatives(type_code: FORM_TYPE_CODE, ptcpnt_id: @veteran.participant_id)
       end
 
       def gather_read_all_veteran_representative_data
-        records = read_all_vateran_representative_records
+        records = read_all_veteran_representative_records
         # error if records nil
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper.new(
           proc_id: @proc_id,
