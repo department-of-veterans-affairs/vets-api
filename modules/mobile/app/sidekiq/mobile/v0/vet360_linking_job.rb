@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'va_profile/person/service'
 require 'va_profile/v2/person/service'
 
 # This job is run when a user does not have a vet360_id, which indicates that the user does not have an account on the

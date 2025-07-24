@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/person/service'
 require 'va_profile/v2/person/service'
 
 module V0
