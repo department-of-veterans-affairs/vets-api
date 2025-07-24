@@ -45,7 +45,7 @@ module CARMA
             :post,
             resource,
             get_body(payload),
-            *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [headers]),
+            headers,
             *(Flipper.enabled?(:caregiver_mulesoft_config_v2) ? [] : [{ timeout: config.settings.async_timeout }])
           )
 

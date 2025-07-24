@@ -865,17 +865,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
-        - name: requires_oh_messages
-          in: query
-          description: Count of folder messages includes Oracle Health messages if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
@@ -900,17 +889,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
-        - name: requires_oh_messages
-          in: query
-          description: Count of folder messages includes Oracle Health messages if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -1010,15 +988,6 @@ paths:
           schema:
             type: string
             enum: [ASC, DESC]
-        - name: requires_oh_messages
-          in: query
-          description: Includes Oracle Health threads if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       responses:
         "200":
@@ -1065,15 +1034,6 @@ paths:
           schema:
             type: integer
             default: 250
-        - name: requires_oh_messages
-          in: query
-          description: Includes Oracle Health messages in search results if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
@@ -1618,15 +1578,6 @@ paths:
           required: false
           schema:
             type: boolean
-        - name: requires_oh_messages
-          in: query
-          description: Includes Oracle Health messages if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/recipients:
     get:
@@ -1678,17 +1629,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/allrecipients
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
-        - name: requires_oh
-          in: query
-          description: Includes Oracle Health recipients if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
   /v1/messaging/threads/{id}/move:
     patch:
       description:
@@ -2082,14 +2022,5 @@ components:
         type: string
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
-    RequiresOHMessages:
-      name: requires_oh_messages
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-          - "0"
-          - "1"
 security:
   - CookieAuth: []

@@ -366,7 +366,7 @@ RSpec.describe FormProfile, type: :model do
         'emailAddress' => user.va_profile_email
       },
       'dateOfBirth' => user.birth_date,
-      'vaFileNumber' => user.ssn
+      'ssn' => user.ssn
     }
   end
   let(:v22_1990_n_expected) do

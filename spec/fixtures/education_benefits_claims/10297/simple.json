@@ -3,7 +3,7 @@
     "first": "Test",
     "last": "Personage"
   },
-  "vaFileNumber": "123456789",
+  "ssn": "123456789",
   "mailingAddress" :{
     "street": "123 Test St",
     "street2": "Apt B",
