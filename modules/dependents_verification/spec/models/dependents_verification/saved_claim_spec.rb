@@ -27,7 +27,7 @@ RSpec.describe DependentsVerification::SavedClaim do
 
   describe '#business_line' do
     it 'returns the correct business line' do
-      expect(subject.business_line).to eq('TEST')
+      expect(subject.business_line).to eq('OTH')
     end
   end
 
