@@ -136,8 +136,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
                         submission_failed_for_rep_notification)
     end
     # rubocop:enable RSpec/RepeatedDescription, RSpec/RepeatedExample
-<<<<<<< HEAD
-=======
   end
 
   describe '#status' do
@@ -158,7 +156,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
         expect(notification.status).to eq('')
       end
     end
->>>>>>> 0205634a28 (rubocop issues; add flipper flag)
   end
 
   describe '#template_id' do
