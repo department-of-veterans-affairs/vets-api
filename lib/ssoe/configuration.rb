@@ -15,8 +15,6 @@ module SSOe
                                   ssl: ssl_options) do |faraday|
         faraday.request :soap_headers
         faraday.response :soap_parser
-        faraday.request(:curl, ::Logger.new($stdout), :warn)
-        faraday.response(:logger, ::Logger.new($stdout), bodies: true)
         faraday.adapter Faraday.default_adapter
       end
     end
@@ -36,13 +34,11 @@ module SSOe
     end
 
     def ssl_cert
-      path = IdentitySettings.ssoe_get_traits.client_cert_path
-      OpenSSL::X509::Certificate.new(File.read(path)) if File.exist?(path)
+      OpenSSL::X509::Certificate.new(File.read(IdentitySettings.ssoe_get_traits.client_cert_path))
     end
 
     def ssl_key
-      path = IdentitySettings.ssoe_get_traits.client_key_path
-      OpenSSL::PKey::RSA.new(File.read(path)) if File.exist?(path)
+      OpenSSL::PKey::RSA.new(File.read(IdentitySettings.ssoe_get_traits.client_key_path))
     end
 
     def base_path

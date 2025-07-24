@@ -23,13 +23,11 @@ RSpec.describe SSOe::Configuration do
     allow(IdentitySettings.ssoe_get_traits).to receive_messages(url: base_url, client_cert_path: cert_path,
                                                                 client_key_path: key_path)
 
-    allow(File).to receive(:exist?).with(cert_path).and_return(true)
-    allow(File).to receive(:exist?).with(key_path).and_return(true)
-    allow(File).to receive(:read).with(cert_path).and_return(cert_data)
-    allow(File).to receive(:read).with(key_path).and_return(key_data)
-
     allow(OpenSSL::X509::Certificate).to receive(:new).with(cert_data).and_return(cert_obj)
     allow(OpenSSL::PKey::RSA).to receive(:new).with(key_data).and_return(key_obj)
+
+    allow(File).to receive(:read).with(cert_path).and_return(cert_data)
+    allow(File).to receive(:read).with(key_path).and_return(key_data)
   end
 
   describe '#connection' do
