@@ -121,7 +121,7 @@ module AccreditedRepresentativePortal
       private
 
       def rep_first_name
-        @notification&.accredited_individual&.first_name
+        @notification&.power_of_attorney_request&.resolution&.resolving&.accredited_individual&.first_name
       end
     end
   end

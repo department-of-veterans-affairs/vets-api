@@ -29,11 +29,8 @@ module AccreditedRepresentativePortal
     end
 
     def accredited_individual_email_address
-      if accredited_individual&.email.present?
-        accredited_individual&.email
-      else
-        raise Common::Exceptions::InternalServerError, 'No representative email address found'
-      end
+      accredited_individual&.email.presence || raise(Common::Exceptions::InternalServerError,
+                                                     'No representative email address found')
     end
 
     def status
