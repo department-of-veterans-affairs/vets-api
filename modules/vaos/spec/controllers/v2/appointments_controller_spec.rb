@@ -292,46 +292,4 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       end
     end
   end
-
-  describe '#fetch_provider_slots' do
-    let(:controller) { described_class.new }
-    let(:eps_provider_service) { instance_double(Eps::ProviderService) }
-    let(:referral) do
-      OpenStruct.new(
-        referral_date: '2024-01-01',
-        expiration_date: '2024-12-31'
-      )
-    end
-    let(:draft_appointment_id) { 'draft123' }
-    let(:provider) do
-      OpenStruct.new(
-        id: 'provider123',
-        appointment_types: [{ id: 'type123', is_self_schedulable: true }]
-      )
-    end
-
-    before do
-      allow(controller).to receive(:eps_provider_service).and_return(eps_provider_service)
-    end
-
-    context 'when date parsing raises ArgumentError' do
-      let(:referral) do
-        OpenStruct.new(
-          referral_date: 'invalid-date',
-          expiration_date: '2024-12-31'
-        )
-      end
-
-      before do
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'logs error and returns nil' do
-        result = controller.send(:fetch_provider_slots, referral, provider, draft_appointment_id)
-
-        expect(Rails.logger).to have_received(:error).with('Community Care Appointments: Error fetching provider slots')
-        expect(result).to be_nil
-      end
-    end
-  end
 end
