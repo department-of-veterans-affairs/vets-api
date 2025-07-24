@@ -13,7 +13,7 @@ module IvcChampva
     # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
     # @param [String] uuid The UUID of the attachment
     # @param [String] file_path The path to the file
-    # @param [String] attachment_id The doc_t ype of the attachment
+    # @param [String] attachment_id The doc_type of the attachment
     def perform(form_id, uuid, file_path, attachment_id)
       return unless Flipper.enabled?(:champva_enable_llm_on_submit)
 
