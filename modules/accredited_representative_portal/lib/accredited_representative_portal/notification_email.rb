@@ -38,8 +38,8 @@ module AccreditedRepresentativePortal
 
       {
         'confirmation_number' => claim.confirmation_number,
-        'representative_name' => representative&.full_name || 'Representative',
-        'first_name' => claimant_first_name
+        'first_name' => representative&.first_name || 'Representative',
+        'submission_date' => claim.created_at.strftime('%B %-d, %Y'),
       }.merge(default)
     end
 
