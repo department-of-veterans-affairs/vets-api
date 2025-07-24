@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# froze nh
-# n_string_literal: true
-
 module AccreditedRepresentativePortal
   class EmailPersonalisations
     class << self
