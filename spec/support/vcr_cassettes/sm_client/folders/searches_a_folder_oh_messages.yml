@@ -54,6 +54,6 @@ http_interactions:
         string:
           '{"message":[{"id":3719187,"category":"OTHER","subject":"OH THREAD 001","body":null,"attachment":true,"attachments":null,"sentDate":"Tue,
           25 Jun 2024 14:14:51 GMT","senderId":2444644,"senderName":"DOE, JOHN","recipientId":2570050,"recipientName":"MHVTP,
-          GREEN G","readReceipt":"READ","triageGroupName":"Doctor Triage","proxySenderName":null}]}'
+          GREEN G","readReceipt":"READ","triageGroupName":"Doctor Triage","proxySenderName":null,"isOhMessage":true}]}'
     recorded_at: Fri, 28 Jun 2024 13:30:24 GMT
 recorded_with: VCR 6.2.0

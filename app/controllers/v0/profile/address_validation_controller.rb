@@ -31,7 +31,6 @@ module V0
           :address_pou,
           :address_type,
           :city,
-          :country_name,
           :country_code_iso3,
           :international_postal_code,
           :province,

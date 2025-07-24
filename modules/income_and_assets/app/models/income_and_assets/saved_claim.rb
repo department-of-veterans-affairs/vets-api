@@ -30,6 +30,11 @@ module IncomeAndAssets
       'NCA'
     end
 
+    # the VBMS document type for _this_ claim type
+    def document_type
+      1292
+    end
+
     # Utility function to retrieve claimant email from form
     #
     # @return [String] the claimant email
@@ -78,8 +83,22 @@ module IncomeAndAssets
       files.find_each { |f| f.update(saved_claim_id: id) }
     end
 
+    ##
+    # Generates a PDF from the saved claim data
+    #
+    # @param file_name [String, nil] Optional name for the output PDF file
+    # @param fill_options [Hash] Additional options for PDF generation
+    # @return [String] Path to the generated PDF file
+    #
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(email_type)
+      IncomeAndAssets::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

@@ -6,98 +6,84 @@ require 'lighthouse/benefits_discovery/service'
 RSpec.describe BenefitsDiscovery::Service do
   subject { BenefitsDiscovery::Service.new }
 
-  context 'with params' do
-    it 'returns recommendations' do
-      params = {
-        date_of_birth: '2000-06-15',
-        discharge_status: 'HONORABLE_DISCHARGE',
-        branch_of_service: 'NAVY',
-        disability_rating: 60,
-        service_start_date: '2018-01-01',
-        service_end_date: '2022-01-01',
-        purpleHeartRecipientDates: %w[2017-05-15 2020-01-01]
-      }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
 
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params') do
-        response = subject.get_eligible_benefits(params)
-        expect(response).to eq({
-                                 'data' => {
-                                   'undetermined' => [],
-                                   'recommended' => [
-                                     {
-                                       'benefit_name' => 'Life Insurance (VALife)',
-                                       'benefit_url' => 'https://www.va.gov/life-insurance/'
-                                     },
-                                     {
-                                       'benefit_name' => 'Health',
-                                       'benefit_url' => 'https://www.va.gov/health-care/'
-                                     }
-                                   ],
-                                   'not_recommended' => []
-                                 }
-                               })
-      end
-    end
+  before do
+    allow_any_instance_of(BenefitsDiscovery::Params).to receive(:prepared_params).and_return(params)
   end
 
-  context 'with empty values' do
-    it 'removes empty params' do
-      params = {
-        date_of_birth: nil,
-        discharge_status: nil,
-        branch_of_service: nil,
-        disability_rating: nil,
-        service_start_date: nil,
-        service_end_date: nil,
-        purpleHeartRecipientDates: nil
-      }
+  describe '#get_eligible_benefits' do
+    context 'with params' do
+      let(:params) do
+        {
+          dateOfBirth: '2000-06-15',
+          dischargeStatus: ['HONORABLE_DISCHARGE'],
+          branchOfService: ['NAVY'],
+          disabilityRating: 60,
+          serviceDates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }]
+        }
+      end
 
-      expect_any_instance_of(Faraday::Connection).to receive(:post).with(
-        'benefits-discovery-service/v0/recommendations', '{}'
-      ).and_call_original
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params') do
-        subject.get_eligible_benefits(params)
+      it 'returns recommendations' do
+        VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params',
+                         match_requests_on: %i[method uri body]) do
+          response = subject.get_eligible_benefits(user.uuid)
+          expect(response).to eq(
+            {
+              'undetermined' => [],
+              'recommended' => [
+                {
+                  'benefit_name' => 'Life Insurance (VALife)',
+                  'benefit_url' => 'https://www.va.gov/life-insurance/'
+                },
+                {
+                  'benefit_name' => 'Health',
+                  'benefit_url' => 'https://www.va.gov/health-care/'
+                }
+              ],
+              'not_recommended' => []
+            }
+          )
+        end
       end
     end
 
-    it 'returns recommendations' do
-      params = {
-        date_of_birth: nil,
-        discharge_status: nil,
-        branch_of_service: nil,
-        disability_rating: nil,
-        service_start_date: nil,
-        service_end_date: nil,
-        purpleHeartRecipientDates: nil
-      }
+    context 'with empty values' do
+      let(:params) { {} }
 
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params') do
-        response = subject.get_eligible_benefits(params)
-        expect(response).to eq({
-                                 'data' => {
-                                   'undetermined' => [
-                                     {
-                                       'benefit_name' => 'Health',
-                                       'benefit_url' => 'https://www.va.gov/health-care/'
-                                     }
-                                   ],
-                                   'recommended' => [],
-                                   'not_recommended' => [{
-                                     'benefit_name' => 'Life Insurance (VALife)',
-                                     'benefit_url' => 'https://www.va.gov/life-insurance/'
-                                   }]
-                                 }
-                               })
+      it 'returns recommendations' do
+        VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params',
+                         match_requests_on: %i[method uri body]) do
+          response = subject.get_eligible_benefits(user.uuid)
+          expect(response).to eq(
+            {
+              'undetermined' => [
+                {
+                  'benefit_name' => 'Health',
+                  'benefit_url' => 'https://www.va.gov/health-care/'
+                }
+              ],
+              'recommended' => [],
+              'not_recommended' => [{
+                'benefit_name' => 'Life Insurance (VALife)',
+                'benefit_url' => 'https://www.va.gov/life-insurance/'
+              }]
+            }
+          )
+        end
       end
     end
-  end
 
-  context 'with invalid param values' do
-    it 'raises client error' do
-      VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params') do
-        expect do
-          subject.get_eligible_benefits({ branch_of_service: 'A-Team' })
-        end.to raise_error(Common::Client::Errors::ClientError)
+    context 'with invalid param values' do
+      let(:params) { { branchOfService: 'A-Team' } }
+
+      it 'raises client error' do
+        VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params',
+                         match_requests_on: %i[method uri body]) do
+          expect do
+            subject.get_eligible_benefits(user.uuid)
+          end.to raise_error(Common::Client::Errors::ClientError)
+        end
       end
     end
   end

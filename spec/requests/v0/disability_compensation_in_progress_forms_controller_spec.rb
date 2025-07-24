@@ -9,7 +9,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
   it_behaves_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
-    let(:loa3_user) { build(:disabilities_compensation_user, :with_terms_of_use_agreement, uuid: SecureRandom.uuid) }
+    let(:loa3_user) { build(:disabilities_compensation_user) }
     let(:loa1_user) { build(:user, :loa1) }
 
     describe '#show' do
@@ -31,7 +31,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
              'maximumRatingPercentage' => nil }]
         end
 
-        let(:lighthouse_user) { build(:evss_user, uuid: SecureRandom.uuid) }
+        let(:lighthouse_user) { build(:evss_user, icn: '123498767V234859') }
 
         let!(:in_progress_form_lighthouse) do
           form_json = JSON.parse(

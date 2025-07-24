@@ -6,7 +6,7 @@ require 'va_profile/v2/contact_information/service'
 describe VAProfile::V2::ContactInformation::Service do
   subject { described_class.new(user) }
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, :legacy_icn) }
 
   describe '#get_person' do
     context 'when successful' do
@@ -146,6 +146,8 @@ describe VAProfile::V2::ContactInformation::Service do
                                   source_system_user: user.icn
       )
     end
+
+    before { allow(user).to receive(:vet360_id).and_return(nil) }
 
     context 'when successful' do
       it 'creates an old_email record' do

@@ -48,7 +48,7 @@ module BenefitsIntakeService
 
       def convert_img!
         tmp_cover_page_pdf = generate_pdf_title_page_pdf
-        convert = MiniMagick::Tool::Convert.new
+        convert = MiniMagick::Tool.new('convert')
         convert.resize('2550x3300') # 8.5x11 in pixels
         convert << '-density' << '300' # 300 dpi
         convert << tmp_cover_page_pdf # instruction doc (first page of resulting pdf)

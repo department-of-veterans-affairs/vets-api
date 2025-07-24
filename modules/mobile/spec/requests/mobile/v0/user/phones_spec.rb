@@ -5,7 +5,7 @@ require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::User::Phones', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user }
+  let!(:user) { sis_user(icn: '123498767V234859') }
 
   let(:headers) do
     sis_headers(json: true)

@@ -5,7 +5,7 @@ require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::User::Email', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user }
+  let!(:user) { sis_user(icn: '123498767V234859') }
 
   before do
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))

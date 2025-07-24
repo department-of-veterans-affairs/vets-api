@@ -122,7 +122,7 @@ Rails.application.routes.draw do
     resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
-        get(:enrollment_status)
+        match(:enrollment_status, via: %i[get post])
         get(:rating_info)
         get(:facilities)
         post(:download_pdf)
@@ -190,9 +190,6 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
-
-    get 'ppiu/payment_information', to: 'ppiu#index'
-    put 'ppiu/payment_information', to: 'ppiu#update'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
@@ -327,10 +324,14 @@ Rails.application.routes.draw do
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
     resources :form1010_ezrs, only: %i[create]
+    post '/form1010_ezrs/download_pdf', to: 'form1010_ezrs#download_pdf'
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 
     get 'banners', to: 'banners#by_path'
+    post 'datadog_action', to: 'datadog_action#create'
+
+    match 'csrf_token', to: 'csrf_token#index', via: :head
   end
   # end /v0
 
@@ -368,6 +369,8 @@ Rails.application.routes.draw do
         resources :lacs, only: %i[index show], defaults: { format: :json }
         resources :exams, only: %i[index show], defaults: { format: :json }
       end
+
+      resources :version_public_exports, path: :public_exports, only: :show, defaults: { format: :json }
     end
 
     resource :post911_gi_bill_status, only: [:show]
@@ -400,6 +403,7 @@ Rails.application.routes.draw do
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
+  mount MedicalExpenseReports::Engine, at: '/medical_expense_reports'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount IncomeLimits::Engine, at: '/income_limits'

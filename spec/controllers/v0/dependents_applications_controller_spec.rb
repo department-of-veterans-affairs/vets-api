@@ -13,6 +13,13 @@ RSpec.describe V0::DependentsApplicationsController do
     build(:dependency_claim).parsed_form
   end
 
+  let(:test_form_v2) do
+    build(:dependency_claim_v2).parsed_form
+  end
+
+  let(:service) { instance_double(BGS::DependentService) }
+  let(:service_v2) { instance_double(BGS::DependentV2Service) }
+
   describe '#show' do
     context 'with a valid bgs response' do
       let(:user) { build(:disabilities_compensation_user, ssn: '796126777') }
@@ -59,6 +66,14 @@ RSpec.describe V0::DependentsApplicationsController do
           expect(personalization).to_have.keys(%w[date_submitted first_name confirmation_number])
           expect(secret).to_be('fake_secret')
         end
+
+        expect(BGS::DependentService).to receive(:new)
+          .with(instance_of(User))
+          .and_return(service)
+
+        expect(service).to receive(:submit_686c_form)
+          .with(instance_of(SavedClaim::DependencyClaim))
+
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end
@@ -76,6 +91,38 @@ RSpec.describe V0::DependentsApplicationsController do
       end
 
       it 'validates successfully' do
+        expect(BGS::DependentV2Service).to receive(:new)
+          .with(instance_of(User))
+          .and_return(service_v2)
+
+        expect(service_v2).to receive(:submit_686c_form)
+          .with(instance_of(SavedClaim::DependencyClaim))
+
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post(:create, params: test_form_v2)
+        end
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with v1 submitting with a v2 user' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+      end
+
+      it 'validates successfully' do
+        expect(BGS::DependentService).to receive(:new)
+          .with(instance_of(User))
+          .and_return(service)
+
+        expect(service).to receive(:submit_686c_form)
+          .with(instance_of(SavedClaim::DependencyClaim))
+
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end

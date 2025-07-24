@@ -46,6 +46,12 @@ describe TravelPay::ClaimsClient do
           200,
           {},
           {
+            'totalRecordCount' => 3,
+            'statusCode' => 200,
+            'success' => true,
+            'pageNumber' => 1,
+            'pageSize' => 50,
+            'message' => 'Successfully retrieved claims',
             'data' => [
               {
                 'id' => 'uuid1',
@@ -82,7 +88,10 @@ describe TravelPay::ClaimsClient do
       expected_ids = %w[uuid1 uuid2 uuid3]
 
       client = TravelPay::ClaimsClient.new
-      claims_response = client.get_claims('veis_token', 'btsss_token')
+      claims_response = client.get_claims('veis_token', 'btsss_token', {
+                                            page_number: 1,
+                                            page_size: 50
+                                          })
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
       expect(StatsD).to have_received(:measure)
@@ -165,7 +174,12 @@ describe TravelPay::ClaimsClient do
         [
           200,
           {},
-          {
+          { 'totalRecordCount' => 2,
+            'statusCode' => 200,
+            'success' => true,
+            'pageNumber' => 1,
+            'pageSize' => 50,
+            'message' => 'Successfully retrieved claims',
             'data' => [
               {
                 'id' => 'uuid1',
@@ -185,8 +199,7 @@ describe TravelPay::ClaimsClient do
                 'createdOn' => '2024-01-22T21:22:34.465Z',
                 'modifiedOn' => '2024-02-01T00:00:00.0Z'
               }
-            ]
-          }
+            ] }
         ]
       end
 
@@ -194,8 +207,11 @@ describe TravelPay::ClaimsClient do
 
       client = TravelPay::ClaimsClient.new
       claims_response = client.get_claims_by_date('veis_token', 'btsss_token',
-                                                  { 'start_date' => '2024-01-01T16:45:34.465Z',
-                                                    'end_date' => '2024-02-01T16:45:34.465Z' })
+                                                  { start_date: '2024-01-01T16:45:34.465Z',
+                                                    end_date: '2024-02-01T16:45:34.465Z',
+                                                    page_number: 1,
+                                                    page_size: 50 })
+      expect(claims_response.body['totalRecordCount']).to eq(claims_response.body['data'].size)
       actual_ids = claims_response.body['data'].pluck('id')
 
       expect(StatsD).to have_received(:measure)

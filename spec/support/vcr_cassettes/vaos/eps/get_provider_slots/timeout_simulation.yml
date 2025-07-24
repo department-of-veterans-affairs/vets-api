@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TIMEOUT_TEST/slots?appointmentId=123&appointmentTypeId=ov&startBefore=2025-01-03T00:00:00Z&startOnOrAfter=2025-01-01T00:00:00Z
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+        - timeout-test-1
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Sat, 11 Jan 2025 23:00:44 GMT
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string: '{"count":1,"slots":[{"id":"timeout-slot-1","providerServiceId":"TIMEOUT_TEST"}],"next_token":"page2"}'
+  recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
+- request:
+    method: get
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TIMEOUT_TEST/slots?nextToken=page2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+        - timeout-test-2
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Sat, 11 Jan 2025 23:00:44 GMT
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string: '{"count":1,"slots":[{"id":"timeout-slot-2","providerServiceId":"TIMEOUT_TEST"}],"next_token":"page3"}'
+  recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
+- request:
+    method: get
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TIMEOUT_TEST/slots?nextToken=page3
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+        - timeout-test-3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Sat, 11 Jan 2025 23:00:44 GMT
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string: '{"count":1,"slots":[{"id":"timeout-slot-3","providerServiceId":"TIMEOUT_TEST"}],"next_token":"page4"}'
+  recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
+recorded_with: VCR 6.3.1 

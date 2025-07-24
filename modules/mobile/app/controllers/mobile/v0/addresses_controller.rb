@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/address_validation/service'
 require 'va_profile/v3/address_validation/service'
 
 module Mobile
@@ -30,7 +29,8 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
         response = validation_service.address_suggestions(validated_address_params).as_json
-        suggested_addresses = response.dig('response', 'addresses').map do |a|
+        address_list = response.dig('response', 'addresses').sort_by { _1.dig('address_meta_data', 'confidence_score') }
+        suggested_addresses = address_list.map do |a|
           address = a['address'].symbolize_keys
           validation_key = response['response']['override_validation_key'] ||
                            response['response']['validation_key']
@@ -44,7 +44,9 @@ module Mobile
           Mobile::V0::SuggestedAddress.new(address)
         end
 
-        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
+        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses.sort_by { |addr|
+          addr.address_meta.confidence_score
+        })
       end
 
       private

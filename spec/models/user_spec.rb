@@ -53,10 +53,9 @@ RSpec.describe User, type: :model do
   describe '#needs_accepted_terms_of_use' do
     context 'when user is verified' do
       let(:user) { build(:user, :loa3, needs_accepted_terms_of_use: nil) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
       context 'and user has an associated current terms of use agreements' do
-        let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account: user_verification.user_account) }
+        let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account: user.user_account) }
 
         it 'does not return true' do
           expect(user.needs_accepted_terms_of_use).to be_falsey
@@ -947,32 +946,36 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#account' do
-    context 'when user has an existing Account record' do
-      let(:user) { create(:user, :accountable) }
+  describe '#pciu' do
+    context 'when user is LOA3 and has an edipi' do
+      before { stub_evss_pciu(user) }
 
-      it 'returns the users Account record' do
-        account = Account.find_by(idme_uuid: user.uuid)
+      it 'returns pciu_email' do
+        expect(user.pciu_email).to eq 'test2@test1.net'
+      end
 
-        expect(user.account).to eq account
+      it 'returns pciu_primary_phone' do
+        expect(user.pciu_primary_phone).to eq '14445551212'
+      end
+
+      it 'returns pciu_alternate_phone' do
+        expect(user.pciu_alternate_phone).to eq '1'
       end
     end
 
-    context 'when user does not have an existing Account record' do
-      let(:user) { create(:user, :loa3) }
+    context 'when user is LOA1' do
+      let(:user) { build(:user, :loa1) }
 
-      before do
-        account = Account.find_by(idme_uuid: user.uuid)
-        account.destroy
+      it 'returns blank pciu_email' do
+        expect(user.pciu_email).to be_nil
       end
 
-      it 'creates and returns the users Account record', :aggregate_failures do
-        account = Account.find_by(idme_uuid: user.uuid)
-        expect(account).to be_nil
-        account = user.account
+      it 'returns blank pciu_primary_phone' do
+        expect(user.pciu_primary_phone).to be_nil
+      end
 
-        expect(account.class).to eq Account
-        expect(account.idme_uuid).to eq user.uuid
+      it 'returns blank pciu_alternate_phone' do
+        expect(user.pciu_alternate_phone).to be_nil
       end
     end
   end
@@ -1163,26 +1166,29 @@ RSpec.describe User, type: :model do
   context 'user_verification methods' do
     let(:user) do
       described_class.new(
-        build(:user, :loa3,
-              idme_uuid:, logingov_uuid:,
-              edipi:, mhv_credential_uuid:, authn_context:)
+        build(:user, :loa3, uuid:,
+                            idme_uuid:, logingov_uuid:,
+                            edipi:, mhv_credential_uuid:, authn_context:, icn:, user_verification:)
       )
     end
     let(:authn_context) { LOA::IDME_LOA1_VETS }
+    let(:csp) { 'idme' }
     let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:edipi) { 'some-edipi' }
     let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
+    let(:icn) { 'some-icn' }
     let!(:user_verification) do
-      Login::UserVerifier.new(login_type: user.identity_sign_in[:service_name],
-                              auth_broker: user.identity_sign_in[:auth_broker],
+      Login::UserVerifier.new(login_type: csp,
+                              auth_broker: 'iam',
                               mhv_uuid: mhv_credential_uuid,
                               idme_uuid:,
                               dslogon_uuid: edipi,
                               logingov_uuid:,
-                              icn: user.icn).perform
+                              icn:).perform
     end
     let!(:user_account) { user_verification&.user_account }
+    let(:uuid) { user_account.id }
 
     describe '#user_verification' do
       it 'returns expected user_verification' do
@@ -1190,6 +1196,7 @@ RSpec.describe User, type: :model do
       end
 
       context 'when user is logged in with mhv' do
+        let(:csp) { 'mhv' }
         let(:authn_context) { 'myhealthevet' }
 
         context 'and there is an mhv_credential_uuid' do
@@ -1212,6 +1219,7 @@ RSpec.describe User, type: :model do
           context 'and user does not have an idme_uuid' do
             let(:idme_uuid) { nil }
             let(:user_verification) { nil }
+            let(:uuid) { SecureRandom.uuid }
 
             it 'returns nil' do
               expect(user.user_verification).to be_nil
@@ -1221,6 +1229,7 @@ RSpec.describe User, type: :model do
       end
 
       context 'when user is logged in with dslogon' do
+        let(:csp) { 'dslogon' }
         let(:authn_context) { 'dslogon' }
 
         context 'and there is an edipi' do
@@ -1245,6 +1254,7 @@ RSpec.describe User, type: :model do
           context 'and user does not have an idme_uuid' do
             let(:idme_uuid) { nil }
             let(:user_verification) { nil }
+            let(:uuid) { SecureRandom.uuid }
 
             it 'returns nil' do
               expect(user.user_verification).to be_nil
@@ -1255,7 +1265,7 @@ RSpec.describe User, type: :model do
 
       context 'when user is logged in with logingov' do
         let(:authn_context) { IAL::LOGIN_GOV_IAL1 }
-        let(:logingov_uuid) { 'some-logingov-uuid' }
+        let(:csp) { 'logingov' }
 
         it 'returns user verification with a matching logingov uuid' do
           expect(user.user_verification.logingov_uuid).to eq(logingov_uuid)
@@ -1276,6 +1286,7 @@ RSpec.describe User, type: :model do
         context 'and user does not have an idme_uuid' do
           let(:idme_uuid) { nil }
           let(:user_verification) { nil }
+          let(:uuid) { SecureRandom.uuid }
 
           it 'returns nil' do
             expect(user.user_verification).to be_nil
@@ -1292,9 +1303,8 @@ RSpec.describe User, type: :model do
 
     describe '#credential_lock' do
       context 'when the user has a UserVerification' do
-        let(:user) { build(:user, :loa3, icn: user_account.icn) }
-        let(:user_account) { build(:user_account) }
-        let(:user_verification) { create(:idme_user_verification, user_account:, idme_uuid: user.idme_uuid, locked:) }
+        let(:user_verification) { create(:idme_user_verification, locked:) }
+        let(:user) { build(:user, :loa3, user_verification:, idme_uuid: user_verification.idme_uuid) }
         let(:locked) { false }
 
         context 'when the UserVerification is not locked' do
@@ -1313,7 +1323,7 @@ RSpec.describe User, type: :model do
       end
 
       context 'when the user does not have a UserVerification' do
-        let(:user) { build(:user, :loa1) }
+        let(:user) { build(:user, :loa1, uuid: SecureRandom.uuid, user_verification: nil) }
 
         it 'returns nil' do
           expect(user.credential_lock).to be_nil
@@ -1328,7 +1338,6 @@ RSpec.describe User, type: :model do
     before do
       Flipper.enable(:veteran_onboarding_beta_flow, user)
       Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
-      create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
     context "when feature toggle is enabled, show onboarding flow depending on user's preferences" do
@@ -1352,15 +1361,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#mhv_user_account' do
+    subject { user.mhv_user_account(from_cache_only:) }
+
     let(:user) { build(:user, :loa3) }
     let(:icn) { user.icn }
     let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
-
-    let!(:user_verification) do
-      create(:idme_user_verification, idme_uuid: user.idme_uuid, user_credential_email:, user_account:)
-    end
-    let(:user_credential_email) { create(:user_credential_email) }
-    let(:user_account) { create(:user_account, icn:) }
+    let(:user_account) { user.user_account }
     let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response: terms_of_use_response) }
     let(:terms_of_use_response) { 'accepted' }
 
@@ -1375,6 +1381,7 @@ RSpec.describe User, type: :model do
         message: 'some-message'
       }
     end
+    let(:from_cache_only) { true }
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -1382,55 +1389,132 @@ RSpec.describe User, type: :model do
       allow(Rails.cache).to receive(:read).with(expected_cache_key).and_return(mhv_response)
     end
 
-    context 'when the mhv response is cached' do
-      context 'when the user has all required attributes' do
-        it 'returns a MHVUserAccount with the expected attributes' do
-          mhv_user_account = user.mhv_user_account
+    context 'when from_cache_only is true' do
+      let(:from_cache_only) { true }
 
-          expect(mhv_user_account).to be_a(MHVUserAccount)
-          expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
-        end
-      end
+      context 'and the mhv response is cached' do
+        context 'when the user has all required attributes' do
+          it 'returns a MHVUserAccount with the expected attributes' do
+            mhv_user_account = subject
 
-      context 'when there is an error creating the account' do
-        shared_examples 'mhv_user_account error' do
-          let(:expected_log_message) { '[User] mhv_user_account error' }
-          let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
-
-          it 'logs and returns nil' do
-            expect(user.mhv_user_account).to be_nil
-            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            expect(mhv_user_account).to be_a(MHVUserAccount)
+            expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
           end
         end
 
-        context 'when the user does not have a terms_of_use_agreement' do
-          let(:terms_of_use_agreement) { nil }
-          let(:expected_error_message) { 'Current terms of use agreement must be present' }
+        context 'and there is an error creating the account' do
+          shared_examples 'mhv_user_account error' do
+            let(:expected_log_message) { '[User] mhv_user_account error' }
+            let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
 
-          it_behaves_like 'mhv_user_account error'
+            it 'logs and returns nil' do
+              expect(subject).to be_nil
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+
+          context 'and the user does not have a terms_of_use_agreement' do
+            let(:terms_of_use_agreement) { nil }
+            let(:expected_error_message) { 'Current terms of use agreement must be present' }
+
+            it_behaves_like 'mhv_user_account error'
+          end
+
+          context 'and the user has not accepted the terms of use' do
+            let(:terms_of_use_response) { 'declined' }
+            let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+
+            it_behaves_like 'mhv_user_account error'
+          end
+
+          context 'and the user does not have an icn' do
+            let(:user) { build(:user, :loa3, icn: nil) }
+            let(:expected_error_message) { 'ICN must be present' }
+
+            it_behaves_like 'mhv_user_account error'
+          end
         end
+      end
 
-        context 'when the user has not accepted the terms of use' do
-          let(:terms_of_use_response) { 'declined' }
-          let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+      context 'and the mhv response is not cached' do
+        let(:mhv_response) { nil }
 
-          it_behaves_like 'mhv_user_account error'
-        end
-
-        context 'when the user does not have an icn' do
-          let(:icn) { nil }
-          let(:expected_error_message) { 'ICN must be present' }
-
-          it_behaves_like 'mhv_user_account error'
+        it 'returns nil' do
+          expect(subject).to be_nil
         end
       end
     end
 
-    context 'when the mhv response is not cached' do
-      let(:mhv_response) { nil }
+    context 'when from_cache_only is false' do
+      let(:from_cache_only) { false }
 
-      it 'returns nil' do
-        expect(user.mhv_user_account).to be_nil
+      let(:mhv_service_response) do
+        {
+          user_profile_id: '12345678',
+          premium: true,
+          champ_va: true,
+          patient: true,
+          sm_account_created: true,
+          message: 'some-message'
+        }
+      end
+
+      before do
+        allow_any_instance_of(MHV::AccountCreation::Service)
+          .to receive(:create_account)
+          .and_return(mhv_service_response)
+      end
+
+      context 'and the mhv response is cached' do
+        context 'when the user has all required attributes' do
+          it 'returns a MHVUserAccount with the expected attributes' do
+            mhv_user_account = subject
+
+            expect(mhv_user_account).to be_a(MHVUserAccount)
+            expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
+          end
+        end
+
+        context 'and there is an error creating the account' do
+          shared_examples 'mhv_user_account error' do
+            let(:expected_log_message) { '[User] mhv_user_account error' }
+            let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
+
+            it 'logs and returns nil' do
+              expect(subject).to be_nil
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+
+          context 'and the user does not have a terms_of_use_agreement' do
+            let(:terms_of_use_agreement) { nil }
+            let(:expected_error_message) { 'Current terms of use agreement must be present' }
+
+            it_behaves_like 'mhv_user_account error'
+          end
+
+          context 'and the user has not accepted the terms of use' do
+            let(:terms_of_use_response) { 'declined' }
+            let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+
+            it_behaves_like 'mhv_user_account error'
+          end
+
+          context 'and the user does not have an icn' do
+            let(:user) { build(:user, :loa3, icn: nil) }
+            let(:expected_error_message) { 'ICN must be present' }
+
+            it_behaves_like 'mhv_user_account error'
+          end
+        end
+      end
+
+      context 'and the mhv response is not cached' do
+        let(:mhv_response) { nil }
+
+        it 'returns result of calling MHV Account Creation Service' do
+          expect(subject.attributes).to eq(mhv_service_response.with_indifferent_access)
+        end
       end
     end
   end
@@ -1438,7 +1522,7 @@ RSpec.describe User, type: :model do
   describe '#create_mhv_account_async' do
     let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:) }
     let(:needs_accepted_terms_of_use) { false }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+    let(:user_verification) { user.user_verification }
 
     before { allow(MHV::AccountCreatorJob).to receive(:perform_async) }
 
