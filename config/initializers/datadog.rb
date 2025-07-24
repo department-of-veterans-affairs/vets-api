@@ -17,6 +17,9 @@ Datadog.configure do |c|
       }
     end
 
+    # Enable trace-log correlation
+    c.tracing.log_injection = true
+
     # Enable instruments
     c.tracing.instrument :rails
     c.tracing.instrument :sidekiq, service_name: 'vets-api-sidekiq'
