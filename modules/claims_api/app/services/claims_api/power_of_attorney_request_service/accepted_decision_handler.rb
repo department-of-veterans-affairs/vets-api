@@ -10,21 +10,24 @@ module ClaimsApi
       LOG_TAG = 'accepted_decision_handler'
       FORM_TYPE_CODE = '21-22'
 
-      def initialize(proc_id:, poa_code:, metadata:, veteran:, claimant: nil)
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant: nil)
         @proc_id = proc_id
         @poa_code = poa_code
+        @registration_number = registration_number
         @metadata = metadata
         @veteran = veteran
         @claimant = claimant
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def call
         ClaimsApi::Logger.log(
           LOG_TAG, message: "Starting data gathering for accepted POA with proc #{@proc_id}."
         )
 
-        gather_poa_data
-        # poa_auto_establishment_mapper(data)
+        data = gather_poa_data
+        poa_auto_establishment_mapper(data)
       end
 
       private
@@ -38,6 +41,7 @@ module ClaimsApi
         data = veteran_data.merge!(read_all_data)
         data.merge!(vnp_find_addrs_data)
 
+        data.merge!('registration_number' => @registration_number.to_s)
         if @claimant.present?
           claimant_data = gather_claimant_data
           claimant_addr_data = gather_vnp_addrs_data('claimant')
@@ -45,6 +49,8 @@ module ClaimsApi
 
           claimant_data.merge!(claimant_addr_data)
           claimant_data.merge!(claimant_phone_data)
+          claimant_data.merge!('claimant_id' => @claimant.icn)
+
           data.merge!('claimant' => claimant_data)
         end
 
@@ -103,6 +109,27 @@ module ClaimsApi
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::VnpPtcpntPhoneFindByPrimaryKeyDataMapper.new(
           record: res
         ).call
+      end
+
+      def poa_auto_establishment_mapper(data)
+        type = determine_type
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishmentDataMapper.new(
+          type:,
+          data:,
+          veteran: @veteran
+        ).map_data
+      end
+
+      def determine_type
+        if poa_code_in_organization?
+          '2122'
+        else
+          '2122a'
+        end
+      end
+
+      def poa_code_in_organization?
+        ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
       end
     end
   end
