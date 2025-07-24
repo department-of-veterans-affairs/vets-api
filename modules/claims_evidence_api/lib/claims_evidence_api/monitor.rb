@@ -124,7 +124,7 @@ module ClaimsEvidenceApi
         call_location = caller_locations.second
         msg = format_message(msg)
         tags = format_tags({ action: stage.to_s })
-        level = (stage == :failure) ? :error : :info
+        level = stage == :failure ? :error : :info
 
         track_request(level, msg, METRIC, call_location:, message:, tags:, **context)
       end

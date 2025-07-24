@@ -32,7 +32,7 @@ class ClaimsEvidenceApi::Submission < Submission
 
   alias_attribute :file_uuid, :va_claim_id
 
-  before_validation { self.form_id ||= self.saved_claim&.form_id }
+  before_validation { self.form_id ||= saved_claim&.form_id }
 
   after_create { monitor.track_event(:create, **tracking_attributes) }
   after_update { monitor.track_event(:update, **tracking_attributes) }
