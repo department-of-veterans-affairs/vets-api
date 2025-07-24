@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/service'
 require 'va_profile/v2/contact_information/service'
 
 module V0
