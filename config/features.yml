@@ -1446,6 +1446,12 @@ features:
   pcpg_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for PCPG failure exhaustion
+  pdf_fill_redesign_form_jumplinks:
+    actor_type: user
+    description: Enable jumplinks from form to overflow page, when using v2 PDF overflow generator
+  pdf_fill_redesign_overflow_jumplinks:
+    actor_type: user
+    description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
   pension_income_and_assets_clarification:
     actor_type: user
     description: >
@@ -2005,9 +2011,6 @@ features:
   mobile_iam_authentication_disabled:
     actor_type: user
     description: For mobile app, disable iam authentication method.
-  mobile_lighthouse_letters:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
   mobile_military_indicator_logger:
     actor_type: user
     description: For mobile app, enables logging of military discharge codes
