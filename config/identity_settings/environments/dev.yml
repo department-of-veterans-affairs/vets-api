@@ -62,5 +62,4 @@ ssoe_eauth_cookie:
 ssoe_get_traits:
   client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
   client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
-  mock: true
   url: https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService
