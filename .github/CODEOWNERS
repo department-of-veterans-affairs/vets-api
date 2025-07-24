@@ -45,6 +45,7 @@ app/controllers/v0/claim_letters_controller.rb @department-of-veterans-affairs/b
 app/controllers/v0/coe_controller.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/contact_us @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/contact_us/inquiries_controller.rb @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
+app/controllers/v0/csrf_token_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10
 app/controllers/v0/datadog_action_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/debt_letters_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/debts_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -960,6 +961,7 @@ lib/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms 
 lib/slack @department-of-veterans-affairs/backend-review-group
 lib/sm @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/source_app_middleware.rb @department-of-veterans-affairs/backend-review-group
+lib/ssoe/get_ssoe_traits_by_cspid_message.rb @department-of-veterans-affairs/octo-identity
 lib/stats_d_metric.rb @department-of-veterans-affairs/backend-review-group
 lib/statsd_middleware.rb @department-of-veterans-affairs/backend-review-group
 lib/string_helpers.rb @department-of-veterans-affairs/backend-review-group
@@ -1453,6 +1455,7 @@ spec/lib/simple_forms_api_submission @department-of-veterans-affairs/platform-va
 spec/lib/slack/service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/sm @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/source_app_middleware_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/ssoe/get_ssoe_traits_by_cspid_message_spec.rb @department-of-veterans-affairs/octo-identity
 spec/lib/string_helpers_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/tasks/support/schema_camelizer_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/token_validation @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
@@ -1629,6 +1632,7 @@ spec/requests/v0/backend_status_spec.rb @department-of-veterans-affairs/backend-
 spec/requests/v0/caregivers_assistance_claims_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/claim_documents_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/coe_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
+spec/requests/v0/csrf_token_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10
 spec/requests/v0/debts_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/disability_compensation_form_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/disability_compensation_form/rating_info_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
