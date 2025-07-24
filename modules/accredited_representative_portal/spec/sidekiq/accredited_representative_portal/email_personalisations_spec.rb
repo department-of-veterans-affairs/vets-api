@@ -207,13 +207,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
   describe 'FailedRep subclass' do
     let!(:organization) { create(:organization, name: 'Org Name') }
-    let!(:decision) do
-      AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
-        creator: user_account,
-        power_of_attorney_request: poa_request,
-        declination_reason: :OTHER
-      )
-    end
     let!(:individual) { create(:representative) }
     let!(:user_account) do
       AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
@@ -258,6 +251,12 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
       allow(user_account).to receive(:registration_numbers).and_return({ 'veteran_service_officer' => '1234' })
       AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
+
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
+        creator: user_account,
+        power_of_attorney_request: poa_request,
+        declination_reason: :OTHER
+      )
     end
 
     it 'returns the correct URL' do
