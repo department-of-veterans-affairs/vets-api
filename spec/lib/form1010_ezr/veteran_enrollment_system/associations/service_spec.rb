@@ -275,9 +275,10 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           ) do
             failure_message =
               'associations[2].role: Role is required, associations[1].relationType: Relation type is required, ' \
-              'associations[3].role: Role is required, associations[1].role: Role is required, associations[0].role: ' \
-              'Role is required, associations[0].relationType: Relation type is required, associations[2].relationType: ' \
-              'Relation type is required, associations[3].relationType: Relation type is required'
+              'associations[3].role: Role is required, associations[1].role: Role is required, ' \
+              'associations[0].role: Role is required, associations[0].relationType: Relation type is required, ' \
+              'associations[2].relationType: Relation type is required, associations[3].relationType: Relation type ' \
+              'is required'
 
             expect { described_class.new(user).reconcile_and_update_associations(associations_with_missing_fields) }
               .to raise_error do |e|

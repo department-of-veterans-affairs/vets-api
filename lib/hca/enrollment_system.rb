@@ -635,7 +635,7 @@ module HCA
         'relationship' => contact['relationship'],
         'address' => format_address(contact['address']),
         'primaryPhone' => contact['primaryPhone']
-      }.merge(convert_full_name_alt(contact['fullName'], uppercase: false))
+      }.merge(convert_full_name_alt(contact['fullName'], all_caps: false))
     end
 
     def veteran_to_association_collection(veteran)
