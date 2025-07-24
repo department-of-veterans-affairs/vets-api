@@ -407,11 +407,6 @@ class FormProfile
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
 
-    if pciu_disabled?
-      # Track precense of home and mobile
-      Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
-    end
-
     phone_struct = Struct.new(:area_code, :phone_number)
 
     return phone_struct.new(pciu_us_phone.first(3), pciu_us_phone.last(7)) if pciu_us_phone&.length == 10
