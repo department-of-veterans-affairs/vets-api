@@ -96,6 +96,7 @@ module DecisionReviews
         form4142 = req_body_obj.delete('form4142')
         sc_evidence = req_body_obj.delete('additionalDocuments')
         zip_from_frontend = req_body_obj.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+
         sc_response = decision_review_service.create_supplemental_claim(request_body: req_body_obj, user: @current_user)
         submitted_appeal_uuid = sc_response.body.dig('data', 'id')
 
@@ -142,6 +143,8 @@ module DecisionReviews
         "#{self.class.name}##{method} exception #{exception_class} (SC_V1)"
       end
 
+      # To conform to the LH schema, we need to ensure that if the evidenceType includes 'retrieval',
+      # then the retrieveFrom array must have facilities with unique facility location names
       def normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
         evidence_type = req_body_obj.dig('data', 'attributes', 'evidenceSubmission', 'evidenceType')
         retrieve_from = req_body_obj.dig('data', 'attributes', 'evidenceSubmission', 'retrieveFrom')
@@ -158,12 +161,10 @@ module DecisionReviews
           if entries.length == 1
             entries.first
           else
-            # Merge duplicates
             merge_evidence_entries(entries)
           end
         end
 
-        # Update the original object
         req_body_obj['data']['attributes']['evidenceSubmission']['retrieveFrom'] = merged_entries
         req_body_obj
       end
@@ -172,7 +173,6 @@ module DecisionReviews
         merged_entry = entries.first.deep_dup
         merged_attributes = merged_entry['attributes']
 
-        # Collect all evidence dates from all entries
         all_evidence_dates = []
         entries.each do |entry|
           attributes = entry['attributes']
