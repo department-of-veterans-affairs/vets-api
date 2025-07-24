@@ -269,33 +269,37 @@ module IvcChampva
 
       def launch_ocr_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == 'vha_10_7959a'
-          # create a temp file from the persistent attachment object
-          tmpfile = tempfile_from_attachment(attachment, form_id)
+          begin
+            # create a temp file from the persistent attachment object
+            tmpfile = tempfile_from_attachment(attachment, form_id)
 
-          # queue Tesseract OCR job for tmpfile
-          IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
-          Rails.logger.info(
-            "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
-          )
+            # queue Tesseract OCR job for tmpfile
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
+            Rails.logger.info(
+              "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+            )
+          rescue => e
+            Rails.logger.error "Error launching OCR job: #{e.message}"
+          end
         end
-      rescue => e
-        Rails.logger.error "Error launching OCR job: #{e.message}"
       end
 
       def launch_llm_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == 'vha_10_7959a'
-          # create a temp file from the persistent attachment object
-          tmpfile = tempfile_from_attachment(attachment, form_id)
+          begin
+            # create a temp file from the persistent attachment object
+            tmpfile = tempfile_from_attachment(attachment, form_id)
 
-          # queue LLM job for tmpfile
-          pdf_path = Common::ConvertToPdf.new(tmpfile).run
-          IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
-          Rails.logger.info(
-            "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
-          )
+            # queue LLM job for tmpfile
+            pdf_path = Common::ConvertToPdf.new(tmpfile).run
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+            Rails.logger.info(
+              "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+            )
+          rescue => e
+            Rails.logger.error "Error launching LLM job: #{e.message}"
+          end
         end
-      rescue => e
-        Rails.logger.error "Error launching LLM job: #{e.message}"
       end
 
       ## Saves the attached file as a temporary file
