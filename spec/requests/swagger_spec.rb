@@ -38,6 +38,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     before do
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
+      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
     describe 'backend statuses' do
@@ -1884,10 +1886,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           }
         )
       end
-    end
-
-    before do
-      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
     describe 'profiles', :initiate_vaprofile do

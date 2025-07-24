@@ -138,12 +138,12 @@ describe VAProfile::V2::ContactInformation::Service do
   end
 
   describe '#put_email when vet360_id is null' do
-    let(:user) { build(:user, :loa3, vet360_id: nil) }
+    let(:user) { build(:user, :loa3, vet360_id: nil, icn: '123498767V234859') }
 
     let(:email) do
       build(
         :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  source_system_user: user.icn
+                                  source_system_user: '123498767V234859'
       )
     end
 
@@ -156,7 +156,6 @@ describe VAProfile::V2::ContactInformation::Service do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
             old_email = user.va_profile_email
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
-
             response = subject.put_email(email)
             expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
           end

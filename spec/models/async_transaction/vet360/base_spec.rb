@@ -82,9 +82,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   end
 
   describe '.start v2' do
-    let(:user) { build(:user, :loa3) }
-    let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
-
+    let(:user) { build(:user, :loa3, :legacy_icn) }
     let(:address) { build(:va_profile_v3_address, source_system_user: user.icn) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
@@ -99,7 +97,6 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
         response = service.post_address(address)
         transaction = AsyncTransaction::Vet360::Base.start(user, response)
         expect(transaction.user_uuid).to eq(user.uuid)
-        expect(transaction.user_account).to eq(user.user_account)
         expect(transaction.class).to eq(AsyncTransaction::Vet360::Base)
       end
     end

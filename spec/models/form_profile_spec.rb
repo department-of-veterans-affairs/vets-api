@@ -14,7 +14,11 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1') }
+  let(:user) do
+    build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
+                                     address: build(:va_profile_v3_address), vet360_id: '1')
+  end
+
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
@@ -1508,11 +1512,57 @@ RSpec.describe FormProfile, type: :model do
           allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
         end
 
-        it 'prefills 0873' do
-          VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              expect_prefilled('0873')
+        context 'when CRM profile is working' do
+          it 'prefills 0873' do
+            VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                expect_prefilled('0873')
+              end
+            end
+          end
+        end
+
+        context 'when school facility code is nil' do
+          let(:info) do
+            {
+              SchoolFacilityCode: nil,
+              BusinessPhone: '1234567890',
+              BusinessEmail: 'fake@company.com',
+              ServiceNumber: '123455678'
+            }
+          end
+          let(:v0873_expected) do
+            {
+              'personalInformation' => {
+                'first' => user.first_name&.capitalize,
+                'last' => user.last_name&.capitalize,
+                'suffix' => user.suffix,
+                'preferredName' => 'SAM',
+                'dateOfBirth' => user.birth_date,
+                'socialSecurityNumber' => user.ssn,
+                'serviceNumber' => '123455678'
+              },
+              'contactInformation' => {
+                'email' => user.va_profile_email,
+                'phone' => us_phone,
+                'workPhone' => '13035551234',
+                'address' => address
+              },
+              'avaProfile' => {
+                'businessPhone' => '1234567890',
+                'businessEmail' => 'fake@company.com'
+              },
+              'veteranServiceInformation' => veteran_service_information
+            }
+          end
+
+          it 'does not show in ava profile' do
+            VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                expect_prefilled('0873')
+              end
             end
           end
         end
@@ -1623,8 +1673,8 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:va_profile_v3_address),
-                                vet360_id: '1781151')
+            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_v3_address),
+                                             vet360_id: '1781151')
           end
 
           before do
