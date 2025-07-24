@@ -93,9 +93,8 @@ module ClaimsApi
 
             # Section II
             # Item 10
-            "#{base_form}.Claimants_FirstName[0]": data.dig('claimant', 'firstName'),
-            "#{base_form}.Claimants_MiddleInitial1[0]": data.dig('claimant', 'middleInitial'),
-            "#{base_form}.Claimants_LastName[0]": data.dig('claimant', 'lastName'),
+            "#{base_form}.Claimants_FirstName[0]": data.dig('dependent', 'first_name'),
+            "#{base_form}.Claimants_LastName[0]": data.dig('dependent', 'last_name'),
             # Item 11
             "#{base_form}.Claimants_MailingAddress_NumberAndStreet[0]": data.dig('claimant', 'address', 'addressLine1'),
             "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[0]": data.dig('claimant', 'address', 'addressLine2'),
