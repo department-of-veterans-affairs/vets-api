@@ -161,7 +161,7 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person',
+    context 'with an error from a 503 raised by VAProfile::V2::ContactInformation::Service#get_person',
             :skip_va_profile_user do
       before do
         exception  = 'the server responded with status 503'

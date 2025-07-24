@@ -59,7 +59,7 @@ module AsyncTransaction
 
       # Updates the status and transaction_status with fresh API data
       # @param user [User] the user whose tx data is being updated
-      # @param service [VAProfile::ContactInformation::Service] an initialized VAProfile client
+      # @param service [VAProfile::V2::ContactInformation::Service] an initialized VAProfile client
       # @param tx_id [int] the transaction_id
       # @return [AsyncTransaction::VAProfile::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
@@ -73,7 +73,7 @@ module AsyncTransaction
       # Requests a transaction from VAProfile for an app transaction
       # @param user [User] the user whose tx data is being updated
       # @param transaction_record [AsyncTransaction::VAProfile::Base] the tx record to be checked
-      # @param service [VAProfile::ContactInformation::Service] an initialized VAProfile client
+      # @param service [VAProfile::V2::ContactInformation::Service] an initialized VAProfile client
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
@@ -121,7 +121,7 @@ module AsyncTransaction
       # Wrapper for .refresh_transaction_status which finds any outstanding transactions
       #   for a user and refreshes them
       # @param user [User] the user whose transactions we're checking
-      # @param service [VAProfile::ContactInformation::Service] an initialized VAProfile client
+      # @param service [VAProfile::V2::ContactInformation::Service] an initialized VAProfile client
       # @return [Array] An array with any outstanding transactions refreshed. Empty if none.
       def self.refresh_transaction_statuses(user, service)
         last_ongoing_transactions_for_user(user).each_with_object([]) do |transaction, array|
