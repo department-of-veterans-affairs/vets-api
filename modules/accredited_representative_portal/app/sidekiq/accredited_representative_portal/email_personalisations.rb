@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# froze nh
+# n_string_literal: true
+
 module AccreditedRepresentativePortal
   class EmailPersonalisations
     class << self
@@ -121,7 +124,7 @@ module AccreditedRepresentativePortal
       private
 
       def rep_first_name
-        @notification&.accredited_individual&.first_name
+        @notification&.power_of_attorney_request&.resolution&.resolving&.accredited_individual&.first_name
       end
     end
   end

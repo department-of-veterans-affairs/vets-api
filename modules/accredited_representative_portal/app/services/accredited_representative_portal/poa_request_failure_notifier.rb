@@ -7,7 +7,7 @@ module AccreditedRepresentativePortal
     end
 
     def call
-      raise ArgumentError, 'PoaRequest is required' unless @poa_request&.is_a?(PowerOfAttorneyRequest)
+      raise ArgumentError, 'PoaRequest is required' unless @poa_request.is_a?(PowerOfAttorneyRequest)
 
       recipient_types.each do |recipient_type|
         notification = @poa_request.notifications.create!(
@@ -21,7 +21,7 @@ module AccreditedRepresentativePortal
 
     def recipient_types
       [].tap do |types|
-        types << :claimant if Flipper.enabled?(:ar_poa_request_claimant_failure_notification_email)
+        types << :claimant if Flipper.enabled?(:ar_poa_request_claimant_failure_notification)
         types << :representative if Flipper.enabled?(:ar_poa_request_rep_failure_notification)
       end
     end
