@@ -56,7 +56,6 @@ module ClaimsApi
               'poaCode' => @data['poa_code'],
               'registrationNumber' => @data['registration_number'],
               'jobTitle' => @data['representative_title']
-              # "email" => @data[']
             },
             'recordConsent' => determine_bool_for_form_field(@data['section_7332_auth']),
             'consentLimits' => determine_consent_limits,

@@ -159,7 +159,7 @@ module ClaimsApi
                             message: "Beginning to process poa #{decision} decision for proc #{proc_id}")
 
           @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
-            decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:
+            decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
 
           @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant

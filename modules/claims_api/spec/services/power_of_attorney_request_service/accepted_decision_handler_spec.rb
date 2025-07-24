@@ -3,10 +3,9 @@
 require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
-  subject { described_class.new(proc_id:, poa_code:, representative_id:, metadata:, veteran:, claimant:) }
+  subject { described_class.new(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant:) }
 
   let(:clazz) { described_class }
-  let(:representative_id) { '12399998' }
   let(:veteran) do
     OpenStruct.new(
       icn: '1012861229V078999',
@@ -25,6 +24,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       )
     )
   end
+  let(:proc_id) { '3864182' }
+  let(:poa_code) { '083' }
+  let(:registration_number) { '12345678' }
 
   context 'for a valid decide request' do
     let(:proc_id) { '3864182' }

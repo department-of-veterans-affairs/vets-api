@@ -126,18 +126,15 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'zipCodeSuffix' => '0200'
             },
             'phone' => {
-              # 'countryCode' => nil,
               'areaCode' => '555',
               'phoneNumber' => '5551234'
             },
-            # 'email' => nil,
             'serviceNumber' => '123678453',
             'insuranceNumber' => '1234567890'
           },
           'serviceOrganization' => {
             'poaCode' => '083',
             'registrationNumber' => '12345678'
-            # 'jobTitle' => nil
           },
           'recordConsent' => true,
           'consentLimits' => %w[
@@ -159,11 +156,9 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'zipCodeSuffix' => '1000'
             },
             'phone' => {
-              # 'countryCode' => nil,
               'areaCode' => '555',
               'phoneNumber' => '5559876'
             },
-            # 'email' => nil,
             'relationship' => 'Spouse'
           }
         }

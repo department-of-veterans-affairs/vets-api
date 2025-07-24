@@ -22,7 +22,6 @@ http_interactions:
             </vaws:VaServiceHeaders>
           </wsse:Security>
         </env:Header>
-
           <env:Body>
             <tns:readAllVeteranRepresentatives><data:CorpPtcpntIdFormTypeCode>
           <veteranCorpPtcpntId>600045025</veteranCorpPtcpntId>
@@ -419,7 +418,6 @@ http_interactions:
             </vaws:VaServiceHeaders>
           </wsse:Security>
         </env:Header>
-
           <env:Body>
             <tns:vnpPtcpntAddrsFindByPrimaryKey><vnpPtcpntAddrsId>148886</vnpPtcpntAddrsId>
         </tns:vnpPtcpntAddrsFindByPrimaryKey>
@@ -466,3 +464,4 @@ http_interactions:
         Hyperion Ave</addrsOneTxt><addrsTwoTxt>Apt 2</addrsTwoTxt><cityNm>Los Angeles</cityNm><cntryNm>USA</cntryNm><jrnDt>2025-01-06T07:05:52-06:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><postalCd>CA</postalCd><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><zipFirstSuffixNbr>0200</zipFirstSuffixNbr><zipPrefixNbr>92264</zipPrefixNbr></return></ns0:vnpPtcpntAddrsFindByPrimaryKeyResponse></S:Body></S:Envelope>
   recorded_at: Tue, 15 Jul 2025 18:57:50 GMT
 recorded_with: VCR 6.3.1
+

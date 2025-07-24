@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+<<<<<<< HEAD
 require_relative 'individual_data_mapper'
+=======
+>>>>>>> master
 require_relative 'organization_data_mapper'
 require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
@@ -13,9 +16,8 @@ module ClaimsApi
         include ClaimsApi::V2::PowerOfAttorneyValidation
         include ClaimsApi::V2::JsonFormatValidation
 
-        LOG_TAG = 'poa_auto_establish_data_mapper'
+        LOG_TAG = 'poa_auto_establishment_data_mapper'
         DATA_MAPPERS = {
-          '2122a' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper,
           '2122' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataMapper
         }.freeze
 
@@ -26,21 +28,24 @@ module ClaimsApi
         end
 
         def map_data
-          ClaimsApi::Logger.log(LOG_TAG,
-                                message: "Beginning to map the #{@type} data")
+          ClaimsApi::Logger.log(
+            LOG_TAG, message: 'Starting poa auto establish data mapping.'
+          )
 
           mapper_class = DATA_MAPPERS[@type].new(data: @data)
-          return unless mapper_class
+          return [] unless mapper_class
 
           @json_form_data = deep_compact(mapper_class.map_data)
-          return if @json_form_data.blank?
+          return [] if @json_form_data.blank?
 
           validate_data
+
+          @json_form_data
         end
 
+        # validate here instead of returning to the controller since we know the form type
+        # and have it available here
         def validate_data
-          ClaimsApi::Logger.log(LOG_TAG,
-                                message: 'Beginning to validate the data')
           # custom validations, must come first
           @poa_auto_establish_validation_errors = validate_form_2122_and_2122a_submission_values(
             user_profile: nil, veteran_participant_id: @veteran.participant_id, poa_code: @data[:poa_code],
@@ -55,8 +60,6 @@ module ClaimsApi
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
-
-          @json_form_data
         end
 
         private
