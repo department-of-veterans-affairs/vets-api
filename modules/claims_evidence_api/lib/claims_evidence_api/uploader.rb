@@ -58,6 +58,7 @@ module ClaimsEvidenceApi
       pa = PersistentAttachment.find_by(id: pa_id, saved_claim_id:) if pa_id
       evidence = pa || claim
       context[:form_id] = claim.form_id
+      context[:document_type] = evidence.document_type
 
       pdf_path ||= evidence.to_pdf
       pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pdf_path, timestamp: evidence.created_at) if stamp_set
