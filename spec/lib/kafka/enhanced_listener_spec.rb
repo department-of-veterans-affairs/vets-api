@@ -10,7 +10,7 @@ RSpec.describe Kafka::EnhancedListener do
       config.client = mock_statsd_client
       config.default_tags = ['environment:test']
       config.rd_kafka_metrics = [
-        described_class::RdKafkaMetric.new(:service_check, :brokers, 'brokers.state', 'state'),
+        described_class::RdKafkaMetric.new(:broker_service_check, :brokers, 'brokers.state', 'state'),
         described_class::RdKafkaMetric.new(:count, :brokers, 'brokers.connects', 'connects'),
         described_class::RdKafkaMetric.new(:count, :brokers, 'brokers.disconnects', 'disconnects'),
         described_class::RdKafkaMetric.new(:gauge, :brokers, 'brokers.rxidle', 'rxidle')

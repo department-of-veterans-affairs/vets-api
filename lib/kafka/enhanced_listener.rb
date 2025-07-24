@@ -5,18 +5,16 @@ require 'datadog/statsd'
 
 module Kafka
   class EnhancedListener < WaterDrop::Instrumentation::Vendors::Datadog::MetricsListener
-    def service_check(key, *args)
+    BROKER_STATUS_MAPPING = {
+      'UP' => Datadog::Statsd::OK,
+      'INIT' => Datadog::Statsd::WARNING,
+      'TRY_CONNECT' => Datadog::Statsd::WARNING,
+      'DOWN' => Datadog::Statsd::CRITICAL
+    }.freeze
+
+    def broker_service_check(key, *args)
       metric_value, tags = args
-      status = case metric_value
-               when 'UP'
-                 Datadog::Statsd::OK
-               when 'INIT', 'TRY_CONNECT'
-                 Datadog::Statsd::WARNING
-               when 'DOWN'
-                 Datadog::Statsd::CRITICAL
-               else
-                 Datadog::Statsd::UNKNOWN
-               end
+      status = BROKER_STATUS_MAPPING.fetch(metric_value, Datadog::Statsd::UNKNOWN)
       client.service_check(
         namespaced_metric(key),
         status,

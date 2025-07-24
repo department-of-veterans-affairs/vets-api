@@ -76,7 +76,7 @@ module Kafka
           list_class_ref::RdKafkaMetric.new(:count, :brokers, 'connects', 'connects'),
           list_class_ref::RdKafkaMetric.new(:count, :brokers, 'disconnects', 'disconnects'),
           list_class_ref::RdKafkaMetric.new(:gauge, :brokers, 'rxidle', 'rxidle'),
-          list_class_ref::RdKafkaMetric.new(:service_check, :brokers, 'state', 'state')
+          list_class_ref::RdKafkaMetric.new(:broker_service_check, :brokers, 'state', 'state')
         ]
       end
 
