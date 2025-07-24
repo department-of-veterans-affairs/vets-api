@@ -69,11 +69,11 @@ module ClaimsEvidenceApi
       def track_api_request(method, path, code, reason, call_location: nil)
         call_location ||= caller_locations.first
 
-        message = format_message(reason)
-        tags = { method:, code:, reason:, route_root: path.split('/').first }
-        level = /^2\d{2,}$/.match?(code.to_s.strip) ? :info : :error
+        message = format_message("#{code} #{reason}")
+        tags = { method:, code:, root: path.split('/').first }
+        level = /^2\d\d$/.match?(code.to_s.strip) ? :info : :error
 
-        track_request(level, message, METRIC, call_location:, tags: format_tags(tags), **tags)
+        track_request(level, message, METRIC, call_location:, path:, reason:, tags: format_tags(tags), **tags)
       end
     end
 
@@ -86,30 +86,21 @@ module ClaimsEvidenceApi
       #
       # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_begun(**context)
-        message = format_message('upload begun')
-        tags = format_tags({ action: 'begun' })
-
-        track_request(:info, message, METRIC, call_location:, tags:, **context)
+        track_upload(:begun, **context)
       end
 
       # track evidence upload attempted
       #
       # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_attempt(**context)
-        message = format_message('upload attempt')
-        tags = format_tags({ action: 'attempt' })
-
-        track_request(:info, message, METRIC, call_location:, tags:, **context)
+        track_upload(:attempt, **context)
       end
 
       # track evidence upload completed successfully
       #
       # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_success(**context)
-        message = format_message('upload success')
-        tags = format_tags({ action: 'success' })
-
-        track_request(:info, message, METRIC, call_location:, tags:, **context)
+        track_upload(:success, **context)
       end
 
       # track evidence upload failure/error
@@ -117,17 +108,25 @@ module ClaimsEvidenceApi
       # @param error_message [String] the error message
       # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_failure(error_message, **context)
-        message = format_message("upload failure - ERROR #{error_message}")
-        tags = format_tags({ action: 'failure' })
-
-        track_request(:error, message, METRIC, call_location:, tags:, **context)
+        track_upload(:failure, "ERROR #{error_message}", **context)
       end
 
       private
 
-      # return the location which is calling the monitor function
-      def call_location
-        caller_locations.second
+      # track evidence upload
+      #
+      # @param message [String] a message to accompany the log
+      # @param context [Mixed] key-value pairs to be included in tracking
+      def track_upload(stage, message = nil, **context)
+        msg = "upload #{stage}"
+        msg += " - #{message}" if message
+
+        call_location = caller_locations.second
+        msg = format_message(msg)
+        tags = format_tags({ action: stage.to_s })
+        level = (stage == :failure) ? :error : :info
+
+        track_request(level, msg, METRIC, call_location:, message:, tags:, **context)
       end
     end
   end

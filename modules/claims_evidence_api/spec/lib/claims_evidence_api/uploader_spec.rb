@@ -9,6 +9,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:submission) { build(:claims_evidence_submission) }
   let(:attempt) { build(:claims_evidence_submission_attempt) }
 
+  let(:monitor) { ClaimsEvidenceApi::Monitor::Uploader.new }
   let(:service) { ClaimsEvidenceApi::Service::Files.new }
   let(:stamper) { PDFUtilities::PDFStamper.new([]) }
   let(:pdf_path) { 'path/to/pdf.pdf' }
@@ -20,6 +21,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:attachment_stamp_set) { [anything] }
 
   before do
+    allow(ClaimsEvidenceApi::Monitor::Uploader).to receive(:new).and_return monitor
     allow(ClaimsEvidenceApi::Service::Files).to receive(:new).and_return service
 
     allow(PDFUtilities::PDFStamper).to receive(:new).and_return stamper
@@ -45,6 +47,10 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
       }
       response = build(:claims_evidence_service_files_response, :success)
       expect(service).to receive(:upload).with(pdf_path, provider_data:).and_return response
+
+      expect(monitor).to receive(:track_upload_begun)
+      expect(monitor).to receive(:track_upload_attempt)
+      expect(monitor).to receive(:track_upload_success)
 
       uploader.upload_saved_claim_evidence(claim.id, claim_stamp_set, attachment_stamp_set)
 
@@ -72,6 +78,10 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
       response = build(:claims_evidence_service_files_response, :success)
       expect(service).to receive(:upload).with(pdf_path, provider_data:).and_return response
 
+      expect(monitor).to receive(:track_upload_begun)
+      expect(monitor).to receive(:track_upload_attempt)
+      expect(monitor).to receive(:track_upload_success)
+
       uploader.upload_evidence_pdf(claim.id, pa.id, pdf_path)
 
       expect(submission.file_uuid).to eq response.body['uuid']
@@ -83,7 +93,12 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with unsuccessful upload' do
     it 'raises an exception' do
-      uploader.instance_variable_set(:@attempt, attempt)
+      args = { saved_claim: claim, persistent_attachment_id: pa.id, form_id: claim.form_id }
+      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
+      expect(submission.submission_attempts).to receive(:create).and_return attempt
+
+      expect(pa).not_to receive(:to_pdf)
+      expect(PDFUtilities::PDFStamper).not_to receive(:new)
 
       provider_data = {
         contentSource: content_source,
@@ -93,7 +108,11 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
       error = build(:claims_evidence_service_files_error, :error)
       expect(service).to receive(:upload).with(pdf_path, provider_data:).and_raise error
 
-      expect { uploader.send(:perform_upload, claim, pdf_path) }.to raise_error error
+      expect(monitor).to receive(:track_upload_begun)
+      expect(monitor).to receive(:track_upload_attempt)
+      expect(monitor).to receive(:track_upload_failure)
+
+      expect { uploader.upload_evidence_pdf(claim.id, pa.id, pdf_path) }.to raise_error error
 
       expect(error.message).to eq 'VEFSERR40009'
       expect(submission.file_uuid).to be_nil
