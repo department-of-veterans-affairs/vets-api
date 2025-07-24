@@ -36,7 +36,7 @@ module DependentsVerification
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim = claim_class.new(form: form_data_with_ssn.to_json)
+        claim = claim_class.new(form: form_data_with_ssn_fn.to_json)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -51,6 +51,7 @@ module DependentsVerification
         process_and_upload_to_lighthouse(claim)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
+        # QUESTION: the claim is being returned with ssn/file number...assuming we want to prevent that...how?
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
@@ -60,10 +61,15 @@ module DependentsVerification
 
       private
 
-      def form_data_with_ssn
+      def form_data_with_ssn_fn
         form_data_as_sym = JSON.parse(filtered_params[:form]).deep_symbolize_keys
-        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn)
+        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn, veteranFileNumber: veteran_file_number)
         form_data_as_sym
+      end
+
+      def veteran_file_number
+        file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user).file_number
+        file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
       end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.
