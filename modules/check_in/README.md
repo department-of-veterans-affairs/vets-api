@@ -33,7 +33,6 @@
   - [Local Configuration](#local-configuration)
   - [Miscellaneous](#miscellaneous)
   - [The Check-In Module Endpoints](#the-check--in-module-endpoints)
-- [Travel Claim Jobs Documentation](docs/travel-claim-jobs.md)
 - [Architecture and Sequence Diagrams](#architecture-and-sequence-diagrams)
 - [Other Applications and Services](#other-applications-and-services)
     - [Vets Website](#vets-website)
