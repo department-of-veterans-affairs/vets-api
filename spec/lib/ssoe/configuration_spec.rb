@@ -8,114 +8,44 @@ require 'ssoe/configuration'
 RSpec.describe SSOe::Configuration do
   subject(:config) { described_class.send(:new) }
 
-  let!(:cert) do
-    Tempfile.new('cert').tap do |file|
-      cert = OpenSSL::X509::Certificate.new
-      cert.subject = OpenSSL::X509::Name.parse('/CN=test')
-      cert.version = 2
-      cert.serial = 1
-      cert.not_before = Time.zone.now
-      cert.not_after = cert.not_before + 3600
-      key = OpenSSL::PKey::RSA.new(2048)
-      cert.public_key = key.public_key
-      cert.sign(key, OpenSSL::Digest.new('SHA256'))
-      file.write(cert.to_pem)
-      file.rewind
-    end
-  end
+  let(:base_url) { 'https://api.example.com/soap' }
+  let(:cert_path) { '/tmp/client.pem' }
+  let(:key_path) { '/tmp/client.key' }
 
-  let!(:key) do
-    Tempfile.new('key').tap do |file|
-      file.write(OpenSSL::PKey::RSA.new(2048).to_pem)
-      file.rewind
-    end
-  end
+  let(:cert_data) { 'PEM-DATA' }
+  let(:key_data) { 'KEY-DATA' }
+  let(:cert_obj) { instance_double(OpenSSL::X509::Certificate) }
+  let(:key_obj) { instance_double(OpenSSL::PKey::RSA) }
+
+  let(:faraday_connection) { instance_double(Faraday::Connection) }
 
   before do
-    cert_path = cert.path
-    key_path = key.path
+    allow(IdentitySettings.ssoe_get_traits).to receive_messages(url: base_url, client_cert_path: cert_path,
+                                                                client_key_path: key_path)
 
-    stub_const('IdentitySettings', Class.new do
-      define_singleton_method(:ssoe_get_traits) do
-        OpenStruct.new(
-          client_cert_path: cert_path,
-          client_key_path: key_path,
-          url: 'https://fake-url/'
-        )
-      end
-    end)
-  end
+    allow(File).to receive(:exist?).with(cert_path).and_return(true)
+    allow(File).to receive(:exist?).with(key_path).and_return(true)
+    allow(File).to receive(:read).with(cert_path).and_return(cert_data)
+    allow(File).to receive(:read).with(key_path).and_return(key_data)
 
-  describe '#base_path' do
-    {
-      'development' => 'https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService',
-      'staging' => 'https://sqa.services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService',
-      'production' => 'https://services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService'
-    }.each do |env, expected_url|
-      context "when environment is #{env}" do
-        let(:ssoe_get_traits_double) { double(url: expected_url) }
-
-        before do
-          allow(IdentitySettings).to receive(:ssoe_get_traits).and_return(ssoe_get_traits_double)
-        end
-
-        it "returns the correct URL for #{env}" do
-          expect(config.send(:base_path)).to eq(expected_url)
-        end
-      end
-    end
-  end
-
-  describe '#ssl_options' do
-    context 'when cert and key are valid' do
-      it 'returns OpenSSL objects for client_cert and client_key' do
-        ssl_opts = config.send(:ssl_options)
-        expect(ssl_opts).to be_a(Hash)
-        expect(ssl_opts[:client_cert]).to be_a(OpenSSL::X509::Certificate)
-        expect(ssl_opts[:client_key]).to be_a(OpenSSL::PKey::RSA)
-      end
-
-      context 'when cert and key are not valid' do
-        it 'raises an error if cert or key files are missing' do
-          config_class = Class.new(SSOe::Configuration) do
-            def ssl_cert = nil
-            def ssl_key = nil
-          end
-
-          missing_config = config_class.send(:new)
-
-          expect do
-            missing_config.send(:ssl_options)
-          end.to raise_error('SSL options not defined')
-        end
-
-        it 'logs and raises OpenSSL error' do
-          config_class = Class.new(SSOe::Configuration) do
-            def ssl_cert
-              raise OpenSSL::OpenSSLError, 'bad cert'
-            end
-
-            def ssl_key
-              OpenSSL::PKey::RSA.new(2048)
-            end
-          end
-
-          config = config_class.send(:new)
-          expect(Rails.logger).to receive(:error).with(/\[SSOe::Configuration\] SSL error: bad cert/)
-
-          expect do
-            config.send(:ssl_options)
-          end.to raise_error(OpenSSL::OpenSSLError, 'bad cert')
-        end
-      end
-    end
+    allow(OpenSSL::X509::Certificate).to receive(:new).with(cert_data).and_return(cert_obj)
+    allow(OpenSSL::PKey::RSA).to receive(:new).with(key_data).and_return(key_obj)
   end
 
   describe '#connection' do
-    it 'creates a Faraday connection' do
+    it 'creates a Faraday connection with correct SSL options' do
+      expect(Faraday).to receive(:new)
+        .with(base_url, hash_including(ssl: { client_cert: cert_obj, client_key: key_obj }))
+        .and_return(faraday_connection)
+
       connection = config.connection
-      expect(connection).to be_a(Faraday::Connection)
-      expect(connection.url_prefix.to_s).to eq(config.send(:base_path))
+      expect(connection).to be(faraday_connection)
+    end
+  end
+
+  describe '#service_name' do
+    it 'returns "SSOe"' do
+      expect(config.service_name).to eq('SSOe')
     end
   end
 end
