@@ -4,7 +4,7 @@ FactoryBot.define do
   # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload
   factory :claims_evidence_service_files_response, class: 'OpenStruct' do
     trait 'success' do
-      message { "OK" }
+      reason_phrase { "OK" }
       status { 200 }
       body do
         JSON.parse('{

@@ -31,7 +31,7 @@ module ClaimsEvidenceApi
       # @see Common::Client::Base#perform
       def perform(method, path, params, headers = nil, options = nil)
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
-        response = super(method, path, params, headers, options)
+        response = super(method, path, params, headers, options) # returns Faraday::Env
         monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
