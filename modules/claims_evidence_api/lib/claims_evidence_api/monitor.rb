@@ -36,7 +36,7 @@ module ClaimsEvidenceApi
       attr_reader :record
 
       def initialize(record)
-        super
+        super()
         @record = record
       end
 

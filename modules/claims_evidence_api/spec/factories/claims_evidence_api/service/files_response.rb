@@ -4,7 +4,8 @@ FactoryBot.define do
   # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload
   factory :claims_evidence_service_files_response, class: 'OpenStruct' do
     trait 'success' do
-      success? { true }
+      message { "OK" }
+      status { 200 }
       body do
         JSON.parse('{
           "uuid": "c30626c9-954d-4dd1-9f70-1e38756d9d97",
@@ -24,9 +25,11 @@ FactoryBot.define do
         }')
       end
     end
+  end
 
+  factory :claims_evidence_service_files_error, class: "Common::Client::Errors::ClientError" do
     trait 'unauthorized' do
-      success? { false }
+      status { 401 }
       body do
         JSON.parse('{
           "messages": [
@@ -41,10 +44,12 @@ FactoryBot.define do
           ]
         }')
       end
+
+      initialize_with { new('UNAUTHORIZED', status, body) }
     end
 
     trait 'error' do
-      success? { false }
+      status { 503 }
       body do
         JSON.parse('{
           "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -52,6 +57,8 @@ FactoryBot.define do
           "message": "JWT provided does not contain expected claims, or contains invalid claim value(s)."
         }')
       end
+
+      initialize_with { new('VEFSERR40009', status, body) }
     end
   end
 end

@@ -39,6 +39,6 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
 
   # utility function to acquire the tracking attributes for _this_ record
   def tracking_attributes
-    { id:, status:, submission_id: submission.id, saved_claim_id: saved_claim.id, form_id: saved_claim.form_id }
+    { id:, status:, submission_id: submission.id, saved_claim_id: saved_claim&.id, form_id: saved_claim&.form_id }
   end
 end
