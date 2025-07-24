@@ -70,7 +70,7 @@ module BenefitsDiscovery
           code = sh[:character_of_discharge_code]
           discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
           if discharge_type.nil?
-            Rails.logger.error("No matching discharge code for: #{discharge_type}")
+            Rails.logger.error("No matching discharge code for: #{code}")
             nil
           else
             "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE"
