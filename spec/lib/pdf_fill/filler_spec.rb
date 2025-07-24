@@ -84,7 +84,7 @@ describe PdfFill::Filler, type: :model do
               # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
               student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
 
-              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
+              expect(described_class).to receive(:optionally_stamp_form).once.and_call_original if extras_redesign
 
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
 
@@ -152,8 +152,11 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
-  describe '#stamp_form' do
+  describe '#optionally_stamp_form' do
+    subject { described_class.optionally_stamp_form(file_path, fill_options, submit_date) }
+
     let(:file_path) { 'tmp/test.pdf' }
+    let(:fill_options) { { extras_redesign: true } }
     let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
     let(:datestamp_pdf) { instance_double(PDFUtilities::DatestampPdf) }
     let(:stamped_path) { 'tmp/test_stamped.pdf' }
@@ -188,8 +191,25 @@ describe PdfFill::Filler, type: :model do
 
       expect(File).to receive(:delete).with(stamped_path)
 
-      result = described_class.stamp_form(file_path, submit_date)
-      expect(result).to eq(final_path)
+      expect(subject).to eq(final_path)
+    end
+
+    context 'when not given the extras_redesign fill option' do
+      let(:fill_options) { {} }
+
+      it 'returns the original path' do
+        expect(File).not_to receive(:delete)
+        expect(subject).to eq(file_path)
+      end
+    end
+
+    context 'when given the omit_esign_stamp fill option' do
+      let(:fill_options) { { omit_esign_stamp: true, extras_redesign: true } }
+
+      it 'returns the original path' do
+        expect(File).not_to receive(:delete)
+        expect(subject).to eq(file_path)
+      end
     end
 
     context 'when an error occurs' do
@@ -199,12 +219,10 @@ describe PdfFill::Filler, type: :model do
       end
 
       it 'logs the error and returns the original file path' do
-        result = described_class.stamp_form(file_path, submit_date)
-
+        expect(subject).to eq(file_path)
         expect(Rails.logger).to have_received(:error).with(
           "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
         )
-        expect(result).to eq(file_path)
       end
     end
   end
