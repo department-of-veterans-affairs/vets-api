@@ -238,8 +238,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             described_class::REFERRAL_DETAIL_VIEW_METRIC,
             tags: [
               'service:community_care_appointments',
-              'referring_provider_id:552',
-              'referral_provider_id:1234567890'
+              'referring_facility_code:552',
+              'referral_provider_npi:1234567890',
+              'station_id:528A6'
             ]
           )
 

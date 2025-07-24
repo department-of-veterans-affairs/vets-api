@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+# EzrSubmissionJob
+#
+# This Sidekiq job handles the submission of 10-10EZR (health care renewal) forms to the backend service.
+#
+# Why:
+# - Automates and manages the asynchronous submission of renewal forms.
+# - Handles retries, error logging, and user notification on failure.
+#
+# How:
+# - Decrypts the submitted form data.
+# - Submits the form via Form1010Ezr::Service.
+# - Handles validation and parsing errors, logs failures, and sends notification emails if enabled.
+# - Increments StatsD metrics for monitoring and analytics.
+#
+# See also: Form1010Ezr::Service for submission logic, Flipper flag for notification emails.
+
 require 'hca/soap_parser'
 require 'form1010_ezr/service'
 require 'vets/shared_logging'
