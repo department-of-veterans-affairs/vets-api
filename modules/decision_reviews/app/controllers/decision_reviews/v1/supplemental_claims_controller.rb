@@ -91,11 +91,11 @@ module DecisionReviews
 
       def process_submission
         req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
-        saved_claim_request_body = req_body_obj.to_json # serialize before request body is modified
+        req_body_obj = normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
+        saved_claim_request_body = req_body_obj.to_json
         form4142 = req_body_obj.delete('form4142')
         sc_evidence = req_body_obj.delete('additionalDocuments')
         zip_from_frontend = req_body_obj.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
-
         sc_response = decision_review_service.create_supplemental_claim(request_body: req_body_obj, user: @current_user)
         submitted_appeal_uuid = sc_response.body.dig('data', 'id')
 
@@ -140,6 +140,53 @@ module DecisionReviews
 
       def error_class(method:, exception_class:)
         "#{self.class.name}##{method} exception #{exception_class} (SC_V1)"
+      end
+
+      def normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
+        evidence_type = req_body_obj.dig('data', 'attributes', 'evidenceSubmission', 'evidenceType')
+        retrieve_from = req_body_obj.dig('data', 'attributes', 'evidenceSubmission', 'retrieveFrom')
+        # Return if evidenceType is nil or doesn't include 'retrieval'
+        return req_body_obj unless evidence_type.is_a?(Array) && evidence_type.include?('retrieval')
+        # Return if retrieveFrom is nil, not an array, or only one item
+        return req_body_obj unless retrieve_from.is_a?(Array) && retrieve_from.length > 1
+
+        grouped_entries = retrieve_from.group_by do |entry|
+          entry.dig('attributes', 'locationAndName')
+        end
+
+        merged_entries = grouped_entries.map do |_, entries|
+          if entries.length == 1
+            entries.first
+          else
+            # Merge duplicates
+            merge_evidence_entries(entries)
+          end
+        end
+
+        # Update the original object
+        req_body_obj['data']['attributes']['evidenceSubmission']['retrieveFrom'] = merged_entries
+        req_body_obj
+      end
+
+      def merge_evidence_entries(entries)
+        merged_entry = entries.first.deep_dup
+        merged_attributes = merged_entry['attributes']
+
+        # Collect all evidence dates from all entries
+        all_evidence_dates = []
+        entries.each do |entry|
+          attributes = entry['attributes']
+          all_evidence_dates.concat(attributes['evidenceDates']) if attributes['evidenceDates'].is_a?(Array)
+        end
+
+        unique_evidence_dates = all_evidence_dates.uniq.sort_by { |date_range| date_range['startDate'] }
+
+        # Apply schema constraints (maxItems: 4) -- this should be unlikely,
+        # as we should only be collecting dates for pre-2005 treatment
+        unique_evidence_dates = unique_evidence_dates.first(4)
+
+        merged_attributes['evidenceDates'] = unique_evidence_dates
+        merged_entry
       end
     end
   end
