@@ -54,7 +54,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
       let(:mock_random_file_path) { 'tmp/mock_random_file_path' }
-      let(:mock_timestamp) { 1234567890 }
+      let(:mock_timestamp) { 1_234_567_890 }
 
       before do
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(mock_random_file_path)
@@ -85,7 +85,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
                   expect(processed_file[:file].length).to
                   eq("#{mock_random_file_path}.#{mock_timestamp}.#{processed_file['name']}".length)
                 end
-                expect(processed_file[:file]).to match(/^tmp\/[a-zA-Z0-9_\-\.]+\.pdf$/)
+                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-\.]+\.pdf$})
                 expect(processed_file[:file].length).to be <= 255
               end
             end
