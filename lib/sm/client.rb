@@ -605,24 +605,16 @@ module SM
     def auth_headers
       headers = config.base_request_headers.merge(
         'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s
+        'mhvCorrelationId' => session.user_id.to_s,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def token_headers
       headers = config.base_request_headers.merge(
-        'Token' => session.token
+        'Token' => session.token,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def reply_draft?(id)
