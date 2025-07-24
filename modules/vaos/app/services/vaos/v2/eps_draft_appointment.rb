@@ -46,8 +46,9 @@ module VAOS
       ##
       # Initialize and execute the draft appointment creation process
       #
-      # Sets up the object's initial state and delegates to the main orchestration
-      # method. All validation and business logic is handled in build_appointment_draft.
+      # Performs upfront validation of parameters, then orchestrates the complete
+      # workflow of creating a Community Care draft appointment. All work is done
+      # build_appointment_draft, setting the object's final state.
       #
       # @param current_user [User] The authenticated user requesting the appointment
       # @param referral_id [String] The unique referral identifier
@@ -56,7 +57,11 @@ module VAOS
       # @return [EpsDraftAppointment] A new instance with populated attributes or error
       def initialize(current_user, referral_id, referral_consult_id)
         @current_user = current_user
-        @id = @provider = @slots = @drive_time = @error = nil
+        @id = nil
+        @provider = nil
+        @slots = nil
+        @drive_time = nil
+        @error = nil
 
         return unless validate_params(referral_id, referral_consult_id)
 
@@ -134,20 +139,6 @@ module VAOS
         missing << 'referral_consult_id' if referral_consult_id.blank?
         missing << 'user ICN' if user_icn.blank?
         missing
-      end
-
-      ##
-      # Check if any required initialization parameters are missing or invalid
-      #
-      # Validates that all required parameters for appointment creation are present
-      # and properly formatted. Used for upfront validation after authentication check.
-      #
-      # @param referral_id [String, nil] The referral identifier to validate
-      # @param referral_consult_id [String, nil] The consultation identifier to validate
-      # @param user_icn [String, nil] The user's ICN to validate
-      # @return [Boolean] true if any parameters are invalid, false if all are valid
-      def invalid_parameters?(referral_id, referral_consult_id, user_icn)
-        referral_id.blank? || referral_consult_id.blank? || user_icn.blank?
       end
 
       # =============================================================================

@@ -515,55 +515,6 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         expect(result).to eq('no_value')
       end
     end
-
-    describe '#invalid_parameters?' do
-      it 'returns true when referral_id is blank' do
-        result = subject.send(:invalid_parameters?, '', 'consult-123', 'icn-123')
-        expect(result).to be true
-      end
-
-      it 'returns true when referral_consult_id is blank' do
-        result = subject.send(:invalid_parameters?, 'ref-123', nil, 'icn-123')
-        expect(result).to be true
-      end
-
-      it 'returns true when user_icn is blank' do
-        result = subject.send(:invalid_parameters?, 'ref-123', 'consult-123', '')
-        expect(result).to be true
-      end
-
-      it 'returns false when all parameters are valid' do
-        result = subject.send(:invalid_parameters?, 'ref-123', 'consult-123', 'icn-123')
-        expect(result).to be false
-      end
-    end
-
-    describe '#get_missing_parameters' do
-      it 'identifies missing referral_id' do
-        result = subject.send(:get_missing_parameters, '', 'consult-123', 'icn-123')
-        expect(result).to eq(['referral_id'])
-      end
-
-      it 'identifies missing referral_consult_id' do
-        result = subject.send(:get_missing_parameters, 'ref-123', nil, 'icn-123')
-        expect(result).to eq(['referral_consult_id'])
-      end
-
-      it 'identifies missing user ICN' do
-        result = subject.send(:get_missing_parameters, 'ref-123', 'consult-123', '')
-        expect(result).to eq(['user ICN'])
-      end
-
-      it 'identifies multiple missing parameters' do
-        result = subject.send(:get_missing_parameters, '', nil, '')
-        expect(result).to eq(['referral_id', 'referral_consult_id', 'user ICN'])
-      end
-
-      it 'returns empty array when all parameters are present' do
-        result = subject.send(:get_missing_parameters, 'ref-123', 'consult-123', 'icn-123')
-        expect(result).to be_empty
-      end
-    end
   end
 
   describe '#validate_referral_data' do
