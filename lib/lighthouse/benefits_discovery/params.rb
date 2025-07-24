@@ -42,7 +42,7 @@ module BenefitsDiscovery
 
     def discharge_status
       service_history.map do |sh|
-        code = sh[:character_of_discharge_code]
+        code = sh.character_of_discharge_code
         discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
         if discharge_type.nil?
           Rails.logger.error("No matching discharge code for: #{discharge_type}")
@@ -67,7 +67,7 @@ module BenefitsDiscovery
 
       def discharge_status(episodes)
         episodes.map do |sh|
-          code = sh[:character_of_discharge_code]
+          code = sh.character_of_discharge_code
           discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
           if discharge_type.nil?
             Rails.logger.error("No matching discharge code for: #{code}")
