@@ -14,7 +14,7 @@ FactoryBot.define do
     end
   end
 
-  # Using ssn.json for the full form. This is referenced from the create_daily_spool_files_spec and I didn't
+  # Using ssn.json for the full form. This is referenced in the create_daily_spool_files_spec and I didn't
   # want to disrupt the pattern
   factory :va0993_full_form, class: 'SavedClaim::EducationBenefits::VA0993', parent: :education_benefits do
     form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0993', 'ssn.json').read }
