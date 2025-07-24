@@ -1,10 +1,10 @@
 type: object
 additionalProperties: false
 required:
-- metadata
+- meta
 - data
 properties:
-  metadata:
+  meta:
     type: object
     required:
     - totalRecordCount
