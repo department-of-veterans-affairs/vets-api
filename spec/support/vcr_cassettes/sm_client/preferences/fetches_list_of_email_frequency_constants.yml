@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/preferences/notification/list"
+    uri: "<MHV_HOST>/v1/sm/patient/preferences/notification/list"
     body:
       encoding: US-ASCII
       string: ''

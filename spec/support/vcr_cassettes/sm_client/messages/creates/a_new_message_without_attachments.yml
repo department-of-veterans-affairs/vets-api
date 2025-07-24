@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message"
     body:
       encoding: UTF-8
       string: '{"subject":"CI Run","category":"OTHER","recipientId":613586,"body":"Continuous
