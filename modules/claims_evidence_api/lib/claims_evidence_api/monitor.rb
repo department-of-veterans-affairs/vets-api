@@ -28,7 +28,9 @@ module ClaimsEvidenceApi
       tags.map { |key, value| "#{key}:#{value}" }
     end
 
+    # Monitor to be used within ActiveRecord models
     class Record < Monitor
+      # StatsD metric
       METRIC = 'module.claims_evidence_api.service.record'
 
       attr_reader :record
@@ -38,6 +40,10 @@ module ClaimsEvidenceApi
         @record = record
       end
 
+      # track the action performed on a record
+      #
+      # @param action [String|Symbol] eg. create, update, delete
+      # @param attributes [Mixed] named key-value pairs of record attributes
       def track_event(action, **attributes)
         message = format_message("#{record.class} #{action}")
         tags = format_tags({ class: record.class.to_s.downcase.gsub(/:+/, '_'), action: })
@@ -46,9 +52,20 @@ module ClaimsEvidenceApi
       end
     end
 
+    # Monitor to be used within Service classes
     class Service < Monitor
+      # StatsD metric
       METRIC = 'module.claims_evidence_api.service.request'
 
+      # track the api request performed and the response/error
+      # @see Common::Client::Base#perform
+      # @see Common::Client::Errors::ClientError
+      #
+      # @param method [String|Symbol] eg. get, post, put
+      # @param path [String] the requested url path
+      # @param code [Integer|String] the response code
+      # @param reason [String] the response `reason_phrase`
+      # @param call_location [Logging::CallLocation|Thread::Backtrace::Location] calling point to be logged
       def track_api_request(method, path, code, reason, call_location: nil)
         call_location ||= caller_locations.first
 
@@ -60,9 +77,14 @@ module ClaimsEvidenceApi
       end
     end
 
+    # Monitor to be used with Uploader
     class Uploader < Monitor
+      # StatsD metric
       METRIC = 'module.claims_evidence_api.uploader'
 
+      # track evidence upload started
+      #
+      # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_begun(**context)
         message = format_message('upload begun')
         tags = format_tags({ action: 'begun' })
@@ -70,6 +92,9 @@ module ClaimsEvidenceApi
         track_request(:info, message, METRIC, call_location:, tags:, **context)
       end
 
+      # track evidence upload attempted
+      #
+      # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_attempt(**context)
         message = format_message('upload attempt')
         tags = format_tags({ action: 'attempt' })
@@ -77,6 +102,9 @@ module ClaimsEvidenceApi
         track_request(:info, message, METRIC, call_location:, tags:, **context)
       end
 
+      # track evidence upload completed successfully
+      #
+      # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_success(**context)
         message = format_message('upload success')
         tags = format_tags({ action: 'success' })
@@ -84,6 +112,10 @@ module ClaimsEvidenceApi
         track_request(:info, message, METRIC, call_location:, tags:, **context)
       end
 
+      # track evidence upload failure/error
+      #
+      # @param error_message [String] the error message
+      # @param context [Mixed] key-value pairs to be included in tracking
       def track_upload_failure(error_message, **context)
         message = format_message("upload failure - ERROR #{error_message}")
         tags = format_tags({ action: 'failure' })

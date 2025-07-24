@@ -55,6 +55,8 @@ module ClaimsEvidenceApi
 
       private
 
+      # create the monitor to be used for _this_ instance
+      # @see ClaimsEvidenceApi::Monitor::Service
       def monitor
         @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
       end
