@@ -26,7 +26,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
       before do
         Timecop.freeze('2021-05-26 22:33:39')
 
-        create(:mobile_maintenance_evss_first)
+        create(:mobile_maintenance_lighthouse_first)
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
@@ -44,7 +44,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
     context 'when a maintenance with many dependent services and a window not in the service map is active' do
       before do
         Timecop.freeze('2021-05-25T03:33:39Z')
-        create(:mobile_maintenance_evss_first)
+        create(:mobile_maintenance_lighthouse_first)
         create(:mobile_maintenance_mpi)
         create(:mobile_maintenance_dslogon)
         create(:mobile_maintenance_vbms)
@@ -60,6 +60,22 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
       it 'returns an array of the affected services' do
         expect(response.parsed_body['data']).to eq(
           [{
+            'id' => 'ebd9fb30-4df2-52e9-b951-297a9a4cc65c',
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'claims',
+              'startTime' => '2021-05-25T21:33:39.000Z',
+              'endTime' => '2021-05-25T22:33:39.000Z'
+            }
+          }, {
+            'id' => mw_uuid('disability_rating'),
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'disability_rating',
+              'startTime' => '2021-05-25T21:33:39.000Z',
+              'endTime' => '2021-05-25T22:33:39.000Z'
+            }
+          }, {
             'id' => mw_uuid('letters_and_documents'),
             'type' => 'maintenance_window',
             'attributes' => {
@@ -68,28 +84,12 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
               'endTime' => '2021-05-25T22:33:39.000Z'
             }
           }, {
-            'id' => 'ebd9fb30-4df2-52e9-b951-297a9a4cc65c',
-            'type' => 'maintenance_window',
-            'attributes' => {
-              'service' => 'claims',
-              'startTime' => '2021-05-25T23:33:39.000Z',
-              'endTime' => '2021-05-26T01:45:00.000Z'
-            }
-          }, {
-            'id' => mw_uuid('disability_rating'),
-            'type' => 'maintenance_window',
-            'attributes' => {
-              'service' => 'disability_rating',
-              'startTime' => '2021-05-25T23:33:39.000Z',
-              'endTime' => '2021-05-26T01:45:00.000Z'
-            }
-          }, {
             'id' => '0ce167f8-9522-52c3-94e0-4f1e367d7064',
             'type' => 'maintenance_window',
             'attributes' => {
               'service' => 'immunizations',
-              'startTime' => '2021-05-25T23:33:39.000Z',
-              'endTime' => '2021-05-26T01:45:00.000Z'
+              'startTime' => '2021-05-25T21:33:39.000Z',
+              'endTime' => '2021-05-25T22:33:39.000Z'
             }
           }, {
             'id' => 'c07d7af4-b54a-5b82-b94c-3366f79cc500',
@@ -133,9 +133,9 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
     end
 
     context 'when there are multiple windows for same service with different time spans' do
-      let!(:earliest_evss_starting) { create(:mobile_maintenance_evss_first) }
-      let!(:middle_evss_starting) { create(:mobile_maintenance_evss_second) }
-      let!(:latest_evss_starting) { create(:mobile_maintenance_evss_third) }
+      let!(:earliest_lighthouse_starting) { create(:mobile_maintenance_lighthouse_first) }
+      let!(:middle_lighthouse_starting) { create(:mobile_maintenance_lighthouse_second) }
+      let!(:latest_lighthouse_starting) { create(:mobile_maintenance_lighthouse_third) }
 
       before { Timecop.freeze('2021-05-25T03:33:39Z') }
       after { Timecop.return }
@@ -144,45 +144,45 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
 
         attributes = response.parsed_body['data'].pluck('attributes')
-        evss_eariest_start_time = earliest_evss_starting.start_time.iso8601
-        evss_eariest_end_time = earliest_evss_starting.end_time.iso8601
-        evss_middle_start_time = middle_evss_starting.start_time.iso8601
-        evss_middle_end_time = middle_evss_starting.end_time.iso8601
-        evss_latest_start_time = latest_evss_starting.start_time.iso8601
-        evss_latest_end_time = latest_evss_starting.end_time.iso8601
+        lighthouse_earliest_start_time = earliest_lighthouse_starting.start_time.iso8601
+        lighthouse_earliest_end_time = earliest_lighthouse_starting.end_time.iso8601
+        lighthouse_middle_start_time = middle_lighthouse_starting.start_time.iso8601
+        lighthouse_middle_end_time = middle_lighthouse_starting.end_time.iso8601
+        lighthouse_latest_start_time = latest_lighthouse_starting.start_time.iso8601
+        lighthouse_latest_end_time = latest_lighthouse_starting.end_time.iso8601
 
         expect(response.body).to match_json_schema('maintenance_windows')
-        expect(attributes.pluck('service').uniq).to eq(%w[letters_and_documents])
-        expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_eariest_start_time])
-        expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_eariest_end_time])
+        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating letters_and_documents immunizations])
+        expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_earliest_start_time])
+        expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_earliest_end_time])
 
         Timecop.freeze('2021-05-26T03:33:39Z')
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[letters_and_documents])
-        expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_middle_start_time])
-        expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_middle_end_time])
+        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating letters_and_documents immunizations])
+        expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_middle_start_time])
+        expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_middle_end_time])
 
         Timecop.freeze('2021-05-27T03:33:39Z')
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[letters_and_documents])
+        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating letters_and_documents immunizations])
 
-        expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_latest_start_time])
-        expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_latest_end_time])
+        expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_latest_start_time])
+        expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_latest_end_time])
       end
     end
 
     context 'when there are multiple windows for various services with different time spans' do
-      let!(:earliest_evss_starting) { create(:mobile_maintenance_evss_first) }
-      let!(:latest_evss_starting) { create(:mobile_maintenance_evss_second) }
+      let!(:earliest_lighthouse_starting) { create(:mobile_maintenance_lighthouse_first) }
+      let!(:latest_lighthouse_starting) { create(:mobile_maintenance_lighthouse_second) }
       let!(:earliest_bgs_starting) { create(:mobile_maintenance_bgs_first) }
       let!(:latest_bgs_starting) { create(:mobile_maintenance_bgs_second) }
-      let(:evss_services) { %w[letters_and_documents].freeze }
+      let(:lighthouse_services) { %w[claims disability_rating immunizations].freeze }
       let(:bgs_services) { %w[payment_history appeals].freeze }
 
       before { Timecop.freeze('2021-05-25T03:33:39Z') }
@@ -192,36 +192,42 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
 
         attributes = response.parsed_body['data'].pluck('attributes')
-        evss_windows = attributes.select { |window| evss_services.include?(window['service']) }
+        lighthouse_windows = attributes.select { |window| lighthouse_services.include?(window['service']) }
         bgs_windows = attributes.select { |window| bgs_services.include?(window['service']) }
-        evss_eariest_start_time = earliest_evss_starting.start_time.iso8601
-        evss_eariest_end_time = earliest_evss_starting.end_time.iso8601
-        bgs_eariest_start_time = earliest_bgs_starting.start_time.iso8601
-        bgs_eariest_end_time = earliest_bgs_starting.end_time.iso8601
+        lighthouse_earliest_start_time = earliest_lighthouse_starting.start_time.iso8601
+        lighthouse_earliest_end_time = earliest_lighthouse_starting.end_time.iso8601
+        bgs_earliest_start_time = earliest_bgs_starting.start_time.iso8601
+        bgs_earliest_end_time = earliest_bgs_starting.end_time.iso8601
 
         expect(response.body).to match_json_schema('maintenance_windows')
-        expect(evss_windows.pluck('service')).to eq(evss_services)
-        expect(evss_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_eariest_start_time])
-        expect(evss_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_eariest_end_time])
+        expect(lighthouse_windows.pluck('service')).to eq(lighthouse_services)
+        expect(lighthouse_windows.map do |w|
+          Time.parse(w['startTime']).iso8601
+        end.uniq).to eq([lighthouse_earliest_start_time])
+        expect(lighthouse_windows.map do |w|
+          Time.parse(w['endTime']).iso8601
+        end.uniq).to eq([lighthouse_earliest_end_time])
         expect(bgs_windows.pluck('service')).to eq(bgs_services)
-        expect(bgs_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([bgs_eariest_start_time])
-        expect(bgs_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([bgs_eariest_end_time])
+        expect(bgs_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([bgs_earliest_start_time])
+        expect(bgs_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([bgs_earliest_end_time])
 
         Timecop.freeze('2021-05-26 03:45:00')
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
 
         attributes = response.parsed_body['data'].pluck('attributes')
-        evss_windows = attributes.select { |window| evss_services.include?(window['service']) }
+        lighthouse_windows = attributes.select { |window| lighthouse_services.include?(window['service']) }
         bgs_windows = attributes.select { |window| bgs_services.include?(window['service']) }
-        evss_latest_start_time = latest_evss_starting.start_time.iso8601
-        evss_latest_end_time = latest_evss_starting.end_time.iso8601
+        lighthouse_latest_start_time = latest_lighthouse_starting.start_time.iso8601
+        lighthouse_latest_end_time = latest_lighthouse_starting.end_time.iso8601
         bgs_latest_start_time = latest_bgs_starting.start_time.iso8601
         bgs_latest_end_time = latest_bgs_starting.end_time.iso8601
 
         expect(response.body).to match_json_schema('maintenance_windows')
-        expect(evss_windows.pluck('service')).to eq(evss_services)
-        expect(evss_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_latest_start_time])
-        expect(evss_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_latest_end_time])
+        expect(lighthouse_windows.pluck('service')).to eq(lighthouse_services)
+        expect(lighthouse_windows.map do |w|
+          Time.parse(w['startTime']).iso8601
+        end.uniq).to eq([lighthouse_latest_start_time])
+        expect(lighthouse_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_latest_end_time])
         expect(bgs_windows.pluck('service')).to eq(bgs_services)
         expect(bgs_windows.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([bgs_latest_start_time])
         expect(bgs_windows.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([bgs_latest_end_time])
