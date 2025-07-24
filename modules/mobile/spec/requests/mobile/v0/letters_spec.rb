@@ -163,7 +163,6 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   before do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(Lighthouse::LettersGenerator::Configuration).to receive(:get_access_token).and_return(token)
-    Flipper.enable_actor(:mobile_lighthouse_letters, user)
   end
 
   describe 'GET /mobile/v0/letters' do
