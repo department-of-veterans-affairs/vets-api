@@ -2005,9 +2005,6 @@ features:
   mobile_iam_authentication_disabled:
     actor_type: user
     description: For mobile app, disable iam authentication method.
-  mobile_lighthouse_letters:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
   mobile_military_indicator_logger:
     actor_type: user
     description: For mobile app, enables logging of military discharge codes
