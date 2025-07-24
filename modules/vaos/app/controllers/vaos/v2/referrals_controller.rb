@@ -7,6 +7,8 @@ module VAOS
     class ReferralsController < VAOS::BaseController
       REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
       REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
+      REFERRING_FACILITY_CODE_FIELD = 'referring_facility_code'
+      REFERRAL_PROVIDER_NPI_FIELD = 'referral_provider_npi'
 
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
@@ -31,26 +33,11 @@ module VAOS
       # Fetches a specific referral by its encrypted UUID
       # Decrypts the UUID to retrieve the referral consult ID
       def show
-        # Decrypt the referral UUID from the request parameters
         decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_uuid)
-
-        response = referral_service.get_referral(
-          decrypted_id,
-          current_user.icn
-        )
-
-        # Add uuid to the detailed response
+        response = referral_service.get_referral(decrypted_id, current_user.icn)
         response.uuid = referral_uuid
 
-        # Log referral provider IDs for tracking
-        referring_provider_id = sanitize_log_value(response.referring_facility_code)
-        referral_provider_id = sanitize_log_value(response.provider_npi)
-
-        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
-                           'service:community_care_appointments',
-                           "referring_provider_id:#{referring_provider_id}",
-                           "referral_provider_id:#{referral_provider_id}"
-                         ])
+        log_referral_provider_metrics(response)
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
@@ -127,6 +114,43 @@ module VAOS
         return 'no_value' if value.blank?
 
         value.to_s.gsub(/\s+/, '_')
+      end
+
+      # Logs referral provider metrics and errors for missing provider IDs
+      # @param response [Ccra::ReferralDetail] the referral response object
+      def log_referral_provider_metrics(response)
+        referring_facility_code = sanitize_log_value(response&.referring_facility_code)
+        provider_npi = sanitize_log_value(response&.provider_npi)
+        station_id = sanitize_log_value(response&.station_id)
+
+        StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
+                           'service:community_care_appointments',
+                           "referring_facility_code:#{referring_facility_code}",
+                           "referral_provider_npi:#{provider_npi}",
+                           "station_id:#{station_id}"
+                         ])
+
+        log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
+      end
+
+      # Logs specific errors when provider IDs are missing using structured logging
+      #
+      # @param referring_facility_code [String] the sanitized referring facility code ('no_value' if originally blank)
+      # @param provider_npi [String] the sanitized provider NPI ('no_value' if originally blank)
+      # @param station_id [String] the sanitized station ID of the referral ('no_value' if originally blank)
+      # @return [void]
+      def log_missing_provider_ids(referring_facility_code, provider_npi, station_id)
+        missing_fields = []
+        missing_fields << REFERRING_FACILITY_CODE_FIELD if referring_facility_code == 'no_value'
+        missing_fields << REFERRAL_PROVIDER_NPI_FIELD if provider_npi == 'no_value'
+
+        return if missing_fields.empty?
+
+        Rails.logger.error('Community Care Appointments: Referral detail view: Missing provider data', {
+                             missing_data: missing_fields,
+                             station_id:,
+                             user_uuid: current_user.uuid
+                           })
       end
     end
   end
