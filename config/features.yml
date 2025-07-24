@@ -742,6 +742,10 @@ features:
   disability_526_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in disability 526 applications
+  disability_526_form4142_use_2024_frontend:
+    actor_type: user
+    description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
