@@ -19,11 +19,11 @@ module BenefitsClaims
       'DBQ AUDIO Hearing Loss and Tinnitus' => 'Disability exam for hearing',
       'DBQ PSYCH Mental Disorders' => 'Mental health exam',
       'Employer (21-4192)' => 'Employment information',
-      'Unemployability - 21-8940 needed and 4192(s) requested'=> 'Work status information',
+      'Unemployability - 21-8940 needed and 4192(s) requested' => 'Work status information',
       'Request Service Treatment Records from Veteran' => 'Official service treatment records',
       '21-4142 incomplete - need provider address' => 'Address of non-VA medical provider',
       'Submit buddy statement(s)' => 'Witness or corroboration statements',
-      'ASB - tell us where, when, how exposed' => 'Asbestos exposure information',
+      'ASB - tell us where, when, how exposed' => 'Asbestos exposure information'
     }.freeze
 
     ACTIVITY_DESCRIPTION_MAPPING = {
@@ -40,7 +40,7 @@ module BenefitsClaims
       'DBQ AUDIO Hearing Loss and Tinnitus' => 'We’ve requested a disability exam for your hearing.' \
                                                ' The examiner’s office will contact you to schedule this appointment.',
       'DBQ PSYCH Mental Disorders' => 'We’ve requested a mental health exam for you. The examiner’s office' \
-                                      ' will contact you to schedule this appointment.',
+                                      ' will contact you to schedule this appointment.'
     }.freeze
 
     SHORT_DESCRIPTION_MAPPING = {
@@ -51,11 +51,15 @@ module BenefitsClaims
       'Employer (21-4192)' => 'We sent a letter to your last employer to ask about your job and why you left.',
       'PMR Pending' => 'We’ve requested your non-VA medical records from your medical provider.',
       'General Records Request (Medical)' => 'We’ve requested your non-VA medical records from your medical provider.',
-      'Unemployability - 21-8940 needed and 4192(s) requested'=> 'We need more information about how your service-connected disabilities prevent you from working.',
-      'Request Service Treatment Records from Veteran' => 'We need certified copies of your service treatment records if you have them.',
-      '21-4142 incomplete - need provider address' => 'We need your private physician’s address to request information for your claim.',
+      'Unemployability - 21-8940 needed and 4192(s) requested' => 'We need more information about how your service-connected disabilities' \
+                                                                  'prevent you from working.',
+      'Request Service Treatment Records from Veteran' => 'We need certified copies of your service treatment' \
+                                                          ' records if you have them.',
+      '21-4142 incomplete - need provider address' => 'We need your private physician’s address to' \
+                                                      ' request information for your claim.',
       'Submit buddy statement(s)' => 'We need statements from people who know about your condition.',
-      'ASB - tell us where, when, how exposed' => 'To process your disability claim for asbestos exposure, we need a bit more information from you.'
+      'ASB - tell us where, when, how exposed' => 'To process your disability claim for asbestos exposure, we' \
+                                                  ' need a bit more information from you.'
     }.freeze
 
     SUPPORT_ALIASES_MAPPING = {
