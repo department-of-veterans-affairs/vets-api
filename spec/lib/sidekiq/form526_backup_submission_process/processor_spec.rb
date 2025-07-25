@@ -77,12 +77,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
               processed_files.each do |processed_file|
                 if processed_file['name'].length > 101
                   shortened_name = processed_file['name'][0..described_class::MAX_FILENAME_LENGTH]
-                  shortened_path = "#{mock_random_file_path}.#{mock_timestamp}.#{shortened_name}.pdf"
+                  unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
+                  shortened_path = "#{unique_path}.#{shortened_name}.pdf"
                   expect(processed_file[:file].length).to be <= processed_file['name'].length
                   expect(processed_file[:file].length).to eq(shortened_path.length)
                 else
-                  expect(processed_file[:file].length).to
-                  eq("#{mock_random_file_path}.#{mock_timestamp}.#{processed_file['name']}".length)
+                  expect(processed_file[:file].length).to eq("#{unique_path}.#{processed_file['name']}".length)
                 end
                 expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-\.]+\.pdf$})
                 expect(processed_file[:file].length).to be <= 255
