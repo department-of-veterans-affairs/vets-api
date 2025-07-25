@@ -52,7 +52,7 @@ module BenefitsClaims
       'PMR Pending' => 'We’ve requested your non-VA medical records from your medical provider.',
       'General Records Request (Medical)' => 'We’ve requested your non-VA medical records from your medical provider.',
       'Unemployability - 21-8940 needed and 4192(s) requested' => 'We need more information about how your service-connected disabilities' \
-                                                                  'prevent you from working.',
+                                                                  ' prevent you from working.',
       'Request Service Treatment Records from Veteran' => 'We need certified copies of your service treatment' \
                                                           ' records if you have them.',
       '21-4142 incomplete - need provider address' => 'We need your private physician’s address to' \
