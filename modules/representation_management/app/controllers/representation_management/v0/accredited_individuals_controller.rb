@@ -32,7 +32,7 @@ module RepresentationManagement
         AccreditedIndividual
           .includes(:accredited_organizations)
           .select(select_query_string)
-          .where(individual_type: search_params[:type])
+          .where(individual_type: type_param)
           .order(sort_query_string)
       end
 
@@ -68,6 +68,21 @@ module RepresentationManagement
 
       def sort_param
         search_params[:sort] || DEFAULT_SORT
+      end
+
+      def type_param
+        # This method accepts the types for Veteran::Service::Representative and AccreditedIndividual
+        # and maps them to the individual_type used in AccreditedIndividual.
+        case search_params[:type]
+        when 'claims_agent' || 'claim_agents'
+          'claims_agent'
+        when 'representative' || 'veteran_service_officer'
+          'representative'
+        when 'attorney' # attorney is the same across Veteran::Service::Representative and AccreditedIndividual
+          'attorney'
+        else
+          raise ArgumentError, "Invalid type: #{search_params[:type]}"
+        end
       end
 
       def select_query_string
