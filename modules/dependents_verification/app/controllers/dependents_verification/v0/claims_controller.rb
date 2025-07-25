@@ -60,12 +60,16 @@ module DependentsVerification
 
       private
 
+      # Merge the current user's SSN and veteran file number into the form data for PDF generation
+      # @return [Hash] the form data with SSN and veteran file number
       def form_data_with_ssn_filenumber
         form_data_as_sym = JSON.parse(filtered_params[:form]).deep_symbolize_keys
         form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn, veteranFileNumber: veteran_file_number)
         form_data_as_sym
       end
 
+      # Retrieves the veteran's file number from BGS using the current user's participant ID
+      # @return [String] the veteran's file number without dashes
       def veteran_file_number
         file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user).file_number
         file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
