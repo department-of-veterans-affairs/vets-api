@@ -2344,3 +2344,9 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  ar_poa_request_claimant_failure_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_rep_failure_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives

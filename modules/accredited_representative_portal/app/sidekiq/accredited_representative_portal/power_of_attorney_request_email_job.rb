@@ -63,6 +63,10 @@ module AccreditedRepresentativePortal
           EmailPersonalisations::Expiring
         when 'expired'
           EmailPersonalisations::Expired
+        when 'enqueue_failed_claimant' || 'submission_failed_claimant'
+          EmailPersonalisations::FailedClaimant
+        when 'enqueue_failed_representative' || 'submission_failed_representative'
+          EmailPersonalisations::FailedRep
         end
 
       personalisation_klass.generate(
