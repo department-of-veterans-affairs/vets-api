@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'organization_data_mapper'
+require_relative 'individual_data_mapper'
 require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
 require 'json'
@@ -14,6 +15,7 @@ module ClaimsApi
 
         LOG_TAG = 'poa_auto_establishment_data_mapper'
         DATA_MAPPERS = {
+          '2122a' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper,
           '2122' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataMapper
         }.freeze
 
@@ -29,10 +31,10 @@ module ClaimsApi
           )
 
           mapper_class = DATA_MAPPERS[@type].new(data: @data)
-          return [] unless mapper_class
+          return {} unless mapper_class
 
-          @json_form_data = deep_compact(mapper_class.map_data)
-          return [] if @json_form_data.blank?
+          @json_form_data = mapper_class.map_data
+          return {} if @json_form_data.blank?
 
           validate_data
 
@@ -71,21 +73,6 @@ module ClaimsApi
 
         def form_attributes
           @json_form_data&.dig('data', 'attributes') || {}
-        end
-
-        def deep_compact(obj)
-          case obj
-          when Hash
-            obj.each_with_object({}) do |(k, v), result|
-              nested = deep_compact(v)
-              result[k] = nested unless nested.nil? || nested == {}
-            end
-          when Array
-            array = obj.map { |v| deep_compact(v) }.reject { |v| v.nil? || v == {} }
-            array.empty? ? nil : array
-          else
-            obj.nil? ? nil : obj
-          end
         end
       end
     end
