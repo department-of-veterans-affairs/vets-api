@@ -75,24 +75,21 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_number]
         referral_consult_id = draft_params[:referral_consult_id]
-
-        begin
-          response_data = process_draft_appointment(referral_id, referral_consult_id)
-          if response_data[:success]
-            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
-            ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
-            render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
-          else
-            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
-            render json: response_data[:json], status: response_data[:status]
-          end
-        rescue Redis::BaseError => e
+        response_data = process_draft_appointment(referral_id, referral_consult_id)
+        if response_data[:success]
+          StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
+          ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
+          render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
+        else
           StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
-          handle_redis_error(e)
-        rescue => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
-          handle_appointment_creation_error(e)
+          render json: response_data[:json], status: response_data[:status]
         end
+      rescue Redis::BaseError => e
+        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        handle_redis_error(e)
+      rescue => e
+        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        handle_appointment_creation_error(e)
       end
 
       def update
@@ -791,10 +788,17 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
-        Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class}")
-        original_status = e.respond_to?(:original_status) ? e.original_status : nil
-        status_code = appointment_error_status(original_status)
-        render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
+        if e.is_a?(ActionController::ParameterMissing)
+          error_message = "#{CC_APPOINTMENTS}: Appointment creation error: #{e.class} - #{e.message}\n"
+          error_message += e.backtrace&.join("\n") if e.backtrace
+          Rails.logger.error(error_message)
+          status_code = :bad_request
+        else
+          Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class}")
+          original_status = e.respond_to?(:original_status) ? e.original_status : nil
+          status_code = appointment_error_status(original_status)
+        end
+        render(json: appt_creation_failed_error(error: e, status: status_code), status: status_code)
       end
 
       ##
