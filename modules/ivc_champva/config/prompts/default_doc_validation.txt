@@ -39,7 +39,7 @@ Your job—follow these steps in order:
      * Prescriber Name
 3. Check each required field for presence (flexible label matching) and extract its value.
 4. Return ONLY this strict JSON—no extra text, markdown, or keys:
-{"doc_type": "EOB, MedicalBill, PharmacyBill, or Unknown", "doc_type_matches": boolean, "valid": boolean, "confidence": double, "missing_fields": [string], "present_fields": {"FieldName": "Extracted value"}, "notes": "Concise explanation of key decisions"}
+{"doc_type": "EOB, MedicalBill, PharmacyBill, or Unknown", "doc_type_matches": boolean, "valid": boolean, "confidence": double, "missing_fields": [string], "present_fields": [{"FieldName": "Extracted value"}], "notes": "Concise explanation of key decisions"}
 Rules:
 - "doc_type_matches" is true when the chosen doc_type is one of the three allowed types.
 - "valid" is true only when doc_type_matches is true AND all required fields for that type are present.
