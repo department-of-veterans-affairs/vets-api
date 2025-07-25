@@ -52,13 +52,13 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppoint', typ
     end
   end
 
-  context "when the feature flag 'appoint_a_representative_enable_pdf' is disabled" do
+  context "when the feature flag 'find_a_representative_use_accredited_models' is disabled" do
     before do
-      Flipper.disable(:appoint_a_representative_enable_pdf)
+      Flipper.disable(:find_a_representative_use_accredited_models)
     end
 
     after do
-      Flipper.enable(:appoint_a_representative_enable_pdf)
+      Flipper.enable(:find_a_representative_use_accredited_models)
     end
 
     it 'returns a 404' do
