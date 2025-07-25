@@ -74,9 +74,9 @@ module RepresentationManagement
         # This method accepts the types for Veteran::Service::Representative and AccreditedIndividual
         # and maps them to the individual_type used in AccreditedIndividual.
         case search_params[:type]
-        when 'claims_agent' || 'claim_agents'
+        when 'claims_agent', 'claim_agents'
           'claims_agent'
-        when 'representative' || 'veteran_service_officer'
+        when 'representative', 'veteran_service_officer'
           'representative'
         when 'attorney' # attorney is the same across Veteran::Service::Representative and AccreditedIndividual
           'attorney'
