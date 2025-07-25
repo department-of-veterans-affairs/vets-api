@@ -26,7 +26,12 @@ module V0
     private
 
     def service
-      if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
+      use_lighthouse = Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
+      api_provider = use_lighthouse ? 'lighthouse' : 'VBMS'
+      ::Rails.logger.info('Choosing Claim Letters API Provider via cst_claim_letters_use_lighthouse_api_provider',
+                          { message_type: 'cst.api_provider',
+                            api_provider: })
+      if use_lighthouse
         LighthouseClaimLettersProvider.new(@current_user)
       else
         ClaimStatusTool::ClaimLetterDownloader.new(@current_user)

@@ -1,6 +1,6 @@
 applicantFullName: [identity_information, full_name]
 dateOfBirth: [identity_information, date_of_birth]
-applicantFileNumber: [identity_information, ssn]
+ssn: [identity_information, ssn]
 contactInfo:
   emailAddress: [contact_information, email]
   homePhone: [contact_information, us_phone]

@@ -113,7 +113,7 @@ module RepresentationManagement
         return unless Settings.vsp_environment == 'production'
 
         slack_client = SlackNotify::Client.new(
-          webhook_url: Settings.claims_api.slack.webhook_url,
+          webhook_url: Settings.edu.slack.webhook_url,
           channel: '#benefits-representation-management-notifications',
           username: 'RepresentationManagement::GCLAWS::ClientBot'
         )
