@@ -1443,6 +1443,9 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
+  profile_show_paperless_delivery:
+    actor_type: user
+    description: Toggle user's ability to see and modify paperless delivery settings page.
   pcpg_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for PCPG failure exhaustion
