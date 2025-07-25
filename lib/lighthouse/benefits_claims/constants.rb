@@ -51,8 +51,8 @@ module BenefitsClaims
       'Employer (21-4192)' => 'We sent a letter to your last employer to ask about your job and why you left.',
       'PMR Pending' => 'We’ve requested your non-VA medical records from your medical provider.',
       'General Records Request (Medical)' => 'We’ve requested your non-VA medical records from your medical provider.',
-      'Unemployability - 21-8940 needed and 4192(s) requested' => 'We need more information about how your service-connected disabilities' \
-                                                                  ' prevent you from working.',
+      'Unemployability - 21-8940 needed and 4192(s) requested' => 'We need more information about how your' \
+                                                                  ' service-connected disabilities prevent you from working.',
       'Request Service Treatment Records from Veteran' => 'We need certified copies of your service treatment' \
                                                           ' records if you have them.',
       '21-4142 incomplete - need provider address' => 'We need your private physician’s address to' \
@@ -75,8 +75,9 @@ module BenefitsClaims
       'DBQ AUDIO Hearing Loss and Tinnitus' => ['DBQ AUDIO Hearing Loss and Tinnitus'],
       'DBQ PSYCH Mental Disorders' => ['DBQ PSYCH Mental Disorders'],
       'Employer (21-4192)' => ['Employer (21-4192)'],
-      'PMR Pending' => ['PMR Pending','General Records Request (Medical)'],
-      'Unemployability - 21-8940 needed and 4192(s) requested' => ['Unemployability - 21-8940 needed and 4192(s) requested'],
+      'PMR Pending' => ['PMR Pending', 'General Records Request (Medical)'],
+      'Unemployability - 21-8940 needed and 4192(s) requested' => ['Unemployability' \
+                                                                   ' - 21-8940 needed and 4192(s) requested'],
       'Request Service Treatment Records from Veteran' => ['Request Service Treatment Records from Veteran'],
       '21-4142 incomplete - need provider address' => ['21-4142 incomplete - need provider address'],
       'Submit buddy statement(s)' => ['Submit buddy statement(s)'],
@@ -98,7 +99,7 @@ module BenefitsClaims
       'Employer (21-4192)' => false,
       'Unemployability - 21-8940 needed and 4192(s) requested' => true,
       'Request Service Treatment Records from Veteran' => true,
-      '21-4142 incomplete - need provider address'=> true,
+      '21-4142 incomplete - need provider address' => true,
       'Submit buddy statement(s)' => true,
       'ASB - tell us where, when, how exposed' => true
     }.freeze
