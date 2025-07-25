@@ -51,7 +51,6 @@ module DependentsVerification
         process_and_upload_to_lighthouse(claim)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
-        # QUESTION: the claim is being returned with ssn/file number...assuming we want to prevent that...how?
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
