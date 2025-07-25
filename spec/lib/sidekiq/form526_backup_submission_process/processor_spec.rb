@@ -74,10 +74,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               processor = described_class.new(submission.id)
               processed_files = processor.get_uploads
+              unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
               processed_files.each do |processed_file|
                 if processed_file['name'].length > 101
                   shortened_name = processed_file['name'][0..described_class::MAX_FILENAME_LENGTH]
-                  unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
                   shortened_path = "#{unique_path}.#{shortened_name}.pdf"
                   expect(processed_file[:file].length).to be <= processed_file['name'].length
                   expect(processed_file[:file].length).to eq(shortened_path.length)
