@@ -71,28 +71,39 @@ module BGS
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
     end
 
+    def folder_identifier
+      fid = 'VETERAN'
+      { ssn:, participant_id:, icn: }.each do |k, v|
+        if v.present?
+          fid += "#{k.to_s.upcase}:#{v}"
+          break
+        end
+      end
+
+      fid
+    end
+
     def submit_pdf_job(claim:, encrypted_vet_info:)
       @monitor = init_monitor(claim&.id)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        # TODO: implement upload using the claims_evidence_api module
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
-                             "#{STATS_KEY}.claim_evidence.failure")
-        return
+        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                             "#{STATS_KEY}.submit_pdf.begin")
+        stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }] # same minimal set used for claim and attachments
+        ClaimsEvidenceApi::Uploader.new(folder_identifier).upload_saved_claim_evidence(claim.id, stamp_set, stamp_set)
+      else
+        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+                             "#{STATS_KEY}.submit_pdf.begin")
+        # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
+        VBMS::SubmitDependentsPdfJob.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
+                                                  claim.submittable_674?)
       end
 
-      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                           "#{STATS_KEY}.submit_pdf.begin")
-      VBMS::SubmitDependentsPdfV2Job.perform_sync(
-        claim.id,
-        encrypted_vet_info,
-        claim.submittable_686?,
-        claim.submittable_674?
-      )
-      # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
+      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job completed',
+                           "#{STATS_KEY}.submit_pdf.completed")
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       @monitor.track_event('warn',
-                           'DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake',
+                           'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", { error: e })
       submit_to_central_service(claim:)
 
