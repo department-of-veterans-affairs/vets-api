@@ -83,7 +83,7 @@ module IvcChampva
         # Get unique submission counts and calculate averages for each
         unique_nums = submissions_by_email.values.uniq.select { |num| num > 1 }
 
-        unique_nums.map do |num_submissions|
+        timing_data = unique_nums.map do |num_submissions|
           avg_time_seconds = average_time_between_resubmissions(submissions_by_email, start_date, end_date,
                                                                 num_submissions, form_number)
           avg_time_str = avg_time_seconds.nil? ? nil : make_time_str(avg_time_seconds)
@@ -93,12 +93,15 @@ module IvcChampva
             avg_time_seconds:,
             avg_time_formatted: avg_time_str
           }
-        end.sort_by { |data| data[:num_submissions] }.reverse
+        end
+
+        timing_data.sort_by { |data| data[:num_submissions] }.reverse
       end
 
       def display_averages_from_data(average_time_data)
         average_time_data.each do |data|
-          puts "Avg time between resubmits for users with #{data[:num_submissions]} submissions: #{data[:avg_time_formatted]}"
+          puts "Avg time between resubmits for users with #{data[:num_submissions]} submissions:
+          #{data[:avg_time_formatted]}"
         end
 
         nil
@@ -151,7 +154,7 @@ module IvcChampva
       end
 
       def count_frequency(submitters)
-        submitters.each.with_object(Hash.new(0)) do |(email, num_submissions), result_hash|
+        submitters.each.with_object(Hash.new(0)) do |(_, num_submissions), result_hash|
           result_hash[num_submissions] += 1
         end
       end

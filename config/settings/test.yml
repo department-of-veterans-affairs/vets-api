@@ -603,6 +603,8 @@ ivc_forms:
     bucket: bucket
     region: region
   sidekiq:
+    insights_datadog_job:
+      enabled: true
     missing_form_status_job:
       enabled: true
     old_records_cleanup_job:
