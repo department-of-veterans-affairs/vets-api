@@ -789,7 +789,9 @@ module VAOS
       #
       def handle_appointment_creation_error(e)
         if e.is_a?(ActionController::ParameterMissing)
-          Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class} - #{e.message}\n#{e.backtrace&.join("\n")}")
+          error_message = "#{CC_APPOINTMENTS}: Appointment creation error: #{e.class} - #{e.message}\n"
+          error_message += e.backtrace&.join("\n") if e.backtrace
+          Rails.logger.error(error_message)
           status_code = :bad_request
         else
           Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class}")
