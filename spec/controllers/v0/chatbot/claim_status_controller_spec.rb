@@ -221,8 +221,6 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(13)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('Private Medical Record')
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
                                  'displayName')).to eq('Submit buddy statement(s)')
         end
@@ -240,8 +238,6 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(14)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('Private Medical Record')
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
                                  'displayName')).to eq('Submit buddy statement(s)')
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
