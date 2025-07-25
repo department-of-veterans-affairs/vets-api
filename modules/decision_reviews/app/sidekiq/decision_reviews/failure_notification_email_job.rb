@@ -34,7 +34,7 @@ module DecisionReviews
 
       send_form_emails
       send_evidence_emails
-      send_secondary_form_emails if secondary_forms_enabled?
+      send_secondary_form_emails
 
       nil
     end
@@ -51,29 +51,36 @@ module DecisionReviews
 
     def perform_all
       enabled? &&
-        secondary_forms_enabled? &&
         (submissions.present? || submission_uploads.present? || errored_secondary_forms.present?)
     end
 
-    def vanotify_service
-      @service ||= ::VaNotify::Service.new(VANOTIFY_API_KEY)
+    def get_callback_config(email_type, appeal_type)
+      case email_type
+      when :form
+        [DecisionReviews::FormNotificationCallback, 'form submission', DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type]]
+      when :evidence
+        [DecisionReviews::EvidenceNotificationCallback, 'evidence submission to Lighthouse', DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type]]
+      when :secondary_form
+        [DecisionReviews::EvidenceNotificationCallback, 'secondary form submission to Lighthouse', DecisionReviews::V1::SECONDARY_FORM_TEMPLATE_ID]
+      end
     end
 
-    def vanotify_service_with_callback(submission, template_id)
+    def vanotify_service_with_callback(submission, email_type, reference)
+      appeal_type = submission.type_of_appeal
+      callback_klass, function, email_template_id = get_callback_config(email_type, appeal_type)
+
       callback_options = {
-        callback_klass: DecisionReviews::FormNotificationCallback.to_s,
+        callback_klass: callback_klass.to_s,
         callback_metadata: {
           email_type: :error,
-          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
-          function: 'form submission',
+          service_name: APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
+          function:,
           submitted_appeal_uuid: submission.submitted_appeal_uuid,
-          email_template_id: template_id
+          email_template_id:,
+          reference:
         }
       }
-      ::VaNotify::Service.new(
-        Settings.vanotify.services.benefits_decision_review.api_key,
-        callback_options
-      )
+      ::VaNotify::Service.new(VANOTIFY_API_KEY, callback_options)
     end
 
     # Fetches SavedClaim records for DecisionReview that have an error status for the form or any evidence attachments
@@ -104,7 +111,7 @@ module DecisionReviews
       @errored_secondary_forms ||= SecondaryAppealForm.needs_failure_notification.order(id: :asc)
     end
 
-    def send_email_with_vanotify(submission, filename, created_at, template_id, reference)
+    def send_email_with_vanotify_callback(submission, email_type, filename, created_at, reference)
       email_address = submission.current_email_address
       personalisation = {
         first_name: submission.get_mpi_profile.given_names[0],
@@ -112,18 +119,9 @@ module DecisionReviews
         date_submitted: created_at.strftime('%B %d, %Y')
       }
 
-      vanotify_service.send_email({ email_address:, template_id:, personalisation:, reference: })
-    end
+      _, _, template_id = get_callback_config(email_type, submission.type_of_appeal)
 
-    def send_email_with_vanotify_form_callback(submission, filename, created_at, template_id)
-      email_address = submission.current_email_address
-      personalisation = {
-        first_name: submission.get_mpi_profile.given_names[0],
-        filename:,
-        date_submitted: created_at.strftime('%B %d, %Y')
-      }
-
-      vanotify_service_with_callback = vanotify_service_with_callback(submission, template_id)
+      vanotify_service_with_callback = vanotify_service_with_callback(submission, email_type, reference)
       vanotify_service_with_callback.send_email({ email_address:, template_id:, personalisation: })
     end
 
@@ -131,16 +129,15 @@ module DecisionReviews
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
 
       submissions.each do |submission|
-        appeal_type = submission.type_of_appeal
-        reference = "#{appeal_type}-form-#{submission.submitted_appeal_uuid}"
-        email_template_id = DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type]
-        response = if form_callbacks_enabled?
-                     send_email_with_vanotify_form_callback(submission, nil, submission.created_at,
-                                                            email_template_id)
-                   else
-                     send_email_with_vanotify(submission, nil, submission.created_at,
-                                              email_template_id, reference)
-                   end
+        reference = "#{submission.type_of_appeal}-form-#{submission.submitted_appeal_uuid}"
+
+        response = send_email_with_vanotify_callback(
+          submission,
+          :form,
+          nil,
+          submission.created_at,
+          reference
+        )
 
         submission.update(failure_notification_sent_at: DateTime.now)
 
@@ -155,18 +152,10 @@ module DecisionReviews
 
       submission_uploads.each do |upload|
         submission = upload.appeal_submission
-        appeal_type = submission.type_of_appeal
-        template_id = DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type]
-        reference = "#{appeal_type}-evidence-#{upload.lighthouse_upload_id}"
+        reference = "#{submission.type_of_appeal}-evidence-#{upload.lighthouse_upload_id}"
 
-        response = if evidence_callbacks_enabled?
-                     send_email_with_vanotify_evidence_callback(submission, upload.masked_attachment_filename,
-                                                                upload.created_at, 'evidence submission to lighthouse',
-                                                                template_id)
-                   else
-                     send_email_with_vanotify(submission, upload.masked_attachment_filename, upload.created_at,
-                                              template_id, reference)
-                   end
+        response = send_email_with_vanotify_callback(submission, :evidence, upload.masked_attachment_filename,
+                                                     upload.created_at, reference)
 
         upload.update(failure_notification_sent_at: DateTime.now)
 
@@ -176,40 +165,15 @@ module DecisionReviews
       end
     end
 
-    def send_email_with_vanotify_evidence_callback(submission, filename, created_at, function, template_id)
-      email_address = submission.current_email_address
-      personalisation = {
-        first_name: submission.get_mpi_profile.given_names[0],
-        filename:,
-        date_submitted: created_at.strftime('%B %d, %Y')
-      }
-      callback_options = {
-        callback_klass: DecisionReviews::EvidenceNotificationCallback.name,
-        callback_metadata: {
-          email_type: :error,
-          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
-          function:,
-          submitted_appeal_uuid: submission.submitted_appeal_uuid,
-          email_template_id: template_id
-        }
-      }
-
-      service = ::VaNotify::Service.new(VANOTIFY_API_KEY, callback_options)
-      service.send_email({ email_address:, template_id:, personalisation: })
-    end
-
     def send_secondary_form_emails
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", errored_secondary_forms.size)
       errored_secondary_forms.each do |form|
         appeal_type = form.appeal_submission.type_of_appeal
-        template_id = DecisionReviews::V1::SECONDARY_FORM_TEMPLATE_ID
         reference = "#{appeal_type}-secondary_form-#{form.guid}"
-        response = if secondary_form_callbacks_enabled?
-                     send_email_with_vanotify_evidence_callback(form.appeal_submission, nil, form.created_at,
-                                                                'secondary form submission to lighthouse', template_id)
-                   else
-                     send_email_with_vanotify(form.appeal_submission, nil, form.created_at, template_id, reference)
-                   end
+
+        response = send_email_with_vanotify_callback(form.appeal_submission, :secondary_form, nil,
+                                                     form.created_at, reference)
+
         form.update(failure_notification_sent_at: DateTime.now)
 
         record_secondary_form_email_send_successful(form, response.id)
@@ -294,22 +258,6 @@ module DecisionReviews
 
     def enabled?
       Flipper.enabled? :decision_review_failure_notification_email_job_enabled
-    end
-
-    def secondary_forms_enabled?
-      Flipper.enabled? :decision_review_notify_4142_failures
-    end
-
-    def form_callbacks_enabled?
-      Flipper.enabled? :decision_review_notification_form_callbacks
-    end
-
-    def evidence_callbacks_enabled?
-      Flipper.enabled? :decision_review_notification_evidence_callbacks
-    end
-
-    def secondary_form_callbacks_enabled?
-      Flipper.enabled? :decision_review_notification_secondary_form_callbacks
     end
   end
 end

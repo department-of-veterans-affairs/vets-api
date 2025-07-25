@@ -83,16 +83,83 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
     allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
   end
 
+  describe '#get_callback_config' do
+    let(:job) { described_class.new }
+    
+    it 'returns correct config for form emails' do
+      callback_klass, function, template_id = job.send(:get_callback_config, :form, 'SC')
+      
+      expect(callback_klass).to eq(DecisionReviews::FormNotificationCallback)
+      expect(function).to eq('form submission')
+      expect(template_id).to eq('fake_sc_template_id')
+    end
+    
+    it 'returns correct config for evidence emails' do
+      callback_klass, function, template_id = job.send(:get_callback_config, :evidence, 'NOD')
+      
+      expect(callback_klass).to eq(DecisionReviews::EvidenceNotificationCallback)
+      expect(function).to eq('evidence submission to Lighthouse')
+      expect(template_id).to eq('fake_nod_evidence_template_id')
+    end
+    
+    it 'returns correct config for secondary form emails' do
+      callback_klass, function, template_id = job.send(:get_callback_config, :secondary_form, 'HLR')
+      
+      expect(callback_klass).to eq(DecisionReviews::EvidenceNotificationCallback)
+      expect(function).to eq('secondary form submission to Lighthouse')
+      expect(template_id).to eq('fake_sc_secondary_form_template_id')
+    end
+  end
+
+  describe '#vanotify_service_with_callback' do
+    let(:job) { described_class.new }
+    let(:submission) { create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1) }
+    let(:reference) { "SC-form-#{guid1}" }
+    
+    it 'configures the service with correct callback options for form emails' do
+      expect(VaNotify::Service).to receive(:new).with(
+        Settings.vanotify.services.benefits_decision_review.api_key,
+        {
+          callback_klass: 'DecisionReviews::FormNotificationCallback',
+          callback_metadata: {
+            email_type: :error,
+            service_name: 'supplemental-claims',
+            function: 'form submission',
+            submitted_appeal_uuid: guid1,
+            email_template_id: 'fake_sc_template_id',
+            reference:
+          }
+        }
+      ).and_return(vanotify_service)
+      
+      job.send(:vanotify_service_with_callback, submission, :form, reference)
+    end
+    
+    it 'configures the service with correct callback options for evidence emails' do
+      expect(VaNotify::Service).to receive(:new).with(
+        Settings.vanotify.services.benefits_decision_review.api_key,
+        {
+          callback_klass: 'DecisionReviews::EvidenceNotificationCallback',
+          callback_metadata: {
+            email_type: :error,
+            service_name: 'supplemental-claims',
+            function: 'evidence submission to Lighthouse',
+            submitted_appeal_uuid: guid1,
+            email_template_id: 'fake_sc_evidence_template_id',
+            reference:
+          }
+        }
+      ).and_return(vanotify_service)
+      
+      job.send(:vanotify_service_with_callback, submission, :evidence, reference)
+    end
+  end
+
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
                                             .and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_notification_form_callbacks).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_notification_evidence_callbacks).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_notification_secondary_form_callbacks)
-                                            .and_return(false)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
@@ -139,20 +206,19 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             expect(mpi_service).not_to have_received(:find_profile_by_identifier)
               .with(identifier: user2_uuid, identifier_type: anything)
 
-            expect(vanotify_service).to have_received(:send_email).with({ email_address:,
-                                                                          personalisation:,
-                                                                          reference:,
-                                                                          template_id: 'fake_sc_template_id' })
+            expect(vanotify_service).to have_received(:send_email).with(hash_including(
+              email_address:,
+              personalisation:,
+              template_id: 'fake_sc_template_id'
+            ))
 
-            expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                              personalisation: anything,
-                                                                              reference: anything,
-                                                                              template_id: 'fake_nod_template_id' })
+            expect(vanotify_service).not_to have_received(:send_email).with(hash_including(
+              template_id: 'fake_nod_template_id'
+            ))
 
-            expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                              personalisation: anything,
-                                                                              reference: anything,
-                                                                              template_id: 'fake_hlr_template_id' })
+            expect(vanotify_service).not_to have_received(:send_email).with(hash_including(
+              template_id: 'fake_hlr_template_id'
+            ))
 
             logger_params = [
               'DecisionReviews::FailureNotificationEmailJob form email queued',
@@ -164,37 +230,36 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           end
         end
 
-        context 'if the callback flag is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:decision_review_notification_form_callbacks).and_return(true)
-          end
+        it 'sends email with correct callback options' do
+          vanotify_service_instance = instance_double(VaNotify::Service)
+          allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
 
-          it 'sends email with correct callback options' do
-            vanotify_service_instance = instance_double(VaNotify::Service)
-            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
-
-            response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
-            response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
-            allow(vanotify_service_instance).to receive(:send_email).and_return(response, response2)
-            expected_callback_options = {
-              callback_klass: 'DecisionReviews::FormNotificationCallback',
-              callback_metadata: {
-                email_template_id: 'fake_sc_template_id',
-                email_type: :error,
-                service_name: 'supplemental-claims',
-                function: 'form submission',
-                submitted_appeal_uuid: guid1
-              }
+          response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+          allow(vanotify_service_instance).to receive(:send_email).and_return(response)
+          expected_callback_options = {
+            callback_klass: 'DecisionReviews::FormNotificationCallback',
+            callback_metadata: {
+              email_template_id: 'fake_sc_template_id',
+              email_type: :error,
+              service_name: 'supplemental-claims',
+              function: 'form submission',
+              submitted_appeal_uuid: guid1,
+              reference: reference
             }
+          }
 
-            subject.new.perform
+          subject.new.perform
 
-            expect(VaNotify::Service).to have_received(:new).with(anything, expected_callback_options)
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.benefits_decision_review.api_key,
+            expected_callback_options
+          )
 
-            expect(vanotify_service_instance).to have_received(:send_email).with({ email_address:,
-                                                                                   personalisation:,
-                                                                                   template_id: 'fake_sc_template_id' })
-          end
+          expect(vanotify_service_instance).to have_received(:send_email).with(hash_including(
+            email_address:,
+            personalisation:,
+            template_id: 'fake_sc_template_id'
+          ))
         end
       end
 
@@ -304,14 +369,15 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
           # 1 error no email, 1 vbms, 1 error already emailed
           appeal_submission = create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1,
-                                                         created_at:)
+                                                         created_at:, type_of_appeal: 'NOD')
           # 1 processing
-          appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2, created_at:)
+          appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2, created_at:, 
+                                                          type_of_appeal: 'NOD')
           # 1 error
           appeal_submission3 = create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid3,
-                                                          created_at:)
+                                                          created_at:, type_of_appeal: 'NOD')
           # no metadata
-          create(:appeal_submission, submitted_appeal_uuid: guid4, created_at:)
+          create(:appeal_submission, submitted_appeal_uuid: guid4, created_at:, type_of_appeal: 'NOD')
 
           upload1 = create(:appeal_submission_upload, lighthouse_upload_id: upload_guid1, appeal_submission:,
                                                       created_at:)
@@ -338,109 +404,37 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           end
         end
 
-        context 'if the evidence callback flag is disabled' do
-          before do
-            expect(Flipper).to receive(:enabled?).with(:decision_review_notification_evidence_callbacks)
-                                                 .and_return(false)
-          end
+        it 'sends evidence failure email with correct callback options' do
+          vanotify_service_instance = instance_double(VaNotify::Service)
+          allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
 
-          it 'sends email for evidence file and sets upload notification date if email has not been sent' do
-            frozen_time = DateTime.new(2024, 1, 1).utc
-
-            Timecop.freeze(frozen_time) do
-              expect(vanotify_service).to receive(:send_email).with({ email_address:,
-                                                                      template_id: 'fake_nod_evidence_template_id',
-                                                                      reference:,
-                                                                      personalisation: })
-
-              expect(vanotify_service).to receive(:send_email).with({ email_address: email_address2,
-                                                                      template_id: 'fake_nod_evidence_template_id',
-                                                                      reference: reference2,
-                                                                      personalisation: personalisation2 })
-
-              subject.new.perform
-
-              upload1 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid1)
-              expect(upload1.failure_notification_sent_at).to eq frozen_time
-
-              upload2 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid2)
-              expect(upload2.failure_notification_sent_at).to be_nil
-
-              upload3 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid3)
-              expect(upload3.failure_notification_sent_at).to eq DateTime.new(2023, 1, 2)
-
-              upload4 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid4)
-              expect(upload4.failure_notification_sent_at).to be_nil
-
-              upload5 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid5)
-              expect(upload5.failure_notification_sent_at).to eq frozen_time
-
-              expect(mpi_service).to have_received(:find_profile_by_identifier)
-                .with(identifier: user_account.icn, identifier_type: 'ICN').once
-              expect(mpi_service).to have_received(:find_profile_by_identifier)
-                .with(identifier: user_account2.icn, identifier_type: 'ICN').once
-
-              logger_params = [
-                'DecisionReviews::FailureNotificationEmailJob evidence email queued',
-                { submitted_appeal_uuid: guid1, lighthouse_upload_id: upload_guid1, appeal_type: 'NOD',
-                  notification_id: }
-              ]
-              expect(Rails.logger).to have_received(:info).with(*logger_params)
-
-              logger_params2 = [
-                'DecisionReviews::FailureNotificationEmailJob evidence email queued',
-                {
-                  submitted_appeal_uuid: guid3,
-                  lighthouse_upload_id: upload_guid5,
-                  appeal_type: 'NOD',
-                  notification_id: notification_id2
-                }
-              ]
-              expect(Rails.logger).to have_received(:info).with(*logger_params2)
-
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.evidence.email_queued',
-                      tags: ['appeal_type:NOD'])
-                .exactly(2).times
-            end
-          end
-        end
-
-        context 'if the evidence callback flag is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:decision_review_notification_evidence_callbacks).and_return(true)
-          end
-
-          it 'sends email with correct callback options' do
-            vanotify_service_instance = instance_double(VaNotify::Service)
-            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
-
-            response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
-            response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
-            allow(vanotify_service_instance).to receive(:send_email).and_return(response, response2)
-            expected_callback_options = {
-              callback_klass: 'DecisionReviews::EvidenceNotificationCallback',
-              callback_metadata: {
-                email_template_id: 'fake_nod_evidence_template_id',
-                email_type: :error,
-                service_name: 'board-appeal',
-                function: 'evidence submission to lighthouse',
-                submitted_appeal_uuid: guid1
-              }
+          response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+          response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
+          allow(vanotify_service_instance).to receive(:send_email).and_return(response, response2)
+          expected_callback_options = {
+            callback_klass: 'DecisionReviews::EvidenceNotificationCallback',
+            callback_metadata: {
+              email_template_id: 'fake_nod_evidence_template_id',
+              email_type: :error,
+              service_name: 'board-appeal',
+              function: 'evidence submission to Lighthouse',
+              submitted_appeal_uuid: guid1,
+              reference: reference
             }
+          }
 
-            subject.new.perform
+          subject.new.perform
 
-            expect(VaNotify::Service).to have_received(:new).with(anything, expected_callback_options)
+          expect(VaNotify::Service).to have_received(:new).with(
+            Settings.vanotify.services.benefits_decision_review.api_key,
+            expected_callback_options
+          )
 
-            expect(vanotify_service_instance).to have_received(:send_email).with(
-              {
-                email_address:,
-                personalisation:,
-                template_id: 'fake_nod_evidence_template_id'
-              }
-            )
-          end
+          expect(vanotify_service_instance).to have_received(:send_email).with(hash_including(
+            email_address:,
+            personalisation:,
+            template_id: 'fake_nod_evidence_template_id'
+          ))
         end
       end
 
@@ -488,130 +482,57 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           SavedClaim::SupplementalClaim.create(guid: guid2, form:)
         end
 
-        context 'with flag enabled' do
+        context 'when already notified' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(true)
+            secondary_form1.update(failure_notification_sent_at: 1.day.ago)
           end
 
-          context 'if the secondary form callback flag is disabled' do
-            before do
-              expect(Flipper).to receive(:enabled?).with(:decision_review_notification_secondary_form_callbacks)
-                                                   .and_return(false)
-            end
+          it 'does not send another email' do
+            subject.new.perform
 
-            it 'sends an email for secondary form and notification date on the secondary form record' do
-              frozen_time = DateTime.new(2024, 1, 1).utc
+            expect(vanotify_service).not_to have_received(:send_email).with(hash_including(
+              template_id: 'fake_sc_secondary_form_template_id'
+            ))
 
-              Timecop.freeze(frozen_time) do
-                subject.new.perform
-              end
-
-              expect(secondary_form1.reload.failure_notification_sent_at).to eq frozen_time
-              expect(secondary_form2.reload.failure_notification_sent_at).to be_nil
-
-              expect(vanotify_service).to have_received(:send_email)
-                .with({ email_address:,
-                        personalisation:,
-                        template_id: 'fake_sc_secondary_form_template_id',
-                        reference: })
-
-              expect(vanotify_service).not_to have_received(:send_email)
-                .with({ email_address: anything,
-                        personalisation: anything,
-                        template_id: 'fake_sc_evidence_template_id' })
-
-              expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                                personalisation: anything,
-                                                                                template_id: 'fake_sc_template_id' })
-
-              expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                                personalisation: anything,
-                                                                                template_id: 'fake_nod_template_id' })
-
-              expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                                personalisation: anything,
-                                                                                template_id: 'fake_hlr_template_id' })
-
-              logger_params = [
-                'DecisionReviews::FailureNotificationEmailJob secondary form email queued',
-                { submitted_appeal_uuid: guid1,
-                  lighthouse_upload_id: secondary_form1.guid, appeal_type: 'SC', notification_id: }
-              ]
-              expect(Rails.logger).to have_received(:info).with(*logger_params)
-
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_form.email_queued',
-                      tags: ['appeal_type:SC'])
-                .once
-            end
-          end
-
-          context 'when already notified' do
-            before do
-              secondary_form1.update(failure_notification_sent_at: 1.day.ago)
-            end
-
-            it 'does not send another email' do
-              subject.new.perform
-
-              expect(vanotify_service).not_to have_received(:send_email)
-                .with({ email_address: anything,
-                        personalisation: anything,
-                        template_id: 'fake_sc_secondary_form_template_id',
-                        reference: anything })
-
-              expect(Rails.logger).not_to have_received(:error)
-            end
-          end
-
-          context 'if the secondary form callback flag is enabled' do
-            before do
-              expect(Flipper).to receive(:enabled?).with(:decision_review_notification_secondary_form_callbacks)
-                                                   .and_return(true)
-            end
-
-            it 'sends email with correct callback options' do
-              vanotify_service_instance = instance_double(VaNotify::Service)
-              allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
-
-              response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
-              response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
-              allow(vanotify_service_instance).to receive(:send_email).and_return(response, response2)
-              expected_callback_options = {
-                callback_klass: 'DecisionReviews::EvidenceNotificationCallback',
-                callback_metadata: {
-                  email_template_id: 'fake_sc_secondary_form_template_id',
-                  email_type: :error,
-                  service_name: 'supplemental-claims',
-                  function: 'secondary form submission to lighthouse',
-                  submitted_appeal_uuid: guid1
-                }
-              }
-
-              subject.new.perform
-
-              expect(VaNotify::Service).to have_received(:new).with(anything, expected_callback_options)
-
-              expect(vanotify_service_instance).to have_received(:send_email).with(
-                {
-                  email_address:,
-                  personalisation:,
-                  template_id: 'fake_sc_secondary_form_template_id'
-                }
-              )
-            end
+            expect(Rails.logger).not_to have_received(:error)
           end
         end
 
-        context 'with flag disabled' do
+        context 'when not already notified' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
+            secondary_form1.update(failure_notification_sent_at: nil)
           end
 
-          it 'does not attempt to notify about secondary form failures' do
-            expect(SecondaryAppealForm).not_to receive(:where)
+          it 'sends email with correct callback options' do
+            vanotify_service_instance = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
+
+            response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+            allow(vanotify_service_instance).to receive(:send_email).and_return(response)
+            expected_callback_options = {
+              callback_klass: 'DecisionReviews::EvidenceNotificationCallback',
+              callback_metadata: {
+                email_template_id: 'fake_sc_secondary_form_template_id',
+                email_type: :error,
+                service_name: 'supplemental-claims',
+                function: 'secondary form submission to Lighthouse',
+                submitted_appeal_uuid: guid1,
+                reference:
+              }
+            }
 
             subject.new.perform
+
+            expect(VaNotify::Service).to have_received(:new).with(
+              Settings.vanotify.services.benefits_decision_review.api_key,
+              expected_callback_options
+            )
+
+            expect(vanotify_service_instance).to have_received(:send_email).with(hash_including(
+                                                                                   email_address:,
+                                                                                   personalisation:,
+                                                                                   template_id: 'fake_sc_secondary_form_template_id'
+                                                                                 ))
           end
         end
       end
@@ -712,9 +633,6 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
           create(:secondary_appeal_form4142, guid: lighthouse_upload_id, status: secondary_form_status_error,
                                              appeal_submission:)
-          allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
-                                              .and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(true)
         end
 
         it 'handles the error and increments the statsd metric' do
@@ -750,7 +668,6 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
                                             .and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
       end
 
       it 'immediately exits' do
