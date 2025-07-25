@@ -91,6 +91,8 @@ module DecisionReviews
 
       def process_submission
         req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
+        # For now, we have to address schema issues before serializing, since our SavedClaim model
+        # uses a copy of the same Lighthouse schema to validate the data before saving.
         req_body_obj = normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
         saved_claim_request_body = req_body_obj.to_json
         form4142 = req_body_obj.delete('form4142')
@@ -146,8 +148,9 @@ module DecisionReviews
       # To conform to the LH schema, we need to ensure that if the evidenceType includes 'retrieval',
       # then the retrieveFrom array must have facilities with unique facility location names
       def normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
-        evidence_type = req_body_obj.dig('data', 'attributes', 'evidenceSubmission', 'evidenceType')
-        retrieve_from = req_body_obj.dig('data', 'attributes', 'evidenceSubmission', 'retrieveFrom')
+        evidence_submission = req_body_obj.dig('data', 'attributes', 'evidenceSubmission')
+        evidence_type = evidence_submission&.dig('evidenceType')
+        retrieve_from = evidence_submission&.dig('retrieveFrom')
         # Return if evidenceType is nil or doesn't include 'retrieval'
         return req_body_obj unless evidence_type.is_a?(Array) && evidence_type.include?('retrieval')
         # Return if retrieveFrom is nil, not an array, or only one item
@@ -176,7 +179,9 @@ module DecisionReviews
         all_evidence_dates = []
         entries.each do |entry|
           attributes = entry['attributes']
-          all_evidence_dates.concat(attributes['evidenceDates']) if attributes['evidenceDates'].is_a?(Array)
+          if attributes && attributes['evidenceDates'].is_a?(Array)
+            all_evidence_dates.concat(attributes['evidenceDates'])
+          end
         end
 
         unique_evidence_dates = all_evidence_dates.uniq.sort_by { |date_range| date_range['startDate'] }
