@@ -240,6 +240,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           # Only one of the appointments should be eligible to file for travel pay
           expected_eligible_count = response.parsed_body['data'].count do |appt|
             appt['attributes']['travelPayEligible'] &&
+              appt['attributes']['kind'] != 'phone' &&
               appt['attributes']['startDateUtc'] >= 30.days.ago.utc &&
               appt['attributes']['travelPayClaim']['claim'].nil?
           end

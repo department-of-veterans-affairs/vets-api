@@ -45,7 +45,7 @@ RepresentationManagement::AccreditedEntitiesQueueUpdates.perform_async(['represe
 **Important**: Representatives and VSOs must always be processed together to maintain referential integrity. The system will enforce this requirement.
 
 #### Configuration:
-- **DECREASE_THRESHOLD**: Maximum allowed percentage decrease in entity counts before updates are blocked
+- **DECREASE_THRESHOLD**: Maximum allowed percentage decrease in entity counts before updates are blocked.  This is a negative percentage (e.g., -20 for 20% decrease).
 - **SLICE_SIZE**: Number of records processed in each address validation batch (default: 30)
 
 #### Process Flow:

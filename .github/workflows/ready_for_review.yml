@@ -3,7 +3,7 @@ on:
   pull_request:
      types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags", "CodeQL"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Service Tags", "CodeQL"]
     types: [completed]
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -134,7 +134,7 @@ jobs:
           unsuccessful_count=0
 
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
-          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
+          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Service Tags" "CodeQL")
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow

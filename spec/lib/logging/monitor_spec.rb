@@ -47,6 +47,18 @@ RSpec.describe Logging::Monitor do
 
         monitor.track_request(error_level, 'TEST', metric, call_location:, **additional_context)
       end
+
+      it 'allows an "error" parameter' do
+        tags = ["service:#{service}", "function:#{call_location.base_label}", 'form_id:FORM_ID']
+        context = { error: 'Test error message', tags: }
+
+        expect(StatsD).to receive(:increment).with(metric, tags:)
+        expect(Rails.logger).to receive(:error) do |_, payload|
+          expect(payload[:context][:error]).to eq('Test error message')
+        end
+
+        monitor.track_request('error', '404 Not Found!', metric, call_location:, **context)
+      end
     end
   end
 end

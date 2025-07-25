@@ -47,7 +47,9 @@ module PersistentAttachments
     # @param key [Symbol]
     # @param form_data [OpenStruct]
     def process_attachments_for_key(claim, key, form_data)
-      guids = Array(claim.open_struct_form.send(key)).map { |att| att.try(:confirmationCode) }
+      guids = Array(claim.open_struct_form.send(key)).map do |att|
+        att.try(:confirmationCode) || att.try(:confirmation_code)
+      end
       attachments = PersistentAttachment.where(guid: guids)
 
       attachments.each do |attachment|

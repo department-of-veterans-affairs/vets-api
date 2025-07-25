@@ -8,9 +8,6 @@ require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'common/client/middleware/response/snakecase'
 
-# No more Errors => Flipper error: undefined method column_for_attribute' for class Flipper::Gate
-require 'flipper_utils'
-
 module MHVAC
   ##
   # HTTP client configuration for the {MHVAC::Client}, sets the token, base path and a service name for
@@ -35,14 +32,7 @@ module MHVAC
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if FlipperUtils.safe_enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
-      else
-        "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
-      end
-    rescue NoMethodError => e
-      Rails.logger.error("RX:Configuration Flipper error: #{e.message}")
-      "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}" # Default path
+      "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
     end
 
     ##

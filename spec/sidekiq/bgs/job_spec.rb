@@ -6,6 +6,7 @@ RSpec.describe BGS::Job, type: :job do
   let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload_v2) { build(:form686c_674_v2) }
 
   describe '#in_progress_form_copy' do
     it 'returns nil if the in progress form is blank' do
@@ -52,7 +53,7 @@ RSpec.describe BGS::Job, type: :job do
   describe '#normalize_names_and_addresses!(hash)' do
     it 'removes non-ASCII characters from name and address values in given hash, modifying the hash in-place' do
       # rubocop:disable Layout/LineLength
-      raw_string = "Téśt'-Strïñg/1`"
+      raw_string = "Téśt'-Strïñg/1*`"
       normalized_name_string = 'Test-String/'
       normalized_address_string = "Test'-String/1"
 
@@ -76,6 +77,11 @@ RSpec.describe BGS::Job, type: :job do
       all_flows_payload['dependents_application']['children_to_add'][0]['child_address_info']['address']['address_line2'] = raw_string
       all_flows_payload['dependents_application']['children_to_add'][0]['child_address_info']['address']['address_line3'] = raw_string
 
+      # Should modify fields, even within arrays of hashes
+      all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['street'] = raw_string
+      all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['street2'] = raw_string
+      all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['street3'] = raw_string
+
       # Should modify fields within arrays of hashes, beyond the first element in such arrays
       all_flows_payload['dependents_application']['children_to_add'][1]['full_name']['first'] = raw_string
       all_flows_payload['dependents_application']['children_to_add'][1]['full_name']['middle'] = raw_string
@@ -86,6 +92,7 @@ RSpec.describe BGS::Job, type: :job do
       all_flows_payload['dependents_application']['last_term_school_information']['address']['country_name'] = raw_string
 
       BGS::Job.new.normalize_names_and_addresses!(all_flows_payload)
+      BGS::Job.new.normalize_names_and_addresses!(all_flows_payload_v2)
 
       expect(all_flows_payload['veteran_information']['full_name']['first']).to eq(normalized_name_string)
       expect(all_flows_payload['veteran_information']['full_name']['middle']).to eq(normalized_name_string)
@@ -105,6 +112,11 @@ RSpec.describe BGS::Job, type: :job do
 
       expect(all_flows_payload['dependents_application']['veteran_contact_information']['email_address']).to eq(raw_string)
       expect(all_flows_payload['dependents_application']['last_term_school_information']['address']['country_name']).to eq(raw_string)
+
+      expect(all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['street']).to eq(normalized_address_string)
+      expect(all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['street2']).to eq(normalized_address_string)
+      expect(all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['street3']).to eq(normalized_address_string)
+
       # rubocop:enable Layout/LineLength
     end
   end

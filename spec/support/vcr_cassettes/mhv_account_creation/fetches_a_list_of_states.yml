@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/enum/states"
+    uri: "<MHV_HOST>/v1/usermgmt/enum/states"
     body:
       encoding: US-ASCII
       string: ''
@@ -15,6 +15,8 @@ http_interactions:
       - Vets.gov Agent
       Apptoken:
       - "<APP_TOKEN>"
+      X-Api-Key:
+      - "<X_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

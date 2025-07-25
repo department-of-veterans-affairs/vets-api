@@ -88,7 +88,7 @@ module Eps
       Rails.logger.error('Community Care Appointments: EpsAppointmentJob missing or incomplete Redis data',
                          { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4,
                            appointment_data: }.to_json)
-      StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['Community Care Appointments'])
+      StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['service:community_care_appointments'])
     end
 
     ##
@@ -111,7 +111,7 @@ module Eps
       rescue
         Rails.logger.error('Community Care Appointments: EpsAppointmentJob failed to get appointment status',
                            { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4 })
-        StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['service:community_care_appointments'])
         send_vanotify_message(error: ERROR_MESSAGE)
       end
     end
@@ -129,11 +129,11 @@ module Eps
     #
     def handle_appointment_response(response, retry_count)
       if appointment_finished?(response)
-        StatsD.increment("#{STATSD_PREFIX}.success", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_PREFIX}.success", tags: ['service:community_care_appointments'])
       elsif retry_count < MAX_RETRIES
         self.class.perform_in(1.minute, @user_uuid, @appointment_id_last4, retry_count + 1)
       else
-        StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_PREFIX}.failure", tags: ['service:community_care_appointments'])
         Rails.logger.error('Community Care Appointments: EpsAppointmentJob could not confirm appointment booking',
                            { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4 })
         send_vanotify_message(error: ERROR_MESSAGE)

@@ -27,6 +27,10 @@ describe Kafka::AvroProducer do
   end
   let(:topic) { 'submission_trace_form_status_change_test' }
 
+  before do
+    allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
+  end
+
   after do
     avro_producer.producer.client.reset
   end

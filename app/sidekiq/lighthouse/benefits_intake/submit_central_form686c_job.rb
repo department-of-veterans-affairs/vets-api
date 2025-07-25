@@ -288,8 +288,8 @@ module Lighthouse
       def stamped_pdf_with_form(form_id, path, timestamp)
         PDFUtilities::DatestampPdf.new(path).run(
           text: 'Application Submitted on va.gov',
-          x: %w[686C-674 686C-674-V2].include?(form_id) ? 400 : 300,
-          y: %w[686C-674 686C-674-V2].include?(form_id) ? 675 : 775,
+          x: 400,
+          y: 675,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
           page_number: %w[686C-674 686C-674-V2].include?(form_id) ? 6 : 0,

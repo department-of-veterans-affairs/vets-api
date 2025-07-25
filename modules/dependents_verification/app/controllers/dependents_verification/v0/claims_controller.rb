@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents_verification/monitor'
+require 'dependents_verification/benefits_intake/submit_claim_job'
 
 module DependentsVerification
   module V0
@@ -35,7 +36,7 @@ module DependentsVerification
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim = claim_class.new(form: filtered_params[:form])
+        claim = claim_class.new(form: form_data_with_ssn.to_json)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -47,8 +48,7 @@ module DependentsVerification
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        # TODO: Submit claim
-
+        process_and_upload_to_lighthouse(claim)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
@@ -60,6 +60,12 @@ module DependentsVerification
 
       private
 
+      def form_data_with_ssn
+        form_data_as_sym = JSON.parse(filtered_params[:form]).deep_symbolize_keys
+        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn)
+        form_data_as_sym
+      end
+
       # Raises an exception if the dependents verification flipper flag isn't enabled.
       def check_flipper_flag
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:va_dependents_verification,
@@ -69,6 +75,16 @@ module DependentsVerification
       # Filters out the parameters to form access.
       def filtered_params
         params.require(short_name.to_sym).permit(:form)
+      end
+
+      ##
+      # Processes attachments for the claim and initiates an async task for intake processing
+      #
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
+      def process_and_upload_to_lighthouse(claim)
+        DependentsVerification::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
       end
 
       ##

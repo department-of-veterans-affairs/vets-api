@@ -82,6 +82,9 @@ module ClaimsApi
       def data(power_of_attorney, form_number, rep)
         res = power_of_attorney.form_data
         res.deep_merge!(veteran_attributes(power_of_attorney))
+        if power_of_attorney.auth_headers['depenedent'].present?
+          res.deep_merge!(power_of_attorney.auth_headers['depenedent'])
+        end
         res.deep_merge!(appointment_date(power_of_attorney))
 
         signatures = if form_number == '2122A'
@@ -158,8 +161,8 @@ module ClaimsApi
       def veteran_or_claimant_signature(power_of_attorney)
         claimant = power_of_attorney.form_data['claimant'].present?
         if claimant
-          first_name = power_of_attorney.form_data['claimant']['firstName']
-          last_name = power_of_attorney.form_data['claimant']['lastName']
+          first_name = power_of_attorney.auth_headers['dependent']['first_name']
+          last_name = power_of_attorney.auth_headers['dependent']['last_name']
         else
           first_name = power_of_attorney.auth_headers['va_eauth_firstName']
           last_name = power_of_attorney.auth_headers['va_eauth_lastName']

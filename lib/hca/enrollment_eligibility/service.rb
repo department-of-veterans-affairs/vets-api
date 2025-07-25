@@ -72,7 +72,7 @@ module HCA
           ezr_data.merge!(spouse)
         end
 
-        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_prefill_contacts)
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_emergency_contacts_enabled)
 
         OpenStruct.new(ezr_data)
       end
@@ -373,6 +373,9 @@ module HCA
         NAME_MAPPINGS.each do |mapping|
           contact[:fullName][mapping.first] = get_locate_value(association, mapping.last.to_s)
         end
+        # When association data gets stored in HL7, it gets converted to all caps.
+        # We need to update certain suffixes before saving it to the contact in order to match the schema.
+        contact[:fullName][:suffix].capitalize! if %w[JR. SR.].include?(contact[:fullName][:suffix])
       end
 
       def parse_insurance_providers(response)

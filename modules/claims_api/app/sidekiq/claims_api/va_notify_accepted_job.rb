@@ -174,7 +174,11 @@ module ClaimsApi
     end
 
     def claimant_first_name(poa)
-      poa.form_data.dig('claimant', 'firstName').presence || poa.auth_headers['va_eauth_firstName']
+      claimant = poa.form_data&.dig('claimant')
+      claimant_name = claimant&.dig('firstName')
+      fallback = poa.auth_headers&.dig('dependent', 'first_name') || poa.auth_headers&.[]('va_eauth_firstName')
+
+      claimant_name.presence || fallback
     end
 
     def organization_filing?(form_data)

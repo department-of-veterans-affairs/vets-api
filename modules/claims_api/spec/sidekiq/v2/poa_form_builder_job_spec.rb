@@ -154,7 +154,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
           },
           claimant: {
             claimantId: '1012830872V584140',
-            email: 'lillian@disney.com',
+            email: 'mitchell@jenkins.com',
             relationship: 'Spouse',
             address: {
               addressLine1: '2688 S Camino Real',
@@ -166,9 +166,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            },
-            firstName: 'Mitchell',
-            lastName: 'Jenkins'
+            }
           },
           representative: {
             poaCode: poa_code.to_s,
@@ -229,6 +227,15 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
               }
             }
           )
+          power_of_attorney.auth_headers.deep_merge!(
+            {
+              'dependent' => {
+                'first_name' => 'Mitchell',
+                'last_name' => 'Jenkins'
+              }
+            }
+          )
+          power_of_attorney.save!
 
           allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
@@ -374,7 +381,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
           },
           claimant: {
             claimantId: '1012830872V584140',
-            email: 'lillian@disney.com',
+            email: 'mitchell@jenkins.com',
             relationship: 'Spouse',
             address: {
               addressLine1: '2688 S Camino Real',
@@ -386,9 +393,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            },
-            firstName: 'Mitchell',
-            lastName: 'Jenkins'
+            }
           },
           serviceOrganization: {
             poaCode: poa_code.to_s,
@@ -446,6 +451,16 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             }
           }
         )
+
+        power_of_attorney.auth_headers.deep_merge!(
+          {
+            'dependent' => {
+              'first_name' => 'Mitchell',
+              'last_name' => 'Jenkins'
+            }
+          }
+        )
+        power_of_attorney.save!
 
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do

@@ -1,4 +1,4 @@
-name: Audit Service Tags
+name: Service Tags
 on:
   pull_request:
     branches:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   audit_service_tags:
     permissions: write-all
-    name: Audit Service Tags
+    name: Check for Missing service_tag in Controllers
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -104,7 +104,7 @@ jobs:
           fail_on_error: true
           number: ${{ github.event.pull_request.number }}
           labels: |
-            audit-service-failure
+            missing-service-tag
 
       - name: Remove Failure label
         if: ${{ success() }}
@@ -112,4 +112,4 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
-            audit-service-failure
+            missing-service-tag

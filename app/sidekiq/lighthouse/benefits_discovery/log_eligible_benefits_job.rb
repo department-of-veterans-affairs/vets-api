@@ -10,9 +10,13 @@ module Lighthouse
 
       sidekiq_options retry: false
 
-      def perform(user_uuid)
+      def perform(user_uuid, service_history)
         start_time = Time.current
-        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(user_uuid)
+        user = User.find(user_uuid)
+        raise Common::Exceptions::RecordNotFound, "User with UUID #{user_uuid} not found" if user.nil?
+
+        prepared_params = ::BenefitsDiscovery::Params.new(user).build_from_service_history(service_history)
+        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(prepared_params)
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
         sorted_benefits = sort_benefits(eligible_benefits)

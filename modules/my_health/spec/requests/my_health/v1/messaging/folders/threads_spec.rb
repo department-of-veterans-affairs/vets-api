@@ -71,17 +71,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
           expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_threads')
         end
 
-        it 'responds to GET #index when requires_oh_messages param is provided' do
-          VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_oh_messages') do
-            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
-                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC',
-                          requires_oh_messages: '1' }
-          end
-
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-        end
-
         it 'returns an empty array when there are no messages in the folder' do
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_no_messages') do
             get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
@@ -125,6 +114,24 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
         json_response = JSON.parse(response.body)['errors'].first
         expect(json_response['detail']).to eq("Folder Doesn't exists")
       end
+    end
+  end
+
+  context 'with requires_oh flag enabled' do
+    it 'responds to GET #index when requires_oh_messages flipper is provided' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_oh_messages') do
+          get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+              params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
+        end
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
     end
   end
 end

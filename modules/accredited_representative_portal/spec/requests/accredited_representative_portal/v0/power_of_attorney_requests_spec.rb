@@ -622,6 +622,20 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           expect(response).to have_http_status(:not_found)
         end
       end
+
+      context 'when POA request is withdrawn' do
+        let!(:withdrawn_request) do
+          resolution = create(:power_of_attorney_request_resolution, :replacement)
+          resolution.power_of_attorney_request
+        end
+
+        it 'returns 404 Not Found' do
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{withdrawn_request.id}")
+
+          expect(response).to have_http_status(:not_found)
+          expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
+        end
+      end
     end
   end
 end

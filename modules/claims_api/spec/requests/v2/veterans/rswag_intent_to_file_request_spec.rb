@@ -9,7 +9,7 @@ require_relative '../../../support/swagger_shared_components/v2'
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   path '/veterans/{veteranId}/intent-to-file/{type}' do
-    get "Returns Veteran's last active Intent to File submission for given benefit type." do
+    get "Returns claimant's last active Intent to File submission for given benefit type." do
       tags 'Intent to File'
       operationId 'active0966itf'
       security [
@@ -18,14 +18,14 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description "Returns Veteran's last active Intent to File submission for given benefit type of compensation, pension, or survivor." # rubocop:disable Layout/LineLength
+      description "Returns claimant's last active Intent to File submission for given benefit type of compensation, pension, or survivor." # rubocop:disable Layout/LineLength
 
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       parameter name: 'type',
                 in: :path,
                 required: true,
@@ -152,7 +152,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
       let(:Authorization) { 'Bearer token' }
@@ -394,7 +394,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
       let(:Authorization) { 'Bearer token' }

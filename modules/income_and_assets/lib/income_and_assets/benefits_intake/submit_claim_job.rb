@@ -178,8 +178,6 @@ module IncomeAndAssets
       #
       # @return [Boolean]
       def extras_redesign_enabled?
-        return false if @user_account_uuid.nil?
-
         user = OpenStruct.new({ flipper_id: @user_account_uuid })
         Flipper.enabled?(:pension_income_and_assets_overflow_pdf_redesign, user)
       end

@@ -23,7 +23,10 @@ class LighthouseClaimLettersProvider
   def get_letters
     response = get_letters_allowed_doc_types
     @letters_metadata_cache = response.body['data'] # Cache the metadata
-    transform_claim_letters(@letters_metadata_cache)
+    claim_letters = transform_claim_letters(@letters_metadata_cache)
+
+    # Convert to hashes before returning
+    claim_letters.map(&:attributes)
   end
 
   # sends back only the raw response body from Lighthouse with the allowed doc_types set

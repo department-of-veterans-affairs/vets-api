@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxrefill"
+    uri: "<MHV_HOST>/v1/pharmacy/ess/rxrefill"
     body:
       encoding: UTF-8
       string: '[21530889, 21539942]'

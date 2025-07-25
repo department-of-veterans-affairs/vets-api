@@ -7,6 +7,15 @@ require 'json'
 RSpec.describe RepresentationManagement::GCLAWS::Client do
   subject { described_class }
 
+  before do
+    # Mock the Slack client instead of the subject method
+    slack_client = instance_double(SlackNotify::Client)
+    allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
+    allow(slack_client).to receive(:notify)
+  end
+
+  let(:error_string_prefix) { 'RepresentationManagement::GCLAWS::Client error: GCLAWS Accreditation API' }
+
   describe '.get_accredited_entities' do
     context 'when the type is invalid' do
       let(:type) { 'invalid' }
@@ -34,13 +43,32 @@ RSpec.describe RepresentationManagement::GCLAWS::Client do
         end
       end
 
+      context 'when the request is unauthorized' do
+        it 'logs the error and returns an unauthorized status' do
+          stub_request(:get, Settings.gclaws.accreditation.agents.url)
+            .with(query: { 'page' => 1, 'pageSize' => 100, 'sortColumn' => 'LastName', 'sortOrder' => 'ASC' })
+            .to_raise(Faraday::UnauthorizedError.new('GCLAWS Accreditation unauthorized'))
+
+          expect(Rails.logger).to receive(:error).with(
+            "#{error_string_prefix} unauthorized error for #{type}: GCLAWS Accreditation unauthorized"
+          )
+
+          response = subject.get_accredited_entities(type:)
+
+          expect(response.status).to eq(:unauthorized)
+          expect(JSON.parse(response.body)['errors']).to eq('GCLAWS Accreditation unauthorized')
+        end
+      end
+
       context 'when the connection fails' do
         it 'logs the error and returns a service unavailable status' do
           stub_request(:get, Settings.gclaws.accreditation.agents.url)
             .with(query: { 'page' => 1, 'pageSize' => 100, 'sortColumn' => 'LastName', 'sortOrder' => 'ASC' })
             .to_raise(Faraday::ConnectionFailed.new('GCLAWS Accreditation unavailable'))
 
-          expect(Rails.logger).to receive(:error).with("GCLAWS Accreditation connection failed for #{type}")
+          expect(Rails.logger).to receive(:error).with(
+            "#{error_string_prefix} connection_failed error for #{type}: GCLAWS Accreditation unavailable"
+          )
 
           response = subject.get_accredited_entities(type:)
 
@@ -56,7 +84,7 @@ RSpec.describe RepresentationManagement::GCLAWS::Client do
             .to_raise(Faraday::TimeoutError.new('GCLAWS Accreditation request timed out'))
 
           expect(Rails.logger).to receive(:error).with(
-            "GCLAWS Accreditation request timed out for #{type}"
+            "#{error_string_prefix} timeout error for #{type}: GCLAWS Accreditation request timed out"
           )
 
           response = subject.get_accredited_entities(type:)

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/account/upgrade"
+    uri: "<MHV_HOST>/v1/usermgmt/alter/upgrade"
     body:
       encoding: UTF-8
       string: '{"userId":14221465,"formSignedDateTime":"Tue, 09 May 2017 00:00:00

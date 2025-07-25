@@ -40,6 +40,7 @@ ALLOWLIST = %w[
   user_account_uuid
   confirmation_number
   message
+  error
   errors
   claim_id
   form_id
@@ -61,11 +62,11 @@ Rails.application.config.filter_parameters = [
         result[key] = if ALLOWLIST.include?(nested_key.to_s)
                         nested_value
                       else
-                        Rails.application.config.filter_parameters.first.call(nested_key, nested_value)
+                        Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
                       end
       end
     when Array # Recursively map all elements in arrays
-      v.map { |element| Rails.application.config.filter_parameters.first.call(k, element) }
+      v.map { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
     when ActionDispatch::Http::UploadedFile # Base case
       v.instance_variables.each do |var| # could put specific instance vars here, but made more generic
         var_name = var.to_s.delete_prefix('@')

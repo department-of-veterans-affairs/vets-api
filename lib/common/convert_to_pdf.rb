@@ -20,7 +20,7 @@ module Common
       out_file = "#{Common::FileHelpers.random_file_path}.pdf"
 
       begin
-        MiniMagick::Tool::Convert.new do |convert|
+        MiniMagick.convert do |convert|
           convert << '-units' << 'pixelsperinch' << '-density' << '72' << '-page' << 'letter'
           convert << in_file
           convert << out_file
