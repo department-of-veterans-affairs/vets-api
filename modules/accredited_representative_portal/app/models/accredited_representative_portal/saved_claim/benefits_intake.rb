@@ -30,7 +30,7 @@ module AccreditedRepresentativePortal
         #
         def define_claim_type(form_id:, proper_form_id:, business_line:,
                               stamping_form_class:, feature_flag:,
-                              status_warning_threshold: DEFAULT_STATUS_WARNING_THRESHOLD)
+                              status_warning_threshold: pending_submission_warning_threshold)
           Class.new(self) do
             const_set(:FORM_ID, form_id)
             const_set(:PROPER_FORM_ID, proper_form_id)
@@ -42,6 +42,11 @@ module AccreditedRepresentativePortal
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
           end
+        end
+
+        def pending_submission_warning_threshold
+          Settings.accredited_representative_portal.pending_submission_warning_threshold&.days ||
+            DEFAULT_STATUS_WARNING_THRESHOLD
         end
       end
 
