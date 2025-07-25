@@ -399,4 +399,178 @@ describe TravelPay::ClaimAssociationService do
       expect(appt['travelPayClaim']['metadata']['success']).to be(false)
     end
   end
+
+  context 'get_claims_by_date' do
+    let(:user) { build(:user) }
+    let(:claims_data_success) do
+      {
+        'statusCode' => 200,
+        'message' => 'Data retrieved successfully.',
+        'success' => true,
+        'data' => [
+          {
+            'id' => 'uuid1',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'InProgress',
+            'appointmentDateTime' => '2024-10-17T09:00:00Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-03-22T21:22:34.465Z',
+            'modifiedOn' => '2024-01-01T16:44:34.465Z'
+          }
+        ]
+      }
+    end
+
+    let(:claims_success_response) do
+      Faraday::Response.new(
+        response_body: claims_data_success,
+        status: 200
+      )
+    end
+
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      allow_any_instance_of(TravelPay::AuthManager)
+        .to receive(:authorize)
+        .and_return(tokens)
+      allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+    end
+
+    it 'returns claims data and metadata on success' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(claims_success_response)
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
+      result = association_service.get_claims_by_date({
+                                                        'start_date' => '2024-10-17T09:00:00Z',
+                                                        'end_date' => '2024-12-15T16:45:00Z'
+                                                      })
+
+      expect(result[:claims]).to be_an(Array)
+      expect(result[:claims].first['id']).to eq('uuid1')
+      expect(result[:claims].first['claimStatus']).to eq('In progress') # humanized
+      expect(result[:metadata]['status']).to eq(200)
+      expect(result[:metadata]['success']).to be(true)
+      expect(result[:metadata]['message']).to eq('Data retrieved successfully.')
+    end
+
+    it 'returns error metadata when claims call fails' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'Unauthorized.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.get_claims_by_date({
+                                                        'start_date' => '2024-10-17T09:00:00Z',
+                                                        'end_date' => '2024-12-15T16:45:00Z'
+                                                      })
+
+      expect(result[:claims]).to be_nil
+      expect(result[:metadata]['status']).to eq(401)
+      expect(result[:metadata]['success']).to be(false)
+      expect(result[:metadata]['message']).to eq('Unauthorized.')
+    end
+
+    it 'handles date validation errors' do
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.get_claims_by_date({
+                                                        'start_date' => '2024-10-17T09:00:00Z',
+                                                        'end_date' => 'banana'
+                                                      })
+
+      expect(result[:claims]).to be_nil
+      expect(result[:metadata]['status']).to eq(400)
+      expect(result[:metadata]['success']).to be(false)
+      expect(result[:metadata]['message']).to include('time information')
+    end
+  end
+
+  context 'associate_claims_to_appointments' do
+    let(:user) { build(:user) }
+    let(:appointments) do
+      [
+        {
+          id: '32066',
+          kind: 'clinic',
+          status: 'cancelled',
+          patientIcn: '1012845331V153043',
+          locationId: '983',
+          clinic: '1081',
+          start: '2024-10-17T09:00:00Z',
+          local_start_time: '2024-10-17T09:00:00-0700',
+          cancellable: false
+        }
+      ]
+    end
+
+    let(:claims_result_success) do
+      {
+        claims: [
+          {
+            'id' => 'uuid1',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'In progress',
+            'appointmentDateTime' => '2024-10-17T09:00:00Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-03-22T21:22:34.465Z',
+            'modifiedOn' => '2024-01-01T16:44:34.465Z'
+          }
+        ],
+        metadata: {
+          'status' => 200,
+          'success' => true,
+          'message' => 'Data retrieved successfully.'
+        }
+      }
+    end
+
+    let(:claims_result_error) do
+      {
+        claims: nil,
+        metadata: {
+          'status' => 401,
+          'success' => false,
+          'message' => 'Unauthorized.'
+        }
+      }
+    end
+
+    before do
+      allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+    end
+
+    it 'associates claims to appointments when claims are available' do
+      association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
+      result = association_service.associate_claims_to_appointments(appointments, claims_result_success)
+
+      expect(result.count).to eq(appointments.count)
+      appointment_with_claim = result.first
+      expect(appointment_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
+      expect(appointment_with_claim['travelPayClaim']['metadata']['success']).to be(true)
+      expect(appointment_with_claim['travelPayClaim']['claim']['id']).to eq('uuid1')
+    end
+
+    it 'adds error metadata when claims are not available' do
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.associate_claims_to_appointments(appointments, claims_result_error)
+
+      expect(result.count).to eq(appointments.count)
+      appointment_with_error = result.first
+      expect(appointment_with_error['travelPayClaim']['metadata']['status']).to eq(401)
+      expect(appointment_with_error['travelPayClaim']['metadata']['success']).to be(false)
+      expect(appointment_with_error['travelPayClaim']['claim']).to be_nil
+    end
+  end
 end
