@@ -22,8 +22,6 @@ module SSOe
     private
 
     def ssl_options
-      raise 'SSL options not defined' unless ssl_cert && ssl_key
-
       {
         client_cert: ssl_cert,
         client_key: ssl_key

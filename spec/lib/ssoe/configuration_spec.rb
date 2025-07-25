@@ -11,19 +11,7 @@ RSpec.describe SSOe::Configuration do
   let(:base_url) { 'https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService' }
   let(:cert_path) { 'spec/fixtures/certs/vetsgov-localhost.crt' }
   let(:key_path) { 'spec/fixtures/certs/vetsgov-localhost.key' }
-
-  let(:cert_obj) { OpenSSL::X509::Certificate.new(File.read(cert_path)) }
-  let(:key_obj) { OpenSSL::PKey::RSA.new(File.read(key_path)) }
-
   let(:faraday_connection) { instance_double(Faraday::Connection) }
-
-  before do
-    allow(IdentitySettings.ssoe_get_traits).to receive_messages(
-      url: base_url,
-      client_cert_path: cert_path,
-      client_key_path: key_path
-    )
-  end
 
   describe '#connection' do
     it 'creates a Faraday connection with correct SSL options' do
