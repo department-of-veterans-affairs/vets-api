@@ -611,7 +611,7 @@ ivc_forms:
     insights_datadog_job:
       enabled: true
     missing_form_status_job:
-      enabled: false
+      enabled: true
     old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
