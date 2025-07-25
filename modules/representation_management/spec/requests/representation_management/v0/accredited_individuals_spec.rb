@@ -224,9 +224,9 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividuals', type: :req
       end
 
       it 'returns accredited individuals of the corresponding type' do
-        # The type 'claims_agent' is from Veteran::Service::Representative
+        # The type 'claim_agents' is from Veteran::Service::Representative
         # but it should map to the individual_type 'claims_agent' in AccreditedIndividual.
-        get path, params: { type: 'claims_agent', lat:, long: }
+        get path, params: { type: 'claim_agents', lat:, long: }
 
         parsed_response = JSON.parse(response.body)
 
