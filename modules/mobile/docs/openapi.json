@@ -7014,6 +7014,94 @@
       }
     },
     "/v0/travel-pay/claims": {
+      "get": {
+        "description": "Retrieve travel pay claims for a user within a specified date range.",
+        "parameters": [
+          {
+            "description": "The start date for the range of claims in ISO 8601 date format (YYYY-MM-DD)",
+            "example": "2024-01-01",
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "description": "The end date for the range of claims in ISO 8601 date format (YYYY-MM-DD)",
+            "example": "2024-03-31",
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "example": 1,
+            "in": "query",
+            "name": "page_number",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims"
+      },
       "post": {
         "description": "Submit a mileage-only travel claim.",
         "parameters": [
@@ -23013,54 +23101,6 @@
           }
         }
       },
-      "TravelPaySubmitMileageOnlyClaim": {
-        "description": "Submit a mileage only claim for travel pay reimbursement.",
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "appointmentDateTime",
-          "facilityStationNumber",
-          "facilityName",
-          "appointmentType",
-          "isComplete"
-        ],
-        "properties": {
-          "appointmentDateTime": {
-            "type": "string",
-            "description": "The date and time of the appointment in ISO 8601 format.",
-            "example": "2023-02-23T22:22:52.549Z"
-          },
-          "facilityStationNumber": {
-            "type": "string",
-            "description": "The station number of the VA facility where the appointment is registered.",
-            "example": "983GC"
-          },
-          "facilityName": {
-            "type": "string",
-            "description": "The name of the VA facility where the appointment is registered.",
-            "example": "Cheyenne VA Medical Center"
-          },
-          "appointmentType": {
-            "type": "string",
-            "description": "The type of appointment.",
-            "enum": [
-              "CompensationAndPension",
-              "Other"
-            ],
-            "example": "CompensationAndPension"
-          },
-          "isComplete": {
-            "type": "boolean",
-            "description": "Indicates whether the appointment is complete.",
-            "example": true
-          },
-          "appointmentName": {
-            "type": "string",
-            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
-            "example": "Primary care appointment with Dr. Smith"
-          }
-        }
-      },
       "TravelPayClaimSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -23122,6 +23162,96 @@
             "type": "string",
             "nullable": false,
             "example": "2023-02-26T22:22:52.549Z"
+          }
+        }
+      },
+      "TravelPayClaims": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "metadata",
+          "data"
+        ],
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "required": [
+              "totalRecordCount",
+              "pageNumber",
+              "status"
+            ],
+            "properties": {
+              "totalRecordCount": {
+                "type": "integer",
+                "example": 25
+              },
+              "pageNumber": {
+                "type": "integer",
+                "example": 1
+              },
+              "status": {
+                "type": "integer",
+                "enum": [
+                  200,
+                  206
+                ],
+                "example": 200
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TravelPayClaimSummary"
+            }
+          }
+        }
+      },
+      "TravelPaySubmitMileageOnlyClaim": {
+        "description": "Submit a mileage only claim for travel pay reimbursement.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appointmentDateTime",
+          "facilityStationNumber",
+          "facilityName",
+          "appointmentType",
+          "isComplete"
+        ],
+        "properties": {
+          "appointmentDateTime": {
+            "type": "string",
+            "description": "The date and time of the appointment in ISO 8601 format.",
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityStationNumber": {
+            "type": "string",
+            "description": "The station number of the VA facility where the appointment is registered.",
+            "example": "983GC"
+          },
+          "facilityName": {
+            "type": "string",
+            "description": "The name of the VA facility where the appointment is registered.",
+            "example": "Cheyenne VA Medical Center"
+          },
+          "appointmentType": {
+            "type": "string",
+            "description": "The type of appointment.",
+            "enum": [
+              "CompensationAndPension",
+              "Other"
+            ],
+            "example": "CompensationAndPension"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Indicates whether the appointment is complete.",
+            "example": true
+          },
+          "appointmentName": {
+            "type": "string",
+            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
+            "example": "Primary care appointment with Dr. Smith"
           }
         }
       },

@@ -7,7 +7,7 @@ info:
   description: >
     The Department of Veterans Affairs mobile API. All paths are relative to https://api.va.gov/mobile.
 servers:
-  - url: https://api.va.gov/mobile
+- url: https://api.va.gov/mobile
 paths:
   /:
     get:
@@ -21,10 +21,9 @@ paths:
           description: OK
       summary: /
     post:
-      description: Returns urls for app use based on app build number, environment,
-        and OS
+      description: Returns urls for app use based on app build number, environment, and OS
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -60,16 +59,15 @@ paths:
       summary: /
   /v0/appeal/{id}:
     get:
-      description: Returns info on all user's claims and appeals for mobile overview
-        page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current
+      description: Returns info on all user's claims and appeals for mobile overview page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current
       parameters:
-        - description: Appeal Id
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Appeal Id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -106,74 +104,67 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appeal/{id}
   /v0/appointments:
     get:
-      description: Given a date range returns a list of upcoming VA, Community Care,
-        and Express Care appointments. If start and end date ranges are not passed
-        in then it defaults to - 1 year and + 1 year from the beginning of today's
-        UTC date. Requesting a page out of bounds
-        will return an empty list.
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 1 year and + 1 year from the beginning of today's UTC date. Requesting a page out of bounds will return an empty list.
       parameters:
-        - description: The start date for the range of appointments in ISO 8601 UTC
-            format
-          example: 2020-10-29T07:00:00Z
-          in: query
-          name: startDate
-          schema:
-            format: date-time
+      - description: The start date for the range of appointments in ISO 8601 UTC format
+        example: 2020-10-29T07:00:00Z
+        in: query
+        name: startDate
+        schema:
+          format: date-time
+          type: string
+      - description: The end date for the range of appointments in ISO 8601 UTC format
+        example: 2021-11-29T08:00:00Z
+        in: query
+        name: endDate
+        schema:
+          format: date-time
+          type: string
+      - description: The page number requested. Defaults to 1.
+        example: 1
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 10.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
+      - description: Whether or not to use this API's cache or fetch records from the upstream service
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
+      - description: Field to sort the appointments list by. Currently only supports `startDateUtc`. Prefixing `-` reverses the sort.
+        example: -startDateUtc
+        in: query
+        name: sort
+        schema:
+          type: string
+      - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        example: pending
+        in: query
+        name: include[]
+        schema:
+          type: array
+          items:
             type: string
-        - description: The end date for the range of appointments in ISO 8601 UTC format
-          example: 2021-11-29T08:00:00Z
-          in: query
-          name: endDate
-          schema:
-            format: date-time
+      - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        example: pending
+        in: query
+        name: included[]
+        schema:
+          type: array
+          items:
             type: string
-        - description: The page number requested. Defaults to 1.
-          example: 1
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 10.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
-        - description: Whether or not to use this API's cache or fetch records from
-            the upstream service
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
-        - description: Field to sort the appointments list by. Currently only supports
-            `startDateUtc`. Prefixing `-` reverses the sort.
-          example: -startDateUtc
-          in: query
-          name: sort
-          schema:
-            type: string
-        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
-          example: pending
-          in: query
-          name: include[]
-          schema:
-            type: array
-            items:
-              type: string
-        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
-          example: pending
-          in: query
-          name: included[]
-          schema:
-            type: array
-            items:
-              type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -243,22 +234,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments
   /v0/appointments/cancel/{cancelId}:
     put:
-      description: Cancel an appointment by cancelId. Note only VA appointments can
-        be cancelled online and some VA facilities do not support online cancellation.
-        Only appointments that can be cancelled will have a cancelId.
+      description: Cancel an appointment by cancelId. Note only VA appointments can be cancelled online and some VA facilities do not support online cancellation. Only appointments that can be cancelled will have a cancelId.
       parameters:
-        - description: The cancel ID hash from an appointment returned in the GET appointments
-            endpoint.
-          in: path
-          name: cancelId
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The cancel ID hash from an appointment returned in the GET appointments endpoint.
+        in: path
+        name: cancelId
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '204':
           description: No Content
@@ -281,13 +269,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/cancel/{cancelId}
   /v0/appointments/check-in:
     post:
       description: Check into an appointment.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -333,19 +321,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/check-in
   /v0/appointments/check-in/demographics:
     get:
       description: Retrieves demographics confirmation information which includes a field indicating if insurance verification is needed, patient contact information, emergency contact information and next-of-kin contact information.
       parameters:
-        - description: Unique location identifier
-          in: query
-          name: location_id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Unique location identifier
+        in: query
+        name: location_id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -375,7 +363,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/appointments/check-in/demographics
     patch:
       description: Edit demographics confirmations.
@@ -389,9 +377,9 @@ paths:
                 demographicConfirmations:
                   type: object
                   required:
-                    - contactNeedsUpdate
-                    - emergencyContactNeedsUpdate
-                    - nextOfKinNeedsUpdate
+                  - contactNeedsUpdate
+                  - emergencyContactNeedsUpdate
+                  - nextOfKinNeedsUpdate
                   properties:
                     contactNeedsUpdate:
                       type: boolean
@@ -431,19 +419,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/appointments/check-in/demographics
   /v0/appointments/community_care/eligibility/{service_type}:
     get:
       description: Checks if user is eligible to make an appointment with Community Care for a type of service. Checks if user is registered at a site that is marked as accepting community care requests and community care eligibility api says that they're eligible for the type of care they chose
       parameters:
-        - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
-          in: path
-          name: service_type
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
+        in: path
+        name: service_type
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -472,59 +460,59 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/community_care/eligibility/{service_type}
   /v0/appointments/facility/eligibility:
     get:
       description: Checks if a list of facilities if they are eligible to create a appointment request to provide the given type of service at the facility.
       parameters:
-        - description: Type of service to check eligibility for.
-          in: path
-          name: serviceType
-          required: true
-          schema:
+      - description: Type of service to check eligibility for.
+        in: path
+        name: serviceType
+        required: true
+        schema:
+          type: string
+          enum:
+          - amputation
+          - audiology
+          - covid
+          - optometry
+          - outpatientMentalHealth
+          - moveProgram
+          - foodAndNutrition
+          - clinicalPharmacyPrimaryCare
+          - primaryCare
+          - homeSleepTesting
+          - socialWork
+          - cpap
+          - ophthalmology
+      - description: List of facility ids
+        in: path
+        name: FacilityIds[]
+        required: true
+        schema:
+          type: array
+          items:
             type: string
-            enum:
-              - amputation
-              - audiology
-              - covid
-              - optometry
-              - outpatientMentalHealth
-              - moveProgram
-              - foodAndNutrition
-              - clinicalPharmacyPrimaryCare
-              - primaryCare
-              - homeSleepTesting
-              - socialWork
-              - cpap
-              - ophthalmology
-        - description: List of facility ids
-          in: path
-          name: FacilityIds[]
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-        - description: type of appointment. Can either be 'request' or 'direct' but only request will be used until direct scheduling functionality is built out
-          in: path
-          name: type
-          required: true
-          schema:
-            type: string
-        - description: The page number requested. Defaults to 1.
-          example: 2
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 3.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: type of appointment. Can either be 'request' or 'direct' but only request will be used until direct scheduling functionality is built out
+        in: path
+        name: type
+        required: true
+        schema:
+          type: string
+      - description: The page number requested. Defaults to 1.
+        example: 2
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 3.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -551,40 +539,40 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/facility/eligibility
   /v0/appointments/facilities/{facility_id}/clinics:
     get:
       description: Returns all available clinics at a facility for a given type of service.
       parameters:
-        - description: Facility ID
-          in: path
-          name: facility_id
-          required: true
-          schema:
-            type: string
-            example: 436GC
-        - description: Service Type
-          in: query
-          name: service_type
-          required: true
-          schema:
-            type: string
-            enum:
-              - amputation
-              - audiology
-              - covid
-              - optometry
-              - outpatientMentalHealth
-              - moveProgram
-              - foodAndNutrition
-              - clinicalPharmacyPrimaryCare
-              - primaryCare
-              - homeSleepTesting
-              - socialWork
-              - cpap
-              - ophthalmology
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Facility ID
+        in: path
+        name: facility_id
+        required: true
+        schema:
+          type: string
+          example: 436GC
+      - description: Service Type
+        in: query
+        name: service_type
+        required: true
+        schema:
+          type: string
+          enum:
+          - amputation
+          - audiology
+          - covid
+          - optometry
+          - outpatientMentalHealth
+          - moveProgram
+          - foodAndNutrition
+          - clinicalPharmacyPrimaryCare
+          - primaryCare
+          - homeSleepTesting
+          - socialWork
+          - cpap
+          - ophthalmology
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -611,29 +599,27 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/facilities/{facility_id}/clinics
   /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots:
     get:
       description: Accepts date range for a clinic at a va facility and returns available slots for a a direct schedule appointment.
       parameters:
-        - description: The start date for the range of appointments slots in ISO 8601 UTC
-            format. If not provided the start date will be considered now.
-          example: 2020-10-29T07:00:00Z
-          in: query
-          name: startDate
-          schema:
-            format: date-time
-            type: string
-        - description: The end date for the range of appointments slots in ISO 8601 UTC format.
-            If not provided the end date will be 2 months from today's date
-          example: 2021-11-29T08:00:00Z
-          in: query
-          name: endDate
-          schema:
-            format: date-time
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The start date for the range of appointments slots in ISO 8601 UTC format. If not provided the start date will be considered now.
+        example: 2020-10-29T07:00:00Z
+        in: query
+        name: startDate
+        schema:
+          format: date-time
+          type: string
+      - description: The end date for the range of appointments slots in ISO 8601 UTC format. If not provided the end date will be 2 months from today's date
+        example: 2021-11-29T08:00:00Z
+        in: query
+        name: endDate
+        schema:
+          format: date-time
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -660,47 +646,45 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
   /v0/appointments/facilities/{facility_id}/slots:
     get:
       description: Accepts date range for a va facility and returns available slots for a a direct schedule appointment.
       parameters:
-        - description: The start date for the range of appointments slots in ISO 8601 UTC
-            format. If not provided the start date will be considered now.
-          example: 2020-10-29T07:00:00Z
-          in: query
-          name: startDate
-          schema:
-            format: date-time
-            type: string
-        - description: The end date for the range of appointments slots in ISO 8601 UTC format.
-            If not provided the end date will be 2 months from today's date
-          example: 2021-11-29T08:00:00Z
-          in: query
-          name: endDate
-          schema:
-            format: date-time
-            type: string
-        - description: The facility division ID
-          in: path
-          required: true
-          name: location_id
-          schema:
-            type: string
-        - description: The clinic IEN. Required if clinical_service not provided.
-          in: query
-          required: false
-          name: clinic_id
-          schema:
-            type: string
-        - description: The clinical service (type of care) to find appointment slots for. Required if clinic_id not provided.
-          in: query
-          required: false
-          name: clinical_service
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The start date for the range of appointments slots in ISO 8601 UTC format. If not provided the start date will be considered now.
+        example: 2020-10-29T07:00:00Z
+        in: query
+        name: startDate
+        schema:
+          format: date-time
+          type: string
+      - description: The end date for the range of appointments slots in ISO 8601 UTC format. If not provided the end date will be 2 months from today's date
+        example: 2021-11-29T08:00:00Z
+        in: query
+        name: endDate
+        schema:
+          format: date-time
+          type: string
+      - description: The facility division ID
+        in: path
+        required: true
+        name: location_id
+        schema:
+          type: string
+      - description: The clinic IEN. Required if clinical_service not provided.
+        in: query
+        required: false
+        name: clinic_id
+        schema:
+          type: string
+      - description: The clinical service (type of care) to find appointment slots for. Required if clinic_id not provided.
+        in: query
+        required: false
+        name: clinical_service
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -727,19 +711,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
       parameters:
-        - description: Array of facilities to be checked for service eligibility
-          in: query
-          name: FacilityIds[]
-          required: true
-          schema:
-            type: array
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Array of facilities to be checked for service eligibility
+        in: query
+        name: FacilityIds[]
+        required: true
+        schema:
+          type: array
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -766,21 +750,21 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/appointments/va/eligibility
   /v0/appointment:
     post:
       description: Creates a new appointment or appointment request.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
             schema:
               oneOf:
-                - $ref: ./schemas/CreateAppointmentCC.yml
-                - $ref: ./schemas/CreateAppointmentRequest.yml
-                - $ref: ./schemas/CreateAppointmentDirect.yml
+              - $ref: ./schemas/CreateAppointmentCC.yml
+              - $ref: ./schemas/CreateAppointmentRequest.yml
+              - $ref: ./schemas/CreateAppointmentDirect.yml
       responses:
         '200':
           description: OK
@@ -788,13 +772,13 @@ paths:
             application/json:
               schema:
                 required:
-                  - data
+                - data
                 properties:
                   data:
                     required:
-                      - id
-                      - type
-                      - attributes
+                    - id
+                    - type
+                    - attributes
                     type: object
                     properties:
                       id:
@@ -823,7 +807,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/appointment
   /v0/awards:
     get:
@@ -854,20 +838,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/awards
   /v0/claim/{id}:
     get:
-      description: Returns info on all user's claims and appeals for mobile overview
-        page
+      description: Returns info on all user's claims and appeals for mobile overview page
       parameters:
-        - description: Claim Id
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Claim Id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -894,27 +877,25 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claim/{id}
   /v0/claim/{id}/documents:
     post:
-      description: Post tracked item document for upload, returns jobId for upload
-        process
+      description: Post tracked item document for upload, returns jobId for upload process
       parameters:
-        - description: Claim Id
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Claim Id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           multipart/form-data:
             encoding:
               file:
-                contentType: image/png, image/jpeg, image/gif, image/jpg, image/bmp,
-                  text/plain, application/pdf
+                contentType: image/png, image/jpeg, image/gif, image/jpg, image/bmp, text/plain, application/pdf
             schema:
               properties:
                 documentType:
@@ -924,8 +905,8 @@ paths:
                   type: string
                 password:
                   oneOf:
-                    - type: string
-                    - type: 'null'
+                  - type: string
+                  - type: 'null'
                 trackedItemId:
                   type: string
               type: object
@@ -956,20 +937,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claim/{id}/documents
   /v0/claim/{id}/documents/multi-image:
     post:
-      description: Post multiple images to be combined into one pdf for upload, returns
-        jobId for upload process
+      description: Post multiple images to be combined into one pdf for upload, returns jobId for upload process
       parameters:
-        - description: Claim Id
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Claim Id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -1002,19 +982,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claim/{id}/documents/multi-image
   /v0/claim/{id}/request-decision:
     post:
       description: Request decision on a given claim, returns job id
       parameters:
-        - description: Claim Id
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Claim Id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '202':
           content:
@@ -1041,13 +1021,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claim/{id}/request-decision
   /v0/claims/decision-letters:
     get:
       description: Returns the list of claim decision letters for given user
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1074,17 +1054,17 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/claims/decision-letters
   /v0/claims/decision-letters/{document_id}/download:
     get:
       description: Downloads a decision letter
       parameters:
-        - description: id of the document being downloaded
-          in: path
-          name: document_id
-          required: true
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: id of the document being downloaded
+        in: path
+        name: document_id
+        required: true
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1112,13 +1092,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/claims/decision-letters/{document_id}/download
   /v0/claims/pre-need-burial:
     post:
       description: Submits a new Preneeds Burial application.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -1153,7 +1133,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/claims/pre-need-burial
   /v0/claims/pre-need-burial/cemeteries:
     get:
@@ -1184,57 +1164,51 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/claims/pre-need-burial/cemeteries
   /v0/claims-and-appeals-overview:
     get:
-      description: Returns info on all user's claims and appeals for mobile overview
-        page
+      description: Returns info on all user's claims and appeals for mobile overview page
       parameters:
-        - description: The start date for the range of appointments in ISO 8601 UTC
-            format. If not provided the start date will be considered Jan. 1st 1700.
-          example: 2020-10-29T07:00:00Z
-          in: query
-          name: startDate
-          schema:
-            format: date-time
-            type: string
-        - description: The end date for the range of appointments in ISO 8601 UTC format.
-            If not provided the end date will be 1 year from today's date
-          example: 2021-11-29T08:00:00Z
-          in: query
-          name: endDate
-          schema:
-            format: date-time
-            type: string
-        - description: The page number requested. Defaults to 1.
-          example: 2
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 10.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
-        - description: true will return only completed records, false will show only
-            open records, not including the parameter will return all records regardless
-            of completed status
-          example: true
-          in: query
-          name: showCompleted
-          schema:
-            type: boolean
-        - description: Whether or not to use this API's cache or fetch records from
-            the upstream service
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The start date for the range of appointments in ISO 8601 UTC format. If not provided the start date will be considered Jan. 1st 1700.
+        example: 2020-10-29T07:00:00Z
+        in: query
+        name: startDate
+        schema:
+          format: date-time
+          type: string
+      - description: The end date for the range of appointments in ISO 8601 UTC format. If not provided the end date will be 1 year from today's date
+        example: 2021-11-29T08:00:00Z
+        in: query
+        name: endDate
+        schema:
+          format: date-time
+          type: string
+      - description: The page number requested. Defaults to 1.
+        example: 2
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 10.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
+      - description: true will return only completed records, false will show only open records, not including the parameter will return all records regardless of completed status
+        example: true
+        in: query
+        name: showCompleted
+        schema:
+          type: boolean
+      - description: Whether or not to use this API's cache or fetch records from the upstream service
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1254,8 +1228,8 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: ./schemas/ClaimsAndAppealsOverviewClaimsError.yml
-                  - $ref: ./schemas/ClaimsAndAppealsOverviewAppealsError.yml
+                - $ref: ./schemas/ClaimsAndAppealsOverviewClaimsError.yml
+                - $ref: ./schemas/ClaimsAndAppealsOverviewAppealsError.yml
           description: One of the two upstream services failed
         '401':
           $ref: '#/components/responses/401'
@@ -1279,42 +1253,39 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claims-and-appeals-overview
 
   /v0/community-care-providers:
     get:
-      description: Returns a list of community care providers who provide the requested medical specialty within
-        a certain radius of the user (default) or facility (if facility id is provided in query params).
+      description: Returns a list of community care providers who provide the requested medical specialty within a certain radius of the user (default) or facility (if facility id is provided in query params).
       parameters:
-        - description: The medical specialty the user is searching for formatted in camel case.
-            Must be one of primaryCare, foodAndNutrition, podiatry, optometry, audiologyRoutineExam, audiologyHearingAidSupport.
-          example: primaryCare
-          in: query
-          name: serviceType
-          required: true
-          schema:
-            type: string
-        - description: Optional facility id. When provided, we search for CC providers near the facility.
-            When omitted, we search for CC providers near the user's home address.
-          example: '978'
-          in: query
-          name: facilityId
-          schema:
-            type: string
-        - description: The page number requested. Defaults to 1.
-          example: 1
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 10.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The medical specialty the user is searching for formatted in camel case. Must be one of primaryCare, foodAndNutrition, podiatry, optometry, audiologyRoutineExam, audiologyHearingAidSupport.
+        example: primaryCare
+        in: query
+        name: serviceType
+        required: true
+        schema:
+          type: string
+      - description: Optional facility id. When provided, we search for CC providers near the facility. When omitted, we search for CC providers near the user's home address.
+        example: '978'
+        in: query
+        name: facilityId
+        schema:
+          type: string
+      - description: The page number requested. Defaults to 1.
+        example: 1
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 10.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1327,10 +1298,10 @@ paths:
             application/json:
               example:
                 errors:
-                  - code: '103'
-                    detail: '"whatever you entered" is not a valid value for "serviceType"'
-                    status: '400'
-                    title: Invalid field value
+                - code: '103'
+                  detail: '"whatever you entered" is not a valid value for "serviceType"'
+                  status: '400'
+                  title: Invalid field value
               schema:
                 $ref: ./schemas/Errors.yml
           description: Bad Request
@@ -1353,13 +1324,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/community-care-providers
   /v0/debts:
     get:
       description: Returns a list of user's debts.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1388,13 +1359,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/debts
   /v0/debts/{id}:
     get:
       description: Returns a users debt by id.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1423,13 +1394,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/debts/{id}
   /v0/dependents:
     get:
       description: Returns a list of user's dependents. Dependent SSN is also available but is removed to limit PII exposure.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1458,12 +1429,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/dependents
     post:
       description: Submit a supplemental claim for compensation (21-686C & 21-674).
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -1497,13 +1468,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/dependents
   /v0/dependents/request-decisions:
     get:
       description: Returns the list of dependents verifications and diaries
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1530,13 +1501,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/dependents/request-decisions
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1549,13 +1520,13 @@ paths:
             application/json:
               example:
                 errors:
-                  - timestamp: '2023-02-13T17:38:36.551+00:00'
-                    status: '400'
-                    error: 'Bad Request'
-                    path: '/veteran_verification/v2/disability_rating'
-                    code: '400'
-                    title: 'Common::Exceptions::BadRequest'
-                    detail: 'Bad Request'
+                - timestamp: '2023-02-13T17:38:36.551+00:00'
+                  status: '400'
+                  error: 'Bad Request'
+                  path: '/veteran_verification/v2/disability_rating'
+                  code: '400'
+                  title: 'Common::Exceptions::BadRequest'
+                  detail: 'Bad Request'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Bad request. Server can't understand request.
@@ -1564,12 +1535,12 @@ paths:
             application/json:
               example:
                 errors:
-                  - status: '401'
-                    error: 'Invalid Token.'
-                    path: '/veteran_verification/v2/disability_rating'
-                    code: '401'
-                    title: 'Common::Exceptions::Unauthorized'
-                    detail: 'Invalid Token.'
+                - status: '401'
+                  error: 'Invalid Token.'
+                  path: '/veteran_verification/v2/disability_rating'
+                  code: '401'
+                  title: 'Common::Exceptions::Unauthorized'
+                  detail: 'Invalid Token.'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Authentication is possible but has failed or not yet been provided.
@@ -1578,12 +1549,12 @@ paths:
             application/json:
               example:
                 errors:
-                  - status: '403'
-                    error: 'Token not granted requested scope.'
-                    path: '/veteran_verification/v2/disability_rating'
-                    code: '403'
-                    title: 'Common::Exceptions::Forbidden'
-                    detail: 'Token not granted requested scope.'
+                - status: '403'
+                  error: 'Token not granted requested scope.'
+                  path: '/veteran_verification/v2/disability_rating'
+                  code: '403'
+                  title: 'Common::Exceptions::Forbidden'
+                  detail: 'Token not granted requested scope.'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Client was forbidden from upstream resource.
@@ -1592,10 +1563,10 @@ paths:
             application/json:
               example:
                 errors:
-                  - title: 'Veteran not identifiable.'
-                    detail: 'No data found for ICN.'
-                    code: '404'
-                    status: '404'
+                - title: 'Veteran not identifiable.'
+                  detail: 'No data found for ICN.'
+                  code: '404'
+                  status: '404'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: The requested resource could not be found.
@@ -1604,12 +1575,12 @@ paths:
             application/json:
               example:
                 errors:
-                  - status: '405'
-                    error: 'Unknown.'
-                    path: '/veteran_verification/v2/disability_rating'
-                    code: '405'
-                    title: 'Common::Exceptions::ServiceError'
-                    detail: 'Unknown.'
+                - status: '405'
+                  error: 'Unknown.'
+                  path: '/veteran_verification/v2/disability_rating'
+                  code: '405'
+                  title: 'Common::Exceptions::ServiceError'
+                  detail: 'Unknown.'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Failure in processing entity
@@ -1620,11 +1591,11 @@ paths:
             application/json:
               example:
                 errors:
-                  - message: 'Request size limit exceeded'
-                    status: '413.'
-                    code: '413'
-                    title: 'Common::Exceptions::PayloadTooLarge'
-                    detail: 'Request size limit exceeded'
+                - message: 'Request size limit exceeded'
+                  status: '413.'
+                  code: '413'
+                  title: 'Common::Exceptions::PayloadTooLarge'
+                  detail: 'Request size limit exceeded'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Failure in processing entity
@@ -1633,10 +1604,10 @@ paths:
             application/json:
               example:
                 errors:
-                  - title: 'Too Many Requests'
-                    detail: 'The user has sent too many requests in a given amount of time'
-                    code: '429'
-                    status: '429'
+                - title: 'Too Many Requests'
+                  detail: 'The user has sent too many requests in a given amount of time'
+                  code: '429'
+                  status: '429'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Too Many Requests
@@ -1645,13 +1616,13 @@ paths:
             application/json:
               example:
                 errors:
-                  - timestamp: '2023-02-13T17:38:36.551+00:00'
-                    status: '500'
-                    error: 'Internal Server Error'
-                    path: '/veteran_verification/v2/disability_rating'
-                    code: '500'
-                    title: 'Common::Exceptions::ExternalServerInternalServerError'
-                    detail: 'Internal Server Error'
+                - timestamp: '2023-02-13T17:38:36.551+00:00'
+                  status: '500'
+                  error: 'Internal Server Error'
+                  path: '/veteran_verification/v2/disability_rating'
+                  code: '500'
+                  title: 'Common::Exceptions::ExternalServerInternalServerError'
+                  detail: 'Internal Server Error'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: An internal API error occurred.
@@ -1660,10 +1631,10 @@ paths:
             application/json:
               example:
                 errors:
-                  - title: 'Unexpected Response Body'
-                    detail: 'EMIS service responded with something other than veteran status information.'
-                    code: 'EMIS_STATUS502'
-                    status: '502'
+                - title: 'Unexpected Response Body'
+                  detail: 'EMIS service responded with something other than veteran status information.'
+                  code: 'EMIS_STATUS502'
+                  status: '502'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: An upstream service the API depends on returned an error.
@@ -1672,24 +1643,23 @@ paths:
             application/json:
               example:
                 errors:
-                  - title: 'Error title'
-                    detail: 'Detailed error message'
-                    code: '503'
-                    status: '503'
+                - title: 'Error title'
+                  detail: 'Detailed error message'
+                  code: '503'
+                  status: '503'
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
-          description: An upstream service is unavailable, or its circuit breaker
-            may have been tripped.
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/disability-rating
   /v0/efolder/documents:
     get:
       description: Returns the user's list of documents in efolder
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1718,26 +1688,26 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/efolder/documents
   /v0/efolder/documents/{document_id}/download:
     post:
       description: returns requested document
       parameters:
-        - description: File name of the document to be returned.
-          in: query
-          name: file_name
-          required: true
-          schema:
-            type: string
-        - description: ID of the document to be returned.
-          in: path
-          name: document_id
-          required: true
-          schema:
-            type: string
-            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: File name of the document to be returned.
+        in: query
+        name: file_name
+        required: true
+        schema:
+          type: string
+      - description: ID of the document to be returned.
+        in: path
+        name: document_id
+        required: true
+        schema:
+          type: string
+          example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1765,13 +1735,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/efolder/documents/{documentId}/download
   /v0/claim-letter/documents:
     get:
       description: Returns the user's list of documents from lighthouse
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1800,26 +1770,26 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claim-letter/documents
   /v0/claim-letter/documents/{document_id}/download:
     post:
       description: returns requested document
       parameters:
-        - description: File name of the document to be returned.
-          in: query
-          name: file_name
-          required: true
-          schema:
-            type: string
-        - description: ID of the document to be returned.
-          in: path
-          name: document_id
-          required: true
-          schema:
-            type: string
-            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: File name of the document to be returned.
+        in: query
+        name: file_name
+        required: true
+        schema:
+          type: string
+      - description: ID of the document to be returned.
+        in: path
+        name: document_id
+        required: true
+        schema:
+          type: string
+          example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1847,13 +1817,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/claim-letter/documents/{documentId}/download
   /v0/enrollment-status:
     get:
       description: Returns the user's VA enrollment status.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1880,25 +1850,25 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/enrollment-status
   /v0/feature-toggles:
     get:
       description: Returns feature toggle values for mobile applications
       parameters:
-        - description: Comma-separated list of feature toggle names to check
-          in: query
-          name: features
-          required: false
-          schema:
-            type: string
-        - description: Cookie ID for anonymous users
-          in: query
-          name: cookie_id
-          required: false
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Comma-separated list of feature toggle names to check
+        in: query
+        name: features
+        required: false
+        schema:
+          type: string
+      - description: Cookie ID for anonymous users
+        in: query
+        name: cookie_id
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1933,7 +1903,7 @@ paths:
     get:
       description: Retrieves facilities info for a user's va treatment facilities
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -1960,24 +1930,24 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/facilities-info
   /v0/facilities-info/{sort_method}:
     get:
       description: Retrieves facilities info for all facilities a given user has the ability to schedule appointments at
       parameters:
-        - description: Sort method (Closest to home or current location, alphabetical, or by most recent appointment location) Note - When most recent appointment is selected any facility that doesn't appear in the user's appointments will be sorted alphabetically after those that do appear in the appointments list
-          in: path
-          name: sort_method
-          required: true
-          schema:
-            type: string
-            enum:
-              - current
-              - home
-              - alphabetical
-              - appointments
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Sort method (Closest to home or current location, alphabetical, or by most recent appointment location) Note - When most recent appointment is selected any facility that doesn't appear in the user's appointments will be sorted alphabetically after those that do appear in the appointments list
+        in: path
+        name: sort_method
+        required: true
+        schema:
+          type: string
+          enum:
+          - current
+          - home
+          - alphabetical
+          - appointments
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         description: Lat Long for user's current location. Only required if sort method is current, but can be supplied anyway
         content:
@@ -2012,13 +1982,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/facilities-info/{sort_method}
   /v0/financial-status-reports/download:
     post:
       description: Returns financial status report PDF
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2056,13 +2026,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/financial-status-reports/download
   /v0/health/immunizations:
     get:
       description: Returns the list of immunization records for given user
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2089,7 +2059,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/health/immunizations
   /v0/health/allergy-intolerances:
     get:
@@ -2097,7 +2067,7 @@ paths:
         Retrieves a list of the user's known allergies related to medication, food, or other substances
       operationId: list_allergy_intolerances
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2127,53 +2097,52 @@ paths:
   /v0/health/labs-and-tests:
     get:
       description: >
-        List patient labs and tests. Each report contains a list of which tests were a part of the report, along with
-        links to get the results for those tests.
+        List patient labs and tests. Each report contains a list of which tests were a part of the report, along with links to get the results for those tests.
       operationId: list_labs_and_tests
       parameters:
-        - description: The category classifies the clinical discipline, department, or diagnostic service that created the report
-          in: query
-          name: category
-          required: false
-          schema:
-            type: string
-        - description: A code that indicates the type of information contained within the diagnostic report. Supported values are from the LOINC diagnostic report codes.
-          in: query
-          name: code
-          required: false
-          schema:
-            type: string
-        - description: "A date or range of dates (maximum of 2) that describe the date that the diagnostic report was recorded. Supported formats are: YYYY, YYYY-MM, YYYY-MM-DD, YYYY-MM-DD'T'HH:MM:SSZ"
-          in: query
-          name: date
-          required: false
-          schema:
-            type: datetime
-        - description: The status of the report.
-          in: query
-          name: status
-          required: false
-          schema:
-            type: datetime
-        - description: "The date when the record was last updated. Supported formats are: YYYY, YYYY-MM, YYYY-MM-DD, YYYY-MM-DD'T'HH:MM:SSZ"
-          in: query
-          name: lastUpdated
-          required: false
-          schema:
-            type: datetime
-        - description: The page number being requested.
-          in: query
-          name: page
-          required: false
-          schema:
-            type: integer
-        - description: The number of resources that should be returned in a single page. The maximum count size is 100. Defaults to 30.
-          in: query
-          name: count
-          required: false
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The category classifies the clinical discipline, department, or diagnostic service that created the report
+        in: query
+        name: category
+        required: false
+        schema:
+          type: string
+      - description: A code that indicates the type of information contained within the diagnostic report. Supported values are from the LOINC diagnostic report codes.
+        in: query
+        name: code
+        required: false
+        schema:
+          type: string
+      - description: "A date or range of dates (maximum of 2) that describe the date that the diagnostic report was recorded. Supported formats are: YYYY, YYYY-MM, YYYY-MM-DD, YYYY-MM-DD'T'HH:MM:SSZ"
+        in: query
+        name: date
+        required: false
+        schema:
+          type: datetime
+      - description: The status of the report.
+        in: query
+        name: status
+        required: false
+        schema:
+          type: datetime
+      - description: "The date when the record was last updated. Supported formats are: YYYY, YYYY-MM, YYYY-MM-DD, YYYY-MM-DD'T'HH:MM:SSZ"
+        in: query
+        name: lastUpdated
+        required: false
+        schema:
+          type: datetime
+      - description: The page number being requested.
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+      - description: The number of resources that should be returned in a single page. The maximum count size is 100. Defaults to 30.
+        in: query
+        name: count
+        required: false
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2206,13 +2175,13 @@ paths:
         Gets an observation from a user's diagnostic report
       operationId: get_observation
       parameters:
-        - description: id of observation
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: id of observation
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2243,13 +2212,13 @@ paths:
     get:
       description: Returns location info based on location id from vaccine record
       parameters:
-        - description: location id from immunization info
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: location id from immunization info
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2276,39 +2245,39 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/health/locations/{id}
   /v0/health/rx/prescriptions:
     get:
       description: Returns the users prescriptions.
       parameters:
-        - description: |
-            what field to sort array of prescriptions by. fields that can be sorted: prescription_id, refill_status, refill_submit_date, refill_date, facility_name, ordered_date, prescription_name, dispensed_date. date fields sort by DESC by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -prescription_id
-          in: query
-          name: sort
-          required: false
-          schema:
-            type: string
-        - description: |
-            filter by field values. Syntax: ?filter[refill_status][eq]=refillinprocess. fields that can be filtered: prescription_id, refill_status, refill_submit_date, facility_name. eq can be switched out with not_eq. to filter by multiple values of the same field, deliminate the parameter value with commas. Syntax: ?filter[refill_status][eq]=refillinprocess,active
-          in: query
-          name: filter
-          required: false
-          schema:
-            type: string
-        - description: The page number requested. Defaults to 1.
-          example: 1
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 10.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: |
+          what field to sort array of prescriptions by. fields that can be sorted: prescription_id, refill_status, refill_submit_date, refill_date, facility_name, ordered_date, prescription_name, dispensed_date. date fields sort by DESC by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -prescription_id
+        in: query
+        name: sort
+        required: false
+        schema:
+          type: string
+      - description: |
+          filter by field values. Syntax: ?filter[refill_status][eq]=refillinprocess. fields that can be filtered: prescription_id, refill_status, refill_submit_date, facility_name. eq can be switched out with not_eq. to filter by multiple values of the same field, deliminate the parameter value with commas. Syntax: ?filter[refill_status][eq]=refillinprocess,active
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+      - description: The page number requested. Defaults to 1.
+        example: 1
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 10.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2341,13 +2310,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/health/rx/prescriptions
   /v0/health/rx/prescriptions/refill:
     put:
       description: Requests refill for prescriptions.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -2385,20 +2354,20 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/health/rx/prescriptions/refill
   /v0/health/rx/prescriptions/{id}/tracking:
     get:
       description: Requests list of tracking data for a prescription id
       parameters:
-        - description: id of the prescription tracking data is being requested for
-          example: 13650545
-          in: path
-          name: id
-          required: true
-          schema:
-            type: object
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: id of the prescription tracking data is being requested for
+        example: 13650545
+        in: path
+        name: id
+        required: true
+        schema:
+          type: object
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2429,13 +2398,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/health/rx/prescriptions/{id}/tracking
   /v0/letters:
     get:
       description: Returns the list of letter names and types for the given user
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2478,14 +2447,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/letters
   /v0/letters/beneficiary:
     get:
-      description: Returns benefit info and options for the given user with or without
-        a dependent
+      description: Returns benefit info and options for the given user with or without a dependent
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2528,27 +2496,27 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/letters/beneficiary
   /v0/letters/{type}/download:
     post:
       description: Returns requested letter for download. Downloads as either PDF or JSON, dependent upon format param. Defaults to PDF when format is not specified.
       parameters:
-        - description: letter type
-          in: path
-          name: type
-          required: true
-          schema:
-            type: string
-            enum: [benefit_summary, benefit_summary_dependent, benefit_verification, certificate_of_eligibility, civil_service, commissary, medicare_partd, minimum_essential_coverage, proof_of_service, service_verification]
-        - description: format
-          in: query
-          name: format
-          required: false
-          schema:
-            type: string
-            enum: [ pdf, json ]
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: letter type
+        in: path
+        name: type
+        required: true
+        schema:
+          type: string
+          enum: [ benefit_summary, benefit_summary_dependent, benefit_verification, certificate_of_eligibility, civil_service, commissary, medicare_partd, minimum_essential_coverage, proof_of_service, service_verification ]
+      - description: format
+        in: query
+        name: format
+        required: false
+        schema:
+          type: string
+          enum: [ pdf, json ]
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -2595,13 +2563,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/letters/{type}/download
   /v0/maintenance_windows:
     get:
       description: List maintenance windows
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2626,32 +2594,31 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/maintenance_windows
   /v0/messaging/health/folders:
     get:
       description: List available secure messaging folders
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: The page number requested
-          example: 1
-          in: query
-          name: page
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 100
-          example: 10
-          in: query
-          name: perPage
-          schema:
-            type: integer
-        - description: Whether or not to use this API's cache or fetch records from
-            the upstream service. Defaults to true.
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
+      - description: The page number requested
+        example: 1
+        in: query
+        name: page
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 100
+        example: 10
+        in: query
+        name: perPage
+        schema:
+          type: integer
+      - description: Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
       responses:
         '200':
           content:
@@ -2676,12 +2643,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/folders
     post:
       description: Create a new secure messaging folder
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -2712,13 +2679,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/messaging/health/folder
   /v0/messaging/health/folders/{id}:
     get:
       description: Get a secure messaging folder
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2743,7 +2710,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/folders/{id}
   /v0/messaging/health/folders/{id}/messages:
     get:
@@ -2754,40 +2721,39 @@ paths:
         Specifically, the message body and attachment information is not included. Those attributes can be obtained by
         getting the specific message resource.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: |
-            what field to sort array of messages by. fields that can be sorted:  sent_date, subject, sender_name, recipient_name. The date field sorts by descending order by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -recipient_name. Default sort field is sent_date.
-          in: query
-          name: sort
-          required: false
-          schema:
-            type: string
-        - description: |
-            filter by field values. Syntax: ?filter[sender_name][eq]=JOHN DEER. fields that can be filtered: sent_date, subject, sender_name, recipient_name. Available operators include 'eq' and 'not_eq'. Date fields can use operators 'lteq' and 'gteq' (less/greater than or equal). string fields can use 'match' operator for partial matching. String fields can also be filtered by multiple values of the same field, deliminate the parameter value with commas. Syntax: ?filter[sender_name][eq]=John Deer,John Smith
-          in: query
-          name: filter
-          required: false
-          schema:
-            type: string
-        - description: The page number requested
-          example: 1
-          in: query
-          name: page
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 100
-          example: 10
-          in: query
-          name: perPage
-          schema:
-            type: integer
-        - description: Whether or not to use this API's cache or fetch records from
-            the upstream service. Defaults to true.
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
+      - description: |
+          what field to sort array of messages by. fields that can be sorted:  sent_date, subject, sender_name, recipient_name. The date field sorts by descending order by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -recipient_name. Default sort field is sent_date.
+        in: query
+        name: sort
+        required: false
+        schema:
+          type: string
+      - description: |
+          filter by field values. Syntax: ?filter[sender_name][eq]=JOHN DEER. fields that can be filtered: sent_date, subject, sender_name, recipient_name. Available operators include 'eq' and 'not_eq'. Date fields can use operators 'lteq' and 'gteq' (less/greater than or equal). string fields can use 'match' operator for partial matching. String fields can also be filtered by multiple values of the same field, deliminate the parameter value with commas. Syntax: ?filter[sender_name][eq]=John Deer,John Smith
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+      - description: The page number requested
+        example: 1
+        in: query
+        name: page
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 100
+        example: 10
+        in: query
+        name: perPage
+        schema:
+          type: integer
+      - description: Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
       responses:
         '200':
           content:
@@ -2812,41 +2778,41 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/folders/{id}/messages
   /v0/messaging/health/folders/{id}/threads:
     get:
       description: List of threads in a secure messaging folder
       parameters:
-        - description: The id of the folder that threads are being retrieved from
-          in: path
-          name: folderId
-          required: true
-          schema:
-            type: string
-        - description: The size of the pagination you want. Defaults to 10
-          in: query
-          name: pageSize,
-          schema:
-            type: string
-        - description: The page number to get based on your page size
-          in: query
-          name: page,
-          schema:
-            type: string
-        - description: The field to sort the results by
-          in: query
-          name: sortField,
-          schema:
-            type: string
-            enum: [ SENDER_NAME, RECIPIENT_NAME, SENT_DATE, DRAFT_DATE ]
-        - description: The order to sort the results by
-          in: query
-          name: sortOrder,
-          schema:
-            type: string
-            enum: [ ASC, DESC ]
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The id of the folder that threads are being retrieved from
+        in: path
+        name: folderId
+        required: true
+        schema:
+          type: string
+      - description: The size of the pagination you want. Defaults to 10
+        in: query
+        name: pageSize,
+        schema:
+          type: string
+      - description: The page number to get based on your page size
+        in: query
+        name: page,
+        schema:
+          type: string
+      - description: The field to sort the results by
+        in: query
+        name: sortField,
+        schema:
+          type: string
+          enum: [ SENDER_NAME, RECIPIENT_NAME, SENT_DATE, DRAFT_DATE ]
+      - description: The order to sort the results by
+        in: query
+        name: sortOrder,
+        schema:
+          type: string
+          enum: [ ASC, DESC ]
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -2859,10 +2825,10 @@ paths:
             application/json:
               example:
                 errors:
-                  - code: 'VA900'
-                    detail: 'Operation failed'
-                    status: '400'
-                    title: Operation failed
+                - code: 'VA900'
+                  detail: 'Operation failed'
+                  status: '400'
+                  title: Operation failed
               schema:
                 $ref: ./schemas/Errors.yml
           description: Folder does not exist
@@ -2883,13 +2849,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/messaging/health/folders/{id}/threads
   /v0/messaging/health/message_drafts:
     post:
       description: Save a new draft message
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -2920,19 +2886,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/message_drafts
   /v0/messaging/health/message_drafts/{id}:
     put:
       description: Update an existing draft message
       parameters:
-        - description: The id of the draft that is to be updated
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The id of the draft that is to be updated
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -2961,19 +2927,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/message_drafts/{id}
   /v0/messaging/health/message_drafts/{reply_id}/replydraft:
     post:
       description: Save a new draft message as a reply to an existing message
       parameters:
-        - description: The id of the message that will be replied to
-          in: path
-          name: reply_id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The id of the message that will be replied to
+        in: path
+        name: reply_id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3004,25 +2970,25 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft
   /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}:
     post:
       description: Edit a draft message that was a reply to an existing message
       parameters:
-        - description: The id of the message that will be replied to
-          in: path
-          name: reply_id
-          required: true
-          schema:
-            type: string
-        - description: The id of the draft that is to be updated
-          in: path
-          name: draft_id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The id of the message that will be replied to
+        in: path
+        name: reply_id
+        required: true
+        schema:
+          type: string
+      - description: The id of the draft that is to be updated
+        in: path
+        name: draft_id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3051,13 +3017,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}
   /v0/messaging/health/messages:
     post:
       description: Send a new secure message
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3067,9 +3033,7 @@ paths:
             schema:
               properties:
                 message:
-                  description: Stringified JSON with same parameters as if this was
-                    an application/json request (e.g. '{'category":"OTHER","recipient_id":1763526,"body":"test
-                    message"}')
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{'category":"OTHER","recipient_id":1763526,"body":"test message"}')
                   type: string
                 uploads[]:
                   description: |
@@ -3131,13 +3095,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages
   /v0/messaging/health/messages/categories:
     get:
       description: List available message categories
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3162,13 +3126,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/categories
   /v0/messaging/health/messages/signature:
     get:
       description: Gets user message signature preferences
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3193,19 +3157,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/signature
   /v0/messaging/health/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
       parameters:
-        - description: The id of the message that is to be deleted
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The id of the message that is to be deleted
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '204':
           description: The message was deleted successfully
@@ -3214,10 +3178,10 @@ paths:
             application/json:
               example:
                 errors:
-                  - code: SM114
-                    detail: Unable to move message
-                    status: '400'
-                    title: Operation failed
+                - code: SM114
+                  detail: Unable to move message
+                  status: '400'
+                  title: Operation failed
               schema:
                 $ref: ./schemas/Errors.yml
           description: Bad Request
@@ -3238,7 +3202,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/{id}
     get:
       description: |
@@ -3252,13 +3216,13 @@ paths:
           <li>If message has an attachment included, attachmentSize is displayed in bytes</li>
         </ul>
       parameters:
-        - description: Whether or not to use this API's cache or fetch records from upstream when getting triage team information to determine if user is in triage team. See meta field 'user_in_triage_team'.
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Whether or not to use this API's cache or fetch records from upstream when getting triage team information to determine if user is in triage team. See meta field 'user_in_triage_team'.
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3283,24 +3247,24 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/{id}
     patch:
       description: Moves a secure message to a specified folder
       parameters:
-        - description: The id of the message that is to be moved
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-        - description: The id of the folder that the message is to be moved to
-          in: query
-          name: folder_id,
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The id of the message that is to be moved
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: The id of the folder that the message is to be moved to
+        in: query
+        name: folder_id,
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '204':
           description: The message was moved successfully
@@ -3321,20 +3285,20 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/{id}/move
   /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
     get:
       description: |
         Get a secure message attachment content as a direct binary download. Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
       parameters:
-        - description: ID of the message that we are retrieving attachments of
-          in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: ID of the message that we are retrieving attachments of
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3366,7 +3330,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
   /v0/messaging/health/messages/{id}/reply:
     post:
@@ -3383,13 +3347,13 @@ paths:
           <li>Total attachment cannot exceed 6 MB</li>
         </ul>
       parameters:
-        - description: ID of the message that is being replied to
-          in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: ID of the message that is being replied to
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3399,8 +3363,7 @@ paths:
             schema:
               properties:
                 message:
-                  description: Stringified JSON with same parameters as if this was
-                    an application/json request (e.g. '{"body":"test body with attachment"}')
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"body":"test body with attachment"}')
                   type: string
                 uploads[]:
                   description: |
@@ -3444,7 +3407,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/{id}/reply
   /v0/messaging/health/messages/{id}/thread:
     get:
@@ -3452,7 +3415,7 @@ paths:
         Gets a list of message summaries that are related to the message of the passed id and older than the message of 
         the id provided. Does <strong>not</strong> include the message of the passed id itself.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3477,7 +3440,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/messages/{id}/thread
   /v1/messaging/health/messages/{id}/thread:
     get:
@@ -3486,13 +3449,13 @@ paths:
         relation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> 
         include the message of the passed id itself.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: Excludes the message with the provided message id
-          in: query
-          name: 'excludeProvidedMessage'
-          required: false
-          schema:
-            type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
+      - description: Excludes the message with the provided message id
+        in: query
+        name: 'excludeProvidedMessage'
+        required: false
+        schema:
+          type: boolean
       responses:
         '200':
           content:
@@ -3517,20 +3480,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v1/messaging/health/messages/{id}/thread
   /v0/messaging/health/recipients:
     get:
       description: List available recipients to which messages may be sent
       parameters:
-        - description: Whether or not to use this API's cache or fetch records from
-            the upstream service. Defaults to true.
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3555,20 +3517,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/recipients
   /v0/messaging/health/allrecipients:
     get:
       description: List available recipients to which messages may be sent with advanced attributes
       parameters:
-        - description: Whether or not to use this API's cache or fetch records from
-                       the upstream service. Defaults to true.
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3593,13 +3554,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/messaging/health/allrecipients
   /v0/military-service-history:
     get:
       description: Returns user's service history
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3624,39 +3585,39 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/military-service-history
   /v0/payment-history:
     get:
       description: Returns user's payment history
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: The start date for the range of payments in ISO 8601 UTC format. Defaults to the beginning of the year of the most recent payment.
-          example: 2020-10-29T07:00:00Z
-          in: query
-          name: startDate
-          schema:
-            format: date-time
-            type: string
-        - description: The end date for the range of appointments in ISO 8601 UTC format. Defaults to the end of the year of the most recent payment.
-          example: 2021-11-29T08:00:00Z
-          in: query
-          name: endDate
-          schema:
-            format: date-time
-            type: string
-        - description: The page number requested. Defaults to 1.
-          example: 1
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 10.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
+      - description: The start date for the range of payments in ISO 8601 UTC format. Defaults to the beginning of the year of the most recent payment.
+        example: 2020-10-29T07:00:00Z
+        in: query
+        name: startDate
+        schema:
+          format: date-time
+          type: string
+      - description: The end date for the range of appointments in ISO 8601 UTC format. Defaults to the end of the year of the most recent payment.
+        example: 2021-11-29T08:00:00Z
+        in: query
+        name: endDate
+        schema:
+          format: date-time
+          type: string
+      - description: The page number requested. Defaults to 1.
+        example: 1
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 10.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
       responses:
         '200':
           content:
@@ -3681,13 +3642,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/payment-history
   /v0/payment-information/benefits:
     get:
       description: Returns direct deposit payment info
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3714,12 +3675,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/payment-information/benefits
     put:
       description: Returns updated direct deposit payment info
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3753,7 +3714,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/payment-information/benefits
   /v0/pensions:
     get:
@@ -3784,19 +3745,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/pensions
   /v0/push/prefs/{endpointSid}:
     get:
       description: Get the user's push notification preferences
       parameters:
-        - description: device endpointSid provided by the register endpoint
-          in: path
-          name: endpointSid
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: device endpointSid provided by the register endpoint
+        in: path
+        name: endpointSid
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3823,18 +3784,18 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/push/prefs/{endpointSid}
     put:
       description: Set the user's push notification preferences
       parameters:
-        - description: device endpointSid provided by the register endpoint
-          in: path
-          name: endpointSid
-          required: true
-          schema:
-            type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: device endpointSid provided by the register endpoint
+        in: path
+        name: endpointSid
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3864,13 +3825,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/push/prefs/{endpointSid}
   /v0/push/register:
     put:
       description: Allows a new app install to register to receive push notifications
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3904,14 +3865,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/push/register
   /v0/push/send:
     post:
-      description: Allows client to trigger specified push notification to be sent
-        to specified endpoint
+      description: Allows client to trigger specified push notification to be sent to specified endpoint
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -3941,20 +3901,20 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/push/send
   /v0/translations/download:
     get:
       description: Downloads translations file.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: |
-            When this endpoint responds with a 200, it includes a Content-Version header. The frontend is expected to store that value and include it as the `current_version` query param. When the `current_version` is omited or does not match the server's current version, the server responds with a 200 status, the newest version of the translations file, and the header including the newest version id. If the `current_version` matches the server's current version, the server responds with 204 and no content.
-          in: query
-          name: current_version
-          required: false
-          schema:
-            type: string
+      - $ref: '#/components/parameters/InflectionHeader'
+      - description: |
+          When this endpoint responds with a 200, it includes a Content-Version header. The frontend is expected to store that value and include it as the `current_version` query param. When the `current_version` is omited or does not match the server's current version, the server responds with a 200 status, the newest version of the translations file, and the header including the newest version id. If the `current_version` matches the server's current version, the server responds with 204 and no content.
+        in: query
+        name: current_version
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -3994,10 +3954,67 @@ paths:
           $ref: '#/components/responses/504'
       summary: /v0/translations/download
   /v0/travel-pay/claims:
+    get:
+      description: Retrieve travel pay claims for a user within a specified date range.
+      parameters:
+        - description: The start date for the range of claims in ISO 8601 date format (YYYY-MM-DD)
+          example: '2024-01-01'
+          in: query
+          name: start_date
+          required: true
+          schema:
+            type: string
+            format: date
+        - description: The end date for the range of claims in ISO 8601 date format (YYYY-MM-DD)
+          example: '2024-03-31'
+          in: query
+          name: end_date
+          required: true
+          schema:
+            type: string
+            format: date
+        - description: The page number requested. Defaults to 1.
+          example: 1
+          in: query
+          name: page_number
+          required: false
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/TravelPayClaims.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/travel-pay/claims
     post:
       description: Submit a mileage-only travel claim.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4030,14 +4047,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/travel-pay/claims
   /v0/user:
     get:
       description: |
         Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -4051,18 +4068,18 @@ paths:
                       availableServices:
                         description: All services available through the mobile API. See authorizedServices for a list of services available to the user.
                         example:
-                          - appeals
-                          - appointments
-                          - claims
-                          - directDepositBenefits
-                          - disabilityRating
-                          - lettersAndDocuments
-                          - militaryServiceHistory
-                          - paymentHistory
-                          - userProfileUpdate
-                          - secureMessaging
-                          - scheduleAppointments
-                          - prescriptions
+                        - appeals
+                        - appointments
+                        - claims
+                        - directDepositBenefits
+                        - disabilityRating
+                        - lettersAndDocuments
+                        - militaryServiceHistory
+                        - paymentHistory
+                        - userProfileUpdate
+                        - secureMessaging
+                        - scheduleAppointments
+                        - prescriptions
                         type: array
           description: OK
         '401':
@@ -4082,14 +4099,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user
   /v0/user/authorized-services:
     get:
       description: |
         Returns a hash of all available services, and a boolean value of whether the user has access to that service.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -4116,14 +4133,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/user/authorized-services
   /v0/user/contact-info:
     get:
       description: |
         Returns the user contact info. If the user does not have a vet360 id, the contact info will be null.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -4150,14 +4167,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/user/contact-info
   /v1/user:
     get:
       description: |
         Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API. v1 includes LOGINGOV as login type.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -4171,18 +4188,18 @@ paths:
                       availableServices:
                         description: All services available through the mobile API. See authorizedServices for a list of services available to the user.
                         example:
-                          - appeals
-                          - appointments
-                          - claims
-                          - directDepositBenefits
-                          - disabilityRating
-                          - lettersAndDocuments
-                          - militaryServiceHistory
-                          - paymentHistory
-                          - userProfileUpdate
-                          - secureMessaging
-                          - scheduleAppointments
-                          - prescriptions
+                        - appeals
+                        - appointments
+                        - claims
+                        - directDepositBenefits
+                        - disabilityRating
+                        - lettersAndDocuments
+                        - militaryServiceHistory
+                        - paymentHistory
+                        - userProfileUpdate
+                        - secureMessaging
+                        - scheduleAppointments
+                        - prescriptions
                         type: array
           description: OK
         '401':
@@ -4202,14 +4219,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v1/user
   /v2/user:
     get:
       description: |
         Returns basic user information
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -4236,13 +4253,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v2/user
   /v0/user/addresses:
     delete:
       description: Deletes a user's address
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4276,20 +4293,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/addresses
     post:
-      description: Creates a new residential or mailing address for a user. Calling
-        this endpoint is the second step in adding a new address for a user. The first
-        step is to call the address validation endpoint to check if an address is
-        valid. If it is valid you'll receive a 'addressMetaData' object back with
-        the addresses confidence score. This object should then be included along
-        with the new address in the request body. If the user wishes to continue with
-        an 'invalid' address then the 'validationKey' should be passed along with
-        the new address in the request body. This lets the underlying service know
-        that an invalid address be passed through.
+      description: Creates a new residential or mailing address for a user. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4350,20 +4359,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/addresses
     put:
-      description: Updates a user's residential or mailing address. Calling this endpoint
-        is the second step in adding a new address for a user. The first step is to
-        call the address validation endpoint to check if an address is valid. If it
-        is valid you'll receive a 'addressMetaData' object back with the addresses
-        confidence score. This object should then be included along with the new address
-        in the request body. If the user wishes to continue with an 'invalid' address
-        then the 'validationKey' should be passed along with the new address in the
-        request body. This lets the underlying service know that an invalid address
-        be passed through.
+      description: Updates a user's residential or mailing address. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4426,20 +4427,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/addresses
   /v0/user/addresses/validate:
     post:
-      description: Validates a residential or mailing address for a user. Calling
-        this endpoint is the first step in adding a new address for a user. If the
-        address is valid you'll receive a 'addressMetaData' object back with the addresses
-        confidence score. This object should then be included along with the new address
-        in the request body. If the user wishes to continue with an 'invalid' address
-        then the 'validationKey' should be passed along with the new address in the
-        request body. This lets the underlying service know that an invalid address
-        be passed through.
+      description: Validates a residential or mailing address for a user. Calling this endpoint is the first step in adding a new address for a user. If the address is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4490,13 +4484,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/addresses/validate
   /v0/user/demographics:
     get:
       description: Returns the users demographics info
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -4523,13 +4517,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/user/demographics
   /v0/user/emails:
     delete:
       description: Deletes a user's email address
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4566,12 +4560,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/emails
     post:
       description: Creates a new email address
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4607,12 +4601,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/emails
     put:
       description: Updates a user's email address
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4649,13 +4643,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/emails
   /v0/user/gender_identity:
     put:
       description: Updates a user's gender identity. Only users with id.me or login.gov accounts may use this
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4685,7 +4679,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/user/gender_identity
   /v0/user/gender_identity/edit:
     get:
@@ -4714,14 +4708,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/user/gender_identity/edit
   /v0/user/logout:
     get:
       description: |
         Logs the user out by revoking their access token from the IAM SSOe OAuth service and destroying the IAM user, user identity, and session objects from Redis.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           description: OK
@@ -4744,13 +4738,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/logout
   /v0/user/logged-in:
     post:
       description: Called by the mobile app after successful login to perform any actions needed to start a session.
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           description: OK
@@ -4773,13 +4767,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/logged-in
   /v0/user/preferred_name:
     put:
       description: Updates a user's preferred name. Only users with id.me or login.gov accounts may use this
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4809,13 +4803,13 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: [ ]
+      - Bearer: []
       summary: /v0/user/preferred_name
   /v0/user/phones:
     delete:
       description: Deletes one of a user's phone numbers
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4849,12 +4843,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/phones
     post:
       description: Creates a phone number for a user
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4888,12 +4882,12 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/phones
     put:
       description: Updates a user's phone number
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+      - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -4927,7 +4921,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/user/phones
   /v0/vet_verification_status:
     get:
@@ -4958,32 +4952,31 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/vet_verification_status
   /v1/health/immunizations:
     get:
       description: Returns a paginated list of immunization records for given user
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-        - description: The page number requested. Defaults to 1.
-          example: 1
-          in: query
-          name: page[number]
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 10.
-          example: 10
-          in: query
-          name: page[size]
-          schema:
-            type: integer
-        - description: Whether or not to use this API's cache or fetch records from
-            the upstream service. Defaults to true.
-          example: true
-          in: query
-          name: useCache
-          schema:
-            type: boolean
+      - $ref: '#/components/parameters/InflectionHeader'
+      - description: The page number requested. Defaults to 1.
+        example: 1
+        in: query
+        name: page[number]
+        schema:
+          type: integer
+      - description: The number of records to return per page. Defaults to 10.
+        example: 10
+        in: query
+        name: page[size]
+        schema:
+          type: integer
+      - description: Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.
+        example: true
+        in: query
+        name: useCache
+        schema:
+          type: boolean
       responses:
         '200':
           content:
@@ -5010,7 +5003,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v1/health/immunizations
 
 components:
@@ -5102,8 +5095,7 @@ components:
         application/json:
           schema:
             $ref: ./schemas/Errors.yml
-      description: An upstream service is unavailable, or its circuit breaker
-        may have been tripped.
+      description: An upstream service is unavailable, or its circuit breaker may have been tripped.
     '504':
       content:
         application/json:
