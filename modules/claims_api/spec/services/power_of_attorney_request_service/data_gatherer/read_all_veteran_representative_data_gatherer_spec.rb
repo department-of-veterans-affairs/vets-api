@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper do
+describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::ReadAllVeteranRepresentativeDataGatherer do
   subject { described_class.new(proc_id:, records:) }
 
   let(:clazz) { described_class }
@@ -78,12 +78,12 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRep
       expect(res).to eq(expected_data_obj)
     end
 
-    it 'returns an empty array when no data is sent' do
+    it 'returns an empty hash when no data is sent' do
       allow_any_instance_of(clazz).to receive(:extract_record_by_proc_id).and_return(nil)
 
       res = subject.call
 
-      expect(res).to eq([])
+      expect(res).to eq({})
     end
   end
 end
