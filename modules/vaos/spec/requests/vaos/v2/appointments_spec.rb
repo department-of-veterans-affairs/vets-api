@@ -1401,7 +1401,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                           .to receive(:get_appointments)
                           .and_return(OpenStruct.new(data: []))
 
-                        allow(StatsD).to receive(:increment)
+                        allow(StatsD).to receive(:increment).with(any_args)
 
                         expect(StatsD).to receive(:increment)
                           .with(described_class::APPT_DRAFT_CREATION_SUCCESS_METRIC,
@@ -1412,8 +1412,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                           .with(described_class::REFERRAL_DRAFT_STATIONID_METRIC,
                                 tags: [
                                   'service:community_care_appointments',
-                                  'referring_provider_id:528A6',
-                                  'referral_provider_id:7894563210'
+                                  'referring_facility_code:528A6',
+                                  'provider_npi:7894563210',
+                                  'station_id:528A6'
                                 ])
                           .once
 
