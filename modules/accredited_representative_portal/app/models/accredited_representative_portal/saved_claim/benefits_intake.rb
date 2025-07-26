@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   module SavedClaim
     class BenefitsIntake < ::SavedClaim
       class << self
+        DEFAULT_STATUS_WARNING_THRESHOLD = 10.days
+
         ##
         # Types of Benefits Intake API claims differ only by the value of a
         # couple attributes. `.define_claim_type` is a narrow & rigid interface
@@ -26,15 +28,22 @@ module AccreditedRepresentativePortal
         # drawn to the fact that `PROPER_FORM_ID` is the alternative for dealing
         # with this overworking problem.
         #
-        def define_claim_type(form_id:, proper_form_id:, business_line:)
+        def define_claim_type(form_id:, proper_form_id:, business_line:,
+                              status_warning_threshold: pending_submission_warning_threshold)
           Class.new(self) do
             const_set(:FORM_ID, form_id)
             const_set(:PROPER_FORM_ID, proper_form_id)
             const_set(:BUSINESS_LINE, business_line)
+            const_set(:STATUS_WARNING_THRESHOLD, status_warning_threshold)
 
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
           end
+        end
+
+        def pending_submission_warning_threshold
+          Settings.accredited_representative_portal.pending_submission_warning_threshold&.days ||
+            DEFAULT_STATUS_WARNING_THRESHOLD
         end
       end
 
@@ -77,7 +86,14 @@ module AccreditedRepresentativePortal
       delegate :to_pdf, to: :form_attachment
 
       def latest_submission_attempt
-        form_submissions.order(created_at: :desc).first&.latest_attempt
+        @latest_submission_attempt ||=
+          form_submissions.order(created_at: :desc).first&.latest_attempt
+      end
+
+      def pending_submission_attempt_stale?
+        return unless latest_submission_attempt&.aasm_state == 'pending'
+
+        latest_submission_attempt.updated_at <= self.class::STATUS_WARNING_THRESHOLD.ago
       end
 
       def display_form_id
