@@ -232,6 +232,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Every day job at 1:30am that sends IVC CHAMPVA form insights data to DataDog
+  mgr.register('30 1 * * *', 'IvcChampva::InsightsDatadogJob')
+
   # Every hour job that retries failed VES submissions
   mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
 
