@@ -33,32 +33,43 @@ module TravelPay
     # @returns
     # appointments: [VAOS::Appointment + travelPayClaim]
 
-    def associate_appointments_to_claims(params = {})
-      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
-      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
-      client_params = {
-        page_size: DEFAULT_PAGE_SIZE
-      }.merge!(date_range)
+    def get_claims_by_date(params = {})
+      date_range = prepare_date_range(params)
+      client_params = build_client_params(date_range)
 
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
 
-      if faraday_response.status == 200
-        raw_claims = faraday_response.body['data'].deep_dup
-
-        data = raw_claims&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-          sc
-        end
-
-        append_claims(params['appointments'],
-                      data,
-                      build_metadata(faraday_response.body))
-
-      end
+      process_claims_response(faraday_response)
     rescue => e
-      append_error(params['appointments'],
-                   rescue_errors(e))
+      {
+        claims: nil,
+        metadata: rescue_errors(e)
+      }
+    end
+
+    def associate_appointments_to_claims(params = {})
+      claims_result = get_claims_by_date(params)
+
+      if claims_result[:claims]
+        append_claims(params['appointments'],
+                      claims_result[:claims],
+                      claims_result[:metadata])
+      else
+        append_error(params['appointments'],
+                     claims_result[:metadata])
+      end
+    end
+
+    def associate_claims_to_appointments(appointments, claims_result)
+      if claims_result[:claims]
+        append_claims(appointments,
+                      claims_result[:claims],
+                      claims_result[:metadata])
+      else
+        append_error(appointments,
+                     claims_result[:metadata])
+      end
     end
 
     def associate_single_appointment_to_claim(params = {})
@@ -88,6 +99,41 @@ module TravelPay
     end
 
     private
+
+    def prepare_date_range(params)
+      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+      date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+    end
+
+    def build_client_params(date_range)
+      {
+        page_size: DEFAULT_PAGE_SIZE
+      }.merge!(date_range)
+    end
+
+    def process_claims_response(faraday_response)
+      if faraday_response.status == 200
+        raw_claims = faraday_response.body['data'].deep_dup
+        claims_data = process_raw_claims(raw_claims)
+
+        {
+          claims: claims_data,
+          metadata: build_metadata(faraday_response.body)
+        }
+      else
+        {
+          claims: nil,
+          metadata: build_metadata(faraday_response.body)
+        }
+      end
+    end
+
+    def process_raw_claims(raw_claims)
+      raw_claims&.map do |sc|
+        sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+        sc
+      end
+    end
 
     def rescue_errors(e) # rubocop:disable Metrics/MethodLength
       if e.is_a?(ArgumentError) || e.is_a?(InvalidComparableError)
