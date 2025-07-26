@@ -26,6 +26,7 @@ require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'utilities/date_parser'
+require 'pdf_fill/pdf_post_processor'
 require 'forwardable'
 
 # rubocop:disable Metrics/ModuleLength
@@ -92,12 +93,19 @@ module PdfFill
     #
     # @return [String] The path to the final combined PDF.
     #
-    def combine_extras(old_file_path, extras_generator)
+    def combine_extras(old_file_path, extras_generator, form_class)
+      require 'hexapdf'
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
+        # Adds links and destinations to the combined PDF
+        if extras_generator.try(:section_coordinates)
+          pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates,
+                                                    form_class)
+          pdf_post_processor.process!
+        end
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -187,7 +195,7 @@ module PdfFill
       if (fill_options.fetch(:extras_redesign, false) || dependents) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
-      output = combine_extras(file_path, hash_converter.extras_generator)
+      output = combine_extras(file_path, hash_converter.extras_generator, form_class)
       Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
     end
@@ -223,7 +231,8 @@ module PdfFill
             question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
-            label_width: form_class::DEFAULT_LABEL_WIDTH
+            label_width: form_class::DEFAULT_LABEL_WIDTH,
+            show_jumplinks: fill_options.fetch(:show_jumplinks, false)
           )
         else
           ExtrasGenerator.new
