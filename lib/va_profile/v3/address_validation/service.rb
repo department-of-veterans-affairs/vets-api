@@ -26,28 +26,55 @@ module VAProfile
           with_monitoring do
             address.address_pou = address.address_pou == 'RESIDENCE/CHOICE' ? 'RESIDENCE' : address.address_pou
 
-            candidate_res = candidate(address)
-            if Settings.vsp_environment == 'staging'
-              Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}")
+            begin
+              candidate_res = candidate(address)
+              Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}") if Settings.vsp_environment == 'staging'
+              AddressSuggestionsResponse.new(candidate_res)
+            rescue Common::Exceptions::BackendServiceException => e
+              if candidate_address_not_found?(e)
+                validate_res = validate(address)
+                Rails.logger.info("AddressValidation VALIDATE RES: #{validate_res}") if Settings.vsp_environment == 'staging'
+                AddressSuggestionsResponse.new(validate_res, validate: true)
+              else
+                raise e
+              end
             end
-            AddressSuggestionsResponse.new(candidate_res)
           end
         end
 
         # @return [Hash] raw data from VA profile address validation API including
         #   address suggestions, validation key, and address errors
         def candidate(address)
-          begin
-            res = perform(
-              :post,
-              'candidate',
-              address.address_validation_req.to_json
-            )
-          rescue => e
-            handle_error(e)
-          end
-
+          res = perform(
+            :post,
+            'candidate',
+            address.address_validation_req.to_json
+          )
           res.body
+        rescue => e
+          handle_error(e)
+        end
+
+        def candidate(address)
+          res = perform(
+            :post,
+            'candidate',
+            address.address_validation_req.to_json
+          )
+          res.body
+        rescue => e
+          handle_error(e)
+        end
+
+        def validate(address)
+          res = perform(
+            :post,
+            'validate',
+            address.address_validation_req.to_json
+          )
+          res.body
+        rescue => e
+          handle_error(e)
         end
 
         private
@@ -62,6 +89,13 @@ module VAProfile
             'VET360_AV_ERROR',
             detail: error.body
           )
+        end
+
+        def candidate_address_not_found?(exception)
+          return false unless exception.detail.is_a?(Hash)
+
+          messages = exception.detail['messages'] || []
+          messages.any? { |msg| msg['key'] == 'CandidateAddressNotFound' }
         end
       end
     end
