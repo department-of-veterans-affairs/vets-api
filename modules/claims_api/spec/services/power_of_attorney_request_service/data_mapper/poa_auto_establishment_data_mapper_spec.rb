@@ -25,12 +25,14 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
     it 'validates the form data using the custom validations' do
       allow_any_instance_of(
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataMapper
-      ).to receive(:map_data).and_return(valid_form)
+      ).to receive(:map_data).and_return(prepared_form_data)
 
       expect_any_instance_of(clazz).to receive(:validate_form_2122_and_2122a_submission_values)
       expect_any_instance_of(clazz).to receive(:validate_json_schema)
 
-      organization_subject.map_data
+      res = organization_subject.map_data
+
+      expect(res).to eq(prepared_form_data)
     end
   end
 
