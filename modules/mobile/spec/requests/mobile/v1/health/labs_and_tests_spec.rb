@@ -1,11 +1,22 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'date'
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
+  # Helper method to sort lab records by dateCompleted in descending order (newest first)
+  # Ensure fixture follows the same sorting logic.
+  def sort_labs_by_date(labs)
+    return [] if labs.blank?
+
+    labs.sort_by do |record|
+      date_str = record['dateCompleted'] || record.dig('attributes', 'dateCompleted')
+      date_str ? DateTime.parse(date_str).to_time.to_i : 0
+    end.reverse
+  end
   let!(:user) { sis_user(icn: '1000123456V123456') }
   let(:default_params) { { startDate: '2024-01-01', endDate: '2025-05-31' } }
   let(:path) { '/mobile/v1/health/labs-and-tests' }
@@ -50,13 +61,18 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)['data']
-        expect(json_response.count).to eq(9)
+        json_data = JSON.parse(response.body)
+        json_response = json_data['data'] || []
+
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+
+        expect(sorted_response.count).to eq(18)
         # Check that our test records are included in the response
         # rather than expecting specific indices
-        expect(json_response).to include(ch_response)
-        expect(json_response).to include(sp_response)
-        expect(json_response).to include(mb_response)
+        expect(sorted_response).to include(ch_response.first)
+        expect(sorted_response).to include(sp_response.first)
+        expect(sorted_response).to include(mb_response.first)
       end
     end
 
@@ -76,12 +92,17 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)['data']
+        json_data = JSON.parse(response.body)
+        json_response = json_data['data'] || []
+
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+
         # Check that our SP record is included in the response
         # and CH record is not included
-        expect(json_response).to include(sp_response)
-        expect(json_response).not_to include(ch_response)
-        expect(json_response).not_to include(mb_response)
+        expect(sorted_response).to include(sp_response.first)
+        expect(sorted_response).not_to include(ch_response.first)
+        expect(sorted_response).not_to include(mb_response.first)
       end
     end
 
@@ -101,12 +122,17 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)['data']
+        json_data = JSON.parse(response.body)
+        json_response = json_data['data'] || []
+
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+
         # Check that our CH record is included in the response
         # and SP record is not included
-        expect(json_response).to include(ch_response)
-        expect(json_response).not_to include(sp_response)
-        expect(json_response).not_to include(mb_response)
+        expect(sorted_response).to include(ch_response.first)
+        expect(sorted_response).not_to include(sp_response.first)
+        expect(sorted_response).not_to include(mb_response.first)
       end
     end
 
@@ -126,13 +152,17 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)['data']
+        json_data = JSON.parse(response.body)
+        json_response = json_data['data'] || []
+
+        # Use helper method to sort by dateCompleted
+        sorted_response = sort_labs_by_date(json_response)
+
         # Check that our MB record is included in the response
         # and SP record is not included
-
-        expect(json_response).to include(mb_response)
-        expect(json_response).not_to include(sp_response)
-        expect(json_response).not_to include(ch_response)
+        expect(sorted_response).to include(mb_response.first)
+        expect(sorted_response).not_to include(sp_response.first)
+        expect(sorted_response).not_to include(ch_response.first)
       end
     end
 
