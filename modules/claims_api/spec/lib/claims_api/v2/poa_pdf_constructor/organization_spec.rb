@@ -7,7 +7,7 @@ require_relative '../../../../support/pdf_matcher'
 describe ClaimsApi::V2::PoaPdfConstructor::Organization do
   subject { ClaimsApi::V2::PoaPdfConstructor::Organization.new }
 
-  let(:temp) { create(:power_of_attorney, :with_full_headers) }
+  let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
   # we do not do anything for item 3 & 6
   let(:item_one) { %w[GRAY JESSE] } # veteran name
   let(:item_two) { %w[796 37 8881] } # vet ssn
@@ -53,9 +53,6 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
       }
     )
   end
-  let(:invalid_temp) { create(:power_of_attorney, :with_full_headers) }
-  let(:phone_country_codes_temp) { create(:power_of_attorney, :with_full_headers) }
-  let(:power_of_attorney) { ClaimsApi::PowerOfAttorney.find(temp.id) }
   let(:signatures) do
     {
       'page2' => [
