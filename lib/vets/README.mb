@@ -1,0 +1,56 @@
+# VETS Library (`lib/vets`)
+
+This library contains lightweight, framework-independent utility classes used across services in Vets API.
+It includes foundational classes like `Vets::Model` and `Vets::Collection` that support structured data modeling,
+type coercion, and validation without relying on ActiveRecord or external schema libraries.
+
+---
+
+## `Vets::Model`
+
+`Vets::Model` is a base class for defining plain old Ruby objects with strict attributes,
+type enforcement, and basic value coercion.
+
+### Features
+
+- Typed attribute declaration
+- Automatic type coercion (e.g., string → integer)
+- Optional default values
+- Nested model support
+- Graceful handling of nils and missing fields
+
+### Example
+
+```ruby
+class Address < Vets::Model
+  attribute :street, String
+  attribute :city, String
+  attribute :zip_code, Integer
+end
+
+address = Address.new(
+  street: '123 Main St',
+  city: 'Anytown',
+  zip_code: '90210' # coerced to Integer
+)
+
+address.zip_code # => 90210
+```
+
+## `Vets::Model`
+Vets::Collection wraps an array of data and enforces that all elements are of a specific Vets::Model type.
+
+### Example
+
+```ruby
+class AddressCollection < Vets::Collection
+  model_type Address
+end
+
+addresses = AddressCollection.new([
+  { street: '1 A St', city: 'Smalltown', zip_code: '12345' },
+  Address.new(street: '2 B St', city: 'Bigcity', zip_code: 67890)
+])
+
+addresses.map(&:city) # => ["Smalltown", "Bigcity"]
+```
