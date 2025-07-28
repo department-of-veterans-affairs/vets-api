@@ -976,8 +976,6 @@ modules_appeals_api:
       api_key: <%= ENV['modules_appeals_api__token_validation__supplemental_claims__api_key'] %>
 mvi_hca:
   url: http://example.com
-nod_vanotify_status_callback:
-  bearer_token: <%= ENV['nod_vanotify_status_callback__bearer_token'] %>
 notifications:
   public_key: <%= ENV['notifications__public_key'] %>
 ogc:
