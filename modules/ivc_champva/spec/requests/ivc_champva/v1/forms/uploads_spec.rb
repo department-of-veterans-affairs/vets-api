@@ -362,6 +362,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             .to receive(:launch_background_job)
 
           # Create a mock response that matches the structure returned by MockClient
+          # rubocop:disable Layout/LineLength
           mock_response = {
             body: {
               answer: '```json
@@ -379,8 +380,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                           "Provider Name": "Smith, Robert",
                           "Amount Paid by Insurance": "0.00"
                         },
-                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and \
-                        Services Paid For."
+                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and Services Paid For."
                       }
                       ```'
             }.to_json
