@@ -1796,6 +1796,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(error['detail']).to eq('Redis connection error')
         end
       end
+
+      context 'when request params are missing' do
+        it 'returns a bad_request status and appropriate error message' do
+          post '/vaos/v2/appointments/draft', params: { referral_consult_id: '12345' }, headers: inflection_header
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to include('param is missing or the value is empty: referral_number')
+        end
+      end
     end
   end
 

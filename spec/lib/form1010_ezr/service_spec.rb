@@ -505,7 +505,7 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'when the form includes next of kin and/or emergency contact info' do
-          it 'returns a success object', run_at: 'Wed, 18 Jun 2025 18:58:43 GMT' do
+          it 'returns a success object', run_at: 'Thu, 24 Jul 2025 15:30:34 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_associations',
               { match_requests_on: %i[method uri body], erb: true }
@@ -513,8 +513,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(service.submit_sync(form_with_associations)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 443_148_464,
-                  timestamp: '2025-06-18T13:58:43.116-05:00'
+                  formSubmissionId: 443_830_966,
+                  timestamp: '2025-07-24T13:10:42.638-05:00'
                 }
               )
             end
