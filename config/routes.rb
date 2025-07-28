@@ -330,6 +330,8 @@ Rails.application.routes.draw do
 
     get 'banners', to: 'banners#by_path'
     post 'datadog_action', to: 'datadog_action#create'
+
+    match 'csrf_token', to: 'csrf_token#index', via: :head
   end
   # end /v0
 

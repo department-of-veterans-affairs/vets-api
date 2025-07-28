@@ -215,6 +215,7 @@ claims_evidence_api:
   breakers_error_threshold: 80
   jwt_secret: fake-secret
   mock: false
+  ssl: false
 clamav:
   host: 0.0.0.0
   mock: true
@@ -587,6 +588,9 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: fake_llm_api_key
+  host: fake_base_path
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~

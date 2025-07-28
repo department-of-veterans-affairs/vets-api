@@ -309,7 +309,8 @@ module Mobile
           elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
             APPOINTMENT_TYPES[:va_video_connect_onsite]
           else
-            APPOINTMENT_TYPES[:va]
+            vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+            vvs_video_appt.to_s.downcase == 'true' ? APPOINTMENT_TYPES[:va_video_connect_home] : APPOINTMENT_TYPES[:va]
           end
         end
 
@@ -455,6 +456,7 @@ module Mobile
         def travel_pay_eligible?
           [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
+            appointment[:kind] != PHONE_KIND &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
             appointment.start < Time.now.utc # verify it's a past appointment
         end
