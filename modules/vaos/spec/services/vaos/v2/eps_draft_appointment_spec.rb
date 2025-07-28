@@ -490,7 +490,9 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           invalid_date_referral = referral_data.dup
           invalid_date_referral.referral_date = 'invalid-date'
 
-          expect(Rails.logger).to receive(:error).with('Community Care Appointments: Error fetching provider slots')
+          expect(Rails.logger).to receive(:error).with(
+            'Community Care Appointments: Error fetching provider slots - Date::Error: invalid date'
+          )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
           expect(result).to be_nil
         end

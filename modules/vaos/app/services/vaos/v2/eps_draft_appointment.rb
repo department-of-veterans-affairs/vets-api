@@ -300,7 +300,7 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
-      rescue ArgumentError
+      rescue ArgumentError => e
         Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots - #{e.class}: #{e.message}")
         nil
       end
