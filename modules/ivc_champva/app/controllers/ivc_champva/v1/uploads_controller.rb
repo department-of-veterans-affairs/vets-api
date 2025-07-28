@@ -243,6 +243,7 @@ module IvcChampva
           attachment.save
 
           launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
+          launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
 
           # Prepare the base response
           response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
@@ -276,20 +277,24 @@ module IvcChampva
       end
 
       def launch_ocr_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user)
-          # create a temp file from the persistent attachment object
-          tmpfile = tempfile_from_attachment(attachment, form_id)
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == 'vha_10_7959a'
+          begin
+            # create a temp file from the persistent attachment object
+            tmpfile = tempfile_from_attachment(attachment, form_id)
 
-          # queue Tesseract OCR job for tmpfile
-          IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
-          Rails.logger.info(
-            "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
-          )
+            # queue Tesseract OCR job for tmpfile
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
+            Rails.logger.info(
+              "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+            )
+          rescue => e
+            Rails.logger.error "Error launching OCR job: #{e.message}"
+          end
         end
       end
 
       def launch_llm_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user)
+        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == 'vha_10_7959a'
           begin
             # create a temp file from the persistent attachment object
             tmpfile = tempfile_from_attachment(attachment, form_id)
@@ -302,49 +307,7 @@ module IvcChampva
             )
           rescue => e
             Rails.logger.error "Error launching LLM job: #{e.message}"
-          ensure
-            # Clean up temporary files
-            tmpfile&.close
-            tmpfile&.unlink
-            File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
           end
-        end
-      end
-
-      ##
-      # Calls the LLM service synchronously if enabled and returns the analysis result
-      # @param [PersistentAttachments::MilitaryRecords] attachment Persistent attachment object for the uploaded file
-      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
-      # @param [String] attachment_id The document type/attachment ID for the file
-      # @return [Hash] LLM analysis result or empty hash if disabled/error
-      def call_llm_service(attachment, form_id, attachment_id)
-        return {} unless Flipper.enabled?(:champva_claims_llm_validation, @current_user) && form_id == 'vha_10_7959a'
-
-        begin
-          # Create a temp file from the persistent attachment object
-          tmpfile = tempfile_from_attachment(attachment, form_id)
-
-          # Convert to PDF if needed (same as background job)
-          pdf_path = Common::ConvertToPdf.new(tmpfile).run
-
-          # Call the LLM service synchronously
-          llm_service = IvcChampva::LlmService.new
-          result = llm_service.process_document(
-            form_id:,
-            file_path: pdf_path,
-            uuid: attachment.guid,
-            attachment_id:
-          )
-
-          result
-        rescue => e
-          Rails.logger.error("LLM analysis failed for attachment #{attachment.guid}: #{e.message}")
-          {}
-        ensure
-          # Clean up temporary files
-          tmpfile&.close
-          tmpfile&.unlink
-          File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
         end
       end
 

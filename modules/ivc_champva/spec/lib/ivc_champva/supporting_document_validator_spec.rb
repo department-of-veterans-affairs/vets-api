@@ -47,7 +47,7 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
     end
 
     context 'when a direct validator mapping exists for EOB' do
-      let(:attachment_id) { 'Explanation of Benefits' }
+      let(:attachment_id) { 'EOB' }
 
       before do
         allow(IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator)

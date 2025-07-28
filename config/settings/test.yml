@@ -589,7 +589,7 @@ ivc_champva:
   prefill: true
 ivc_champva_llm_processor_api:
   api_key: fake_llm_api_key
-  host: https://fake-llm-host.com
+  host: fake_base_path
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
