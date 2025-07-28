@@ -786,6 +786,7 @@ maintenance:
     caseflow: <%= ENV['maintenance__services__caseflow'] %>
     cie: <%= ENV['maintenance__services__cie'] %>
     coe: <%= ENV['maintenance__services__coe'] %>
+    community_care_ds: <%= ENV['maintenance__services__community_care_ds'] %>
     decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
