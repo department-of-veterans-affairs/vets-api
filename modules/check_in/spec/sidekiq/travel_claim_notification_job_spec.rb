@@ -204,9 +204,8 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         hash_including(error: :check_in_va_notify_job, team: 'check-in')
       )
 
-      # Mock handle_retries_exhausted to work around the phone_last_four bug
       allow(described_class).to receive(:handle_retries_exhausted) do |_job, ex|
-        phone_last_four = mobile_phone ? mobile_phone.delete('^0-9').last(4) : 'unknown'
+        phone_last_four = CheckIn::TravelClaimNotificationUtilities.extract_phone_last_four(mobile_phone)
         SentryLogging.log_exception_to_sentry(
           ex,
           { template_id:, phone_last_four:, claim_number: },
