@@ -156,7 +156,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
     describe 'eligible benefits logging' do
       context 'with log_eligible_benefits feature flag on' do
-        before { Flipper.enable(:log_eligible_benefits) }
+        before { allow(Flipper).to receive(:enabled?).with(:log_eligible_benefits).and_return(true) }
 
         context 'when service history response succeeds' do
           it 'logs eligible benefits' do
@@ -202,8 +202,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
       end
 
       context 'with log_eligible_benefits feature flag off' do
-        before { Flipper.disable(:log_eligible_benefits) }
-        after { Flipper.enable(:log_eligible_benefits) }
+        before { allow(Flipper).to receive(:enabled?).with(:log_eligible_benefits).and_return(false) }
 
         it 'does not log eligible benefits' do
           expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
