@@ -177,10 +177,22 @@ module PdfFill
       end
 
       def process_fte(fte)
-        fte['supported'] = format_zero_as(fte['supported'], '--')
-        fte['nonSupported'] = format_zero_as(fte['nonSupported'], '--')
-        fte['totalFTE'] = format_zero_as(fte['totalFTE'], '--')
-        fte['supportedPercentageFTE'] = format_zero_as(fte['supportedPercentageFTE'], 'N/A')
+        if fte['supported'].present?
+          fte['supported'] = fte['supported'].to_f.zero? ? '--' : format('%.2f', fte['supported'])
+        end
+        if fte['nonSupported'].present?
+          fte['nonSupported'] = fte['nonSupported'].to_f.zero? ? '--' : format('%.2f', fte['nonSupported'])
+        end
+        if fte['totalFTE'].present?
+          fte['totalFTE'] = fte['totalFTE'].to_f.zero? ? '--' : format('%.2f', fte['totalFTE'])
+        end
+        if fte['supportedPercentageFTE'].present?
+          fte['supportedPercentageFTE'] = if fte['supportedPercentageFTE'].to_f.zero?
+                                            'N/A'
+                                          else
+                                            "#{format('%.2f', fte['supportedPercentageFTE'])}%"
+                                          end
+        end
       end
 
       def handle_page_numbering(form_data, options)
