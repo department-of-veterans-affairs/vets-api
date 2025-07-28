@@ -23,7 +23,7 @@ RSpec.describe SSOe::Configuration do
       client_key_path: key_path,
       url: base_url
     )
-  
+
     allow(OpenSSL::X509::Certificate).to receive(:new).with(File.read(cert_path)).and_return(cert_obj)
     allow(OpenSSL::PKey::RSA).to receive(:new).with(File.read(key_path)).and_return(key_obj)
   end
