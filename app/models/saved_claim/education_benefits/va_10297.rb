@@ -6,7 +6,7 @@ class SavedClaim::EducationBenefits::VA10297 < SavedClaim::EducationBenefits
   def after_submit(_user)
     return unless Flipper.enabled?(:form22_10297_confirmation_email)
 
-    parsed_form_data ||= JSON.parse(form)
+    parsed_form_data = JSON.parse(form)
     email = parsed_form_data.dig('contactInfo', 'emailAddress')
 
     return if email.blank?

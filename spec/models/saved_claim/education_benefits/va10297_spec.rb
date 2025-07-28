@@ -15,17 +15,17 @@ RSpec.describe SavedClaim::EducationBenefits::VA10297 do
 
     describe 'confirmation email for 10297' do
       it 'is skipped when feature flag is turned off' do
-        Flipper.disable(:form22_10297_confirmation_email)
+        allow(Flipper).to receive(:enabled?).with(:form22_10297_confirmation_email).and_return(false)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         subject = create(:va10297_simple_form)
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
-        Flipper.enable(:form22_10297_confirmation_email)
       end
 
       it 'sends an email when they have applied for VA education benefits previously' do
+        allow(Flipper).to receive(:enabled?).with(:form22_10297_confirmation_email).and_return(true)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         subject = create(:va10297_simple_form)
