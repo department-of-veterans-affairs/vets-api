@@ -301,7 +301,7 @@ module VAOS
           }
         )
       rescue ArgumentError
-        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots")
+        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots - #{e.class}: #{e.message}")
         nil
       end
 
