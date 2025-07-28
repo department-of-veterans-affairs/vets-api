@@ -189,7 +189,8 @@ RSpec.describe Form1010Ezr::Service do
       context 'when no error occurs' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
@@ -210,7 +211,8 @@ RSpec.describe Form1010Ezr::Service do
         context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                      instance_of(User)).and_return(true)
             allow_any_instance_of(
               HCA::EnrollmentEligibility::Service
             ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
@@ -334,7 +336,8 @@ RSpec.describe Form1010Ezr::Service do
         context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                      instance_of(User)).and_return(true)
           end
 
           context 'when an error occurs in the associations service' do
