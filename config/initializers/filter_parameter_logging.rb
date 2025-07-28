@@ -19,6 +19,7 @@ ALLOWLIST = %w[
   document_type
   endDate
   endpoint_sid
+  error
   errors
   excludeProvidedMessage
   file_uuid
@@ -29,8 +30,8 @@ ALLOWLIST = %w[
   grant_type
   id
   ids
-  included
   in_progress_form_id
+  included
   line
   message
   message_id
@@ -54,8 +55,8 @@ ALLOWLIST = %w[
   to_date
   type
   useCache
-  user_account_uuid
   use_v2
+  user_account_uuid
 ].freeze
 
 Rails.application.config.filter_parameters = [

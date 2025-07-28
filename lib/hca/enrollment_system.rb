@@ -412,12 +412,12 @@ module HCA
       }
     end
 
-    def convert_full_name_alt(full_name)
+    def convert_full_name_alt(full_name, all_caps: true)
       {
-        'givenName' => Validations.validate_name(data: full_name['first']),
-        'middleName' => Validations.validate_name(data: full_name['middle']),
-        'familyName' => Validations.validate_name(data: full_name['last']),
-        'suffix' => Validations.validate_name(data: full_name['suffix'])
+        'givenName' => Validations.validate_name(data: full_name['first'], all_caps:),
+        'middleName' => Validations.validate_name(data: full_name['middle'], all_caps:),
+        'familyName' => Validations.validate_name(data: full_name['last'], all_caps:),
+        'suffix' => Validations.validate_name(data: full_name['suffix'], all_caps:)
       }
     end
 
@@ -635,7 +635,7 @@ module HCA
         'relationship' => contact['relationship'],
         'address' => format_address(contact['address']),
         'primaryPhone' => contact['primaryPhone']
-      }.merge(convert_full_name_alt(contact['fullName']))
+      }.merge(convert_full_name_alt(contact['fullName'], all_caps: false))
     end
 
     def veteran_to_association_collection(veteran)

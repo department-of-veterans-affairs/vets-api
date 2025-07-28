@@ -10,6 +10,10 @@ module RepresentationManagement
                  :international_postal_code, :state_code, :zip_code, :zip_suffix, :phone, :email,
                  :lat, :long
 
+      attribute :full_name do |object|
+        "#{object.first_name} #{object.last_name}"
+      end
+
       attribute :distance do |object|
         object.distance / AccreditedRepresentation::Constants::METERS_PER_MILE
       end
