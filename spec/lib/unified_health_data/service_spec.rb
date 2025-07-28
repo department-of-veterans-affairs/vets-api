@@ -42,7 +42,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when Flipper is enabled for all codes' do
         it 'returns labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
@@ -54,7 +55,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'logs test code distribution' do
         it 'logs the test code distribution from parsed records' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
@@ -73,14 +75,15 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when filtering is disabled' do
         it 'returns all labs/tests regardless of individual toggle states' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
           allow(Rails.logger).to receive(:info)
 
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          
+
           expect(labs.size).to eq(3)
           expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP', 'MB')
           expect(Rails.logger).to have_received(:info).with(
@@ -93,7 +96,8 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'logs that filtering is disabled' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(false)
           allow(Rails.logger).to receive(:info)
 
           service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
@@ -109,7 +113,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when Flipper is disabled for all codes' do
         it 'filters out labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
@@ -121,7 +126,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when only one Flipper is enabled' do
         it 'returns only enabled test codes' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
@@ -134,7 +140,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when MB Flipper is enabled' do
         it 'would return MB test codes if present in the data' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
@@ -167,7 +174,8 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'when filtering is disabled' do
       it 'returns all records regardless of individual toggle states' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                  user).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
@@ -188,7 +196,8 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'when filtering is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                  user).and_return(true)
         allow(Rails.logger).to receive(:info)
       end
 

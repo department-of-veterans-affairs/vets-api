@@ -54,29 +54,26 @@ module UnifiedHealthData
     end
 
     def filter_records(records)
-      # If filtering is disabled, return all records
-      unless Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
-        Rails.logger.info(
-          message: 'UHD filtering disabled - returning all records',
-          total_records: records.size,
-          service: 'unified_health_data'
-        )
-        return records
-      end
+      return all_records_response(records) unless filtering_enabled?
 
-      # Apply existing filtering logic
-      filtered = records.select do |record|
-        case record.attributes.test_code
-        when 'CH'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-        when 'SP'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-        when 'MB'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-        else
-          false # Reject any other test codes for now, but we'll log them for analysis
-        end
-      end
+      apply_test_code_filtering(records)
+    end
+
+    def filtering_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+    end
+
+    def all_records_response(records)
+      Rails.logger.info(
+        message: 'UHD filtering disabled - returning all records',
+        total_records: records.size,
+        service: 'unified_health_data'
+      )
+      records
+    end
+
+    def apply_test_code_filtering(records)
+      filtered = records.select { |record| test_code_enabled?(record.attributes.test_code) }
 
       Rails.logger.info(
         message: 'UHD filtering enabled - applied test code filtering',
@@ -86,6 +83,19 @@ module UnifiedHealthData
       )
 
       filtered
+    end
+
+    def test_code_enabled?(test_code)
+      case test_code
+      when 'CH'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
+      when 'SP'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+      when 'MB'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+      else
+        false # Reject any other test codes for now, but we'll log them for analysis
+      end
     end
 
     def parse_response_body(body)
