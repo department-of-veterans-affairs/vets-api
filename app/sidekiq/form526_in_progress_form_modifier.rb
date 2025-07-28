@@ -5,20 +5,16 @@ class Form526InProgressFormModifier
   sidekiq_options retry: false
 
   STATSD_PREFIX = 'form526.in_progress_form_modifier'
-  FORM_ID = '21-526EZ'
+  # TODO: Update this URL to the new return URL once it is finalized
+  NEW_RETURN_URL = '/tbd/url'
 
   def perform(ipf_id_array)
     raise ArgumentError, 'ipf_id_array must be an array' unless ipf_id_array.is_a?(Array)
     raise ArgumentError, 'ipf_id_array cannot be empty' if ipf_id_array.empty?
 
-    in_progress_forms = InProgressForm.where(id: ipf_id_array)
-    raise ArgumentError, 'No in-progress forms found for the provided IDs' if in_progress_forms.empty?
+    in_progress_forms = InProgressForm.where(id: ipf_id_array, form_id: FormProfiles::VA526ez::FORM_ID).where("metadata->>'return_url' != '#{NEW_RETURN_URL}'")
+    raise ArgumentError, "No in-progress forms with the form id (#{FormProfiles::VA526ez::FORM_ID}) found for the provided IDs" if in_progress_forms.empty?
 
-    # This is only designed for the 21-526EZ form, so we check that all forms are of this type
-    unless in_progress_forms.pluck(:form_id).uniq == [FORM_ID]
-      raise ArgumentError,
-            "All provided In-progress forms must be of type #{FORM_ID}"
-    end
 
     Rails.logger.info("Running InProgress forms modifier for #{in_progress_forms.count} forms")
     in_progress_forms.each do |in_progress_form|

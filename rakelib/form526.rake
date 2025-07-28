@@ -715,7 +715,7 @@ namespace :form526 do
   task in_progress_forms_return_point: :environment do
     MAX_NUMBER_OF_FORMS = 10_000
 
-    all_ipfs = InProgressForm.where(form_id: '21-526EZ').pluck(:id)
+    all_ipfs = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID).where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
     chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS)
     Rails.logger.info("Found #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS,
                                                                    job_count: chunked_ipfs.count)
