@@ -48,7 +48,7 @@ module VAOS
       #
       # Performs upfront validation of parameters, then orchestrates the complete
       # workflow of creating a Community Care draft appointment. All work is done
-      # build_appointment_draft, setting the object's final state.
+      # in the constructor, setting the object's final state.
       #
       # @param current_user [User] The authenticated user requesting the appointment
       # @param referral_id [String] The unique referral identifier
