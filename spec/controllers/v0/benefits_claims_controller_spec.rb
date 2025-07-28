@@ -222,7 +222,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(13)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
                                  'displayName')).to eq('PMR Pending')
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
                                  'displayName')).to eq('Submit buddy statement(s)')
@@ -450,6 +450,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                 { message_type: 'lh.cst.evidence_requests',
                   claim_id: '600383363',
                   tracked_item_id: 395_084,
+                  tracked_item_type: 'PMR Pending',
                   tracked_item_status: 'NEEDED_FROM_OTHERS' })
         expect(Rails.logger)
           .to have_received(:info)
