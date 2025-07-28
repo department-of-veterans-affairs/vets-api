@@ -24,6 +24,23 @@ module ClaimsEvidenceApi
       @service.x_folder_uri = @folder_identifier = folder_identifier
     end
 
+    def upload_file(file_path, form_id, saved_claim_id, persistent_attachment_id = nil, doctype = 10, timestamp = Time.zone.now)
+      @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim_id:, persistent_attachment_id:, form_id:)
+      submission.x_folder_uri = @service.x_folder_uri
+      submission.save
+
+      @attempt = submission.submission_attempts.create
+      attempt.metadata = provider_data = {
+        contentSource: content_source,
+        dateVaReceivedDocument: timestamp,
+        documentTypeId: doctype
+      }
+      attempt.save
+
+      @response = @service.upload(file_path, provider_data:)
+      update_tracking
+    end
+
     # upload claim and evidence pdfs
     # providing the `X_stamp_set` will perform stamping of the generated pdf
     #

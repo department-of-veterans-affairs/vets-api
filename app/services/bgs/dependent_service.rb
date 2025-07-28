@@ -89,7 +89,21 @@ module BGS
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
         @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                              "#{STATS_KEY}.submit_pdf.begin")
+
         stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }] # same minimal set used for claim and attachments
+
+        use_v2 = Flipper.enabled?(:va_dependents_v2)
+        if claim.submittable_686?
+          form_id = use_v2 ? '686C-674-V2' : '686C-674'
+          claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        end
+
+        if claim.submittable_674?
+          form_id = use_v2 ? '21-674-V2' : '21-674'
+          claim.upload_pdf(pdf674, doc_type: '142')
+          claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        end
+
         ClaimsEvidenceApi::Uploader.new(folder_identifier).upload_saved_claim_evidence(claim.id, stamp_set, stamp_set)
       else
         @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
