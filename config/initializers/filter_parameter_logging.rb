@@ -60,28 +60,25 @@ ALLOWLIST = %w[
 ].freeze
 
 Rails.application.config.filter_parameters = [
-  lambda do |k, v|
-    case v
+  lambda do |key, value|
+    # Apply filtering only if the key is NOT in the ALLOWLIST
+    return '[FILTERED]' if key && !ALLOWLIST.include?(key.to_s)
+
+    case value
     when Hash # Recursively iterate over each key value pair in hashes
-      v.each_with_object({}) do |(nested_key, nested_value), result|
-        key = nested_key.is_a?(String) ? nested_key : nested_key.to_sym
-        result[key] = if ALLOWLIST.include?(nested_key.to_s)
-                        nested_value
-                      else
-                        Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
-                      end
+      value.each_with_object({}) do |(nested_key, nested_value), result|
+        result[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
       end
     when Array # Recursively map all elements in arrays
-      v.map { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
-    when ActionDispatch::Http::UploadedFile # Base case
-      v.instance_variables.each do |var| # could put specific instance vars here, but made more generic
+      value.map { |element| Rails.application.config.filter_parameters.first&.call(key, element) }
+    when ActionDispatch::Http::UploadedFile
+      value.instance_variables.each do |var| # could put specific instance vars here, but made more generic
         var_name = var.to_s.delete_prefix('@')
-        v.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
+        value.instance_variable_set(var, '[FILTERED]') unless ALLOWLIST.include?(var_name)
       end
-      v
-    when String # Base case
-      # Apply filtering only if the key is NOT in the ALLOWLIST
-      v.replace('[FILTERED]') unless ALLOWLIST.include?(k.to_s)
+      value
+    else
+      value
     end
   end
 ]
