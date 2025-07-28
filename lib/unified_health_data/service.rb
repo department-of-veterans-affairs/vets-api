@@ -54,6 +54,9 @@ module UnifiedHealthData
     end
 
     def filter_records(records)
+      # If filtering is disabled, return all records
+      return records unless Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+
       records.select do |record|
         case record.attributes.test_code
         when 'CH'
