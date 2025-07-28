@@ -55,9 +55,17 @@ module UnifiedHealthData
 
     def filter_records(records)
       # If filtering is disabled, return all records
-      return records unless Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+      unless Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+        Rails.logger.info(
+          message: 'UHD filtering disabled - returning all records',
+          total_records: records.size,
+          service: 'unified_health_data'
+        )
+        return records
+      end
 
-      records.select do |record|
+      # Apply existing filtering logic
+      filtered = records.select do |record|
         case record.attributes.test_code
         when 'CH'
           Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
@@ -69,6 +77,15 @@ module UnifiedHealthData
           false # Reject any other test codes for now, but we'll log them for analysis
         end
       end
+
+      Rails.logger.info(
+        message: 'UHD filtering enabled - applied test code filtering',
+        total_records: records.size,
+        filtered_records: filtered.size,
+        service: 'unified_health_data'
+      )
+
+      filtered
     end
 
     def parse_response_body(body)
