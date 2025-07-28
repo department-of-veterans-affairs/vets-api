@@ -19,6 +19,14 @@ type enforcement, and basic value coercion.
 - Nested model support
 - Graceful handling of nils and missing fields
 
+---
+## Attribute Examples
+String -> String (Unchanged)
+Integer -> Integer (Unchanged)
+Boolean -> Bool
+Array[String] -> Hash, array: true
+Array[Attachment] -> Attachment, array: true
+
 ### Example
 
 ```ruby
@@ -37,7 +45,9 @@ address = Address.new(
 address.zip_code # => 90210
 ```
 
-## `Vets::Model`
+---
+
+## `Vets::Collection`
 Vets::Collection wraps an array of data and enforces that all elements are of a specific Vets::Model type.
 
 ### Example
@@ -51,6 +61,26 @@ addresses = AddressCollection.new([
   { street: '1 A St', city: 'Smalltown', zip_code: '12345' },
   Address.new(street: '2 B St', city: 'Bigcity', zip_code: 67890)
 ])
-
 addresses.map(&:city) # => ["Smalltown", "Bigcity"]
+
 ```
+```
+### JSON Example
+
+Previous example:
+  json_data = perform(:post,
+                      path,
+                      args.to_h,
+                      token_headers).body
+  Common::Collection.new(Message, **json_data)
+
+Vets::Collection example:
+  json = perform(:post,
+                  path,
+                  args.attributes,
+                  token_headers).body
+  Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+
+```
+
+
