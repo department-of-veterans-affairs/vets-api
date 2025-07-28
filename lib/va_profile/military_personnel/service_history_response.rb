@@ -13,7 +13,7 @@ module VAProfile
 
       def self.from(current_user, raw_response = nil)
         body = raw_response&.body
-
+        # Comment
         episodes = []
         episodes += get_military_service_episodes(body)
         episodes += get_academy_attendance_episodes(body) if include_academy_attendance?(current_user)
