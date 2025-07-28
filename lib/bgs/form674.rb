@@ -90,7 +90,6 @@ module BGS
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def process_relationships(proc_id, veteran, payload)
       dependents = []
       # use this to make sure the created dependent and student payload line up for process_674
@@ -110,7 +109,6 @@ module BGS
         process_674(proc_id, dependent, payload, dependent_student_map[dependent[:vnp_participant_id]])
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def process_674(proc_id, dependent, payload, student = nil)
       StudentSchool.new(
