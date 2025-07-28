@@ -601,7 +601,6 @@ module PdfFill
     end
 
     def render_back_to_section_text(pdf, section_index, start_y)
-      Rails.logger.debug 'Hello'
       return_section_label = @sections[section_index][:label].split(':')[0]
 
       return_text = "Back to #{return_section_label}"

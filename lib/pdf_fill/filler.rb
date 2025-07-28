@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'hexapdf'
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/pdf_post_processor'
@@ -94,7 +95,6 @@ module PdfFill
     # @return [String] The path to the final combined PDF.
     #
     def combine_extras(old_file_path, extras_generator, form_class)
-      require 'hexapdf'
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
