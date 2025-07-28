@@ -108,8 +108,8 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           form5655_submission.submit_to_vha
         end
           .to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size)
-                .by(1)
-                .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
+          .by(1)
+          .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
       end
     end
 
@@ -122,7 +122,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect do
           form5655_submission.submit_to_vha
         end.to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size).by(1)
-          .and not_change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size)
+           .and not_change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size)
       end
     end
   end
