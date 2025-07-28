@@ -581,13 +581,13 @@ module PdfFill
            end
     end
 
-    def calculate_text_box_position(pdf, section_label, start_y, section_index)
-      x_same_line_placement = pdf.width_of(@sections[section_index][:label].to_s) + BOUNDING_BOX_X_OFFSET
+    def calculate_text_box_position(pdf, section_label, start_y, section)
+      x_same_line_placement = pdf.width_of(section[:label].to_s) + BOUNDING_BOX_X_OFFSET
       y_same_line_placement = start_y - BOUNDING_BOX_Y_OFFSET
       {
         width: pdf.width_of("Back to #{section_label}"),
-        x: @sections[section_index][:link_next_line] ? pdf.bounds.left - 10 : x_same_line_placement,
-        y: @sections[section_index][:link_next_line] ? start_y + 3 : y_same_line_placement
+        x: section[:link_next_line] ? pdf.bounds.left - 10 : x_same_line_placement,
+        y: section[:link_next_line] ? start_y + 3 : y_same_line_placement
       }
     end
 
@@ -601,19 +601,18 @@ module PdfFill
     end
 
     def render_back_to_section_text(pdf, section_index, start_y)
-      Rails.logger.debug 'Hello'
-      return_section_label = @sections[section_index][:label].split(':')[0]
+      section = @sections[section_index]
+      return unless %i[page dest_name dest_y_coord].all? { |key| section.key?(key) }
 
-      return_text = "Back to #{return_section_label}"
-      box_position = calculate_text_box_position(pdf, return_section_label, start_y, section_index)
-
+      short_section_label = section[:label].split(':')[0]
+      box_position = calculate_text_box_position(pdf, short_section_label, start_y, section)
       pdf.bounding_box(
         [box_position[:x], box_position[:y]],
         width: box_position[:width],
         height: BOUNDING_BOX_HEIGHT
       ) do
         pdf.formatted_text_box(
-          create_formatted_text_options(return_text),
+          create_formatted_text_options("Back to #{short_section_label}"),
           at: [FORMATTED_TEXT_BOX_X, FORMATTED_TEXT_BOX_Y],
           width: box_position[:width],
           height: BOUNDING_BOX_HEIGHT,
@@ -718,7 +717,7 @@ module PdfFill
     def set_markup_options(pdf)
       pdf.markup_options = {
         heading2: { style: :normal, size: 13, margin_top: 12, margin_bottom: -4 },
-        heading3: { style: :bold, size: 10.5, margin_top: @show_jumplinks ? 15 : 10, margin_bottom: -2 },
+        heading3: { style: :bold, size: 10.5, margin_top: 10, margin_bottom: -2 },
         table: {
           cell: {
             border_width: 0,

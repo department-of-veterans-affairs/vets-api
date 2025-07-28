@@ -94,7 +94,6 @@ module PdfFill
     # @return [String] The path to the final combined PDF.
     #
     def combine_extras(old_file_path, extras_generator, form_class)
-      require 'hexapdf'
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
@@ -161,6 +160,10 @@ module PdfFill
     #
     # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
+      unless fill_options.key?(:show_jumplinks)
+        fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
+      end
+
       # Handle 22-10215 overflow with continuation sheets
       if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
         return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)

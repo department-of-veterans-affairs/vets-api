@@ -10,10 +10,16 @@ describe PdfFill::ExtrasGeneratorV2 do
     [
       {
         label: 'Section I',
+        page: 1,
+        dest_name: 'Section_I',
+        dest_y_coord: 650,
         question_nums: %w[1 2 3 4 5 6 7]
       },
       {
         label: 'Section II',
+        page: 1,
+        dest_name: 'Section_II',
+        dest_y_coord: 500,
         question_nums: %w[8 9]
       }
     ]
@@ -977,9 +983,8 @@ describe PdfFill::ExtrasGeneratorV2 do
     let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), width_of: width_of_mock(mock_section_title)) }
 
     it 'returns an object with the correct positions' do
-      expect(subject.calculate_text_box_position(
-               pdf, mock_section_title, 100, 0
-             )).to eq({ width: 63, x: 83, y: 95 })
+      expect(subject.calculate_text_box_position(pdf, mock_section_title, 100, sections[0]))
+        .to eq({ width: 63, x: 83, y: 95 })
       File.delete(subject.generate)
     end
   end
@@ -988,9 +993,8 @@ describe PdfFill::ExtrasGeneratorV2 do
     let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50)) }
 
     it 'returns the correct information' do
-      expect(subject.create_formatted_text_options(
-               'Test Text'
-             )).to eq([{ text: 'Test Text', color: '005EA2', size: 10.5, styles: [:underline] }])
+      expect(subject.create_formatted_text_options('Test Text'))
+        .to eq([{ text: 'Test Text', color: '005EA2', size: 10.5, styles: [:underline] }])
       File.delete(subject.generate)
     end
   end
@@ -999,15 +1003,8 @@ describe PdfFill::ExtrasGeneratorV2 do
     let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50), page_count: 3) }
 
     it 'returns the correct information' do
-      expect(subject.store_section_coordinates(
-               pdf, 0, { width: 100, height: 50, x: 10, y: 20 }
-             )).to eq([{ section: 0,
-                         page: 3,
-                         x: 55,
-                         y: 60,
-                         width: 100,
-                         height: 20,
-                         dest: nil }])
+      expect(subject.store_section_coordinates(pdf, 0, { width: 100, height: 50, x: 10, y: 20 }))
+        .to eq([{ section: 0, page: 3, x: 55, y: 60, width: 100, height: 20, dest: 'Section_I' }])
       File.delete(subject.generate)
     end
   end
@@ -1043,9 +1040,7 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     it 'renders Back text with correct section' do
-      subject.render_back_to_section_text(
-        pdf, 0, 20
-      )
+      subject.render_back_to_section_text(pdf, 0, 20)
       expect(pdf).to have_received(:formatted_text_box).with(
         [{ color: '005EA2',
            size: 10.5,

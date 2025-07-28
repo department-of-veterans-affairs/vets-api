@@ -13,14 +13,10 @@ describe PdfFill::PdfPostProcessor do
       { page: 2, x: 30, y: 40, width: 80, height: 30, dest: 'Section_II' }
     ]
   end
-  let(:form_class) do
-    PdfFill::Forms::Va210781v2
-  end
+  let(:form_class) { PdfFill::Forms::Va210781v2 }
 
   describe '#find_page_count' do
-    subject do
-      processor.find_page_count(old_file_path)
-    end
+    subject { processor.find_page_count(old_file_path) }
 
     it 'returns the correct number of pages' do
       reader = instance_double(PDF::Reader, page_count: 3)
@@ -30,9 +26,7 @@ describe PdfFill::PdfPostProcessor do
   end
 
   describe '#create_link' do
-    subject do
-      processor.create_link(doc, coord)
-    end
+    subject { processor.create_link(doc, coord) }
 
     let(:doc) { double(HexaPDF::Document) }
     let(:coord) { { x: 10, y: 20, width: 100, height: 50, dest: 'SectionI' } }
@@ -44,13 +38,9 @@ describe PdfFill::PdfPostProcessor do
   end
 
   describe '#add_links' do
-    subject do
-      processor.add_links(doc, section_coordinates, 0)
-    end
+    subject { processor.add_links(doc, section_coordinates, 0) }
 
-    let(:page1) { {} }
-    let(:page2) { {} }
-    let(:doc) { double(HexaPDF::Document, pages: [page1, page2]) }
+    let(:doc) { double(HexaPDF::Document, pages: [{}, {}]) }
 
     it 'adds link annotations to the correct pages' do
       expect(doc).to receive(:add).with(hash_including(Type: :Annot, Subtype: :Link))
@@ -60,9 +50,7 @@ describe PdfFill::PdfPostProcessor do
   end
 
   describe '#process!' do
-    subject do
-      processor.process!
-    end
+    subject { processor.process! }
 
     it 'calls find_page_count and add_annotations' do
       allow(processor).to receive(:find_page_count).with(old_file_path).and_return(3)
