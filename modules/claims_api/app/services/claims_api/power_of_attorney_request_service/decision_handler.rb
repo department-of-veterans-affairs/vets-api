@@ -11,10 +11,10 @@ module ClaimsApi
       }.freeze
 
       # rubocop:disable Metrics/ParameterLists
-      def initialize(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant: nil)
+      def initialize(decision:, proc_id:, registration_number:, poa_code:, metadata:, veteran:, claimant: nil)
         @decision = decision
         @proc_id = proc_id
-        @representative_id = representative_id
+        @registration_number = registration_number
         @poa_code = poa_code
         @metadata = metadata
         @veteran = veteran
@@ -36,7 +36,7 @@ module ClaimsApi
           handler_class.new(
             ptcpnt_id: @veteran.participant_id,
             proc_id: @proc_id,
-            representative_id: @representative_id
+            representative_id: @registration_number
           ).call
         end
 
@@ -44,6 +44,7 @@ module ClaimsApi
           handler_class.new(
             proc_id: @proc_id,
             poa_code: @poa_code,
+            registration_number: @registration_number,
             metadata: @metadata,
             veteran: @veteran,
             claimant: @claimant
