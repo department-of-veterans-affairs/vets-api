@@ -4,7 +4,15 @@ module AccreditedRepresentativePortal
   class ClaimantSerializer < ApplicationSerializer
     set_id(&:id)
 
-    attributes :first_name, :last_name, :city, :state, :postal_code, :representative
+    attributes :first_name, :last_name, :state, :postal_code, :representative
+
+    attribute :city do |claimant|
+      if %w[AE AP AA].include? claimant&.state&.upcase
+        claimant.city
+      else
+        claimant.city&.titleize
+      end
+    end
 
     attribute :poa_requests do |claimant|
       pending_poa_requests = claimant.poa_requests.unresolved.order(created_at: :desc)
