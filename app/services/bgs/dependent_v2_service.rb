@@ -94,7 +94,7 @@ module BGS
         @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                              "#{STATS_KEY}.submit_pdf.begin")
         # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
-        VBMS::SubmitDependentsPdfJob.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
+        VBMS::SubmitDependentsPdfV2Job.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
                                                   claim.submittable_674?)
       end
 
