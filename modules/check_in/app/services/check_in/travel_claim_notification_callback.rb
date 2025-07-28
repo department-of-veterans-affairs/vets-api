@@ -102,7 +102,7 @@ module CheckIn
         template_id:,
         status: notification.status,
         uuid: metadata['uuid'],
-        phone_last_four: phone_last_four_from_notification(notification)
+        phone_last_four: extract_phone_last_four(notification.to)
       }
 
       unless notification.status == 'delivered'
@@ -111,15 +111,6 @@ module CheckIn
       end
 
       Rails.logger.public_send(level, log_data)
-    end
-
-    ##
-    # Extracts phone last four digits from notification
-    #
-    # @param notification [VANotify::Notification] notification object
-    # @return [String] last four digits of phone number
-    def self.phone_last_four_from_notification(notification)
-      phone_last_four(notification.to)
     end
   end
 end

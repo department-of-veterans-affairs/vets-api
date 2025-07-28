@@ -55,8 +55,14 @@ module CheckIn
     # Extracts phone number last four digits safely
     # @param phone_number [String, nil] The phone number
     # @return [String] Last four digits or 'unknown'
-    def phone_last_four(phone_number)
-      phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
+    def extract_phone_last_four(phone_number)
+      return 'unknown' if phone_number.blank?
+
+      cleaned_number = phone_number.gsub(/[-.\s()]/, '')
+      digits = cleaned_number.delete('^0-9')
+      return 'unknown' if digits.empty?
+
+      digits.last(4)
     end
   end
 end

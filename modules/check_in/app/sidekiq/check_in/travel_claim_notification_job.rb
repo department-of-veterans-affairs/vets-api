@@ -90,7 +90,7 @@ module CheckIn
 
       redis_client = TravelClaim::RedisClient.build
       phone_number = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
-      phone_last_four = phone_last_four(phone_number)
+      phone_last_four = extract_phone_last_four(phone_number)
 
       sentry_context = { template_id:, phone_last_four: }
       sentry_context[:claim_number] = claim_number if claim_number
@@ -157,7 +157,7 @@ module CheckIn
       log_data = { status: }
       log_data[:uuid] = opts[:uuid] if log_level == :error
       phone_number = opts[:phone_number]
-      phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
+      phone_last_four = extract_phone_last_four(phone_number)
       log_data[:template_id] = opts[:template_id]
       log_data[:phone_last_four] = phone_last_four
 

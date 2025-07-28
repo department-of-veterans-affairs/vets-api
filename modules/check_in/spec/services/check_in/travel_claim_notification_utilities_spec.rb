@@ -102,14 +102,14 @@ RSpec.describe CheckIn::TravelClaimNotificationUtilities do
       }
 
       phone_tests.each do |input, expected|
-        expect(described_class.phone_last_four(input)).to eq(expected)
+        expect(described_class.extract_phone_last_four(input)).to eq(expected)
       end
     end
 
     it 'handles invalid input appropriately' do
-      expect(described_class.phone_last_four(nil)).to eq('unknown')
-      expect(described_class.phone_last_four('')).to eq('')
-      expect(described_class.phone_last_four('abc-def-ghij')).to eq('')
+      expect(described_class.extract_phone_last_four(nil)).to eq('unknown')
+      expect(described_class.extract_phone_last_four('')).to eq('unknown')
+      expect(described_class.extract_phone_last_four('abc-def-ghij')).to eq('unknown')
     end
   end
 end
