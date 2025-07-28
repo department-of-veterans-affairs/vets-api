@@ -135,10 +135,6 @@ module PdfFill
         value.to_f.zero? ? replacement : value
       end
 
-      def format_boolean_as_checkbox(bool)
-        bool ? 1 : 0
-      end
-
       # Further readability improvements require various refactoring and code
       # de-duplication across different forms.
       module PhoneNumberFormatting
