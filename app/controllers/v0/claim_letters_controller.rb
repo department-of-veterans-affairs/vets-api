@@ -31,6 +31,7 @@ module V0
       ::Rails.logger.info('Choosing Claim Letters API Provider via cst_claim_letters_use_lighthouse_api_provider',
                           { message_type: 'cst.api_provider',
                             api_provider: })
+      Datadog::Tracing.active_trace&.set_tag('api_provider', api_provider)
       if use_lighthouse
         LighthouseClaimLettersProvider.new(@current_user)
       else

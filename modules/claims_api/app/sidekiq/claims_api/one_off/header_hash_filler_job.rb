@@ -8,20 +8,27 @@ module ClaimsApi::OneOff
 
     LOG_TAG = 'header_hash_filler_job'
 
-    def perform(model = 'ClaimsApi::PowerOfAttorney', ids = [], batch_size: 5_000)
+    # rubocop:disable Metrics/MethodLength
+    def perform(model = 'ClaimsApi::PowerOfAttorney', ids = [], max_to_process = 1_000)
       return unless Flipper.enabled? :lighthouse_claims_api_run_header_hash_filler_job
       return unless args_are_valid?(model, ids)
 
-      relation = model.constantize.where(header_hash: nil)
+      # Only grab columns that are needed for processing
+      cols = %i[id auth_headers_ciphertext form_data_ciphertext encrypted_kms_key status header_hash]
+      relation = model.constantize.select(*cols).where(header_hash: nil)
+
       relation = relation.where(id: ids) unless ids.empty?
 
-      count = 0
-      relation.limit(batch_size).find_each do |record|
+      processed_count = 0
+      # batch_size adjusted for performance & memory concerns
+      relation.limit(max_to_process).find_each(batch_size: 250) do |record|
         next if record.header_hash.present?
 
         begin
-          record.save! touch: false
-          count += 1
+          # Save the column directly to avoid triggering callbacks
+          record.set_header_hash
+          record.update_column(:header_hash, record.header_hash) # rubocop:disable Rails/SkipsModelValidations
+          processed_count += 1
         rescue => e
           ClaimsApi::Logger.log LOG_TAG, level: :error,
                                          detail: "Failed to fill header hash for #{model} with ID: #{record.id}",
@@ -29,8 +36,11 @@ module ClaimsApi::OneOff
                                          error_message: e.message
         end
       end
-      ClaimsApi::Logger.log LOG_TAG, details: "#{model} completed with #{count} record(s)"
+      remaining = model.constantize.where(header_hash: nil).count
+      ClaimsApi::Logger.log LOG_TAG,
+                            details: "Processed #{processed_count} records for #{model}. #{remaining} records remain."
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
