@@ -269,9 +269,9 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       before { reloader.send(:ensure_initial_counts) }
 
       it 'sends a notification to Slack' do
-        allow(reloader).to receive(:log_to_slack_threshold_channel)
+        allow(reloader).to receive(:log_to_slack)
 
-        expect(reloader).to receive(:log_to_slack_threshold_channel).with(
+        expect(reloader).to receive(:log_to_slack).with(
           include('Attorneys count decreased beyond threshold!')
         )
 
