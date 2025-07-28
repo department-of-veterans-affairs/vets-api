@@ -30,8 +30,9 @@ module AccreditedRepresentativePortal
       end
 
       attribute :accredited_individual do |resolution|
-        AccreditedIndividualSerializer
-          .new(resolution.resolving.accredited_individual).serializable_hash
+        resolution.resolving.accredited_individual&.then do |individual|
+          AccreditedIndividualSerializer.new(individual).serializable_hash
+        end
       end
     end
   end
