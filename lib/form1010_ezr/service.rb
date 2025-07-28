@@ -96,7 +96,7 @@ module Form1010Ezr
       @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
-      handle_associations(parsed_form) if Flipper.enabled?(:ezr_emergency_contacts_enabled)
+      handle_associations(parsed_form) if Flipper.enabled?(:ezr_emergency_contacts_enabled, @user)
 
       submit_async(parsed_form)
     rescue => e
