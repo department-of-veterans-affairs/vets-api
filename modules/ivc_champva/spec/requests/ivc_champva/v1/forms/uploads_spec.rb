@@ -385,6 +385,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                       ```'
             }.to_json
           }
+          # rubocop:enable Layout/LineLength
 
           # Parse the response the same way call_llm_service does
           parsed_response = JSON.parse(mock_response[:body])
