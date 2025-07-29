@@ -39,7 +39,7 @@ module AccreditedRepresentativePortal
       {
         'confirmation_number' => claim.confirmation_number,
         'first_name' => representative&.first_name || 'Representative',
-        'submission_date' => claim.created_at.strftime('%B %-d, %Y'),
+        'submission_date' => claim.created_at.strftime('%B %-d, %Y')
       }.merge(default)
     end
 
