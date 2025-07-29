@@ -176,4 +176,175 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.address_block(address)).to eq("123 Test St.\nSC")
     end
   end
+
+  describe '#combine_official_name' do
+    it 'returns early when certifyingOfficial is nil' do
+      form_data = {}
+      including_class.new.combine_official_name(form_data)
+      expect(form_data).to eq({})
+    end
+
+    it 'returns early when certifyingOfficial is empty' do
+      form_data = { 'certifyingOfficial' => {} }
+      including_class.new.combine_official_name(form_data)
+      expect(form_data['certifyingOfficial']['fullName']).to be_nil
+    end
+
+    it 'combines first and last name when both are present' do
+      form_data = {
+        'certifyingOfficial' => {
+          'first' => 'John',
+          'last' => 'Doe'
+        }
+      }
+      including_class.new.combine_official_name(form_data)
+      expect(form_data['certifyingOfficial']['fullName']).to eq('John Doe')
+    end
+
+    it 'does not combine when first name is missing' do
+      form_data = {
+        'certifyingOfficial' => {
+          'last' => 'Doe'
+        }
+      }
+      including_class.new.combine_official_name(form_data)
+      expect(form_data['certifyingOfficial']['fullName']).to be_nil
+    end
+
+    it 'does not combine when last name is missing' do
+      form_data = {
+        'certifyingOfficial' => {
+          'first' => 'John'
+        }
+      }
+      including_class.new.combine_official_name(form_data)
+      expect(form_data['certifyingOfficial']['fullName']).to be_nil
+    end
+  end
+
+  describe '#process_programs' do
+    it 'returns early when programs is nil' do
+      form_data = {}
+      including_class.new.process_programs(form_data)
+      expect(form_data).to eq({})
+    end
+
+    it 'processes programs without calculation date' do
+      form_data = {
+        'programs' => [
+          { 'name' => 'Program 1' },
+          { 'name' => 'Program 2' }
+        ]
+      }
+      including_class.new.process_programs(form_data)
+      expect(form_data['programs'][0]['programDateOfCalculation']).to be_nil
+      expect(form_data['programs'][1]['programDateOfCalculation']).to be_nil
+    end
+
+    it 'assigns calculation date to all programs when present' do
+      form_data = {
+        'institutionDetails' => {
+          'dateOfCalculations' => '2023-12-01'
+        },
+        'programs' => [
+          { 'name' => 'Program 1' },
+          { 'name' => 'Program 2' }
+        ]
+      }
+      including_class.new.process_programs(form_data)
+      expect(form_data['programs'][0]['programDateOfCalculation']).to eq('2023-12-01')
+      expect(form_data['programs'][1]['programDateOfCalculation']).to eq('2023-12-01')
+    end
+
+    it 'processes fte data when present' do
+      form_data = {
+        'programs' => [
+          {
+            'name' => 'Program 1',
+            'fte' => {
+              'supported' => '5.5',
+              'nonSupported' => '0',
+              'totalFTE' => '10.25',
+              'supportedPercentageFTE' => '55.5'
+            }
+          }
+        ]
+      }
+      including_class.new.process_programs(form_data)
+      expect(form_data['programs'][0]['fte']['supported']).to eq('5.50')
+      expect(form_data['programs'][0]['fte']['nonSupported']).to eq('--')
+      expect(form_data['programs'][0]['fte']['totalFTE']).to eq('10.25')
+      expect(form_data['programs'][0]['fte']['supportedPercentageFTE']).to eq('55.50%')
+    end
+  end
+
+  describe '#process_fte' do
+    it 'formats supported field correctly' do
+      fte = { 'supported' => '5.5' }
+      including_class.new.process_fte(fte)
+      expect(fte['supported']).to eq('5.50')
+    end
+
+    it 'formats supported field as -- when zero' do
+      fte = { 'supported' => '0' }
+      including_class.new.process_fte(fte)
+      expect(fte['supported']).to eq('--')
+    end
+
+    it 'does not modify supported field when not present' do
+      fte = {}
+      including_class.new.process_fte(fte)
+      expect(fte['supported']).to be_nil
+    end
+
+    it 'formats nonSupported field correctly' do
+      fte = { 'nonSupported' => '3.25' }
+      including_class.new.process_fte(fte)
+      expect(fte['nonSupported']).to eq('3.25')
+    end
+
+    it 'formats nonSupported field as -- when zero' do
+      fte = { 'nonSupported' => '0' }
+      including_class.new.process_fte(fte)
+      expect(fte['nonSupported']).to eq('--')
+    end
+
+    it 'formats totalFTE field correctly' do
+      fte = { 'totalFTE' => '15.75' }
+      including_class.new.process_fte(fte)
+      expect(fte['totalFTE']).to eq('15.75')
+    end
+
+    it 'formats totalFTE field as -- when zero' do
+      fte = { 'totalFTE' => '0' }
+      including_class.new.process_fte(fte)
+      expect(fte['totalFTE']).to eq('--')
+    end
+
+    it 'formats supportedPercentageFTE field correctly' do
+      fte = { 'supportedPercentageFTE' => '75.5' }
+      including_class.new.process_fte(fte)
+      expect(fte['supportedPercentageFTE']).to eq('75.50%')
+    end
+
+    it 'formats supportedPercentageFTE field as N/A when zero' do
+      fte = { 'supportedPercentageFTE' => '0' }
+      including_class.new.process_fte(fte)
+      expect(fte['supportedPercentageFTE']).to eq('N/A')
+    end
+
+    it 'processes all fields simultaneously' do
+      fte = {
+        'supported' => '5.5',
+        'nonSupported' => '0',
+        'totalFTE' => '10.25',
+        'supportedPercentageFTE' => '55.0'
+      }
+      including_class.new.process_fte(fte)
+      expect(fte['supported']).to eq('5.50')
+      expect(fte['nonSupported']).to eq('--')
+      expect(fte['totalFTE']).to eq('10.25')
+      expect(fte['supportedPercentageFTE']).to eq('55.00%')
+    end
+  end
 end

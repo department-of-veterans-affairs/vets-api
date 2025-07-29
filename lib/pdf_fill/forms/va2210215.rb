@@ -147,45 +147,6 @@ module PdfFill
 
         form_data
       end
-
-      private
-
-      def combine_official_name(form_data)
-        official = form_data['certifyingOfficial']
-        return unless official
-
-        official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
-      end
-
-      def process_programs(form_data)
-        return unless form_data['programs']
-
-        calculation_date = form_data.dig('institutionDetails', 'dateOfCalculations')
-
-        form_data['programs'].each do |program|
-          program['programDateOfCalculation'] = calculation_date if calculation_date
-          process_fte(program['fte']) if program['fte']
-        end
-      end
-
-      def process_fte(fte)
-        if fte['supported'].present?
-          fte['supported'] = fte['supported'].to_f.zero? ? '--' : format('%.2f', fte['supported'])
-        end
-        if fte['nonSupported'].present?
-          fte['nonSupported'] = fte['nonSupported'].to_f.zero? ? '--' : format('%.2f', fte['nonSupported'])
-        end
-        if fte['totalFTE'].present?
-          fte['totalFTE'] = fte['totalFTE'].to_f.zero? ? '--' : format('%.2f', fte['totalFTE'])
-        end
-        if fte['supportedPercentageFTE'].present?
-          fte['supportedPercentageFTE'] = if fte['supportedPercentageFTE'].to_f.zero?
-                                            'N/A'
-                                          else
-                                            "#{format('%.2f', fte['supportedPercentageFTE'])}%"
-                                          end
-        end
-      end
     end
   end
 end
