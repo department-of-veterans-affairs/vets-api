@@ -50,6 +50,10 @@ module EducationForm::Forms
       @applicant.ssn
     end
 
+    def applicant_va_file_number
+      @applicant.vaFileNumber
+    end
+
     def new_bank_info?
       @applicant.bankAccount&.routingNumber.present? ||
         @applicant.bankAccount&.accountNumber.present? ||

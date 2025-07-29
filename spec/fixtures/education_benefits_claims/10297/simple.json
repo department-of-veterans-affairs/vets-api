@@ -3,6 +3,7 @@
     "first": "Test",
     "last": "Personage"
   },
+  "vaFileNumber": "123456789",
   "ssn": "123456789",
   "mailingAddress" :{
     "street": "123 Test St",
@@ -17,6 +18,8 @@
     "mobilePhone": "5551234567"
   },
   "dateOfBirth": "1970-01-01",
+   "statementOfTruthSignature": "John Hancock",
+  "dateSigned": "2025-01-01",
   "hasCompletedActiveDuty": true,
   "dateReleasedFromActiveDuty": "2025-01-01",
   "activeDutyDuringHitechVets": true,
