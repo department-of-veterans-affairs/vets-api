@@ -976,8 +976,6 @@ modules_appeals_api:
       api_key: <%= ENV['modules_appeals_api__token_validation__supplemental_claims__api_key'] %>
 mvi_hca:
   url: http://example.com
-notifications:
-  public_key: <%= ENV['notifications__public_key'] %>
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>

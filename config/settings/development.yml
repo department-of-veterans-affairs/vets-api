@@ -990,8 +990,6 @@ modules_appeals_api:
       api_key: ''
 mvi_hca:
   url: http://example.com
-notifications:
-  public_key: ~
 ogc:
   form21a_service_url:
     api_key: fake_key
