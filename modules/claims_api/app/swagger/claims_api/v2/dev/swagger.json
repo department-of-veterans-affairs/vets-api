@@ -115,6 +115,9 @@
             "description": "Successful response",
             "content": {
               "application/json": {
+                "example": {
+                  "success": true
+                },
                 "schema": {
                   "type": "object",
                   "additionalProperties": true,
@@ -132,6 +135,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -185,6 +197,15 @@
             "description": "NotFound",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Claim not found"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -321,6 +342,468 @@
             "description": "Successful response",
             "content": {
               "application/json": {
+                "examples": {
+                  "202 without a transactionId": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Internal server error",
+                          "detail": "Internal server error",
+                          "code": "500",
+                          "status": "500",
+                          "meta": {
+                            "exception": "\n\n================================================================================\nAn HTTP request has been made that VCR does not know how to handle:\n  GET https://https//something.fake.va.gov/benefits-reference-data/v1/countries\n\nVCR are currently using the following cassettes:\n  - /app/spec/support/vcr_cassettes/claims_api/token_validation/v3/shows_token_is_valid_with_fine_grained_scope.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n  - /app/spec/support/vcr_cassettes/claims_api/evss/submit.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n  - /app/spec/support/vcr_cassettes/claims_api/disability_comp.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n\nUnder the current configuration VCR can not find a suitable HTTP interaction\nto replay and is prevented from recording new requests. There are a few ways\nyou can deal with this:\n\n  * If you're surprised VCR is raising this error\n    and want insight about how VCR attempted to handle the request,\n    you can use the debug_logger configuration option to log more details [1].\n  * You can use the :new_episodes record mode to allow VCR to\n    record this new request to the existing cassette [2].\n  * If you want VCR to ignore this request (and others like it), you can\n    set an `ignore_request` callback [3].\n  * The current record mode (:once) does not allow new requests to be recorded\n    to a previously recorded cassette. You can delete the cassette file and re-run\n    your tests to allow the cassette to be recorded with this request [4].\n  * The cassette contains 11 HTTP interactions that have not been\n    played back. If your request is non-deterministic, you may need to\n    change your :match_requests_on cassette option to be more lenient\n    or use a custom request matcher to allow it to match [5].\n\n[1] https://benoittgt.github.io/vcr/?v=6-3-1#/configuration/debug_logging\n[2] https://benoittgt.github.io/vcr/?v=6-3-1#/record_modes/new_episodes\n[3] https://benoittgt.github.io/vcr/?v=6-3-1#/configuration/ignore_request\n[4] https://benoittgt.github.io/vcr/?v=6-3-1#/record_modes/once\n[5] https://benoittgt.github.io/vcr/?v=6-3-1#/request_matching\n================================================================================\n\n",
+                            "backtrace": [
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/request_handler.rb:97:in `on_unhandled_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/library_hooks/webmock.rb:120:in `on_unhandled_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/request_handler.rb:24:in `handle'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/library_hooks/webmock.rb:135:in `block in <module:WebMock>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:35:in `block (2 levels) in register_global_stub'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:41:in `synchronize'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:41:in `block in register_global_stub'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/request_pattern.rb:42:in `matches?'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:75:in `block in request_stub_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `detect'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `request_stub_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:66:in `response_for_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:90:in `request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:113:in `block in request_with_wrapped_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in `start_without_connect'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in `start'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:112:in `request_with_wrapped_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:102:in `perform_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:66:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/adapter.rb:45:in `connection'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:65:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/rack_builder.rb:153:in `build_response'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/connection.rb:452:in `run_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/connection.rb:200:in `get'",
+                              "/app/modules/claims_api/lib/brd/brd.rb:275:in `response_from_cache_or_service'",
+                              "/app/modules/claims_api/lib/brd/brd.rb:241:in `countries'",
+                              "/app/modules/claims_api/lib/claims_api/v2/disability_compensation_shared_service_module.rb:25:in `valid_countries'",
+                              "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:226:in `validate_form_526_current_mailing_address_country'",
+                              "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:194:in `validate_form_526_identification'",
+                              "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:32:in `validate_form_526_submission_values'",
+                              "/app/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:202:in `shared_validation'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:362:in `block in make_lambda'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:179:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:34:in `block (2 levels) in <module:Callbacks>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:180:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `block in invoke_before'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `invoke_before'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:109:in `run_callbacks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:260:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rescue.rb:27:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:77:in `block in process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `block in instrument'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications/instrumenter.rb:58:in `instrument'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `instrument'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:76:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/params_wrapper.rb:259:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/railties/controller_runtime.rb:39:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:163:in `process'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:252:in `dispatch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:335:in `dispatch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:67:in `dispatch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:50:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `public_send'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `method_missing'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:33:in `block in <class:Constraints>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:62:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/coverband-6.1.5/lib/coverband/integrations/background_middleware.rb:10:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:103:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:36:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `catch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:266:in `context'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:260:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/cookies.rb:704:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:127:in `call'",
+                              "/app/lib/statsd_middleware.rb:13:in `call'",
+                              "/app/lib/source_app_middleware.rb:181:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/olive_branch-4.0.1/lib/olive_branch/middleware.rb:64:in `call'",
+                              "/app/lib/olive_branch_patch.rb:9:in `call'",
+                              "/app/modules/accredited_representative_portal/config/initializers/bypass_olive_branch.rb:23:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/etag.rb:27:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/conditional_get.rb:40:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/head.rb:12:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:31:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:101:in `run_callbacks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:30:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/actionable_exceptions.rb:18:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/debug_exceptions.rb:31:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:132:in `call_app'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:28:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:17:in `catch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:17:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/show_exceptions.rb:32:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/rack/logger.rb:41:in `call_app'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/rack/logger.rb:29:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/remote_ip.rb:96:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/request_store-1.7.0/lib/request_store/middleware.rb:19:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/request_id.rb:33:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/runtime.rb:22:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-timeout-0.7.0/lib/rack/timeout/core.rb:116:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/static.rb:27:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/sendfile.rb:110:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/host_authorization.rb:143:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-cors-2.0.2/lib/rack/cors.rb:102:in `call'",
+                              "/app/lib/http_method_not_allowed.rb:13:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/utf8-cleaner-1.0.0/lib/utf8-cleaner/middleware.rb:21:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:360:in `process_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:153:in `request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:287:in `process'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:25:in `post'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:378:in `post'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rswag-specs-2.16.0/lib/rswag/specs/example_helpers.rb:20:in `submit_request'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:376:in `block (4 levels) in make_request'",
+                              "/app/modules/claims_api/spec/support/auth_helper.rb:27:in `block in mock_ccg_for_fine_grained_scope'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                              "/app/modules/claims_api/spec/support/auth_helper.rb:24:in `mock_ccg_for_fine_grained_scope'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:375:in `block (3 levels) in make_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:374:in `block (2 levels) in make_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:373:in `block in make_request'",
+                              "/app/spec/rails_helper.rb:62:in `with_settings'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:372:in `make_request'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:389:in `block (7 levels) in <top (required)>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:365:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in `block in run_owned_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `run_owned_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in `block in run_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `reverse_each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `run_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:484:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:505:in `run_before_example'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:261:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-rails-8.0.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in `block (2 levels) in <top (required)>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:124:in `block in run'",
+                              "<internal:kernel>:187:in `loop'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:110:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec_ext/rspec_ext.rb:12:in `run_with_retry'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:37:in `block (2 levels) in setup'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `with_around_example_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in `block in run_examples'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `run_examples'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in `block in run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in `report'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in `run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in `invoke'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/exe/rspec:4:in `<main>'"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "202 with a transactionId": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Internal server error",
+                          "detail": "Internal server error",
+                          "code": "500",
+                          "status": "500",
+                          "meta": {
+                            "exception": "\n\n================================================================================\nAn HTTP request has been made that VCR does not know how to handle:\n  GET https://https//something.fake.va.gov/benefits-reference-data/v1/countries\n\nVCR are currently using the following cassettes:\n  - /app/spec/support/vcr_cassettes/claims_api/token_validation/v3/shows_token_is_valid_with_fine_grained_scope.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n  - /app/spec/support/vcr_cassettes/claims_api/evss/submit.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n  - /app/spec/support/vcr_cassettes/claims_api/disability_comp.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n\nUnder the current configuration VCR can not find a suitable HTTP interaction\nto replay and is prevented from recording new requests. There are a few ways\nyou can deal with this:\n\n  * If you're surprised VCR is raising this error\n    and want insight about how VCR attempted to handle the request,\n    you can use the debug_logger configuration option to log more details [1].\n  * You can use the :new_episodes record mode to allow VCR to\n    record this new request to the existing cassette [2].\n  * If you want VCR to ignore this request (and others like it), you can\n    set an `ignore_request` callback [3].\n  * The current record mode (:once) does not allow new requests to be recorded\n    to a previously recorded cassette. You can delete the cassette file and re-run\n    your tests to allow the cassette to be recorded with this request [4].\n  * The cassette contains 11 HTTP interactions that have not been\n    played back. If your request is non-deterministic, you may need to\n    change your :match_requests_on cassette option to be more lenient\n    or use a custom request matcher to allow it to match [5].\n\n[1] https://benoittgt.github.io/vcr/?v=6-3-1#/configuration/debug_logging\n[2] https://benoittgt.github.io/vcr/?v=6-3-1#/record_modes/new_episodes\n[3] https://benoittgt.github.io/vcr/?v=6-3-1#/configuration/ignore_request\n[4] https://benoittgt.github.io/vcr/?v=6-3-1#/record_modes/once\n[5] https://benoittgt.github.io/vcr/?v=6-3-1#/request_matching\n================================================================================\n\n",
+                            "backtrace": [
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/request_handler.rb:97:in `on_unhandled_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/library_hooks/webmock.rb:120:in `on_unhandled_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/request_handler.rb:24:in `handle'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/library_hooks/webmock.rb:135:in `block in <module:WebMock>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:35:in `block (2 levels) in register_global_stub'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:41:in `synchronize'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:41:in `block in register_global_stub'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/request_pattern.rb:42:in `matches?'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:75:in `block in request_stub_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `detect'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `request_stub_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:66:in `response_for_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:90:in `request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:113:in `block in request_with_wrapped_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in `start_without_connect'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in `start'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:112:in `request_with_wrapped_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:102:in `perform_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:66:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/adapter.rb:45:in `connection'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:65:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/rack_builder.rb:153:in `build_response'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/connection.rb:452:in `run_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/connection.rb:200:in `get'",
+                              "/app/modules/claims_api/lib/brd/brd.rb:275:in `response_from_cache_or_service'",
+                              "/app/modules/claims_api/lib/brd/brd.rb:241:in `countries'",
+                              "/app/modules/claims_api/lib/claims_api/v2/disability_compensation_shared_service_module.rb:25:in `valid_countries'",
+                              "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:226:in `validate_form_526_current_mailing_address_country'",
+                              "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:194:in `validate_form_526_identification'",
+                              "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:32:in `validate_form_526_submission_values'",
+                              "/app/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:202:in `shared_validation'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:362:in `block in make_lambda'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:179:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:34:in `block (2 levels) in <module:Callbacks>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:180:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `block in invoke_before'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `invoke_before'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:109:in `run_callbacks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:260:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rescue.rb:27:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:77:in `block in process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `block in instrument'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications/instrumenter.rb:58:in `instrument'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `instrument'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:76:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/params_wrapper.rb:259:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/railties/controller_runtime.rb:39:in `process_action'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:163:in `process'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:252:in `dispatch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:335:in `dispatch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:67:in `dispatch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:50:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `public_send'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `method_missing'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:33:in `block in <class:Constraints>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:62:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/coverband-6.1.5/lib/coverband/integrations/background_middleware.rb:10:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:103:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:36:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `catch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:266:in `context'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:260:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/cookies.rb:704:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:127:in `call'",
+                              "/app/lib/statsd_middleware.rb:13:in `call'",
+                              "/app/lib/source_app_middleware.rb:181:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/olive_branch-4.0.1/lib/olive_branch/middleware.rb:64:in `call'",
+                              "/app/lib/olive_branch_patch.rb:9:in `call'",
+                              "/app/modules/accredited_representative_portal/config/initializers/bypass_olive_branch.rb:23:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/etag.rb:27:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/conditional_get.rb:40:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/head.rb:12:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:31:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:101:in `run_callbacks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:30:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/actionable_exceptions.rb:18:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/debug_exceptions.rb:31:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:132:in `call_app'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:28:in `block in call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:17:in `catch'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:17:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/show_exceptions.rb:32:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/rack/logger.rb:41:in `call_app'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/rack/logger.rb:29:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/remote_ip.rb:96:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/request_store-1.7.0/lib/request_store/middleware.rb:19:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/request_id.rb:33:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/runtime.rb:22:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-timeout-0.7.0/lib/rack/timeout/core.rb:116:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/static.rb:27:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/sendfile.rb:110:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/host_authorization.rb:143:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-cors-2.0.2/lib/rack/cors.rb:102:in `call'",
+                              "/app/lib/http_method_not_allowed.rb:13:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/utf8-cleaner-1.0.0/lib/utf8-cleaner/middleware.rb:21:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:360:in `process_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:153:in `request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:287:in `process'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:25:in `post'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:378:in `post'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rswag-specs-2.16.0/lib/rswag/specs/example_helpers.rb:20:in `submit_request'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:376:in `block (4 levels) in make_request'",
+                              "/app/modules/claims_api/spec/support/auth_helper.rb:27:in `block in mock_ccg_for_fine_grained_scope'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                              "/app/modules/claims_api/spec/support/auth_helper.rb:24:in `mock_ccg_for_fine_grained_scope'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:375:in `block (3 levels) in make_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:374:in `block (2 levels) in make_request'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:373:in `block in make_request'",
+                              "/app/spec/rails_helper.rb:62:in `with_settings'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:372:in `make_request'",
+                              "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:407:in `block (7 levels) in <top (required)>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:365:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in `block in run_owned_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `run_owned_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in `block in run_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `reverse_each'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `run_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:484:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:505:in `run_before_example'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:261:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-rails-8.0.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in `block (2 levels) in <top (required)>'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:124:in `block in run'",
+                              "<internal:kernel>:187:in `loop'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:110:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec_ext/rspec_ext.rb:12:in `run_with_retry'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:37:in `block (2 levels) in setup'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `with_around_example_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in `block in run_examples'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `run_examples'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `map'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in `block in run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in `report'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in `run_specs'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in `run'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in `invoke'",
+                              "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/exe/rspec:4:in `<main>'"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "name": "data",
                   "required": [
@@ -1884,6 +2367,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -1933,6 +2425,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -1971,6 +2472,60 @@
             "description": "Unprocessable entity",
             "content": {
               "application/json": {
+                "examples": {
+                  "Violates JSON Schema": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property / did not contain the required key claimProcessType",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
+                        },
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property / did not contain the required key disabilities",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
+                        },
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property / did not contain the required key serviceInformation",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
+                        },
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property / did not contain the required key veteranIdentification",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "Not a JSON Object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable entity",
+                          "status": "422",
+                          "detail": "The request body is not a valid JSON object: This is not valid JSON",
+                          "source": {
+                            "pointer": null
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -4199,7 +4754,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-07-30",
+                              "activeDutyEndDate": "2025-07-31",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4220,7 +4775,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-07-30"
+                            "anticipatedSeparationDate": "2025-07-31"
                           },
                           "confinements": [
                             {
@@ -4311,6 +4866,222 @@
             "description": "Successful response with disability",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500",
+                      "meta": {
+                        "exception": "\n\n================================================================================\nAn HTTP request has been made that VCR does not know how to handle:\n  GET https://https//something.fake.va.gov/benefits-reference-data/v1/countries\n\nVCR are currently using the following cassettes:\n  - /app/spec/support/vcr_cassettes/claims_api/token_validation/v3/shows_token_is_valid.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n  - /app/spec/support/vcr_cassettes/claims_api/disability_comp.yml\n    - :record => :once\n    - :match_requests_on => [:method, :uri]\n\nUnder the current configuration VCR can not find a suitable HTTP interaction\nto replay and is prevented from recording new requests. There are a few ways\nyou can deal with this:\n\n  * If you're surprised VCR is raising this error\n    and want insight about how VCR attempted to handle the request,\n    you can use the debug_logger configuration option to log more details [1].\n  * You can use the :new_episodes record mode to allow VCR to\n    record this new request to the existing cassette [2].\n  * If you want VCR to ignore this request (and others like it), you can\n    set an `ignore_request` callback [3].\n  * The current record mode (:once) does not allow new requests to be recorded\n    to a previously recorded cassette. You can delete the cassette file and re-run\n    your tests to allow the cassette to be recorded with this request [4].\n  * The cassette contains 10 HTTP interactions that have not been\n    played back. If your request is non-deterministic, you may need to\n    change your :match_requests_on cassette option to be more lenient\n    or use a custom request matcher to allow it to match [5].\n\n[1] https://benoittgt.github.io/vcr/?v=6-3-1#/configuration/debug_logging\n[2] https://benoittgt.github.io/vcr/?v=6-3-1#/record_modes/new_episodes\n[3] https://benoittgt.github.io/vcr/?v=6-3-1#/configuration/ignore_request\n[4] https://benoittgt.github.io/vcr/?v=6-3-1#/record_modes/once\n[5] https://benoittgt.github.io/vcr/?v=6-3-1#/request_matching\n================================================================================\n\n",
+                        "backtrace": [
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/request_handler.rb:97:in `on_unhandled_request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/library_hooks/webmock.rb:120:in `on_unhandled_request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/request_handler.rb:24:in `handle'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/library_hooks/webmock.rb:135:in `block in <module:WebMock>'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:35:in `block (2 levels) in register_global_stub'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:41:in `synchronize'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:41:in `block in register_global_stub'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/request_pattern.rb:42:in `matches?'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:75:in `block in request_stub_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `each'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `detect'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:74:in `request_stub_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/stub_registry.rb:66:in `response_for_request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:90:in `request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:113:in `block in request_with_wrapped_block'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:130:in `start_without_connect'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/http_lib_adapters/net_http.rb:157:in `start'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:112:in `request_with_wrapped_block'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:102:in `perform_request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:66:in `block in call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/adapter.rb:45:in `connection'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-net_http-3.4.1/lib/faraday/adapter/net_http.rb:65:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/middleware.rb:56:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/rack_builder.rb:153:in `build_response'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/connection.rb:452:in `run_request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/faraday-2.13.3/lib/faraday/connection.rb:200:in `get'",
+                          "/app/modules/claims_api/lib/brd/brd.rb:275:in `response_from_cache_or_service'",
+                          "/app/modules/claims_api/lib/brd/brd.rb:241:in `countries'",
+                          "/app/modules/claims_api/lib/claims_api/v2/disability_compensation_shared_service_module.rb:25:in `valid_countries'",
+                          "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:226:in `validate_form_526_current_mailing_address_country'",
+                          "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:194:in `validate_form_526_identification'",
+                          "/app/modules/claims_api/app/controllers/concerns/claims_api/v2/disability_compensation_validation.rb:32:in `validate_form_526_submission_values'",
+                          "/app/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:202:in `shared_validation'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:362:in `block in make_lambda'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:179:in `block in call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:34:in `block (2 levels) in <module:Callbacks>'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:180:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `block in invoke_before'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `each'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:559:in `invoke_before'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:109:in `run_callbacks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:260:in `process_action'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rescue.rb:27:in `process_action'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:77:in `block in process_action'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `block in instrument'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications/instrumenter.rb:58:in `instrument'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `instrument'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:76:in `process_action'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/params_wrapper.rb:259:in `process_action'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/railties/controller_runtime.rb:39:in `process_action'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:163:in `process'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:252:in `dispatch'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:335:in `dispatch'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:67:in `dispatch'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:50:in `serve'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `public_send'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `method_missing'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:33:in `block in <class:Constraints>'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:62:in `serve'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/coverband-6.1.5/lib/coverband/integrations/background_middleware.rb:10:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:103:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:36:in `block in call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `catch'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:266:in `context'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:260:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/cookies.rb:704:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:127:in `call'",
+                          "/app/lib/statsd_middleware.rb:13:in `call'",
+                          "/app/lib/source_app_middleware.rb:181:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/olive_branch-4.0.1/lib/olive_branch/middleware.rb:64:in `call'",
+                          "/app/lib/olive_branch_patch.rb:9:in `call'",
+                          "/app/modules/accredited_representative_portal/config/initializers/bypass_olive_branch.rb:23:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/etag.rb:27:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/conditional_get.rb:40:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/head.rb:12:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:31:in `block in call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:101:in `run_callbacks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:30:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/actionable_exceptions.rb:18:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/debug_exceptions.rb:31:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:132:in `call_app'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:28:in `block in call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:17:in `catch'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/web-console-4.2.1/lib/web_console/middleware.rb:17:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/show_exceptions.rb:32:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/rack/logger.rb:41:in `call_app'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/rack/logger.rb:29:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/remote_ip.rb:96:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/request_store-1.7.0/lib/request_store/middleware.rb:19:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/request_id.rb:33:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/runtime.rb:22:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-timeout-0.7.0/lib/rack/timeout/core.rb:116:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/static.rb:27:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-2.2.17/lib/rack/sendfile.rb:110:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/host_authorization.rb:143:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-cors-2.0.2/lib/rack/cors.rb:102:in `call'",
+                          "/app/lib/http_method_not_allowed.rb:13:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/utf8-cleaner-1.0.0/lib/utf8-cleaner/middleware.rb:21:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:360:in `process_request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:153:in `request'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:287:in `process'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:25:in `post'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:378:in `post'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rswag-specs-2.16.0/lib/rswag/specs/example_helpers.rb:20:in `submit_request'",
+                          "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:607:in `block (7 levels) in <top (required)>'",
+                          "/app/modules/claims_api/spec/support/auth_helper.rb:19:in `block in mock_ccg'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr/util/variable_args_block_caller.rb:9:in `call_block'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/vcr-6.3.1/lib/vcr.rb:194:in `use_cassette'",
+                          "/app/modules/claims_api/spec/support/auth_helper.rb:17:in `mock_ccg'",
+                          "/app/modules/claims_api/spec/requests/v2/veterans/rswag_526_spec.rb:606:in `block (6 levels) in <top (required)>'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:365:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in `block in run_owned_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `each'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `run_owned_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in `block in run_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `reverse_each'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `run_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:484:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:505:in `run_before_example'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:261:in `block in run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `block in run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-rails-8.0.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in `block (2 levels) in <top (required)>'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:124:in `block in run'",
+                          "<internal:kernel>:187:in `loop'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:110:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec_ext/rspec_ext.rb:12:in `run_with_retry'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:37:in `block (2 levels) in setup'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `with_around_example_hooks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in `block in run_examples'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `map'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `run_examples'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `map'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in `block in run_specs'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in `report'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in `run_specs'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in `run'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in `invoke'",
+                          "/usr/local/bundle/cache/ruby/3.3.0/gems/rspec-core-3.13.5/exe/rspec:4:in `<main>'"
+                        ]
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
@@ -4356,6 +5127,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -4405,6 +5185,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -4443,6 +5232,42 @@
             "description": "Unprocessable entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key claimProcessType",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key disabilities",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key serviceInformation",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key veteranIdentification",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -6296,6 +7121,17 @@
           "401": {
             "description": "Unauthorized",
             "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                }
+              },
               "application/pdf": {
                 "schema": {
                   "required": [
@@ -6345,6 +7181,17 @@
           "404": {
             "description": "Resource not found",
             "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
+                    }
+                  ]
+                }
+              },
               "application/pdf": {
                 "schema": {
                   "required": [
@@ -8151,6 +8998,32 @@
             "description": "claim response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "555555555",
+                      "type": "claim",
+                      "attributes": {
+                        "baseEndProductCode": "400",
+                        "claimDate": "2017-05-02",
+                        "claimPhaseDates": {
+                          "phaseChangeDate": "2017-10-18",
+                          "phaseType": "COMPLETE"
+                        },
+                        "claimType": "Compensation",
+                        "claimTypeCode": "400PREDSCHRG",
+                        "closeDate": "2017-10-18",
+                        "decisionLetterSent": false,
+                        "developmentLetterSent": false,
+                        "documentsNeeded": false,
+                        "endProductCode": "404",
+                        "evidenceWaiverSubmitted5103": false,
+                        "lighthouseId": null,
+                        "status": "COMPLETE"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
@@ -8303,6 +9176,14 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -8405,6 +9286,162 @@
             "description": "errored claim response",
             "content": {
               "application/json": {
+                "examples": {
+                  "returns a 200 response for established claim": {
+                    "value": {
+                      "data": {
+                        "id": "555555555",
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": "400PREDSCHRG",
+                          "claimDate": "2017-05-02",
+                          "claimPhaseDates": {
+                            "phaseChangeDate": "2017-10-18",
+                            "currentPhaseBack": false,
+                            "latestPhaseType": "COMPLETE",
+                            "previousPhases": {
+                              "phase7CompleteDate": "2017-10-18"
+                            }
+                          },
+                          "claimType": "Compensation",
+                          "closeDate": "2017-10-18",
+                          "contentions": [
+                            {
+                              "name": "abnormal heart (New)"
+                            },
+                            {
+                              "name": "abscess kidney (New)"
+                            },
+                            {
+                              "name": "encephalitis lethargica residuals (New)"
+                            },
+                            {
+                              "name": "dracunculiasis (New)"
+                            },
+                            {
+                              "name": "gingivitis (New)"
+                            },
+                            {
+                              "name": "abnormal weight loss (New)"
+                            },
+                            {
+                              "name": "groin condition (New)"
+                            },
+                            {
+                              "name": "metritis (New)"
+                            }
+                          ],
+                          "decisionLetterSent": false,
+                          "developmentLetterSent": false,
+                          "documentsNeeded": false,
+                          "endProductCode": "404",
+                          "evidenceWaiverSubmitted5103": false,
+                          "errors": [],
+                          "jurisdiction": "National Work Queue",
+                          "lighthouseId": null,
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "CANCELED",
+                          "submitterApplicationCode": "EBN",
+                          "submitterRoleCode": "VET",
+                          "supportingDocuments": [],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "21-4142a",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293440,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Employment info needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293443,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Accidental injury - 21-4176 needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293444,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Buddy mentioned - No complete address",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293446,
+                              "uploadsAllowed": false
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "returns a 200 response for errored claim": {
+                    "value": {
+                      "data": {
+                        "id": null,
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": null,
+                          "claimDate": null,
+                          "claimPhaseDates": null,
+                          "claimType": null,
+                          "closeDate": null,
+                          "contentions": null,
+                          "decisionLetterSent": null,
+                          "developmentLetterSent": null,
+                          "documentsNeeded": null,
+                          "endProductCode": null,
+                          "evidenceWaiverSubmitted5103": null,
+                          "errors": [
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/serviceInformation/reservesNationalGuardService/unitPhone/phoneNumber/Pattern"
+                            },
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/veteran/homelessness/pointOfContact/primaryPhone/phoneNumber/Pattern"
+                            }
+                          ],
+                          "jurisdiction": null,
+                          "lighthouseId": "d5536c5c-0465-4038-a368-1a9d9daf65c9",
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "ERRORED",
+                          "submitterApplicationCode": null,
+                          "submitterRoleCode": null,
+                          "supportingDocuments": [],
+                          "tempJurisdiction": null,
+                          "trackedItems": []
+                        }
+                      }
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
@@ -8834,6 +9871,14 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -8887,6 +9932,14 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Claim not found"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -8989,6 +10042,18 @@
             "description": "Successful response with active Intent to File",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "193685",
+                    "type": "intent_to_file",
+                    "attributes": {
+                      "creationDate": "2021-03-16T19:15:21.000-05:00",
+                      "expirationDate": "2022-03-16T19:15:20.000-05:00",
+                      "type": "compensation",
+                      "status": "active"
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "required": [
@@ -9054,6 +10119,14 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9107,6 +10180,14 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "No active 'C' intent to file found."
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9201,6 +10282,18 @@
             "description": "0966 Response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "294045",
+                    "type": "intent_to_file",
+                    "attributes": {
+                      "creationDate": "2025-02-07T09:17:18-06:00",
+                      "expirationDate": "2026-02-07T07:12:40-06:00",
+                      "type": "compensation",
+                      "status": "duplicate"
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "required": [
@@ -9266,6 +10359,14 @@
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "invalid value for type",
+                      "detail": "some-invalid-value is not valid for type"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9319,6 +10420,14 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9372,6 +10481,14 @@
             "description": "Unprocessable entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable Entity",
+                      "detail": "Invalid claimantSsn parameter"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9425,6 +10542,14 @@
             "description": "0966 Response",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Veteran ID not found"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9478,6 +10603,16 @@
             "description": "0966 Response",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad Gateway",
+                      "detail": "Bad Gateway",
+                      "code": "502",
+                      "status": "502"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9628,6 +10763,14 @@
             "description": "0966 Response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "type": "intent_to_file_validation",
+                    "attributes": {
+                      "status": "valid"
+                    }
+                  }
+                },
                 "schema": {
                   "required": [
                     "data"
@@ -9671,6 +10814,14 @@
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "invalid value for type",
+                      "detail": "some-invalid-value is not valid for type"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9724,6 +10875,14 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9874,6 +11033,16 @@
             "description": "Successful response with a current Power of Attorney",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "type": "individual",
+                    "attributes": {
+                      "code": "A1Q",
+                      "name": "Firstname Lastname",
+                      "phoneNumber": "555-555-5555"
+                    }
+                  }
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -9933,6 +11102,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -9982,6 +11160,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not retrieve Power of Attorney with code: A1Q"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -10031,6 +11218,18 @@
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "status": "422",
+                      "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
+                      "source": {
+                        "pointer": "/app/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:168:in `representative'"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -10121,6 +11320,62 @@
             "description": "Valid request response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "8d561198-d471-4f6d-86fa-b3c7e85fe48d",
+                    "type": "power-of-attorney-request",
+                    "attributes": {
+                      "veteran": {
+                        "serviceNumber": "123678453",
+                        "serviceBranch": "ARMY",
+                        "address": {
+                          "addressLine1": "2719 Hyperion Ave",
+                          "addressLine2": "Apt 2",
+                          "city": "Los Angeles",
+                          "stateCode": "CA",
+                          "countryCode": "US",
+                          "zipCode": "92264",
+                          "zipCodeSuffix": "0200"
+                        },
+                        "phone": {
+                          "areaCode": "555",
+                          "phoneNumber": "5551234"
+                        },
+                        "email": "test@test.com",
+                        "insuranceNumber": "1234567890"
+                      },
+                      "claimant": {
+                        "claimantId": null,
+                        "address": {
+                          "addressLine1": null,
+                          "addressLine2": null,
+                          "city": null,
+                          "stateCode": null,
+                          "countryCode": null,
+                          "zipCode": null,
+                          "zipCodeSuffix": null
+                        },
+                        "phone": {
+                          "areaCode": null,
+                          "phoneNumber": null
+                        },
+                        "email": null,
+                        "relationship": null
+                      },
+                      "representative": {
+                        "poaCode": "067"
+                      },
+                      "recordConsent": true,
+                      "consentLimits": [
+                        "DRUG_ABUSE",
+                        "SICKLE_CELL",
+                        "HIV",
+                        "ALCOHOLISM"
+                      ],
+                      "consentAddressChange": true
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
@@ -10454,6 +11709,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -10503,6 +11767,18 @@
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -10552,6 +11828,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find an Accredited Representative with poa code: 067"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -10973,6 +12258,100 @@
             "description": "Search results",
             "content": {
               "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "[Vet First Name]",
+                          "middleName": null,
+                          "lastName": "[Vet Last Name]"
+                        },
+                        "claimant": {
+                          "firstName": "[Claimant First Name]",
+                          "lastName": "[Claimant Last Name]"
+                        },
+                        "address": {
+                          "city": "Charlottesville",
+                          "stateCode": null,
+                          "zipCode": "00123",
+                          "countryCode": "USA"
+                        },
+                        "representative": {
+                          "poaCode": "083"
+                        },
+                        "receivedDate": "2012-11-23T16:49:16-06:00",
+                        "actionedDate": "2024-05-25T13:45:00-05:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "consentAddressChange": true,
+                        "recordConsent": true
+                      }
+                    },
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "first",
+                          "middleName": null,
+                          "lastName": "last"
+                        },
+                        "claimant": {
+                          "firstName": null,
+                          "lastName": null
+                        },
+                        "address": {
+                          "city": "USAG J",
+                          "stateCode": null,
+                          "zipCode": "01234",
+                          "countryCode": "USA"
+                        },
+                        "representative": {
+                          "poaCode": "002"
+                        },
+                        "receivedDate": "2013-01-14T08:50:17-06:00",
+                        "actionedDate": "2013-01-14T08:50:17-06:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "consentAddressChange": true,
+                        "recordConsent": true
+                      }
+                    },
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "first",
+                          "middleName": null,
+                          "lastName": "last"
+                        },
+                        "claimant": {
+                          "firstName": null,
+                          "lastName": null
+                        },
+                        "address": {
+                          "city": "Bourges",
+                          "stateCode": null,
+                          "zipCode": "00123",
+                          "countryCode": "France"
+                        },
+                        "representative": {
+                          "poaCode": "002"
+                        },
+                        "receivedDate": "2013-01-14T08:51:25-06:00",
+                        "actionedDate": "2013-01-14T08:51:25-06:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "consentAddressChange": true,
+                        "recordConsent": true
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11196,6 +12575,16 @@
             "description": "Invalid request",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Missing parameter",
+                      "detail": "poaCodes is required and cannot be empty",
+                      "code": "108",
+                      "status": "400"
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11240,6 +12629,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11421,6 +12819,38 @@
             "description": "Successful response with a current Power of Attorney request",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "12e13134-7229-4e44-90ae-bcea2a4525fa",
+                    "type": "power-of-attorney-request",
+                    "attributes": {
+                      "veteran": {
+                        "firstName": "ANDREA",
+                        "middleName": "L",
+                        "lastName": "MITCHELL"
+                      },
+                      "claimant": {
+                        "firstName": null,
+                        "lastName": null
+                      },
+                      "address": {
+                        "city": "Portland",
+                        "stateCode": "OR",
+                        "zipCode": "56789",
+                        "countryCode": "USA"
+                      },
+                      "representative": {
+                        "poaCode": "074"
+                      },
+                      "receivedDate": "2024-10-30T08:22:07-05:00",
+                      "actionedDate": "2025-01-09T10:19:26-06:00",
+                      "status": "Accepted",
+                      "declinedReason": null,
+                      "consentAddressChange": true,
+                      "recordConsent": true
+                    }
+                  }
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11641,6 +13071,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11687,6 +13126,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find Power of Attorney Request with id: 12e13134-7229-4e44-90ae-bcea2a4525fa"
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11771,6 +13219,38 @@
             "description": "Submit decision",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "348fa995-5b29-4819-91af-13f1bb3c7d77",
+                    "type": "power-of-attorney-request",
+                    "attributes": {
+                      "veteran": {
+                        "firstName": "ANDREA",
+                        "middleName": "L",
+                        "lastName": "MITCHELL"
+                      },
+                      "claimant": {
+                        "firstName": null,
+                        "lastName": null
+                      },
+                      "address": {
+                        "city": "Portland",
+                        "stateCode": "OR",
+                        "zipCode": "56789",
+                        "countryCode": "USA"
+                      },
+                      "representative": {
+                        "poaCode": "074"
+                      },
+                      "receivedDate": "2024-10-30T08:22:07-05:00",
+                      "actionedDate": "2025-01-09T10:19:26-06:00",
+                      "status": "Accepted",
+                      "declinedReason": null,
+                      "consentAddressChange": true,
+                      "recordConsent": true
+                    }
+                  }
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -11991,6 +13471,27 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find Power of Attorney request with id: 348fa995-5b29-4819-91af-13f1bb3c7d77"
+                    }
+                  ],
+                  "schema_validation_error": {
+                    "summary": "Schema validation error",
+                    "value": {
+                      "errors": [
+                        {
+                          "status": "404",
+                          "title": "Resource not found",
+                          "detail": "Could not find Power of Attorney request with id: 348fa995-5b29-4819-91af-13f1bb3c7d77"
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -12034,6 +13535,18 @@
             "description": "Malformed request body",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "status": "422",
+                      "detail": "The request body is not a valid JSON object: Hash/Object not terminated (after ) at line 1",
+                      "source": {
+                        "pointer": " at line 1"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -12077,6 +13590,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
                   "required": [
@@ -12228,6 +13750,14 @@
             "description": "Valid request response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "type": "form/21-22/validation",
+                    "attributes": {
+                      "status": "valid"
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
@@ -12273,6 +13803,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -12322,6 +13861,42 @@
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key veteran",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -12371,6 +13946,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -12852,6 +14436,17 @@
             "description": "Valid request response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "68c68919-a3c8-4084-a3c2-aeada6166e19",
+                    "type": "organization",
+                    "attributes": {
+                      "code": "083",
+                      "name": "083 - DISABLED AMERICAN VETERANS",
+                      "phoneNumber": "555-555-5555"
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
@@ -12903,6 +14498,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -12952,6 +14556,42 @@
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key veteran",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -13001,6 +14641,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 083"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -13537,6 +15186,14 @@
             "description": "Valid request response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "type": "form/21-22a/validation",
+                    "attributes": {
+                      "status": "valid"
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
@@ -13582,6 +15239,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -13631,6 +15297,34 @@
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key veteran",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -13680,6 +15374,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -14236,6 +15939,17 @@
             "description": "Valid request response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "a9ec5568-4f2f-4680-a1eb-d52ece7f5a01",
+                    "type": "individual",
+                    "attributes": {
+                      "code": "067",
+                      "name": "Firstname Lastname",
+                      "phoneNumber": "555-555-5555"
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
@@ -14287,6 +16001,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -14336,6 +16059,34 @@
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property / did not contain the required key veteran",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -14385,6 +16136,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -15030,6 +16790,46 @@
             "description": "Valid request response",
             "content": {
               "application/json": {
+                "example": {
+                  "data": {
+                    "id": "73ca0d39-d37e-4f3f-a250-3982a4acf0ce",
+                    "type": "claimsApiPowerOfAttorneys",
+                    "attributes": {
+                      "createdAt": "2025-07-29 08:10:35 UTC",
+                      "representative": {
+                        "poaCode": "074"
+                      },
+                      "status": "pending",
+                      "errors": [],
+                      "steps": [
+                        {
+                          "type": "PDF_SUBMISSION",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "POA_UPDATE"
+                        },
+                        {
+                          "type": "POA_UPDATE",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "POA_ACCESS_UPDATE"
+                        },
+                        {
+                          "type": "POA_ACCESS_UPDATE",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "CLAIMANT_NOTIFICATION"
+                        },
+                        {
+                          "type": "CLAIMANT_NOTIFICATION",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": null
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
@@ -15174,6 +16974,15 @@
             "description": "Unauthorized",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
@@ -15223,6 +17032,15 @@
             "description": "Resource not found",
             "content": {
               "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Resource not found",
+                      "detail": "Could not find Power of Attorney with id: -1"
+                    }
+                  ]
+                },
                 "schema": {
                   "required": [
                     "errors"
