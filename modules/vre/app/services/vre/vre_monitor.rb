@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'vre/notification_email'
-require 'zero_silent_failures/monitor'
+require_relative './notification_email'
 require 'logging/base_monitor'
 
 module VRE
@@ -60,12 +59,5 @@ module VRE
     def send_email(claim_id, email_type)
       VRE::NotificationEmail.new(claim_id).deliver(email_type)
     end
-
-    def track_submission_exhaustion(msg, email = nil, claim: nil, user: nil)
-     StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-      Rails.logger.error(
-        "Failed all retries on VRE::VreSubmit1900Job, last error: #{msg['error_message']}"
-      )
-    end  
   end
 end

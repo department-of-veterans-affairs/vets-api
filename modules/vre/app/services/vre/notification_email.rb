@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'veteran_facing_services/notification_email/saved_claim'
+
 module VRE
   # @see VeteranFacingServices::NotificationEmail::SavedClaim
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
@@ -36,7 +38,7 @@ module VRE
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => confirmation_number
         }
-    end
+      end
       default.merge(data)
     end
 
@@ -50,6 +52,5 @@ module VRE
     def callback_metadata
       super.merge(claim_id: claim.id)
     end
-
   end
 end

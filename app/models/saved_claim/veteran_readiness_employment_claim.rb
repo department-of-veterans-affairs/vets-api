@@ -296,9 +296,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       return
     end
 
-    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user):
-      VRE::NotificationEmail.new(self.id).deliver(:confirmation_vbms)
-    else:
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user)
+      VRE::NotificationEmail.new(id).deliver(:confirmation_vbms)
+    else
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
         Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
@@ -318,9 +318,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       return
     end
 
-    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user):
-      VRE::NotificationEmail.new(self.id).deliver(:confirmation_lighthouse)
-    else:
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user)
+      VRE::NotificationEmail.new(id).deliver(:confirmation_lighthouse)
+    else
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
         Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
