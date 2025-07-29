@@ -1166,6 +1166,10 @@ features:
   mhv_accelerated_delivery_uhd_ch_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
+  mhv_accelerated_delivery_uhd_filtering_enabled:
+    actor_type: user
+    description: Control whether vets-api applies filtering logic to UHD lab records
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
