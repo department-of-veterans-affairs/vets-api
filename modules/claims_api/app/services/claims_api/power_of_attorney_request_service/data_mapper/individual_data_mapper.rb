@@ -6,7 +6,7 @@ require 'brd/brd'
 module ClaimsApi
   module PowerOfAttorneyRequestService
     module DataMapper
-      class OrganizationDataMapper
+      class IndividualDataMapper
         include Concerns::MapperUtilities
 
         def initialize(data:)
@@ -49,12 +49,21 @@ module ClaimsApi
               },
               'email' => @data['email_addrs_txt'],
               'serviceNumber' => @data['service_number'],
-              'insuranceNumber' => @data['insurance_numbers']
+              'serviceBranch' => @data['service_branch']
             },
-            'serviceOrganization' => {
+            'representative' => {
               'poaCode' => @data['poa_code'],
+              'type' => representative_type(@data['poa_code']),
               'registrationNumber' => @data['registration_number'],
-              'jobTitle' => @data['representative_title']
+              'address' => {
+                'addressLine1' => @data.dig('representative', 'addrs_one_txt'),
+                'addressLine2' => @data.dig('representative', 'addrs_two_txt'),
+                'city' => @data.dig('representative', 'city_nm'),
+                'stateCode' => @data.dig('representative', 'postal_cd'),
+                'countryCode' => ClaimsApi::BRD::COUNTRY_CODES.invert[@data.dig('representative', 'cntry_nm')],
+                'zipCode' => @data.dig('representative', 'zip_prefix_nbr'),
+                'zipCodeSuffix' => @data.dig('representative', 'zip_first_suffix_nbr')
+              }
             },
             'recordConsent' => determine_bool_for_form_field(@data['section_7332_auth']),
             'consentLimits' => determine_consent_limits(@data),
@@ -62,6 +71,11 @@ module ClaimsApi
           }
         end
         # rubocop:enable Metrics/MethodLength
+
+        def representative_type(poa_code)
+          representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+          representative.user_types.first.upcase
+        end
       end
     end
   end
