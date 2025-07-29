@@ -963,7 +963,7 @@ lib/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms 
 lib/slack @department-of-veterans-affairs/backend-review-group
 lib/sm @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/source_app_middleware.rb @department-of-veterans-affairs/backend-review-group
-lib/ssoe/get_ssoe_traits_by_cspid_message.rb @department-of-veterans-affairs/octo-identity
+lib/ssoe @department-of-veterans-affairs/octo-identity
 lib/stats_d_metric.rb @department-of-veterans-affairs/backend-review-group
 lib/statsd_middleware.rb @department-of-veterans-affairs/backend-review-group
 lib/string_helpers.rb @department-of-veterans-affairs/backend-review-group
@@ -1265,6 +1265,7 @@ spec/fixtures/carma @department-of-veterans-affairs/vfs-10-10 @department-of-vet
 spec/fixtures/carma/10-10CG_f6056cff-d4cb-4058-8fb0-42296e12698f.pdf @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 spec/fixtures/carma/privatekey.pem @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 spec/fixtures/claim_letter @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
+spec/fixtures/certs @department-of-veterans-affairs/octo-identity
 spec/fixtures/dependents @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/fixtures/dmc @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/fixtures/education_benefits_claims @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
@@ -1457,7 +1458,7 @@ spec/lib/simple_forms_api_submission @department-of-veterans-affairs/platform-va
 spec/lib/slack/service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/sm @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/source_app_middleware_spec.rb @department-of-veterans-affairs/backend-review-group
-spec/lib/ssoe/get_ssoe_traits_by_cspid_message_spec.rb @department-of-veterans-affairs/octo-identity
+spec/lib/ssoe @department-of-veterans-affairs/octo-identity
 spec/lib/string_helpers_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/tasks/support/schema_camelizer_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/token_validation @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
