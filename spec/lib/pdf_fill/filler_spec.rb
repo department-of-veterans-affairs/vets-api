@@ -14,9 +14,7 @@ describe PdfFill::Filler, type: :model do
 
     let(:extras_generator) { double }
     let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
-    let(:form_class) do
-      PdfFill::Forms::Va210781v2
-    end
+    let(:form_class) { PdfFill::Forms::Va210781v2 }
 
     context 'when extras_generator doesnt have text' do
       it 'returns the old_file_path' do
@@ -64,23 +62,19 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    def get_file_append_name(extras_redesign, show_jumplinks)
-      if show_jumplinks
-        '_redesign_extras_jumplinks.pdf'
-      elsif extras_redesign
-        '_redesign_extras.pdf'
-      else
-        '_extras.pdf'
-      end
+    def overflow_file_suffix(extras_redesign, show_jumplinks)
+      return '_extras.pdf' unless extras_redesign
+
+      show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
     end
 
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
        22-10216 22-10215 22-10215a].each do |form_id|
       context "form #{form_id}" do
-        form_types = %w[simple kitchen_sink overflow].product([false])
-        form_types << ['overflow', true, true] if form_id == '21-0781V2'
+        form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
+        form_types.push(['overflow', true, false], ['overflow', true, true]) if form_id == '21-0781V2'
         form_types.each do |type, extras_redesign, show_jumplinks|
-          context "with #{type} test data with extras_redesign #{extras_redesign}" do
+          context "with type=#{type} extras_redesign=#{extras_redesign} show_jumplinks=#{show_jumplinks}" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
@@ -106,7 +100,7 @@ describe PdfFill::Filler, type: :model do
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-                fixture_pdf = fixture_pdf_base + (get_file_append_name(extras_redesign, show_jumplinks) || '.pdf')
+                fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
