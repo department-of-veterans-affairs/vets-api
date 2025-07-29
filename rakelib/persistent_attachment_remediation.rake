@@ -8,7 +8,7 @@ def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroy
     if dry_run
       puts "[DRY RUN] Would destroy attachment #{attachment.id}"
     else
-      attachment.destroy!
+      attachment.delete
     end
 
     ipf_form_data = update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)
@@ -35,7 +35,7 @@ def update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)
       (att.respond_to?(:confirmationCode) && att.confirmationCode == attachment.guid)
   end
 
-  puts "Add destroyed attachment file to list: #{mask_file_name(destroyed_attachment&.name)}"
+  puts "Add destroyed attachment file to list: #{destroyed_attachment&.name}"
   destroyed_names << destroyed_attachment&.name
 
   # Remove the destroyed attachment from the section.

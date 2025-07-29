@@ -588,6 +588,9 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: fake_llm_api_key
+  host: fake_base_path
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
@@ -791,6 +794,7 @@ maintenance:
     caseflow: ~
     cie: ~
     coe: PSY4HU1
+    community_care_ds: ~
     decision_reviews: ~
     dmc: ~
     dslogon: P9DJJAV
