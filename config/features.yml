@@ -2355,3 +2355,6 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  calculator_constants_versioning:
+    actor_type: 
+    description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
