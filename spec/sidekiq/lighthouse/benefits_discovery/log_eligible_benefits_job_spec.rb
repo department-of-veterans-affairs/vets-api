@@ -27,7 +27,10 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
   describe '#perform' do
     before do
-      allow(BenefitsDiscovery::Service).to receive(:new).and_return(service_instance)
+      allow(BenefitsDiscovery::Service).to receive(:new).with(
+        api_key: Settings.lighthouse.benefits_discovery.x_api_key,
+        app_id: Settings.lighthouse.benefits_discovery.x_app_id
+      ).and_return(service_instance)
       allow(BenefitsDiscovery::Params).to receive(:new).and_return(params_instance)
       allow(params_instance).to \
         receive(:build_from_service_history).with(prepared_service_history).and_return(prepared_params)

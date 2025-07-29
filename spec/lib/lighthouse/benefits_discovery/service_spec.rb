@@ -4,6 +4,13 @@ require 'rails_helper'
 require 'lighthouse/benefits_discovery/service'
 
 RSpec.describe BenefitsDiscovery::Service do
+  subject do
+    described_class.new(
+      api_key: 'test_api_key',
+      app_id: 'test_app_id'
+    )
+  end
+
   describe '#get_eligible_benefits' do
     context 'with params' do
       let(:params) do
