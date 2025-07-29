@@ -76,7 +76,7 @@ module IvcChampva
     end
 
     def parse_llm_response(answer_content)
-      cleaned_content = answer_content.gsub(/^```json/, '')  # Remove opening ```json
+      cleaned_content = answer_content.gsub(/^\s*```json/, '')  # Remove opening ```json with optional leading whitespace
                                       .gsub(/```$/, '')      # Remove closing ```
                                       .gsub(/\n/, '')        # Remove newlines
                                       .strip                 # Remove leading/trailing whitespace
