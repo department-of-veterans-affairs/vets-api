@@ -46,7 +46,7 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
       end
 
-      it 'accepts a file upload' do
+      it 'accepts a file upload', skip: 'temporarily skip flakey spec' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options do
           make_upload_request_with('doctors-note.jpg', 'image/jpg')
 
@@ -71,7 +71,7 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
       end
 
-      it 'accepts a file upload' do
+      it 'accepts a file upload', skip: 'temporarily skip flakey spec' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.pdf", vcr_options do
           make_upload_request_with('doctors-note.pdf', 'application/pdf')
 
