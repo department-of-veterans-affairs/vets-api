@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module VRE
   ##
   # Monitor functions for Rails logging and StatsD
