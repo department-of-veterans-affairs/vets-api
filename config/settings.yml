@@ -589,6 +589,9 @@ ivc_champva:
     api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
     base_path: <%= ENV['ivc_champva__pega_api__base_path'] %>
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: <%= ENV['ivc_champva_llm_processor_api__api_key'] %>
+  host: <%= ENV['ivc_champva_llm_processor_api__host'] %>
 ivc_champva_ves_api:
   api_key: <%= ENV['ivc_champva_ves_api__api_key'] %>
   app_id: <%= ENV['ivc_champva_ves_api__app_id'] %>
@@ -608,7 +611,7 @@ ivc_forms:
     insights_datadog_job:
       enabled: true
     missing_form_status_job:
-      enabled: false
+      enabled: true
     old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
