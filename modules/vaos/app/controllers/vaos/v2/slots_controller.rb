@@ -64,7 +64,11 @@ module VAOS
       end
 
       def provider_id
-        params.require(:provider_id)
+        params.permit(:provider_id)
+      end
+
+      def clinical_service
+        params.permit(:clinical_service)
       end
 
       def start_dt
