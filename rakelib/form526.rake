@@ -713,7 +713,7 @@ namespace :form526 do
 
   desc 'Set new return url data for in-progress Form 526 submissions'
   task in_progress_forms_return_point: :environment do
-    MAX_NUMBER_OF_FORMS = 10_000
+    MAX_NUMBER_OF_FORMS = 1000
 
     all_ipfs = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID).where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
     chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS)
