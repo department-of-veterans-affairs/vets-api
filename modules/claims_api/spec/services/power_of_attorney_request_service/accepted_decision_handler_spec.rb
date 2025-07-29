@@ -58,6 +58,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
     it 'starts the POA auto establishment service' do
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler)
+        .to receive(:poa_auto_establishment_gatherer)
+      expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler)
         .to receive(:poa_auto_establishment_mapper)
 
       VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_dependent') do

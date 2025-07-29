@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'concerns/mapper_utilities'
+
 module ClaimsApi
   module PowerOfAttorneyRequestService
     module DataMapper
       class OrganizationDataMapper
-        CONSENT_LIMITS = {
-          'limitation_drug_abuse' => 'DRUG_ABUSE',
-          'limitation_alcohol' => 'ALCOHOLISM',
-          'limitation_hiv' => 'HIV',
-          'limitation_sca' => 'SICKLE_CELL'
-        }.freeze
+        include Concerns::MapperUtilities
 
         def initialize(data:)
           @data = data
@@ -60,7 +57,7 @@ module ClaimsApi
             'recordConsent' => determine_bool_for_form_field(@data['section_7332_auth']),
             'consentLimits' => determine_consent_limits,
             'consentAddressChange' => determine_bool_for_form_field(@data['change_address_auth'])
-          }.compact
+          }
         end
 
         def build_claimant_form_data # rubocop:disable Metrics/MethodLength
@@ -84,38 +81,7 @@ module ClaimsApi
               'email' => @data['claimant']['email_addrs_txt'],
               'relationship' => @data['claimant_relationship']
             }
-          }.compact
-        end
-
-        def parse_phone_number(number)
-          return [] unless number.is_a?(String) && number.length < 12
-
-          if number.length == 10
-            area_code = number[0, 3]
-            phone_number = number[-7, 7]
-            country_code = nil
-          elsif number.length == 11
-            area_code = number[1, 3]
-            phone_number = number[-7, 7]
-            country_code = number[0, 1]
-          end
-
-          [country_code, area_code, phone_number]
-        end
-
-        def determine_bool_for_form_field(val)
-          val == 'true'
-        end
-
-        def determine_consent_limits
-          keys = CONSENT_LIMITS.keys
-          limits = []
-          keys.each do |key|
-            value = @data[key]
-            limits << CONSENT_LIMITS[key] if value == 'true'
-          end
-
-          limits
+          }
         end
       end
     end
