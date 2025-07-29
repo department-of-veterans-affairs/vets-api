@@ -232,7 +232,7 @@ module IvcChampva
         file.tempfile = tmpf
       end
 
-      def submit_supporting_documents
+      def submit_supporting_documents # rubocop:disable Metrics/MethodLength
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A 10-10D-EXTENDED].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
@@ -244,15 +244,19 @@ module IvcChampva
 
           launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
 
-          # Prepare the base response
-          response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
+          if Flipper.enabled?(:champva_claims_llm_validation, @current_user)
+            # Prepare the base response
+            response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
 
-          # Add LLM analysis if enabled (convert form_id to mapped format)
-          mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
-          llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
-          response_data[:llm_response] = llm_result if llm_result.present?
+            # Add LLM analysis if enabled (convert form_id to mapped format)
+            mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
+            llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
+            response_data[:llm_response] = llm_result if llm_result.present?
 
-          render json: response_data
+            render json: response_data
+          else
+            render json: PersistentAttachmentSerializer.new(attachment)
+          end
         else
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "Unsupported form_id: #{params[:form_id]}",
