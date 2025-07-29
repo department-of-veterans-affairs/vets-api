@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_29_193012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -967,6 +967,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["needs_kms_rotation"], name: "index_form1095_bs_on_needs_kms_rotation"
     t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
+  end
+
+  create_table "form21a_document_uploads", force: :cascade do |t|
+    t.integer "gclaws_document_type"
+    t.boolean "gclaws_upload_failed"
+    t.bigint "form_attachment_id", null: false
+    t.bigint "in_progress_form_id", null: false
+    t.uuid "user_account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form_attachment_id"], name: "index_form21a_document_uploads_on_form_attachment_id"
+    t.index ["in_progress_form_id"], name: "index_form21a_document_uploads_on_in_progress_form_id"
+    t.index ["user_account_id"], name: "index_form21a_document_uploads_on_user_account_id"
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
@@ -2116,6 +2129,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
   add_foreign_key "event_bus_gateway_notifications", "user_accounts"
   add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
+  add_foreign_key "form21a_document_uploads", "form_attachments"
+  add_foreign_key "form21a_document_uploads", "in_progress_forms"
+  add_foreign_key "form21a_document_uploads", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
