@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'ssoe/service'
+require 'ssoe/get_ssoe_traits_by_cspid_message'
 
 # rubocop:disable RSpec/SpecFilePathFormat
 
