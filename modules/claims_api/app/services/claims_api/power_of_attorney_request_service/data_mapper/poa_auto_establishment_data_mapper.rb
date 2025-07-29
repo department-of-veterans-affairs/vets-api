@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/v2/error/lighthouse_error_handler'
+require 'claims_api/v2/json_format_validation'
 require_relative 'organization_data_mapper'
 require_relative 'individual_data_mapper'
 require 'json_schema/json_api_missing_attribute'
@@ -33,38 +35,12 @@ module ClaimsApi
           mapper_class = DATA_MAPPERS[@type].new(data: @data)
           return {} unless mapper_class
 
-          @json_form_data = mapper_class.map_data
-          return {} if @json_form_data.blank?
+          @mapped_data = mapper_class.map_data
 
-          validate_data
-
-          @json_form_data
-        end
-
-        # validate here instead of returning to the controller since we know the form type
-        # and have it available here
-        def validate_data
-          # custom validations, must come first
-          @poa_auto_establish_validation_errors = validate_form_2122_and_2122a_submission_values(
-            user_profile: nil, veteran_participant_id: @veteran.participant_id, poa_code: @data[:poa_code],
-            base: form_type_name
-          )
-          # JSON validations, all errors, including errors from the custom validations
-          # will be raised here if JSON errors exist
-          validate_json_schema(@type.upcase)
-          # otherwise we raise the errors from the custom validations if no JSON
-          # errors exist
-          if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
-                  @claims_api_forms_validation_errors
-          end
+          [@mapped_data, @type]
         end
 
         private
-
-        def form_type_name
-          @type == '2122' ? 'serviceOrganization' : 'representative'
-        end
 
         def validate_json_schema(form_number = self.class::FORM_NUMBER)
           validator = ClaimsApi::FormSchemas.new(schema_version: 'v2')

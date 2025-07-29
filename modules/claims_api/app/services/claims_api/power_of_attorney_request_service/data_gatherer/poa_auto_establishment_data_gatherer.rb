@@ -42,7 +42,7 @@ module ClaimsApi
 
             claimant_addr_data.merge!(claimant_addr_data)
             claimant_addr_data.merge!(claimant_phone_data)
-            claimant_addr_data.merge!('claimant_id' => @claimant.icn)
+            claimant_addr_data.merge!('claimant_id' => claimant_icn)
 
             data.merge!('claimant' => claimant_addr_data)
           end
@@ -89,6 +89,10 @@ module ClaimsApi
           ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::VnpPtcpntPhoneFindByPrimaryKeyDataGatherer.new(
             record: res
           ).call
+        end
+
+        def claimant_icn
+          @claimant.icn.presence || @claimant.mpi.icn
         end
       end
     end

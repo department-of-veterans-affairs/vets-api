@@ -17,8 +17,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
       'postal_cd' => 'CA', 'zip_prefix_nbr' => '92264', 'zip_first_suffix_nbr' => '0200',
       'email_addrs_txt' => nil,
       'claimant' => {
-        'claimant_id' => '1013093331V548481', 'name' => 'Wally Morrell', 'ssn' => '700052257',
-        'file_number' => '700052257', 'date_of_birth' => '19581218',
+        'claimant_id' => '1013093331V548481',
         'addrs_one_txt' => '123 Main St', 'addrs_two_txt' => 'Apt 3', 'city_nm' => 'Boston',
         'cntry_nm' => 'USA', 'postal_cd' => 'MA', 'zip_prefix_nbr' => '02110',
         'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil, 'phone_nbr' => '5555559876'
@@ -43,7 +42,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
         'addrs_one_txt' => '123 Main St', 'addrs_two_txt' => 'Apt 3', 'city_nm' => 'Boston',
         'cntry_nm' => 'USA', 'postal_cd' => 'MA', 'zip_prefix_nbr' => '02110',
         'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil,
-        'phone_nbr' => '5555559876', 'claimant_id' => nil
+        'phone_nbr' => '5555559876', 'claimant_id' => '1013093331V548481'
       }
     }
   end
@@ -66,7 +65,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
           'consentLimits' => %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
           'consentAddressChange' => true,
           'claimant' =>
-          { 'address' =>
+          { 'claimantId' => '1013093331V548481',
+            'address' =>
             {
               'addressLine1' => '123 Main St', 'addressLine2' => 'Apt 3', 'city' => 'Boston',
               'stateCode' => 'MA', 'countryCode' => 'US', 'zipCode' => '02110',
