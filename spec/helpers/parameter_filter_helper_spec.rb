@@ -19,18 +19,16 @@ RSpec.describe ParameterFilterHelper do
       expect(filtered['action']).to eq('show')
     end
 
-    it 'filters nested hashes' do
-      params = { user: { password: 'secret', email: 'foo@example.com' } }
+    it 'filters complex nested hash and arrays' do
+      params = { id: 12_345, ssn: '123456789', class: String, not_whitelisted: [{ id: 1 }],
+                 errors: [{ class: 'TEST', should_omit: 'FOOBAR' }] }
+      expected = { id: 12_345,
+                   ssn: '[FILTERED]',
+                   class: String,
+                   not_whitelisted: '[FILTERED]',
+                   errors: [{ class: 'TEST', should_omit: '[FILTERED]' }] }
       filtered = described_class.filter_params(params)
-      expect(filtered[:user][:password]).to eq('[FILTERED]')
-      expect(filtered[:user][:email]).to eq('[FILTERED]')
-    end
-
-    it 'filters inside arrays' do
-      params = { users: [{ password: 'secret' }, { password: 'hunter2' }] }
-      filtered = described_class.filter_params(params)
-      expect(filtered[:users][0][:password]).to eq('[FILTERED]')
-      expect(filtered[:users][1][:password]).to eq('[FILTERED]')
+      expect(filtered).to eq expected
     end
 
     it 'filters sensitive values from ActionDispatch::Http::UploadedFile in params' do
@@ -41,8 +39,7 @@ RSpec.describe ParameterFilterHelper do
         head: 'headers'
       )
 
-      params = { attachment: file }
-      filtered_params = described_class.filter_params(params)
+      filtered_params = { attachment: described_class.filter_params(file) }
 
       # Check that the filtered param is still an ActionDispatch::Http::UploadedFile
       expect(filtered_params[:attachment]).to be_a(ActionDispatch::Http::UploadedFile)
@@ -56,13 +53,13 @@ RSpec.describe ParameterFilterHelper do
       expect(filtered_params[:attachment].instance_variable_get(:@content_type)).not_to eq('[FILTERED!]')
     end
 
-    it 'filters strings that might contain sensitive info, if key is not allowlisted' do
+    it 'filters values that might contain sensitive info, if key is not allowlisted' do
       params = { message_content: 'password=secret' }
       filtered = described_class.filter_params(params)
       expect(filtered[:message_content]).to eq('[FILTERED]')
     end
 
-    it 'does not filter strings for allowlisted keys' do
+    it 'does not filter values for allowlisted keys' do
       loggable_params = { controller: 'mycontroller' }
       filtered = Rails.application.config.filter_parameters.first.call(nil, loggable_params.deep_dup)
       Rails.logger.info('Parameters for document upload', filtered)

@@ -62,7 +62,7 @@ ALLOWLIST = %w[
 Rails.application.config.filter_parameters = [
   lambda do |key, value|
     # Apply filtering only if the key is NOT in the ALLOWLIST
-    return '[FILTERED]' if key && !ALLOWLIST.include?(key.to_s)
+    return '[FILTERED]' if key && ALLOWLIST.exclude?(key.to_s)
 
     case value
     when Hash # Recursively iterate over each key value pair in hashes
@@ -74,7 +74,7 @@ Rails.application.config.filter_parameters = [
     when ActionDispatch::Http::UploadedFile
       value.instance_variables.each do |var| # could put specific instance vars here, but made more generic
         var_name = var.to_s.delete_prefix('@')
-        value.instance_variable_set(var, '[FILTERED]') unless ALLOWLIST.include?(var_name)
+        value.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
       end
       value
     else
