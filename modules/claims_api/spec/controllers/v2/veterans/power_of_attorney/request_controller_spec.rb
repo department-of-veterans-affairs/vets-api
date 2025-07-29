@@ -356,6 +356,16 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           end
         end
       end
+
+      it 'includes location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+            decide_request_with(id:, decision:, auth_header:)
+
+            expect(response.headers).to have_key('Location')
+          end
+        end
+      end
     end
 
     context 'when the decision is declined and a ptcpntId is present' do
