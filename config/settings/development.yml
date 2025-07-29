@@ -993,8 +993,6 @@ mvi_hca:
   url: http://example.com
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
-notifications:
-  public_key: ~
 ogc:
   form21a_service_url:
     api_key: fake_key
