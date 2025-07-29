@@ -92,9 +92,11 @@ module ClaimsApi
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                         view: :index_or_show,
-                                                                                         root: :data), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            get_poa_response, view: :index_or_show, root: :data
+          ), status: :ok, location: url_for(
+            controller: 'power_of_attorney/base', action: 'show', id: poa.id, veteranId: vet_icn
+          )
         end
         # rubocop:enable Metrics/MethodLength
 
@@ -196,6 +198,22 @@ module ClaimsApi
         rescue JsonSchema::JsonApiMissingAttribute => e
           errors = e.merge!(@claims_api_forms_validation_errors) if @claims_api_forms_validation_errors
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError, errors
+        end
+
+        def build_auth_headers(veteran)
+          params[:veteranId] = veteran.icn.presence || veteran.mpi.icn
+
+          auth_headers
+        end
+
+        def decide_request_attributes(poa_code:, decide_form_attributes:)
+          {
+            status: ClaimsApi::PowerOfAttorney::PENDING,
+            auth_headers: set_auth_headers,
+            form_data: decide_form_attributes,
+            current_poa: poa_code,
+            header_hash:
+          }
         end
 
         def build_veteran_or_dependent_data(icn)
