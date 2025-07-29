@@ -1400,7 +1400,6 @@ vanotify:
       api_key: fake_secret
       email:
         error:
-          flipper_id: false
           template_id: arp_error_email_template_id
     benefits_decision_review:
       api_key: fake_secret
