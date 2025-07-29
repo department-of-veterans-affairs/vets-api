@@ -46,7 +46,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -207,7 +207,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_request]
 
       let(:Authorization) { 'Bearer token' }
@@ -686,6 +686,8 @@ describe 'PowerOfAttorney',
               .with(anything).and_return('600049322')
             allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(poa_request_service)
             allow(poa_request_service).to receive(:get_poa_request).and_return(get_poa_request_response)
+            allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
+              .to receive(:process_poa_decision).and_return(nil)
 
             mock_ccg(scopes) do
               VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
@@ -817,7 +819,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney2122]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
@@ -982,7 +984,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney2122]
 
       let(:Authorization) { 'Bearer token' }
@@ -1165,7 +1167,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
@@ -1335,7 +1337,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
@@ -1530,7 +1532,7 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       parameter name: 'id',
                 in: :path,
                 required: true,

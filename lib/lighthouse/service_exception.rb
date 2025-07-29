@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module Lighthouse
   # Custom exception that maps Lighthouse API errors to controller ExceptionHandling-friendly format
   #
   class ServiceException
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     # a map of the known Lighthouse errors based on the documentation
     # https://developer.va.gov/
@@ -125,6 +127,7 @@ module Lighthouse
       tags_context = Sentry.set_tags(external_service: service_name)
 
       log_exception_to_sentry(error, extra_context, tags_context)
+      log_exception_to_rails(error)
     end
 
     def self.log_to_rails_logger(service_name, options)
