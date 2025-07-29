@@ -51,6 +51,7 @@ ALLOWLIST = %w[
   service
   use_v2
   line
+  payload
 ].freeze
 
 Rails.application.config.filter_parameters = [

@@ -20,7 +20,7 @@ module Kafka
     # @param topic [String] The Kafka topic to which the message will be sent
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     def track_submission_success(topic, payload)
-      additional_context = { topic:, payload: }
+      additional_context = { topic:, payload:, tags: add_tags(payload) }
       track_request(
         'info',
         "Kafka::EventBusSubmissionJob submission succeeded for topic #{topic}",
@@ -40,7 +40,8 @@ module Kafka
       additional_context = {
         topic:,
         payload:,
-        errors: e.try(:errors) || e&.message
+        errors: e.try(:errors) || e&.message,
+        tags: add_tags(payload)
       }
       track_request(
         'error',
@@ -63,12 +64,21 @@ module Kafka
       additional_context = {
         topic:,
         payload:,
-        message: msg
+        message: msg,
+        tags: add_tags(payload)
       }
       call_location = caller_locations.first
 
       track_request('error', "Kafka::EventBusSubmissionJob for #{topic} exhausted!",
                     "#{STATSD_KEY_PREFIX}.exhausted", call_location:, **additional_context)
+    end
+
+    private
+
+    def add_tags(payload)
+      return [] unless payload.is_a?(Hash) && payload.key?('submissionName') && payload.key?('state')
+
+      ["form:#{payload.fetch('submissionName', nil)}", "state:#{payload.fetch('state', nil)}"]
     end
   end
 end
