@@ -1120,7 +1120,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.9)
+    statsd-instrument (3.9.10)
     stringio (3.1.7)
     strong_migrations (2.4.0)
       activerecord (>= 7.1)
