@@ -2,8 +2,8 @@
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
-    module DataMapper
-      class VnpPtcpntPhoneFindByPrimaryKeyDataMapper
+    module DataGatherer
+      class VnpPtcpntPhoneFindByPrimaryKeyDataGatherer
         def initialize(record:)
           @record = record
         end
@@ -17,7 +17,7 @@ module ClaimsApi
         # The data structure of the data returned from these calls to
         # BEP (BGS) is not uniform. The data returned here is like data[:value]
         def build_data_object
-          return [] if @record.blank?
+          return {} if @record.blank?
 
           {
             'phone_nbr' => @record[:phone_nbr]

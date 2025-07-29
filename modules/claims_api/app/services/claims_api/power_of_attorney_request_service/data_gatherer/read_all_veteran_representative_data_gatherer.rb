@@ -2,8 +2,8 @@
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
-    module DataMapper
-      class ReadAllVeteranRepresentativeDataMapper
+    module DataGatherer
+      class ReadAllVeteranRepresentativeDataGatherer
         def initialize(proc_id:, records:)
           @proc_id = proc_id
           @records = records
@@ -24,7 +24,7 @@ module ClaimsApi
         # The data structure of the data returned from these calls to
         # BEP (BGS) is not uniform. The data returned here is like data['value']
         def build_data_object(data)
-          return [] if data.nil?
+          return {} if data.nil?
 
           {
             'service_number' => data['serviceNumber'],
