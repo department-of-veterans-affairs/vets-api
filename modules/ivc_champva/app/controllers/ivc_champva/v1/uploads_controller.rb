@@ -333,7 +333,7 @@ module IvcChampva
             uuid: attachment.guid,
             attachment_id:
           )
-        rescue StandardError => e
+        rescue => e
           Rails.logger.error "Error calling LLM service: #{e.message}"
           nil
         end
