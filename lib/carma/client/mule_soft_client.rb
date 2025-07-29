@@ -10,7 +10,7 @@ module CARMA
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
-      configuration MuleSoftAuthTokenConfigurationV2
+      configuration MuleSoftConfigurationV2
 
       class RecordParseError < StandardError; end
 
