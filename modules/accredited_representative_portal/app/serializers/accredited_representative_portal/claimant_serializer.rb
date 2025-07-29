@@ -2,12 +2,14 @@
 
 module AccreditedRepresentativePortal
   class ClaimantSerializer < ApplicationSerializer
+    MILITARY_STATE_CODES = %w[AE AP AA].freeze
+
     set_id(&:id)
 
     attributes :first_name, :last_name, :state, :postal_code, :representative
 
     attribute :city do |claimant|
-      if %w[AE AP AA].include? claimant&.state&.upcase
+      if MILITARY_STATE_CODES.include? claimant&.state&.upcase
         claimant.city
       else
         claimant.city&.titleize
