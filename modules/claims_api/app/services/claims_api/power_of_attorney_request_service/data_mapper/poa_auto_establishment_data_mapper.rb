@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/error/lighthouse_error_handler'
-require 'claims_api/v2/json_format_validation'
 require_relative 'organization_data_mapper'
 require_relative 'individual_data_mapper'
 require 'json_schema/json_api_missing_attribute'

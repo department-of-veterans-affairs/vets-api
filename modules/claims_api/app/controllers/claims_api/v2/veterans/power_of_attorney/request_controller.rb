@@ -149,25 +149,30 @@ module ClaimsApi
 
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
-          @json_body, @type = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+          @json_body, type = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
+
+          validate_mapped_data!(veteran.participant_id, type, poa_code)
+        end
+
+        def validate_mapped_data!(veteran_participant_id, type, poa_code)
           # custom validations, must come first
-          @poa_auto_establish_validation_errors = validate_form_2122_and_2122a_submission_values(
-            user_profile:, veteran_participant_id: veteran.participant_id, poa_code:,
-            base: @type
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            user_profile:, veteran_participant_id:, poa_code:,
+            base: type
           )
           # JSON validations, all errors, including errors from the custom validations
           # will be raised here if JSON errors exist
-          validate_json_schema(@type.upcase)
+          validate_json_schema(type.upcase)
           # otherwise we raise the errors from the custom validations if no JSON
           # errors exist
-          if @poa_auto_establish_validation_errors
+          if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @poa_auto_establish_validation_errors
           end
         rescue JsonSchema::JsonApiMissingAttribute => e
-          errors = e.merge!(@poa_auto_establish_validation_errors) if @poa_auto_establish_validation_errors
+          errors = e.merge!(@claims_api_forms_validation_errors) if @claims_api_forms_validation_errors
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError, errors
         end
         # rubocop:enable Metrics/ParameterLists
