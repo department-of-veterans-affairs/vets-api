@@ -44,10 +44,11 @@ module VAOS
 
       def bad_request(params)
         # If provider_id is passed, clinical_service is also required
-        return 'provider_id and clinical_service is required.' if params[:provider_id] && !params[:clinical_service]
+        if params[:provider_id]
+          return 'provider_id and clinical_service is required.' unless params[:clinical_service]
 
         # If provider_id is NOT passed, clinical_service OR clinic_id is required
-        if !params[:provider_id] && !params[:clinic_id] && !params[:clinical_service]
+        elsif !params[:clinic_id] && !params[:clinical_service]
           return 'clinic_id or clinical_service is required.'
         end
 
