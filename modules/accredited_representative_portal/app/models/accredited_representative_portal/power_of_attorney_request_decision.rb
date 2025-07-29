@@ -40,6 +40,11 @@ module AccreditedRepresentativePortal
     end
 
     belongs_to :creator, class_name: 'UserAccount'
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative',
+                                       foreign_key: :accredited_individual_registration_number,
+                                       primary_key: :representative_id,
+                                       optional: true,
+                                       inverse_of: false
 
     validates :type, inclusion: { in: Types::ALL }
 
