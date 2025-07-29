@@ -14,7 +14,7 @@ describe 'Claims',
   end
 
   path '/veterans/{veteranId}/claims' do
-    get 'Find all benefits claims for a Veteran.' do
+    get 'Find all benefits claims for a VA claimant' do
       tags 'Claims'
       operationId 'findClaims'
       security [
@@ -29,7 +29,7 @@ describe 'Claims',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
 
@@ -129,7 +129,7 @@ describe 'Claims',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
       let(:id) { '600131328' }
