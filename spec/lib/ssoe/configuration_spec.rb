@@ -17,11 +17,16 @@ RSpec.describe SSOe::Configuration do
 
   let(:faraday_connection) { instance_double(Faraday::Connection) }
 
-  # rubocop:disable RSpec/SubjectStub
   before do
-    allow(config).to receive_messages(ssl_cert: cert_obj, ssl_key: key_obj)
+    allow(IdentitySettings.ssoe_get_traits).to receive_messages(
+      client_cert_path: cert_path,
+      client_key_path: key_path,
+      url: base_url
+    )
+
+    allow(OpenSSL::X509::Certificate).to receive(:new).with(File.read(cert_path)).and_return(cert_obj)
+    allow(OpenSSL::PKey::RSA).to receive(:new).with(File.read(key_path)).and_return(key_obj)
   end
-  # rubocop:enable RSpec/SubjectStub
 
   describe '#connection' do
     it 'creates a Faraday connection with correct SSL options' do

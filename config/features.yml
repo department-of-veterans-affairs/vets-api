@@ -284,6 +284,9 @@ features:
   champva_enable_ocr_on_submit:
     actor_type: user
     description: Enables background OCR scanning and logging on form submissions
+  champva_enable_llm_on_submit:
+    actor_type: user
+    description: Enables background LLM validation and logging on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -319,6 +322,10 @@ features:
   check_in_experience_check_claim_status_on_timeout:
     actor_type: user
     description: Uses a background worker to check travel claim status when the submission times out
+    enable_in_development: true
+  check_in_experience_travel_claim_notification_callback:
+    actor_type: user
+    description: Enables VA Notify delivery status callbacks for travel claim notifications
     enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
@@ -803,6 +810,10 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
+  financial_management_vbs_only:
+    actor_type: user
+    description: Enables the Financial Management app to only use the VBS API
+    enable_in_development: true
   find_a_representative_enabled:
     actor_type: cookie_id
     description: Generic toggle for gating Find a Rep
@@ -934,6 +945,10 @@ features:
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form22_10297_confirmation_email:
+    actor_type: user
+    description: Enables form 22-10297 email submission confirmation (VaNotify)
     enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
@@ -1163,6 +1178,10 @@ features:
   mhv_accelerated_delivery_uhd_ch_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
+  mhv_accelerated_delivery_uhd_filtering_enabled:
+    actor_type: user
+    description: Control whether vets-api applies filtering logic to UHD lab records
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -1443,9 +1462,18 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
+  profile_show_paperless_delivery:
+    actor_type: user
+    description: Toggle user's ability to see and modify paperless delivery settings page.
   pcpg_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for PCPG failure exhaustion
+  pdf_fill_redesign_form_jumplinks:
+    actor_type: user
+    description: Enable jumplinks from form to overflow page, when using v2 PDF overflow generator
+  pdf_fill_redesign_overflow_jumplinks:
+    actor_type: user
+    description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
   pension_income_and_assets_clarification:
     actor_type: user
     description: >

@@ -8,7 +8,7 @@ def sanitize_attachments_for_key(claim, key, attachments, ipf_form_data, destroy
     if dry_run
       puts "[DRY RUN] Would destroy attachment #{attachment.id}"
     else
-      attachment.delete!
+      attachment.delete
     end
 
     ipf_form_data = update_ipf_form_data(attachment, claim, ipf_form_data, key, destroyed_names)

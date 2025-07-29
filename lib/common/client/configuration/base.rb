@@ -103,11 +103,13 @@ module Common
           base_uri = URI.parse(base_path)
           proc do |breakers_service, request_env, request_service_name|
             # Match by service_name if available.
-            request_service_name == breakers_service.name if request_service_name
-
-            # Fall back to matching by request URL.
-            request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&
-              request_env.url.path =~ /^#{base_uri.path}/
+            if request_service_name
+              request_service_name == breakers_service.name
+            else
+              # Fall back to matching by request URL.
+              request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&
+                request_env.url.path =~ /^#{base_uri.path}/
+            end
           end
         end
 
