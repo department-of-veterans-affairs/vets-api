@@ -374,6 +374,23 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       # The real implementation should add to the validation array
       expect(job.instance_variable_get(:@agent_json_for_address_validation)).not_to be_empty
     end
+
+    it 'adds the correct JSON structure for address validation' do
+      job.send(:update_agents)
+
+      agent_json = job.instance_variable_get(:@agent_json_for_address_validation)
+
+      expect(agent_json.first[:address]).to include(
+        {
+          address_line1: '123 Main St',
+          address_line2: 'Apt 456',
+          address_line3: '',
+          city: nil,
+          state: { state_code: nil },
+          zip_code5: '12345'
+        }
+      )
+    end
   end
 
   describe '#update_attorneys' do
@@ -511,6 +528,23 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expect(job.instance_variable_get(:@attorney_json_for_address_validation))
         .not_to be_empty
+    end
+
+    it 'adds the correct JSON structure for address validation' do
+      job.send(:update_attorneys)
+
+      attorney_json = job.instance_variable_get(:@attorney_json_for_address_validation)
+
+      expect(attorney_json.first[:address]).to include(
+        {
+          address_line1: '321 Pine St',
+          address_line2: 'Suite 789',
+          address_line3: '',
+          city: 'Anytown',
+          state: { state_code: 'CA' },
+          zip_code5: '98765'
+        }
+      )
     end
   end
 
@@ -1135,6 +1169,23 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:update_reps)
 
       expect(job.instance_variable_get(:@representative_json_for_address_validation)).not_to be_empty
+    end
+
+    it 'adds the correct JSON structure for address validation' do
+      job.send(:update_reps)
+
+      rep_json = job.instance_variable_get(:@representative_json_for_address_validation)
+
+      expect(rep_json.first[:address]).to include(
+        {
+          address_line1: '123 Work St',
+          address_line2: '',
+          address_line3: '',
+          city: 'Work City',
+          state: { state_code: 'CA' },
+          zip_code5: '12345'
+        }
+      )
     end
 
     context 'when an error occurs' do
