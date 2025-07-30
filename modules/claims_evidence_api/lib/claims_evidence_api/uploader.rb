@@ -24,8 +24,22 @@ module ClaimsEvidenceApi
       @service.x_folder_uri = @folder_identifier = folder_identifier
     end
 
-    def upload_file(file_path, form_id, saved_claim_id, persistent_attachment_id = nil, doctype = 10, timestamp = Time.zone.now)
-      @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim_id:, persistent_attachment_id:, form_id:)
+    # upload a file (unmodified) for a claim or persistent_attachment
+    # this will track the file using the record identified by [saved_claim_id, persistent_attachment_id, form_id]
+    #
+    # @param file_path [String] path of the file to upload
+    # @param form_id [String] the form_id of the claim
+    # @param saved_claim_id [Integer] the db id for the claim
+    # @param persistent_attachment_id [Integer] the db id for the attachment; default nil
+    # @param doctype [Integer] the document type for the file; default 10
+    # @param timestamp [DateTime] the date-va-received-document; default Time.zone.now
+    #
+    # @return [String] the file_uuid
+    # rubocop:disable Metrics/ParameterLists
+    def upload_file(file_path, form_id, saved_claim_id, persistent_attachment_id = nil, doctype = 10,
+                    timestamp = Time.zone.now)
+      @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim_id:, persistent_attachment_id:,
+                                                                    form_id:)
       submission.x_folder_uri = @service.x_folder_uri
       submission.save
 
@@ -39,7 +53,10 @@ module ClaimsEvidenceApi
 
       @response = @service.upload(file_path, provider_data:)
       update_tracking
+
+      @submission.file_uuid
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # upload claim and evidence pdfs
     # providing the `X_stamp_set` will perform stamping of the generated pdf

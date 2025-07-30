@@ -32,6 +32,29 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
     allow(pa).to receive(:to_pdf).and_return pdf_path
   end
 
+  describe '#upload_file' do
+    it 'performs the upload and tracking' do
+      args = { saved_claim_id: claim.id, persistent_attachment_id: nil, form_id: claim.form_id }
+      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
+      expect(submission.submission_attempts).to receive(:create).and_return attempt
+
+      provider_data = {
+        contentSource: content_source,
+        dateVaReceivedDocument: claim.created_at,
+        documentTypeId: claim.document_type
+      }
+      response = build(:claims_evidence_service_files_response, :success)
+      expect(service).to receive(:upload).with(pdf_path, provider_data:).and_return response
+
+      uploader.upload_file(pdf_path, claim.form_id, claim.id, nil, claim.document_type, claim.created_at)
+
+      expect(submission.file_uuid).to eq response.body['uuid']
+      expect(attempt.status).to eq 'accepted'
+      expect(attempt.metadata).to eq JSON.parse(provider_data.to_json)
+      expect(attempt.response).to eq response.body
+    end
+  end
+
   context 'with generating the pdf and stamping' do
     it 'creates tracking entries on successful upload' do
       expect(uploader).to receive(:upload_attachment_pdf).twice
