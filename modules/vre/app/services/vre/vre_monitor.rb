@@ -13,7 +13,7 @@ module VRE
     attr_reader :tags
 
     def initialize
-      super('vre-application')
+      super('veteran_readiness_and_employment')
       @tags = ["form_id:#{form_id}"]
     end
 

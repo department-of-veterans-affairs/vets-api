@@ -7,7 +7,7 @@ module VRE
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
-      super(saved_claim_id, service_name: 'vre-application')
+      super(saved_claim_id, service_name: 'veteran_readiness_and_employment')
     end
 
     private
@@ -20,25 +20,19 @@ module VRE
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
     def personalization
       default = super
-      data = {}
-      case @email_type
-      when :confirmation_lighthouse
-        data = {
-          'first_name' => user&.first_name&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      when :confirmation_vbms
-        data = {
-          'first_name' => user&.first_name&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      when :action_needed
-        data = {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      end
+      data = case @email_type
+             when :action_needed
+               {
+                 'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
+                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                 'confirmation_number' => confirmation_number
+               }
+             else
+               {
+                 'first_name' => user&.first_name&.upcase.presence,
+                 'date' => Time.zone.today.strftime('%B %d, %Y')
+               }
+             end
       default.merge(data)
     end
 

@@ -1474,18 +1474,6 @@ vanotify:
         claim_submission_success_text: <%= ENV['vanotify__services__oracle_health__template_id__claim_submission_success_text'] %>
         claim_submission_timeout_text: <%= ENV['vanotify__services__oracle_health__template_id__claim_submission_timeout_text'] %>
     pensions: *vanotify_services_pension
-    vre-application: &vanotify_services_vre
-      api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
-      email:
-        action_needed: 
-          template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
-          flipper_id: false
-        confirmation_lighthouse:
-          template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
-          flipper_id: false
-        confirmation_vbms: 
-          template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
-          flipper_id: false
     va_gov:
       api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
       template_id:
@@ -1760,6 +1748,17 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+    api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
+    email:
+      action_needed:
+        template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
+        flipper_id: false
+      confirmation_lighthouse:
+        template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
+        flipper_id: false
+      confirmation_vbms:
+        template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
+        flipper_id: false
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:
