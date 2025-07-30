@@ -5,7 +5,22 @@ require_relative '../../../rails_helper'
 RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   subject(:make_post_request) { post('/accredited_representative_portal/v0/form21a', params: payload, headers:) }
 
-  let(:form_data) { { field: 'value' } }
+  let(:form_data) do
+    {
+      'firstName' => 'John',
+      'lastName' => 'Doe',
+      'homePhone' => '555-555-1234',
+      'homeEmail' => 'john.doe@example.com',
+      'applicationStatusId' => 1,
+      'accreditationTypeId' => 2,
+      'genderId' => 1,
+      'instructionAcknowledge' => true,
+      'employmentStatusId' => 3,
+      'icnNo' => representative_user.icn,
+      'uId' => representative_user.uuid
+    }
+  end
+
   let(:json) { form_data.to_json }
   let(:payload) do
     {

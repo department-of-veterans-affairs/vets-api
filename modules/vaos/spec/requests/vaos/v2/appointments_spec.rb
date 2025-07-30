@@ -14,12 +14,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       api_url: 'https://api.wellhive.com',
       base_path: 'care-navigation/v1'
     )
+    allow(Settings.vaos.ccra).to receive_messages(
+      api_url: 'http://test.example.com',
+      base_path: 'vaos/v1/patients'
+    )
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-  end
-
-  after do
-    Rails.cache.clear
   end
 
   let(:described_class) { VAOS::V2::AppointmentsController }
@@ -1151,15 +1151,15 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                 Timecop.travel(5.seconds.from_now)
 
-                allow(StatsD).to receive(:measure).with(any_args)
+                allow(StatsD).to receive(:histogram).with(any_args)
                 expect_metric_increment(described_class::APPT_CREATION_SUCCESS_METRIC) do
                   post '/vaos/v2/appointments/submit', params:, headers: inflection_header
                   expect(response).to have_http_status(:created)
                 end
 
-                expect(StatsD).to have_received(:measure).with(described_class::APPT_CREATION_DURATION_METRIC,
-                                                               kind_of(Numeric),
-                                                               tags: ['Community Care Appointments'])
+                expect(StatsD).to have_received(:histogram).with(described_class::APPT_CREATION_DURATION_METRIC,
+                                                                 kind_of(Numeric),
+                                                                 tags: ['service:community_care_appointments'])
               end
             end
           end
@@ -1401,11 +1401,33 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                           .to receive(:get_appointments)
                           .and_return(OpenStruct.new(data: []))
 
-                        expect_metric_increment(described_class::APPT_DRAFT_CREATION_SUCCESS_METRIC) do
-                          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
-                          expect(response).to have_http_status(:created)
-                          expect(JSON.parse(response.body)).to eq(expected_response)
-                        end
+                        allow(StatsD).to receive(:increment)
+
+                        expect(StatsD).to receive(:increment)
+                          .with(described_class::APPT_DRAFT_CREATION_SUCCESS_METRIC,
+                                tags: ['service:community_care_appointments'])
+                          .once
+
+                        expect(StatsD).to receive(:increment)
+                          .with(described_class::REFERRAL_DRAFT_STATIONID_METRIC,
+                                tags: [
+                                  'service:community_care_appointments',
+                                  'referring_provider_id:528A6',
+                                  'referral_provider_id:7894563210'
+                                ])
+                          .once
+
+                        expect(StatsD).to receive(:increment)
+                          .with(described_class::PROVIDER_DRAFT_NETWORK_ID_METRIC,
+                                tags: [
+                                  'service:community_care_appointments',
+                                  'network_id:sandbox-network-5vuTac8v'
+                                ])
+                          .once
+
+                        post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+                        expect(response).to have_http_status(:created)
+                        expect(JSON.parse(response.body)).to eq(expected_response)
                       end
                     end
                   end
@@ -1771,6 +1793,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           error = response_obj['errors'].first
           expect(error['title']).to eq('Appointment creation failed')
           expect(error['detail']).to eq('Redis connection error')
+        end
+      end
+
+      context 'when request params are missing' do
+        it 'returns a bad_request status and appropriate error message' do
+          post '/vaos/v2/appointments/draft', params: { referral_consult_id: '12345' }, headers: inflection_header
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to include('param is missing or the value is empty: referral_number')
         end
       end
     end

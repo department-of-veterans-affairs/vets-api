@@ -27,7 +27,12 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = parse_labs(combined_records)
-        filter_records(parsed_records)
+        filtered_records = filter_records(parsed_records)
+
+        # Log test code distribution after filtering is applied
+        log_test_code_distribution(parsed_records)
+
+        filtered_records
       end
     end
 
@@ -49,15 +54,47 @@ module UnifiedHealthData
     end
 
     def filter_records(records)
-      records.select do |record|
-        case record.attributes.test_code
-        when 'CH'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-        when 'SP'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-        when 'MB'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-        end
+      return all_records_response(records) unless filtering_enabled?
+
+      apply_test_code_filtering(records)
+    end
+
+    def filtering_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+    end
+
+    def all_records_response(records)
+      Rails.logger.info(
+        message: 'UHD filtering disabled - returning all records',
+        total_records: records.size,
+        service: 'unified_health_data'
+      )
+      records
+    end
+
+    def apply_test_code_filtering(records)
+      filtered = records.select { |record| test_code_enabled?(record.attributes.test_code) }
+
+      Rails.logger.info(
+        message: 'UHD filtering enabled - applied test code filtering',
+        total_records: records.size,
+        filtered_records: filtered.size,
+        service: 'unified_health_data'
+      )
+
+      filtered
+    end
+
+    def test_code_enabled?(test_code)
+      case test_code
+      when 'CH'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
+      when 'SP'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+      when 'MB'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+      else
+        false # Reject any other test codes for now, but we'll log them for analysis
       end
     end
 
@@ -420,6 +457,51 @@ module UnifiedHealthData
       else
         record['resource']['code'] ? record['resource']['code']['text'] : ''
       end
+    end
+
+    # Logs the distribution of test codes and names found in the records for analytics purposes
+    # This helps identify which test codes are common and might be worth filtering in
+    def log_test_code_distribution(records)
+      test_code_counts, test_name_counts = count_test_codes_and_names(records)
+
+      return if test_code_counts.empty? && test_name_counts.empty?
+
+      log_distribution_info(test_code_counts, test_name_counts, records.size)
+    end
+
+    def count_test_codes_and_names(records)
+      test_code_counts = Hash.new(0)
+      test_name_counts = Hash.new(0)
+
+      records.each do |record|
+        test_code = record.attributes.test_code
+        test_name = record.attributes.display
+
+        test_code_counts[test_code] += 1 if test_code.present?
+        test_name_counts[test_name] += 1 if test_name.present?
+      end
+
+      [test_code_counts, test_name_counts]
+    end
+
+    def log_distribution_info(test_code_counts, test_name_counts, total_records)
+      sorted_code_counts = test_code_counts.sort_by { |_, count| -count }
+      sorted_name_counts = test_name_counts.sort_by { |_, count| -count }
+
+      code_count_pairs = sorted_code_counts.map { |code, count| "#{code}:#{count}" }
+      name_count_pairs = sorted_name_counts.map { |name, count| "#{name}:#{count}" }
+
+      Rails.logger.info(
+        {
+          message: 'UHD test code and name distribution',
+          test_code_distribution: code_count_pairs.join(','),
+          test_name_distribution: name_count_pairs.join(','),
+          total_codes: sorted_code_counts.size,
+          total_names: sorted_name_counts.size,
+          total_records:,
+          service: 'unified_health_data'
+        }
+      )
     end
   end
 end

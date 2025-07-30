@@ -48,11 +48,11 @@ class Form1095B < ApplicationRecord
   private
 
   def pdf_template_path
-    "lib/form1095_b/templates/pdfs/1095b-#{tax_year}.pdf"
+    "lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-#{tax_year}.pdf"
   end
 
   def txt_template_path
-    "lib/form1095_b/templates/txts/1095b-#{tax_year}.txt"
+    "lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-#{tax_year}.txt"
   end
 
   def country_and_zip

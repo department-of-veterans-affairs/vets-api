@@ -26,16 +26,6 @@ module ClaimsApi
       end
 
       #
-      # Validate @current_user is an accredited representative
-      #
-      # @raise [Common::Exceptions::Forbidden] if @current_user is not a representative
-      def validate_user_is_accredited!
-        representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name)
-        raise ::Common::Exceptions::Forbidden if representative.blank?
-      end
-
-      #
       # Validate poa code provided matches one of the poa codes associated with the @current_user
       # @param poa_code [String] poa code to match to @current_user
       #
@@ -93,7 +83,7 @@ module ClaimsApi
         valid_poa_code_for_current_user?(poa_code_to_verify)
       rescue ::Common::Exceptions::UnprocessableEntity
         raise
-      rescue
+      rescue => e
         ClaimsApi::Logger.log 'poa_verification', level: :error, detail: e.message, error_class: e.class.name
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end
@@ -140,7 +130,7 @@ module ClaimsApi
       def handle_not_found(reps, poa_code)
         ClaimsApi::Logger.log 'poa_verification',
                               detail: "Found #{reps.size} reps for POA code #{poa_code}",
-                              level: :warn, poa_code:, rep_count: reps.size
+                              level: :warn, poa_code:, rep_count: reps.size, current_users_uuid: @current_user.uuid
         raise ::Common::Exceptions::UnprocessableEntity, detail: 'Ambiguous VSO Representative Results' if reps.size > 1
 
         # Intentionally does not raise in other cases. Doing so would break some shared behavior.

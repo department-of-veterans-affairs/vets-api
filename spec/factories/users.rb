@@ -60,7 +60,7 @@ FactoryBot.define do
       vha_facility_ids { %w[200CRNR 200MHV] }
       vha_facility_hash { { '200CRNR' => %w[123456], '200MHV' => %w[123456] } }
       vet360_id { '1' }
-      stub_mpi { true }
+      should_stub_mpi { true }
 
       sign_in do
         {
@@ -124,11 +124,11 @@ FactoryBot.define do
                            vha_facility_ids:,
                            vha_facility_hash:,
                            vet360_id: }
-        build(:mpi_profile, mpi_attributes)
+        FactoryBot.build(:mpi_profile, mpi_attributes)
       end
 
       mhv_user_account do
-        build(:mhv_user_account)
+        FactoryBot.build(:mhv_user_account)
       end
     end
 
@@ -136,7 +136,7 @@ FactoryBot.define do
       user_identity = create(:user_identity, t.user_identity)
       user.instance_variable_set(:@identity, user_identity)
       user.instance_variable_set(:@needs_accepted_terms_of_use, t.needs_accepted_terms_of_use)
-      stub_mpi(t.mpi_profile) unless t.stub_mpi == false
+      stub_mpi(t.mpi_profile) unless t.should_stub_mpi == false
     end
 
     # This is used by the response_builder helper to build a user from saml attributes
@@ -222,7 +222,7 @@ FactoryBot.define do
     end
 
     trait :loa1 do
-      stub_mpi { false }
+      should_stub_mpi { false }
       authn_context { LOA::IDME_LOA1_VETS }
       sign_in do
         {
@@ -254,7 +254,7 @@ FactoryBot.define do
     end
 
     trait :ial1 do
-      stub_mpi { false }
+      should_stub_mpi { false }
       uuid { '42fc7a21-c05f-4e6b-9985-67d11e2fbf76' }
       logingov_uuid { '42fc7a21-c05f-4e6b-9985-67d11e2fbf76' }
       verified_at { '2021-11-09T16:46:27Z' }
@@ -273,7 +273,7 @@ FactoryBot.define do
     end
 
     trait :no_mpi_profile do
-      stub_mpi { false }
+      should_stub_mpi { false }
     end
 
     factory :logingov_ial1_user, traits: [:ial1] do
@@ -285,11 +285,11 @@ FactoryBot.define do
     end
 
     factory :dependent_user_with_relationship, traits: %i[loa3 dependent] do
-      stub_mpi { false }
+      should_stub_mpi { false }
 
       after(:build) do
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile_response,
             :with_relationship,
             person_types: ['DEP']
@@ -299,11 +299,11 @@ FactoryBot.define do
     end
 
     factory :user_with_relationship, traits: [:loa3] do
-      stub_mpi { false }
+      should_stub_mpi { false }
 
       after(:build) do |_t|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile_response,
             :with_relationship
           )

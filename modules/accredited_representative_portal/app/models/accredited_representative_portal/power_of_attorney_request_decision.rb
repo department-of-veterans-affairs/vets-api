@@ -10,7 +10,9 @@ module AccreditedRepresentativePortal
       ADDRESS_CHANGE_WITHHELD: 1,
       BOTH_WITHHELD: 2,
       NOT_ACCEPTING_CLIENTS: 3,
-      OTHER: 4
+      LIMITED_AUTH: 4,
+      OUTSIDE_SERVICE_TERRITORY: 5,
+      OTHER: 6
     }
 
     DECLINATION_REASON_TEXTS = {
@@ -19,6 +21,8 @@ module AccreditedRepresentativePortal
       BOTH_WITHHELD:
         'Decline, because change of address isn\'t authorized and protected medical record access is limited',
       NOT_ACCEPTING_CLIENTS: 'Decline, because the VSO isn\'t accepting new clients',
+      LIMITED_AUTH: 'Decline, because authorization is limited',
+      OUTSIDE_SERVICE_TERRITORY: 'Decline, because the claimant is outside of the organization’s service territory',
       OTHER: 'Decline, because of another reason'
     }.freeze
 
@@ -36,6 +40,11 @@ module AccreditedRepresentativePortal
     end
 
     belongs_to :creator, class_name: 'UserAccount'
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative',
+                                       foreign_key: :accredited_individual_registration_number,
+                                       primary_key: :representative_id,
+                                       optional: true,
+                                       inverse_of: false
 
     validates :type, inclusion: { in: Types::ALL }
 
@@ -63,19 +72,39 @@ module AccreditedRepresentativePortal
 
       private
 
-      def create_with_resolution!(creator:, type:, power_of_attorney_request:, declination_reason: nil, **attrs)
+      def create_with_resolution!(
+        creator:,
+        type:,
+        power_of_attorney_request:,
+        declination_reason: nil,
+        **attrs
+      )
         PowerOfAttorneyRequestResolution.transaction do
-          decision = build_decision(creator:, type:, declination_reason:)
+          decision = build_decision(
+            creator:,
+            type:,
+            declination_reason:,
+            power_of_attorney_holder_type: power_of_attorney_request.power_of_attorney_holder_type,
+            power_of_attorney_holder_poa_code:
+              creator&.active_power_of_attorney_holders&.find do |h|
+                h.poa_code == power_of_attorney_request.power_of_attorney_holder_poa_code
+              end&.poa_code,
+            accredited_individual_registration_number:
+              creator&.get_registration_number(
+                power_of_attorney_request.power_of_attorney_holder_type
+              )
+          )
+
           create_resolution(decision:, power_of_attorney_request:, **attrs)
+
           decision
         end
       rescue => e
         log_error_and_raise(e)
       end
 
-      def build_decision(creator:, type:, declination_reason:)
-        decision = new(type:, creator:)
-        decision.declination_reason = declination_reason if declination_reason.present?
+      def build_decision(**args)
+        decision = new(**args.delete_if { |_, v| v.nil? })
         decision.save!
         decision
       end

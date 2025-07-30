@@ -1,12 +1,29 @@
 # frozen_string_literal: true
 
+# EzrSubmissionJob
+#
+# This Sidekiq job handles the submission of 10-10EZR (health care renewal) forms to the backend service.
+#
+# Why:
+# - Automates and manages the asynchronous submission of renewal forms.
+# - Handles retries, error logging, and user notification on failure.
+#
+# How:
+# - Decrypts the submitted form data.
+# - Submits the form via Form1010Ezr::Service.
+# - Handles validation and parsing errors, logs failures, and sends notification emails if enabled.
+# - Increments StatsD metrics for monitoring and analytics.
+#
+# See also: Form1010Ezr::Service for submission logic, Flipper flag for notification emails.
+
 require 'hca/soap_parser'
 require 'form1010_ezr/service'
+require 'vets/shared_logging'
 
 module HCA
   class EzrSubmissionJob
     include Sidekiq::Job
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     FORM_ID = '10-10EZR'
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
@@ -78,22 +95,31 @@ module HCA
 
       Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       self.class.log_exception_to_sentry(e)
+      self.class.log_exception_to_rails(e)
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
     rescue Ox::ParseError => e
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_did_not_retry")
-
-      Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
+      log_parse_error(parsed_form, e)
 
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
-
-      Form1010Ezr::Service.log_submission_failure_to_sentry(
-        parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
-      )
       # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
       raise Sidekiq::JobRetry::Skip
     rescue
       StatsD.increment("#{STATSD_KEY_PREFIX}.async.retries")
       raise
+    end
+
+    private
+
+    def log_parse_error(parsed_form, e)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_did_not_retry")
+
+      PersonalInformationLog.create!(data: parsed_form, error_class: 'Form1010Ezr FailedDidNotRetry')
+
+      Rails.logger.info("Form1010Ezr FailedDidNotRetry: #{e.message}")
+
+      Form1010Ezr::Service.log_submission_failure_to_sentry(
+        parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
+      )
     end
   end
 end

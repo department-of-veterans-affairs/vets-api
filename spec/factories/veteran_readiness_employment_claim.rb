@@ -69,6 +69,7 @@ FactoryBot.define do
       middle { 'Middle' }
       last { 'Last' }
       dob { '1980-01-01' }
+      privacyAgreementAccepted { true }
     end
 
     form {
@@ -101,7 +102,28 @@ FactoryBot.define do
             'suffix' => 'III'
           },
           'dob' => dob
-        }
+        },
+        'privacyAgreementAccepted' => privacyAgreementAccepted
+      }.to_json
+    }
+  end
+
+  factory :new_veteran_readiness_employment_claim_minimal, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
+    form_id { '28-1900-V2' }
+
+    form {
+      {
+        'email' => 'email@test.com',
+        'isMoving' => false,
+        'yearsOfEducation' => '10',
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => 'First',
+            'last' => 'Last'
+          },
+          'dob' => '1980-01-01'
+        },
+        'privacyAgreementAccepted' => true
       }.to_json
     }
   end

@@ -10,6 +10,7 @@ require 'pdf_fill/forms/va210781v2'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
 require 'pdf_fill/forms/va1010ez'
+require 'pdf_fill/forms/va1010ezr'
 require 'pdf_fill/forms/va686c674'
 require 'pdf_fill/forms/va686c674v2'
 require 'pdf_fill/forms/va281900'
@@ -66,6 +67,7 @@ module PdfFill
       '21-8940' => PdfFill::Forms::Va218940,
       '10-10CG' => PdfFill::Forms::Va1010cg,
       '10-10EZ' => PdfFill::Forms::Va1010ez,
+      '10-10EZR' => PdfFill::Forms::Va1010ezr,
       '686C-674' => PdfFill::Forms::Va686c674,
       '686C-674-V2' => PdfFill::Forms::Va686c674v2,
       '28-1900' => PdfFill::Forms::Va281900,
@@ -156,12 +158,15 @@ module PdfFill
         return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
       end
 
+      # special exception for dependents that isnt in extras_redesign
+      dependents = %w[686C-674 686C-674-V2 21-674 21-674-V2].include?(form_id)
+
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
       submit_date = Utilities::DateParser.parse(
-        merged_form_data['signatureDate'] || fill_options[:created_at] || Time.now.utc
+        fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
       )
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
@@ -178,7 +183,8 @@ module PdfFill
       # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
       # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
       # implemented in lib/pdf_fill/extras_generator_v2.rb.
-      if fill_options.fetch(:extras_redesign, false) && submit_date.present?
+      # special exception made for dependents which is not currently involved and not getting watermark.
+      if (fill_options.fetch(:extras_redesign, false) || dependents) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
       output = combine_extras(file_path, hash_converter.extras_generator)
