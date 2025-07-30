@@ -151,9 +151,6 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
-  caregiver_mulesoft_config_v2:
-    actor_type: user
-    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -322,6 +319,10 @@ features:
   check_in_experience_check_claim_status_on_timeout:
     actor_type: user
     description: Uses a background worker to check travel claim status when the submission times out
+    enable_in_development: true
+  check_in_experience_travel_claim_notification_callback:
+    actor_type: user
+    description: Enables VA Notify delivery status callbacks for travel claim notifications
     enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
@@ -941,6 +942,10 @@ features:
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form22_10297_confirmation_email:
+    actor_type: user
+    description: Enables form 22-10297 email submission confirmation (VaNotify)
     enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
@@ -2088,10 +2093,6 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
-  nod_callbacks_endpoint:
-    actor_type: user
-    description: Enables Decision Review endpoint to process VANotify notification callbacks
-    enable_in_development: true
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
@@ -2355,3 +2356,6 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  calculator_constants_versioning:
+    actor_type: 
+    description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation

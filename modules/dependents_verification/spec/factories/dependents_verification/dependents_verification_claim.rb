@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :dependents_verification_claim, class: 'DependentsVerification::SavedClaim' do
     transient do
-      veteran_ssn { '123456789' }
+      veteran_ssn { nil }
     end
 
     form_id { '21-0538' }

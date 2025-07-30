@@ -32,6 +32,7 @@ ALLOWLIST = %w[
   ids
   in_progress_form_id
   included
+  kafka_payload
   line
   message
   message_id
