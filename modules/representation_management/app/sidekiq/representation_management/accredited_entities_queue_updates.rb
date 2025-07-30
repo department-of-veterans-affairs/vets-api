@@ -317,16 +317,7 @@ module RepresentationManagement
     # @param rep [Hash] Raw representative data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_representative_json(record, rep)
-      rep_raw_address = raw_address_for_representative(rep)
-      individual_entity_json(
-        record,
-        rep,
-        :representative,
-        {
-          city: rep_raw_address['city'],
-          state: { state_code: rep_raw_address['state_code'] }
-        }
-      )
+      individual_entity_json(record, rep, :representative)
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
@@ -452,7 +443,7 @@ module RepresentationManagement
     # @param agent [Hash] Raw agent data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_agent_json(record, agent)
-      individual_entity_json(record, agent, :agent, { city: nil })
+      individual_entity_json(record, agent, :agent)
     end
 
     # Creates a JSON object for an attorney's address, used for address validation
@@ -461,16 +452,7 @@ module RepresentationManagement
     # @param attorney [Hash] Raw attorney data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_attorney_json(record, attorney)
-      attorney_raw_address = raw_address_for_attorney(attorney)
-      individual_entity_json(
-        record,
-        attorney,
-        :attorney,
-        {
-          city: attorney_raw_address['city'],
-          state: { state_code: attorney_raw_address['state_code'] }
-        }
-      )
+      individual_entity_json(record, attorney, :attorney)
     end
 
     # Base method to create a JSON object for entity address validation
@@ -480,7 +462,7 @@ module RepresentationManagement
     # @param entity_type [Symbol] The type of entity (:agent, :attorney, or :representative)
     # @param additional_fields [Hash] Additional address fields specific to this entity type
     # @return [Hash] JSON structure for address validation
-    def individual_entity_json(record, entity, entity_type, additional_fields = {})
+    def individual_entity_json(record, entity, entity_type)
       raw_address = send("raw_address_for_#{entity_type}", entity)
 
       {
@@ -490,8 +472,10 @@ module RepresentationManagement
           address_line1: raw_address['address_line1'],
           address_line2: raw_address['address_line2'],
           address_line3: raw_address['address_line3'],
+          city: raw_address['city'],
+          state: { state_code: raw_address['state_code'] },
           zip_code5: raw_address['zip_code']
-        }.merge(additional_fields)
+        }
       }
     end
 
