@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'accredited_representative_portal/notification_email'
 
 RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
   let(:saved_claim) { create(:saved_claim_benefits_intake) }

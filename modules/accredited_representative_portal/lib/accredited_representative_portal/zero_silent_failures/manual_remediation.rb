@@ -11,7 +11,7 @@ module AccreditedRepresentativePortal
       # specify the claim class to be used
       def claim_class
         proper_form_id = claim.proper_form_id
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.form_class_from_form_id(proper_form_id)
+        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.form_class_from_proper_form_id(proper_form_id)
       end
 
       # override - add additional stamps
