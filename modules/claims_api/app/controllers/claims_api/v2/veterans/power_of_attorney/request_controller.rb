@@ -166,7 +166,7 @@ module ClaimsApi
           if power_of_attorney.present?
             claims_v2_logging('process_poa_decision',
                               message: 'Record saved, sending to POA Form Builder Job')
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, '2122',
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
                                                            'post', representative_id)
             power_of_attorney # return to the decide method for the response
           end
@@ -191,13 +191,18 @@ module ClaimsApi
           validate_json_schema(type.upcase)
           # otherwise we raise the errors from the custom validations if no JSON
           # errors exist
-          if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
-                  @poa_auto_establish_validation_errors
-          end
-        rescue JsonSchema::JsonApiMissingAttribute => e
-          errors = e.merge!(@claims_api_forms_validation_errors) if @claims_api_forms_validation_errors
-          raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError, errors
+          log_and_raise_decision_error_message! if @claims_api_forms_validation_errors
+        rescue JsonSchema::JsonApiMissingAttribute
+          log_and_raise_decision_error_message!
+        end
+
+        def log_and_raise_decision_error_message!
+          claims_v2_logging('process_poa_decision',
+                            message: 'Encountered issues validating the mapped data')
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'An error occurred while processing this decision. Please try again later.'
+          )
         end
 
         def build_auth_headers(veteran)
