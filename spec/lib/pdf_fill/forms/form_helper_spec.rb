@@ -278,6 +278,54 @@ describe PdfFill::Forms::FormHelper do
     end
   end
 
+  describe '#format_numeric_fte_value' do
+    let(:helper) { including_class.new }
+
+    it 'formats numeric value correctly when non-zero' do
+      result = helper.send(:format_numeric_fte_value, '5.5')
+      expect(result).to eq('5.50')
+    end
+
+    it 'formats numeric value as -- when zero' do
+      result = helper.send(:format_numeric_fte_value, '0')
+      expect(result).to eq('--')
+    end
+
+    it 'formats numeric value as -- when zero as float' do
+      result = helper.send(:format_numeric_fte_value, '0.0')
+      expect(result).to eq('--')
+    end
+
+    it 'formats decimal values with proper precision' do
+      result = helper.send(:format_numeric_fte_value, '3.456789')
+      expect(result).to eq('3.46')
+    end
+  end
+
+  describe '#format_percentage_fte_value' do
+    let(:helper) { including_class.new }
+
+    it 'formats percentage value correctly when non-zero' do
+      result = helper.send(:format_percentage_fte_value, '75.5')
+      expect(result).to eq('75.50%')
+    end
+
+    it 'formats percentage value as N/A when zero' do
+      result = helper.send(:format_percentage_fte_value, '0')
+      expect(result).to eq('N/A')
+    end
+
+    it 'formats percentage value as N/A when zero as float' do
+      result = helper.send(:format_percentage_fte_value, '0.0')
+      expect(result).to eq('N/A')
+    end
+
+    it 'formats percentage decimal values with proper precision' do
+      result = helper.send(:format_percentage_fte_value, '33.333')
+      expect(result).to eq('33.33%')
+    end
+  end
+
   describe '#process_fte' do
     it 'formats supported field correctly' do
       fte = { 'supported' => '5.5' }

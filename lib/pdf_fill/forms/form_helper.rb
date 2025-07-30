@@ -156,22 +156,21 @@ module PdfFill
       end
 
       def process_fte(fte)
-        if fte['supported'].present?
-          fte['supported'] = fte['supported'].to_f.zero? ? '--' : format('%.2f', fte['supported'])
-        end
-        if fte['nonSupported'].present?
-          fte['nonSupported'] = fte['nonSupported'].to_f.zero? ? '--' : format('%.2f', fte['nonSupported'])
-        end
-        if fte['totalFTE'].present?
-          fte['totalFTE'] = fte['totalFTE'].to_f.zero? ? '--' : format('%.2f', fte['totalFTE'])
-        end
-        if fte['supportedPercentageFTE'].present?
-          fte['supportedPercentageFTE'] = if fte['supportedPercentageFTE'].to_f.zero?
-                                            'N/A'
-                                          else
-                                            "#{format('%.2f', fte['supportedPercentageFTE'])}%"
-                                          end
-        end
+        numeric_fields = %w[supported nonSupported totalFTE]
+        percentage_fields = %w[supportedPercentageFTE]
+
+        numeric_fields.each { |field| fte[field] = format_numeric_fte_value(fte[field]) if fte[field].present? }
+        percentage_fields.each { |field| fte[field] = format_percentage_fte_value(fte[field]) if fte[field].present? }
+      end
+
+      private
+
+      def format_numeric_fte_value(value)
+        value.to_f.zero? ? '--' : format('%.2f', value)
+      end
+
+      def format_percentage_fte_value(value)
+        value.to_f.zero? ? 'N/A' : "#{format('%.2f', value)}%"
       end
 
       # Further readability improvements require various refactoring and code
