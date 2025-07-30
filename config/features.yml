@@ -323,6 +323,10 @@ features:
     actor_type: user
     description: Uses a background worker to check travel claim status when the submission times out
     enable_in_development: true
+  check_in_experience_travel_claim_notification_callback:
+    actor_type: user
+    description: Enables VA Notify delivery status callbacks for travel claim notifications
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -806,6 +810,10 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
+  financial_management_vbs_only:
+    actor_type: user
+    description: Enables the Financial Management app to only use the VBS API
+    enable_in_development: true
   find_a_representative_enabled:
     actor_type: cookie_id
     description: Generic toggle for gating Find a Rep
@@ -937,6 +945,10 @@ features:
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form22_10297_confirmation_email:
+    actor_type: user
+    description: Enables form 22-10297 email submission confirmation (VaNotify)
     enable_in_development: true
   form26_4555_confirmation_email:
     actor_type: user
@@ -1166,6 +1178,10 @@ features:
   mhv_accelerated_delivery_uhd_ch_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
+  mhv_accelerated_delivery_uhd_filtering_enabled:
+    actor_type: user
+    description: Control whether vets-api applies filtering logic to UHD lab records
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
