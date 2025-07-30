@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
 
 module BGS
