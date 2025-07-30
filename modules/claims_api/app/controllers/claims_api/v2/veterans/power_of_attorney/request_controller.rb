@@ -180,7 +180,7 @@ module ClaimsApi
 
         def validate_mapped_data!(veteran_participant_id, type, poa_code)
           claims_v2_logging('process_poa_decision',
-                            message: 'Data mapped, beginning to validate and build headers for record save')
+                            message: "Data mapped, beginning to validate #{type} and build headers for record save")
           # custom validations, must come first
           @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
             user_profile:, veteran_participant_id:, poa_code:,
