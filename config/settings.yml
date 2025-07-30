@@ -1683,9 +1683,20 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
+  api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
   auth_endpoint: <%= ENV['veteran_readiness_and_employment__auth_endpoint'] %>
   base_url: <%= ENV['veteran_readiness_and_employment__base_url'] %>
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
+  email:
+    action_needed:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
+    confirmation_lighthouse:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
+    confirmation_vbms:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
   daily_report:
     emails:
     - VRC.VBABOS@va.gov
@@ -1748,17 +1759,6 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
-    api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
-    email:
-      action_needed:
-        template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
-        flipper_id: false
-      confirmation_lighthouse:
-        template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
-        flipper_id: false
-      confirmation_vbms:
-        template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
-        flipper_id: false
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:
