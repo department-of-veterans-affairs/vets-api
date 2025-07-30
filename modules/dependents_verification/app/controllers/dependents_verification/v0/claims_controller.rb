@@ -69,10 +69,11 @@ module DependentsVerification
       end
 
       # Retrieves the veteran's file number from BGS using the current user's participant ID
-      # @return [String] the veteran's file number without dashes
+      # @return [String] the veteran's file number without dashes if it exists
       def veteran_file_number
-        file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user).file_number
-        file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+        file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user)&.file_number
+        file_number_without_dashes = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+        file_number_without_dashes || file_number
       end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.

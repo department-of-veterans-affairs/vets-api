@@ -38,14 +38,44 @@ RSpec.describe DependentsVerification::V0::ClaimsController, type: :request do
       expect(response).to have_http_status(:internal_server_error)
     end
 
-    it 'returns a serialized claim' do
-      VCR.use_cassette('bgs/people_service/person_data') do
-        expect(monitor).to receive(:track_create_attempt).once
-        expect(monitor).to receive(:track_create_success).once
+    context 'when the claim is valid' do
+      context 'when the veteran file number is not present' do
+        it 'returns a serialized claim' do
+          allow(BGS::People::Request)
+            .to receive(:new)
+            .and_return(
+              double(find_person_by_participant_id: double(file_number: nil))
+            )
+          request
+          expect(response).to have_http_status(:success)
+        end
+      end
 
-        request
+      context 'when the veteran file number is present' do
+        context 'when the veteran file number does not contain dashes' do
+          it 'returns a serialized claim' do
+            VCR.use_cassette('bgs/people_service/person_data') do
+              expect(monitor).to receive(:track_create_attempt).once
+              expect(monitor).to receive(:track_create_success).once
 
-        expect(response).to have_http_status(:success)
+              request
+
+              expect(response).to have_http_status(:success)
+            end
+          end
+        end
+
+        context 'when the veteran file number contains dashes' do
+          it 'returns a serialized claim' do
+            allow(BGS::People::Request)
+              .to receive(:new)
+              .and_return(
+                double(find_person_by_participant_id: double(file_number: '796-33-0625'))
+              )
+            request
+            expect(response).to have_http_status(:success)
+          end
+        end
       end
     end
   end
