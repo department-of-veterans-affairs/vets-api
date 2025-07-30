@@ -79,17 +79,16 @@ describe AppealsApi::CentralMailUpdater do
       allow(faraday_response).to receive_messages(success?: false, body: 'error body', status: 'error status')
     end
 
-    # rubocop:disable RSpec/SubjectStub
-    it 'raises an exception and logs to Sentry' do
-      allow(subject).to receive(:log_message_to_sentry)
+    it 'raises an exception and logs to Rails log' do
+      allow(Rails.logger).to receive(:warn)
 
       expect { subject.call([appeal_1]) }
         .to raise_error(Common::Exceptions::BadGateway)
 
-      expect(subject).to have_received(:log_message_to_sentry)
-        .with('Error getting status from Central Mail', :warning, body: 'error body', status: 'error status')
+      expect(Rails.logger).to have_received(:warn)
+        .with('Error getting status from Central Mail API.',
+              { central_mail_status: 'error status', central_mail_body: 'error body' })
     end
-    # rubocop:enable RSpec/SubjectStub
   end
 
   context 'when central mail response is successful' do
@@ -214,17 +213,15 @@ describe AppealsApi::CentralMailUpdater do
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
       end
 
-      # rubocop:disable RSpec/SubjectStub
-      it 'raises an exception and logs to sentry' do
+      it 'raises an exception and logs to rails' do
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
-        allow(subject).to receive(:log_message_to_sentry)
+        allow(Rails.logger).to receive(:warn)
 
         expect { subject.call([appeal_1]) }
           .to raise_error(Common::Exceptions::BadGateway)
-        expect(subject).to have_received(:log_message_to_sentry)
-          .with('Unknown status value from Central Mail API', :warning, status: 'SOME_UNKNOWN_STATUS')
+        expect(Rails.logger).to have_received(:warn)
+          .with('Unknown status value from Central Mail API.', { central_mail_status: 'SOME_UNKNOWN_STATUS' })
       end
-      # rubocop:enable RSpec/SubjectStub
     end
 
     context 'when appeal object contains an error message' do

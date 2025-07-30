@@ -191,7 +191,8 @@ describe Eps::ProviderService do
       {
         appointmentTypeId: 'type123',
         startOnOrAfter: '2024-01-01T00:00:00Z',
-        startBefore: '2024-01-02T00:00:00Z'
+        startBefore: '2024-01-02T00:00:00Z',
+        appointmentId: '123'
       }
     end
 
@@ -256,6 +257,12 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, /Missing required parameters: startBefore/)
       end
 
+      it 'raises ArgumentError when appointmentId is missing' do
+        expect do
+          service.get_provider_slots(provider_id, required_params.except(:appointmentId))
+        end.to raise_error(ArgumentError, /Missing required parameters: appointmentId/)
+      end
+
       it 'raises ArgumentError when multiple required parameters are missing' do
         expect do
           service.get_provider_slots(provider_id, required_params.except(:startOnOrAfter, :startBefore))
@@ -269,7 +276,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('53mL4LAZ', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result).to be_a(OpenStruct)
@@ -284,7 +292,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('53mL4LAZ', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result.to_h).not_to have_key(:next_token)
@@ -299,7 +308,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('9mN718pH', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result.slots).to eq([])
@@ -326,7 +336,8 @@ describe Eps::ProviderService do
               service.get_provider_slots('TIMEOUT_TEST', {
                                            appointmentTypeId: 'ov',
                                            startOnOrAfter: '2025-01-01T00:00:00Z',
-                                           startBefore: '2025-01-03T00:00:00Z'
+                                           startBefore: '2025-01-03T00:00:00Z',
+                                           appointmentId: '123'
                                          })
             end.to raise_error(Common::Exceptions::BackendServiceException) { |error|
               expect(error.key).to eq('PROVIDER_SLOTS_TIMEOUT')
@@ -365,7 +376,8 @@ describe Eps::ProviderService do
           result = service.get_provider_slots('TEST123', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
-                                                startBefore: '2025-01-03T00:00:00Z'
+                                                startBefore: '2025-01-03T00:00:00Z',
+                                                appointmentId: '123'
                                               })
 
           expect(result).to be_a(OpenStruct)
@@ -374,7 +386,7 @@ describe Eps::ProviderService do
           expect(result.slots.map { |slot| slot[:id] }).to include(
             'page1-slot1|2025-01-02T09:00:00Z',
             'page1-slot2|2025-01-02T10:00:00Z',
-            'page2-slot1|2025-01-02T14:00:00Z'
+            'page3-slot1|2025-01-02T14:00:00Z'
           )
           expect(result.to_h).not_to have_key(:next_token)
         end
@@ -392,6 +404,56 @@ describe Eps::ProviderService do
         state: 'FL',
         zip: '32901'
       }
+    end
+
+    context 'when required parameters are missing or blank' do
+      it 'raises ArgumentError when npi is nil' do
+        expect do
+          service.search_provider_services(npi: nil, specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when npi is empty string' do
+        expect do
+          service.search_provider_services(npi: '', specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when npi is blank' do
+        expect do
+          service.search_provider_services(npi: '   ', specialty:, address:)
+        end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is nil' do
+        expect do
+          service.search_provider_services(npi:, specialty: nil, address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is empty string' do
+        expect do
+          service.search_provider_services(npi:, specialty: '', address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when specialty is blank' do
+        expect do
+          service.search_provider_services(npi:, specialty: '   ', address:)
+        end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when address is nil' do
+        expect do
+          service.search_provider_services(npi:, specialty:, address: nil)
+        end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when address is empty hash' do
+        expect do
+          service.search_provider_services(npi:, specialty:, address: {})
+        end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
+      end
     end
 
     context 'when the request is successful' do
@@ -534,13 +596,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -561,7 +630,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /No address match found among 1 provider\(s\) for NPI/
+            /No address match found among 2 provider\(s\) for NPI/
           )
         end
       end
@@ -660,13 +729,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -701,13 +777,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -733,7 +816,7 @@ describe Eps::ProviderService do
         end
       end
 
-      context 'when multiple providers match specialty' do
+      context 'when multiple providers match specialty and address validation is performed' do
         let(:matching_address) do
           {
             street1: '1601 NEEDMORE RD ; STE 1 & 2',
@@ -865,12 +948,19 @@ describe Eps::ProviderService do
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:info)
         end
 
-        it 'returns nil when provider address cannot be parsed' do
+        it 'returns the provider when it is the only specialty match, regardless of address parsing' do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
-          expect(result).to be_nil
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+
+        it 'logs that address validation was skipped' do
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(Rails.logger).to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
         end
       end
 
@@ -1024,6 +1114,123 @@ describe Eps::ProviderService do
             expect(result).to be_a(OpenStruct)
             expect(result.id).to eq('provider_extreme')
           end
+        end
+      end
+
+      context 'when only one provider matches specialty' do
+        let(:any_address) do
+          {
+            street1: '999 Different Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'single_provider',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns the provider without address validation' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('single_provider')
+        end
+
+        it 'logs that address validation was skipped' do
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
+          expect(Rails.logger).to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
+        end
+
+        it 'returns provider even when address does not match' do
+          non_matching_address = {
+            street1: '999 Nowhere Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('single_provider')
+        end
+      end
+
+      context 'when multiple providers match specialty' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'performs address validation and returns matching provider' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+
+        it 'does not log single match message when multiple providers exist' do
+          allow(Rails.logger).to receive(:info)
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(Rails.logger).not_to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
         end
       end
     end
