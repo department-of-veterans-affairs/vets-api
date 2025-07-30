@@ -96,8 +96,7 @@ module AccreditedRepresentativePortal
     class FailedClaimant < self
       def generate
         {
-          'first_name' => first_name,
-          'poa_request_url' => poa_request_url
+          'claimant_first_name' => first_name,
         }
       end
 
