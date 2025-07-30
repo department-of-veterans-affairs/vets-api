@@ -176,6 +176,12 @@ claims_api:
     client_id: ~
     client_key: fakekeyvaluehere
     client_secret: ~
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: https://fakeurlhere/fake/path/here
+        client_id: fakekeyvaluehere
+    host: https://staging-api.va.gov
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -990,8 +996,6 @@ modules_appeals_api:
       api_key: ''
 mvi_hca:
   url: http://example.com
-nod_vanotify_status_callback:
-  bearer_token: bearer_token_secret
 ogc:
   form21a_service_url:
     api_key: fake_key
