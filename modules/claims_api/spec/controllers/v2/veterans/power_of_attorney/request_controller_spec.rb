@@ -343,7 +343,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
         allow(service).to receive(:get_poa_request).and_return({})
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
-          .to receive(:process_poa_decision).and_return(nil)
+          .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -353,6 +353,16 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
             expect(response_body['data']['id']).to eq(id)
+          end
+        end
+      end
+
+      it 'includes location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+            decide_request_with(id:, decision:, auth_header:)
+
+            expect(response.headers).to have_key('Location')
           end
         end
       end
@@ -379,6 +389,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
         allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)
                                                                  .and_return(poa_request_response)
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
@@ -386,12 +398,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
       it 'calls the decision handler' do
         mock_ccg(scopes) do |auth_header|
-          VCR.use_cassette('mpi/find_candidate/valid') do
-            expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
+          expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
 
-            decide_request_with(id:, decision:, auth_header:,
-                                representative_id:)
-          end
+          decide_request_with(id:, decision:, auth_header:,
+                              representative_id:)
         end
       end
     end

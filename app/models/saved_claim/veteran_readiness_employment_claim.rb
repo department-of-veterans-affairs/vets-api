@@ -272,8 +272,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def validate_form_v2
     validate_required_fields
     validate_string_fields
+    validate_boolean_fields
     validate_name_length
-    validate_is_moving
     validate_email
     validate_phone_numbers
     validate_dob
@@ -410,7 +410,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def validate_required_fields
     required_fields = %w[email isMoving yearsOfEducation veteranInformation/fullName veteranInformation/fullName/first
-                         veteranInformation/fullName/last veteranInformation/dob]
+                         veteranInformation/fullName/last veteranInformation/dob privacyAgreementAccepted]
     required_fields.each do |field|
       value = parsed_form.dig(*field.split('/'))
       value = value.to_s if [true, false].include?(value)
@@ -427,6 +427,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
+  def validate_boolean_fields
+    boolean_fields = %w[isMoving privacyAgreementAccepted]
+    boolean_fields.each do |field|
+      errors.add("/#{field}", 'must be a boolean') unless [true, false].include?(parsed_form[field])
+    end
+  end
+
   def validate_name_length
     max_30_fields = %w[veteranInformation/fullName/first veteranInformation/fullName/middle
                        veteranInformation/fullName/last]
@@ -436,10 +443,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         errors.add("/#{field}", 'must be 30 characters or less')
       end
     end
-  end
-
-  def validate_is_moving
-    errors.add('/isMoving', 'must be a boolean') unless [true, false].include?(parsed_form['isMoving'])
   end
 
   def validate_email

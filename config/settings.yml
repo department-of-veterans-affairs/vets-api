@@ -177,6 +177,12 @@ claims_api:
     client_id: <%= ENV['claims_api__evss_container__client_id'] %>
     client_key: <%= ENV['claims_api__evss_container__client_key'] %>
     client_secret: <%= ENV['claims_api__evss_container__client_secret'] %>
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: <%= ENV['claims_api__fes__auth__ccg__aud_claim_url'] %>
+        client_id: <%= ENV['claims_api__benefits_documents__auth__ccg__client_id'] %>
+    host: <%= ENV['claims_api__fes__host'] %>
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -589,6 +595,9 @@ ivc_champva:
     api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
     base_path: <%= ENV['ivc_champva__pega_api__base_path'] %>
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: <%= ENV['ivc_champva_llm_processor_api__api_key'] %>
+  host: <%= ENV['ivc_champva_llm_processor_api__host'] %>
 ivc_champva_ves_api:
   api_key: <%= ENV['ivc_champva_ves_api__api_key'] %>
   app_id: <%= ENV['ivc_champva_ves_api__app_id'] %>
@@ -783,6 +792,7 @@ maintenance:
     caseflow: <%= ENV['maintenance__services__caseflow'] %>
     cie: <%= ENV['maintenance__services__cie'] %>
     coe: <%= ENV['maintenance__services__coe'] %>
+    community_care_ds: <%= ENV['maintenance__services__community_care_ds'] %>
     decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
@@ -973,10 +983,6 @@ modules_appeals_api:
       api_key: <%= ENV['modules_appeals_api__token_validation__supplemental_claims__api_key'] %>
 mvi_hca:
   url: http://example.com
-nod_vanotify_status_callback:
-  bearer_token: <%= ENV['nod_vanotify_status_callback__bearer_token'] %>
-notifications:
-  public_key: <%= ENV['notifications__public_key'] %>
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
@@ -1329,7 +1335,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_0969__email__error__template_id'] %>
         persistent_attachment_error:
           flipper_id: income_and_assets_persistent_attachment_error_email_notification
-          template_id: vanotify__services__21p_0969__email__persistent_attachment_error__template_id
+          template_id: <%= ENV['vanotify__services__21p_0969__email__persistent_attachment_error__template_id'] %>
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: <%= ENV['vanotify__services__21p_0969__email__received__template_id'] %>
@@ -1347,7 +1353,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_527ez__email__error__template_id'] %>
         persistent_attachment_error:
           flipper_id: pension_persistent_attachment_error_email_notification
-          template_id: vanotify__services__21p_527ez__email__persistent_attachment_error__template_id
+          template_id: <%= ENV['vanotify__services__21p_527ez__email__persistent_attachment_error__template_id'] %>
         received:
           flipper_id: pension_received_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__received__template_id'] %>
@@ -1365,7 +1371,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_530ez__email__error__template_id'] %>
         persistent_attachment_error:
           flipper_id: burial_persistent_attachment_error_email_notification
-          template_id: vanotify__services__21p_530ez__email__persistent_attachment_error__template_id
+          template_id: <%= ENV['vanotify__services__21p_530ez__email__persistent_attachment_error__template_id'] %>
         received:
           flipper_id: burial_received_email_notification
           template_id: <%= ENV['vanotify__services__21p_530ez__email__received__template_id'] %>
@@ -1491,6 +1497,7 @@ vanotify:
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
+        form10297_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form10297_confirmation_email'] %>
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
         form1990_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form1990_confirmation_email'] %>

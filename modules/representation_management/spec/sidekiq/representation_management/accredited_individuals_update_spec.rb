@@ -106,7 +106,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
           'RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: ' \
-          "unexpected character: 'invalid json' at line 1 column 1"
+          "unexpected character: 'invalid' at line 1 column 1"
         )
 
         subject.perform(invalid_json_data)
@@ -475,7 +475,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
             'RepresentationManagement::AccreditedIndividualsUpdate: Error processing job: unexpected character: ' \
-            "'invalid json' at line 1 column 1"
+            "'invalid' at line 1 column 1"
           )
 
           subject.perform(invalid_json_data)

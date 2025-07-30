@@ -29,4 +29,8 @@ FactoryBot.define do
       }.to_json
     }
   end
+
+  factory :va1990e_full_form, class: 'SavedClaim::EducationBenefits::VA1990e', parent: :education_benefits do
+    form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1990e', 'kitchen_sink.json').read }
+  end
 end

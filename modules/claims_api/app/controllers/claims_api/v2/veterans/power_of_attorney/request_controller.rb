@@ -64,37 +64,41 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength
+        def decide
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
 
           request = find_poa_request!(lighthouse_id)
+
           proc_id = request.proc_id
-          vet_icn = request.veteran_icn
 
           validate_decide_params!(proc_id:, decision:)
 
-          manage_rep_service = manage_representative_service
-          ptcpnt_id = fetch_ptcpnt_id(vet_icn)
+          vet_icn = request.veteran_icn
+          claimant_icn = request.claimant_icn
 
-          process_poa_decision(decision:,
-                               ptcpnt_id:,
-                               proc_id:,
-                               representative_id:,
-                               poa_code: request.poa_code,
-                               metadata: request.metadata)
+          veteran_data = build_veteran_or_dependent_data(vet_icn)
+          claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
+
+          # poa here means the poa record saved in our DB, not the poa request record saved in our DB
+          poa = process_poa_decision(decision:, proc_id:, representative_id:, poa_code: request.poa_code,
+                                     metadata: request.metadata, veteran: veteran_data, claimant: claimant_data)
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
-                                                   service: manage_rep_service)
+                                                   service: manage_representative_service)
 
-          get_poa_response = handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
+          get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                         view: :index_or_show,
-                                                                                         root: :data), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            get_poa_response, view: :index_or_show, root: :data
+          ), status: :ok, location: url_for(
+            controller: 'power_of_attorney/base', action: 'show', id: poa.id, veteranId: vet_icn
+          )
         end
+        # rubocop:enable Metrics/MethodLength
 
         def create # rubocop:disable Metrics/MethodLength
           validate_country_code
@@ -147,12 +151,79 @@ module ClaimsApi
         private
 
         # rubocop:disable Metrics/ParameterLists
-        def process_poa_decision(decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:)
-          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
-            decision:, ptcpnt_id:, proc_id:, representative_id:, poa_code:, metadata:
+        def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
+          @json_body, type = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+            decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
+          validate_mapped_data!(veteran.participant_id, type, poa_code)
+
+          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant
+
+          build_auth_headers(veteran)
+          attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
+
+          power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
+          if power_of_attorney.present?
+            claims_v2_logging('process_poa_decision',
+                              message: 'Record saved, sending to POA Form Builder Job')
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
+                                                           'post', representative_id)
+            power_of_attorney # return to the decide method for the response
+          end
+        rescue => e
+          claims_v2_logging('process_poa_decision',
+                            message: "Failed to save power of attorney record. Error: #{e}")
+
+          raise e
         end
         # rubocop:enable Metrics/ParameterLists
+
+        def validate_mapped_data!(veteran_participant_id, type, poa_code)
+          claims_v2_logging('process_poa_decision',
+                            message: 'Data mapped, beginning to validate and build headers for record save')
+          # custom validations, must come first
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            user_profile:, veteran_participant_id:, poa_code:,
+            base: type
+          )
+          # JSON validations, all errors, including errors from the custom validations
+          # will be raised here if JSON errors exist
+          validate_json_schema(type.upcase)
+          # otherwise we raise the errors from the custom validations if no JSON
+          # errors exist
+          log_and_raise_decision_error_message! if @claims_api_forms_validation_errors
+        rescue JsonSchema::JsonApiMissingAttribute
+          log_and_raise_decision_error_message!
+        end
+
+        def log_and_raise_decision_error_message!
+          claims_v2_logging('process_poa_decision',
+                            message: 'Encountered issues validating the mapped data')
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'An error occurred while processing this decision. Please try again later.'
+          )
+        end
+
+        def build_auth_headers(veteran)
+          params[:veteranId] = veteran.icn.presence || veteran.mpi.icn
+
+          auth_headers
+        end
+
+        def decide_request_attributes(poa_code:, decide_form_attributes:)
+          {
+            status: ClaimsApi::PowerOfAttorney::PENDING,
+            auth_headers: set_auth_headers,
+            form_data: decide_form_attributes,
+            current_poa: poa_code,
+            header_hash:
+          }
+        end
+
+        def build_veteran_or_dependent_data(icn)
+          build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
+        end
 
         def handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
           service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)

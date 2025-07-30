@@ -13,6 +13,8 @@ module VAOS
       APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
       APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
       APPT_CREATION_DURATION_METRIC = 'api.vaos.appointment_creation.duration'
+      REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_station_id.access'
+      PROVIDER_DRAFT_NETWORK_ID_METRIC = 'api.vaos.provider_draft_network_id.access'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -25,7 +27,7 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      CC_APPOINTMENT_ERROR_TAG = 'Community Care Appointments'
+      CC_APPOINTMENTS = 'Community Care Appointments'
 
       def index
         appointments[:data].each do |appt|
@@ -73,24 +75,21 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_number]
         referral_consult_id = draft_params[:referral_consult_id]
-
-        begin
-          response_data = process_draft_appointment(referral_id, referral_consult_id)
-          if response_data[:success]
-            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
-            ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
-            render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
-          else
-            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
-            render json: response_data[:json], status: response_data[:status]
-          end
-        rescue Redis::BaseError => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
-          handle_redis_error(e)
-        rescue => e
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
-          handle_appointment_creation_error(e)
+        response_data = process_draft_appointment(referral_id, referral_consult_id)
+        if response_data[:success]
+          StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
+          ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
+          render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
+        else
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+          render json: response_data[:json], status: response_data[:status]
         end
+      rescue Redis::BaseError => e
+        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        handle_redis_error(e)
+      rescue => e
+        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        handle_appointment_creation_error(e)
       end
 
       def update
@@ -127,16 +126,16 @@ module VAOS
 
         if appointment[:error]
           StatsD.increment(APPT_CREATION_FAILURE_METRIC,
-                           tags: [CC_APPOINTMENT_ERROR_TAG, "error_type:#{appointment[:error]}"])
+                           tags: ['service:community_care_appointments', "error_type:#{appointment[:error]}"])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         log_referral_booking_duration(submit_params[:referral_number])
 
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: [CC_APPOINTMENT_ERROR_TAG])
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
         handle_appointment_creation_error(e)
       end
 
@@ -526,7 +525,7 @@ module VAOS
           }
         )
       rescue ArgumentError
-        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Error fetching provider slots")
+        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots")
         nil
       end
 
@@ -663,7 +662,7 @@ module VAOS
       # @return [void]
       # @see Redis::BaseError
       def handle_redis_error(error)
-        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: #{error.class}}")
+        Rails.logger.error("#{CC_APPOINTMENTS}: #{error.class}}")
         render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
@@ -789,10 +788,17 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
-        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Appointment creation error: #{e.class}")
-        original_status = e.respond_to?(:original_status) ? e.original_status : nil
-        status_code = appointment_error_status(original_status)
-        render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
+        if e.is_a?(ActionController::ParameterMissing)
+          error_message = "#{CC_APPOINTMENTS}: Appointment creation error: #{e.class} - #{e.message}\n"
+          error_message += e.backtrace&.join("\n") if e.backtrace
+          Rails.logger.error(error_message)
+          status_code = :bad_request
+        else
+          Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class}")
+          original_status = e.respond_to?(:original_status) ? e.original_status : nil
+          status_code = appointment_error_status(original_status)
+        end
+        render(json: appt_creation_failed_error(error: e, status: status_code), status: status_code)
       end
 
       ##
@@ -856,17 +862,18 @@ module VAOS
       #
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
+        log_referral_metrics(referral)
         validation = check_referral_data_validation(referral)
         return validation unless validation[:success]
 
         usage = check_referral_usage(referral_id)
         return usage unless usage[:success]
 
-        provider = find_provider(npi: referral.provider_npi,
-                                 specialty: referral.provider_specialty,
-                                 address: referral.treating_facility_address)
-        provider_validation = check_provider_validity(provider, referral)
-        return provider_validation unless provider_validation[:success]
+        provider_result = find_and_validate_provider(referral)
+        return provider_result unless provider_result[:success]
+
+        provider = provider_result[:provider]
+        log_provider_metrics(provider)
 
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
         unless draft.id
@@ -876,7 +883,75 @@ module VAOS
         # Bypass drive time calculation if EPS mocks are enabled since we don't have betamocks for vets360
         drive_time = fetch_drive_times(provider) unless eps_appointment_service.config.mock_enabled?
         slots = fetch_provider_slots(referral, provider, draft.id)
+
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
+      end
+
+      ##
+      # Logs referral provider metrics for tracking and monitoring
+      #
+      # @param referral [ReferralDetail] The referral object containing provider information
+      # @return [void]
+      #
+      def log_referral_metrics(referral)
+        referring_provider_id = sanitize_log_value(referral.referring_facility_code)
+        referral_provider_id = sanitize_log_value(referral.provider_npi)
+
+        StatsD.increment(REFERRAL_DRAFT_STATIONID_METRIC, tags: [
+                           'service:community_care_appointments',
+                           "referring_provider_id:#{referring_provider_id}",
+                           "referral_provider_id:#{referral_provider_id}"
+                         ])
+      end
+
+      ##
+      # Finds and validates a provider based on referral information
+      #
+      # @param referral [ReferralDetail] The referral object containing provider search criteria
+      # @return [Hash] Result hash with success status and provider data or error information
+      #   - If successful: { success: true, provider: provider_object }
+      #   - If failed: { success: false, json: error_response, status: http_status }
+      #
+      def find_and_validate_provider(referral)
+        provider = find_provider(npi: referral.provider_npi,
+                                 specialty: referral.provider_specialty,
+                                 address: referral.treating_facility_address)
+
+        if provider&.id.blank?
+          log_provider_not_found_error(referral)
+          return { success: false, json: provider_not_found_error, status: :not_found }
+        end
+
+        { success: true, provider: }
+      end
+
+      ##
+      # Logs provider not found error with relevant details
+      #
+      # @param referral [ReferralDetail] The referral object containing provider information
+      # @return [void]
+      #
+      def log_provider_not_found_error(referral)
+        Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment.",
+                           { provider_address: referral.treating_facility_address,
+                             provider_npi: referral.provider_npi,
+                             provider_specialty: referral.provider_specialty,
+                             tag: CC_APPOINTMENTS })
+      end
+
+      ##
+      # Logs provider network metrics for tracking
+      #
+      # @param provider [Object] The provider object containing network information
+      # @return [void]
+      #
+      def log_provider_metrics(provider)
+        return if provider&.network_ids.blank?
+
+        provider.network_ids.each do |network_id|
+          StatsD.increment(PROVIDER_DRAFT_NETWORK_ID_METRIC,
+                           tags: ['service:community_care_appointments', "network_id:#{network_id}"])
+        end
       end
 
       # Records the duration between when a referral booking was started and when it completes
@@ -893,8 +968,17 @@ module VAOS
 
         return unless start_time
 
-        duration_ms = ((Time.current.to_f - start_time) * 1000).round
-        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms, tags: [CC_APPOINTMENT_ERROR_TAG])
+        duration = (Time.current.to_f - start_time) * 1000
+        StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: ['service:community_care_appointments'])
+      end
+
+      # Sanitizes log values by removing spaces and providing fallback for nil/empty values
+      # @param value [String, nil] the value to sanitize
+      # @return [String] sanitized value or "no_value" if blank
+      def sanitize_log_value(value)
+        return 'no_value' if value.blank?
+
+        value.to_s.gsub(/\s+/, '_')
       end
     end
   end
