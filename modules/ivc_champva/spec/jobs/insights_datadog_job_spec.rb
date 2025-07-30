@@ -46,7 +46,7 @@ RSpec.describe IvcChampva::InsightsDatadogJob, type: :job do
 
     allow(Settings).to receive(:ivc_forms).and_return(ivc_forms)
     allow(ivc_forms).to receive(:sidekiq).and_return(sidekiq)
-    allow(Flipper).to receive(:enabled?).with(:champva_insights_datadog_job, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_insights_datadog_job).and_return(true)
 
     # Mock the insights service
     allow(IvcChampva::ProdSupportUtilities::Insights).to receive(:new).and_return(insights_service)
@@ -166,7 +166,7 @@ RSpec.describe IvcChampva::InsightsDatadogJob, type: :job do
 
     context 'when the job is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:champva_insights_datadog_job, anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_insights_datadog_job).and_return(false)
       end
 
       it 'does not execute the job logic' do
