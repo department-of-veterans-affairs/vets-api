@@ -20,8 +20,28 @@ module EVSS
 
       protected
 
+      def transform_provider_facilities(incoming_data)
+        incoming_data.each do |facility|
+          treated_disability_hash = facility['treatedDisabilityNames']
+          next if treated_disability_hash.blank?
+
+          incoming_data['conditionsTreated'] = treated_disability_hash.select { |_, checked| checked }.keys.join(', ')
+        end
+        incoming_data
+      end
+
+      def transform_form_data(incoming_data)
+        if generate_2024_version?
+          # Transform the incoming data to match the expected structure
+          # For now, only provider facilities are transformed, but could need more in the future
+          transform_provider_facilities(incoming_data)
+        else
+          incoming_data
+        end
+      end
+
       def form_data
-        @form_data ||= set_signature_date(@submission.form[Form526Submission::FORM_4142])
+        @form_data ||= transform_form_data(set_signature_date(@submission.form[Form526Submission::FORM_4142]))
       end
 
       def pdf_identifier
