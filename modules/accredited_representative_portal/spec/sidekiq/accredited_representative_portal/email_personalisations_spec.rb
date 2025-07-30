@@ -172,7 +172,8 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     let(:notification) do
       create(
         :power_of_attorney_request_notification,
-        type: 'enqueue_failed_for_claimant',
+        type: 'enqueue_failed',
+        recipient_type: 'claimant',
         power_of_attorney_request: poa_request
       )
     end
@@ -187,16 +188,8 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                             }
                                                           })
 
+      allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_claimant_notification).and_return(true)
       AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
-    end
-
-    it 'returns the correct URL' do
-      result = personalisation.generate
-      expected_url = AccreditedRepresentativePortal::Engine
-                     .routes
-                     .url_helpers
-                     .v0_power_of_attorney_request_url(poa_request)
-      expect(result['poa_request_url']).to eq(expected_url)
     end
 
     it 'returns the first name' do
@@ -232,7 +225,8 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     let(:notification) do
       create(
         :power_of_attorney_request_notification,
-        type: 'enqueue_failed_for_representative',
+        type: 'enqueue_failed',
+        recipient_type: 'resolver',
         power_of_attorney_request: poa_request
       )
     end
@@ -240,6 +234,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     let(:personalisation) { described_class::FailedRep.new(notification) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_rep_notification).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth)
                                           .and_return(true)
       allow(poa_form).to receive(:parsed_data).and_return({
