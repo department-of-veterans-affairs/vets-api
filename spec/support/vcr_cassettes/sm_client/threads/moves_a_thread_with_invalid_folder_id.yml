@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/3470562/movethreadmessages/tofolder/123"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/3470562/movethreadmessages/tofolder/123"
     body:
       encoding: UTF-8
       string: "{}"
