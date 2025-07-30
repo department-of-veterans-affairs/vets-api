@@ -32,7 +32,7 @@ RSpec.describe Kafka::Monitor do
         'api.kafka_service.submission.success',
         call_location: instance_of(Thread::Backtrace::Location),
         topic:,
-        payload:,
+        kafka_payload: payload,
         tags: []
       )
       monitor.track_submission_success(topic, payload)
@@ -55,7 +55,7 @@ RSpec.describe Kafka::Monitor do
         'api.kafka_service.submission.failure',
         call_location: instance_of(Thread::Backtrace::Location),
         topic:,
-        payload:,
+        kafka_payload: payload,
         errors: error.message,
         tags: []
       )
@@ -78,7 +78,7 @@ RSpec.describe Kafka::Monitor do
       log = "Kafka::EventBusSubmissionJob for #{topic} exhausted!"
       exhausted_payload = {
         message: msg,
-        payload:,
+        kafka_payload: payload,
         topic:,
         tags: []
       }
