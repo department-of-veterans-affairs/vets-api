@@ -596,13 +596,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -623,7 +630,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /No address match found among 1 provider\(s\) for NPI/
+            /No address match found among 2 provider\(s\) for NPI/
           )
         end
       end
@@ -722,13 +729,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -763,13 +777,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -795,7 +816,7 @@ describe Eps::ProviderService do
         end
       end
 
-      context 'when multiple providers match specialty' do
+      context 'when multiple providers match specialty and address validation is performed' do
         let(:matching_address) do
           {
             street1: '1601 NEEDMORE RD ; STE 1 & 2',
@@ -927,12 +948,19 @@ describe Eps::ProviderService do
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:info)
         end
 
-        it 'returns nil when provider address cannot be parsed' do
+        it 'returns the provider when it is the only specialty match, regardless of address parsing' do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
-          expect(result).to be_nil
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+
+        it 'logs that address validation was skipped' do
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(Rails.logger).to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
         end
       end
 
@@ -1086,6 +1114,123 @@ describe Eps::ProviderService do
             expect(result).to be_a(OpenStruct)
             expect(result.id).to eq('provider_extreme')
           end
+        end
+      end
+
+      context 'when only one provider matches specialty' do
+        let(:any_address) do
+          {
+            street1: '999 Different Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'single_provider',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns the provider without address validation' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('single_provider')
+        end
+
+        it 'logs that address validation was skipped' do
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
+          expect(Rails.logger).to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
+        end
+
+        it 'returns provider even when address does not match' do
+          non_matching_address = {
+            street1: '999 Nowhere Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('single_provider')
+        end
+      end
+
+      context 'when multiple providers match specialty' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'performs address validation and returns matching provider' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+
+        it 'does not log single match message when multiple providers exist' do
+          allow(Rails.logger).to receive(:info)
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(Rails.logger).not_to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
         end
       end
     end

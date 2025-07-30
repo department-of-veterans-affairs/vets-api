@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: b8a833194a3765babda5652fa31526b11f4afb80
+  revision: 88bda10e03c92a97067d2d4fecb89783c6de227f
   branch: master
   specs:
     betamocks (0.11.0)
@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: e554ac7c87b2834c8829e10bc4ad91a3b9016d53
+  revision: 0a486fa277cff15bb5bd3dae4efb12690cdfb80d
   branch: master
   specs:
-    vets_json_schema (25.1.3)
+    vets_json_schema (25.1.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -245,7 +245,7 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1133.0)
+    aws-partitions (1.1136.0)
     aws-sdk-core (3.227.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -256,7 +256,7 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.107.0)
+    aws-sdk-kms (1.108.0)
       aws-sdk-core (~> 3, >= 3.227.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-s3 (1.194.0)
@@ -434,8 +434,8 @@ GEM
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
-    erb (5.0.1)
-    erb (5.0.1-java)
+    erb (5.0.2)
+    erb (5.0.2-java)
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
@@ -508,7 +508,8 @@ GEM
       rack-protection (>= 1.5.3, < 5.0.0)
       rack-session (>= 1.0.2, < 3.0.0)
       sanitize (< 8)
-    foreman (0.88.1)
+    foreman (0.90.0)
+      thor (~> 1.4)
     formatador (1.1.0)
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
@@ -625,8 +626,8 @@ GEM
     image_processing (1.14.0)
       mini_magick (>= 4.9.5, < 6)
       ruby-vips (>= 2.0.17, < 3)
-    io-console (0.8.0)
-    io-console (0.8.0-java)
+    io-console (0.8.1)
+    io-console (0.8.1-java)
     irb (1.15.2)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
@@ -813,7 +814,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.5.9)
+    pg (1.6.0)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -902,7 +903,7 @@ GEM
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     rails-session_cookie (0.3.0)
       rails (>= 4.0)
-    rails_semantic_logger (4.17.0)
+    rails_semantic_logger (4.18.0)
       rack
       railties (>= 5.1)
       semantic_logger (~> 4.16)
@@ -924,7 +925,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.9.0)
-    rdoc (6.14.1)
+    rdoc (6.14.2)
       erb
       psych (>= 4.0.0)
     redis (5.4.1)
@@ -934,7 +935,7 @@ GEM
     redis-namespace (1.11.0)
       redis (>= 4)
     regexp_parser (2.10.0)
-    reline (0.6.1)
+    reline (0.6.2)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -1077,7 +1078,7 @@ GEM
     securerandom (0.4.1)
     seedbank (0.5.0)
       rake (>= 10.0)
-    semantic_logger (4.16.0)
+    semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
     sentry-ruby (5.26.0)
       bigdecimal
@@ -1119,7 +1120,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.9)
+    statsd-instrument (3.9.10)
     stringio (3.1.7)
     strong_migrations (2.4.0)
       activerecord (>= 7.1)
