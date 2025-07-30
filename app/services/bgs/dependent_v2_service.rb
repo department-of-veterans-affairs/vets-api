@@ -135,7 +135,7 @@ module BGS
 
       form_674_pdfs = []
       claim.parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claimcreated_at, form_id, index)
+        pdf_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claim.created_at, form_id, index)
         file_uuid = claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
         form_674_pdfs << [file_uuid, pdf_path]
       end
