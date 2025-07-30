@@ -51,6 +51,7 @@ ALLOWLIST = %w[
   service
   use_v2
   line
+  kafka_payload
 ].freeze
 
 Rails.application.config.filter_parameters = [
