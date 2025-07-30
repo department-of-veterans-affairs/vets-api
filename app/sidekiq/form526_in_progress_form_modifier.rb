@@ -4,7 +4,6 @@ class Form526InProgressFormModifier
   include Sidekiq::Job
   sidekiq_options retry: false
 
-  STATSD_PREFIX = 'form526.in_progress_form_modifier'
   NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release'
 
   def perform(ipf_id_array)
