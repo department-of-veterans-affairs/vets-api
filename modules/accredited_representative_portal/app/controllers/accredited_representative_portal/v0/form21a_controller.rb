@@ -40,6 +40,22 @@ module AccreditedRepresentativePortal
         end
       end
 
+      def create_attachment
+        form_attachment = Form21aAttachment.new
+        form_data = params[:form_attachment]
+        form_attachment.set_file_data!(
+          form_data[:file_data],
+          form_data[:file_password],
+          form_data[:file_type],
+          form_data[:user_account_id]
+        )
+        form_attachment.save!
+        render json: { confirmationCode: form_attachment.guid }, status: :ok
+      rescue => e
+        Rails.logger.error("Form21aAttachment upload failed: #{e.message}")
+        render json: { errors: 'File upload failed' }, status: :unprocessable_entity
+      end
+
       private
 
       attr_reader :parsed_request_body
