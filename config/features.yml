@@ -107,6 +107,11 @@ features:
       Primarily used for coordinated maintenance windows or temporary system suspensions,
       allowing the team to manage API exposure dynamically without requiring a redeploy.
     enable_in_development: true
+  ask_va_api_patsr_separation:
+    actor_type: user
+    description: >
+      Use new CRM environments for Ask VA API
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
