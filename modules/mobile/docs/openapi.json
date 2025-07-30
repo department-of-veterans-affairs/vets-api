@@ -7018,25 +7018,25 @@
         "description": "Retrieve travel pay claims for a user within a specified date range.",
         "parameters": [
           {
-            "description": "The start date for the range of claims in ISO 8601 date format (YYYY-MM-DD)",
-            "example": "2024-01-01",
+            "description": "The start date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-01-01T00:00:00",
             "in": "query",
             "name": "start_date",
             "required": true,
             "schema": {
               "type": "string",
-              "format": "date"
+              "format": "date-time"
             }
           },
           {
-            "description": "The end date for the range of claims in ISO 8601 date format (YYYY-MM-DD)",
-            "example": "2024-03-31",
+            "description": "The end date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-03-31T23:59:59",
             "in": "query",
             "name": "end_date",
             "required": true,
             "schema": {
               "type": "string",
-              "format": "date"
+              "format": "date-time"
             }
           },
           {
@@ -7063,6 +7063,16 @@
               }
             },
             "description": "OK"
+          },
+          "206": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "Partial Content - More claims exist beyond the current page"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -23169,11 +23179,11 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "metadata",
+          "meta",
           "data"
         ],
         "properties": {
-          "metadata": {
+          "meta": {
             "type": "object",
             "required": [
               "totalRecordCount",
@@ -23183,6 +23193,8 @@
             "properties": {
               "totalRecordCount": {
                 "type": "integer",
+                "description": "Total number of claims found. Will be 0 if no claims exist within the specified date range.",
+                "minimum": 0,
                 "example": 25
               },
               "pageNumber": {
@@ -23201,9 +23213,12 @@
           },
           "data": {
             "type": "array",
+            "description": "Array of travel pay claims. Will be empty if no claims are found within the specified date range.",
+            "minItems": 0,
             "items": {
               "$ref": "#/components/schemas/TravelPayClaimSummary"
-            }
+            },
+            "example": []
           }
         }
       },

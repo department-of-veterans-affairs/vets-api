@@ -3957,30 +3957,30 @@ paths:
     get:
       description: Retrieve travel pay claims for a user within a specified date range.
       parameters:
-        - description: The start date for the range of claims in ISO 8601 date format (YYYY-MM-DD)
-          example: '2024-01-01'
-          in: query
-          name: start_date
-          required: true
-          schema:
-            type: string
-            format: date
-        - description: The end date for the range of claims in ISO 8601 date format (YYYY-MM-DD)
-          example: '2024-03-31'
-          in: query
-          name: end_date
-          required: true
-          schema:
-            type: string
-            format: date
-        - description: The page number requested. Defaults to 1.
-          example: 1
-          in: query
-          name: page_number
-          required: false
-          schema:
-            type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+      - description: The start date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)
+        example: '2024-01-01T00:00:00'
+        in: query
+        name: start_date
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - description: The end date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)
+        example: '2024-03-31T23:59:59'
+        in: query
+        name: end_date
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - description: The page number requested. Defaults to 1.
+        example: 1
+        in: query
+        name: page_number
+        required: false
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
@@ -3988,6 +3988,12 @@ paths:
               schema:
                 $ref: ./schemas/TravelPayClaims.yml
           description: OK
+        '206':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/TravelPayClaims.yml
+          description: Partial Content - More claims exist beyond the current page
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -4009,7 +4015,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       security:
-        - Bearer: []
+      - Bearer: []
       summary: /v0/travel-pay/claims
     post:
       description: Submit a mileage-only travel claim.

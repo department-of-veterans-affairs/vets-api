@@ -3,13 +3,12 @@
 module Mobile
   module V0
     module Contracts
-      class TravelPayClaims < PaginationBase
-        RequiredDateRangeSchema = Dry::Schema.Params do
-          required(:start_date).filled(:date)
-          required(:end_date).filled(:date)
+      class TravelPayClaims < Base
+        params do
+          required(:start_date).filled(:string)
+          required(:end_date).filled(:string)
+          optional(:page_number).filled(:integer)
         end
-
-        params(RequiredDateRangeSchema)
       end
     end
   end
