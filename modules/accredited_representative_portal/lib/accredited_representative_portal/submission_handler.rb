@@ -3,12 +3,12 @@
 module AccreditedRepresentativePortal
   class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
     def self.pending_attempts
-      form_ids = ::AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES.map(&:PROPER_FORM_ID)
+      form_ids = AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES.map { |klass| klass::FORM_ID }
 
-      Lighthouse::SubmissionAttempt
-        .joins(:submission)
-        .where(status: 'pending')
-        .where('lighthouse_submissions.form_id': form_ids)
+      FormSubmissionAttempt
+        .joins(:form_submission)
+        .where(aasm_state: 'pending')
+        .merge(FormSubmission.where(form_type: form_ids))
     end
 
     private
