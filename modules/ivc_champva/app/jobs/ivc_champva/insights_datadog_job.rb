@@ -15,7 +15,7 @@ module IvcChampva
     DEFAULT_GATE = 2
 
     def perform(days_ago: DEFAULT_DAYS_AGO, gate: DEFAULT_GATE, form_number: '10-10D')
-      return unless Settings.ivc_forms.sidekiq.insights_datadog_job.enabled
+      return unless Flipper.enabled?(:champva_insights_datadog_job, @current_user)
 
       insights_service = IvcChampva::ProdSupportUtilities::Insights.new
       metrics = insights_service.gather_submission_metrics(days_ago, gate, form_number)

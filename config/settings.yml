@@ -608,8 +608,6 @@ ivc_forms:
     bucket: <%= ENV['ivc_forms__s3__bucket'] %>
     region: us-gov-west-1
   sidekiq:
-    insights_datadog_job:
-      enabled: true
     missing_form_status_job:
       enabled: true
     old_records_cleanup_job:
