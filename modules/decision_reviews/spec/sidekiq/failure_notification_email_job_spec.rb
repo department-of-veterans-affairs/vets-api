@@ -85,26 +85,26 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
   describe '#get_callback_config' do
     let(:job) { described_class.new }
-    
+
     it 'returns correct config for form emails' do
       callback_klass, function, template_id = job.send(:get_callback_config, :form, 'SC')
-      
+
       expect(callback_klass).to eq(DecisionReviews::FormNotificationCallback)
       expect(function).to eq('form submission')
       expect(template_id).to eq('fake_sc_template_id')
     end
-    
+
     it 'returns correct config for evidence emails' do
       callback_klass, function, template_id = job.send(:get_callback_config, :evidence, 'NOD')
-      
+
       expect(callback_klass).to eq(DecisionReviews::EvidenceNotificationCallback)
       expect(function).to eq('evidence submission to Lighthouse')
       expect(template_id).to eq('fake_nod_evidence_template_id')
     end
-    
+
     it 'returns correct config for secondary form emails' do
       callback_klass, function, template_id = job.send(:get_callback_config, :secondary_form, 'HLR')
-      
+
       expect(callback_klass).to eq(DecisionReviews::EvidenceNotificationCallback)
       expect(function).to eq('secondary form submission to Lighthouse')
       expect(template_id).to eq('fake_sc_secondary_form_template_id')
@@ -115,7 +115,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
     let(:job) { described_class.new }
     let(:submission) { create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1) }
     let(:reference) { "SC-form-#{guid1}" }
-    
+
     it 'configures the service with correct callback options for form emails' do
       expect(VaNotify::Service).to receive(:new).with(
         Settings.vanotify.services.benefits_decision_review.api_key,
@@ -127,14 +127,15 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             function: 'form submission',
             submitted_appeal_uuid: guid1,
             email_template_id: 'fake_sc_template_id',
-            reference:
+            reference:,
+            statsd_tags: ["service:supplemental-claims", "function:form submission"]
           }
         }
       ).and_return(vanotify_service)
-      
+
       job.send(:vanotify_service_with_callback, submission, :form, reference)
     end
-    
+
     it 'configures the service with correct callback options for evidence emails' do
       expect(VaNotify::Service).to receive(:new).with(
         Settings.vanotify.services.benefits_decision_review.api_key,
@@ -146,11 +147,12 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             function: 'evidence submission to Lighthouse',
             submitted_appeal_uuid: guid1,
             email_template_id: 'fake_sc_evidence_template_id',
-            reference:
+            reference:,
+            statsd_tags: ["service:supplemental-claims", "function:evidence submission to Lighthouse"]
           }
         }
       ).and_return(vanotify_service)
-      
+
       job.send(:vanotify_service_with_callback, submission, :evidence, reference)
     end
   end
@@ -244,7 +246,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               service_name: 'supplemental-claims',
               function: 'form submission',
               submitted_appeal_uuid: guid1,
-              reference: reference
+              reference:,
+              statsd_tags: ["service:supplemental-claims", "function:form submission"]
             }
           }
 
@@ -419,7 +422,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               service_name: 'board-appeal',
               function: 'evidence submission to Lighthouse',
               submitted_appeal_uuid: guid1,
-              reference: reference
+              reference:,
+              statsd_tags: ["service:board-appeal", "function:evidence submission to Lighthouse"]
             }
           }
 
@@ -517,7 +521,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                 service_name: 'supplemental-claims',
                 function: 'secondary form submission to Lighthouse',
                 submitted_appeal_uuid: guid1,
-                reference:
+                reference:,
+                statsd_tags: ["service:supplemental-claims", "function:secondary form submission to Lighthouse"]
               }
             }
 
@@ -557,7 +562,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.form.error', tags: ['appeal_type:SC'])
           expect(StatsD).to have_received(:increment)
-            .with('silent_failure', tags: ['service:supplemental-claims', 'function: form submission to Lighthouse'])
+            .with('silent_failure', tags: ['service:supplemental-claims', 'function:form submission to Lighthouse'])
         end
       end
 
@@ -609,7 +614,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             .with('worker.decision_review.failure_notification_email.evidence.error', tags: ['appeal_type:SC'])
           expect(StatsD).to have_received(:increment)
             .with('silent_failure',
-                  tags: ['service:supplemental-claims', 'function: evidence submission to Lighthouse'])
+                  tags: ['service:supplemental-claims', 'function:evidence submission to Lighthouse'])
         end
       end
 
@@ -647,7 +652,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             .with('worker.decision_review.failure_notification_email.secondary_form.error', tags: ['appeal_type:SC'])
           expect(StatsD).to have_received(:increment)
             .with('silent_failure',
-                  tags: ['service:supplemental-claims', 'function: secondary form submission to Lighthouse'])
+                  tags: ['service:supplemental-claims', 'function:secondary form submission to Lighthouse'])
         end
       end
 

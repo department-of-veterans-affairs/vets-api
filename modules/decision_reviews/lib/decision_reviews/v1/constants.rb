@@ -44,5 +44,76 @@ module DecisionReviews
       'NOD' => 'board-appeal',
       'SC' => 'supplemental-claims'
     }.freeze
+
+    EMAIL_RESULT_LOGGING_CONFIG = {
+      form: {
+        log_message: 'form email queued',
+        statsd_key: 'form.email_queued',
+        error_statsd_key: 'form.error',
+        function: 'form submission to Lighthouse',
+        params_builder: lambda { |submission, extra_data|
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            appeal_type: submission.type_of_appeal,
+            notification_id: extra_data
+          }
+        },
+        error_params_builder: lambda { |submission, error_message|
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            appeal_type: submission.type_of_appeal,
+            message: error_message
+          }
+        }
+      },
+      evidence: {
+        log_message: 'evidence email queued',
+        statsd_key: 'evidence.email_queued',
+        error_statsd_key: 'evidence.error',
+        function: 'evidence submission to Lighthouse',
+        params_builder: lambda { |upload, extra_data|
+          submission = upload.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: upload.lighthouse_upload_id,
+            appeal_type: submission.type_of_appeal,
+            notification_id: extra_data
+          }
+        },
+        error_params_builder: lambda { |upload, error_message|
+          submission = upload.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: upload.lighthouse_upload_id,
+            appeal_type: submission.type_of_appeal,
+            message: error_message
+          }
+        }
+      },
+      secondary_form: {
+        log_message: 'secondary form email queued',
+        statsd_key: 'secondary_form.email_queued',
+        error_statsd_key: 'secondary_form.error',
+        function: 'secondary form submission to Lighthouse',
+        params_builder: lambda { |form, extra_data|
+          submission = form.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: form.guid,
+            appeal_type: submission.type_of_appeal,
+            notification_id: extra_data
+          }
+        },
+        error_params_builder: lambda { |form, error_message|
+          submission = form.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: form.guid,
+            appeal_type: submission.type_of_appeal,
+            message: error_message
+          }
+        }
+      }
+    }.freeze
   end
 end

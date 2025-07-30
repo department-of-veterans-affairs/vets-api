@@ -18,7 +18,6 @@ describe DecisionReviews::EvidenceNotificationCallback do
       notification_id: SecureRandom.uuid,
       notification_type: 'email',
       source_location: 'unit-test',
-      reference:,
       status:,
       status_reason:,
       callback_klass: described_class.to_s,
@@ -27,7 +26,9 @@ describe DecisionReviews::EvidenceNotificationCallback do
         service_name: 'supplemental-claims',
         function: 'evidence submission to lighthouse',
         submitted_appeal_uuid:,
-        email_template_id:
+        email_template_id:,
+        reference:,
+        statsd_tags: ['service:supplemental-claims', 'function:evidence submission to lighthouse']
       }
     )
   end

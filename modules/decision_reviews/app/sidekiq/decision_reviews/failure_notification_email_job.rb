@@ -66,18 +66,20 @@ module DecisionReviews
     end
 
     def vanotify_service_with_callback(submission, email_type, reference)
-      appeal_type = submission.type_of_appeal
+      appeal_type = extract_appeal_type(submission)
       callback_klass, function, email_template_id = get_callback_config(email_type, appeal_type)
+      service_name = APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
 
       callback_options = {
         callback_klass: callback_klass.to_s,
         callback_metadata: {
           email_type: :error,
-          service_name: APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
+          service_name:,
           function:,
           submitted_appeal_uuid: submission.submitted_appeal_uuid,
           email_template_id:,
-          reference:
+          reference:,
+          statsd_tags: ["service:#{service_name}", "function:#{function}"]
         }
       }
       ::VaNotify::Service.new(VANOTIFY_API_KEY, callback_options)
@@ -141,9 +143,9 @@ module DecisionReviews
 
         submission.update(failure_notification_sent_at: DateTime.now)
 
-        record_form_email_send_successful(submission, response.id)
+        record_email_success(submission, :form, response.id)
       rescue => e
-        record_form_email_send_failure(submission, e)
+        record_email_failure(submission, :form, e)
       end
     end
 
@@ -159,9 +161,9 @@ module DecisionReviews
 
         upload.update(failure_notification_sent_at: DateTime.now)
 
-        record_evidence_email_send_successful(upload, response.id)
+        record_email_success(upload, :evidence, response.id)
       rescue => e
-        record_evidence_email_send_failure(upload, e)
+        record_email_failure(upload, :evidence, e)
       end
     end
 
@@ -176,84 +178,36 @@ module DecisionReviews
 
         form.update(failure_notification_sent_at: DateTime.now)
 
-        record_secondary_form_email_send_successful(form, response.id)
+        record_email_success(form, :secondary_form, response.id)
       rescue => e
-        record_secondary_form_email_send_failure(form, e)
+        record_email_failure(form, :secondary_form, e)
       end
     end
 
-    def record_form_email_send_successful(submission, notification_id)
-      appeal_type = submission.type_of_appeal
-      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, notification_id: }
-      Rails.logger.info('DecisionReviews::FailureNotificationEmailJob form email queued', params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.form.email_queued", tags: ["appeal_type:#{appeal_type}"])
+    def record_email_success(record, email_type, notification_id)
+      config = DecisionReviews::V1::EMAIL_RESULT_LOGGING_CONFIG[email_type]
+      appeal_type = extract_appeal_type(record)
+      params = config[:params_builder].call(record, notification_id)
+
+      Rails.logger.info("DecisionReviews::FailureNotificationEmailJob #{config[:log_message]}", params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.#{config[:statsd_key]}", tags: ["appeal_type:#{appeal_type}"])
     end
 
-    def record_form_email_send_failure(submission, e)
-      appeal_type = submission.type_of_appeal
-      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, message: e.message }
-      Rails.logger.error('DecisionReviews::FailureNotificationEmailJob form error', params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["appeal_type:#{appeal_type}"])
+    def record_email_failure(record, email_type, error)
+      config = DecisionReviews::V1::EMAIL_RESULT_LOGGING_CONFIG[email_type]
+      appeal_type = extract_appeal_type(record)
+      params = config[:error_params_builder].call(record, error.message)
 
-      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: form submission to Lighthouse']
+      Rails.logger.error("DecisionReviews::FailureNotificationEmailJob #{email_type.to_s.gsub("_", " ")} error", params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.#{config[:error_statsd_key]}", tags: ["appeal_type:#{appeal_type}"])
+
+      service_name = APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
+      tags = ["service:#{service_name}", "function:#{config[:function]}"]
       StatsD.increment('silent_failure', tags:)
     end
 
-    def record_secondary_form_email_send_successful(secondary_form, notification_id)
-      submission = secondary_form.appeal_submission
-      appeal_type = submission.type_of_appeal
-      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
-                 lighthouse_upload_id: secondary_form.guid,
-                 appeal_type:,
-                 notification_id: }
-      Rails.logger.info('DecisionReviews::FailureNotificationEmailJob secondary form email queued', params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.email_queued", tags: ["appeal_type:#{appeal_type}"])
-    end
-
-    def record_secondary_form_email_send_failure(secondary_form, e)
-      submission = secondary_form.appeal_submission
-      appeal_type = submission.type_of_appeal
-      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
-                 lighthouse_upload_id: secondary_form.guid,
-                 appeal_type:,
-                 message: e.message }
-      Rails.logger.error('DecisionReviews::FailureNotificationEmailJob secondary form error', params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.error", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: secondary form submission to Lighthouse']
-      StatsD.increment('silent_failure', tags:)
-    end
-
-    def record_evidence_email_send_successful(upload, notification_id)
-      submission = upload.appeal_submission
-      appeal_type = submission.type_of_appeal
-      params = {
-        submitted_appeal_uuid: submission.submitted_appeal_uuid,
-        lighthouse_upload_id: upload.lighthouse_upload_id,
-        appeal_type:,
-        notification_id:
-      }
-      Rails.logger.info('DecisionReviews::FailureNotificationEmailJob evidence email queued', params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.email_queued", tags: ["appeal_type:#{appeal_type}"])
-    end
-
-    def record_evidence_email_send_failure(upload, e)
-      submission = upload.appeal_submission
-      appeal_type = submission.type_of_appeal
-      params = {
-        submitted_appeal_uuid: submission.submitted_appeal_uuid,
-        lighthouse_upload_id: upload.lighthouse_upload_id,
-        appeal_type:,
-        message: e.message
-      }
-      Rails.logger.error('DecisionReviews::FailureNotificationEmailJob evidence error', params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: evidence submission to Lighthouse']
-      StatsD.increment('silent_failure', tags:)
+    def extract_appeal_type(record)
+      record.respond_to?(:type_of_appeal) ? record.type_of_appeal : record.appeal_submission.type_of_appeal
     end
 
     def enabled?
