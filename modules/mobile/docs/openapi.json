@@ -20424,7 +20424,7 @@
             "properties": {
               "type": {
                 "type": "string",
-                "example": "evssLettersBeneficiaryResponses"
+                "example": "LettersBeneficiaryResponses"
               },
               "id": {
                 "type": "string",
@@ -20707,7 +20707,6 @@
                     "service": {
                       "type": "string",
                       "enum": [
-                        "evss",
                         "caseflow",
                         "payment_history",
                         "facility_locator",

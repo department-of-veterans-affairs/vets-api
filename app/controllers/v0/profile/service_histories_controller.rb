@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'va_profile/military_personnel/service'
+require 'lighthouse/benefits_discovery/params'
+require 'lighthouse/benefits_discovery/log_eligible_benefits_job'
 
 module V0
   module Profile
@@ -43,6 +45,8 @@ module V0
         handle_errors!(response.episodes)
         report_results(response.episodes)
 
+        log_eligible_benefits(response.episodes) if Flipper.enabled?(:log_eligible_benefits)
+
         service_history_json = JSON.parse(response.to_json, symbolize_names: true)
         options = { is_collection: false }
 
@@ -77,6 +81,13 @@ module V0
         tag = response.present? ? 'present:true' : 'present:false'
 
         StatsD.increment("#{key}.service_history", tags: [tag])
+      end
+
+      def log_eligible_benefits(episodes)
+        params = ::BenefitsDiscovery::Params.service_history_params(episodes)
+        Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob.perform_async(current_user.uuid, params)
+      rescue => e
+        Rails.logger.error("Error logging eligible benefits: #{e.message}")
       end
     end
   end
