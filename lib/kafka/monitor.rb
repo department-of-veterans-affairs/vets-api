@@ -78,7 +78,7 @@ module Kafka
     def add_tags(payload)
       return [] unless payload.is_a?(Hash) && payload.key?('submissionName') && payload.key?('state')
 
-      ["form:#{payload.fetch('submissionName', nil)}", "state:#{payload.fetch('state', nil)}"]
+      ["form:#{payload['submissionName']}", "state:#{payload['state']}"]
     end
   end
 end
