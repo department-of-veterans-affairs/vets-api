@@ -27,7 +27,6 @@ properties:
             service:
               type: string
               enum:
-                - evss
                 - caseflow
                 - payment_history
                 - facility_locator

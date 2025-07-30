@@ -151,9 +151,6 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
-  caregiver_mulesoft_config_v2:
-    actor_type: user
-    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -2359,3 +2356,6 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  calculator_constants_versioning:
+    actor_type: 
+    description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
