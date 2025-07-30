@@ -901,9 +901,7 @@ mhv:
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
-    base_path: <%= ENV['mhv__sm__base_path'] %>
     gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
-    host: <%= ENV['mhv__sm__host'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
     x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:

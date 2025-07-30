@@ -1221,9 +1221,6 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
-  mhv_secure_messaging_migrate_to_api_gateway:
-    actor_type: user
-    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
