@@ -40,6 +40,7 @@ ALLOWLIST = %w[
   user_account_uuid
   confirmation_number
   message
+  error
   errors
   claim_id
   form_id
