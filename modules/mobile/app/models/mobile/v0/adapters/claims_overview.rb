@@ -32,25 +32,28 @@ module Mobile
 
         def parse(list)
           list
-            .map { |entry| entry['list_data'] ? parse_claim(entry) : parse_appeal(entry) }
-            .sort_by(&:updated_at).reverse!
+            .map { |entry| entry['type'] == 'claim' ? parse_claim(entry) : parse_appeal(entry) }
+            .sort_by { |entry| [entry[:updated_at] ? 1 : 0, entry[:updated_at]] }.reverse!
         end
 
         private
 
         def parse_claim(entry)
+          attributes = entry['attributes']
           Mobile::V0::ClaimOverview.new(
             {
-              id: entry['evss_id'].to_s,
+              id: entry['id'],
               type: 'claim',
-              subtype: entry['list_data']['status_type'],
-              completed: entry['list_data']['status'] == 'COMPLETE', # TODO: ADJ what's the business logic  here?
-              date_filed: Date.strptime(entry['list_data']['date'], '%m/%d/%Y').iso8601,
-              updated_at: Date.strptime(
-                entry['list_data']['claim_phase_dates']['phase_change_date'], '%m/%d/%Y'
-              ).iso8601,
-              display_title: entry['list_data']['status_type'],
-              decision_letter_sent: entry['list_data']['decision_notification_sent'] == 'Yes'
+              subtype: attributes['claimType'],
+              completed: attributes['status'] == 'COMPLETE',
+              date_filed: date(attributes['claimDate']),
+              updated_at: date(attributes['claimPhaseDates']['phaseChangeDate']),
+              display_title: attributes['claimType'],
+              decision_letter_sent: attributes['decisionLetterSent'],
+              phase: Mobile::ClaimsHelper.phase_to_number(attributes['claimPhaseDates']['phaseType']),
+              documents_needed: documents_needed(attributes),
+              development_letter_sent: attributes['developmentLetterSent'],
+              claim_type_code: attributes['claimTypeCode']
             }
           )
         end
@@ -82,6 +85,16 @@ module Mobile
           else
             "#{appeal_display_text} for #{program_area_text}"
           end
+        end
+
+        def documents_needed(attributes)
+          attributes['evidenceWaiverSubmitted5103'] ? false : attributes['documentsNeeded']
+        end
+
+        def date(attribute)
+          return nil unless attribute
+
+          Date.strptime(attribute, '%Y-%m-%d').iso8601
         end
       end
     end
