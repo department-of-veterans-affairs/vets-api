@@ -47,10 +47,10 @@ module AccreditedRepresentativePortal
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_warning_email
       when 'expired'
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_confirmation_email
-      when 'enqueue_failed_for_claimant' || 'submission_failed_for_claimant'
+      when 'enqueue_failed_for_claimant', 'submission_failed_for_claimant'
         Settings.vanotify.services.va_gov.template_id
                 .accredited_representative_portal_poa_request_failure_claimant_email
-      when 'enqueue_failed_for_representative' || 'submission_failed_for_representative'
+      when 'enqueue_failed_for_representative', 'submission_failed_for_representative'
         Settings.vanotify.services.va_gov.template_id
                 .accredited_representative_portal_poa_request_failure_rep_email
       end
