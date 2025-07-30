@@ -992,8 +992,6 @@ mvi_hca:
   url: http://example.com
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
-notifications:
-  public_key: ~
 ogc:
   form21a_service_url:
     api_key: fake_key
@@ -1513,6 +1511,7 @@ vanotify:
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
+        form10297_confirmation_email: form10297_confirmation_email_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
