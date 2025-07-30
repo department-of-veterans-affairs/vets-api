@@ -1,10 +1,11 @@
 common:
-  - michel.mcdonald@adhocteam.us
   - kristen.brown@adhocteam.us
-  - matt.kelly@adhocteam.us
-  - gia.antoniades@adhocteam.us
+  - mmcdonald@technatomy.com
+  - pstevens@technatomy.com
+  - alattimore@technatomy.com
 development:
 staging:
 production:
   - drew.fisher@adhocteam.us
   - michael.hobson@adhocteam.us
+  - heather.roy@zerodelta365.com

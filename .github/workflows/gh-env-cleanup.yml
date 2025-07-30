@@ -65,6 +65,7 @@ jobs:
             puts "\nDone."
           EOF
 
+
   # PR-close cleanup job
   pr-close-cleanup:
     if: github.event_name == 'pull_request'
@@ -106,3 +107,4 @@ jobs:
               echo "Failed to delete: $ENCODED_ENV (HTTP $RESPONSE). It probably never existed though."
             fi
           done
+

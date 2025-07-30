@@ -10,6 +10,10 @@ FactoryBot.define do
     backing_idme_uuid { nil }
     verified_at { Time.zone.now }
     locked { false }
+
+    after(:build) do |user_verification, _context|
+      user_verification.user_credential_email = create(:user_credential_email, user_verification:)
+    end
   end
 
   factory :idme_user_verification, class: 'UserVerification' do
@@ -36,7 +40,6 @@ FactoryBot.define do
 
   factory :dslogon_user_verification, class: 'UserVerification' do
     user_account { create(:user_account) }
-    user_credential_email { create(:user_credential_email) }
     idme_uuid { nil }
     logingov_uuid { nil }
     dslogon_uuid { Faker::Number.number(digits: 10) }

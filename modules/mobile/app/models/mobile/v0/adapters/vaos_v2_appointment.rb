@@ -42,8 +42,10 @@ module Mobile
 
         # ADHOC is a staging value used in place of MOBILE_ANY
         VIDEO_CODE = %w[
-          MOBILE_ANY
           ADHOC
+          MOBILE_ANY
+          MOBILE_ANY_GROUP
+          MOBILE_GFE
         ].freeze
 
         # Only a subset of types of service that requires human readable conversion
@@ -115,12 +117,16 @@ module Mobile
             patient_email:,
             best_time_to_call: appointment[:preferred_times_for_phone_call],
             friendly_location_name:,
-            service_category_name: appointment.dig(:service_category, 0, :text)
+            service_category_name: appointment.dig(:service_category, 0, :text),
+            show_schedule_link: appointment[:show_schedule_link]
           }
 
           if appointment[:travelPayClaim]
             adapted_appointment[:travelPayClaim] =
               appointment[:travelPayClaim].deep_symbolize_keys
+            # Using the existence of the travelPayClaim key as a flag for if we should check for eligibility
+            # since that indicates that the include_claims flag is true and it's a Past appointment
+            adapted_appointment[:travel_pay_eligible] = travel_pay_eligible?
           end
 
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
@@ -295,7 +301,7 @@ module Mobile
 
           vvs_kind = appointment.dig(:telehealth, :vvs_kind)
           if VIDEO_CODE.include?(vvs_kind)
-            if appointment.dig(:extension, :patient_has_mobile_gfe)
+            if vvs_kind == 'MOBILE_GFE' || appointment.dig(:extension, :patient_has_mobile_gfe)
               APPOINTMENT_TYPES[:va_video_connect_gfe]
             else
               APPOINTMENT_TYPES[:va_video_connect_home]
@@ -303,7 +309,8 @@ module Mobile
           elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
             APPOINTMENT_TYPES[:va_video_connect_onsite]
           else
-            APPOINTMENT_TYPES[:va]
+            vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+            vvs_video_appt.to_s.downcase == 'true' ? APPOINTMENT_TYPES[:va_video_connect_home] : APPOINTMENT_TYPES[:va]
           end
         end
 
@@ -443,6 +450,15 @@ module Mobile
 
         def time_to_datetime(time)
           time.is_a?(DateTime) ? time : DateTime.parse(time)
+        end
+
+        # checks for if the appointment type is eligible for travel pay
+        def travel_pay_eligible?
+          [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
+           APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
+            appointment[:kind] != PHONE_KIND &&
+            appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
+            appointment.start < Time.now.utc # verify it's a past appointment
         end
       end
     end

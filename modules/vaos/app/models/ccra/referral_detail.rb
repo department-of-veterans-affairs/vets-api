@@ -6,11 +6,11 @@ module Ccra
     include ActiveModel::Model
 
     attr_reader :expiration_date, :category_of_care, :provider_name, :provider_npi,
-                :provider_telephone, :treating_facility, :referral_number,
+                :provider_specialty, :provider_telephone, :treating_facility, :referral_number,
                 :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
                 :referring_facility_address, :has_appointments,
-                :referral_date, :station_id, :referral_consult_id, :appointment_type_id,
+                :referral_date, :station_id, :referral_consult_id,
                 :treating_facility_name, :treating_facility_code, :treating_facility_phone,
                 :treating_facility_address
     attr_accessor :uuid
@@ -32,9 +32,6 @@ module Ccra
       @station_id = attributes[:station_id]
       @uuid = nil # Will be set by controller
       @has_appointments = attributes[:appointments].present?
-      # NOTE: appointment_type_id defaulted to 'ov' for phase 1 implementation, needed for EPS provider
-      # slots fetching
-      @appointment_type_id = 'ov'
 
       # Parse provider and facility info
       parse_referring_facility_info(attributes[:referring_facility_info])
@@ -73,12 +70,12 @@ module Ccra
         'category_of_care' => @category_of_care,
         'provider_name' => @provider_name,
         'provider_npi' => @provider_npi,
+        'provider_specialty' => @provider_specialty,
         'referral_number' => @referral_number,
         'has_appointments' => @has_appointments,
         'referral_date' => @referral_date,
         'station_id' => @station_id,
         'referral_consult_id' => @referral_consult_id,
-        'appointment_type_id' => @appointment_type_id,
         'uuid' => @uuid
       }
     end
@@ -110,7 +107,6 @@ module Ccra
       @station_id = hash['station_id']
       @has_appointments = hash['has_appointments']
       @referral_consult_id = hash['referral_consult_id']
-      @appointment_type_id = hash['appointment_type_id'] || 'ov'
       @uuid = hash['uuid']
     end
 
@@ -120,6 +116,7 @@ module Ccra
     def assign_provider_info(hash)
       @provider_name = hash['provider_name']
       @provider_npi = hash['provider_npi']
+      @provider_specialty = hash['provider_specialty']
     end
 
     # Assign facility information including addresses
@@ -173,7 +170,7 @@ module Ccra
         instance.attributes = attributes
         instance
       rescue JSON::ParserError => e
-        Rails.logger.error("Error parsing ReferralDetail from JSON: #{e.message}")
+        Rails.logger.error("Community Care Appointments: Error parsing ReferralDetail from JSON: #{e.class}")
         nil
       end
     end
@@ -217,6 +214,7 @@ module Ccra
 
       @provider_name = provider_info[:provider_name]
       @provider_npi = provider_info[:provider_npi]
+      @provider_specialty = provider_info[:specialty]
     end
 
     # Parse treating facility info from the CCRA response

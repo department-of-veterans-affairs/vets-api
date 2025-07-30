@@ -103,6 +103,17 @@ module Lighthouse
         get_list(first_response)
       end
 
+      def get_immunizations(start_date:, end_date:)
+        params = {
+          patient: @icn,
+          _count: 100,
+          start_date:,
+          end_date:
+        }
+        first_response = perform_get('services/fhir/v0/r4/Immunization', **params.compact)
+        get_list(first_response)
+      end
+
       private
 
       # @return Faraday::Env response with all the pages of data

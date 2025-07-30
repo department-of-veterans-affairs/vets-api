@@ -26,7 +26,20 @@ RSpec.describe Burials::SavedClaim do
     end
   end
 
-  context 'a record is processed through v2' do
+  describe '#send_email' do
+    it 'calls Burials::NotificationEmail with the claim id and delivers the email' do
+      claim = build(:burials_saved_claim)
+      email_type = :error
+      notification_double = instance_double(Burials::NotificationEmail)
+
+      expect(Burials::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_double)
+      expect(notification_double).to receive(:deliver).with(email_type)
+
+      claim.send_email(email_type)
+    end
+  end
+
+  context 'a record is processed' do
     it 'inherits init callsbacks from saved_claim' do
       expect(subject.form_id).to eq('21P-530EZ')
       expect(subject.guid).not_to be_nil
@@ -139,6 +152,32 @@ RSpec.describe Burials::SavedClaim do
     it 'tracks pdf overflow' do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(StatsD).to receive(:increment)
+      instance.form = {
+        privacyAgreementAccepted: true,
+        veteranFullName: {
+          first: 'WESLEYLONGNAME',
+          last: 'FORD'
+        },
+        claimantEmail: 'foo@foo.com',
+        deathDate: '1989-12-13',
+        veteranDateOfBirth: '1986-05-06',
+        veteranSocialSecurityNumber: '796043735',
+        claimantAddress: {
+          country: 'USA',
+          state: 'CA',
+          postalCode: '90210',
+          street: '123 Main St',
+          city: 'Anytown'
+        },
+        claimantFullName: {
+          first: 'Derrick',
+          middle: 'A',
+          last: 'Stewart'
+        },
+        burialAllowance: true,
+        plotAllowance: true,
+        transportation: true
+      }.to_json
       instance.save!
 
       expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags: ['form_id:21P-530EZ'])

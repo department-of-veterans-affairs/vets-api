@@ -19,18 +19,12 @@ module CARMA
       # @return [CARMA::Models::Submission] A CARMA Submission model object
       #
       def self.from_claim(claim, metadata = {})
-        submitted_at = if Flipper.enabled?(:caregiver_carma_submitted_at)
-                         Time.now.utc.iso8601
-                       else
-                         claim.created_at&.iso8601
-                       end
-
         new(
           data: claim.parsed_form,
           metadata: metadata.merge(
             claim_id: claim.id,
             claim_guid: claim.guid,
-            submitted_at:
+            submitted_at: Time.now.utc.iso8601
           )
         )
       end
@@ -40,23 +34,6 @@ module CARMA
         self.submitted_at = args[:submitted_at]
         self.data = args[:data]
         self.metadata = args[:metadata] || {}
-      end
-
-      def submit!(client)
-        raise 'This submission has already been submitted to CARMA' if submitted?
-
-        @request_body = to_request_payload
-
-        response = client.create_submission(request_body)
-
-        @carma_case_id = response['data']['carmacase']['id']
-        @submitted_at = response['data']['carmacase']['createdAt']
-
-        self
-      end
-
-      def submitted?
-        @submitted_at.present? || @carma_case_id.present?
       end
 
       def metadata=(metadata_hash)

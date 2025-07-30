@@ -98,7 +98,10 @@ module PdfFill
           }
         },
         'email' => {
-          key: 'F[0].Page_1[0].EMAIL[0]'
+          key: 'F[0].Page_1[0].EMAIL[0]',
+          limit: 50,
+          question_num: 7,
+          question_text: 'Email'
         },
         'veteranPhone' => {
           key: 'F[0].Page_1[0].EMAIL[1]'
@@ -356,7 +359,7 @@ module PdfFill
         signature_date = @form_data['signatureDate']
         expand_signature(@form_data['veteranFullName'], signature_date)
         @form_data['printedName'] = @form_data['signature']
-        @form_data['signature'] = "/es/ #{@form_data['signature']}"
+        @form_data['signature'] = "#{@form_data['signature']} - signed by digital authentication to api.va.gov"
 
         expand_claimant_address
 

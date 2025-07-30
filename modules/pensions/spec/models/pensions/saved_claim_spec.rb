@@ -14,8 +14,8 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
   context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    let!(:attachment1) { create(:pension_burial) }
-    let!(:attachment2) { create(:pension_burial) }
+    let!(:attachment1) { create(:claim_evidence) }
+    let!(:attachment2) { create(:claim_evidence) }
 
     let(:claim) do
       create(
@@ -76,6 +76,19 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
   describe '#first_name' do
     it 'returns the users first name' do
       expect(instance.first_name).to eq('Test')
+    end
+  end
+
+  describe '#send_email' do
+    it 'calls Pensions::NotificationEmail with the claim id and delivers the email' do
+      claim = build(:pensions_saved_claim)
+      email_type = :error
+      notification_double = instance_double(Pensions::NotificationEmail)
+
+      expect(Pensions::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_double)
+      expect(notification_double).to receive(:deliver).with(email_type)
+
+      claim.send_email(email_type)
     end
   end
 end

@@ -7,12 +7,14 @@ require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
 require 'hca/overrides_parser'
 require 'va1010_forms/enrollment_system/service'
+require 'form1010_ezr/veteran_enrollment_system/associations/service'
+require 'vets/shared_logging'
 
 module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::Utils
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 
@@ -93,6 +95,8 @@ module Form1010Ezr
       # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
       @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
+
+      handle_associations(parsed_form) if Flipper.enabled?(:ezr_emergency_contacts_enabled, @user)
 
       submit_async(parsed_form)
     rescue => e
@@ -196,6 +200,19 @@ module Form1010Ezr
         submission_id:,
         veteran_initials:
       )
+    end
+
+    def handle_associations(parsed_form)
+      form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
+
+      Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user).reconcile_and_update_associations(
+        form_associations
+      )
+      # Since we are using the Associations API to update the associations, we'll remove the
+      # 'nextOfKins' and 'emergencyContacts' from the parsed_form to prevent redundancy
+      %w[nextOfKins emergencyContacts].each { |key| parsed_form.delete(key) }
+
+      parsed_form
     end
   end
 end

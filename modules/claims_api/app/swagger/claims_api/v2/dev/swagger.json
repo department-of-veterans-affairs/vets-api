@@ -3,12 +3,12 @@
   "info": {
     "title": "Benefits Claims",
     "version": "v2",
-    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers:\n\n-   Retrieve existing claim information, including status, by claim ID.\n-   Automatically establish an Intent To File (21-0966) in VBMS.\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS.\n-   Digitally submit supporting documentation for disability compensation claims.\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a claimant.\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n\n## Appointing an accredited representative for dependents\n\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nAfter you submit a disability compensation claim with the `POST /veterans/{veteranId}/526/synchronous` endpoint, it is then established in Veterans Benefits Management System (VBMS). A `202` response means that the claim was successfully submitted by the API. However, it does not mean VA has received the required 526EZ PDF.\n\nTo confirm the status of your submission, use the `GET /veterans/{veteranId}/claims/{id}` endpoint and the ID returned with your submission response. Statuses are:\n\n*  **Pending**: The claim is successfully submitted for processing\n*   **Errored**: The submission encountered upstream errors\n*   **Canceled**: The claim was identified as a duplicate, or another issue caused the claim to be canceled.\n    *   For duplicate claims, the claim's progress is tracked under a different Claim ID than the one returned in your submission response.\n*   **Claim received**: The claim was received, but hasn't been assigned to a reviewer yet.\n*   **Initial review**: The claim has been assigned to a reviewer, who will determine if more information is needed.\n*   **Evidence gathering, review, and decision**: VA is gathering evidence to make a decision from health care providers, government agencies, and other sources.\n*   **Preparation for notification**: VA has made a decision on the claim, and is getting a decision letter ready to mail.\n*   **Complete**: VA has sent a decision letter by U.S. mail.\n\n### Finding a Veteran's unique VA ID\n\nThis API uses Inegration Control Number (ICN) as a unique Veteran identifier to identify the subject of each API request. This identifier should be used as the `{veteranId}` parameter in request URLs.\n\n**Note**: though ICNs are typically static, they may change over time. If a specific ICN suddenly responds with a `404 not found` error, it may have changed. It’s a good idea to periodically check the ICN for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://developer.va.gov/explore/api/benefits-claims/test-users/2671/f1097c9772b447bb755b26dcd3e652aecad632389a28f0e19a7ebb082808db39). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers:\n\n-   Retrieve existing claim information, including status, by claim ID.\n-   Automatically establish an Intent To File (21-0966) in VBMS.\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS.\n-   Digitally submit supporting documentation for disability compensation claims.\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a claimant.\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n\n## Appointing an accredited representative for dependents\n\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and claimant. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nAfter you submit a disability compensation claim with the `POST /veterans/{veteranId}/526/synchronous` endpoint, it is then established in Veterans Benefits Management System (VBMS). A `202` response means that the claim was successfully submitted by the API. However, it does not mean VA has received the required 526EZ PDF.\n\nTo confirm the status of your submission, use the `GET /veterans/{veteranId}/claims/{id}` endpoint and the ID returned with your submission response. Statuses are:\n\n*  **Pending**: The claim is successfully submitted for processing\n*   **Errored**: The submission encountered upstream errors\n*   **Canceled**: The claim was identified as a duplicate, or another issue caused the claim to be canceled.\n    *   For duplicate claims, the claim's progress is tracked under a different Claim ID than the one returned in your submission response.\n*   **Claim received**: The claim was received, but hasn't been assigned to a reviewer yet.\n*   **Initial review**: The claim has been assigned to a reviewer, who will determine if more information is needed.\n*   **Evidence gathering, review, and decision**: VA is gathering evidence to make a decision from health care providers, government agencies, and other sources.\n*   **Preparation for notification**: VA has made a decision on the claim, and is getting a decision letter ready to mail.\n*   **Complete**: VA has sent a decision letter by U.S. mail.\n\n### Finding a claimant's unique VA ID\n\nThis API uses Integration Control Number (ICN) as a unique identifier to identify the subject of each API request. This identifier should be used as the `{veteranId}` parameter in request URLs.\n\n**Note**: though ICNs are typically static, they may change over time. If a specific ICN suddenly responds with a `404 not found` error, it may have changed. It’s a good idea to periodically check the ICN for each claimant.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://developer.va.gov/explore/api/benefits-claims/test-users/2671/f1097c9772b447bb755b26dcd3e652aecad632389a28f0e19a7ebb082808db39). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
   },
   "tags": [
     {
       "name": "Claims",
-      "description": "Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.\n"
+      "description": "Allows authenticated and authorized users to access claims data for a given VA claimant. No data is returned if the user is not authenticated and authorized.\n"
     },
     {
       "name": "5103 Waiver",
@@ -87,7 +87,7 @@
             "bearer_token": []
           }
         ],
-        "description": "Submit Evidence Waiver 5103 for Veteran.",
+        "description": "Submit Evidence Waiver 5103 for a VA claimant.",
         "parameters": [
           {
             "name": "id",
@@ -104,7 +104,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -170,6 +170,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -225,6 +229,10 @@
                             "description": "HTTP error detail"
                           },
                           "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "code": {
                             "type": "string",
                             "description": "HTTP error status code"
                           },
@@ -320,7 +328,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -335,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "1c2b81e3-d85d-4a3b-8e47-8e3d96d4dbc4",
+                        "id": "9204ca5b-379a-4ee0-87c4-3863f6acff0e",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +528,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-03-19"
+                              "anticipatedSeparationDate": "2025-07-25"
                             },
                             "confinements": [
                               {
@@ -566,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "634f78d7-5b53-43d4-9a3c-d4ce7b2af4b6",
+                        "id": "be22227e-d771-4ca4-be84-5d4d7fb5a859",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +738,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-03-19",
+                                "activeDutyEndDate": "2025-07-25",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +759,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-03-19"
+                              "anticipatedSeparationDate": "2025-07-25"
                             },
                             "confinements": [
                               {
@@ -3994,7 +4002,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-03-19",
+                              "activeDutyEndDate": "2025-07-25",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4023,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-03-19"
+                            "anticipatedSeparationDate": "2025-07-25"
                           },
                           "confinements": [
                             {
@@ -4095,7 +4103,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -5750,7 +5758,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -7234,7 +7242,7 @@
     },
     "/veterans/{veteranId}/claims": {
       "get": {
-        "summary": "Find all benefits claims for a Veteran.",
+        "summary": "Find all benefits claims for a VA claimant",
         "tags": [
           "Claims"
         ],
@@ -7260,7 +7268,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -7483,6 +7491,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -7544,7 +7556,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -8171,6 +8183,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -8228,6 +8244,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -8252,7 +8272,7 @@
     },
     "/veterans/{veteranId}/intent-to-file/{type}": {
       "get": {
-        "summary": "Returns Veteran's last active Intent to File submission for given benefit type.",
+        "summary": "Returns claimant's last active Intent to File submission for given benefit type.",
         "tags": [
           "Intent to File"
         ],
@@ -8272,14 +8292,14 @@
             "bearer_token": []
           }
         ],
-        "description": "Returns Veteran's last active Intent to File submission for given benefit type of compensation, pension, or survivor.",
+        "description": "Returns claimant's last active Intent to File submission for given benefit type of compensation, pension, or survivor.",
         "parameters": [
           {
             "name": "veteranId",
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -8411,6 +8431,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -8468,6 +8492,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -8521,7 +8549,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -8534,13 +8562,13 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1",
+                    "id": "294045",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-03-17",
-                      "expirationDate": "2026-03-17",
+                      "creationDate": "2025-02-07T09:17:18-06:00",
+                      "expirationDate": "2026-02-07T07:12:40-06:00",
                       "type": "compensation",
-                      "status": "active"
+                      "status": "duplicate"
                     }
                   }
                 },
@@ -8643,6 +8671,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -8700,6 +8732,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -8754,6 +8790,134 @@
                             "description": "HTTP error detail"
                           },
                           "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "0966 Response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Veteran ID not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "0966 Response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad Gateway",
+                      "detail": "Bad Gateway",
+                      "code": "502",
+                      "status": "502"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "code": {
                             "type": "string",
                             "description": "HTTP error status code"
                           },
@@ -8866,7 +9030,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -8962,6 +9126,10 @@
                             "type": "string",
                             "description": "HTTP error status code"
                           },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -9016,6 +9184,10 @@
                             "description": "HTTP error detail"
                           },
                           "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "code": {
                             "type": "string",
                             "description": "HTTP error status code"
                           },
@@ -9128,7 +9300,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -9331,7 +9503,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:164:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:168:in `representative'"
                       }
                     }
                   ]
@@ -9415,7 +9587,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -9428,7 +9600,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "81b0cbbb-d517-4aa7-9262-e7917a4c7a9f",
+                    "id": "96ca651b-c06c-43e2-991e-4e5959d2bf5a",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -10333,15 +10505,14 @@
                           "lastName": "[Vet Last Name]"
                         },
                         "claimant": {
-                          "firstName": null,
-                          "middleName": null,
-                          "lastName": null
+                          "firstName": "[Claimant First Name]",
+                          "lastName": "[Claimant Last Name]"
                         },
                         "address": {
-                          "city": null,
+                          "city": "Charlottesville",
                           "stateCode": null,
-                          "zipCode": null,
-                          "countryCode": null
+                          "zipCode": "00123",
+                          "countryCode": "USA"
                         },
                         "representative": {
                           "poaCode": "083"
@@ -10365,14 +10536,13 @@
                         },
                         "claimant": {
                           "firstName": null,
-                          "middleName": null,
                           "lastName": null
                         },
                         "address": {
-                          "city": null,
+                          "city": "USAG J",
                           "stateCode": null,
-                          "zipCode": null,
-                          "countryCode": null
+                          "zipCode": "01234",
+                          "countryCode": "USA"
                         },
                         "representative": {
                           "poaCode": "002"
@@ -10396,14 +10566,13 @@
                         },
                         "claimant": {
                           "firstName": null,
-                          "middleName": null,
                           "lastName": null
                         },
                         "address": {
-                          "city": null,
+                          "city": "Bourges",
                           "stateCode": null,
-                          "zipCode": null,
-                          "countryCode": null
+                          "zipCode": "00123",
+                          "countryCode": "France"
                         },
                         "representative": {
                           "poaCode": "002"
@@ -10826,14 +10995,13 @@
                       },
                       "claimant": {
                         "firstName": null,
-                        "middleName": null,
                         "lastName": null
                       },
                       "address": {
-                        "city": null,
-                        "stateCode": null,
-                        "zipCode": null,
-                        "countryCode": null
+                        "city": "Portland",
+                        "stateCode": "OR",
+                        "zipCode": "56789",
+                        "countryCode": "USA"
                       },
                       "representative": {
                         "poaCode": "074"
@@ -11156,14 +11324,13 @@
                       },
                       "claimant": {
                         "firstName": null,
-                        "middleName": null,
                         "lastName": null
                       },
                       "address": {
-                        "city": null,
-                        "stateCode": null,
-                        "zipCode": null,
-                        "countryCode": null
+                        "city": "Portland",
+                        "stateCode": "OR",
+                        "zipCode": "56789",
+                        "countryCode": "USA"
                       },
                       "representative": {
                         "poaCode": "074"
@@ -11590,7 +11757,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -12274,7 +12441,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -12287,7 +12454,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1193e061-c546-4912-89b4-bbcccc605458",
+                    "id": "10cb47cf-c236-44a8-91f6-d6cfcda2ad6b",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13020,7 +13187,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -13770,7 +13937,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -13784,7 +13951,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b4a902ca-4b60-4e98-9429-74c7cdb73c28",
+                    "id": "4a4cf446-9d25-4a5b-822b-b3ff53cf116a",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14609,7 +14776,7 @@
             "in": "path",
             "required": true,
             "example": "1012667145V762142",
-            "description": "ID of Veteran",
+            "description": "ID of claimant",
             "schema": {
               "type": "string"
             }
@@ -14632,10 +14799,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "af52565c-8216-4a36-95bf-c97efcc0761f",
+                    "id": "1073f487-7bad-4991-8c35-1b3fe5546ffc",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-03-17 21:42:13 UTC",
+                      "createdAt": "2025-07-23 18:48:07 UTC",
                       "representative": {
                         "poaCode": "074"
                       },

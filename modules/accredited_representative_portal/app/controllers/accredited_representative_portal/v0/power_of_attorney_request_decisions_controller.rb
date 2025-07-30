@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestDecisionsController < ApplicationController
       include PowerOfAttorneyRequests
+      include AccreditedRepresentativePortal::V0::WithdrawalGuard
 
       before_action do
         authorize PowerOfAttorneyRequestDecision
@@ -13,6 +14,7 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:power_of_attorney_request_id]
           set_poa_request(id)
+          render_404_if_withdrawn!(@poa_request)
         end
       end
 
@@ -46,14 +48,14 @@ module AccreditedRepresentativePortal
       end
 
       def process_declination
-        declination_reason = decision_params[:declination_reason]
+        declination_key = decision_params[:key]
 
-        if declination_reason.blank?
+        if declination_key.blank?
           render json: { errors: ["Validation failed: Declination reason can't be blank"] }, status: :bad_request
           return
         end
 
-        @poa_request.mark_declined!(creator, declination_reason)
+        @poa_request.mark_declined!(creator, declination_key)
         send_declination_email(@poa_request)
         track_declination_metrics
 
@@ -72,7 +74,7 @@ module AccreditedRepresentativePortal
       end
 
       def decision_params
-        params.require(:decision).permit(:type, :declination_reason)
+        params.require(:decision).permit(:type, :declinationReason, :key)
       end
 
       def creator

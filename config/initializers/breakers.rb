@@ -48,6 +48,8 @@ require 'lighthouse/veterans_health/configuration'
 require 'veteran_enrollment_system/associations/configuration'
 require 'veteran_enrollment_system/base_configuration'
 require 'unified_health_data/configuration'
+require 'eps/configuration'
+require 'ccra/configuration'
 
 Rails.application.reloader.to_prepare do
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
@@ -97,7 +99,9 @@ Rails.application.reloader.to_prepare do
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
     Lighthouse::VeteransHealth::Configuration.instance.breakers_service,
     UnifiedHealthData::Configuration.instance.breakers_service,
-    MDOT::Configuration.instance.breakers_service
+    MDOT::Configuration.instance.breakers_service,
+    Eps::Configuration.instance.breakers_service,
+    Ccra::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

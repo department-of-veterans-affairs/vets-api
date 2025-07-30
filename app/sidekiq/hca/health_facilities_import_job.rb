@@ -1,5 +1,24 @@
 # frozen_string_literal: true
 
+# HealthFacilitiesImportJob
+#
+
+# This Sidekiq job imports and synchronizes VA health facility data from the Lighthouse API
+# into the HealthFacility table. It ensures that the local database reflects the current
+# set of health facilities, including removing facilities that no longer exist in the source.
+
+# Why:
+# - Keeps our health facility data up-to-date for downstream services and user-facing features.
+# - Ensures data integrity by removing stale records.
+# - Handles edge cases where environments may have missing reference data (see ensure_std_states_populated).
+
+# How:
+# - Fetches all health facilities from Lighthouse, paginating as needed.
+# - Maps and transforms the data to match our schema.
+# - Upserts (inserts or updates) all current facilities.
+# - Deletes any facilities not present in the latest import.
+# - Logs progress and errors for monitoring and debugging.
+
 module HCA
   class HealthFacilitiesImportJob
     include Sidekiq::Job
@@ -23,6 +42,7 @@ module HCA
       health_facilities = facilities_with_postal_names(facilities_from_lighthouse)
 
       HealthFacility.upsert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
+      delete_old_facilities(health_facilities)
 
       Rails.logger.info("[HCA] - Job ended with #{HealthFacility.count} health facilities.")
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_import_job_complete")
@@ -39,7 +59,12 @@ module HCA
       page = 1
 
       loop do
-        facilities = facilities_client.get_facilities(type: 'health', per_page: PER_PAGE, page:)
+        facilities = facilities_client.get_facilities(
+          type: 'health',
+          per_page: PER_PAGE,
+          page:,
+          mobile: false
+        )
         all_facilities.concat(facilities.map do |facility|
           {
             id: facility.id.sub(/^vha_/, ''), # Transform id by stripping "vha_" prefix
@@ -80,6 +105,12 @@ module HCA
           postal_name:
         }
       end
+    end
+
+    def delete_old_facilities(health_facilities)
+      imported_station_numbers = health_facilities.pluck(:station_number)
+      deleted_count = HealthFacility.where.not(station_number: imported_station_numbers).delete_all
+      Rails.logger.info("[HCA] - Deleted #{deleted_count} health facilities not present in import.")
     end
   end
 end

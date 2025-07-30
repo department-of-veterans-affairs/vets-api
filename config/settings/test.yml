@@ -176,6 +176,12 @@ claims_api:
     client_id: ~
     client_key: fakekeyvaluehere
     client_secret: ~
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: https://fakeurlhere/fake/path/here
+        client_id: fakekeyvaluehere
+    host: https://staging-api.va.gov
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -210,8 +216,11 @@ claims_api:
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
 claims_evidence_api:
-  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
-  jwt_secret: 'fake_api_key'
+  base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
 clamav:
   host: 0.0.0.0
   mock: true
@@ -258,6 +267,8 @@ decision_review:
   v1:
     url: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews
 dependents:
+  prefill: true
+dependents_verification:
   prefill: true
 dgi:
   jwt:
@@ -397,13 +408,10 @@ evss:
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
-  mock_ppiu: true
   mock_vso_search: false
   pciu:
     timeout: 30
   pciu_address:
-    timeout: 30
-  ppiu:
     timeout: 30
   prefill: true
   root_cert_path: ~
@@ -585,6 +593,9 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
+ivc_champva_llm_processor_api:
+  api_key: fake_llm_api_key
+  host: fake_base_path
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
@@ -788,6 +799,8 @@ maintenance:
     caseflow: ~
     cie: ~
     coe: PSY4HU1
+    community_care_ds: ~
+    decision_reviews: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
@@ -806,7 +819,7 @@ maintenance:
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
     logingov: P2SHMM9
-    mdot: PEOIHN1
+    mdot: PGT74RC
     mhv: PP2ZZ2V
     mhv_meds: ~
     mhv_mr: ~
@@ -819,7 +832,6 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
-    staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
     travel_pay: ~
@@ -903,20 +915,21 @@ mhv:
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: https://mhv-api.example.com
+    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
     app_token: faketoken
     host: https://mhv-api.example.com
+    labs_logging_date_range_days: 30
     mock: false
     security_host: https://mhv-api.example.com
     subject: "Proxy Client"
@@ -983,10 +996,6 @@ modules_appeals_api:
       api_key: ''
 mvi_hca:
   url: http://example.com
-nod_vanotify_status_callback:
-  bearer_token: bearer_token_secret
-notifications:
-  public_key: ~
 ogc:
   form21a_service_url:
     api_key: fake_key
@@ -1181,6 +1190,7 @@ saml:
   key_path: spec/support/certificates/ruby-saml.key
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
+  claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: TESTKEY
@@ -1270,6 +1280,7 @@ va_forms:
     channel_id: ~
     enabled: ~
 va_mobile:
+  claims_path: /services/claims/v2/veterans
   key_path: "/fake/client/key/path"
   mock: false
   patients_path: /vaos/v1/patients
@@ -1322,12 +1333,27 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21_0538: &vanotify_services_dependents_verification
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_error
+        received:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_received
+        submitted:
+          flipper_id: dv_email_notification
+          template_id: fake_dv_submitted
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
         error:
           flipper_id: income_and_assets_error_email_notification
           template_id: form0969_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: income_and_assets_persistent_attachment_error_email_notification
+          template_id: form0969_persistent_attachment_error_email_template_id
         received:
           flipper_id: income_and_assets_received_email_notification
           template_id: form0969_received_email_template_id
@@ -1343,6 +1369,9 @@ vanotify:
         error:
           flipper_id: pension_error_email_notification
           template_id: form527ez_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: pension_persistent_attachment_error_email_notification
+          template_id: form527ez_persistent_attachment_error_email_template_id
         received:
           flipper_id: pension_received_email_notification
           template_id: form527ez_received_email_template_id
@@ -1358,6 +1387,9 @@ vanotify:
         error:
           flipper_id: burial_error_email_notification
           template_id: burial_claim_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: burial_persistent_attachment_error_email_notification
+          template_id: burial_persistent_attachment_error_email_template_id
         received:
           flipper_id: burial_received_email_notification
           template_id: burial_received_email_template_id
@@ -1412,6 +1444,7 @@ vanotify:
           template_id: fake_submitted686
         submitted686c674:
           template_id: fake_submitted686c674
+    dependents_verification: *vanotify_services_dependents_verification
     dmc:
       api_key: fake_secret
       template_id:
@@ -1482,6 +1515,7 @@ vanotify:
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
+        form10297_confirmation_email: form10297_confirmation_email_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
@@ -1570,6 +1604,7 @@ vaos:
     key_path: modules/vaos/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
+    pagination_timeout_seconds: 45
     scopes: care-nav
   referral:
     encryption:
@@ -1664,6 +1699,8 @@ veteran_enrollment_system:
   associations:
     api_key: ~
   ee_summary:
+    api_key: ~
+  form1095b:
     api_key: ~
   host: https://localhost
   open_timeout: 10

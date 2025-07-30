@@ -51,14 +51,11 @@ module Preneeds
     # keeping this name because it matches the previous attribute
     # @return [Boolean]
     #
-    # rubocop:disable Naming/PredicateName
     def has_attachments
       preneed_attachments.present?
     end
-    # rubocop:enable Naming/PredicateName
 
     # @return [Array<Preneeds::Attachment>] #preneed_attachments converted to Array of {Preneeds::Attachment}
-    #
     def attachments
       @attachments ||= preneed_attachments.map(&:to_attachment)
     end

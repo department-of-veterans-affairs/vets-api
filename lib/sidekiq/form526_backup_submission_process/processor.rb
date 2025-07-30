@@ -63,6 +63,7 @@ module Sidekiq
         21-0781V2
         21-8940
       ].freeze
+      MAX_FILENAME_LENGTH = 100
 
       SUB_METHOD = (BKUP_SETTINGS.submission_method || 'single').to_sym
 
@@ -359,8 +360,9 @@ module Sidekiq
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
-          fname = File.basename(file.path)
-          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{fname}"
+          filename = File.basename(file.path, '.*')[0..MAX_FILENAME_LENGTH]
+          file_extension = File.extname(file.path)
+          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{filename}#{file_extension}"
           File.binwrite(entropied_fname, file.read)
           docs << upload.merge!(file: entropied_fname, type: FORM_526_UPLOADS_DOC_TYPE,
                                 evssDocType: upload['attachmentId'])
@@ -368,8 +370,7 @@ module Sidekiq
       end
 
       def get_form4142_pdf
-        processor4142 = DecisionReviewV1::Processor::Form4142Processor.new(form_data: submission.form[FORM_4142],
-                                                                           submission_id:)
+        processor4142 = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, submission_id)
         docs << {
           type: FORM_4142_DOC_TYPE,
           file: processor4142.pdf_path
