@@ -17,17 +17,82 @@ module DecisionReviews
       SavedClaim::SupplementalClaim
     ].freeze
 
-    APPEAL_TYPE_TO_SERVICE_MAP = {
-      'HLR' => 'higher-level-review',
-      'NOD' => 'board-appeal',
-      'SC' => 'supplemental-claims'
-    }.freeze
-
     ERROR_STATUS = 'error'
 
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
 
     VANOTIFY_API_KEY = Settings.vanotify.services.benefits_decision_review.api_key
+
+    EMAIL_RESULT_LOGGING_CONFIG = {
+      form: {
+        log_message: 'form email queued',
+        statsd_key: 'form.email_queued',
+        error_statsd_key: 'form.error',
+        function: 'form submission to Lighthouse',
+        params_builder: lambda { |submission, extra_data|
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            appeal_type: submission.type_of_appeal,
+            notification_id: extra_data
+          }
+        },
+        error_params_builder: lambda { |submission, error_message|
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            appeal_type: submission.type_of_appeal,
+            message: error_message
+          }
+        }
+      },
+      evidence: {
+        log_message: 'evidence email queued',
+        statsd_key: 'evidence.email_queued',
+        error_statsd_key: 'evidence.error',
+        function: 'evidence submission to Lighthouse',
+        params_builder: lambda { |upload, extra_data|
+          submission = upload.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: upload.lighthouse_upload_id,
+            appeal_type: submission.type_of_appeal,
+            notification_id: extra_data
+          }
+        },
+        error_params_builder: lambda { |upload, error_message|
+          submission = upload.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: upload.lighthouse_upload_id,
+            appeal_type: submission.type_of_appeal,
+            message: error_message
+          }
+        }
+      },
+      secondary_form: {
+        log_message: 'secondary form email queued',
+        statsd_key: 'secondary_form.email_queued',
+        error_statsd_key: 'secondary_form.error',
+        function: 'secondary form submission to Lighthouse',
+        params_builder: lambda { |form, extra_data|
+          submission = form.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: form.guid,
+            appeal_type: submission.type_of_appeal,
+            notification_id: extra_data
+          }
+        },
+        error_params_builder: lambda { |form, error_message|
+          submission = form.appeal_submission
+          {
+            submitted_appeal_uuid: submission.submitted_appeal_uuid,
+            lighthouse_upload_id: form.guid,
+            appeal_type: submission.type_of_appeal,
+            message: error_message
+          }
+        }
+      }
+    }.freeze
 
     def perform
       return unless should_perform?
@@ -68,7 +133,7 @@ module DecisionReviews
     def vanotify_service_with_callback(submission, email_type, reference)
       appeal_type = extract_appeal_type(submission)
       callback_klass, function, email_template_id = get_callback_config(email_type, appeal_type)
-      service_name = APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
+      service_name = DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
 
       callback_options = {
         callback_klass: callback_klass.to_s,
@@ -123,8 +188,8 @@ module DecisionReviews
 
       _, _, template_id = get_callback_config(email_type, submission.type_of_appeal)
 
-      vanotify_service_with_callback = vanotify_service_with_callback(submission, email_type, reference)
-      vanotify_service_with_callback.send_email({ email_address:, template_id:, personalisation: })
+      vanotify_service = vanotify_service_with_callback(submission, email_type, reference)
+      vanotify_service.send_email({ email_address:, template_id:, personalisation: })
     end
 
     def send_form_emails
@@ -185,7 +250,7 @@ module DecisionReviews
     end
 
     def record_email_success(record, email_type, notification_id)
-      config = DecisionReviews::V1::EMAIL_RESULT_LOGGING_CONFIG[email_type]
+      config = EMAIL_RESULT_LOGGING_CONFIG[email_type]
       appeal_type = extract_appeal_type(record)
       params = config[:params_builder].call(record, notification_id)
 
@@ -194,14 +259,14 @@ module DecisionReviews
     end
 
     def record_email_failure(record, email_type, error)
-      config = DecisionReviews::V1::EMAIL_RESULT_LOGGING_CONFIG[email_type]
+      config = EMAIL_RESULT_LOGGING_CONFIG[email_type]
       appeal_type = extract_appeal_type(record)
       params = config[:error_params_builder].call(record, error.message)
 
-      Rails.logger.error("DecisionReviews::FailureNotificationEmailJob #{email_type.to_s.gsub("_", " ")} error", params)
+      Rails.logger.error("DecisionReviews::FailureNotificationEmailJob #{email_type.to_s.gsub('_', ' ')} error", params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.#{config[:error_statsd_key]}", tags: ["appeal_type:#{appeal_type}"])
 
-      service_name = APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
+      service_name = DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
       tags = ["service:#{service_name}", "function:#{config[:function]}"]
       StatsD.increment('silent_failure', tags:)
     end

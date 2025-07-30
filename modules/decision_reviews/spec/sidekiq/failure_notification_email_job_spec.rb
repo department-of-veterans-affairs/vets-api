@@ -128,7 +128,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             submitted_appeal_uuid: guid1,
             email_template_id: 'fake_sc_template_id',
             reference:,
-            statsd_tags: ["service:supplemental-claims", "function:form submission"]
+            statsd_tags: ['service:supplemental-claims', 'function:form submission']
           }
         }
       ).and_return(vanotify_service)
@@ -148,7 +148,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             submitted_appeal_uuid: guid1,
             email_template_id: 'fake_sc_evidence_template_id',
             reference:,
-            statsd_tags: ["service:supplemental-claims", "function:evidence submission to Lighthouse"]
+            statsd_tags: ['service:supplemental-claims', 'function:evidence submission to Lighthouse']
           }
         }
       ).and_return(vanotify_service)
@@ -208,19 +208,16 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             expect(mpi_service).not_to have_received(:find_profile_by_identifier)
               .with(identifier: user2_uuid, identifier_type: anything)
 
-            expect(vanotify_service).to have_received(:send_email).with(hash_including(
-              email_address:,
-              personalisation:,
-              template_id: 'fake_sc_template_id'
-            ))
+            expected_hash = hash_including(email_address:, personalisation:, template_id: 'fake_sc_template_id')
+            expect(vanotify_service).to have_received(:send_email).with(expected_hash)
 
             expect(vanotify_service).not_to have_received(:send_email).with(hash_including(
-              template_id: 'fake_nod_template_id'
-            ))
+                                                                              template_id: 'fake_nod_template_id'
+                                                                            ))
 
             expect(vanotify_service).not_to have_received(:send_email).with(hash_including(
-              template_id: 'fake_hlr_template_id'
-            ))
+                                                                              template_id: 'fake_hlr_template_id'
+                                                                            ))
 
             logger_params = [
               'DecisionReviews::FailureNotificationEmailJob form email queued',
@@ -247,7 +244,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               function: 'form submission',
               submitted_appeal_uuid: guid1,
               reference:,
-              statsd_tags: ["service:supplemental-claims", "function:form submission"]
+              statsd_tags: ['service:supplemental-claims', 'function:form submission']
             }
           }
 
@@ -258,11 +255,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             expected_callback_options
           )
 
-          expect(vanotify_service_instance).to have_received(:send_email).with(hash_including(
-            email_address:,
-            personalisation:,
-            template_id: 'fake_sc_template_id'
-          ))
+          expected_hash = hash_including(email_address:, personalisation:, template_id: 'fake_sc_template_id')
+          expect(vanotify_service_instance).to have_received(:send_email).with(expected_hash)
         end
       end
 
@@ -374,7 +368,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           appeal_submission = create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1,
                                                          created_at:, type_of_appeal: 'NOD')
           # 1 processing
-          appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2, created_at:, 
+          appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2, created_at:,
                                                           type_of_appeal: 'NOD')
           # 1 error
           appeal_submission3 = create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid3,
@@ -423,7 +417,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               function: 'evidence submission to Lighthouse',
               submitted_appeal_uuid: guid1,
               reference:,
-              statsd_tags: ["service:board-appeal", "function:evidence submission to Lighthouse"]
+              statsd_tags: ['service:board-appeal', 'function:evidence submission to Lighthouse']
             }
           }
 
@@ -434,11 +428,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             expected_callback_options
           )
 
-          expect(vanotify_service_instance).to have_received(:send_email).with(hash_including(
-            email_address:,
-            personalisation:,
-            template_id: 'fake_nod_evidence_template_id'
-          ))
+          expected_hash = hash_including(email_address:, personalisation:, template_id: 'fake_nod_evidence_template_id')
+          expect(vanotify_service_instance).to have_received(:send_email).with(expected_hash)
         end
       end
 
@@ -494,9 +485,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           it 'does not send another email' do
             subject.new.perform
 
-            expect(vanotify_service).not_to have_received(:send_email).with(hash_including(
-              template_id: 'fake_sc_secondary_form_template_id'
-            ))
+            expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
+            expect(vanotify_service).not_to have_received(:send_email).with(expected_hash)
 
             expect(Rails.logger).not_to have_received(:error)
           end
@@ -522,7 +512,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                 function: 'secondary form submission to Lighthouse',
                 submitted_appeal_uuid: guid1,
                 reference:,
-                statsd_tags: ["service:supplemental-claims", "function:secondary form submission to Lighthouse"]
+                statsd_tags: ['service:supplemental-claims', 'function:secondary form submission to Lighthouse']
               }
             }
 
@@ -533,11 +523,13 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               expected_callback_options
             )
 
-            expect(vanotify_service_instance).to have_received(:send_email).with(hash_including(
-                                                                                   email_address:,
-                                                                                   personalisation:,
-                                                                                   template_id: 'fake_sc_secondary_form_template_id'
-                                                                                 ))
+            expected_hash = hash_including(
+              email_address:,
+              personalisation:,
+              template_id: 'fake_sc_secondary_form_template_id'
+            )
+
+            expect(vanotify_service_instance).to have_received(:send_email).with(expected_hash)
           end
         end
       end
