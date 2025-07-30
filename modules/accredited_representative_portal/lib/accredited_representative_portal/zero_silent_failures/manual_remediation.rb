@@ -46,10 +46,10 @@ module AccreditedRepresentativePortal
         base = super
 
         attempt = FormSubmissionAttempt
-                    .joins(:form_submission)
-                    .where(form_submissions: { saved_claim_id: claim.id })
-                    .order(id: :asc)
-                    .last
+                  .joins(:form_submission)
+                  .where(form_submissions: { saved_claim_id: claim.id })
+                  .order(id: :asc)
+                  .last
 
         arp = {
           lighthouseBenefitIntakeSubmissionUUID: attempt&.benefits_intake_uuid,
