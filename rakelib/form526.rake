@@ -83,6 +83,10 @@ namespace :form526 do
       )
     end
 
+    MAX_NUMBER_OF_FORMS = 1000 unless defined? MAX_NUMBER_OF_FORMS
+
+    NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release' unless defined? NEW_RETURN_URL
+
     def date_range_mode(args_array)
       start_date = args_array.first&.to_date || 30.days.ago.utc
       end_date = args_array.second&.to_date || Time.zone.now.utc
@@ -713,10 +717,8 @@ namespace :form526 do
 
   desc 'Set new return url data for in-progress Form 526 submissions'
   task in_progress_forms_return_point: :environment do
-    MAX_NUMBER_OF_FORMS = 1000
-    NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release'
-
-    all_ipfs = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID).where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
+    all_ipfs = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+                             .where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
     chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS)
     Rails.logger.info("Found #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS,
                                                                    job_count: chunked_ipfs.count)
@@ -729,7 +731,9 @@ namespace :form526 do
       end
     end
     Rails.logger.info(
-      "Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})", job_ids: jids, batch_id: batch.bid
+      "Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})",
+      job_ids: jids,
+      batch_id: batch.bid
     )
   end
 
