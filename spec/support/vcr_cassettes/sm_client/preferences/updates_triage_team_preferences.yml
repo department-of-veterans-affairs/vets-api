@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/preferences/patientpreferredtriagegroups"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/preferences/patientpreferredtriagegroups"
     body:
       encoding: UTF-8
       string: '[{"triageTeamId":"1013155","preferredTeam":"true"}]'

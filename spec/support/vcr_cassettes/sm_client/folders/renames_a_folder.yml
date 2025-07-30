@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/folder/7207029/rename"
+    uri: "<MHV_HOST>/v1/sm/patient/folder/7207029/rename"
     body:
       encoding: UTF-8
       string: '{"folderName":"Test222"}'

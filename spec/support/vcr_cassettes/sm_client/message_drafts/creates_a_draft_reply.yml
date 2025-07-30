@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/674874/replydraft"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/674874/replydraft"
     body:
       encoding: UTF-8
       string: '{"category":"OTHER","subject":"Subject 1","body":"Body 1","recipientId":613586}'
