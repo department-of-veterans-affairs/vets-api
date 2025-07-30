@@ -270,11 +270,8 @@ module IvcChampva
       def launch_ocr_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == 'vha_10_7959a'
           begin
-            # create a temp file from the persistent attachment object
-            tmpfile = tempfile_from_attachment(attachment, form_id)
-
             # queue Tesseract OCR job for tmpfile
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment, attachment_id)
             Rails.logger.info(
               "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )

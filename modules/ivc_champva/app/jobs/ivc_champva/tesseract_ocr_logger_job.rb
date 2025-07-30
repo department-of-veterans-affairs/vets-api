@@ -12,10 +12,10 @@ module IvcChampva
     ## Performs the job
     # @param form_id [String] The ID of the current form, e.g., 'vha_10_10d'
     # @param uuid [String, nil] The UUID associated with the attachment
-    # @param file_path [String] The path to the file to be processed
+    # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
-    def perform(form_id, uuid, file_path, attachment_id)
+    def perform(form_id, uuid, attachment, attachment_id)
       return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
 
       Rails.logger.info(
@@ -26,7 +26,12 @@ module IvcChampva
       begin
         start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
 
+        # Create a tempfile from the persistent attachment object
+        tmpfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
+        file_path = tmpfile.path
+
         # Ensure the file exists before processing
+        raise Errno::ENOENT, 'File path is nil' if file_path.nil?
         raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
 
         # Run Tesseract OCR on the file

@@ -6,6 +6,15 @@ require 'ivc_champva/supporting_document_validator'
 RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
   let(:job) { described_class.new }
   let(:validator) { instance_double(IvcChampva::SupportingDocumentValidator) }
+  let(:mock_file) { double('file', original_filename: 'test.pdf', read: 'filedata') }
+  let(:attachment) do
+    instance_double(
+      PersistentAttachments::MilitaryRecords,
+      file: mock_file,
+      guid: '1234-5678',
+      form_id: 'vha_10_10d'
+    )
+  end
 
   extracted_fields = { ssn: '123-45-6789', name: 'John Doe', age: 42 }
   result = {
@@ -31,7 +40,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       end
 
       it 'does not perform OCR validation' do
-        job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
+        job.perform('form_id', 'uuid', attachment, 'attachment_id')
         expect(validator).not_to have_received(:process)
         expect(Rails.logger).not_to have_received(:info).with(a_string_including('Beginning job for'))
       end
@@ -43,12 +52,12 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       end
 
       it 'performs OCR validation' do
-        job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
+        job.perform('form_id', 'uuid', attachment, 'attachment_id')
         expect(validator).to have_received(:process).once
       end
 
       it 'logs validator results' do
-        job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
+        job.perform('form_id', 'uuid', attachment, 'attachment_id')
         expect(Rails.logger).to have_received(:info).with(a_string_including('the validator type'))
         expect(Rails.logger).to have_received(:info).with(a_string_including('the document type'))
         expect(Rails.logger).to have_received(:info).with(a_string_including('is_valid: true'))
@@ -59,7 +68,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       end
 
       it 'does not log values from extracted fields which may contain PII' do
-        job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
+        job.perform('form_id', 'uuid', attachment, 'attachment_id')
         extracted_fields.each_value do |value|
           expect(Rails.logger).not_to have_received(:info).with(a_string_including(value.to_s))
         end
@@ -68,11 +77,21 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       it 'raises an error if the file does not exist' do
         allow(File).to receive(:exist?).and_return(false)
 
-        job.perform('form_id', 'uuid', 'file_path', 'attachment_id')
+        job.perform('form_id', 'uuid', attachment, 'attachment_id')
         expect(Rails.logger).to have_received(:error).with(
           a_string_including('failed with error: No such file or directory - File not found')
         )
         expect(Rails.logger).not_to have_received(:error).with(a_string_including('file_path')) # path may contain PII
+      end
+
+      it 'raises an error if the file path is nil' do
+        tmpfile = double('tempfile', path: nil)
+        allow(IvcChampva::TempfileHelper).to receive(:tempfile_from_attachment).and_return(tmpfile)
+
+        job.perform('form_id', 'uuid', attachment, 'attachment_id')
+        expect(Rails.logger).to have_received(:error).with(
+          a_string_including('failed with error: File path is nil')
+        )
       end
     end
   end
