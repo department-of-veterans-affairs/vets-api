@@ -7,64 +7,41 @@ require 'accredited_representative_portal/notification_email'
 
 RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
   let(:handler) { described_class }
-  let(:claim) do
-    instance_double(
-      SavedClaim,
-      form_id: 'TEST',
-      id: 23,
-      class: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim
-    )
-  end
-  let(:monitor) { instance_double(AccreditedRepresentativePortal::Monitor) }
-  let(:notification) { instance_double(AccreditedRepresentativePortal::NotificationEmail) }
-  let(:instance) { handler.new('fake-claim-id') }
-
-  before do
-    allow(SavedClaim).to receive(:find).with('fake-claim-id').and_return(claim)
-    allow(AccreditedRepresentativePortal::Monitor).to receive(:new).with(claim:).and_return(monitor)
-    allow(AccreditedRepresentativePortal::NotificationEmail)
-      .to receive(:new).with(claim.id).and_return(notification)
-  end
+  let(:claim) { create(:saved_claim_benefits_intake) }
+  let(:instance) { handler.new(claim.id) }
 
   describe '.pending_attempts' do
-    let(:form_submission) { instance_double(FormSubmission, form_type: '21-686C_BENEFITS-INTAKE') }
-    let(:submission_attempt) { instance_double(FormSubmissionAttempt, form_submission:) }
-    let(:form_submission_relation) { instance_double(ActiveRecord::Relation) }
-    let(:form_submission_attempt_relation) { instance_double(ActiveRecord::Relation) }
+    let(:form_submission) do
+      create(:form_submission, saved_claim: claim, form_type: '21-686C_BENEFITS-INTAKE')
+    end
+
+    let!(:submission_attempt) do
+      create(:form_submission_attempt, form_submission:, aasm_state: 'pending')
+    end
 
     before do
-      mock_form_class = Class.new
-      mock_form_class.const_set(:FORM_ID, '21-686C_BENEFITS-INTAKE')
-
       stub_const(
         'AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES',
-        [mock_form_class]
+        [claim.class]
       )
-
-      allow(FormSubmission).to receive(:where)
-        .with(form_type: ['21-686C_BENEFITS-INTAKE'])
-        .and_return(form_submission_relation)
-
-      allow(FormSubmissionAttempt).to receive(:joins)
-        .with(:form_submission)
-        .and_return(form_submission_attempt_relation)
-
-      allow(form_submission_attempt_relation).to receive(:where)
-        .with(aasm_state: 'pending')
-        .and_return(form_submission_attempt_relation)
-
-      allow(form_submission_attempt_relation).to receive(:merge)
-        .with(form_submission_relation)
-        .and_return([submission_attempt])
     end
 
     it 'returns pending form submission attempts for correct form_ids' do
       result = handler.pending_attempts
-      expect(result).to eq([submission_attempt])
+      expect(result).to contain_exactly(submission_attempt)
     end
   end
 
   describe '#on_failure' do
+    let(:monitor) { instance_double(AccreditedRepresentativePortal::Monitor) }
+    let(:notification) { instance_double(AccreditedRepresentativePortal::NotificationEmail) }
+
+    before do
+      allow(AccreditedRepresentativePortal::Monitor).to receive(:new).with(claim:).and_return(monitor)
+      allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).with(claim.id).and_return(notification)
+      allow(SavedClaim).to receive(:find).and_return(claim)
+    end
+
     it 'logs silent failure avoided' do
       expect(notification).to receive(:deliver).with(:error).and_return true
       expect(monitor).to receive(:log_silent_failure_avoided).with(
