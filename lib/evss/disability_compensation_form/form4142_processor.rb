@@ -21,18 +21,22 @@ module EVSS
       protected
 
       def transform_provider_facilities(incoming_data)
-        incoming_data.each do |facility|
+        facility_data = incoming_data['providerFacilities']
+        return incoming_data if facility_data.blank?
+
+        facility_data.each do |facility|
           treated_disability_hash = facility['treatedDisabilityNames']
           next if treated_disability_hash.blank?
 
           incoming_data['conditionsTreated'] = treated_disability_hash.select { |_, checked| checked }.keys.join(', ')
         end
+
         incoming_data
       end
 
       def transform_form_data(incoming_data)
         if generate_2024_version?
-          # Transform the incoming data to match the expected structure
+          # Transform the incoming data to match the expected new 2024 structure
           # For now, only provider facilities are transformed, but could need more in the future
           transform_provider_facilities(incoming_data)
         else
