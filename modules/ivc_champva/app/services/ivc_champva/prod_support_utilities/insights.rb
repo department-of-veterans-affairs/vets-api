@@ -7,7 +7,14 @@ module IvcChampva
   module ProdSupportUtilities
     # rubocop:disable Rails/Output
     class Insights
-      # TODO: add docstrings
+      ##
+      # Counts the number of batches by email grouped by the number of submissions
+      #
+      # @param [Integer] days_ago The number of days to look back
+      # @param [Integer] gate The number of submissions to consider a multi-submit
+      # @param [String] form_number The form number to look at
+      #
+      # @return [Hash] A hash of metrics
       def count_batches_by_email_grouped(days_ago = 7, gate = 2, form_number = '10-10D')
         puts "#{form_number} submits over the last #{days_ago} days:"
 
