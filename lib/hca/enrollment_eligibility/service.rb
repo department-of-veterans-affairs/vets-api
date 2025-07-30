@@ -54,9 +54,9 @@ module HCA
 
       MEDICARE = 'Medicare'
 
-      def get_ezr_data(icn)
+      def get_ezr_data(user)
         response = with_monitoring do
-          lookup_user_req(icn)
+          lookup_user_req(user.icn)
         end
 
         financial_info = parse_financial_info(response)
@@ -72,7 +72,7 @@ module HCA
           ezr_data.merge!(spouse)
         end
 
-        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_emergency_contacts_enabled)
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_emergency_contacts_enabled, user)
 
         OpenStruct.new(ezr_data)
       end

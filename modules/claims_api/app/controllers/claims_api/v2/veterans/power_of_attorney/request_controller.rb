@@ -64,7 +64,7 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide # rubocop:disable Metrics/MethodLength
+        def decide
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
@@ -83,13 +83,8 @@ module ClaimsApi
 
           manage_rep_service = manage_representative_service
 
-          process_poa_decision(decision:,
-                               proc_id:,
-                               representative_id:,
-                               poa_code: request.poa_code,
-                               metadata: request.metadata,
-                               veteran: veteran_data,
-                               claimant: claimant_data)
+          process_poa_decision(decision:, proc_id:, representative_id:, poa_code: request.poa_code,
+                               metadata: request.metadata, veteran: veteran_data, claimant: claimant_data)
 
           manage_representative_update_poa_request(proc_id:, secondary_status: decision,
                                                    declined_reason: form_attributes['declinedReason'],
@@ -154,9 +149,31 @@ module ClaimsApi
 
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
-          @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+          @json_body, type = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
+
+          validate_mapped_data!(veteran.participant_id, type, poa_code)
+        end
+
+        def validate_mapped_data!(veteran_participant_id, type, poa_code)
+          # custom validations, must come first
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            user_profile:, veteran_participant_id:, poa_code:,
+            base: type
+          )
+          # JSON validations, all errors, including errors from the custom validations
+          # will be raised here if JSON errors exist
+          validate_json_schema(type.upcase)
+          # otherwise we raise the errors from the custom validations if no JSON
+          # errors exist
+          if @claims_api_forms_validation_errors
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
+                  @poa_auto_establish_validation_errors
+          end
+        rescue JsonSchema::JsonApiMissingAttribute => e
+          errors = e.merge!(@claims_api_forms_validation_errors) if @claims_api_forms_validation_errors
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError, errors
         end
         # rubocop:enable Metrics/ParameterLists
 

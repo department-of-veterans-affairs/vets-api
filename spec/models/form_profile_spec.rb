@@ -1171,7 +1171,8 @@ RSpec.describe FormProfile, type: :model do
         context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
-            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                      instance_of(User)).and_return(false)
           end
 
           let(:v10_10_ezr_expected) do
@@ -1191,7 +1192,8 @@ RSpec.describe FormProfile, type: :model do
 
           context "and the 'ezr_emergency_contacts_enabled' flipper is enabled" do
             before do
-              allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                        instance_of(User)).and_return(true)
             end
 
             let(:v10_10_ezr_expected) do
@@ -1217,7 +1219,8 @@ RSpec.describe FormProfile, type: :model do
             allow(Flipper).to receive(:enabled?).with(
               :ezr_form_prefill_with_providers_and_dependents
             ).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                      instance_of(User)).and_return(false)
           end
 
           let(:v10_10_ezr_expected) do
@@ -1243,7 +1246,8 @@ RSpec.describe FormProfile, type: :model do
 
           context "and the 'ezr_emergency_contacts_enabled' flipper is enabled" do
             before do
-              allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                        instance_of(User)).and_return(true)
             end
 
             let(:v10_10_ezr_expected) do
