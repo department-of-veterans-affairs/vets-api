@@ -45,8 +45,12 @@ module AccreditedRepresentativePortal
       def generate_metadata
         base = super
 
-        submission = Lighthouse::Submission.where(saved_claim_id: claim.id)&.order(id: :asc)&.last
-        attempt = submission&.submission_attempts&.order(id: :asc)&.last
+        attempt = FormSubmissionAttempt
+                    .joins(:form_submission)
+                    .where(form_submissions: { saved_claim_id: claim.id })
+                    .order(id: :asc)
+                    .last
+
         arp = {
           lighthouseBenefitIntakeSubmissionUUID: attempt&.benefits_intake_uuid,
           lighthouseBenefitIntakeSubmissionDate: attempt&.created_at
