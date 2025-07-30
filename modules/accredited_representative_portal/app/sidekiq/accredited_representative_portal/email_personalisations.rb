@@ -96,7 +96,7 @@ module AccreditedRepresentativePortal
     class FailedClaimant < self
       def generate
         {
-          'claimant_first_name' => first_name,
+          'first_name' => first_name
         }
       end
 

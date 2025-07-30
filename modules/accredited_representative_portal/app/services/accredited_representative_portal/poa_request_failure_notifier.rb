@@ -11,7 +11,8 @@ module AccreditedRepresentativePortal
 
       recipient_types.each do |recipient_type|
         notification = @poa_request.notifications.create!(
-          type: "enqueue_failed_for_#{recipient_type}"
+          type: 'enqueue_failed',
+          recipient_type: recipient_type.to_s
         )
         PowerOfAttorneyRequestEmailJob.perform_async(notification.id)
       end
@@ -21,8 +22,8 @@ module AccreditedRepresentativePortal
 
     def recipient_types
       [].tap do |types|
-        types << :claimant if Flipper.enabled?(:ar_poa_request_claimant_failure_notification)
-        types << :representative if Flipper.enabled?(:ar_poa_request_rep_failure_notification)
+        types << :claimant if Flipper.enabled?(:ar_poa_request_failure_claimant_notification)
+        types << :resolver if Flipper.enabled?(:ar_poa_request_failure_rep_notification)
       end
     end
   end
