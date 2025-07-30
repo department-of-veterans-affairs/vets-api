@@ -343,7 +343,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
         allow(service).to receive(:get_poa_request).and_return({})
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
-          .to receive(:process_poa_decision).and_return(nil)
+          .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -353,6 +353,16 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
             expect(response_body['data']['id']).to eq(id)
+          end
+        end
+      end
+
+      it 'includes location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+            decide_request_with(id:, decision:, auth_header:)
+
+            expect(response.headers).to have_key('Location')
           end
         end
       end

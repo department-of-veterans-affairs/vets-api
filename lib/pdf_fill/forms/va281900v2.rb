@@ -229,6 +229,9 @@ module PdfFill
           question_suffix: 'A',
           question_text: 'NUMBER OF YEARS OF EDUCATION'
         },
+        'privacyAgreementAccepted' => {
+          key: 'form1[0].#subform[1].IfIDontGiveMyInfo[0]'
+        },
         'signature' => {
           key: 'form1[0].#subform[1].SignatureField11[0]'
         },
@@ -251,6 +254,7 @@ module PdfFill
 
         expand_signature(@form_data['veteranInformation']['fullName'], @form_data['signatureDate'] || Time.zone.today)
         @form_data['signatureDate'] = split_date(@form_data['signatureDate'])
+        @form_data['privacyAgreementAccepted'] = select_checkbox(@form_data['privacyAgreementAccepted'])
 
         @form_data
       end
