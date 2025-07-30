@@ -10,9 +10,9 @@ module AccreditedRepresentativePortal
 
       before do
         # Stub Flipper feature flags
-        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_claimant_failure_notification)
+        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_claimant_notification)
                                             .and_return(claimant_enabled)
-        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_rep_failure_notification)
+        allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_rep_notification)
                                             .and_return(rep_enabled)
       end
 
@@ -21,9 +21,11 @@ module AccreditedRepresentativePortal
         let(:rep_enabled) { true }
 
         it 'creates two notifications and enqueues two email jobs' do
-          expect(poa_request.notifications).to receive(:create!).with(type: 'enqueue_failed_for_claimant')
+          expect(poa_request.notifications).to receive(:create!).with(type: 'enqueue_failed',
+                                                                      recipient_type: 'claimant')
                                                                 .and_return(notification_double)
-          expect(poa_request.notifications).to receive(:create!).with(type: 'enqueue_failed_for_representative')
+          expect(poa_request.notifications).to receive(:create!).with(type: 'enqueue_failed',
+                                                                      recipient_type: 'resolver')
                                                                 .and_return(notification_double)
           expect(PowerOfAttorneyRequestEmailJob).to receive(:perform_async).twice.with(notification_double.id)
 
@@ -36,9 +38,11 @@ module AccreditedRepresentativePortal
         let(:rep_enabled) { false }
 
         it 'creates one claimant notification and enqueues one email job' do
-          expect(poa_request.notifications).to receive(:create!).with(type: 'enqueue_failed_for_claimant')
+          expect(poa_request.notifications).to receive(:create!).with(type: 'enqueue_failed',
+                                                                      recipient_type: 'claimant')
                                                                 .and_return(notification_double)
-          expect(poa_request.notifications).not_to receive(:create!).with(type: 'enqueue_failed_for_representative')
+          expect(poa_request.notifications).not_to receive(:create!).with(type: 'enqueue_failed',
+                                                                          recipient_type: 'resolver')
           expect(PowerOfAttorneyRequestEmailJob).to receive(:perform_async).with(notification_double.id)
 
           described_class.new(poa_request).call
