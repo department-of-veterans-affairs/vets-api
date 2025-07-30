@@ -40,11 +40,12 @@ module AccreditedRepresentativePortal
         require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
         require 'accredited_representative_portal/submission_handler'
 
-        # Register our Claims Benefits Intake Submission Handler
-        ::BenefitsIntake::SubmissionStatusJob.register_handler(
-          AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID,
-          AccreditedRepresentativePortal::SubmissionHandler
-        )
+        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES.each do |form_class|
+          ::BenefitsIntake::SubmissionStatusJob.register_handler(
+            form_class::PROPER_FORM_ID,
+            AccreditedRepresentativePortal::SubmissionHandler
+          )
+        end
       end
     end
   end

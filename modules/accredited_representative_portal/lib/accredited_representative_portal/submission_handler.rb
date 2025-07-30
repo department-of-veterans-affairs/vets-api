@@ -3,10 +3,12 @@
 module AccreditedRepresentativePortal
   class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
     def self.pending_attempts
-      Lighthouse::SubmissionAttempt.joins(:submission).where(
-        status: 'pending',
-        'lighthouse_submissions.form_id' => AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
-      )
+      form_ids = ::AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES.map(&:PROPER_FORM_ID)
+
+      Lighthouse::SubmissionAttempt
+        .joins(:submission)
+        .where(status: 'pending')
+        .where('lighthouse_submissions.form_id': form_ids)
     end
 
     private
@@ -16,7 +18,7 @@ module AccreditedRepresentativePortal
     end
 
     def monitor
-      @monitor ||= AccreditedRepresentativePortal::Monitor.new
+      @monitor ||= AccreditedRepresentativePortal::Monitor.new(claim:)
     end
 
     def notification_email

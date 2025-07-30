@@ -8,10 +8,14 @@ module AccreditedRepresentativePortal
   class NotificationCallback < ::VeteranFacingServices::NotificationCallback::SavedClaim
     private
 
+    def claim
+      @claim ||= ::SavedClaim.find(saved_claim_id)
+    end
+
     # the monitor to be used
     # @see AccreditedRepresentativePortal::Monitor
     def monitor
-      @monitor ||= AccreditedRepresentativePortal::Monitor.new
+      @monitor ||= AccreditedRepresentativePortal::Monitor.new(claim:)
     end
   end
 end

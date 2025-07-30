@@ -5,9 +5,10 @@ module AccreditedRepresentativePortal
     CLAIM_STATS_KEY = 'api.accredited_representative_portal_claim'
     SUBMISSION_STATS_KEY = 'app.accredited_representative_portal.submit_benefits_intake_claim'
 
-    attr_reader :tags
+    attr_reader :tags, :claim
 
-    def initialize
+    def initialize(claim:)
+      @claim = claim
       super('accredited-representative-portal')
       @tags = ["form_id:#{form_id}"]
     end
@@ -27,7 +28,7 @@ module AccreditedRepresentativePortal
     end
 
     def form_id
-      AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
+      claim.class::PROPER_FORM_ID
     end
 
     def send_email(claim_id, email_type)

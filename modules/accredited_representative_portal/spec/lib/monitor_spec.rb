@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'accredited_representative_portal/monitor'
 
 RSpec.describe AccreditedRepresentativePortal::Monitor do
-  let(:monitor) { described_class.new }
+  let(:claim) { instance_double(SavedClaim, id: 1, class: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim) }
+  let(:monitor) { described_class.new(claim:) }
 
   describe '#service_name' do
     it 'returns the expected name' do
@@ -12,7 +14,7 @@ RSpec.describe AccreditedRepresentativePortal::Monitor do
   end
 
   describe '#form_id' do
-    it 'returns PROPER_FORM_ID' do
+    it 'returns PROPER_FORM_ID from the claim class' do
       expect(monitor.send(:form_id)).to eq(AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID)
     end
   end

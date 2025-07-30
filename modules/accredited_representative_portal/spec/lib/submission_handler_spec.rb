@@ -7,34 +7,41 @@ require 'accredited_representative_portal/notification_email'
 
 RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
   let(:handler) { described_class }
-  let(:claim) { double(form_id: 'TEST', id: 23) }
-  let(:monitor) { double(AccreditedRepresentativePortal::Monitor) }
-  let(:notification) { double(AccreditedRepresentativePortal::NotificationEmail) }
+  let(:claim) do
+    instance_double(
+      SavedClaim,
+      form_id: 'TEST',
+      id: 23,
+      class: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim
+    )
+  end
+  let(:monitor) { instance_double(AccreditedRepresentativePortal::Monitor) }
+  let(:notification) { instance_double(AccreditedRepresentativePortal::NotificationEmail) }
   let(:instance) { handler.new('fake-claim-id') }
 
   before do
-    allow(SavedClaim).to receive(:find).and_return(claim)
-
-    allow(AccreditedRepresentativePortal::Monitor).to receive(:new).and_return(monitor)
-
+    allow(SavedClaim).to receive(:find).with('fake-claim-id').and_return(claim)
+    allow(AccreditedRepresentativePortal::Monitor).to receive(:new).with(claim:).and_return(monitor)
     allow(AccreditedRepresentativePortal::NotificationEmail)
       .to receive(:new).with(claim.id).and_return(notification)
   end
 
   describe '.pending_attempts' do
-    let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
+    let(:submission_attempt) { instance_double(Lighthouse::SubmissionAttempt) }
+    let(:mock_relation) { instance_double(ActiveRecord::Relation) }
 
     before do
-      allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
-                                                             .and_return(Lighthouse::SubmissionAttempt)
-      allow(Lighthouse::SubmissionAttempt).to receive(:where).with(
-        status: 'pending',
-        'lighthouse_submissions.form_id' =>
-          AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
-      ).and_return([submission_attempt])
+      mock_form_class = double('DependencyClaim', PROPER_FORM_ID: '21-686c')
+      stub_const('AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES', [mock_form_class])
+
+      allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission).and_return(mock_relation)
+
+      allow(mock_relation).to receive(:where).with(status: 'pending').and_return(mock_relation)
+      allow(mock_relation).to receive(:where).with('lighthouse_submissions.form_id': ['21-686c'])
+                                             .and_return([submission_attempt])
     end
 
-    it 'returns pending submission attempts with the correct form_id' do
+    it 'returns pending submission attempts with the correct form_id list' do
       result = handler.pending_attempts
       expect(result).to eq([submission_attempt])
     end
