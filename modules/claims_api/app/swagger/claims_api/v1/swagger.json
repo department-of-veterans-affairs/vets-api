@@ -4,7 +4,7 @@
     "title": "Benefits Claims",
     "version": "v1",
     "termsOfService": "https://developer.va.gov/terms-of-service",
-    "description": "This API automatically establishes and submits these VA forms.\n| Form number       | Form name     | Description     |\n| :------------- | :----------: | -----------: |\n| [21-526EZ](https://www.va.gov/find-forms/about-form-21-526ez/) | Application for Disability Compensation and Related Compensation Benefits | Used to apply for VA disability compensation and related benefits. |\n| [21-0966](https://www.va.gov/find-forms/about-form-21-0966/) | Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC | Submits an intent to file to secure the earliest possible effective date for any retroactive payments. |\n| [21-22](https://www.va.gov/find-forms/about-form-21-22/) | Appointment of Veterans Service Organization as Claimant's Representative | Used to assign a Veterans Service Organization as a POA to help a Veteran or dependent with benefits or claims. |\n| [21-22a](https://www.va.gov/find-forms/about-form-21-22a/) | Appointment of Individual As Claimant's Representative | Used to assign an individual as a POA to help a Veteran with benefits or claims. |\n\nIt also lets claimants or their authorized representatives:\n - Digitally submit supporting documentation for disability compensation claims.\n - Retrieve information such as status for any claim, including pension and burial.\n - Retrieve power of attorney (POA) status for individuals and Veterans Service Organizations (VSOs).\n - Retrieve intent to file status.\n\n## Background\nThe Benefits Claims API offers faster establishment and enhanced reporting for several VA claims and forms. Using this API provides many benefits, such as:\n - Automatic claim and POA establishment\n - Direct establishment of disability compensation claims in Veterans Benefits Management System (VBMS) to avoid unnecessary manual processing and entry by Veteran Service Representatives (VSRs)\n - Faster claims processing by several days\n - End-to-end claims status and result tracking by claim ID\n\nForms not supported by the Benefits Claims API are submitted using the [Benefits Intake API](https://developer.va.gov/explore/benefits/docs/benefits?version=current), which places uploaded PDFs into the Centralized Mail Portal to be manually processed.\n\n## Appointing an accredited representative for dependents\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\nThis API accepts a payload of requests and responses on a per-form basis, with the payload identifying the form and claimant. Trackable responses provide a unique ID which is used with the appropriate GET endpoint to track a submission’s processing status.\n\n### Attachment and file size limits\nThere is no limit on the number of files a payload can contain, but size limits do apply.\n - Uploaded documents cannot be larger than 11\" x 11\"\n - The entire payload cannot exceed 100 MB\n - No single file in a payload can exceed 25 MB\n\n### Authentication and authorization\nTo make an API request, follow our [authentication process](https://developer.va.gov/explore/api/benefits-claims/authorization-code) to receive an [OAuth token](https://oauth.net/2/).\n\n#### Representative authorization\nRepresentatives seeking authorization for a claimant must first [authenticate](https://developer.va.gov/explore/api/benefits-claims/authorization-code) and then pass the claimant’s information in the right header:\n - SSN in X-VA-SSN\n - First name in X-VA-First-Name\n - Last name in X-VA-Last-Name\n - Date of birth in X-VA-Birth-Date\n\nOmitting the information will cause the API to treat the representative as the claimant.\n\n#### Claimant authorization\nClaimants seeking authorization do not need to include headers such as X-VA-First-Name since the token authentication via ID.me, MyHealtheVet, or DSLogon provides this information.\n\n### POA Codes\nVeteran representatives receive their organization’s POA code. If they are the assigned POA for a claimant, that claimant will have a matching POA code. When a claim is submitted, this API verifies that the representative and claimant codes match against each other and the codes in the [Office of General Council (OGC) Database](https://www.va.gov/ogc/apps/accreditation/index.asp).\n\nUse the [Power of Attorney endpoint](#operations-Power_of_Attorney-post2122) to assign or update POA status. A newly appointed representative may not be able to submit forms for a claimant until a day after their POA code is first associated with the OGC data set.\n\n### Test data for sandbox environment use\n[Test data](https://developer.va.gov/explore/api/benefits-claims/test-users/2671/f1097c9772b447bb755b26dcd3e652aecad632389a28f0e19a7ebb082808db39) is used for all forms in the sandbox environment and for 21-526 submissions in the staging environment.\n\n### Claim and form processing\nClaims and forms are first submitted by this API and then established in VBMS. A 200 response means only that your claim or form was submitted successfully. To see if your submission is processed or has reached VBMS, you must check its status using the appropriate GET endpoint and the ID returned with your submission response.\n\nA “claim established” status means the claim has reached VBMS. In sandbox, submissions can take over an hour to reach “claim established” status. In production, this may take over two days.\n"
+    "description": "This API automatically establishes and submits these VA forms.\n| Form number       | Form name     | Description     |\n| :------------- | :----------: | -----------: |\n| [21-526EZ](https://www.va.gov/find-forms/about-form-21-526ez/) | Application for Disability Compensation and Related Compensation Benefits | Used to apply for VA disability compensation and related benefits. |\n| [21-0966](https://www.va.gov/find-forms/about-form-21-0966/) | Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC | Submits an intent to file to secure the earliest possible effective date for any retroactive payments. |\n| [21-22](https://www.va.gov/find-forms/about-form-21-22/) | Appointment of Veterans Service Organization as Claimant's Representative | Used to assign a Veterans Service Organization as a POA to help a Veteran or dependent with benefits or claims. |\n| [21-22a](https://www.va.gov/find-forms/about-form-21-22a/) | Appointment of Individual As Claimant's Representative | Used to assign an individual as a POA to help a Veteran with benefits or claims. |\n\nIt also lets claimants or their authorized representatives:\n - Digitally submit supporting documentation for disability compensation claims.\n - Retrieve information such as status for any claim, including pension and burial.\n - Retrieve power of attorney (POA) status for individuals and Veterans Service Organizations (VSOs).\n - Retrieve intent to file status.\n\n## Background\nThe Benefits Claims API offers faster establishment and enhanced reporting for several VA claims and forms. Using this API provides many benefits, such as:\n\n - Automatic claim and POA establishment.\n - Direct establishment of disability compensation claims in Veterans Benefits Management System (VBMS) to avoid unnecessary manual processing and entry by Veteran Service Representatives (VSRs).\n - Faster claims processing by several days.\n - End-to-end claims status and result tracking by claim ID.\n\nForms not supported by the Benefits Claims API are submitted using the [Benefits Intake API](https://developer.va.gov/explore/benefits/docs/benefits?version=current), which places uploaded PDFs into the Centralized Mail Portal to be manually processed.\n\n## Appointing an accredited representative for dependents\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\nThis API accepts a payload of requests and responses on a per-form basis, with the payload identifying the form and claimant. Trackable responses provide a unique ID which is used with the appropriate GET endpoint to track a submission’s processing status.\n\n### Attachment and file size limits\nThere is no limit on the number of files a payload can contain, but size limits do apply.\n - Uploaded documents cannot be larger than 11\" x 11\"\n - The entire payload cannot exceed 100 MB\n - No single file in a payload can exceed 25 MB\n\n### Authentication and authorization\nTo make an API request, follow our [authentication process](https://developer.va.gov/explore/api/benefits-claims/authorization-code) to receive an [OAuth token](https://oauth.net/2/).\n\n#### Representative authorization\nRepresentatives seeking authorization for a claimant must first [authenticate](https://developer.va.gov/explore/api/benefits-claims/authorization-code) and then pass the claimant’s information in the right header:\n - SSN in X-VA-SSN\n - First name in X-VA-First-Name\n - Last name in X-VA-Last-Name\n - Date of birth in X-VA-Birth-Date\n\nOmitting the information will cause the API to treat the representative as the claimant.\n\n#### Claimant authorization\nClaimants seeking authorization do not need to include headers such as X-VA-First-Name since the token authentication via ID.me, MyHealtheVet, or DSLogon provides this information.\n\n### POA Codes\nVeteran representatives receive their organization’s POA code. If they are the assigned POA for a claimant, that claimant will have a matching POA code. When a claim is submitted, this API verifies that the representative and claimant codes match against each other and the codes in the [Office of General Council (OGC) Database](https://www.va.gov/ogc/apps/accreditation/index.asp).\n\nUse the [Power of Attorney endpoint](#operations-Power_of_Attorney-post2122) to assign or update POA status. A newly appointed representative may not be able to submit forms for a claimant until a day after their POA code is first associated with the OGC data set.\n\n### Test data for sandbox environment use\n[Test data](https://developer.va.gov/explore/api/benefits-claims/test-users/2671/f1097c9772b447bb755b26dcd3e652aecad632389a28f0e19a7ebb082808db39) is used for all forms in the sandbox environment and for 21-526 submissions in the staging environment.\n\n### Claim and form processing\nClaims and forms are first submitted by this API and then established in VBMS. A 200 response means only that your claim or form was submitted successfully. To see if your submission is processed or has reached VBMS, you must check its status using the appropriate GET endpoint and the ID returned with your submission response.\n\nA “claim established” status means the claim has reached VBMS. In sandbox, submissions can take over an hour to reach “claim established” status. In production, this may take over two days.\n"
   },
   "tags": [
     {
@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ad9e214-d821-4603-bfe9-43140e2bbf53",
+                    "id": "564dc89b-3ff6-423a-9039-a3a1410f9ab8",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-23",
+                      "date_request_accepted": "2025-07-30",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bbfd60a2-96a3-4ee8-8230-4115c4303a21",
+                    "id": "352b054f-5a5d-47d0-8277-fa0771686e9b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-23",
+                      "date_request_accepted": "2025-07-30",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -3181,10 +3181,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2316a88e-53ef-4853-83f4-5a250c8990a2",
+                    "id": "b72d0496-d34a-4c2b-8537-4765ca9bba3d",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-23",
+                      "date_request_accepted": "2025-07-30",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -6039,7 +6039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a1f4ab53-5fe5-401a-9377-13cc93e4d822",
+                    "id": "409ae7f1-b75d-48ed-8326-61afcdc3deaa",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6047,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-23T18:49:12.467Z",
+                      "updated_at": "2025-07-30T15:21:16.876Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6061,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "a1f4ab53-5fe5-401a-9377-13cc93e4d822",
+                      "token": "409ae7f1-b75d-48ed-8326-61afcdc3deaa",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -7914,7 +7914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "43ad3c88-9836-4bf7-a83b-f4a28282a307",
+                    "id": "50ae6f6b-e132-4c8b-a468-31a52c312726",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7922,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-23T18:49:12.852Z",
+                      "updated_at": "2025-07-30T15:21:17.973Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7936,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "43ad3c88-9836-4bf7-a83b-f4a28282a307",
+                      "token": "50ae6f6b-e132-4c8b-a468-31a52c312726",
                       "status": "pending",
                       "flashes": []
                     }
@@ -10165,7 +10165,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "92a42452-a08c-4d61-b979-1ede7208d3c1",
+                    "id": "95c8c3cb-a096-4488-a890-8abe86cebffe",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10173,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-23T18:49:13.745Z",
+                      "updated_at": "2025-07-30T15:21:20.230Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10186,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "aee84ad8-5bd1-4fa6-8ea8-cdffb0c31293",
+                          "id": "46aa1740-5690-4f13-b7a9-d93d9ec22548",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -11025,7 +11025,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f5d01a25-cfde-4153-adc2-0f916063b3d8",
+                    "id": "c43db3c9-7ac4-4a8f-a44b-5b1cc0f4fda6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -11058,12 +11058,12 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "209d29ab-3ce5-4033-b6f6-bf4367be3b93",
+                          "id": "98b37d3e-090f-4b66-afcf-c2d660425166",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-07-23T18:49:14.356Z"
+                          "uploaded_at": "2025-07-30T15:21:21.884Z"
                         }
                       ]
                     }
