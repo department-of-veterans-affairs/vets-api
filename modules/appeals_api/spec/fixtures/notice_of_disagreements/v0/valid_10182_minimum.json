@@ -10,7 +10,6 @@
         "birthDate": "1969-12-31",
         "homeless": true,
         "phone": {
-          "areaCode": "555",
           "phoneNumber": "8001111"
         },
         "email": "jdoe@example.com",

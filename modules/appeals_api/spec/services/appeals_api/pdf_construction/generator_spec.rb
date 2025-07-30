@@ -50,7 +50,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:generated_pdf) { described_class.new(nod, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/#{pdf_version}/#{fixture_name}") }
 
-        after { FileUtils.rm_f(generated_pdf) }
+        # after { FileUtils.rm_f(generated_pdf) }
 
         it 'generates the expected pdf' do
           expect(generated_pdf).to match_pdf expected_pdf
