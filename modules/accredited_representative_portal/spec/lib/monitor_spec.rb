@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'accredited_representative_portal/monitor'
 
 RSpec.describe AccreditedRepresentativePortal::Monitor do
-  let(:claim) { instance_double(SavedClaim, id: 1, class: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim) }
+  let(:claim) { create(:saved_claim_benefits_intake) }
   let(:monitor) { described_class.new(claim:) }
 
   describe '#service_name' do
