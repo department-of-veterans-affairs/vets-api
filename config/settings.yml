@@ -1687,16 +1687,6 @@ veteran_readiness_and_employment:
   auth_endpoint: <%= ENV['veteran_readiness_and_employment__auth_endpoint'] %>
   base_url: <%= ENV['veteran_readiness_and_employment__base_url'] %>
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
-  email:
-    action_needed:
-      flipper_id: false
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
-    confirmation_lighthouse:
-      flipper_id: false
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
-    confirmation_vbms:
-      flipper_id: false
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
   daily_report:
     emails:
     - VRC.VBABOS@va.gov
@@ -1759,6 +1749,16 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  email:
+    action_needed:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
+    confirmation_lighthouse:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
+    confirmation_vbms:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:
