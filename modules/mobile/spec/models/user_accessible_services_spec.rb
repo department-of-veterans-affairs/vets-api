@@ -4,7 +4,6 @@ require 'rails_helper'
 
 describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model do
   let(:user) { build(:user, :loa3, vha_facility_ids: [402, 555]) }
-  let(:non_evss_user) { build(:user, :loa3, edipi: nil, ssn: nil, participant_id: nil) }
   let(:non_lighthouse_user) { build(:user, :loa3, icn: nil, participant_id: nil) }
   let(:user_services) { Mobile::V0::UserAccessibleServices.new(user) }
 
@@ -167,38 +166,17 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
     end
 
     describe 'lettersAndDocuments' do
-      context 'with mobile_lighthouse_letters flag off' do
-        before { Flipper.disable(:mobile_lighthouse_letters) }
-        after { Flipper.enable(:mobile_lighthouse_letters) }
+      context 'when user does not have lighthouse access' do
+        let(:user) { non_lighthouse_user }
 
-        context 'when user does not have evss access' do
-          let(:user) { non_evss_user }
-
-          it 'is false' do
-            expect(user_services.service_auth_map[:lettersAndDocuments]).to be(false)
-          end
-        end
-
-        context 'when user does have evss access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:lettersAndDocuments]).to be_truthy
-          end
+        it 's false' do
+          expect(user_services.service_auth_map[:lettersAndDocuments]).to be(false)
         end
       end
 
-      context 'with mobile_lighthouse_letters flag on' do
-        context 'when user does not have lighthouse access' do
-          let(:user) { non_lighthouse_user }
-
-          it 's false' do
-            expect(user_services.service_auth_map[:lettersAndDocuments]).to be(false)
-          end
-        end
-
-        context 'when user does have lighthouse access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:lettersAndDocuments]).to be_truthy
-          end
+      context 'when user does have lighthouse access' do
+        it 'is true' do
+          expect(user_services.service_auth_map[:lettersAndDocuments]).to be_truthy
         end
       end
     end

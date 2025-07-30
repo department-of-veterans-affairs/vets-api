@@ -334,7 +334,7 @@ RSpec.describe BGS::VnpVeteran do
           VCR.use_cassette('bgs/vnp_veteran/create') do
             vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             ).create
@@ -344,7 +344,7 @@ RSpec.describe BGS::VnpVeteran do
               first_name: 'WESLEY',
               last_name: 'FORD',
               vnp_participant_address_id: '117658',
-              file_number: '987654321',
+              file_number: '796043735',
               address_line_one: '8200 Doby LN',
               address_line_two: nil,
               address_line_three: nil,
@@ -373,7 +373,7 @@ RSpec.describe BGS::VnpVeteran do
 
             vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             ).create
@@ -389,7 +389,7 @@ RSpec.describe BGS::VnpVeteran do
 
             vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             ).create
@@ -409,8 +409,8 @@ RSpec.describe BGS::VnpVeteran do
           suffix_nm: nil,
           birth_state_cd: nil,
           birth_city_nm: nil,
-          file_nbr: '987654321',
-          ssn_nbr: '987654321',
+          file_nbr: '796043735',
+          ssn_nbr: '796043735',
           death_dt: nil,
           ever_maried_ind: nil,
           vet_ind: 'Y',
@@ -418,21 +418,21 @@ RSpec.describe BGS::VnpVeteran do
         }
 
         expected_address = {
-          addrs_one_txt: '123 fake street',
-          addrs_two_txt: 'test2 test3',
-          addrs_three_txt: nil,
-          city_nm: 'portland',
+          addrs_one_txt: '2037400 twenty',
+          addrs_two_txt: 'ninth St apt 2222',
+          addrs_three_txt: 'Bldg 33333',
+          city_nm: 'Pasadena',
           cntry_nm: 'USA',
-          email_addrs_txt: 'test@test.com',
+          email_addrs_txt: 'foo@foo.com',
           mlty_post_office_type_cd: nil,
           mlty_postal_type_cd: nil,
-          postal_cd: 'ME',
-          prvnc_nm: 'ME',
+          postal_cd: 'CA',
+          prvnc_nm: 'CA',
           ptcpnt_addrs_type_nm: 'Mailing',
           shared_addrs_ind: 'N',
           vnp_proc_id: '12345',
           vnp_ptcpnt_id: '151031',
-          zip_prefix_nbr: '04102'
+          zip_prefix_nbr: '21122'
         }
         VCR.use_cassette('bgs/vnp_veteran/create') do
           expect_any_instance_of(BGS::Service).to receive(:create_person)
@@ -440,7 +440,7 @@ RSpec.describe BGS::VnpVeteran do
             .and_call_original
 
           expect_any_instance_of(BGS::Service).to receive(:create_phone)
-            .with(anything, anything, a_hash_including(formatted_payload_v2))
+            .with(anything, anything, a_hash_including(formatted_payload))
             .and_call_original
 
           expect_any_instance_of(BGS::Service).to receive(:create_address)
@@ -449,7 +449,7 @@ RSpec.describe BGS::VnpVeteran do
 
           BGS::VnpVeteran.new(
             proc_id: '12345',
-            payload: all_flows_payload_v2,
+            payload: all_flows_payload,
             user: user_object,
             claim_type: '130DPNEBNADJ'
           ).create
@@ -457,14 +457,14 @@ RSpec.describe BGS::VnpVeteran do
       end
 
       context 'SSN is not 9 digits' do
-        before { all_flows_payload_v2['veteran_information']['ssn'] = '12345678' }
+        before { all_flows_payload['veteran_information']['ssn'] = '12345678' }
 
         it 'sets ssn to User#ssn' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
             user_object = create(:evss_user, :loa3, ssn: '123456789')
             vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             )
@@ -481,7 +481,7 @@ RSpec.describe BGS::VnpVeteran do
               allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
               vnp_veteran = BGS::VnpVeteran.new(
                 proc_id: '3828241',
-                payload: all_flows_payload_v2,
+                payload: all_flows_payload,
                 user: user_object,
                 claim_type: '130DPNEBNADJ'
               )
@@ -504,7 +504,7 @@ RSpec.describe BGS::VnpVeteran do
               allow_any_instance_of(User).to receive(:ssn).and_return('********')
               vnp_veteran = BGS::VnpVeteran.new(
                 proc_id: '3828241',
-                payload: all_flows_payload_v2,
+                payload: all_flows_payload,
                 user: user_object,
                 claim_type: '130DPNEBNADJ'
               )
@@ -525,9 +525,12 @@ RSpec.describe BGS::VnpVeteran do
       context 'veteran has UK address' do
         it "uses 'United Kingdom' for the country name instead of the full ISO 3166-1 name" do
           # rubocop:disable Layout/LineLength
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['country'] = 'GBR'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['city'] = 'APO'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
+          all_flows_payload['dependents_application']['veteran_contact_information']['veteran_address']['country_name'] = 'GBR'
+          all_flows_payload['veteran_contact_information']['veteran_address']['country_name'] = 'GBR'
+          all_flows_payload['dependents_application']['veteran_contact_information']['veteran_address']['city'] = 'APO'
+          all_flows_payload['veteran_contact_information']['veteran_address']['city'] = 'APO'
+          all_flows_payload['dependents_application']['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
+          all_flows_payload['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
           # rubocop:enable Layout/LineLength
 
           expected_address = { cntry_nm: 'United Kingdom' }
@@ -538,7 +541,7 @@ RSpec.describe BGS::VnpVeteran do
               .and_call_original
             BGS::VnpVeteran.new(
               proc_id: '12345',
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             ).create
@@ -549,9 +552,12 @@ RSpec.describe BGS::VnpVeteran do
       context "veteran has APO address that isn't in the UK" do
         it 'uses IsoCountryCodes to determine the country name' do
           # rubocop:disable Layout/LineLength
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['country'] = 'ATA'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['city'] = 'APO'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
+          all_flows_payload['dependents_application']['veteran_contact_information']['veteran_address']['country_name'] = 'ATA'
+          all_flows_payload['veteran_contact_information']['veteran_address']['country_name'] = 'ATA'
+          all_flows_payload['dependents_application']['veteran_contact_information']['veteran_address']['city'] = 'APO'
+          all_flows_payload['veteran_contact_information']['veteran_address']['city'] = 'APO'
+          all_flows_payload['dependents_application']['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
+          all_flows_payload['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
           # rubocop:enable Layout/LineLength
 
           expected_address = { cntry_nm: 'Antarctica' }
@@ -562,34 +568,7 @@ RSpec.describe BGS::VnpVeteran do
               .and_call_original
             BGS::VnpVeteran.new(
               proc_id: '12345',
-              payload: all_flows_payload_v2,
-              user: user_object,
-              claim_type: '130DPNEBNADJ'
-            ).create
-          end
-        end
-      end
-
-      context 'veteran has APO address with an AE State' do
-        it 'uses IsoCountryCodes to determine the country name' do
-          # rubocop:disable Layout/LineLength
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['country'] = 'USA'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['city'] = 'APO'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['state'] = 'AE'
-          all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['international_postal_code'] = '67400'
-          # rubocop:enable Layout/LineLength
-
-          expected_address = { frgn_postal_cd: nil,
-                               mlty_postal_type_cd: 'AE',
-                               mlty_post_office_type_cd: 'APO' }
-
-          VCR.use_cassette('bgs/vnp_veteran/create') do
-            expect_any_instance_of(BGS::Service).to receive(:create_address)
-              .with(a_hash_including(expected_address))
-              .and_call_original
-            BGS::VnpVeteran.new(
-              proc_id: '12345',
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             ).create
