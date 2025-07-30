@@ -26,18 +26,6 @@ RSpec.describe Crm::Service do
   def mock_response(status:, body:)
     instance_double(Faraday::Response, status:, body: body.to_json)
   end
-  
-  # Legacy endpoints (flag disabled)
-  include_examples 'crm request with header', 'development', false, 'iris-dev'
-  include_examples 'crm request with header', 'test', false, 'iris-dev'
-  include_examples 'crm request with header', 'staging', false, 'veft-qa'
-  include_examples 'crm request with header', 'production', false, 'veft'
-
-  # New endpoints (flag enabled)
-  include_examples 'crm request with header', 'development', true, 'iris-dev'
-  include_examples 'crm request with header', 'test', true, 'iris-dev'
-  include_examples 'crm request with header', 'staging', true, 'ava-preprod'
-  include_examples 'crm request with header', 'production', true, 'ava-prod'
 
   shared_examples 'crm request with header' do |env, flag_state, expected_org|
     let(:response) { mock_response(status: 200, body: mock_data) }
@@ -63,6 +51,18 @@ RSpec.describe Crm::Service do
       expect(service.call(endpoint:)[:data].first).to eq(res[:data].first)
     end
   end
+
+  # Legacy endpoints (flag disabled)
+  include_examples 'crm request with header', 'development', false, 'iris-dev'
+  include_examples 'crm request with header', 'test', false, 'iris-dev'
+  include_examples 'crm request with header', 'staging', false, 'ava-qa'
+  include_examples 'crm request with header', 'production', false, 'veft'
+
+  # New endpoints (flag enabled)
+  include_examples 'crm request with header', 'development', true, 'iris-dev'
+  include_examples 'crm request with header', 'test', true, 'iris-dev'
+  include_examples 'crm request with header', 'staging', true, 'ava-preprod'
+  include_examples 'crm request with header', 'production', true, 'ava-prod'
 
   describe '#call' do
     context 'when the server returns an error' do
