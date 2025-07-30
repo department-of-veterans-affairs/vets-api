@@ -86,7 +86,7 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
 
       context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
         before do
-          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(true)
         end
 
         context 'when an error occurs in the associations service' do
