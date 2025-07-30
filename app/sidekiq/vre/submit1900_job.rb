@@ -34,9 +34,9 @@ module VRE
       claim_id, encrypted_user = msg['args']
       claim = SavedClaim.find(claim_id)
 
-      if Flipper.enabled?(:vre_use_new_vfs_notification_library):
+      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
         VRE::NotificationEmail.new(claim.id).deliver(:action_needed)
-      else:
+      else
         user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
         email = claim.parsed_form['email'] || user.try(:va_profile_email)
         monitor = VRE::Monitor.new
