@@ -4,54 +4,60 @@
 
 # Configure sensitive parameters which will be filtered from the log file.
 ALLOWLIST = %w[
-  controller
   action
-  id
-  from_date
-  to_date
-  qqtotalfilesize
-  type
-  folder_id
-  startDate
-  endDate
-  included
-  page
-  useCache
-  number
-  size
-  sort
-  showCompleted
-  excludeProvidedMessage
-  document_id
-  document_type
-  category
-  cookie_id
-  reply_id
-  ids
-  code
-  grant_type
-  endpoint_sid
-  message_id
-  os_name
-  filter
-  startedFormVersion
-  tempfile
-  content_type
-  user_account_uuid
-  confirmation_number
-  message
-  error
-  errors
-  claim_id
-  form_id
-  tags
-  in_progress_form_id
   benefits_intake_uuid
   call_location
-  service
-  use_v2
-  line
+  category
+  claim_id
+  class
+  code
+  confirmation_number
+  content_type
+  controller
+  cookie_id
+  document_id
+  document_type
+  endDate
+  endpoint_sid
+  error
+  errors
+  excludeProvidedMessage
+  file_uuid
+  filter
+  folder_id
+  form_id
+  from_date
+  grant_type
+  id
+  ids
+  in_progress_form_id
+  included
   kafka_payload
+  line
+  message
+  message_id
+  number
+  os_name
+  page
+  persistent_attachment_id
+  qqtotalfilesize
+  reply_id
+  saved_claim_id
+  service
+  showCompleted
+  size
+  sort
+  startDate
+  startedFormVersion
+  status
+  submission_id
+  tags
+  tempfile
+  to_date
+  type
+  useCache
+  use_v2
+  user_account_uuid
 ].freeze
 
 Rails.application.config.filter_parameters = [
