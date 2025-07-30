@@ -20,14 +20,15 @@ class Form526InProgressFormModifier
     Rails.logger.info("Running InProgress forms modifier for #{in_progress_forms.count} forms")
     in_progress_forms.each do |in_progress_form|
       form_parsed = JSON.parse(in_progress_form.form_data)
+      
       if form_parsed.dig('view:patient_acknowledgement', 'view:acknowledgement') == true
-        Rails.logger.info('Dry-run: Updating return URL for in-progress', in_progress_form_id: in_progress_form.id,
-                                                                          new_return_url: NEW_RETURN_URL, old_return_url: in_progress_form.metadata['return_url'])
+        Rails.logger.info('Updating return URL for in-progress', in_progress_form_id: in_progress_form.id,
+                                                                          new_return_url: NEW_RETURN_URL, old_return_url: in_progress_form.metadata['return_url'], dry_run: true)
         # Dry runs.. dont update yet
         # in_progress_form.metadata['return_url'] = NEW_RETURN_URL
         # in_progress_form.save!
       else
-        Rails.logger.info('Dry-run: No update needed for in-progress form', in_progress_form_id: in_progress_form.id)
+        Rails.logger.info('No update needed for in-progress form', in_progress_form_id: in_progress_form.id, dry_run: true)
       end
     end
   rescue => e
