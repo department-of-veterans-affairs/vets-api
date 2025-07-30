@@ -6,12 +6,21 @@ module Crm
 
     attr_reader :icn, :logger, :settings, :token
 
-    CRM_ENV = {
-      'test' => 'iris-dev',
-      'development' => 'iris-dev',
-      'staging' => 'veft-preprod',
-      'production' => 'veft'
-    }.freeze
+    if Flipper.enabled?(:ask_va_api_patsr_separation)
+      CRM_ENV = {
+        'test' => 'iris-dev',
+        'development' => 'iris-dev',
+        'staging' => 'ava-preprod',
+        'production' => 'ava-prod'
+      }.freeze
+    else
+      CRM_ENV = {
+        'test' => 'iris-dev',
+        'development' => 'iris-dev',
+        'staging' => 'veft-qa',  # change requested as a part of PATSR separation QA testing
+        'production' => 'veft'
+      }.freeze
+    end
 
     def_delegators :settings,
                    :base_url,
