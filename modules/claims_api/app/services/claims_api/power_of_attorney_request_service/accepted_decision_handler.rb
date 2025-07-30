@@ -22,6 +22,7 @@ module ClaimsApi
         )
 
         gathered_data = poa_auto_establishment_gatherer
+        # This returns an array to the controller [mapped_data, type]
         poa_auto_establishment_mapper(gathered_data)
       end
 
