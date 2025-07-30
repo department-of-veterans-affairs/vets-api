@@ -6,7 +6,7 @@ RSpec.describe IvcChampva::ProdSupportUtilities::Insights, type: :service do
   let(:insights) { described_class.new }
   let(:mock_submissions_data) do
     # Create mock data with 100 total users for test setup:
-    # 95 with 1 submission, 3 with 2, 1 with 3, 1 with 9
+    # 95 with 1 submission, 3 with 2, 1 with 3, 1 with 5
     submissions = {}
 
     # 95 users with 1 submission
