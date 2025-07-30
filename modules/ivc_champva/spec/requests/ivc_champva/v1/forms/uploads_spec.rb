@@ -1181,7 +1181,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           expect(job).to receive(:perform_async).with(
             form_id,
             attachment_guid,
-            match(%r{^/.*vha_10_7959a_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
+            attachment,
             'EOB'
           )
 

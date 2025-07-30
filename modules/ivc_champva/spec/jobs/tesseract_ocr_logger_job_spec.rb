@@ -90,7 +90,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
 
         job.perform('form_id', 'uuid', attachment, 'attachment_id')
         expect(Rails.logger).to have_received(:error).with(
-          a_string_including('failed with error: File path is nil')
+          a_string_including('File path is nil')
         )
       end
     end
