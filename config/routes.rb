@@ -193,6 +193,9 @@ Rails.application.routes.draw do
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
+    # BDS Gateway
+    post 'bds_gateway/recommendations', to: 'bds_gateway#recommendations'
+
     resources :maintenance_windows, only: [:index]
 
     resources :appeals, only: :index
