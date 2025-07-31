@@ -177,6 +177,12 @@ claims_api:
     client_id: <%= ENV['claims_api__evss_container__client_id'] %>
     client_key: <%= ENV['claims_api__evss_container__client_key'] %>
     client_secret: <%= ENV['claims_api__evss_container__client_secret'] %>
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: <%= ENV['claims_api__fes__auth__ccg__aud_claim_url'] %>
+        client_id: <%= ENV['claims_api__benefits_documents__auth__ccg__client_id'] %>
+    host: <%= ENV['claims_api__fes__host'] %>
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -1374,6 +1380,11 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_530ez__email__submitted__template_id'] %>
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
+      email:
+        error:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:

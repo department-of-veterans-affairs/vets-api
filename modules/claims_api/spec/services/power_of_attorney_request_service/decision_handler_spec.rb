@@ -30,8 +30,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
   end
   let(:claimant) { nil }
 
-  let(:declined_subject) { build_subject('declined') }
-  let(:accepted_subject) { build_subject('accepted') }
+  let(:declined_decision) { 'declined' }
+  let(:accepted_decision) { 'accepted' }
+  let(:declined_subject) { build_subject(declined_decision) }
+  let(:accepted_subject) { build_subject(accepted_decision) }
 
   context "When the decision is 'Declined'" do
     it 'calls the declined decision service handler' do

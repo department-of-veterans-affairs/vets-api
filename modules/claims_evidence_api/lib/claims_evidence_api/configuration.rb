@@ -24,7 +24,7 @@ module ClaimsEvidenceApi
       'ClaimsEvidenceApi'
     end
 
-    # @return [Hash] The basic headers required for any Lighthouse API call
+    # @return [Hash] The basic headers required for any API call
     def self.base_request_headers
       super.merge('Authorization' => "Bearer #{ClaimsEvidenceApi::JwtGenerator.new.encode_jwt}")
     end
