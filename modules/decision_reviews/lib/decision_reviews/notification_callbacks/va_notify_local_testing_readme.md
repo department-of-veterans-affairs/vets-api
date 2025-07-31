@@ -86,39 +86,36 @@ puts "   Created #{appeal_submissions.count} AppealSubmissions"
 
 # 3. Create AppealSubmissionUploads for evidence testing
 puts "📎 Creating AppealSubmissionUploads..."
-uploads = appeal_submissions.first(2).flat_map.with_index do |submission, submission_index|
-  2.times.map do |upload_index|
-    guid = SecureRandom.uuid
-    filename = "test_document_#{submission_index}_#{upload_index}.pdf"
+uploads = appeal_submissions.last(2).flat_map.with_index do |submission, submission_index|
+  guid = SecureRandom.uuid
+  filename = "test_document_#{submission_index}.pdf"
 
-    # Create the DecisionReviewEvidenceAttachment without validation
-    attachment = DecisionReviewEvidenceAttachment.new(
-      guid: guid,
-      file_data: {
-        "filename" => filename,
-        "size" => 1024,
-        "content_type" => "application/pdf"
-      }.to_json
-    )
-    
-    # Skip validation to avoid file existence checks
-    attachment.save!(validate: false)
+  # Create the DecisionReviewEvidenceAttachment without validation
+  attachment = DecisionReviewEvidenceAttachment.new(
+    guid: guid,
+    file_data: {
+      "filename" => filename,
+      "size" => 1024,
+      "content_type" => "application/pdf"
+    }.to_json
+  )
 
-    AppealSubmissionUpload.create!(
-      appeal_submission: submission,
-      decision_review_evidence_attachment_guid: guid,
-      lighthouse_upload_id: guid,  # Set both to same value for consistency
-      failure_notification_sent_at: nil
-    )
-  end
+  # Skip validation to avoid file existence checks
+  attachment.save!(validate: false)
+
+  AppealSubmissionUpload.create!(
+    appeal_submission: submission,
+    decision_review_evidence_attachment_guid: guid,
+    lighthouse_upload_id: guid,  # Set both to same value for consistency
+    failure_notification_sent_at: nil
+  )
 end
 
 puts "   Created #{uploads.count} AppealSubmissionUploads"
 
 # 4. Create SecondaryAppealForms
 puts "📄 Creating SecondaryAppealForms..."
-secondary_forms = appeal_submissions.last(2).map.with_index do |submission, index|
-  SecondaryAppealForm.create!(
+secondary_forms = [SecondaryAppealForm.create!(
     guid: SecureRandom.uuid,
     form_id: "4142",
     form: {
@@ -130,12 +127,11 @@ secondary_forms = appeal_submissions.last(2).map.with_index do |submission, inde
         }
       }
     }.to_json,
-    appeal_submission: submission,
+    appeal_submission: appeal_submissions.last,
     status: "submitted",
     failure_notification_sent_at: nil,
     delete_date: nil
-  )
-end
+  )]
 
 puts "   Created #{secondary_forms.count} SecondaryAppealForms"
 
@@ -161,17 +157,12 @@ puts "   Set up form errors for 2 SavedClaims"
 
 # Set up evidence errors (for submission with uploads)
 if uploads.any?
-  submission_with_uploads = uploads.first.appeal_submission
-  saved_claim_with_uploads = SavedClaim.find_by(guid: submission_with_uploads.submitted_appeal_uuid)
-  
-  if saved_claim_with_uploads
-    # Update email
-    form_data = JSON.parse(saved_claim_with_uploads.form)
-    form_data['data']['attributes']['veteran']['email'] = "test.evidence.error@example.com"
-    
+  submissions_with_uploads = uploads.map(&:appeal_submission)
+  saved_claims_with_uploads = SavedClaim.where(guid: submissions_with_uploads.pluck(:submitted_appeal_uuid))
 
+  saved_claims_with_uploads.each do |saved_claim_with_uploads|
     # Create upload errors in metadata
-    upload_errors = uploads.select { |u| u.appeal_submission == submission_with_uploads }.map do |upload|
+    upload_errors = uploads.map do |upload|
       {
         "id" => upload.lighthouse_upload_id,
         "status" => "error",
@@ -188,7 +179,6 @@ if uploads.any?
     }
 
     saved_claim_with_uploads.update!(
-      form: form_data.to_json,
       metadata: combined_metadata.to_json,
       delete_date: nil
     )
@@ -240,9 +230,9 @@ begin
   
   # Show email addresses
   puts "\n📧 Notification emails:"
-  submissions.each { |s| puts "   Form #{s.id}: #{s.current_email_address}" }
-  submission_uploads.each { |u| puts "   Upload #{u.lighthouse_upload_id}: #{u.appeal_submission.current_email_address}" }
-  errored_secondary_forms.each { |f| puts "   Secondary #{f.id}: #{f.appeal_submission.current_email_address}" }
+  submissions.each { |s| puts "   Form #{s.id} #{s.type_of_appeal}: #{s.current_email_address}" }
+  submission_uploads.each { |u| puts "   Upload #{u.lighthouse_upload_id} from AppealSubmission id #{u.appeal_submission.id}" }
+  errored_secondary_forms.each { |f| puts "   Secondary #{f.id} from AppealSubmission id #{f.appeal_submission.id}: #{f.appeal_submission.current_email_address}" }
   
   if submissions.count > 0 || submission_uploads.count > 0 || errored_secondary_forms.count > 0
     puts "\n✅ SUCCESS! Test data ready for job execution"
@@ -265,8 +255,19 @@ end
 puts "\n🎯 Test data setup complete! Run job.perform to continue testing"
 ```
 
-5. You should see 7 VANotify::Notification records created corresponding to each of the "emails" sent by entering the following query:
-`VANotify::Notication.count`
+5. You should see 6 VANotify::Notification records created corresponding to each of the "emails" sent:
+```
+vets-api(dev)> VANotify::Notification.count
+=> 6
+vets-api(dev)> VANotify::Notification.pluck(:callback_metadata).map { |n| n["reference"] }
+=>
+["HLR-form-3e3c3504-497a-472f-bec0-51d61b2c4be5",
+ "NOD-form-5e9baa46-3d37-4f72-aa2e-cbc7e7c0dff1",
+ "SC-form-c1dc8745-9b0a-42a1-9dd5-c54ba3a3f635",
+ "NOD-evidence-8ce29fcf-23f6-4570-ac02-d5aa93e4fbe4",
+ "SC-evidence-e748d5d9-410e-40ec-9faa-38e850aed714",
+ "SC-secondary_form-c3dc1d11-8172-4a7b-b33a-6120669f7331"]
+```
 6. Note: If you need to reset your database for whatever reason you can exit the console and run `bundle exec rails db:reset` Note this will drop and recreate ALL local databases!!
 7. Now you can trigger callbacks for the "delivered" notifications.
 8. MORE PREREQUISITES!! Make sure your local vets-api server is running in a separate tab first.
@@ -296,15 +297,14 @@ end
 11. Before running, you should see 0 DecisionReviewNotificationAuditLog records
 12. Execute by running `trigger_va_notify_callbacks`
 13. Go to the tab running your local rails server. On the first breakpoint, execute `Rails.application.eager_load!`. After the classes are loaded, continue through the breakpoints. You should see successful log messages.
-14. Go back to the tab running your rails console and check the `DecisionReviewNotificationAuditLog` table. You should see 7 records corresponding to the emails. For example:
+14. Go back to the tab running your rails console and check the `DecisionReviewNotificationAuditLog` table. You should see 6 records corresponding to the emails. For example:
 ```
 vets-api(dev)> DecisionReviewNotificationAuditLog.all.pluck(:status, :reference)
 => 
-[["delivered", "HLR-form-83870cee-56fb-4ee5-9963-2aef2c052759"],
- ["delivered", "NOD-form-eeaa4304-bbd4-488b-95a8-35674f0ad30f"],
- ["delivered", "SC-form-8556ab91-93b9-4776-9179-d753118ca250"],
- ["delivered", "HLR-evidence-f2be1302-be5f-4bfa-aff5-e94aa51e5b4d"],
- ["delivered", "HLR-evidence-93104a43-ae59-45fd-a36c-0e59d79f6449"],
- ["delivered", "NOD-secondary_form-00f818a9-741e-41c7-868d-326b35d4a20d"],
- ["delivered", "SC-secondary_form-f0481149-2cea-402a-bd5f-05b8ff6e9924"]]
+[["delivered", "HLR-form-3e3c3504-497a-472f-bec0-51d61b2c4be5"],
+ ["delivered", "NOD-form-5e9baa46-3d37-4f72-aa2e-cbc7e7c0dff1"],
+ ["delivered", "SC-form-c1dc8745-9b0a-42a1-9dd5-c54ba3a3f635"],
+ ["delivered", "NOD-evidence-8ce29fcf-23f6-4570-ac02-d5aa93e4fbe4"],
+ ["delivered", "SC-evidence-e748d5d9-410e-40ec-9faa-38e850aed714"],
+ ["delivered", "SC-secondary_form-c3dc1d11-8172-4a7b-b33a-6120669f7331"]]
 ```
