@@ -88,10 +88,10 @@ describe FakeController do
     end
 
     it 'gracefully handles nil response from tracked_item_service.find_tracked_items' do
-      tracked_item_service = instance_double(ClaimsApi::TrackedItemService)
-      allow(tracked_item_service).to receive(:find_tracked_items).and_return(nil)
-      allow(subject).to receive(:tracked_item_service).and_return(tracked_item_service)
-  
+      allow_any_instance_of(ClaimsApi::TrackedItemService).to receive(
+        :find_tracked_items
+      ).and_return(nil)
+
       result = subject.find_tracked_items!('600118544')
       expect(result).to eq([])
     end
