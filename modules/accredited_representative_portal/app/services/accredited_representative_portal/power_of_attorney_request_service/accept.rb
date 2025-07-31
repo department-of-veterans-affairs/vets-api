@@ -78,29 +78,29 @@ module AccreditedRepresentativePortal
       end
 
       def handle_resource_not_found(error)
-        PoaRequestFailureNotifier.send_failure_notification_emails(@poa_request)
+        PoaRequestFailureNotifier.new(@poa_request).call
         raise Error.new(error.detail || error.message, :not_found)
       end
 
       def handle_record_invalid(error)
-        PoaRequestFailureNotifier.send_failure_notification_emails(@poa_request)
+        PoaRequestFailureNotifier.new(@poa_request).call
         raise Error.new(error.message, :bad_request)
       end
 
       def handle_transient_error(error)
-        PoaRequestFailureNotifier.send_failure_notification_emails(@poa_request)
+        PoaRequestFailureNotifier.new(@poa_request).call
         raise Error.new(error.message, :gateway_timeout)
       end
 
       def handle_fatal_error(error)
-        PoaRequestFailureNotifier.send_failure_notification_emails(@poa_request)
+        PoaRequestFailureNotifier.new(@poa_request).call
         error_message = error.respond_to?(:detail) ? error.detail : error.message
         create_error_form_submission(error_message, {})
         raise Error.new(error_message, :not_found)
       end
 
       def handle_unexpected_error(error)
-        PoaRequestFailureNotifier.send_failure_notification_emails(@poa_request)
+        PoaRequestFailureNotifier.new(@poa_request).call
         Rails.logger.error("Unexpected error in Accept#call: #{error.class} - #{error.message}")
         Rails.logger.error(error.backtrace.join("\n")) if error.backtrace
         create_error_form_submission(error.message, {})
