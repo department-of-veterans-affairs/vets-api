@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/monitor'
-require 'claims_evidence_api/x_folder_uri'
+require 'claims_evidence_api/folder_identifier'
 
 # Representation of a submission to ClaimsEvidence API
 # https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload
@@ -54,37 +54,38 @@ class ClaimsEvidenceApi::Submission < Submission
   end
 
   # insert values into the reference data field
-  # unnamed values will be appended to the reference_data['data'] array
+  # unnamed values will be appended to a reference_data['data'] array
   def update_reference_data(*args, **kwargs)
     self.reference_data ||= {}
     reference_data['data'] = (reference_data['data'] || []) + args
     self.reference_data = self.reference_data.merge kwargs
 
-    self.x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
+    folder_identifier = kwargs[:folder_identifier] || kwargs[:x_folder_uri]
+    self.folder_identifier = folder_identifier if folder_identifier.present?
   end
 
   # retrieve the header value from encrypted reference_data
-  def x_folder_uri
+  def folder_identifier
     self.reference_data ||= {}
-    reference_data['x_folder_uri']
+    reference_data['folder_identifier']
   end
 
-  # directly assign a folder identifier; value is split and sent through #x_folder_uri_set
+  # directly assign a folder identifier; value is split and sent through #folder_identifier_set
   #
   # @param folder_identifier [String] x_folder_uri header value
-  def x_folder_uri=(folder_identifier)
+  def folder_identifier=(folder_identifier)
     folder_type, identifier_type, id = folder_identifier.split(':', 3)
-    x_folder_uri_set(folder_type, identifier_type, id)
+    folder_identifier_set(folder_type, identifier_type, id)
   end
 
   # set the folder identifier that the file will be associated to
-  # @see ClaimsEvidenceApi::XFolderUri#generate
-  def x_folder_uri_set(folder_type, identifier_type, id)
+  # @see ClaimsEvidenceApi::FolderIdentifier#generate
+  def folder_identifier_set(folder_type, identifier_type, id)
     data = self.reference_data || {}
-    data['x_folder_uri'] = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
+    data['folder_identifier'] = ClaimsEvidenceApi::FolderIdentifier.generate(folder_type, identifier_type, id)
 
     self.reference_data = data
 
-    x_folder_uri
+    folder_identifier
   end
 end

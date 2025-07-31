@@ -11,7 +11,7 @@ module ClaimsEvidenceApi
     attr_accessor :content_source
     attr_reader :attempt, :folder_identifier, :response, :submission
 
-    # @param folder_identifier [String] the upload location; @see ClaimsEvidenceApi::XFolderUri
+    # @param folder_identifier [String] the upload location; @see ClaimsEvidenceApi::FolderIdentifier
     # @param content_source [String] the metadata source value for the upload
     def initialize(folder_identifier, content_source: 'va.gov')
       @content_source = content_source
@@ -20,9 +20,9 @@ module ClaimsEvidenceApi
     end
 
     # change the folder_identifier being uploaded to
-    # @see ClaimsEvidenceApi::XFolderUri
+    # @see ClaimsEvidenceApi::FolderIdentifier
     def folder_identifier=(folder_identifier)
-      @service.x_folder_uri = @folder_identifier = folder_identifier
+      @service.folder_identifier = @folder_identifier = folder_identifier
     end
 
     # upload claim and evidence pdfs
@@ -98,7 +98,7 @@ module ClaimsEvidenceApi
                                                                     form_id: saved_claim.form_id)
       # TODO: handle when submission already has a different identifier
       # https://github.com/department-of-veterans-affairs/va.gov-team/issues/114773
-      submission.x_folder_uri = @service.x_folder_uri
+      submission.folder_identifier = @service.folder_identifier
       submission.save
 
       @attempt = submission.submission_attempts.create

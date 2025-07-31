@@ -124,11 +124,11 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with invalid folder_identifier' do
     it 'raises an error on initialization' do
-      expect { ClaimsEvidenceApi::Uploader.new('INVALID') }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidFolderType
+      expect { ClaimsEvidenceApi::Uploader.new('INVALID') }.to raise_error ClaimsEvidenceApi::FolderIdentifier::InvalidFolderType
     end
 
     it 'raises an error attempting to update the identifier' do
-      expect { uploader.folder_identifier = 'INVALID' }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidFolderType
+      expect { uploader.folder_identifier = 'INVALID' }.to raise_error ClaimsEvidenceApi::FolderIdentifier::InvalidFolderType
     end
   end
 end
