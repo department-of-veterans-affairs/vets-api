@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debt_management_center/base_service'
+require_relative '../../../app/models/debts_api/v0/digital_dispute_submission'
 
 module DebtsApi
   module V0
@@ -14,28 +15,32 @@ module DebtsApi
 
       configuration DebtManagementCenter::DebtsConfiguration
 
-      def initialize(user, files)
+      def initialize(user, files, metadata = nil)
         super(user)
         @files = files
+        @metadata = metadata
       end
 
       def call
         validate_files_present
         validate_files
 
+        submission = create_submission_record
+        return duplicate_submission_result(submission) if check_duplicate?(submission)
+
         send_to_dmc
+        submission.register_success
         in_progress_form&.destroy
-        {
-          success: true,
-          message: 'Digital dispute submission received successfully'
-        }
+
+        success_result(submission)
       rescue => e
+        submission&.register_failure(sanitize_error_message(e.message)) if submission
         failure_result(e)
       end
 
       private
 
-      attr_reader :files
+      attr_reader :files, :metadata
 
       def send_to_dmc
         measure_latency("#{DebtsApi::V0::DigitalDispute::STATS_KEY}.vba.latency") do
@@ -86,22 +91,88 @@ module DebtsApi
         name.gsub(/[.](?=.*[.])/, '')
       end
 
+      def create_submission_record
+        submission = DebtsApi::V0::DigitalDisputeSubmission.new(
+          user_uuid: @user.uuid,
+          user_account: @user.user_account,
+          state: :pending
+        )
+
+        if @metadata
+          # Store encrypted metadata (serialize hash to JSON for lockbox)
+          submission.metadata = @metadata.to_json
+
+          # Extract and store debt identifiers for duplicate checking
+          disputes = @metadata[:disputes] || @metadata['disputes'] || []
+          submission.store_debt_identifiers(disputes)
+
+          # Store non-PII data in public_metadata
+          submission.store_public_metadata
+        end
+
+        submission.save!
+        submission
+      end
+
+      def duplicate_submission_exists?(submission)
+        return false unless Flipper.enabled?(:digital_dispute_duplicate_prevention)
+        return false if submission.debt_identifiers.blank?
+
+        # Check for existing submissions with matching debt identifiers
+        DebtsApi::V0::DigitalDisputeSubmission
+          .where(user_uuid: @user.uuid)
+          .where.not(id: submission.id)
+          .where.not(state: :failed)
+          .exists?(['debt_identifiers @> ?', submission.debt_identifiers.to_json])
+      end
+
+      def sanitize_error_message(message)
+        # Remove any potential PII from error messages
+        message.to_s
+               .gsub(/\b\d{3}-?\d{2}-?\d{4}\b/, '[REDACTED-SSN]')
+               .gsub(/\b\d{9,}\b/, '[REDACTED-ID]')
+               .gsub(/\b\d+\.\d{2}\b/, '[REDACTED-AMOUNT]')
+      end
+
+      def check_duplicate?(submission)
+        @metadata && duplicate_submission_exists?(submission)
+      end
+
+      def duplicate_submission_result(submission)
+        submission.register_failure('Duplicate dispute submission')
+        {
+          success: false,
+          error_type: 'duplicate_dispute',
+          errors: { base: ['A dispute for these debts has already been submitted'] }
+        }
+      end
+
+      def success_result(submission)
+        {
+          success: true,
+          submission_id: submission.id,
+          message: 'Digital dispute submission received successfully'
+        }
+      end
+
       def failure_result(error)
-        Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace&.join("\n")}")
         case error
         when NoFilesProvidedError
           {
             success: false,
+            error_type: 'no_files',
             errors: { files: [error.message] }
           }
         when InvalidFileTypeError
           {
             success: false,
+            error_type: 'invalid_file',
             errors: { files: error.message.split(', ') }
           }
         else
           {
             success: false,
+            error_type: 'processing_error',
             errors: { base: ['An error occurred processing your submission'] }
           }
         end

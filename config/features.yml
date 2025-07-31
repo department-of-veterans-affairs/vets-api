@@ -777,6 +777,10 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
+  digital_dispute_duplicate_prevention:
+    actor_type: user
+    description: Enables duplicate prevention for digital dispute submissions
+    enable_in_development: true
   event_bus_gateway_emails_enabled:
     actor_type: user
     description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
