@@ -134,6 +134,61 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
         expect(result[:errors][:base]).to include('An error occurred processing your submission')
       end
     end
+
+    context 'duplicate prevention' do
+      let(:metadata) do
+        {
+          disputes: [
+            {
+              composite_debt_id: 'ABC123',
+              debt_type: 'overpayment',
+              dispute_reason: 'incorrect_amount'
+            }
+          ]
+        }
+      end
+
+      before do
+        # Create existing submission with same debt
+        create(:debts_api_digital_dispute_submission,
+               user_uuid: user.uuid,
+               user_account: user.user_account,
+               debt_identifiers: ['ABC123'],
+               state: :submitted)
+
+        allow_any_instance_of(described_class).to receive(:send_to_dmc)
+          .and_return(OpenStruct.new(body: {}))
+      end
+
+      context 'when digital_dispute_duplicate_prevention is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(true)
+        end
+
+        it 'prevents duplicate submissions' do
+          service = described_class.new(user, [pdf_file_one], metadata)
+          result = service.call
+
+          expect(result[:success]).to be false
+          expect(result[:error_type]).to eq('duplicate_dispute')
+          expect(result[:errors][:base]).to include('A dispute for these debts has already been submitted')
+        end
+      end
+
+      context 'when digital_dispute_duplicate_prevention is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(false)
+        end
+
+        it 'allows duplicate submissions' do
+          service = described_class.new(user, [pdf_file_one], metadata)
+          result = service.call
+
+          expect(result[:success]).to be true
+          expect(result[:message]).to eq('Digital dispute submission received successfully')
+        end
+      end
+    end
   end
 
   describe '#sanitize_filename' do
