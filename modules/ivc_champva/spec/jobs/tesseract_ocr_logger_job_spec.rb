@@ -6,7 +6,7 @@ require 'ivc_champva/supporting_document_validator'
 RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
   let(:job) { described_class.new }
   let(:validator) { instance_double(IvcChampva::SupportingDocumentValidator) }
-  let(:mock_file) { double('file', original_filename: 'test.pdf', read: 'filedata') }
+  let(:mock_file) { double('file', original_filename: 'test.pdf', rewind: true) }
   let(:attachment) do
     instance_double(
       PersistentAttachments::MilitaryRecords,
@@ -31,6 +31,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
     allow(validator).to receive(:process).and_return(result)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
+    allow(mock_file).to receive(:read).and_return('file content', nil) # It's important to return nil after the content
   end
 
   describe '#perform' do
@@ -85,8 +86,8 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       end
 
       it 'raises an error if the file path is nil' do
-        tmpfile = double('tempfile', path: nil)
-        allow(IvcChampva::TempfileHelper).to receive(:tempfile_from_attachment).and_return(tmpfile)
+        tempfile = double('tempfile', path: nil, close!: true)
+        allow(IvcChampva::TempfileHelper).to receive(:tempfile_from_attachment).and_return(tempfile)
 
         job.perform('form_id', 'uuid', attachment, 'attachment_id')
         expect(Rails.logger).to have_received(:error).with(

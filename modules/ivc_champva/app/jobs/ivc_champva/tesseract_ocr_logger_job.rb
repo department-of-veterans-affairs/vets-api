@@ -24,16 +24,21 @@ module IvcChampva
       )
 
       begin
-        # Create a tempfile from the persistent attachment object
-        tmpfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
-        file_path = tmpfile.path
+        begin
+          # Create a tempfile from the persistent attachment object
+          tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
+          file_path = tempfile.path
 
-        # Ensure the file exists before processing
-        raise Errno::ENOENT, 'File path is nil' if file_path.nil?
-        raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
+          # Ensure the file exists before processing
+          raise Errno::ENOENT, 'File path is nil' if file_path.nil?
+          raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
 
-        # Run Tesseract OCR on the file
-        result = run_ocr(file_path, uuid, attachment_id)
+          # Run Tesseract OCR on the file
+          result = run_ocr(file_path, uuid, attachment_id)
+        ensure
+          # Clean up the tempfile
+          tempfile.close!
+        end
 
         # Log the OCR result
         log_result(result, uuid)

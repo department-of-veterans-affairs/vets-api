@@ -10,11 +10,15 @@ RSpec.describe IvcChampva::TempfileHelper do
     let(:mock_file) do
       double('UploadedFile',
              original_filename: 'some_file.gif',
-             read: file_content)
+             rewind: true)
     end
 
     let(:attachment) do
       instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+    end
+
+    before do
+      allow(mock_file).to receive(:read).and_return(file_content, nil) # It's important to return nil after the content
     end
 
     it 'creates a tempfile with the original filename extension and random code' do
@@ -33,11 +37,15 @@ RSpec.describe IvcChampva::TempfileHelper do
     let(:mock_file) do
       double('File',
              path: '/tmp/some_other_file.png',
-             read: file_content)
+             rewind: true)
     end
 
     let(:attachment) do
       instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+    end
+
+    before do
+      allow(mock_file).to receive(:read).and_return(file_content, nil) # It's important to return nil after the content
     end
 
     it 'creates a tempfile with the basename extension and random code' do

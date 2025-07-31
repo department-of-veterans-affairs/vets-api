@@ -12,11 +12,15 @@ module IvcChampva
                             File.basename(attachment.file.path)
                           end
       ext = File.extname(original_filename)
-      tmpfile = Tempfile.new(["#{form_id}_attachment_", ext]) # a timestamp and unique ID are added automatically
-      tmpfile.binmode
-      tmpfile.write(attachment.file.read)
-      tmpfile.flush
-      tmpfile
+      tempfile = Tempfile.new(["#{form_id}_attachment_", ext]) # a timestamp and unique ID are added automatically
+      tempfile.binmode
+      attachment.file.rewind
+      while (chunk = attachment.file.read(8 * 1024))
+        tempfile.write(chunk)
+      end
+      tempfile.flush
+      tempfile.rewind
+      tempfile
     end
   end
 end
