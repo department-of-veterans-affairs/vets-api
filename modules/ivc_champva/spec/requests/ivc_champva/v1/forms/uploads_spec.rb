@@ -437,6 +437,17 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::V1::UploadsController)
             .to receive(:launch_background_job)
 
+          # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
+          dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
+          allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(dummy_pdf_path)
+
+          # Mock file existence check for LlmService.validate_file_exists
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(dummy_pdf_path).and_return(true)
+
+          # Mock PromptManager since lookup path is not in the test environment
+          allow(IvcChampva::PromptManager).to receive(:get_prompt).and_return('Analyze this document.')
+
           data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
 
           post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
@@ -1307,7 +1318,14 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:file_path) { '/tmp/some_file.pdf' }
     let(:attachment_guid) { '12345' }
     let(:mock_file) do
-      double('File', respond_to?: true, original_filename: 'some_file.pdf', read: 'content', path: file_path)
+      double('UploadedFile',
+             original_filename: 'some_file.pdf',
+             read: 'content',
+             path: file_path,
+             content_type: 'application/pdf').tap do |file|
+        allow(file).to receive(:respond_to?).with(:original_filename).and_return(true)
+        allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
+      end
     end
     let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
