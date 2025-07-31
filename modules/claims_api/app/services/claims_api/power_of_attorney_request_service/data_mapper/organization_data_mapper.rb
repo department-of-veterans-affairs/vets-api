@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'concerns/mapper_utilities'
+require 'brd/brd'
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -19,16 +20,17 @@ module ClaimsApi
         private
 
         def build_form
-          return [] if @data.blank?
+          return {} if @data.blank?
 
           form_data = build_form_data
-          claimant_form_data = build_claimant_form_data if @data['claimant'].present?
+          claimant_form_data = build_claimant_form_data(@data) if @data['claimant'].present?
           form_data.merge!(claimant_form_data) if claimant_form_data.present?
 
-          { 'data' => { 'attributes' => form_data } }
+          { 'data' => { 'attributes' => deep_compact(form_data) } }
         end
 
-        def build_form_data # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength
+        def build_form_data
           {
             'veteran' => {
               'address' => {
@@ -55,34 +57,11 @@ module ClaimsApi
               'jobTitle' => @data['representative_title']
             },
             'recordConsent' => determine_bool_for_form_field(@data['section_7332_auth']),
-            'consentLimits' => determine_consent_limits,
+            'consentLimits' => determine_consent_limits(@data),
             'consentAddressChange' => determine_bool_for_form_field(@data['change_address_auth'])
           }
         end
-
-        def build_claimant_form_data # rubocop:disable Metrics/MethodLength
-          {
-            'claimant' => {
-              'claimantId' => @data['claimant']['claimant_id'],
-              'address' => {
-                'addressLine1' => @data['claimant']['addrs_one_txt'],
-                'addressLine2' => @data['claimant']['addrs_two_txt'],
-                'city' => @data['claimant']['city_nm'],
-                'stateCode' => @data['claimant']['postal_cd'],
-                'countryCode' => ClaimsApi::BRD::COUNTRY_CODES.invert[@data['claimant']['cntry_nm']],
-                'zipCode' => @data['claimant']['zip_prefix_nbr'],
-                'zipCodeSuffix' => @data['claimant']['zip_first_suffix_nbr']
-              },
-              'phone' => {
-                'countryCode' => parse_phone_number(@data['claimant']['phone_nbr'])[0],
-                'areaCode' => parse_phone_number(@data['claimant']['phone_nbr'])[1],
-                'phoneNumber' => parse_phone_number(@data['claimant']['phone_nbr'])[2]
-              },
-              'email' => @data['claimant']['email_addrs_txt'],
-              'relationship' => @data['claimant_relationship']
-            }
-          }
-        end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end

@@ -110,39 +110,91 @@ module Eps
     # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
-      raise ArgumentError, 'Provider NPI is required and cannot be blank' if npi.blank?
-      raise ArgumentError, 'Provider specialty is required and cannot be blank' if specialty.blank?
-      raise ArgumentError, 'Provider address is required and cannot be blank' if address.blank?
+      validate_search_params(npi, specialty, address)
 
-      with_monitoring do
-        query_params = { npi:, isSelfSchedulable: true }
-        response = perform(:get, "/#{config.base_path}/provider-services", query_params,
-                           request_headers_with_correlation_id)
+      response = fetch_provider_services(npi)
+      return nil if response.body[:provider_services].blank?
 
-        return nil if response.body[:provider_services].blank?
+      specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
+      return nil if specialty_matches.empty?
 
-        # Step 1: Filter providers by specialty only
-        specialty_matches = response.body[:provider_services].select do |provider|
-          specialty_matches?(provider, specialty)
-        end
+      return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
 
-        return nil if specialty_matches.empty?
-
-        # Step 2: Filter specialty matches by address
-        address_match = specialty_matches.find do |provider|
-          address_matches?(provider, address)
-        end
-
-        if address_match.nil?
-          Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI")
-        end
-
-        # Return address match if found, otherwise nil (avoid false positives)
-        address_match&.then { |provider| OpenStruct.new(provider) }
-      end
+      find_address_match(specialty_matches, address)
     end
 
     private
+
+    ##
+    # Validates required search parameters
+    #
+    # @param npi [String] Provider NPI
+    # @param specialty [String] Provider specialty
+    # @param address [Hash] Provider address
+    # @raise [ArgumentError] If any required parameter is blank
+    #
+    def validate_search_params(npi, specialty, address)
+      raise ArgumentError, 'Provider NPI is required and cannot be blank' if npi.blank?
+      raise ArgumentError, 'Provider specialty is required and cannot be blank' if specialty.blank?
+      raise ArgumentError, 'Provider address is required and cannot be blank' if address.blank?
+    end
+
+    ##
+    # Fetches provider services from EPS API
+    #
+    # @param npi [String] Provider NPI
+    # @return [Object] Response from EPS API
+    #
+    def fetch_provider_services(npi)
+      with_monitoring do
+        query_params = { npi:, isSelfSchedulable: true }
+        perform(:get, "/#{config.base_path}/provider-services", query_params,
+                request_headers_with_correlation_id)
+      end
+    end
+
+    ##
+    # Filters providers by specialty
+    #
+    # @param providers [Array] List of providers from EPS response
+    # @param specialty [String] Specialty to match
+    # @return [Array] Providers matching the specialty
+    #
+    def filter_by_specialty(providers, specialty)
+      providers.select do |provider|
+        specialty_matches?(provider, specialty)
+      end
+    end
+
+    ##
+    # Handles the case when only one specialty match is found
+    #
+    # @param specialty_matches [Array] List of specialty matches
+    # @return [OpenStruct] The single provider match
+    #
+    def handle_single_specialty_match(specialty_matches)
+      Rails.logger.info('Single specialty match found for NPI, skipping address validation')
+      OpenStruct.new(specialty_matches.first)
+    end
+
+    ##
+    # Finds provider that matches both specialty and address
+    #
+    # @param specialty_matches [Array] List of specialty matches
+    # @param address [Hash] Address to match against
+    # @return [OpenStruct, nil] Provider match or nil if no match found
+    #
+    def find_address_match(specialty_matches, address)
+      address_match = specialty_matches.find do |provider|
+        address_matches?(provider, address)
+      end
+
+      if address_match.nil?
+        Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI")
+      end
+
+      address_match&.then { |provider| OpenStruct.new(provider) }
+    end
 
     ##
     # Checks if pagination has exceeded the timeout limit
