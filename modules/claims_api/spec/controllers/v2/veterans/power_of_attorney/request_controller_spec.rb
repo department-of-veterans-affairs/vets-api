@@ -320,13 +320,11 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
         it 'raises an error if decision is not valid' do
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-              decide_request_with(id:, decision:, auth_header:)
-              expect(response).to have_http_status(:bad_request)
-              response_body = JSON.parse(response.body)
-              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
-              expect(response_body['errors'][0]['status']).to eq('400')
-            end
+            decide_request_with(id:, decision:, auth_header:)
+            expect(response).to have_http_status(:bad_request)
+            response_body = JSON.parse(response.body)
+            expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+            expect(response_body['errors'][0]['status']).to eq('400')
           end
         end
       end
@@ -402,6 +400,14 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
           decide_request_with(id:, decision:, auth_header:,
                               representative_id:)
+        end
+      end
+
+      it 'does not include location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          decide_request_with(id:, decision:, auth_header:)
+
+          expect(response.headers).not_to have_key('Location')
         end
       end
     end
