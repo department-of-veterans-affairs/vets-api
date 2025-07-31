@@ -1399,6 +1399,11 @@ vanotify:
           template_id: burial_submitted_email_template_id
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: fake_secret
+      email:
+        error:
+          template_id: accredited_representative_portal_error_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:

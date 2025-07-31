@@ -107,6 +107,11 @@ features:
       Primarily used for coordinated maintenance windows or temporary system suspensions,
       allowing the team to manage API exposure dynamically without requiring a redeploy.
     enable_in_development: true
+  ask_va_api_patsr_separation:
+    actor_type: user
+    description: >
+      Use new CRM environments for Ask VA API
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -284,6 +289,12 @@ features:
   champva_enable_llm_on_submit:
     actor_type: user
     description: Enables background LLM validation and logging on form submissions
+  champva_insights_datadog_job:
+    actor_type: user
+    description: Enables the job to publish insights to Datadog
+  champva_claims_llm_validation:
+    actor_type: user
+    description: Enables LLM validation of claims on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
