@@ -82,7 +82,6 @@ module Eps
 
       loop do
         check_pagination_timeout(start_time, provider_id)
-
         params = build_slot_params(next_token, opts)
         response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
                            request_headers_with_correlation_id)
@@ -219,12 +218,17 @@ module Eps
     ##
     # Builds parameters for slot request based on token availability
     #
-    # @param next_token [String] Token for pagination
-    # @param opts [Hash] Original request options
+    # For initial requests (next_token is nil), validates all required parameters including appointmentId.
+    # For pagination requests (next_token is present), includes both nextToken and appointmentId.
+    # The appointmentId is guaranteed to exist in opts when next_token is present, since next_token
+    # only exists after a successful initial request that required appointmentId.
+    #
+    # @param next_token [String] Token for pagination (only present for subsequent requests)
+    # @param opts [Hash] Original request options containing appointmentId and other required params
     # @return [Hash] Parameters for the API request
     #
     def build_slot_params(next_token, opts)
-      return { nextToken: next_token } if next_token
+      return { nextToken: next_token, appointmentId: opts[:appointmentId] } if next_token
 
       required_params = %i[appointmentTypeId startOnOrAfter startBefore appointmentId]
       missing_params = required_params - opts.keys
