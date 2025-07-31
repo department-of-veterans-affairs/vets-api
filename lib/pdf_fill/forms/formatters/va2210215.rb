@@ -38,7 +38,9 @@ module PdfFill
             percentage_fields = %w[supportedPercentageFTE]
 
             numeric_fields.each { |field| fte[field] = format_numeric_fte_value(fte[field]) if fte[field].present? }
-            percentage_fields.each { |field| fte[field] = format_percentage_fte_value(fte[field]) if fte[field].present? }
+            percentage_fields.each do |field|
+              fte[field] = format_percentage_fte_value(fte[field]) if fte[field].present?
+            end
           end
 
           private

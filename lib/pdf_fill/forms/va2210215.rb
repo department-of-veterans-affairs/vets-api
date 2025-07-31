@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/form_base'
-require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/forms/formatters/va2210215'
 
 module PdfFill
