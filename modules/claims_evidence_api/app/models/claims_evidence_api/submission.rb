@@ -54,20 +54,24 @@ class ClaimsEvidenceApi::Submission < Submission
   end
 
   # insert values into the reference data field
-  # unnamed values will be appended to a reference_data['data'] array
+  # unnamed values will be overwrite the reference_data['data'] array
   def update_reference_data(*args, **kwargs)
     self.reference_data ||= {}
-    reference_data['data'] = (reference_data['data'] || []) + args
-    self.reference_data = self.reference_data.merge kwargs
+    self.reference_data.merge!(kwargs.except(:folder_identifier, :x_folder_uri))
+    reference_data[:data] = args
 
-    folder_identifier = kwargs[:folder_identifier] || kwargs[:x_folder_uri]
-    self.folder_identifier = folder_identifier if folder_identifier.present?
+    # ensure folder identifier value is checked and appended
+    [:folder_identifier, :x_folder_uri].each do |fid_key|
+      self.folder_identifier = kwargs[fid_key] if kwargs[fid_key].present?
+    end
+
+    reference_data
   end
 
-  # retrieve the header value from encrypted reference_data
+  # retrieve the latest folder identifier from encrypted reference_data
   def folder_identifier
     self.reference_data ||= {}
-    reference_data['folder_identifier']
+    reference_data[:latest_folder_identifier]
   end
 
   # directly assign a folder identifier; value is split and sent through #folder_identifier_set
@@ -81,10 +85,13 @@ class ClaimsEvidenceApi::Submission < Submission
   # set the folder identifier that the file will be associated to
   # @see ClaimsEvidenceApi::FolderIdentifier#generate
   def folder_identifier_set(folder_type, identifier_type, id)
-    data = self.reference_data || {}
-    data['folder_identifier'] = ClaimsEvidenceApi::FolderIdentifier.generate(folder_type, identifier_type, id)
+    self.reference_data ||= {}
+    fids = reference_data[:folder_identifier] || []
+    fid = ClaimsEvidenceApi::FolderIdentifier.generate(folder_type, identifier_type, id)
+    fids << fid unless fids.include?(fid)
 
-    self.reference_data = data
+    self.reference_data[:folder_identifier] = fids
+    self.reference_data[:latest_folder_identifier] = fid
 
     folder_identifier
   end
