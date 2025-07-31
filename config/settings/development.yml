@@ -177,6 +177,12 @@ claims_api:
     client_id: ~
     client_key: ~
     client_secret: ~
+  fes:
+    auth:
+      ccg:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
+        client_id: ~
+    host: https://qa.lighthouse.va.gov
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -991,8 +997,6 @@ modules_appeals_api:
       api_key: ''
 mvi_hca:
   url: http://example.com
-nod_vanotify_status_callback:
-  bearer_token: bearer_token_secret
 ogc:
   form21a_service_url:
     api_key: fake_key
@@ -1395,6 +1399,11 @@ vanotify:
           template_id: burial_submitted_email_template_id
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: fake_secret
+      email:
+        error:
+          template_id: accredited_representative_portal_error_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:

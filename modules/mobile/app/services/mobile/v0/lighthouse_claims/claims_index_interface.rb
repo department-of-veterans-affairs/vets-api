@@ -73,7 +73,7 @@ module Mobile
         end
 
         def claims_adapter
-          Mobile::V0::Adapters::LighthouseClaimsOverview.new
+          Mobile::V0::Adapters::ClaimsOverview.new
         end
       end
     end

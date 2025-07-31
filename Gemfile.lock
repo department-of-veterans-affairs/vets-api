@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: b8a833194a3765babda5652fa31526b11f4afb80
+  revision: 88bda10e03c92a97067d2d4fecb89783c6de227f
   branch: master
   specs:
     betamocks (0.11.0)
@@ -448,7 +448,7 @@ GEM
       railties (>= 6.1.0)
     faker (3.5.2)
       i18n (>= 1.8.11, < 2)
-    faraday (2.13.3)
+    faraday (2.13.4)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -1049,7 +1049,7 @@ GEM
       rubocop-ast (>= 1.44.0, < 2.0)
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.18.0)
+    ruby-saml (1.18.1)
       nokogiri (>= 1.13.10)
       rexml
     ruby-vips (2.2.3)
@@ -1122,7 +1122,7 @@ GEM
     staccato (0.5.3)
     statsd-instrument (3.9.10)
     stringio (3.1.7)
-    strong_migrations (2.4.0)
+    strong_migrations (2.5.0)
       activerecord (>= 7.1)
     strscan (3.1.5)
     strscan (3.1.5-java)
