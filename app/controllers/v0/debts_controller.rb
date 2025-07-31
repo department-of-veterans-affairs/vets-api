@@ -11,7 +11,6 @@ module V0
 
     def index
       count_only = ActiveModel::Type::Boolean.new.cast(params[:count_only])
-
       render json: service.get_debts(count_only:)
     end
 
