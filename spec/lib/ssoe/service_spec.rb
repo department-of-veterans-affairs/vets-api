@@ -3,86 +3,114 @@
 require 'rails_helper'
 require 'ssoe/service'
 require 'ssoe/get_ssoe_traits_by_cspid_message'
+require 'ssoe/models/user'
+require 'ssoe/models/address'
 
 # rubocop:disable RSpec/SpecFilePathFormat
-
 RSpec.describe SSOe::Service, type: :service do
   let(:service) { described_class.new }
 
   describe '#get_traits' do
-    let(:valid_params) do
-      {
-        credential_method: 'idme',
-        credential_id: '12345',
+    let(:user) do
+      SSOe::Models::User.new(
         first_name: 'John',
         last_name: 'Doe',
         birth_date: '1980-01-01',
         ssn: '123-45-6789',
         email: 'john.doe@example.com',
-        phone: '555-555-5555',
+        phone: '555-555-5555'
+      )
+    end
+
+    let(:address) do
+      SSOe::Models::Address.new(
         street1: '123 Elm St',
         city: 'Springfield',
         state: 'IL',
         zipcode: '62701'
-      }
+      )
     end
 
-    shared_examples 'a parsed response' do |xml:, expected:|
-      let(:raw_response) { double('raw_response', body: xml) }
+    let(:credential_method) { 'idme' }
+    let(:credential_id) { '12345' }
+
+    context 'when the response is successful' do
+      let(:raw_response) do
+        double('raw_response', body: <<~XML)
+          <Envelope>
+            <Body>
+              <getSSOeTraitsByCSPIDResponse>
+                <icn>123456789</icn>
+              </getSSOeTraitsByCSPIDResponse>
+            </Body>
+          </Envelope>
+        XML
+      end
 
       before { allow(service).to receive(:perform).and_return(raw_response) }
 
-      it 'parses and returns the expected result' do
-        response = service.get_traits(**valid_params)
-        expect(response).to eq(expected)
+      it 'returns the parsed response with ICN' do
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
+        expect(response).to eq({ success: true, icn: '123456789' })
       end
     end
 
     context 'when the response contains a valid ICN' do
-      it_behaves_like 'a parsed response',
-                      xml: <<~XML,
-                        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                          <soap:Body>
-                            <getSSOeTraitsByCSPIDResponse>
-                              <icn>123498767V234859</icn>
-                            </getSSOeTraitsByCSPIDResponse>
-                          </soap:Body>
-                        </soap:Envelope>
-                      XML
-                      expected: { success: true, icn: '123498767V234859' }
+      it 'parses the ICN from the response' do
+        response = service.send(:parse_response, <<~XML)
+          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap:Body>
+              <getSSOeTraitsByCSPIDResponse>
+                <icn>123498767V234859</icn>
+              </getSSOeTraitsByCSPIDResponse>
+            </soap:Body>
+          </soap:Envelope>
+        XML
+
+        expect(response).to eq({ success: true, icn: '123498767V234859' })
+      end
     end
 
     context 'when the response contains a fault' do
-      it_behaves_like 'a parsed response',
-                      xml: <<~XML,
-                        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                          <soap:Body>
-                            <soap:Fault>
-                              <faultcode>soap:Client</faultcode>
-                              <faultstring>Invalid CSPID</faultstring>
-                            </soap:Fault>
-                          </soap:Body>
-                        </soap:Envelope>
-                      XML
-                      expected: {
-                        success: false,
-                        error: {
-                          code: 'soap:Client',
-                          message: 'Invalid CSPID'
-                        }
-                      }
+      it 'parses the fault from the response' do
+        response = service.send(:parse_response, <<~XML)
+          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap:Body>
+              <soap:Fault>
+                <faultcode>soap:Client</faultcode>
+                <faultstring>Invalid CSPID</faultstring>
+              </soap:Fault>
+            </soap:Body>
+          </soap:Envelope>
+        XML
+
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 'soap:Client',
+                                   message: 'Invalid CSPID'
+                                 }
+                               })
+      end
     end
 
     context 'when the response is unexpected' do
-      it_behaves_like 'a parsed response',
-                      xml: '<unexpected>response</unexpected>',
-                      expected: {
-                        success: false,
-                        error: {
-                          code: 'UnknownError',
-                          message: 'Unable to parse SOAP response'
-                        }
-                      }
+      it 'returns an unknown error' do
+        response = service.send(:parse_response, '<unexpected>response</unexpected>')
+
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 'UnknownError',
+                                   message: 'Unable to parse SOAP response'
+                                 }
+                               })
+      end
     end
 
     context 'when there is a connection error' do
@@ -92,7 +120,12 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Connection error/)
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to be_nil
       end
     end
@@ -104,7 +137,12 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Timeout error/)
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to be_nil
       end
     end
@@ -116,7 +154,12 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Unexpected error/)
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to be_nil
       end
     end
@@ -153,7 +196,19 @@ RSpec.describe SSOe::Service, type: :service do
       result = service.send(:parse_response, body)
       expect(result).to eq({ success: false, error: { code: 'soap:Client', message: 'Error' } })
     end
+
+    it 'handles unknown response format' do
+      body = '<unexpected>response</unexpected>'
+
+      result = service.send(:parse_response, body)
+      expect(result).to eq({
+                             success: false,
+                             error: {
+                               code: 'UnknownError',
+                               message: 'Unable to parse SOAP response'
+                             }
+                           })
+    end
   end
 end
-
 # rubocop:enable RSpec/SpecFilePathFormat
