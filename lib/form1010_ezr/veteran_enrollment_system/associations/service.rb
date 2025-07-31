@@ -58,7 +58,7 @@ module Form1010Ezr
           # Format the address to match the Associations schema
           transformed_association['address'] = format_address(association['address'])
           # Format the name to match the Associations schema
-          transformed_association['name'] = convert_full_name_alt(association['fullName'])
+          transformed_association['name'] = convert_full_name_alt(association['fullName'], all_caps: false)
 
           transform_flat_fields(association, transformed_association)
           # This is a required field in the Associations API for insert/update, but not for delete

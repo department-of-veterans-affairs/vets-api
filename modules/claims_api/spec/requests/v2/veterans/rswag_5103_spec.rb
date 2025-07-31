@@ -22,7 +22,7 @@ describe 'EvidenceWaiver5103',
       ]
       consumes 'application/json'
       produces 'application/json'
-      description 'Submit Evidence Waiver 5103 for Veteran.'
+      description 'Submit Evidence Waiver 5103 for a VA claimant.'
 
       parameter name: :id,
                 in: :path,
@@ -34,7 +34,7 @@ describe 'EvidenceWaiver5103',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }

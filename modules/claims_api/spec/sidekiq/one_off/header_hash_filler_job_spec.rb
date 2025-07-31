@@ -42,7 +42,7 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
     it 'logs count of records processed' do
       expect(ClaimsApi::Logger).to receive(:log).with(
         'header_hash_filler_job',
-        details: 'ClaimsApi::PowerOfAttorney completed with 10 record(s)'
+        details: 'Processed 10 records for ClaimsApi::PowerOfAttorney. 0 records remain.'
       )
 
       subject.perform 'ClaimsApi::PowerOfAttorney'

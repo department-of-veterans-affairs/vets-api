@@ -21,7 +21,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
     )
   end
   let(:proc_id) { '12345' }
-  let(:representative_id) { '11' }
+  let(:registration_number) { '11' }
   let(:poa_code) { '087' }
   let(:metadata) do
     { 'veteran' => {
@@ -30,8 +30,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
   end
   let(:claimant) { nil }
 
-  let(:declined_subject) { build_subject('declined') }
-  let(:accepted_subject) { build_subject('accepted') }
+  let(:declined_decision) { 'declined' }
+  let(:accepted_decision) { 'accepted' }
+  let(:declined_subject) { build_subject(declined_decision) }
+  let(:accepted_subject) { build_subject(accepted_decision) }
 
   context "When the decision is 'Declined'" do
     it 'calls the declined decision service handler' do
@@ -55,7 +57,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
     described_class.new(
       decision:,
       proc_id:,
-      representative_id:,
+      registration_number:,
       poa_code:,
       metadata:,
       veteran:,

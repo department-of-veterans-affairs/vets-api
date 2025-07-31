@@ -76,6 +76,14 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
               'endTime' => '2021-05-25T22:33:39.000Z'
             }
           }, {
+            'id' => mw_uuid('letters_and_documents'),
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'letters_and_documents',
+              'startTime' => '2021-05-25T21:33:39.000Z',
+              'endTime' => '2021-05-25T22:33:39.000Z'
+            }
+          }, {
             'id' => '0ce167f8-9522-52c3-94e0-4f1e367d7064',
             'type' => 'maintenance_window',
             'attributes' => {
@@ -88,14 +96,6 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
             'type' => 'maintenance_window',
             'attributes' => {
               'service' => 'efolder',
-              'startTime' => '2021-05-25T23:33:39.000Z',
-              'endTime' => '2021-05-27T01:45:00.000Z'
-            }
-          }, {
-            'id' => mw_uuid('letters_and_documents'),
-            'type' => 'maintenance_window',
-            'attributes' => {
-              'service' => 'letters_and_documents',
               'startTime' => '2021-05-25T23:33:39.000Z',
               'endTime' => '2021-05-27T01:45:00.000Z'
             }
@@ -152,7 +152,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
         lighthouse_latest_end_time = latest_lighthouse_starting.end_time.iso8601
 
         expect(response.body).to match_json_schema('maintenance_windows')
-        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating immunizations])
+        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_earliest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_earliest_end_time])
 
@@ -161,7 +161,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating immunizations])
+        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_middle_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_middle_end_time])
 
@@ -170,7 +170,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating immunizations])
+        expect(attributes.pluck('service').uniq).to eq(%w[claims disability_rating letters_and_documents immunizations])
 
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([lighthouse_latest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([lighthouse_latest_end_time])
