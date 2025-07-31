@@ -32,18 +32,13 @@ module DebtsApi
         digital_dispute = DebtsApi::V0::DigitalDispute.new(current_user, submission_params[:files])
 
         if digital_dispute.valid?
-
+          digital_dispute.submit_to_dmc
         else
-          render json: { errors: result[:errors] }, status: :unprocessable_entity
+          render json: { errors: digital_dispute.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       private
-
-      def process_submission
-        service = DigitalDisputeSubmissionService.new(current_user, submission_params[:files])
-        service.call
-      end
 
       def submission_params
         params.permit(files: [])
