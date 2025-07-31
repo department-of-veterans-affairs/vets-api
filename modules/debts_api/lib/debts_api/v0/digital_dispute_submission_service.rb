@@ -123,10 +123,8 @@ module DebtsApi
           .where(user_uuid: @user.uuid)
           .where.not(id: submission.id)
           .where.not(state: :failed)
-          .where('debt_identifiers @> ?', submission.debt_identifiers.to_json)
-          .exists?
+          .exists?(['debt_identifiers @> ?', submission.debt_identifiers.to_json])
       end
-
 
       def check_duplicate?(submission)
         @metadata && duplicate_submission_exists?(submission)
