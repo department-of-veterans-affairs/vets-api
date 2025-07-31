@@ -25,14 +25,18 @@ class Form526InProgressFormModifier
     in_progress_forms = validate_ipf_id_array_return_ipfs(ipf_id_array)
 
     Rails.logger.info("Running InProgress forms modifier for #{in_progress_forms.count} forms")
+    current_form = nil
     in_progress_forms.each do |in_progress_form|
+      current_form_id = in_progress_form.id
       form_parsed = JSON.parse(in_progress_form.form_data)
 
+      # TODO: Check this is the correct acknowldegement
       if form_parsed.dig('view:patient_acknowledgement', 'view:acknowledgement') == true
         Rails.logger.info('Updating return URL for in-progress',
                           in_progress_form_id: in_progress_form.id,
                           new_return_url: NEW_RETURN_URL,
-                          old_return_url: in_progress_form.metadata['return_url'], dry_run: true)
+                          old_return_url: in_progress_form.metadata['return_url'], 
+                          dry_run: true)
         # Dry runs.. dont update yet
         # in_progress_form.metadata['return_url'] = NEW_RETURN_URL
         # in_progress_form.save!
@@ -45,6 +49,7 @@ class Form526InProgressFormModifier
     Rails.logger.error('Error in InProgress forms modifier',
                        in_progress_form_ids: ipf_id_array,
                        class: self.class.name,
-                       message: e.try(:message))
+                       message: e.try(:message),
+                       current_form_id:)
   end
 end

@@ -36,10 +36,12 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
 
     context 'when forms exist but all have the new return URL' do
       let!(:form1) do
-        create(:in_progress_526_form, metadata: { return_url: '/supporting-evidence/private-medical-records-authorize-release' })
+        create(:in_progress_526_form,
+               metadata: { return_url: '/supporting-evidence/private-medical-records-authorize-release' })
       end
       let!(:form2) do
-        create(:in_progress_526_form, metadata: { return_url: '/supporting-evidence/private-medical-records-authorize-release' })
+        create(:in_progress_526_form,
+               metadata: { return_url: '/supporting-evidence/private-medical-records-authorize-release' })
       end
 
       it 'raises ArgumentError when all forms have the new return URL' do
@@ -57,12 +59,13 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
         create(:in_progress_526_form, metadata: { return_url: '/some-other-url' })
       end
       let!(:form_with_new_url) do
-        create(:in_progress_526_form, metadata: { return_url: '/supporting-evidence/private-medical-records-authorize-release' })
+        create(:in_progress_526_form,
+               metadata: { return_url: '/supporting-evidence/private-medical-records-authorize-release' })
       end
 
       it 'returns only forms that do not have the new return URL' do
         result = modifier.validate_ipf_id_array_return_ipfs([form1.id, form2.id, form_with_new_url.id])
-        
+
         expect(result).to contain_exactly(form1, form2)
         expect(result).not_to include(form_with_new_url)
       end
@@ -78,7 +81,7 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
 
       it 'only returns forms with the correct form_id' do
         result = modifier.validate_ipf_id_array_return_ipfs([form526.id, other_form.id])
-        
+
         expect(result).to contain_exactly(form526)
         expect(result).not_to include(other_form)
       end
@@ -92,14 +95,14 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       let!(:form_with_acknowledgement) do
         form_data = JSON.parse(build(:in_progress_526_form).form_data)
         form_data['view:patient_acknowledgement'] = { 'view:acknowledgement' => true }
-        
-        create(:in_progress_526_form, 
+
+        create(:in_progress_526_form,
                form_data: form_data.to_json,
                metadata: { return_url: '/veteran-information' })
       end
 
       it 'logs the update information in dry run mode' do
-        expect(Rails.logger).to receive(:info).with("Running InProgress forms modifier for 1 forms")
+        expect(Rails.logger).to receive(:info).with('Running InProgress forms modifier for 1 forms')
         expect(Rails.logger).to receive(:info).with(
           'Updating return URL for in-progress',
           in_progress_form_id: form_with_acknowledgement.id,
@@ -113,9 +116,9 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
 
       it 'does not actually update the form in dry run mode' do
         original_metadata = form_with_acknowledgement.metadata.dup
-        
+
         modifier.perform([form_with_acknowledgement.id])
-        
+
         form_with_acknowledgement.reload
         expect(form_with_acknowledgement.metadata).to eq(original_metadata)
       end
@@ -125,8 +128,8 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       let!(:form_without_acknowledgement) do
         form_data = JSON.parse(build(:in_progress_526_form).form_data)
         form_data['view:patient_acknowledgement'] = { 'view:acknowledgement' => false }
-        
-        create(:in_progress_526_form, 
+
+        create(:in_progress_526_form,
                form_data: form_data.to_json,
                metadata: { return_url: '/veteran-information' })
       end
@@ -134,8 +137,8 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       let!(:form_with_nil_acknowledgement) do
         form_data = JSON.parse(build(:in_progress_526_form).form_data)
         form_data['view:patient_acknowledgement'] = { 'view:acknowledgement' => nil }
-        
-        create(:in_progress_526_form, 
+
+        create(:in_progress_526_form,
                form_data: form_data.to_json,
                metadata: { return_url: '/veteran-information' })
       end
@@ -143,14 +146,14 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       let!(:form_without_patient_section) do
         form_data = JSON.parse(build(:in_progress_526_form).form_data)
         form_data.delete('view:patient_acknowledgement')
-        
-        create(:in_progress_526_form, 
+
+        create(:in_progress_526_form,
                form_data: form_data.to_json,
                metadata: { return_url: '/veteran-information' })
       end
 
       it 'logs no update needed for forms without acknowledgement' do
-        expect(Rails.logger).to receive(:info).with("Running InProgress forms modifier for 3 forms")
+        expect(Rails.logger).to receive(:info).with('Running InProgress forms modifier for 3 forms')
         expect(Rails.logger).to receive(:info).with(
           'No update needed for in-progress form',
           in_progress_form_id: form_without_acknowledgement.id,
@@ -167,7 +170,8 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
           dry_run: true
         )
 
-        modifier.perform([form_without_acknowledgement.id, form_with_nil_acknowledgement.id, form_without_patient_section.id])
+        modifier.perform([form_without_acknowledgement.id, form_with_nil_acknowledgement.id,
+                          form_without_patient_section.id])
       end
     end
 
@@ -175,8 +179,8 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       let!(:form_with_acknowledgement) do
         form_data = JSON.parse(build(:in_progress_526_form).form_data)
         form_data['view:patient_acknowledgement'] = { 'view:acknowledgement' => true }
-        
-        create(:in_progress_526_form, 
+
+        create(:in_progress_526_form,
                form_data: form_data.to_json,
                metadata: { return_url: '/veteran-information' })
       end
@@ -184,14 +188,14 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       let!(:form_without_acknowledgement) do
         form_data = JSON.parse(build(:in_progress_526_form).form_data)
         form_data['view:patient_acknowledgement'] = { 'view:acknowledgement' => false }
-        
-        create(:in_progress_526_form, 
+
+        create(:in_progress_526_form,
                form_data: form_data.to_json,
                metadata: { return_url: '/some-other-url' })
       end
 
       it 'handles both types of forms appropriately' do
-        expect(Rails.logger).to receive(:info).with("Running InProgress forms modifier for 2 forms")
+        expect(Rails.logger).to receive(:info).with('Running InProgress forms modifier for 2 forms')
         expect(Rails.logger).to receive(:info).with(
           'Updating return URL for in-progress',
           in_progress_form_id: form_with_acknowledgement.id,
@@ -209,7 +213,6 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
       end
     end
 
-    
     context 'when validation fails' do
       it 'logs the validation error' do
         expect(Rails.logger).to receive(:error).with(

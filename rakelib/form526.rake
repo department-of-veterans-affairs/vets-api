@@ -83,7 +83,7 @@ namespace :form526 do
       )
     end
 
-    MAX_NUMBER_OF_FORMS = 1000 unless defined? MAX_NUMBER_OF_FORMS
+    MAX_NUMBER_OF_FORMS = 10000 unless defined? MAX_NUMBER_OF_FORMS
 
     NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release' unless defined? NEW_RETURN_URL
 
