@@ -103,8 +103,6 @@ module Form1010cg
     end
 
     def log_caregiver_request_duration(context:, event:, start_time:)
-      return unless Flipper.enabled?(:caregiver_request_duration_monitoring)
-
       measure_duration(self.class.metrics[context][event], start_time)
     end
 
