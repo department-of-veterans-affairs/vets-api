@@ -32,13 +32,9 @@ module DebtsApi
         digital_dispute = DebtsApi::V0::DigitalDispute.new(current_user, submission_params[:files])
 
         if digital_dispute.valid?
-          StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.success")
-          render json: {
-            message: result[:message],
-            submission_id: result[:submission_id]
-          }, status: :ok
+          digital_dispute.submit_to_dmc
         else
-          render json: { errors: result[:errors] }, status: :unprocessable_entity
+          render json: { errors: digital_dispute.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
