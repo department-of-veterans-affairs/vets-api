@@ -2,6 +2,7 @@
 
 require 'claims_evidence_api/configuration'
 require 'claims_evidence_api/exceptions/service'
+require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/validation'
 require 'claims_evidence_api/x_folder_uri'
 require 'common/client/base'
@@ -27,6 +28,18 @@ module ClaimsEvidenceApi
         super
       end
 
+      # @see Common::Client::Base#perform
+      def perform(method, path, params, headers = nil, options = nil)
+        call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
+        response = super(method, path, params, headers, options) # returns Faraday::Env
+        monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
+        response
+      rescue => e
+        code = e.respond_to?(:status) ? e.status : 500
+        monitor.track_api_request(method, path, code, e.message, call_location:)
+        raise e
+      end
+
       # directly assign a folder identifier
       # @see ClaimsEvidenceApi::XFolderUri#validate
       # @param folder_identifier [String] x_folder_uri header value
@@ -38,6 +51,14 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::XFolderUri#generate
       def x_folder_uri_set(folder_type, identifier_type, id)
         @x_folder_uri = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
+      end
+
+      private
+
+      # create the monitor to be used for _this_ instance
+      # @see ClaimsEvidenceApi::Monitor::Service
+      def monitor
+        @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
       end
     end
 

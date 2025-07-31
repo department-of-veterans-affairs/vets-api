@@ -1380,6 +1380,11 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_530ez__email__submitted__template_id'] %>
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
+      email:
+        error:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:
