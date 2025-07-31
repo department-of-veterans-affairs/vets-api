@@ -27,9 +27,9 @@ module EVSS
         provider_facilities.map! do |facility|
           treated_disability_hash = facility['treatedDisabilityNames']
           if treated_disability_hash.blank?
-            facility.merge!('conditionsTreated' => '')
+            facility.merge('conditionsTreated' => '')
           else
-            facility.merge!('conditionsTreated' => treated_disability_hash.select do |_, checked|
+            facility.merge('conditionsTreated' => treated_disability_hash.select do |_, checked|
               checked
             end.keys.join(', '))
           end
