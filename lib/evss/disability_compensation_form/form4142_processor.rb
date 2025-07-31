@@ -21,16 +21,16 @@ module EVSS
       protected
 
       def transform_provider_facilities(incoming_data)
-        facility_data = incoming_data['providerFacilities']
-        return incoming_data if facility_data.blank?
+        return incoming_data if incoming_data.dig('form4142', 'providerFacility').blank?
 
-        facility_data.each do |facility|
+        incoming_data['form4142']['providerFacility'].map! do |facility|
           treated_disability_hash = facility['treatedDisabilityNames']
           next if treated_disability_hash.blank?
 
-          incoming_data['conditionsTreated'] = treated_disability_hash.select { |_, checked| checked }.keys.join(', ')
+          facility.merge!('conditionsTreated' => treated_disability_hash.select do |_, checked|
+            checked
+          end.keys.join(', '))
         end
-
         incoming_data
       end
 
