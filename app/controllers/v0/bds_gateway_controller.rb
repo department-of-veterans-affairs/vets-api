@@ -8,6 +8,7 @@ module V0
 
     skip_before_action :verify_authenticity_token, only: [:recommendations]
     skip_before_action :authenticate, only: [:recommendations]
+    before_action :check_flipper_enabled, only: [:recommendations]
     skip_after_action :set_csrf_header, only: [:recommendations]
 
     def recommendations
@@ -44,6 +45,10 @@ module V0
       params.permit(:dateOfBirth, :disabilityRating,
                     dischargeStatus: [], branchOfService: [],
                     serviceDates: %i[startDate endDate])
+    end
+
+    def check_flipper_enabled
+      raise Common::Exceptions::RoutingError, request.path unless Flipper.enabled?(:bds_gateway_enabled)
     end
   end
 end

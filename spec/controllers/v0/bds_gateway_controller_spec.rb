@@ -20,6 +20,7 @@ RSpec.describe V0::BdsGatewayController, type: :controller do
   before do
     allow(BenefitsDiscovery::Service).to receive(:new).and_return(service_instance)
     allow(service_instance).to receive(:get_eligible_benefits).and_return(response_data)
+    allow(Flipper).to receive(:enabled?).with(:bds_gateway_enabled).and_return(true)
   end
 
   describe 'POST #recommendations' do
@@ -140,6 +141,50 @@ RSpec.describe V0::BdsGatewayController, type: :controller do
 
       it 'logs the error' do
         expect(Rails.logger).to receive(:error).with('BDSGateway recommendations error: Service error')
+        post :recommendations, params: { dateOfBirth: '1990-01-01' }
+      end
+    end
+
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bds_gateway_enabled).and_return(false)
+        request.headers['x-api-key'] = 'test-api-key'
+        request.headers['x-app-id'] = 'test-app'
+      end
+
+      it 'returns 404 not found' do
+        post :recommendations, params: { dateOfBirth: '1990-01-01' }
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'does not call the service' do
+        expect(BenefitsDiscovery::Service).not_to receive(:new)
+
+        post :recommendations, params: { dateOfBirth: '1990-01-01' }
+      end
+    end
+
+    context 'when flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:bds_gateway_enabled).and_return(true)
+        request.headers['x-api-key'] = 'test-api-key'
+        request.headers['x-app-id'] = 'test-app'
+      end
+
+      it 'allows the request to proceed' do
+        post :recommendations, params: { dateOfBirth: '1990-01-01' }
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)).to eq(response_data)
+      end
+
+      it 'calls the service' do
+        expect(BenefitsDiscovery::Service).to receive(:new).with(
+          api_key: 'test-api-key',
+          app_id: 'test-app'
+        )
+
         post :recommendations, params: { dateOfBirth: '1990-01-01' }
       end
     end
