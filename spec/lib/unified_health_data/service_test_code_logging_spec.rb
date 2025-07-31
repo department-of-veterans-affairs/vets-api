@@ -360,11 +360,17 @@ RSpec.describe UnifiedHealthData::Service do
       service.send(:count_test_codes_and_names, records)
 
       expect(service).to have_received(:log_short_test_name_issue).exactly(3).times
-      
+
       # Verify it was called with records having the expected short names
-      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record| record.attributes.display == 'CH' })
-      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record| record.attributes.display == 'SP' })
-      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record| record.attributes.display == 'ABC' })
+      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record|
+        record.attributes.display == 'CH'
+      })
+      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record|
+        record.attributes.display == 'SP'
+      })
+      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record|
+        record.attributes.display == 'ABC'
+      })
     end
 
     it 'does not call log_short_test_name_issue when test name is longer than 3 characters' do
