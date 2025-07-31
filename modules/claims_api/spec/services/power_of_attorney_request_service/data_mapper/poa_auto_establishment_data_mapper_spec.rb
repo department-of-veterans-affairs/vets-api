@@ -8,8 +8,10 @@ require 'claims_api/v2/json_format_validation'
 describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishmentDataMapper do
   let(:clazz) { described_class }
 
-  let(:individual_subject) { build_subject('2122a', individual_gathered_data) }
-  let(:organization_subject) { build_subject('2122', org_gathered_data) }
+  let(:individual_type) { '2122a' }
+  let(:organization_type) { '2122' }
+  let(:individual_subject) { build_subject(individual_type, individual_gathered_data) }
+  let(:organization_subject) { build_subject(organization_type, org_gathered_data) }
 
   include_context 'shared POA auto establishment data'
 
@@ -66,13 +68,24 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishm
     end
   end
 
+  context 'returns expected data to the controller' do
+    it 'an array with mapped form data and form type' do
+      allow_any_instance_of(
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper
+      ).to receive(:representative_type).and_return('ATTORNEY')
+
+      res = individual_subject.map_data
+
+      expect(res).to eq([individual_mapped_form_data, individual_type])
+    end
+  end
+
   private
 
   def build_subject(type, data)
     described_class.new(
       type:,
-      data:,
-      veteran:
+      data:
     )
   end
 end
