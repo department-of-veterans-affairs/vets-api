@@ -2,7 +2,7 @@
 
 require_relative '../../../rails_helper'
 
-RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
+RSpec.describe 'AccreditedRepresentativePortal::V0::Form21aController', type: :request do
   subject(:make_post_request) { post('/accredited_representative_portal/v0/form21a', params: payload, headers:) }
 
   let(:form_data) do
