@@ -35,9 +35,6 @@ module SM
       else
         "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}"
       end
-    rescue => e
-      Rails.logger.error("SM:Configuration Flipper error: #{e.message}")
-      "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}" # Default path
     end
 
     ##
