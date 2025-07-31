@@ -166,7 +166,7 @@ module ClaimsApi
           return nil if result.nil?
 
           @json_body, type = result
-          validate_mapped_data!(veteran.participant_id, result, poa_code)
+          validate_mapped_data!(veteran.participant_id, type, poa_code)
           # build headers
           @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant
           build_auth_headers(veteran)

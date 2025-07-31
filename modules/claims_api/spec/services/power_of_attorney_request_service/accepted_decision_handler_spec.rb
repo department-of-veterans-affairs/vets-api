@@ -27,6 +27,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
   let(:proc_id) { '3864182' }
   let(:poa_code) { '083' }
   let(:registration_number) { '12345678' }
+  let(:individual_type) { '2122a' }
+  let(:organization_type) { '2122' }
 
   context 'for a valid decide request' do
     let(:proc_id) { '3864182' }
@@ -55,6 +57,26 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
         'claimant' => { 'vnp_mail_id' => '157253', 'vnp_email_id' => '157254', 'vnp_phone_id' => '111642' }
       }
     end
+    let(:returned_data) do
+      { 'data' =>
+        { 'attributes' =>
+          { 'veteran' => {
+              'address' => { 'addressLine1' => '2719 Hyperion Ave', 'addressLine2' => 'Apt 2',
+                             'city' => 'Los Angeles', 'stateCode' => 'CA', 'countryCode' => 'US',
+                             'zipCode' => '92264', 'zipCodeSuffix' => '0200' },
+              'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
+              'serviceNumber' => '123678453'
+            },
+            'representative' => { 'poaCode' => '083', 'type' => 'ATTORNEY', 'registrationNumber' => '12345678' },
+            'recordConsent' => true, 'consentLimits' => %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
+            'consentAddressChange' => true,
+            'claimant' => { 'claimantId' => '1013093331V548481',
+                            'address' => { 'addressLine1' => '123 Main St', 'addressLine2' => 'Apt 3',
+                                           'city' => 'Boston', 'stateCode' => 'MA', 'countryCode' => 'US',
+                                           'zipCode' => '02110', 'zipCodeSuffix' => '1000' },
+                            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5559876' },
+                            'relationship' => 'Spouse' } } } }
+    end
 
     it 'starts the POA auto establishment service' do
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler)
@@ -76,7 +98,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
         res = subject.send(:determine_type)
 
-        expect(res).to eq('2122')
+        expect(res).to eq(organization_type)
       end
 
       it 'correctly for an individual' do
@@ -84,7 +106,19 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
         res = subject.send(:determine_type)
 
-        expect(res).to eq('2122a')
+        expect(res).to eq(individual_type)
+      end
+    end
+
+    it 'returns the correct data to the caller' do
+      allow_any_instance_of(
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMapper
+      ).to receive(:representative_type).and_return('ATTORNEY')
+
+      VCR.use_cassette('claims_api/power_of_attorney_request_service/decide/valid_accepted_dependent') do
+        res = subject.call
+
+        expect(res).to eq([returned_data, individual_type])
       end
     end
   end
