@@ -17,12 +17,6 @@ module DecisionReviews
       SavedClaim::SupplementalClaim
     ].freeze
 
-    APPEAL_TYPE_TO_SERVICE_MAP = {
-      'HLR' => 'higher-level-review',
-      'NOD' => 'board-appeal',
-      'SC' => 'supplemental-claims'
-    }.freeze
-
     ERROR_STATUS = 'error'
 
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
@@ -68,16 +62,18 @@ module DecisionReviews
     def vanotify_service_with_callback(submission, email_type, reference)
       appeal_type = submission.type_of_appeal
       callback_klass, function, email_template_id = get_callback_config(email_type, appeal_type)
+      service_name = DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
 
       callback_options = {
         callback_klass: callback_klass.to_s,
         callback_metadata: {
           email_type: :error,
-          service_name: APPEAL_TYPE_TO_SERVICE_MAP[appeal_type],
+          service_name:,
           function:,
           submitted_appeal_uuid: submission.submitted_appeal_uuid,
           email_template_id:,
-          reference:
+          reference:,
+          statsd_tags: ["service:#{service_name}", "function:#{function}"]
         }
       }
       ::VaNotify::Service.new(VANOTIFY_API_KEY, callback_options)
@@ -121,8 +117,8 @@ module DecisionReviews
 
       _, _, template_id = get_callback_config(email_type, submission.type_of_appeal)
 
-      vanotify_service_with_callback = vanotify_service_with_callback(submission, email_type, reference)
-      vanotify_service_with_callback.send_email({ email_address:, template_id:, personalisation: })
+      vanotify_service = vanotify_service_with_callback(submission, email_type, reference)
+      vanotify_service.send_email({ email_address:, template_id:, personalisation: })
     end
 
     def send_form_emails
