@@ -687,7 +687,7 @@ describe 'PowerOfAttorney',
             allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(poa_request_service)
             allow(poa_request_service).to receive(:get_poa_request).and_return(get_poa_request_response)
             allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
-              .to receive(:process_poa_decision).and_return(nil)
+              .to receive(:process_poa_decision).and_return(OpenStruct.new(id: '1234'))
 
             mock_ccg(scopes) do
               VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do

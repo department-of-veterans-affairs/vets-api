@@ -14,6 +14,8 @@ module ClaimsApi
         first_name = extract_first_name(poa_request)
 
         send_declined_notification(ptcpnt_id: @ptcpnt_id, first_name:, representative_id: @representative_id)
+
+        nil
       end
 
       private
