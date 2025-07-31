@@ -20,23 +20,12 @@ module SSOe
       Breakers::OutageException
     ].freeze
 
-    # rubocop:disable Metrics/ParameterLists
-    def get_traits(credential_method: nil,
-                   credential_id: nil,
-                   first_name: nil,
-                   last_name: nil,
-                   birth_date: nil,
-                   ssn: nil,
-                   email: nil,
-                   phone: nil,
-                   street1: nil,
-                   city: nil,
-                   state: nil,
-                   zipcode: nil)
+    def get_traits(credential_method:, credential_id:, user:, address:)
       with_monitoring do
         raw_response = perform(
-          :post, '', build_message(credential_method, credential_id, first_name, last_name, birth_date,
-                                   ssn, email, phone, street1, city, state, zipcode),
+          :post,
+          '',
+          build_message(credential_method, credential_id, user, address),
           soapaction: nil
         )
         raw_response.body
@@ -51,23 +40,21 @@ module SSOe
 
     private
 
-    def build_message(credential_method, credential_id, first_name, last_name, birth_date, ssn, email, phone, street1,
-                      city, state, zipcode)
+    def build_message(credential_method, credential_id, user, address)
       SSOe::GetSSOeTraitsByCspidMessage.new(
         credential_method:,
         credential_id:,
-        first_name:,
-        last_name:,
-        birth_date:,
-        ssn:,
-        email:,
-        phone:,
-        street1:,
-        city:,
-        state:,
-        zipcode:
+        first_name: user.first_name,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        ssn: user.ssn,
+        email: user.email,
+        phone: user.phone,
+        street1: address.street1,
+        city: address.city,
+        state: address.state,
+        zipcode: address.zipcode
       ).perform
     end
-    # rubocop:enable Metrics/ParameterLists
   end
 end

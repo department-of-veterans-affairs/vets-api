@@ -3,29 +3,36 @@
 require 'rails_helper'
 require 'ssoe/service'
 require 'ssoe/get_ssoe_traits_by_cspid_message'
+require 'ssoe/models/user'
+require 'ssoe/models/address'
 
 # rubocop:disable RSpec/SpecFilePathFormat
-
 RSpec.describe SSOe::Service, type: :service do
   let(:service) { described_class.new }
 
   describe '#get_traits' do
-    let(:valid_params) do
-      {
-        credential_method: 'idme',
-        credential_id: '12345',
+    let(:user) do
+      SSOe::Models::User.new(
         first_name: 'John',
         last_name: 'Doe',
         birth_date: '1980-01-01',
         ssn: '123-45-6789',
         email: 'john.doe@example.com',
-        phone: '555-555-5555',
+        phone: '555-555-5555'
+      )
+    end
+
+    let(:address) do
+      SSOe::Models::Address.new(
         street1: '123 Elm St',
         city: 'Springfield',
         state: 'IL',
         zipcode: '62701'
-      }
+      )
     end
+
+    let(:credential_method) { 'idme' }
+    let(:credential_id) { '12345' }
 
     context 'when the response is successful' do
       let(:raw_response) { double('raw_response', body: '<xml><icn>123456789</icn></xml>') }
@@ -35,7 +42,12 @@ RSpec.describe SSOe::Service, type: :service do
       end
 
       it 'returns the raw response body' do
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to eq('<xml><icn>123456789</icn></xml>')
       end
     end
@@ -47,7 +59,12 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Connection error/)
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to be_nil
       end
     end
@@ -59,7 +76,12 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Timeout error/)
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to be_nil
       end
     end
@@ -71,7 +93,12 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Unexpected error/)
-        response = service.get_traits(**valid_params)
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
         expect(response).to be_nil
       end
     end
