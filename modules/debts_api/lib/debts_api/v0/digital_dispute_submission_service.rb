@@ -34,7 +34,7 @@ module DebtsApi
 
         success_result(submission)
       rescue => e
-        submission&.register_failure(sanitize_error_message(e.message))
+        submission&.register_failure(e.message)
         failure_result(e)
       end
 
@@ -123,16 +123,10 @@ module DebtsApi
           .where(user_uuid: @user.uuid)
           .where.not(id: submission.id)
           .where.not(state: :failed)
-          .exists?(['debt_identifiers @> ?', submission.debt_identifiers.to_json])
+          .where('debt_identifiers @> ?', submission.debt_identifiers.to_json)
+          .exists?
       end
 
-      def sanitize_error_message(message)
-        # Remove any potential PII from error messages
-        message.to_s
-               .gsub(/\b\d{3}-?\d{2}-?\d{4}\b/, '[REDACTED-SSN]')
-               .gsub(/\b\d{9,}\b/, '[REDACTED-ID]')
-               .gsub(/\b\d+\.\d{2}\b/, '[REDACTED-AMOUNT]')
-      end
 
       def check_duplicate?(submission)
         @metadata && duplicate_submission_exists?(submission)
