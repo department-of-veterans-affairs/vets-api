@@ -120,6 +120,48 @@ RSpec.describe SignIn::Certificate, type: :model do
     end
   end
 
+  describe '#certificate?' do
+    context 'when certificate is valid' do
+      it 'returns true' do
+        expect(certificate.certificate?).to be true
+      end
+    end
+
+    context 'when certificate is invalid' do
+      subject(:certificate) { build(:sign_in_certificate, pem: 'not a valid pem') }
+
+      it 'returns false' do
+        expect(certificate.certificate?).to be false
+      end
+    end
+  end
+
+  describe '#status' do
+    context 'when certificate is active' do
+      subject(:certificate) { build(:sign_in_certificate) }
+
+      it 'returns "active"' do
+        expect(certificate.status).to eq('active')
+      end
+    end
+
+    context 'when certificate is expired' do
+      subject(:certificate) { build(:sign_in_certificate, :expired) }
+
+      it 'returns "expired"' do
+        expect(certificate.status).to eq('expired')
+      end
+    end
+
+    context 'when certificate is expiring' do
+      subject(:certificate) { build(:sign_in_certificate, :expiring) }
+
+      it 'returns "expiring"' do
+        expect(certificate.status).to eq('expiring')
+      end
+    end
+  end
+
   describe '#public_key' do
     context 'when certificate is valid' do
       it 'returns the public key of the certificate' do
