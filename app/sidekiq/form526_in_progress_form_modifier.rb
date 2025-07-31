@@ -6,7 +6,7 @@ class Form526InProgressFormModifier
 
   NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release'
 
-  def validatate_ipf_id_array_return_ipfs(ipf_id_array)
+  def validate_ipf_id_array_return_ipfs(ipf_id_array)
     raise ArgumentError, 'ipf_id_array must be an array' unless ipf_id_array.is_a?(Array)
     raise ArgumentError, 'ipf_id_array cannot be empty' if ipf_id_array.empty?
 
@@ -22,7 +22,7 @@ class Form526InProgressFormModifier
   end
 
   def perform(ipf_id_array)
-    in_progress_forms = validatate_ipf_id_array_return_ipfs(ipf_id_array)
+    in_progress_forms = validate_ipf_id_array_return_ipfs(ipf_id_array)
 
     Rails.logger.info("Running InProgress forms modifier for #{in_progress_forms.count} forms")
     in_progress_forms.each do |in_progress_form|
