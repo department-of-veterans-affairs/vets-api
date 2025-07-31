@@ -34,7 +34,7 @@ module DebtsApi
 
         success_result(submission)
       rescue => e
-        submission&.register_failure(sanitize_error_message(e.message)) if submission
+        submission&.register_failure(sanitize_error_message(e.message))
         failure_result(e)
       end
 
