@@ -49,7 +49,7 @@ http_interactions:
   recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
 - request:
     method: get
-    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TEST123/slots?nextToken=page2_token
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TEST123/slots?appointmentId=123&nextToken=page2_token
     body:
       encoding: US-ASCII
       string: ''
@@ -96,7 +96,7 @@ http_interactions:
   recorded_at: Sat, 11 Jan 2025 23:00:45 GMT
 - request:
     method: get
-    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TEST123/slots?nextToken=page3_token
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/provider-services/TEST123/slots?appointmentId=123&nextToken=page3_token
     body:
       encoding: US-ASCII
       string: ''
@@ -141,4 +141,4 @@ http_interactions:
       encoding: UTF-8
       string: '{"count":1,"slots":[{"id":"page3-slot1|2025-01-02T14:00:00Z","providerServiceId":"TEST123","appointmentTypeId":"ov","start":"2025-01-02T14:00:00Z","remaining":1}]}'
   recorded_at: Sat, 11 Jan 2025 23:00:45 GMT
-recorded_with: VCR 6.3.1 
+recorded_with: VCR 6.3.1
