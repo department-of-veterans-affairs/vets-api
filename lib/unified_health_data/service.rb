@@ -479,6 +479,9 @@ module UnifiedHealthData
 
         test_code_counts[test_code] += 1 if test_code.present?
         test_name_counts[test_name] += 1 if test_name.present?
+
+        # Log to PersonalInformationLog when test name is 3 characters or less instead of human-friendly name
+        log_short_test_name_issue(record) if test_name.present? && test_name.length <= 3
       end
 
       [test_code_counts, test_name_counts]
@@ -501,6 +504,31 @@ module UnifiedHealthData
           total_records:,
           service: 'unified_health_data'
         }
+      )
+    end
+
+    # Logs cases where test name is 3 characters or less instead of a human-friendly name to PersonalInformationLog
+    # for secure tracking of patient records with this issue
+    def log_short_test_name_issue(record)
+      data = {
+        icn: @user.icn,
+        test_code: record.attributes.test_code,
+        test_name: record.attributes.display,
+        record_id: record.id,
+        resource_type: record.type,
+        date_completed: record.attributes.date_completed,
+        service: 'unified_health_data'
+      }
+
+      PersonalInformationLog.create!(
+        error_class: 'UHD Short Test Name Issue',
+        data:
+      )
+    rescue => e
+      # Log any errors in creating the PersonalInformationLog without exposing PII
+      Rails.logger.error(
+        "Error creating PersonalInformationLog for short test name issue: #{e.class.name}",
+        { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
       )
     end
   end
