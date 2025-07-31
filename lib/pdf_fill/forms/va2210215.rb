@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
+require 'pdf_fill/forms/formatters/va2210215'
+
 module PdfFill
   module Forms
     class Va2210215 < FormBase
       include FormHelper
 
+      FORMATTER = PdfFill::Forms::Formatters::Va2210215
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -142,8 +147,8 @@ module PdfFill
       def merge_fields(_options = {})
         form_data = JSON.parse(JSON.generate(@form_data))
 
-        combine_official_name(form_data)
-        process_programs(form_data)
+        FORMATTER.combine_official_name(form_data)
+        FORMATTER.process_programs(form_data)
 
         form_data
       end
