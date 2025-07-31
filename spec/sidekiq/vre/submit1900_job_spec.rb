@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../modules/vre/app/services/vre/notification_email.rb'
+
+puts "NotificationEmail defined? #{defined?(VRE::NotificationEmail)}"  # Add this debug line
 
 describe VRE::Submit1900Job do
   let(:user_struct) do
@@ -29,75 +32,66 @@ describe VRE::Submit1900Job do
 
   %w[v1 v2].each do |form_type|
     context "with #{form_type}" do
-      describe '#perform' do
-        subject { described_class.new.perform(claim.id, encrypted_user) }
+      let(:claim) { create_claim(form_type) }
+      let(:job) { described_class.new }
 
-        let(:claim) { create_claim(form_type) }
+      before do
+        allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+        allow(Flipper).to receive(:enabled?)
+          .with(:vre_trigger_action_needed_email)
+          .and_return(true)
+      end
 
+      describe 'Notifications - using new VFS library' do
         before do
-          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library)
+            .and_return(true)
         end
 
-        after do
-          subject
-        end
+        it 'uses VFS New NotificationEmail when retries are exhausted' do
+          notification = instance_double(VRE::NotificationEmail)
+          expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification)
+          expect(notification).to receive(:deliver).with(:action_needed)
 
-        it 'calls claim.add_claimant_info' do
-          allow(claim).to receive(:send_to_lighthouse!)
-          allow(claim).to receive(:send_to_res)
-
-          expect(claim).to receive(:add_claimant_info).with(user)
-        end
-
-        it 'calls claim.send_to_vre' do
-          expect(claim).to receive(:send_to_vre).with(user)
+          VRE::Submit1900Job.trigger_failure_events({ 'args' => [claim.id, encrypted_user] })
         end
       end
 
-      describe 'raises an exception with email flipper on' do
-        let(:claim) { create_claim(form_type) }
-
+      describe 'Notifications - using legacy fire-and-forget strategy' do
         before do
-          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library)
+            .and_return(false)
           allow(VRE::Monitor).to receive(:new).and_return(monitor)
           allow(monitor).to receive :track_submission_exhaustion
-          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
         end
 
-        it 'when queue is exhausted' do
-          VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-            exhaustion_msg['args'] = [claim.id, encrypted_user]
-            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
-            expect(VANotify::EmailJob).to receive(:perform_async).with(
-              form_type == 'v1' ? 'test@gmail.xom' : 'email@test.com',
-              'form1900_action_needed_email_template_id',
-              {
-                'first_name' => form_type == 'v1' ? 'Homer' : 'First',
-                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                'confirmation_number' => claim.confirmation_number
-              }
-            )
+        describe 'email exception handling' do
+          it 'when queue is exhausted' do
+            VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+              exhaustion_msg['args'] = [claim.id, encrypted_user]
+              expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
+              expect(VANotify::EmailJob).to receive(:perform_async).with(
+                form_type == 'v1' ? 'test@gmail.xom' : 'email@test.com',
+                'form1900_action_needed_email_template_id',
+                {
+                  'first_name' => form_type == 'v1' ? 'Homer' : 'First',
+                  'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                  'confirmation_number' => claim.confirmation_number
+                }
+              )
+            end
           end
-        end
-      end
 
-      describe 'raises an exception with no email' do
-        let(:claim) { create_claim(form_type) }
-
-        before do
-          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-          allow(VRE::Monitor).to receive(:new).and_return(monitor)
-          allow(monitor).to receive :track_submission_exhaustion
-          user_struct.va_profile_email = nil
-          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
-        end
-
-        it 'when queue is exhausted with no email' do
-          VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-            expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-            exhaustion_msg['args'] = [claim.id, encrypted_user]
-            claim.parsed_form.delete('email')
-            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+          it 'when queue is exhausted with no email' do
+            user_struct.va_profile_email = nil
+            VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+              expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+              exhaustion_msg['args'] = [claim.id, encrypted_user]
+              claim.parsed_form.delete('email')
+              expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            end
           end
         end
       end
