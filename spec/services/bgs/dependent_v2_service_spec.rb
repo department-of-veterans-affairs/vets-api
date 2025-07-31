@@ -318,4 +318,50 @@ RSpec.describe BGS::DependentV2Service do
       end
     end
   end
+
+  context 'claims evidence enabled' do
+    let(:claim) { build(:dependency_claim_v2) }
+    let(:pa) { build(:claim_evidence) }
+    let(:ssn) { '123456789' }
+    let(:folder_identifier) { "VETERAN:SSN:#{ssn}" }
+    let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
+    let(:service) { BGS::DependentV2Service.new(user) }
+    let(:monitor) { Dependents::Monitor.new(claim.id) }
+    let(:pdf_path) { 'path/to/pdf' }
+    let(:stamper) { PDFUtilities::PDFStamper.new('TEST') }
+    let(:stats_key) { BGS::DependentService::STATS_KEY }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(true)
+
+      allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
+      allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true, process_pdf: pdf_path)
+
+      allow(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
+      allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
+
+      service.instance_variable_set(:@ssn, ssn)
+    end
+
+    it 'submits evidence pdf via claims evidence uploader' do
+      expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
+      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                                                    "#{stats_key}.submit_pdf.begin")
+      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return uploader
+
+      expect(uploader).to receive(:upload_file).with(pdf_path, '686C-674-V2', claim.id, nil, claim.document_type,
+                                                     claim.created_at)
+      expect(uploader).to receive(:upload_file).with(pdf_path, '21-674-V2', claim.id, nil, '142', claim.created_at)
+
+      expect(claim).to receive(:persistent_attachments).and_return([pa])
+      expect(stamper).to receive(:run).and_return(pdf_path)
+      expect(uploader).to receive(:upload_file).with(pdf_path, '21-674-V2', claim.id, nil, pa.document_type,
+                                                     claim.created_at)
+
+      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
+                                                    "#{stats_key}.submit_pdf.completed")
+
+      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+    end
+  end
 end

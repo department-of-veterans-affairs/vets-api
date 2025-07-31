@@ -76,7 +76,7 @@ module BGS
       fid = 'VETERAN'
       { ssn:, participant_id:, icn: }.each do |k, v|
         if v.present?
-          fid += "#{k.to_s.upcase}:#{v}"
+          fid += ":#{k.to_s.upcase}:#{v}"
           break
         end
       end
@@ -138,7 +138,7 @@ module BGS
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
         pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
+        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, pa.id, doctype, claim.created_at)
       end
     end
 

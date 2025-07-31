@@ -76,7 +76,7 @@ module BGS
       fid = 'VETERAN'
       { ssn:, participant_id:, icn: }.each do |k, v|
         if v.present?
-          fid += "#{k.to_s.upcase}:#{v}"
+          fid += ":#{k.to_s.upcase}:#{v}"
           break
         end
       end
@@ -91,24 +91,24 @@ module BGS
     def submit_pdf_job(claim:, encrypted_vet_info:)
       @monitor = init_monitor(claim&.id)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                              "#{STATS_KEY}.submit_pdf.begin")
         form_id = submit_claim_via_claims_evidence(claim)
         submit_attachments_via_claims_evidence(form_id, claim)
       else
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+        @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                              "#{STATS_KEY}.submit_pdf.begin")
         # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
         VBMS::SubmitDependentsPdfV2Job.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
                                                     claim.submittable_674?)
       end
 
-      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job completed',
+      @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       @monitor.track_event('warn',
-                           'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
+                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", { error: e })
       submit_to_central_service(claim:)
 
@@ -143,10 +143,10 @@ module BGS
 
       # compensate for the abnormal nature of 674 V2 submissions
       if form_674_pdfs.length > 1
-        file_uuid = form_674_pdfs.pluck(0)
+        file_uuid = form_674_pdfs.pluck(0) # linter wants `.pluck`, not `.map { |fp| fp[0] }`
         submission = claims_evidence_uploader.submission
         submission.update_reference_data(students: form_674_pdfs)
-        submission.file_uuid = file_uuid.to_s
+        submission.file_uuid = file_uuid.to_s # set to stringified array
         submission.save
       end
 
@@ -158,7 +158,7 @@ module BGS
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
         pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
+        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, pa.id, doctype, claim.created_at)
       end
     end
 
