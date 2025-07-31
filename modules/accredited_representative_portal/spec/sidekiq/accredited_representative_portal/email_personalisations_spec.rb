@@ -37,10 +37,10 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                 }, power_of_attorney_request: poa_request)
 
         form = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyForm)
-        allow(form).to receive(:data).and_return({
-                                                   'veteran' => { 'name' => { 'first' => 'John',
-                                                                              'last' => 'Doe' } }
-                                                 })
+        allow(form).to receive(:parsed_data).and_return({
+                                                          'veteran' => { 'name' => { 'first' => 'John',
+                                                                                     'last' => 'Doe' } }
+                                                        })
 
         resolution = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution)
         allow(poa_request).to receive_messages(power_of_attorney_form: form, resolution:)
