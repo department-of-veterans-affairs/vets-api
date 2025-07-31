@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'carma/client/mule_soft_configuration_v2'
+require 'carma/client/mule_soft_configuration'
 require 'carma/client/mule_soft_auth_token_client'
 
 module CARMA
@@ -10,7 +10,7 @@ module CARMA
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
-      configuration MuleSoftConfigurationV2
+      configuration MuleSoftConfiguration
 
       class RecordParseError < StandardError; end
 

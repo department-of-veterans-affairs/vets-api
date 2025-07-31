@@ -2,7 +2,7 @@
 
 module CARMA
   module Client
-    class MuleSoftConfigurationV2 < Common::Client::Configuration::REST
+    class MuleSoftConfiguration < Common::Client::Configuration::REST
       def connection
         Faraday.new(base_path) do |conn|
           conn.use(:breakers, service_name:)
