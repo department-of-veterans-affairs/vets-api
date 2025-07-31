@@ -108,7 +108,7 @@ module AccreditedRepresentativePortal
       end
 
       def pending_submission_attempt_stale?
-        return unless latest_submission_attempt&.aasm_state == 'pending'
+        return false unless latest_submission_attempt&.aasm_state == 'pending'
 
         latest_submission_attempt.updated_at <= self.class::STATUS_WARNING_THRESHOLD.ago
       end
