@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../modules/vre/app/services/vre/notification_email.rb'
-
-puts "NotificationEmail defined? #{defined?(VRE::NotificationEmail)}"  # Add this debug line
+require_relative '../../../modules/vre/app/services/vre/notification_email'
 
 describe VRE::Submit1900Job do
   let(:user_struct) do

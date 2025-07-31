@@ -296,7 +296,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_confirmation_email(user, service, email_type, email_template)
     if user.va_profile_email.blank?
-      Rails.logger.warn('{service} confirmation email was not sent: user missing profile email.',
+      Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
                         { user_uuid: user&.uuid })
       return
     end
