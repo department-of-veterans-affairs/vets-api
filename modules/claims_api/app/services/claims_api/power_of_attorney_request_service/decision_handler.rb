@@ -28,10 +28,12 @@ module ClaimsApi
         ClaimsApi::Logger.log(
           LOG_TAG, message: "Starting the #{@decision} POA workflow for procID: #{@proc_id}."
         )
-        # accepted/declined are validated by the schema so we can trust t is one or the other here
+        # accepted/declined are validated by the schema so we can trust it is one or the other here
         handler_class = DECISION_HANDLERS[@decision]
 
-        make_call_for_decision(handler_class)
+        data, type = make_call_for_decision(handler_class)
+
+        @decision == 'accepted' ? [data, type] : nil
       end
 
       private

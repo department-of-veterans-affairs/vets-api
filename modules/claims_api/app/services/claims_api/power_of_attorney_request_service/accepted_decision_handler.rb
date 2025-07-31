@@ -13,6 +13,7 @@ module ClaimsApi
         @metadata = metadata
         @veteran = veteran
         @claimant = claimant
+        @type = determine_type
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -22,7 +23,10 @@ module ClaimsApi
         )
 
         gathered_data = poa_auto_establishment_gatherer
-        poa_auto_establishment_mapper(gathered_data)
+
+        data, type = poa_auto_establishment_mapper(gathered_data)
+
+        [data, type]
       end
 
       private
@@ -35,11 +39,9 @@ module ClaimsApi
       end
 
       def poa_auto_establishment_mapper(data)
-        type = determine_type
         ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishmentDataMapper.new(
-          type:,
-          data:,
-          veteran: @veteran
+          type: @type,
+          data:
         ).map_data
       end
 

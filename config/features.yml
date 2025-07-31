@@ -107,6 +107,11 @@ features:
       Primarily used for coordinated maintenance windows or temporary system suspensions,
       allowing the team to manage API exposure dynamically without requiring a redeploy.
     enable_in_development: true
+  ask_va_api_patsr_separation:
+    actor_type: user
+    description: >
+      Use new CRM environments for Ask VA API
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -151,9 +156,6 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
-  caregiver_mulesoft_config_v2:
-    actor_type: user
-    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -287,6 +289,12 @@ features:
   champva_enable_llm_on_submit:
     actor_type: user
     description: Enables background LLM validation and logging on form submissions
+  champva_insights_datadog_job:
+    actor_type: user
+    description: Enables the job to publish insights to Datadog
+  champva_claims_llm_validation:
+    actor_type: user
+    description: Enables LLM validation of claims on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -2356,3 +2364,6 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  calculator_constants_versioning:
+    actor_type: 
+    description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation

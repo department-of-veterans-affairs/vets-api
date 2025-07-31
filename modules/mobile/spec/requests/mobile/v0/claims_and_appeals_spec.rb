@@ -297,7 +297,7 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
     context 'when there are cached claims and appeals' do
       let(:params) { { useCache: true, page: { size: 999 } } }
 
-      it 'retrieves the cached claims amd appeals rather than hitting the service' do
+      it 'retrieves the cached claims and appeals rather than hitting the service' do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'claims_and_appeals.json')
         data = Mobile::V0::Adapters::ClaimsOverview.new.parse(JSON.parse(File.read(path)))
         Mobile::V0::ClaimOverview.set_cached(user, data)
@@ -305,7 +305,7 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
         get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
         assert_schema_conform(200)
         parsed_response_contents = response.parsed_body['data']
-        open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
+        open_claim = parsed_response_contents.select { |entry| entry['id'] == '600561746' }[0]
         expect(open_claim.dig('attributes', 'completed')).to be(false)
         expect(open_claim['type']).to eq('claim')
       end
