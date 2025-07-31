@@ -358,10 +358,33 @@ module IvcChampva
         tmpfile.binmode
         tmpfile.write(attachment.file.read)
         tmpfile.flush
+
+        content_type = if attachment.file.respond_to?(:content_type)
+                         attachment.file.content_type
+                       else
+                         content_type_from_extension(ext)
+                       end
+
+        # Define content_type method on the tmpfile singleton
+        tmpfile.define_singleton_method(:content_type) { content_type }
+
         tmpfile
       end
 
       private
+
+      def content_type_from_extension(ext)
+        case ext.downcase
+        when '.pdf'
+          'application/pdf'
+        when '.jpg', '.jpeg'
+          'image/jpeg'
+        when '.png'
+          'image/png'
+        else
+          'application/octet-stream'
+        end
+      end
 
       def applicants_with_ohi(applicants)
         applicants.select do |item|

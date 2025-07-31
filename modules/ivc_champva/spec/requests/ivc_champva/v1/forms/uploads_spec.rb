@@ -345,7 +345,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       context 'when LLM conditions are met' do
         before do
+          # Mock Flipper for both @current_user (which might be set) and nil (which is typical in these tests)
           allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, nil).and_return(true)
         end
 
         it 'includes llm_response in the JSON for vha_10_7959a form' do
@@ -428,6 +430,31 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
           # Should NOT have LLM response data
           expect(resp).not_to have_key('llm_response')
+        end
+
+        it 'successfully processes LLM validation end-to-end' do
+          # Mock background job launching to prevent OCR job from hanging
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data from MockClient
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to include(
+            'doc_type' => 'EOB',
+            'doc_type_matches' => true,
+            'valid' => false,
+            'confidence' => 0.9
+          )
         end
       end
 
