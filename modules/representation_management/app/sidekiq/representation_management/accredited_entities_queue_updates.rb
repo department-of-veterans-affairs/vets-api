@@ -460,7 +460,6 @@ module RepresentationManagement
     # @param record [AccreditedIndividual] The database record for the entity
     # @param entity [Hash] Raw entity data from the GCLAWS API
     # @param entity_type [Symbol] The type of entity (:agent, :attorney, or :representative)
-    # @param additional_fields [Hash] Additional address fields specific to this entity type
     # @return [Hash] JSON structure for address validation
     def individual_entity_json(record, entity, entity_type)
       raw_address = send("raw_address_for_#{entity_type}", entity)
