@@ -616,22 +616,9 @@ features:
     actor_type: user
     description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
-  decision_review_notify_4142_failures:
-    actor_type: user
-    description: Enable sending an email if a 4142 submission is not successful in Lighthouse
-    enable_in_development: true
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_notification_form_callbacks:
-    actor_type: user
-    description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
-  decision_review_notification_evidence_callbacks:
-    actor_type: user
-    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for evidence
-  decision_review_notification_secondary_form_callbacks:
-    actor_type: user
-    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
   decision_review_form4142_use_2024_template:
     actor_type: user
     description: Enables the use of the 2024 template for form 4142 in decision review applications
