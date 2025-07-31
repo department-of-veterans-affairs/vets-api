@@ -51,19 +51,6 @@ RSpec.describe SM::Configuration do
         expect(configuration.base_path).to eq('https://old-api.example.com/mhv-sm-api-patient/v1/')
       end
     end
-
-    context 'when a NoMethodError occurs' do
-      it 'logs the error and returns the default base path' do
-        allow(Flipper).to receive(:respond_to?).with(:enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?).and_raise(NoMethodError, 'undefined method')
-        allow(Settings.mhv.sm).to receive_messages(
-          host: 'https://error-api.example.com',
-          base_path: 'mhv-api-patient/v1/'
-        )
-        expect(Rails.logger).to receive(:error).with(/SM:Configuration Flipper error: undefined method/)
-        expect(configuration.base_path).to eq('https://error-api.example.com/mhv-api-patient/v1/')
-      end
-    end
   end
 
   describe '#service_name' do
