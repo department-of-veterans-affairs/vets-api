@@ -374,10 +374,6 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-
-    scope format: false do
-      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
-    end
   end
 
   root 'v0/example#index', module: 'v0'
