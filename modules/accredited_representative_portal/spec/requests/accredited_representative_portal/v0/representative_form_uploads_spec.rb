@@ -215,8 +215,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end.not_to change(PersistentAttachments::VAForm, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
-                                                     'code' => '422', 'status' => '422' }] })
+      expect(parsed_response).to eq({
+                                      'errors' => [{
+                                        'title' => 'Unprocessable Entity',
+                                        'detail' => 'Invalid form',
+                                        'code' => '422',
+                                        'status' => '422'
+                                      }]
+                                    })
     end
   end
 
@@ -265,8 +271,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
-                                                     'code' => '422', 'status' => '422' }] })
+      expect(parsed_response).to eq({
+                                      'errors' => [{
+                                        'title' => 'Unprocessable Entity',
+                                        'detail' => 'Invalid form',
+                                        'code' => '422',
+                                        'status' => '422'
+                                      }]
+                                    })
     end
   end
 end
