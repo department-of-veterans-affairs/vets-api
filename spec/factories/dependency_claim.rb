@@ -143,6 +143,7 @@ FactoryBot.define do
       }.to_json
     }
   end
+
   factory :dependency_claim_674_only, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674' }
 
