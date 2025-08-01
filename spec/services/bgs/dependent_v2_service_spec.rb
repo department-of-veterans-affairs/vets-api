@@ -321,7 +321,7 @@ RSpec.describe BGS::DependentV2Service do
 
   context 'claims evidence enabled' do
     let(:claim) { build(:dependency_claim_v2) }
-    let(:pa) { build(:claim_evidence) }
+    let(:pa) { build(:claim_evidence, id: 23) }
     let(:ssn) { '123456789' }
     let(:folder_identifier) { "VETERAN:SSN:#{ssn}" }
     let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
@@ -349,14 +349,15 @@ RSpec.describe BGS::DependentV2Service do
                                                     "#{stats_key}.submit_pdf.begin")
       expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return uploader
 
-      expect(uploader).to receive(:upload_file).with(pdf_path, '686C-674-V2', claim.id, nil, claim.document_type,
-                                                     claim.created_at)
-      expect(uploader).to receive(:upload_file).with(pdf_path, '21-674-V2', claim.id, nil, '142', claim.created_at)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674-V2',
+                                                                   doctype: claim.document_type)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '21-674-V2',
+                                                                   doctype: '142')
 
       expect(claim).to receive(:persistent_attachments).and_return([pa])
       expect(stamper).to receive(:run).and_return(pdf_path)
-      expect(uploader).to receive(:upload_file).with(pdf_path, '21-674-V2', claim.id, nil, pa.document_type,
-                                                     claim.created_at)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, pa.id, file_path: pdf_path, form_id: '21-674-V2',
+                                                                          doctype: pa.document_type)
 
       expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")

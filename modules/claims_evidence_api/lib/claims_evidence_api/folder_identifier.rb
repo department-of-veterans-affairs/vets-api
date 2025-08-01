@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'claims_evidence_api/exceptions/x_folder_uri'
+require 'claims_evidence_api/exceptions/folder_identifier'
 
 module ClaimsEvidenceApi
   # value used in request header to identify a folder location
-  class XFolderUri
-    include ClaimsEvidenceApi::Exceptions::XFolderUri
+  class FolderIdentifier
+    include ClaimsEvidenceApi::Exceptions::FolderIdentifier
 
     # valid associated types
     TYPES = {
@@ -34,7 +34,7 @@ module ClaimsEvidenceApi
       "#{folder_type}:#{identifier_type}:#{id}"
     end
 
-    # check if an assembled x_folder_uri is valid
+    # check if an assembled folder_identifier is valid
     #
     # @param folder_identifier [String] an x_folder_uri
     #

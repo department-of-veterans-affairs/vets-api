@@ -3,8 +3,8 @@
 module ClaimsEvidenceApi
   # collection of module exceptions
   module Exceptions
-    # x_folder_uri exceptions
-    module XFolderUri
+    # folder_identifier exceptions
+    module FolderIdentifier
       # invalid folder type
       class InvalidFolderType < StandardError; end
       # invalid indentifier type for folder type

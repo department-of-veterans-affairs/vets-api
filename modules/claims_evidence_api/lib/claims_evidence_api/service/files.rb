@@ -13,11 +13,11 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def upload(file_path, provider_data:)
-        raise UndefinedXFolderURI unless x_folder_uri
+        raise UndefinedXFolderURI unless folder_identifier
 
-        validate_folder_identifier(x_folder_uri)
+        validate_folder_identifier(folder_identifier)
 
-        headers = { 'X-Folder-URI' => x_folder_uri }
+        headers = { 'X-Folder-URI' => folder_identifier }
         params = post_params(file_path, provider_data)
 
         perform :post, 'files', params, headers
@@ -53,11 +53,11 @@ module ClaimsEvidenceApi
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
       def overwrite(uuid, file_path, provider_data:)
-        raise UndefinedXFolderURI unless x_folder_uri
+        raise UndefinedXFolderURI unless folder_identifier
 
-        validate_folder_identifier(x_folder_uri)
+        validate_folder_identifier(folder_identifier)
 
-        headers = { 'X-Folder-URI' => x_folder_uri }
+        headers = { 'X-Folder-URI' => folder_identifier }
         params = post_params(file_path, provider_data)
 
         perform :post, "files/#{uuid}", params, headers
