@@ -82,15 +82,20 @@ module ClaimsApi
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
 
-          # Will either get null when a decision is declined or
-          # a poa.id for record saved in our DB when decision is accepted
-          decision_response = process_poa_decision(decision:, proc_id:, representative_id:, poa_code: request.poa_code,
-                                                   metadata: request.metadata, veteran: veteran_data,
-                                                   claimant: claimant_data)
-          # updates the request with the decision in BGS (BEP)
-          manage_representative_update_poa_request(proc_id:, secondary_status: decision,
-                                                   declined_reason: form_attributes['declinedReason'],
-                                                   service: manage_representative_service)
+          # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            # Will either get null when a decision is declined or
+            # a poa.id for record saved in our DB when decision is accepted
+            decision_response = process_poa_decision(
+              decision:, proc_id:, representative_id:, poa_code: request.poa_code, metadata: request.metadata,
+              veteran: veteran_data, claimant: claimant_data
+            )
+            # updates the request with the decision in BGS (BEP)
+            manage_representative_update_poa_request(
+              proc_id:, secondary_status: decision, declined_reason: form_attributes['declinedReason'],
+              service: manage_representative_service
+            )
+          end
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
           # Two different responses needed, if declined no location URL is required
