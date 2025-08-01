@@ -21,6 +21,17 @@ class Form526InProgressFormModifier
     end
   end
 
+  def change_return_url(in_progress_form, current_in_progress_form_id)
+    Rails.logger.info('Updating return URL for in-progress',
+                      current_in_progress_form_id:,
+                      new_return_url: NEW_RETURN_URL,
+                      old_return_url: in_progress_form.metadata['return_url'],
+                      dry_run: true)
+    # Dry runs.. dont update yet
+    # in_progress_form.metadata['return_url'] = NEW_RETURN_URL
+    # in_progress_form.save!
+  end
+
   def perform(ipf_id_array)
     in_progress_forms = validate_ipf_id_array_return_ipfs(ipf_id_array)
 
@@ -32,17 +43,9 @@ class Form526InProgressFormModifier
 
       # TODO: Check this is the correct acknowldegement
       if form_parsed.dig('view:patient_acknowledgement', 'view:acknowledgement') == true
-        Rails.logger.info('Updating return URL for in-progress',
-                          current_in_progress_form_id:,
-                          new_return_url: NEW_RETURN_URL,
-                          old_return_url: in_progress_form.metadata['return_url'],
-                          dry_run: true)
-        # Dry runs.. dont update yet
-        # in_progress_form.metadata['return_url'] = NEW_RETURN_URL
-        # in_progress_form.save!
+        change_return_url(in_progress_form, current_in_progress_form_id)
       else
-        Rails.logger.info('No update needed for in-progress form', in_progress_form_id: in_progress_form.id,
-                                                                   dry_run: true)
+        Rails.logger.info('No update needed for in-progress form', current_in_progress_form_id:, dry_run: true)
       end
     end
   rescue => e
