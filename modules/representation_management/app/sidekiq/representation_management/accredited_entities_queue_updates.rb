@@ -293,7 +293,7 @@ module RepresentationManagement
                                   address_line3: rep['workAddress3'],
                                   zip_code: rep['workZip'],
                                   raw_address: raw_address_for_representative(rep),
-                                  registration_number: rep['representative']['id']
+                                  registration_number: rep.dig('representative', 'id')
                                 })
     end
 
