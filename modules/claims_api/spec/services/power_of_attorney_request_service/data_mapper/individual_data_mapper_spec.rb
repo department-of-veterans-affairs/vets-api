@@ -15,4 +15,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataMapper::IndividualDataMap
 
     expect(res).to eq(individual_mapped_form_data)
   end
+
+  it 'raises an error if no rep is found' do
+    expect do
+      subject.send(:validate_representative!, nil, '083')
+    end.to raise_error(Common::Exceptions::ResourceNotFound)
+  end
 end
