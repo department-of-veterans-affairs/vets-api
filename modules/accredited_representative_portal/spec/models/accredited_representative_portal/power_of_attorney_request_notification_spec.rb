@@ -8,8 +8,11 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
   describe 'validations' do
     it {
-      expect(subject).to validate_inclusion_of(:type).in_array(%w[requested declined expiring
-                                                                  expired])
+      expected_enum_values = described_class::PERMITTED_TYPES.index_with { |v| v }
+
+      expect(subject).to define_enum_for(:type)
+        .with_values(expected_enum_values)
+        .backed_by_column_of_type(:string)
     }
   end
 
@@ -24,45 +27,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
         .with_primary_key('notification_id')
         .optional
     }
-  end
-
-  describe 'scopes' do
-    let!(:requested_notification) do
-      create(:power_of_attorney_request_notification, type: 'requested')
-    end
-    let!(:declined_notification) do
-      create(:power_of_attorney_request_notification, type: 'declined')
-    end
-    let!(:expiring_notification) do
-      create(:power_of_attorney_request_notification, type: 'expiring')
-    end
-    let!(:expired_notification) do
-      create(:power_of_attorney_request_notification, type: 'expired')
-    end
-
-    it 'returns requested notifications' do
-      expect(described_class.requested).to include(requested_notification)
-      expect(described_class.requested).not_to include(declined_notification, expiring_notification,
-                                                       expired_notification)
-    end
-
-    it 'returns declined notifications' do
-      expect(described_class.declined).to include(declined_notification)
-      expect(described_class.declined).not_to include(requested_notification, expiring_notification,
-                                                      expired_notification)
-    end
-
-    it 'returns expiring notifications' do
-      expect(described_class.expiring).to include(expiring_notification)
-      expect(described_class.expiring).not_to include(requested_notification, declined_notification,
-                                                      expired_notification)
-    end
-
-    it 'returns expired notifications' do
-      expect(described_class.expired).to include(expired_notification)
-      expect(described_class.expired).not_to include(requested_notification, declined_notification,
-                                                     expiring_notification)
-    end
   end
 
   describe '#status' do
