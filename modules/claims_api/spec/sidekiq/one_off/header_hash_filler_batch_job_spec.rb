@@ -22,6 +22,13 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerBatchJob, type: :job do
       subject.perform
     end
 
+    it 'skips processing if the feature flag is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_run_header_hash_filler_job).and_return false
+      expect_any_instance_of(described_class).not_to receive(:enqueue_jobs)
+      expect_any_instance_of(described_class).to receive(:log)
+      subject.perform
+    end
+
     context 'when no records need processing' do
       it 'skips processing and alerts' do
         ClaimsApi::PowerOfAttorney.update_all(header_hash: 'some_value') # rubocop:disable Rails/SkipsModelValidations
