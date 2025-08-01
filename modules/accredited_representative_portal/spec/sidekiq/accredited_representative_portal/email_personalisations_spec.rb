@@ -37,7 +37,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                 }, power_of_attorney_request: poa_request)
 
         form = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyForm)
-        allow(form).to receive(:data).and_return({
+        allow(form).to receive(:parsed_data).and_return({
                                                    'veteran' => { 'name' => { 'first' => 'John',
                                                                               'last' => 'Doe' } }
                                                  })
