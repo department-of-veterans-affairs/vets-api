@@ -343,6 +343,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_vaec_cie_endpoints:
+    actor_type: user
+    description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
+    enable_in_development: false
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page

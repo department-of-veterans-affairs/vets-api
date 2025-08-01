@@ -90,4 +90,74 @@ describe V2::Lorota::Client do
       subject.data(token:)
     end
   end
+
+  describe 'feature flag behavior' do
+    let(:token) { 'test_token' }
+    let(:faraday_response) { double('Faraday::Response', body: { 'token' => token }.to_json) }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
+      allow_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_return(faraday_response)
+    end
+
+    context 'when check_in_experience_use_vaec_cie_endpoints flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_use_vaec_cie_endpoints').and_return(false)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+      end
+
+      it 'uses original settings' do
+        expect(subject.send(:url)).to eq(Settings.check_in.lorota_v2.url)
+        expect(subject.send(:base_path)).to eq(Settings.check_in.lorota_v2.base_path)
+        expect(subject.send(:api_id)).to eq(Settings.check_in.lorota_v2.api_id)
+        expect(subject.send(:api_key)).to eq(Settings.check_in.lorota_v2.api_key)
+      end
+
+      it 'makes token request to original endpoint' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with('/dev/token')
+        subject.token
+      end
+
+      it 'makes data request to original endpoint' do
+        expect_any_instance_of(Faraday::Connection).to receive(:get)
+          .with("/dev/data/#{check_in.uuid}")
+        subject.data(token:)
+      end
+    end
+
+    context 'when check_in_experience_use_vaec_cie_endpoints flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_use_vaec_cie_endpoints').and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+      end
+
+      it 'uses v2 settings' do
+        expect(subject.send(:url)).to eq(Settings.check_in.lorota_v2.url_v2)
+        expect(subject.send(:base_path)).to eq(Settings.check_in.lorota_v2.base_path_v2)
+        expect(subject.send(:api_id)).to eq(Settings.check_in.lorota_v2.api_id_v2)
+        expect(subject.send(:api_key)).to eq(Settings.check_in.lorota_v2.api_key_v2)
+      end
+
+      it 'makes token request to v2 endpoint' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with('/dev/token')
+        subject.token
+      end
+
+      it 'makes data request to v2 endpoint' do
+        expect_any_instance_of(Faraday::Connection).to receive(:get)
+          .with("/dev/data/#{check_in.uuid}")
+        subject.data(token:)
+      end
+
+      it 'uses v2 headers in requests' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything) do |&block|
+          request = Faraday::Request.new
+          block.call(request)
+          expect(request.headers['x-api-key']).to eq(Settings.check_in.lorota_v2.api_key_v2)
+          expect(request.headers['x-apigw-api-id']).to eq(Settings.check_in.lorota_v2.api_id_v2)
+        end
+        subject.token
+      end
+    end
+  end
 end
