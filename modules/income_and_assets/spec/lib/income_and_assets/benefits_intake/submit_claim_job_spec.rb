@@ -20,13 +20,14 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
         let(:response) { double('response') }
         let(:pdf_path) { 'random/path/to/pdf' }
         let(:location) { 'test_location' }
+        let(:omit_esign_stamp) { true }
 
         before do
           allow(Flipper).to receive(:enabled?).with(:pension_income_and_assets_overflow_pdf_redesign,
                                                     anything).and_return(extras_redesign)
           job.instance_variable_set(:@claim, claim)
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
-          allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: }).and_return(pdf_path)
+          allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
           allow(claim).to receive(:persistent_attachments).and_return([])
 
           job.instance_variable_set(:@intake_service, service)
@@ -42,7 +43,7 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
         it 'submits the saved claim successfully' do
           allow(job).to receive(:process_document).and_return(pdf_path)
 
-          expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: }).and_return(pdf_path)
+          expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
           expect(Lighthouse::Submission).to receive(:create)
           expect(Lighthouse::SubmissionAttempt).to receive(:create)
           expect(Datadog::Tracing).to receive(:active_trace)
