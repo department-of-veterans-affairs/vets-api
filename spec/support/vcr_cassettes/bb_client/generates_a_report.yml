@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+    uri: "<MHV_HOST>/v1/bluebutton/ess/geteligibledataclass"
     body:
       encoding: US-ASCII
       string: ''
@@ -36,7 +36,7 @@ http_interactions:
   recorded_at: Tue, 31 Jan 2017 00:01:48 GMT
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/generate"
+    uri: "<MHV_HOST>/v1/bluebutton/ess/generate"
     body:
       encoding: UTF-8
       string: '{"fromDate":"Wed, 31 Jan 2007 00:01:47 GMT","toDate":"Tue, 31 Jan 2017
