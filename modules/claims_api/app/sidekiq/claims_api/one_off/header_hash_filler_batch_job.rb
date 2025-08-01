@@ -28,7 +28,7 @@ module ClaimsApi::OneOff
       enqueue_jobs 'ClaimsApi::AutoEstablishedClaim', counts[:aecs], 2 if counts[:aecs].positive?
     rescue => e
       log level: :error,
-          detail: 'Failed to enqueue jobs for header hash filling',
+          details: 'Failed to enqueue jobs for header hash filling',
           error_class: e.class.name,
           error_message: e.message
     end
