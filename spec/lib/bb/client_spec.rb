@@ -18,7 +18,6 @@ describe 'bb client' do
   let(:client) { @client }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
     VCR.use_cassette 'bb_client/apigw_session' do
       @client ||= begin
         client = BB::Client.new(session: { user_id: '21207668' })
