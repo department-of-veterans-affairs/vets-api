@@ -15,6 +15,7 @@ module DebtsApi
       configuration DebtManagementCenter::DebtsConfiguration
 
       def initialize(user, files)
+        user = OpenStruct.new(uuid: user['uuid'], ssn: user['ssn'], participant_id: user['participant_id'])
         super(user)
         @files = files
       end
@@ -23,13 +24,8 @@ module DebtsApi
         validate_files_present
         validate_files
 
-        DebtsApi::V0::DigitalDisputeJob.perform(user, base_64_files)
         send_to_dmc
         in_progress_form&.destroy
-        {
-          success: true,
-          message: 'Digital dispute submission received successfully'
-        }
       end
 
       private
