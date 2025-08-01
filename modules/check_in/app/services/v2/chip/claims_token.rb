@@ -19,8 +19,6 @@ module V2
         @static ||= Base64.encode64("#{tmp_api_username}:#{tmp_api_user}")
       end
 
-      private
-
       def use_vaec_cie_endpoints?
         Flipper.enabled?('check_in_experience_use_vaec_cie_endpoints') || false
       end
