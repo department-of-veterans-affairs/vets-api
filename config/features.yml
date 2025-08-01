@@ -150,9 +150,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_request_duration_monitoring:
-    actor_type: user
-    description: Enables logging of 10-10CG request durations to StatsD
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
