@@ -152,11 +152,42 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
-  describe '#optionally_stamp_form' do
-    subject { described_class.optionally_stamp_form(file_path, fill_options, submit_date) }
+  describe '#should_stamp_form?' do
+    subject { described_class.should_stamp_form?(form_id, fill_options, submit_date) }
+
+    let(:form_id) { '21-0781V2' }
+    let(:fill_options) { { extras_redesign: true } }
+    let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
+
+    context 'when not given the extras_redesign fill option' do
+      let(:fill_options) { {} }
+
+      it 'returns false' do
+        expect(subject).to eq(false)
+      end
+
+      context 'when filling out a non-redesigned dependent form' do
+        let(:form_id) { '686C-674' }
+
+        it 'returns true' do
+          expect(subject).to eq(true)
+        end
+      end
+    end
+
+    context 'when given the omit_esign_stamp fill option' do
+      let(:fill_options) { { omit_esign_stamp: true, extras_redesign: true } }
+
+      it 'returns false' do
+        expect(subject).to eq(false)
+      end
+    end
+  end
+
+  describe '#stamp_form' do
+    subject { described_class.stamp_form(file_path, submit_date) }
 
     let(:file_path) { 'tmp/test.pdf' }
-    let(:fill_options) { { extras_redesign: true } }
     let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
     let(:datestamp_pdf) { instance_double(PDFUtilities::DatestampPdf) }
     let(:stamped_path) { 'tmp/test_stamped.pdf' }
@@ -192,24 +223,6 @@ describe PdfFill::Filler, type: :model do
       expect(File).to receive(:delete).with(stamped_path)
 
       expect(subject).to eq(final_path)
-    end
-
-    context 'when not given the extras_redesign fill option' do
-      let(:fill_options) { {} }
-
-      it 'returns the original path' do
-        expect(File).not_to receive(:delete)
-        expect(subject).to eq(file_path)
-      end
-    end
-
-    context 'when given the omit_esign_stamp fill option' do
-      let(:fill_options) { { omit_esign_stamp: true, extras_redesign: true } }
-
-      it 'returns the original path' do
-        expect(File).not_to receive(:delete)
-        expect(subject).to eq(file_path)
-      end
     end
 
     context 'when an error occurs' do
