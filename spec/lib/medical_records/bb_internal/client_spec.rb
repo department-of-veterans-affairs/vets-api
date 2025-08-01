@@ -28,7 +28,6 @@ describe BBInternal::Client do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
         client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
