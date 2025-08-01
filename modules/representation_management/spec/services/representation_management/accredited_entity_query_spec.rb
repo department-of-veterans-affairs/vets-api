@@ -11,13 +11,13 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
   let!(:individual6) { create(:accredited_individual, :with_location, full_name: 'aaaa') }
   let!(:individual7) { create(:accredited_individual, :with_location, full_name: 'aaaabcd') }
 
-  let!(:organization1) { create(:accredited_organization, :with_location, name: 'Bob Law Firm') }
-  let!(:organization2) { create(:accredited_organization, :with_location, name: 'Bob Smith Firm') }
-  let!(:organization3) { create(:accredited_organization, :with_location, name: 'aaaabcdefgh') }
-  let!(:organization4) { create(:accredited_organization, :with_location, name: 'aaaabcdefg') }
-  let!(:organization5) { create(:accredited_organization, :with_location, name: 'aaaabcdefghij') }
-  let!(:organization6) { create(:accredited_organization, :with_location, name: 'aaaabcdef') }
-  let!(:organization7) { create(:accredited_organization, :with_location, name: 'aaaabcdefghi') }
+  let!(:organization1) { create(:accredited_organization, name: 'Bob Law Firm') }
+  let!(:organization2) { create(:accredited_organization, name: 'Bob Smith Firm') }
+  let!(:organization3) { create(:accredited_organization, name: 'aaaabcdefgh') }
+  let!(:organization4) { create(:accredited_organization, name: 'aaaabcdefg') }
+  let!(:organization5) { create(:accredited_organization, name: 'aaaabcdefghij') }
+  let!(:organization6) { create(:accredited_organization, name: 'aaaabcdef') }
+  let!(:organization7) { create(:accredited_organization, name: 'aaaabcdefghi') }
 
   describe '#results' do
     it 'returns nothing for a blank query string' do
