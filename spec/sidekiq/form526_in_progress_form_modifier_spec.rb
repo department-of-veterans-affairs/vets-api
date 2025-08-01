@@ -105,7 +105,7 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
         expect(Rails.logger).to receive(:info).with('Running InProgress forms modifier for 1 forms')
         expect(Rails.logger).to receive(:info).with(
           'Updating return URL for in-progress',
-          in_progress_form_id: form_with_acknowledgement.id,
+          current_in_progress_form_id: form_with_acknowledgement.id,
           new_return_url: '/supporting-evidence/private-medical-records-authorize-release',
           old_return_url: '/veteran-information',
           dry_run: true
@@ -156,17 +156,17 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
         expect(Rails.logger).to receive(:info).with('Running InProgress forms modifier for 3 forms')
         expect(Rails.logger).to receive(:info).with(
           'No update needed for in-progress form',
-          in_progress_form_id: form_without_acknowledgement.id,
+          current_in_progress_form_id: form_without_acknowledgement.id,
           dry_run: true
         )
         expect(Rails.logger).to receive(:info).with(
           'No update needed for in-progress form',
-          in_progress_form_id: form_with_nil_acknowledgement.id,
+          current_in_progress_form_id: form_with_nil_acknowledgement.id,
           dry_run: true
         )
         expect(Rails.logger).to receive(:info).with(
           'No update needed for in-progress form',
-          in_progress_form_id: form_without_patient_section.id,
+          current_in_progress_form_id: form_without_patient_section.id,
           dry_run: true
         )
 
@@ -198,14 +198,14 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
         expect(Rails.logger).to receive(:info).with('Running InProgress forms modifier for 2 forms')
         expect(Rails.logger).to receive(:info).with(
           'Updating return URL for in-progress',
-          in_progress_form_id: form_with_acknowledgement.id,
+          current_in_progress_form_id: form_with_acknowledgement.id,
           new_return_url: '/supporting-evidence/private-medical-records-authorize-release',
           old_return_url: '/veteran-information',
           dry_run: true
         )
         expect(Rails.logger).to receive(:info).with(
           'No update needed for in-progress form',
-          in_progress_form_id: form_without_acknowledgement.id,
+          current_in_progress_form_id: form_without_acknowledgement.id,
           dry_run: true
         )
 
@@ -219,7 +219,8 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
           'Error in InProgress forms modifier',
           in_progress_form_ids: [],
           class: 'Form526InProgressFormModifier',
-          message: 'ipf_id_array cannot be empty'
+          message: 'ipf_id_array cannot be empty',
+          current_in_progress_form_id: nil
         )
 
         expect { modifier.perform([]) }.not_to raise_error
@@ -240,7 +241,8 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
           'Error in InProgress forms modifier',
           in_progress_form_ids: [form.id],
           class: 'Form526InProgressFormModifier',
-          message: 'Database connection error'
+          message: 'Database connection error',
+          current_in_progress_form_id: nil
         )
 
         expect { modifier.perform([form.id]) }.not_to raise_error
