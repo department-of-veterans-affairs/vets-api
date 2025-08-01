@@ -37,8 +37,6 @@ module V2
         @session_id ||= "#{redis_session_prefix}_#{tmp_api_id}"
       end
 
-      private
-
       def use_vaec_cie_endpoints?
         Flipper.enabled?('check_in_experience_use_vaec_cie_endpoints') || false
       end
