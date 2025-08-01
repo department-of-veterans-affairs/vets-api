@@ -24,14 +24,13 @@ module EVSS
         provider_facilities = incoming_data.dig('form4142', 'providerFacility')
         return incoming_data if provider_facilities.blank?
 
-        provider_facilities.map! do |facility|
+        incoming_data['form4142']['providerFacility'] = provider_facilities.map do |facility|
           treated_disability_hash = facility['treatedDisabilityNames']
           if treated_disability_hash.blank?
             facility.merge('conditionsTreated' => '')
           else
-            facility.merge('conditionsTreated' => treated_disability_hash.select do |_, checked|
-              checked
-            end.keys.join(', '))
+            treated_conditions = treated_disability_hash.select { |_, checked| checked }.keys.join(', ')
+            facility.merge('conditionsTreated' => treated_conditions)
           end
         end
         incoming_data
