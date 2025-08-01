@@ -52,7 +52,9 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
       expect(transformed_data.size).to eq(3)
       expect(transformed_data[0]['conditionsTreated']).to eq('PTSD (post traumatic stress disorder)')
       expect(transformed_data[1]['conditionsTreated']).to eq('Coding Trauma')
-      expect(transformed_data[2]['conditionsTreated']).to eq('PTSD (post traumatic stress disorder), Coding Trauma, Nasal Trauma')
+      expect(transformed_data[2]['conditionsTreated']).to eq(
+        'PTSD (post traumatic stress disorder), Coding Trauma, Nasal Trauma'
+      )
     end
 
     it 'handles empty provider facilities' do
