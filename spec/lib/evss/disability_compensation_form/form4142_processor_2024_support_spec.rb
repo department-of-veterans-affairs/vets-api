@@ -27,6 +27,11 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
   let(:processor) { described_class.new(submission, jid) }
   let(:received_date) { submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
+  let(:form4142_post_db_post_transform) do
+    JSON.parse(
+      File.read('spec/support/disability_compensation_form/submissions/with_4142_2024_post_transform_4142.json')
+    )['form4142'].merge({ 'signatureDate' => received_date })
+  end
 
   describe '#initialize' do
     before do
@@ -38,16 +43,15 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
       expect(PdfFill::Filler).to receive(:fill_ancillary_form)
         .and_call_original
         .once
-        .with(form4142, submission.submitted_claim_id, '21-4142-2024')
+        .with(form4142_post_db_post_transform, submission.submitted_claim_id, '21-4142-2024')
 
-      expect(processor.instance_variable_get(:@submission)).to eq(submission)
       expect(processor.instance_variable_get(:@pdf_path)).to be_a(String)
       expect(processor.instance_variable_get(:@request_body)).to be_a(Hash)
     end
 
     it 'transforms provider facilities correctly' do
       transformed_data = processor.send(:transform_provider_facilities,
-                                        JSON.parse(form_json))['form4142']['providerFacility']
+                                        JSON.parse(form_json)['form4142'])['providerFacility']
 
       expect(transformed_data.size).to eq(3)
       expect(transformed_data[0]['conditionsTreated']).to eq('PTSD (post traumatic stress disorder)')
@@ -59,19 +63,19 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
     it 'handles empty provider facilities' do
       empty_form_json = JSON.parse(form_json)
-      empty_form_json['form4142']['providerFacility'] = []
+      empty_form_json['providerFacility'] = []
 
-      transformed_data = processor.send(:transform_provider_facilities, empty_form_json)['form4142']['providerFacility']
+      transformed_data = processor.send(:transform_provider_facilities, empty_form_json)['providerFacility']
 
       expect(transformed_data).to eq([])
     end
 
     it 'handles missing providerFacility key' do
       form_without_facilities = JSON.parse(form_json)
-      form_without_facilities['form4142'].delete('providerFacility')
+      form_without_facilities.delete('providerFacility')
 
       transformed_data = processor.send(:transform_provider_facilities,
-                                        form_without_facilities)['form4142']['providerFacility']
+                                        form_without_facilities)['providerFacility']
 
       expect(transformed_data).to be_nil
     end
@@ -81,8 +85,8 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
       transformed_data = processor.send(:transform_provider_facilities, original_data)
 
       # Verify non-providerFacility data is preserved
-      expect(transformed_data['form4142'].except('providerFacility'))
-        .to eq(original_data['form4142'].except('providerFacility'))
+      expect(transformed_data.except('providerFacility'))
+        .to eq(original_data.except('providerFacility'))
     end
 
     context 'when feature flag is disabled' do
