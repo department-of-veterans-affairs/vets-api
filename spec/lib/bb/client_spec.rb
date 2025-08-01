@@ -18,7 +18,7 @@ describe 'bb client' do
   let(:client) { @client }
 
   before do
-    VCR.use_cassette 'bb_client/apigw_session' do
+    VCR.use_cassette 'bb_client/session' do
       @client ||= begin
         client = BB::Client.new(session: { user_id: '21207668' })
         client.authenticate
@@ -31,7 +31,7 @@ describe 'bb client' do
     before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
     it 'logs failed extract statuses', :vcr do
-      VCR.use_cassette('bb_client/apigw_gets_a_list_of_extract_statuses') do
+      VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
         msg = 'Final health record refresh contained one or more error statuses'
         expect(Sentry).to receive(:set_extras).with({ refresh_failures: %w[Appointments ImagingStudy] })
         expect(Sentry).to receive(:capture_message).with(msg, level: 'warning')
