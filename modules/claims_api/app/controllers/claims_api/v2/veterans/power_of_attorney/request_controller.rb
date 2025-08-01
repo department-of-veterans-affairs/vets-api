@@ -102,7 +102,7 @@ module ClaimsApi
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
               get_poa_response, view: :index_or_show, root: :data
             ), status: :ok, location: url_for(
-              controller: 'power_of_attorney/base', action: 'show', id: decision_response.id, veteranId: vet_icn
+              controller: 'power_of_attorney/base', action: 'status', id: decision_response.id, veteranId: vet_icn
             )
           end
         end
