@@ -1712,7 +1712,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       end
     end
   end
-  
+
   describe '#individual_representative_json' do
     let(:record) { instance_double(AccreditedIndividual, id: 42) }
     let(:rep) do
