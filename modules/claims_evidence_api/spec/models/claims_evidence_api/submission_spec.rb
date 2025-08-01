@@ -50,7 +50,8 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
       expect(submission).to receive(:folder_identifier=).and_call_original
 
       expected_uri = 'VETERAN:SSN:123456789'
-      expected_data = { __: ['TEST', 42], foo: 'bar', folder_identifier: [expected_uri], latest_folder_identifier: expected_uri }
+      expected_data = { __: ['TEST', 42], foo: 'bar', folder_identifier: [expected_uri],
+                        latest_folder_identifier: expected_uri }
       submission.update_reference_data('TEST', 42, foo: 'bar', folder_identifier: expected_uri)
       expect(submission.reference_data).to eq expected_data.deep_stringify_keys
       expect(submission.folder_identifier).to eq expected_uri

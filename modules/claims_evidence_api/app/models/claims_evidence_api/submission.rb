@@ -61,7 +61,7 @@ class ClaimsEvidenceApi::Submission < Submission
     self.reference_data['__'] = args
 
     # ensure folder identifier value is checked and appended
-    [:folder_identifier, :x_folder_uri].each do |fid_key|
+    %i[folder_identifier x_folder_uri].each do |fid_key|
       self.folder_identifier = kwargs[fid_key] if kwargs[fid_key].present?
     end
 

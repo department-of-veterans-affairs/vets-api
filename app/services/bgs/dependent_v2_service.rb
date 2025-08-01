@@ -121,8 +121,8 @@ module BGS
 
       if claim.submittable_686?
         form_id = '686C-674-V2'
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
+        file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
 
       form_id = submit_674_via_claims_evidence(claim) if claim.submittable_674?
@@ -136,14 +136,14 @@ module BGS
 
       form_674_pdfs = []
       claim.parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claim.created_at, form_id, index)
-        file_uuid = claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
-        form_674_pdfs << [file_uuid, pdf_path]
+        file_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claim.created_at, form_id, index)
+        file_uuid = claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
+        form_674_pdfs << [file_uuid, file_path]
       end
 
       # compensate for the abnormal nature of 674 V2 submissions
       if form_674_pdfs.length > 1
-        file_uuid = form_674_pdfs.pluck(0) # linter wants `.pluck`, not `.map { |fp| fp[0] }`
+        file_uuid = form_674_pdfs.map { |fp| fp[0] } # rubocop:disable Rails/Pluck
         submission = claims_evidence_uploader.submission
         submission.update_reference_data(students: form_674_pdfs)
         submission.file_uuid = file_uuid.to_s # set to stringified array
@@ -157,8 +157,8 @@ module BGS
       stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
-        pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, pa.id, doctype, claim.created_at)
+        file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+        claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
       end
     end
 
