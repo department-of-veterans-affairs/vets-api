@@ -340,6 +340,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
         allow(service).to receive(:get_poa_request).and_return({})
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
           .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
       end
@@ -455,6 +458,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
       end
 
@@ -496,16 +502,56 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
-    context 'when id is present but invalid' do
-      let(:id) { '1' }
+    context 'validating the params' do
       let(:decision) { 'ACCEPTED' }
       let(:representative_id) { '456' }
+      let(:poa_code) { '123' }
+      let(:representative) do
+        OpenStruct.new(
+          representative_id: '789'
+        )
+      end
 
-      it 'raises an error' do
-        mock_ccg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
+      context 'registration number is present but does not match the record' do
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+          allow_any_instance_of(described_class).to receive(:validate_accredited_representative)
+            .with(anything)
+            .and_return(nil)
+
+          instance = described_class.new
+          instance.instance_variable_set(:@representative, representative)
+          allow(described_class).to receive(:new).and_return(instance)
+        end
+
+        let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+
+        it 'raises an error' do
+          mock_ccg(scopes) do |auth_header|
             decide_request_with(id:, decision:, auth_header:, representative_id:)
+
             expect(response).to have_http_status(:not_found)
+            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+              "The accredited representative with registration number #{representative_id} does not match " \
+              "poa code: #{poa_code}."
+            )
+          end
+        end
+      end
+
+      context 'when id is present but invalid' do
+        let(:id) { '1' }
+
+        it 'raises an error' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
+              decide_request_with(id:, decision:, auth_header:, representative_id:)
+
+              expect(response).to have_http_status(:not_found)
+              expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+                "Could not find Power of Attorney request with id: #{id}"
+              )
+            end
           end
         end
       end
