@@ -342,6 +342,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(service).to receive(:get_poa_request).and_return({})
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
           .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -456,6 +457,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       end
 
       it 'calls the decision handler' do
