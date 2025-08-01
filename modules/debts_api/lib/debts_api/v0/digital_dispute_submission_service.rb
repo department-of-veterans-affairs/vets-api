@@ -16,6 +16,8 @@ module DebtsApi
       configuration DebtManagementCenter::DebtsConfiguration
 
       def initialize(user, files, metadata = nil)
+        user = OpenStruct.new(uuid: user['uuid'], ssn: user['ssn'], participant_id: user['participant_id'])
+
         super(user)
         @files = files
         @metadata = metadata
@@ -32,7 +34,6 @@ module DebtsApi
         send_to_dmc
         submission.register_success
         in_progress_form&.destroy
-
 
         success_result(submission)
       rescue => e

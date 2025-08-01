@@ -33,6 +33,7 @@ module DebtsApi
 
         if digital_dispute.valid?
           digital_dispute.submit_to_dmc
+          render json: { message: 'Digital dispute submission received successfully' }, status: :ok
         else
           render json: { errors: digital_dispute.errors.full_messages }, status: :unprocessable_entity
         end
