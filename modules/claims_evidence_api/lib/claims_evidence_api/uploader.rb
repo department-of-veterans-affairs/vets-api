@@ -39,9 +39,11 @@ module ClaimsEvidenceApi
     # rubocop:disable Metrics/ParameterLists
     def upload_file(file_path, form_id, saved_claim_id, persistent_attachment_id = nil, doctype = 10,
                     timestamp = Time.zone.now)
+      context = { saved_claim_id:, persistent_attachment_id:, file_path: }
+      monitor.track_upload_begun(**context)
       @submission = ClaimsEvidenceApi::Submission.find_or_create_by(saved_claim_id:, persistent_attachment_id:,
                                                                     form_id:)
-      submission.x_folder_uri = @service.x_folder_uri
+      submission.folder_identifier = @service.folder_identifier
       submission.save
 
       @attempt = submission.submission_attempts.create
@@ -52,10 +54,15 @@ module ClaimsEvidenceApi
       }
       attempt.save
 
+      monitor.track_upload_attempt(**context)
       @response = @service.upload(file_path, provider_data:)
       update_tracking
 
-      @submission.file_uuid
+      monitor.track_upload_success(**context)
+      submission.file_uuid
+    rescue => e
+      monitor.track_upload_failure(e.message, **context)
+      raise e
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -67,41 +74,48 @@ module ClaimsEvidenceApi
     # @param saved_claim_id [Integer] the db id for the claim
     # @param claim_stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
     # @param attachment_stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
+    #
+    # @return [String] the claim pdf file_uuid
     def upload_saved_claim_evidence(saved_claim_id, claim_stamp_set = nil, attachment_stamp_set = nil)
       claim = upload_evidence_pdf(saved_claim_id, nil, nil, claim_stamp_set)
+      file_uuid = submission.file_uuid
+
       claim.persistent_attachments.each { |pa| upload_evidence_pdf(saved_claim_id, pa.id, nil, attachment_stamp_set) }
+      # submission and file_uuid will be for the last uploaded attachment when done
+
+      file_uuid
     end
 
     # upload an evidence generated pdf
-    # if `pdf_path` is provided it will be used instead of calling `to_pdf` on the evidence
+    # if `file_path` is provided it will be used instead of calling `to_pdf` on the evidence
     # providing `stamp_set` will perform stamping of the generated pdf
     #
     # @see PDFUtilities::PDFStamper
     #
     # @param saved_claim_id [Integer] the db id for the SavedClaim
-    # @param pa_id [Integer] the db id for the PersistentAttachment
-    # @param pdf_path [String] file path of the pdf to upload
+    # @param persistent_attachment_id [Integer] the db id for the PersistentAttachment
+    # @param file_path [String] file path of the pdf to upload
     # @param stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
     #
-    # @return [SavedClaim] the claim referenced for evidence
-    def upload_evidence_pdf(saved_claim_id, pa_id = nil, pdf_path = nil, stamp_set = nil)
-      context = { saved_claim_id:, pa_id:, pdf_path:, stamp_set: }
+    # @return [String] the file_uuid
+    def upload_evidence_pdf(saved_claim_id, persistent_attachment_id = nil, file_path = nil, stamp_set = nil)
+      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set: }
       monitor.track_upload_begun(**context)
 
       claim = SavedClaim.find(saved_claim_id)
-      pa = PersistentAttachment.find_by(id: pa_id, saved_claim_id:) if pa_id
+      pa = PersistentAttachment.find_by(id: persistent_attachment_id, saved_claim_id:) if persistent_attachment_id
       evidence = pa || claim
       context[:form_id] = claim.form_id
       context[:document_type] = evidence.document_type
 
-      pdf_path ||= evidence.to_pdf
-      pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pdf_path, timestamp: evidence.created_at) if stamp_set
-      context[:pdf_path] = pdf_path
+      file_path ||= evidence.to_pdf
+      file_path = PDFUtilities::PDFStamper.new(stamp_set).run(file_path, timestamp: evidence.created_at) if stamp_set
+      context[:file_path] = file_path
 
-      init_tracking(claim, pa_id)
+      init_tracking(claim, persistent_attachment_id)
 
       monitor.track_upload_attempt(**context)
-      perform_upload(evidence, pdf_path)
+      perform_upload(evidence, file_path)
 
       update_tracking
       monitor.track_upload_success(**context)
@@ -139,12 +153,12 @@ module ClaimsEvidenceApi
     end
 
     # upload the claim evidence pdf
-    # if `pdf_path` is provided it will be used instead of calling `to_pdf` on the claim
+    # if `file_path` is provided it will be used instead of calling `to_pdf` on the claim
     # assembles the required metadata for the upload from the evidence object and updates the `attempt`
     #
     # @param evidence [SavedClaim|PersistentAttachment] the claim evidence to be uploaded
-    # @param pdf_path [String] file path of the pdf to upload
-    def perform_upload(evidence, pdf_path)
+    # @param file_path [String] file path of the pdf to upload
+    def perform_upload(evidence, file_path)
       attempt.metadata = provider_data = {
         contentSource: content_source,
         dateVaReceivedDocument: evidence.created_at,
@@ -152,7 +166,7 @@ module ClaimsEvidenceApi
       }
       attempt.save
 
-      @response = @service.upload(pdf_path, provider_data:)
+      @response = @service.upload(file_path, provider_data:)
     rescue => e
       attempt.status = 'failure'
       attempt.error_message = e.body || e.message

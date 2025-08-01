@@ -40,9 +40,9 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
     it 'accepts unnamed and named values' do
       expect(submission.reference_data).to be_nil
 
-      expected = { data: ['TEST', 42], foo: 'bar' }
+      expected = { __: ['TEST', 42], foo: 'bar' }
       submission.update_reference_data('TEST', 42, foo: 'bar')
-      expect(submission.reference_data).to eq expected
+      expect(submission.reference_data).to eq expected.deep_stringify_keys
     end
 
     it 'set folder_identifier if included in named values' do
@@ -50,9 +50,9 @@ RSpec.describe ClaimsEvidenceApi::Submission, type: :model do
       expect(submission).to receive(:folder_identifier=).and_call_original
 
       expected_uri = 'VETERAN:SSN:123456789'
-      expected_data = { data: ['TEST', 42], foo: 'bar', folder_identifier: [expected_uri], latest_folder_identifier: expected_uri }
+      expected_data = { __: ['TEST', 42], foo: 'bar', folder_identifier: [expected_uri], latest_folder_identifier: expected_uri }
       submission.update_reference_data('TEST', 42, foo: 'bar', folder_identifier: expected_uri)
-      expect(submission.reference_data).to eq expected_data
+      expect(submission.reference_data).to eq expected_data.deep_stringify_keys
       expect(submission.folder_identifier).to eq expected_uri
     end
   end

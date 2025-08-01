@@ -54,24 +54,24 @@ class ClaimsEvidenceApi::Submission < Submission
   end
 
   # insert values into the reference data field
-  # unnamed values will be overwrite the reference_data['data'] array
+  # unnamed values will overwrite the reference_data['__'] array
   def update_reference_data(*args, **kwargs)
     self.reference_data ||= {}
-    self.reference_data.merge!(kwargs.except(:folder_identifier, :x_folder_uri))
-    reference_data[:data] = args
+    self.reference_data.merge!(kwargs.except(:folder_identifier, :x_folder_uri).deep_stringify_keys)
+    self.reference_data['__'] = args
 
     # ensure folder identifier value is checked and appended
     [:folder_identifier, :x_folder_uri].each do |fid_key|
       self.folder_identifier = kwargs[fid_key] if kwargs[fid_key].present?
     end
 
-    reference_data
+    self.reference_data
   end
 
   # retrieve the latest folder identifier from encrypted reference_data
   def folder_identifier
     self.reference_data ||= {}
-    reference_data[:latest_folder_identifier]
+    self.reference_data['latest_folder_identifier']
   end
 
   # directly assign a folder identifier; value is split and sent through #folder_identifier_set
@@ -86,12 +86,12 @@ class ClaimsEvidenceApi::Submission < Submission
   # @see ClaimsEvidenceApi::FolderIdentifier#generate
   def folder_identifier_set(folder_type, identifier_type, id)
     self.reference_data ||= {}
-    fids = reference_data[:folder_identifier] || []
+    fids = reference_data['folder_identifier'] || []
     fid = ClaimsEvidenceApi::FolderIdentifier.generate(folder_type, identifier_type, id)
     fids << fid unless fids.include?(fid)
 
-    self.reference_data[:folder_identifier] = fids
-    self.reference_data[:latest_folder_identifier] = fid
+    self.reference_data['folder_identifier'] = fids
+    self.reference_data['latest_folder_identifier'] = fid
 
     folder_identifier
   end
