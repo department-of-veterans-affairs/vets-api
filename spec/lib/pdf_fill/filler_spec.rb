@@ -162,25 +162,19 @@ describe PdfFill::Filler, type: :model do
     context 'when not given the extras_redesign fill option' do
       let(:fill_options) { {} }
 
-      it 'returns false' do
-        expect(subject).to eq(false)
-      end
+      it { is_expected.to be(false) }
 
       context 'when filling out a non-redesigned dependent form' do
         let(:form_id) { '686C-674' }
 
-        it 'returns true' do
-          expect(subject).to eq(true)
-        end
+        it { is_expected.to be(true) }
       end
     end
 
     context 'when given the omit_esign_stamp fill option' do
       let(:fill_options) { { omit_esign_stamp: true, extras_redesign: true } }
 
-      it 'returns false' do
-        expect(subject).to eq(false)
-      end
+      it { is_expected.to be(false) }
     end
   end
 
