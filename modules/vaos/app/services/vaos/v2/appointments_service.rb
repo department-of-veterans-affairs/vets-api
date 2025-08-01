@@ -55,6 +55,20 @@ module VAOS
                            tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
         cnp_count = 0
 
+        # Check if parallel processing is enabled and travel pay claims are requested
+        if Flipper.enabled?(:appointments_parallel_processing, user) &&
+           Flipper.enabled?(:travel_pay_view_claim_details, user) &&
+           include[:travel_pay_claims]
+          return get_appointments_with_parallel_travel_pay({
+                                                             start_date:,
+                                                             end_date:,
+                                                             statuses:,
+                                                             pagination_params:,
+                                                             include:,
+                                                             tp_client:
+                                                           })
+        end
+
         response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
         return response if response.dig(:meta, :failures)
 
@@ -83,6 +97,85 @@ module VAOS
           meta: pagination(pagination_params).merge(partial_errors(response, __method__))
         }
       end
+
+      # Parallel version of get_appointments that fetches appointments and travel pay claims simultaneously
+      def get_appointments_with_parallel_travel_pay(params = {})
+        start_date = params[:start_date]
+        end_date = params[:end_date]
+        statuses = params[:statuses]
+        pagination_params = params[:pagination_params]
+        include = params[:include] || {}
+        tp_client = params[:tp_client] || 'vagov'
+
+        require 'concurrent-ruby'
+
+        cnp_count = 0
+
+        # Create promises for parallel execution
+        appointments_promise = Concurrent::Promise.execute do
+          response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+          return response if response.dig(:meta, :failures)
+
+          appointments = response.body[:data]
+          appointments.each do |appt|
+            prepare_appointment(appt, include)
+            cnp_count += 1 if cnp?(appt)
+          end
+
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
+          { appointments:, response:, cnp_count: }
+        end
+
+        # Fetch travel pay claims in parallel
+        travel_pay_claims_promise = Concurrent::Promise.execute do
+          service = TravelPay::ClaimAssociationService.new(user, tp_client)
+          claims_result = service.get_claims_by_date({
+                                                       'start_date' => start_date,
+                                                       'end_date' => end_date
+                                                     })
+          Rails.logger.info('Travel pay claims fetched in parallel')
+          claims_result
+        rescue => e
+          Rails.logger.warn("Parallel travel pay claims fetch failed: #{e.message}")
+          { claims: nil, metadata: { message: e.message, success: false } }
+        end
+
+        # Wait for both promises to complete
+        appointments_result = appointments_promise.value!
+        claims_result = travel_pay_claims_promise.value!
+
+        return appointments_result if appointments_result.is_a?(Hash) && appointments_result.dig(:meta, :failures)
+
+        appointments = appointments_result[:appointments]
+        response = appointments_result[:response]
+        cnp_count = appointments_result[:cnp_count]
+
+        # Associate travel pay claims with appointments using pre-fetched data
+        if appointments.any?
+          begin
+            service = TravelPay::ClaimAssociationService.new(user, tp_client)
+            appointments = service.associate_claims_to_appointments(appointments, claims_result)
+            Rails.logger.info('Travel pay claims associated using parallel-fetched data')
+          rescue => e
+            Rails.logger.error("Failed to associate travel pay claims: #{e.message}")
+            # Continue without travel pay claims if association fails
+          end
+        end
+
+        if Flipper.enabled?(:appointments_consolidation, user)
+          filterer = AppointmentsPresentationFilter.new
+          appointments.keep_if { |appt| filterer.user_facing?(appt) }
+        end
+
+        # log count of C&P appointments in the appointments list, per GH#78141
+        log_cnp_appt_count(cnp_count) if cnp_count.positive?
+        {
+          data: deserialized_appointments(appointments),
+          meta: pagination(pagination_params).merge(partial_errors(response, __method__))
+        }
+      end
+      # rubocop:enable Metrics/MethodLength
 
       ##
       # Checks whether a referral has already been used in an existing appointment.
@@ -117,7 +210,6 @@ module VAOS
         { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
       end
 
-      # rubocop:enable Metrics/MethodLength
       def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         params = {}
         with_monitoring do
