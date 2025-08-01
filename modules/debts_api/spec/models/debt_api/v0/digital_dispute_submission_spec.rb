@@ -43,8 +43,8 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
 
       it 'returns parsed metadata' do
         expect(form_submission.parsed_metadata).to eq({
-                                                        'disputes' => [
-                                                          { 'composite_debt_id' => 'ABC123' }
+                                                        disputes: [
+                                                          { composite_debt_id: 'ABC123' }
                                                         ]
                                                       })
       end
@@ -83,8 +83,8 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   describe '#store_debt_identifiers' do
     let(:disputes) do
       [
-        { 'composite_debt_id' => 'ABC123' },
-        { 'composite_debt_id' => 'DEF456' }
+        { composite_debt_id: 'ABC123' },
+        { composite_debt_id: 'DEF456' }
       ]
     end
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Rails/Pluck
 module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
@@ -18,7 +19,7 @@ module DebtsApi
       def parsed_metadata
         return {} if metadata.blank?
 
-        @parsed_metadata ||= JSON.parse(metadata)
+        @parsed_metadata ||= JSON.parse(metadata, symbolize_names: true)
       rescue JSON::ParserError
         {}
       end
@@ -33,7 +34,7 @@ module DebtsApi
       def store_public_metadata
         return unless metadata
 
-        disputes = parsed_metadata['disputes'] || parsed_metadata[:disputes] || []
+        disputes = parsed_metadata[:disputes] || []
 
         self.public_metadata = {
           'debt_types' => extract_debt_types(disputes),
@@ -44,7 +45,7 @@ module DebtsApi
       def store_debt_identifiers(disputes)
         return unless disputes
 
-        self.debt_identifiers = disputes.map { |d| d['composite_debt_id'] || d[:composite_debt_id] }.compact
+        self.debt_identifiers = disputes.map { |d| d[:composite_debt_id] }.compact
       end
 
       def register_failure(message)
@@ -59,12 +60,13 @@ module DebtsApi
       private
 
       def extract_debt_types(disputes)
-        disputes.map { |d| d['debt_type'] || d[:debt_type] }.compact.uniq
+        disputes.map { |d| d[:debt_type] }.compact.uniq
       end
 
       def extract_dispute_reasons(disputes)
-        disputes.map { |d| d['dispute_reason'] || d[:dispute_reason] }.compact.uniq
+        disputes.map { |d| d[:dispute_reason] }.compact.uniq
       end
     end
   end
 end
+# rubocop:enable Rails/Pluck
