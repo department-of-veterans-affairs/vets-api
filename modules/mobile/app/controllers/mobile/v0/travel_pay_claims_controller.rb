@@ -1,12 +1,23 @@
 # frozen_string_literal: true
 
 require 'mobile/v0/exceptions/custom_errors'
+require 'securerandom'
 
 module Mobile
   module V0
     class TravelPayClaimsController < ApplicationController
       before_action :authenticate
+      before_action :validate_index_params, only: [:index]
       after_action :clear_appointments_cache, only: %i[create]
+
+      def index
+        claims_response = fetch_claims_from_service
+        claims = transform_claims_data(claims_response[:data])
+        status = claims_response[:metadata]['status'] == 206 ? :partial_content : :ok
+
+        render json: Mobile::V0::TravelPayClaimSummarySerializer.new(claims, { meta: claims_response[:metadata] }),
+               status:
+      end
 
       def create
         appt_params = {
@@ -34,6 +45,39 @@ module Mobile
       end
 
       private
+
+      def fetch_claims_from_service
+        TravelPay::ClaimsService.new(auth_manager, @current_user).get_claims_by_date_range(
+          'start_date' => @index_params[:start_date].to_s,
+          'end_date' => @index_params[:end_date].to_s,
+          'page_number' => @index_params[:page_number]
+        )
+      end
+
+      def transform_claims_data(claims_data)
+        claims_data.map do |claim_data|
+          Mobile::V0::TravelPayClaimSummary.new(
+            id: claim_data['id'],
+            claimNumber: claim_data['claimNumber'],
+            claimStatus: claim_data['claimStatus'],
+            appointmentDateTime: claim_data['appointmentDateTime'],
+            facilityId: claim_data['facilityId'],
+            facilityName: claim_data['facilityName'],
+            totalCostRequested: claim_data['totalCostRequested'],
+            reimbursementAmount: claim_data['reimbursementAmount'],
+            createdOn: claim_data['createdOn'],
+            modifiedOn: claim_data['modifiedOn']
+          )
+        end
+      end
+
+      def validate_index_params
+        contract = Mobile::V0::Contracts::TravelPayClaims.new
+        result = contract.call(params.to_unsafe_h)
+        raise Common::Exceptions::ValidationErrors, result unless result.success?
+
+        @index_params = result.to_h
+      end
 
       def validated_params
         smoc_params = {
