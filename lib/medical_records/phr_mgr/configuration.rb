@@ -19,11 +19,7 @@ module PHRMgr
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        "#{Settings.mhv.api_gateway.hosts.phrmgr}/v2/phrmgr/"
-      else
-        "#{Settings.mhv.medical_records.host}/mhvapi/v2/phrmgr/"
-      end
+      "#{Settings.mhv.api_gateway.hosts.phrmgr}/v2/phrmgr/"
     end
 
     ##
@@ -31,9 +27,7 @@ module PHRMgr
     #
     def phr_headers
       headers = base_request_headers.merge('X-Authorization-Key' => Settings.mhv.medical_records.x_auth_key)
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        headers.merge!('x-api-key' => Settings.mhv.medical_records.x_api_key_v2)
-      end
+      headers.merge!('x-api-key' => Settings.mhv.medical_records.x_api_key_v2)
       headers
     end
 

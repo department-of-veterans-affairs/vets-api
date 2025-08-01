@@ -14,8 +14,6 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
   let(:current_user) { build(:user, :mhv) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
-
     bb_client = BB::Client.new(
       session: {
         user_id: 11_375_034,

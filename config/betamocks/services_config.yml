@@ -182,7 +182,7 @@
   :endpoints:
     # data classes
     - :method: :get
-      :path: "/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+      :path: "/v1/bluebutton/ess/geteligibledataclass"
       :file_path: "mhv/bluebutton/geteligibledataclass"
       :cache_multiple_responses:
         :uid_location: header
@@ -210,7 +210,7 @@
         :uid_locator: 'Token'
     # MHV Session
     - :method: :get
-      :path: "/mhv-api/patient/v1/session"
+      :path: "/v1/usermgmt/auth/session"
       :file_path: "mhv/session"
       :cache_multiple_responses:
         :uid_location: 'header'
