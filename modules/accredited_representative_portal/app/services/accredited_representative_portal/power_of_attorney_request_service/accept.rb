@@ -100,7 +100,7 @@ module AccreditedRepresentativePortal
       end
 
       def handle_unexpected_error(error)
-        PoaRequestFailureNotifier.send_failure_notification_emails(@poa_request)
+        PoaRequestFailureNotifier.new(@poa_request).call
         Rails.logger.error("Unexpected error in Accept#call: #{error.class} - #{error.message}")
         Rails.logger.error(error.backtrace.join("\n")) if error.backtrace
         create_error_form_submission(error.message, {})
