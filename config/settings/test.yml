@@ -105,8 +105,6 @@ check_in:
   chip_api_v2:
     base_path: dev
     base_path_v2: dev
-    host: ~
-    host_v2: ~
     mock: false
     redis_session_prefix: check_in_chip_v2
     service_name: CHIP-API
@@ -126,8 +124,6 @@ check_in:
     api_key_v2: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
     base_path: dev
     base_path_v2: dev
-    host: ~
-    host_v2: ~
     key_path: modules/vaos/config/rsa/sandbox_rsa
     mock: false
     redis_session_prefix: check_in_lorota_v2
