@@ -3,21 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::StateCode, type: :model do
-  let(:state_code) { create(:state_code, code:) }
-  let(:code) { SecureRandom.hex }
-
   describe 'validations' do
-    describe '#code' do
-      subject { state_code.code }
+    context 'when code is nil' do
+      subject(:state_code) { described_class.new(code: nil) }
 
-      context 'when code is nil' do
-        let(:code) { nil }
-        let(:expected_error) { Common::Exceptions::ValidationErrors }
-        let(:expected_error_message) { 'Validation error' }
+      it 'is invalid' do
+        expect(state_code).not_to be_valid
+        expect(state_code.errors[:code]).to include("can't be blank")
+      end
 
-        it 'raises validation error' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
+      it 'raises ActiveModel::ValidationError on save!' do
+        expect { state_code.save! }.to raise_error(ActiveModel::ValidationError)
       end
     end
   end
