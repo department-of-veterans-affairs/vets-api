@@ -17,6 +17,7 @@ module Mobile
         response = systems_service.get_available_slots(location_id: facility_id,
                                                        clinic_id:,
                                                        clinical_service: nil,
+                                                       provider_id: nil,
                                                        start_dt: start_date,
                                                        end_dt: end_date)
 
@@ -31,6 +32,7 @@ module Mobile
           response = systems_service.get_available_slots(location_id: facility_id,
                                                          clinic_id: params[:clinic_id],
                                                          clinical_service: params[:clinical_service],
+                                                         provider_id: params[:provider_id],
                                                          start_dt: start_date,
                                                          end_dt: end_date)
 
@@ -63,6 +65,14 @@ module Mobile
 
       def clinic_id
         params.require(:clinic_id)
+      end
+
+      def provider_id
+        params.permit(:provider_id)
+      end
+
+      def clinical_service
+        params.permit(:clinical_service)
       end
 
       def now
