@@ -5,7 +5,12 @@ module V0
     service_tag 'feature-flag'
     # the feature toggle does not require authentication, but if a user is logged we might use @current_user
     skip_before_action :authenticate
-    before_action :load_user
+    before_action do
+      load_user(
+        skip_expiration_check: true,
+        skip_terms_check: true
+      )
+    end
 
     def index
       if params[:features].present?
