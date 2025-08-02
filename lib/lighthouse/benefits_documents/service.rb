@@ -94,7 +94,7 @@ module BenefitsDocuments
         )
       end
 
-      if Flipper.enabled?(:benefits_documents_validate_claimant) && !validate_claimant_can_upload(document_data)
+      unless validate_claimant_can_upload(document_data)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'DOC_UPLOAD_INVALID_CLAIMANT',
           source: self.class.name
