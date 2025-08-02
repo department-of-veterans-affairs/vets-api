@@ -10,6 +10,16 @@ require 'evss/disability_compensation_form/form4142_processor'
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
 
+  # Performance tweak
+  # This can be removed. Benchmarked all tests to see which tests are slowest.
+  around do |example|
+    puts "\nStarting: #{example.full_description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  end
+
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
@@ -120,6 +130,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
+        def create_fake_pdf(filename)
+          path = Rails.root.join('tmp', filename)
+          File.binwrite(path, "%PDF-1.4\n%Fake PDF for tests\n")
+          path.to_s
+        end
+
         before do
           upload_data.each do |ud|
             file = Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
@@ -127,6 +143,43 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             sea.set_file_data!(file)
             sea.save!
           end
+
+          fake_processor =
+            instance_double(
+              EVSS::DisabilityCompensationForm::Form4142Processor,
+              request_body: { 
+                'metadata' => { 'receiveDt' => submission.created_at.iso8601 }.to_json
+              },
+              pdf_path: 'fake4142.pdf'
+            )
+
+          allow(EVSS::DisabilityCompensationForm::Form4142Processor)
+            .to receive(:new)
+            .and_return(fake_processor)
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_form4142_pdf) do |processor|
+              fake_file = create_fake_pdf('fake4142.pdf')
+              processor.docs << { type: '21-4142', file: fake_file }
+            end
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_form0781_pdf) do |processor|
+              fake_file = create_fake_pdf('fake0781.pdf')
+              processor.docs << { type: '21-0781', file: fake_file }
+            end
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_form8940_pdf) do |processor|
+              fake_file = create_fake_pdf('fake8940.pdf')
+              processor.docs << { type: '21-8940', file: fake_file }
+            end
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_bdd_pdf) do |processor|
+              fake_file = create_fake_pdf('fakebdd.pdf')
+              processor.docs << { type: 'bdd', file: fake_file }
+            end
         end
 
         it 'creates a job for submission' do
@@ -142,39 +195,60 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             VCR.use_cassette('form526_backup/200_evss_get_pdf') do
               VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
                 VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
+                  puts "#{Time.now}: Starting job"
                   jid = subject.perform_async(submission.id)
+                  puts "#{Time.now}: got jid #{jid}"
                   last = subject.jobs.last
+                  puts "#{Time.now}: last job #{last}"
                   jid_from_jobs = last['jid']
+                  puts "#{Time.now}: jid_from_jobs #{jid_from_jobs}"
                   expect(jid).to eq(jid_from_jobs)
                   described_class.drain
+                  puts "#{Time.now}: drained"
                   expect(jid).not_to be_empty
                   # The Backup Submission process gathers form 526 and any ancillary forms
                   # to send to Central Mail at the same time
 
                   # Form 4142 Backup Submission Process
+                  puts "#{Time.now}: starting expectations"
                   expect(submission.form['form4142']).not_to be_nil
+                  puts "#{Time.now}: got form4142"
                   form4142_processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(
                     submission, submission.id
                   )
+                  puts "#{Time.now}: got form4142_processor"
                   request_body = form4142_processor.request_body
+                  puts "#{Time.now}: got request_body"
                   metadata_hash = JSON.parse(request_body['metadata'])
+                  puts "#{Time.now}: got metadata_hash"
                   form4142_received_date = metadata_hash['receiveDt'].in_time_zone('Central Time (US & Canada)')
+                  puts "#{Time.now}: got form4142_received_date"
                   expect(
                     submission.created_at.in_time_zone('Central Time (US & Canada)')
                   ).to be_within(1.second).of(form4142_received_date)
-
+                  puts "#{Time.now}: checked form4142_received_date"
                   # Form 0781 Backup Submission Process
                   expect(submission.form['form0781']).not_to be_nil
+                  puts "#{Time.now}: got form0781"
                   # not really a way to test the dates here
 
                   job_status = Form526JobStatus.last
+                  puts "#{Time.now}: got job_status"
                   expect(job_status.form526_submission_id).to eq(submission.id)
+                  puts "#{Time.now}: checked form526_submission_id"
                   expect(job_status.job_class).to eq('BackupSubmission')
+                  puts "#{Time.now}: checked job_status.job_class"
                   expect(job_status.job_id).to eq(jid)
+                  puts "#{Time.now}: checked job_id"
                   expect(job_status.status).to eq('success')
+                  puts "#{Time.now}: checked status"
                   submission = Form526Submission.last
+                  puts "#{Time.now}: got submission"
                   expect(submission.backup_submitted_claim_id).not_to be_nil
+                  puts "#{Time.now}: checked backup_submitted_claim_id"
                   expect(submission.submit_endpoint).to eq('benefits_intake_api')
+                  puts "#{Time.now}: checked submit_endpoint"
+                  puts "#{Time.now}: finished expectations"
                 end
               end
             end
