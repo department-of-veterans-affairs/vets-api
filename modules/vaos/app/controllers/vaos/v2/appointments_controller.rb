@@ -75,14 +75,16 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_number]
         referral_consult_id = draft_params[:referral_consult_id]
-        response_data = process_draft_appointment(referral_id, referral_consult_id)
-        if response_data[:success]
+        draft_appt = VAOS::V2::EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
+
+        if draft_appt.error
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+          render json: { errors: [{ title: 'Appointment creation failed', detail: draft_appt.error[:message] }] },
+                 status: draft_appt.error[:status]
+        else
           StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
           ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
-          render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
-        else
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
-          render json: response_data[:json], status: response_data[:status]
+          render json: Eps::DraftAppointmentSerializer.new(draft_appt), status: :created
         end
       rescue Redis::BaseError => e
         StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
@@ -771,7 +773,7 @@ module VAOS
           :conflict # 409
         when 'bad-request', 400
           :bad_request # 400
-        when 'internal-error', 500
+        when 'internal-error', 500, 502
           :bad_gateway # 502
         else
           # too-far-in-the-future, already-canceled, too-late-to-cancel, etc.
