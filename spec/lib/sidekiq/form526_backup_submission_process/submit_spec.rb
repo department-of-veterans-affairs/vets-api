@@ -195,60 +195,38 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             VCR.use_cassette('form526_backup/200_evss_get_pdf') do
               VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
                 VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
-                  puts "#{Time.now}: Starting job"
                   jid = subject.perform_async(submission.id)
-                  puts "#{Time.now}: got jid #{jid}"
                   last = subject.jobs.last
-                  puts "#{Time.now}: last job #{last}"
                   jid_from_jobs = last['jid']
-                  puts "#{Time.now}: jid_from_jobs #{jid_from_jobs}"
                   expect(jid).to eq(jid_from_jobs)
                   described_class.drain
-                  puts "#{Time.now}: drained"
                   expect(jid).not_to be_empty
                   # The Backup Submission process gathers form 526 and any ancillary forms
                   # to send to Central Mail at the same time
 
                   # Form 4142 Backup Submission Process
-                  puts "#{Time.now}: starting expectations"
                   expect(submission.form['form4142']).not_to be_nil
-                  puts "#{Time.now}: got form4142"
                   form4142_processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(
                     submission, submission.id
                   )
-                  puts "#{Time.now}: got form4142_processor"
                   request_body = form4142_processor.request_body
-                  puts "#{Time.now}: got request_body"
                   metadata_hash = JSON.parse(request_body['metadata'])
-                  puts "#{Time.now}: got metadata_hash"
                   form4142_received_date = metadata_hash['receiveDt'].in_time_zone('Central Time (US & Canada)')
-                  puts "#{Time.now}: got form4142_received_date"
                   expect(
                     submission.created_at.in_time_zone('Central Time (US & Canada)')
                   ).to be_within(1.second).of(form4142_received_date)
-                  puts "#{Time.now}: checked form4142_received_date"
                   # Form 0781 Backup Submission Process
                   expect(submission.form['form0781']).not_to be_nil
-                  puts "#{Time.now}: got form0781"
                   # not really a way to test the dates here
 
                   job_status = Form526JobStatus.last
-                  puts "#{Time.now}: got job_status"
                   expect(job_status.form526_submission_id).to eq(submission.id)
-                  puts "#{Time.now}: checked form526_submission_id"
                   expect(job_status.job_class).to eq('BackupSubmission')
-                  puts "#{Time.now}: checked job_status.job_class"
                   expect(job_status.job_id).to eq(jid)
-                  puts "#{Time.now}: checked job_id"
                   expect(job_status.status).to eq('success')
-                  puts "#{Time.now}: checked status"
                   submission = Form526Submission.last
-                  puts "#{Time.now}: got submission"
                   expect(submission.backup_submitted_claim_id).not_to be_nil
-                  puts "#{Time.now}: checked backup_submitted_claim_id"
                   expect(submission.submit_endpoint).to eq('benefits_intake_api')
-                  puts "#{Time.now}: checked submit_endpoint"
-                  puts "#{Time.now}: finished expectations"
                 end
               end
             end
