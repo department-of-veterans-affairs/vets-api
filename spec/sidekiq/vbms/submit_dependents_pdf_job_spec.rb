@@ -3,8 +3,23 @@
 require 'rails_helper'
 
 RSpec.describe VBMS::SubmitDependentsPdfJob do
-  let(:invalid_dependency_claim) { create(:dependency_claim_no_vet_information) }
-  let(:dependency_claim) { create(:dependency_claim) }
+  before(:all) do
+    @shared_claim = create(:dependency_claim)
+    @invalid_claim = create(:dependency_claim_no_vet_information)
+  end
+
+  # Performance tweak
+  # This can be removed. Benchmarked all tests to see which tests are slowest.
+  around do |example|
+    puts "\nStarting: #{example.full_description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  end
+
+  let(:invalid_dependency_claim) { @invalid_claim }
+  let(:dependency_claim) { @shared_claim }
   let(:vet_info) do
     {
       'veteran_information' => {
