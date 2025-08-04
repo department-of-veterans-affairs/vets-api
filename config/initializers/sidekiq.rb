@@ -51,6 +51,11 @@ Rails.application.reloader.to_prepare do
       Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
     end
 
+    config.on(:startup) do
+      # Initialize and start the long-lived Kafka producer
+      Kafka.submit_test_event({"startup" => "true"})
+    end
+
     config.on(:shutdown) do
       Kafka::ProducerManager.instance.producer&.close
     end
