@@ -36,27 +36,32 @@ RSpec.describe SSOe::Service, type: :service do
 
     context 'when the response is successful' do
       let(:raw_response) do
-        double('raw_response', body: <<~XML)
-          <Envelope>
-            <Body>
-              <getSSOeTraitsByCSPIDResponse>
-                <icn>123456789</icn>
-              </getSSOeTraitsByCSPIDResponse>
-            </Body>
-          </Envelope>
-        XML
+        double(
+          'raw_response',
+          body: <<~XML
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+                <getSSOeTraitsByCSPIDResponse>
+                  <icn>123498767V234859</icn>
+                </getSSOeTraitsByCSPIDResponse>
+              </soap:Body>
+            </soap:Envelope>
+          XML
+        )
       end
 
-      before { allow(service).to receive(:perform).and_return(raw_response) }
+      before do
+        allow(service).to receive(:perform).and_return(raw_response)
+      end
 
-      it 'returns the parsed response with ICN' do
+      it 'returns the raw response body' do
         response = service.get_traits(
           credential_method:,
           credential_id:,
           user:,
           address:
         )
-        expect(response).to eq({ success: true, icn: '123456789' })
+        expect(response).to eq({ success: true, icn: '123498767V234859' })
       end
     end
 
