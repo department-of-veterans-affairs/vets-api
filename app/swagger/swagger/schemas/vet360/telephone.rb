@@ -25,7 +25,7 @@ module Swagger
                    example: '44',
                    default: '1',
                    pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
-                   description: 'One- to three-digit code prefix that routes the call to the country of that phone number.'
+                   description: 'One- to three-digit code that routes the call to the country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -94,7 +94,7 @@ module Swagger
                    example: '44',
                    default: '1',
                    pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
-                   description: 'One- to three-digit code prefix that routes the call to the country of that phone number.'
+                   description: 'One- to three-digit code that routes the call to the country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
