@@ -61,20 +61,27 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def track_each_pdf_overflow(subform_id)
+    puts "#{Time.now}: top of track_each_pdf_overflow"
     filenames = []
     if subform_id == '21-674-V2'
+      puts "#{Time.now}: subform is 21-674-V2"
       parsed_form['dependents_application']['student_information']&.each do |student|
         filenames << to_pdf(form_id: subform_id, student:)
+        puts "#{Time.now}: completed to_pdf"
       end
     else
+      puts "#{Time.now}: subform is not 21-674-V2"
       filenames << to_pdf(form_id: subform_id)
+      puts "#{Time.now}: completed to_pdf"
     end
     filenames.each do |filename|
       monitor.track_pdf_overflow(subform_id) if filename.end_with?('_final.pdf')
+      puts "#{Time.now}: completed monitor.track_pdf_overflow" if filename.end_with?('_final.pdf')
     end
   ensure
     filenames.each do |filename|
       Common::FileHelpers.delete_file_if_exists(filename)
+      puts "#{Time.now}: completed Common::FileHelpers.delete_file_if_exists"
     end
   end
 
@@ -196,9 +203,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # end
 
   def to_pdf(form_id: FORM, student: nil)
+    puts "#{Time.now}: REAL to_pdf called from #{caller_locations(1,1)[0]}"
+
     original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
+    puts "#{Time.now}: completed PdfFill::Filler.fill_form"
   rescue => e
     monitor.track_to_pdf_failure(e, form_id)
     raise e
