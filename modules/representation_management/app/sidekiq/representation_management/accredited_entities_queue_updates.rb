@@ -322,13 +322,34 @@ module RepresentationManagement
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
+    # When force_update_types is specified, only deletes records of the processed types
     #
     # @return [void]
     def delete_removed_accredited_individuals
-      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
-        record.destroy
-      rescue => e
-        log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+      if @force_update_types.any?
+        # Only delete records of types that were actually processed
+        processed_individual_types = []
+        processed_individual_types << 'claims_agent' if @force_update_types.include?(AGENTS)
+        processed_individual_types << 'attorney' if @force_update_types.include?(ATTORNEYS)
+        processed_individual_types << 'representative' if @force_update_types.include?(REPRESENTATIVES)
+
+        return if processed_individual_types.empty?
+
+        # Delete only records of processed types that are not in the current ID lists
+        AccreditedIndividual.where(individual_type: processed_individual_types)
+                            .where.not(id: @agent_ids + @attorney_ids + @representative_ids)
+                            .find_each do |record|
+          record.destroy
+        rescue => e
+          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+        end
+      else
+        # Original behavior: delete all records not in current ID lists
+        AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
+          record.destroy
+        rescue => e
+          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+        end
       end
     end
 
@@ -608,17 +629,25 @@ module RepresentationManagement
     end
 
     # Removes AccreditedOrganization records that are no longer present in the GCLAWS API
+    # When force_update_types is specified, only deletes when VSOs were processed
     #
     # @return [void]
     def delete_removed_accredited_organizations
-      delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
+      # Only delete VSO records if VSOs were processed or no force update specified
+      if @force_update_types.empty? || @force_update_types.include?(VSOS)
+        delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
+      end
     end
 
     # Removes Accreditation records that are no longer valid
+    # When force_update_types is specified, only deletes when representatives or VSOs were processed
     #
     # @return [void]
     def delete_removed_accreditations
-      delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
+      # Only delete accreditation records if representatives or VSOs were processed or no force update specified
+      if @force_update_types.empty? || @force_update_types.intersect?([REPRESENTATIVES, VSOS])
+        delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
+      end
     end
 
     # Creates or updates Accreditation records based on representative-VSO associations
