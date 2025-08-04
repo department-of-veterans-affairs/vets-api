@@ -33,6 +33,21 @@ class AccreditedIndividual < ApplicationRecord
     'representative' => 'representative'
   }
 
+  before_save :set_full_name
+
+  # Set the full_name attribute for the representative
+  def set_full_name
+    self.full_name = if first_name.blank? && last_name.blank?
+                       ''
+                     elsif first_name.blank?
+                       last_name.strip
+                     elsif last_name.blank?
+                       first_name.strip
+                     else
+                       "#{first_name.strip} #{last_name.strip}"
+                     end
+  end
+
   DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
 
   # Find all [AccreditedIndividuals] that are located within a distance of a specific location

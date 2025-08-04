@@ -3,13 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
-  let!(:individual1) { create(:accredited_individual, :with_location, full_name: 'Bob Law') }
-  let!(:individual2) { create(:accredited_individual, :with_location, full_name: 'Bob Smith') }
-  let!(:individual3) { create(:accredited_individual, :with_location, :attorney, full_name: 'aaaabc') }
-  let!(:individual4) { create(:accredited_individual, :with_location, :claims_agent, full_name: 'aaaab') }
-  let!(:individual5) { create(:accredited_individual, :with_location, full_name: 'aaaabcde') }
-  let!(:individual6) { create(:accredited_individual, :with_location, full_name: 'aaaa') }
-  let!(:individual7) { create(:accredited_individual, :with_location, full_name: 'aaaabcd') }
+  let!(:individual1) { create(:accredited_individual, :with_location, first_name: 'Bob', last_name: 'Law') }
+  let!(:individual2) { create(:accredited_individual, :with_location, first_name: 'Bob', last_name: 'Smith') }
+  let!(:individual3) { create(:accredited_individual, :with_location, :attorney, first_name: 'aaaabc', last_name: '') }
+  let!(:individual4) do
+    create(:accredited_individual, :with_location, :claims_agent, first_name: 'aaaab', last_name: '')
+  end
+  let!(:individual5) { create(:accredited_individual, :with_location, first_name: 'aaaabcde', last_name: '') }
+  let!(:individual6) { create(:accredited_individual, :with_location, first_name: 'aaaa', last_name: '') }
+  let!(:individual7) { create(:accredited_individual, :with_location, first_name: 'aaaabcd', last_name: '') }
 
   let!(:organization1) { create(:accredited_organization, name: 'Bob Law Firm') }
   let!(:organization2) { create(:accredited_organization, name: 'Bob Smith Firm') }
@@ -76,7 +78,7 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'returns at most 10 results' do
-      create_list(:accredited_individual, 20, :with_location, full_name: 'Bob')
+      create_list(:accredited_individual, 20, :with_location, first_name: 'Bob', last_name: '')
 
       results = described_class.new('Bob').results
 
