@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'decision_review_v1/utilities/form_4142_processor'
 
-
 describe DecisionReviewV1::Processor::Form4142Processor do
   let(:user) { build(:disabilities_compensation_user) }
   let(:auth_headers) do
