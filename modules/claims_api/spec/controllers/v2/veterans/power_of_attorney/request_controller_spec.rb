@@ -504,7 +504,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'validating the params' do
       let(:decision) { 'ACCEPTED' }
-      let(:representative_id) { '456' }
+      let(:representative_id) { 456 } # this comes in on the form as a integer, not a string
       let(:poa_code) { '123' }
       let(:representative) do
         OpenStruct.new(
