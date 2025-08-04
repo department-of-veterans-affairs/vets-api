@@ -907,9 +907,7 @@ mhv:
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
-    base_path: <%= ENV['mhv__sm__base_path'] %>
     gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
-    host: <%= ENV['mhv__sm__host'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
     x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:
@@ -1380,6 +1378,11 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_530ez__email__submitted__template_id'] %>
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
+      email:
+        error:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:

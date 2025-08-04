@@ -42,12 +42,13 @@ module AccreditedRepresentativePortal
         COMPENSATION = 'CMP'
       end
 
-      DependencyClaim =
-        define_claim_type(
+      FORM_TYPES = [
+        (DependencyClaim = define_claim_type(
           form_id: '21-686C_BENEFITS-INTAKE',
           proper_form_id: '21-686c',
           business_line: BusinessLines::COMPENSATION
-        )
+        ))
+      ].freeze
 
       ##
       # Needed to interoperate with the form schema validations performed by the
@@ -82,6 +83,12 @@ module AccreditedRepresentativePortal
 
       def display_form_id
         self.class::PROPER_FORM_ID
+      end
+
+      def self.form_class_from_proper_form_id(proper_form_id)
+        FORM_TYPES.find do |klass|
+          klass::PROPER_FORM_ID.casecmp?(proper_form_id)
+        end
       end
     end
   end
