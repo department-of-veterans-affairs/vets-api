@@ -26,12 +26,14 @@ module EVSS
 
         incoming_data['providerFacility'] = provider_facilities.map do |facility|
           treated_disability_hash = facility['treatedDisabilityNames']
-          if treated_disability_hash.blank?
-            facility.merge('conditionsTreated' => '')
-          else
-            treated_conditions = treated_disability_hash.select { |_, checked| checked }.keys.join(', ')
-            facility.merge('conditionsTreated' => treated_conditions)
-          end
+          treated_conditions = if treated_disability_hash.blank?
+                                 ''
+                               else
+                                 treated_disability_hash.select do |_, checked|
+                                   checked
+                                 end.keys.join(', ')
+                               end
+          facility.merge('conditionsTreated' => treated_conditions)
         end
         incoming_data
       end
