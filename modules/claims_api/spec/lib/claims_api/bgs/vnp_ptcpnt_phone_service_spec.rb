@@ -47,7 +47,7 @@ describe ClaimsApi::VnpPtcpntPhoneService do
 
     it 'responds when sent valid params' do
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/valid_vnp_ptcpnt_phone_find_by_primary_key') do
-        response = subject.vnp_ptcpnt_phone_find_by_primary_key(id)
+        response = subject.vnp_ptcpnt_phone_find_by_primary_key(id:)
 
         expect(response).to include(
           {
