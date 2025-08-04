@@ -52,15 +52,34 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+          attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
+          attachment.file = params['file']
+          file_path = params['file'].tempfile.path
+          # Validate the document using BenefitsIntakeService
+          if %w[40-0247 40-10007].include?(params[:form_id]) && File.extname(file_path).downcase == '.pdf'
+            begin
+              service = BenefitsIntakeService::Service.new
+              service.valid_document?(document: file_path)
+            rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+              # Custom error message for form 40-10007
+              if params[:form_id] == '40-10007'
+                render json: { 
+                  errors: [{
+                    detail: "We weren't able to upload your file. Make sure the file is an accepted format and size before continuing."
+                  }]
+                }, status: :unprocessable_entity
+              else
+                render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+              end
+              return
+            end
+          end
+          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
-        attachment = create_military_records_attachment
-        validate_pdf_document(params['file'].tempfile.path) if should_validate_pdf?
-
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
-
-        attachment.save
-        render json: PersistentAttachmentSerializer.new(attachment)
+          attachment.save
+          render json: PersistentAttachmentSerializer.new(attachment)
+        end
       end
 
       def get_intents_to_file
@@ -84,38 +103,6 @@ module SimpleFormsApi
 
       def intent_service
         @intent_service ||= SimpleFormsApi::IntentToFile.new(@current_user, params)
-      end
-
-      def create_military_records_attachment
-        attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
-        attachment.file = params['file']
-        attachment
-      end
-
-      def should_validate_pdf?
-        %w[40-0247 40-10007].include?(params[:form_id]) &&
-          File.extname(params['file'].tempfile.path).downcase == '.pdf'
-      end
-
-      def validate_pdf_document(file_path)
-        service = BenefitsIntakeService::Service.new
-        service.valid_document?(document: file_path)
-      rescue BenefitsIntakeService::Service::InvalidDocumentError => e
-        handle_pdf_validation_error(e)
-      end
-
-      def handle_pdf_validation_error(error)
-        if params[:form_id] == '40-10007'
-          render json: {
-            errors: [{
-              detail: "We weren't able to upload your file. Make sure the file is an " \
-                      'accepted format and size before continuing.'
-            }]
-          }, status: :unprocessable_entity
-        else
-          render json: { error: "Document validation failed: #{error.message}" },
-                 status: :unprocessable_entity
-        end
       end
 
       def handle_210966_authenticated
