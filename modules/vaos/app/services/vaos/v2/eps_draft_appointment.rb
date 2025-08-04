@@ -329,38 +329,61 @@ module VAOS
       #   or no self-schedulable types are available
       def get_provider_appointment_type_id(provider)
         # Let external service BackendServiceExceptions bubble up naturally
-        if provider.appointment_types.blank?
-          error_data = {
-            error_message: 'Provider appointment types data is not available',
-            user_uuid: @current_user&.uuid
-          }
-          Rails.logger.error("#{CC_APPOINTMENTS}: Provider appointment types data is not available", error_data)
-          raise Common::Exceptions::BackendServiceException.new(
-            'PROVIDER_APPOINTMENT_TYPES_MISSING',
-            {},
-            502,
-            'Provider appointment types data is not available'
-          )
-        end
+        handle_missing_appointment_types_error if provider.appointment_types.blank?
 
         self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
 
-        if self_schedulable_types.blank?
-          error_data = {
-            error_message: 'No self-schedulable appointment types available for this provider',
-            user_uuid: @current_user&.uuid
-          }
-          Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable appointment types available for this provider",
-                             error_data)
-          raise Common::Exceptions::BackendServiceException.new(
-            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
-            {},
-            502,
-            'No self-schedulable appointment types available for this provider'
-          )
-        end
+        handle_missing_self_schedulable_types_error if self_schedulable_types.blank?
 
         self_schedulable_types.first[:id]
+      end
+
+      ##
+      # Handles error when provider appointment types data is missing
+      #
+      # Logs the error with structured data and raises a BackendServiceException
+      # when the provider object doesn't contain appointment types information.
+      #
+      # @raise [Common::Exceptions::BackendServiceException] When appointment types are missing
+      # @return [void]
+      #
+      def handle_missing_appointment_types_error
+        error_data = {
+          error_message: 'Provider appointment types data is not available',
+          user_uuid: @current_user&.uuid
+        }
+        message = "#{CC_APPOINTMENTS}: Provider appointment types data is not available"
+        Rails.logger.error(message, error_data)
+        raise Common::Exceptions::BackendServiceException.new(
+          'PROVIDER_APPOINTMENT_TYPES_MISSING',
+          {},
+          502,
+          'Provider appointment types data is not available'
+        )
+      end
+
+      ##
+      # Handles error when no self-schedulable appointment types are available
+      #
+      # Logs the error with structured data and raises a BackendServiceException
+      # when the provider has appointment types but none are self-schedulable.
+      #
+      # @raise [Common::Exceptions::BackendServiceException] When no self-schedulable types are available
+      # @return [void]
+      #
+      def handle_missing_self_schedulable_types_error
+        error_data = {
+          error_message: 'No self-schedulable appointment types available for this provider',
+          user_uuid: @current_user&.uuid
+        }
+        message = "#{CC_APPOINTMENTS}: No self-schedulable appointment types available for this provider"
+        Rails.logger.error(message, error_data)
+        raise Common::Exceptions::BackendServiceException.new(
+          'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
+          {},
+          502,
+          'No self-schedulable appointment types available for this provider'
+        )
       end
 
       ##
