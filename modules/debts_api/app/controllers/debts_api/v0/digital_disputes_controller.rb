@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../../../lib/debts_api/v0/digital_dispute_submission_service'
+require 'debts_api/v0/digital_dispute_submission_service'
 
 module DebtsApi
   module V0
@@ -42,9 +42,6 @@ module DebtsApi
         return metadata_param if metadata_param.is_a?(Hash)
 
         JSON.parse(metadata_param, symbolize_names: true)
-      rescue JSON::ParserError => e
-        Rails.logger.error "[DIGITAL_DISPUTES_CONTROLLER ERROR] Failed to parse metadata JSON: #{e.message}"
-        nil
       end
 
       def submission_params

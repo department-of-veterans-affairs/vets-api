@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'debt_management_center/base_service'
-require_relative '../../../app/models/debts_api/v0/digital_dispute_submission'
+require 'debts_api/v0/digital_dispute_submission'
 
 module DebtsApi
   module V0

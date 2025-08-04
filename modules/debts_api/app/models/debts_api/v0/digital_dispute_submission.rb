@@ -12,10 +12,6 @@ module DebtsApi
       validates :user_uuid, presence: true
       enum :state, { pending: 0, submitted: 1, failed: 2 }
 
-      def public_metadata
-        super || {}
-      end
-
       def parsed_metadata
         return {} if metadata.blank?
 
