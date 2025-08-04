@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'llm_processor_api/client'
+require 'llm_processor_api/mock_client'
 
 module IvcChampva
   class LlmService
     def initialize
-      @llm_client = IvcChampva::LlmProcessorApi::Client.new
+      @llm_client = create_client
     end
 
     ##
@@ -24,6 +25,17 @@ module IvcChampva
     end
 
     private
+
+    ##
+    # Create the appropriate client based on environment
+    # Uses mock client for development/test environments, real client for staging/production
+    def create_client
+      if %w[staging production].include?(Rails.env)
+        IvcChampva::LlmProcessorApi::Client.new
+      else
+        IvcChampva::LlmProcessorApi::MockClient.new
+      end
+    end
 
     def validate_file_exists(file_path)
       raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
@@ -64,10 +76,10 @@ module IvcChampva
     end
 
     def parse_llm_response(answer_content)
-      cleaned_content = answer_content.strip
-                                      .gsub(/^```json\s*/, '')  # Remove opening ```json
-                                      .gsub(/\s*```$/, '')      # Remove closing ```
-                                      .gsub(/\n/, '')           # Remove newlines
+      cleaned_content = answer_content.gsub(/^```json/, '') # Remove opening ```json
+                                      .gsub(/```$/, '')      # Remove closing ```
+                                      .gsub(/\n/, '')        # Remove newlines
+                                      .strip                 # Remove leading/trailing whitespace
 
       JSON.parse(cleaned_content)
     rescue JSON::ParserError => e
