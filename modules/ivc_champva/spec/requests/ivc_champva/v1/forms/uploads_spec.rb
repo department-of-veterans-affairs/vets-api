@@ -345,7 +345,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       context 'when LLM conditions are met' do
         before do
+          # Mock Flipper for both @current_user (which might be set) and nil (which is typical in these tests)
           allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, nil).and_return(true)
         end
 
         it 'includes llm_response in the JSON for vha_10_7959a form' do
@@ -428,6 +430,42 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
           # Should NOT have LLM response data
           expect(resp).not_to have_key('llm_response')
+        end
+
+        it 'successfully processes LLM validation end-to-end' do
+          # Mock background job launching to prevent OCR job from hanging
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
+          dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
+          allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(dummy_pdf_path)
+
+          # Mock file existence check for LlmService.validate_file_exists
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(dummy_pdf_path).and_return(true)
+
+          # Mock PromptManager since lookup path is not in the test environment
+          allow(IvcChampva::PromptManager).to receive(:get_prompt).and_return('Analyze this document.')
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data from MockClient
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to include(
+            'doc_type' => 'EOB',
+            'doc_type_matches' => true,
+            'valid' => false,
+            'confidence' => 0.9
+          )
         end
       end
 
@@ -1280,7 +1318,14 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:file_path) { '/tmp/some_file.pdf' }
     let(:attachment_guid) { '12345' }
     let(:mock_file) do
-      double('File', respond_to?: true, original_filename: 'some_file.pdf', read: 'content', path: file_path)
+      double('UploadedFile',
+             original_filename: 'some_file.pdf',
+             read: 'content',
+             path: file_path,
+             content_type: 'application/pdf').tap do |file|
+        allow(file).to receive(:respond_to?).with(:original_filename).and_return(true)
+        allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
+      end
     end
     let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
