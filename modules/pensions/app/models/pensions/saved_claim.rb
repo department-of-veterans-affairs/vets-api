@@ -48,6 +48,11 @@ module Pensions
       'PMC'
     end
 
+    # the VBMS document type for _this_ claim type
+    def document_type
+      534
+    end
+
     ##
     # claim attachment list
     #

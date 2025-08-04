@@ -30,6 +30,11 @@ module IncomeAndAssets
       'NCA'
     end
 
+    # the VBMS document type for _this_ claim type
+    def document_type
+      1292
+    end
+
     # Utility function to retrieve claimant email from form
     #
     # @return [String] the claimant email

@@ -27,11 +27,12 @@ RSpec.describe Crm::Service do
     instance_double(Faraday::Response, status:, body: body.to_json)
   end
 
-  shared_examples 'crm request with header' do |env, expected_org|
+  shared_examples 'crm request with header' do |env, flag_state, expected_org|
     let(:response) { mock_response(status: 200, body: mock_data) }
 
     before do
       allow(Settings).to receive(:vsp_environment).and_return(env)
+      allow(Flipper).to receive(:enabled?).with(:ask_va_api_patsr_separation).and_return(flag_state)
       allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
 
       allow_any_instance_of(Faraday::Connection).to receive(:get).with(
@@ -51,12 +52,19 @@ RSpec.describe Crm::Service do
     end
   end
 
-  describe '#call' do
-    include_examples 'crm request with header', 'development', 'iris-dev'
-    include_examples 'crm request with header', 'test', 'iris-dev'
-    include_examples 'crm request with header', 'staging', 'veft-preprod'
-    include_examples 'crm request with header', 'production', 'veft'
+  # Legacy endpoints (flag disabled)
+  include_examples 'crm request with header', 'development', false, 'iris-dev'
+  include_examples 'crm request with header', 'test', false, 'iris-dev'
+  include_examples 'crm request with header', 'staging', false, 'ava-qa'
+  include_examples 'crm request with header', 'production', false, 'veft'
 
+  # New endpoints (flag enabled)
+  include_examples 'crm request with header', 'development', true, 'iris-dev'
+  include_examples 'crm request with header', 'test', true, 'iris-dev'
+  include_examples 'crm request with header', 'staging', true, 'ava-preprod'
+  include_examples 'crm request with header', 'production', true, 'ava-prod'
+
+  describe '#call' do
     context 'when the server returns an error' do
       let(:resp) { mock_response(body: { error: 'server error' }, status: 500) }
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }

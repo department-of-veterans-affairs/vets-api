@@ -5,6 +5,7 @@ module CheckIn
     # settings for travel claims for vista appts
     STATSD_NOTIFY_ERROR = 'worker.checkin.travel_claim.notify.error'
     STATSD_NOTIFY_SUCCESS = 'worker.checkin.travel_claim.notify.success'
+    STATSD_NOTIFY_DELIVERED = 'worker.checkin.travel_claim.notify.delivered'
     STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
     STATSD_CIE_SILENT_FAILURE_TAGS = ['service:check-in',
                                       'function: CheckIn Travel Pay Notification Failure'].freeze
