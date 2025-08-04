@@ -17,13 +17,15 @@ module Swagger
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number.'
+                   number. Omit or set to null for non-North American phone numbers.'
           property :country_code,
                    type: :string,
-                   enum: ['1'],
-                   example: '1',
-                   description: 'First two to four digits of a non- North American phone number that routes the call to
-                   country of that phone number.'
+                   minLength: 1,
+                   maxLength: 3,
+                   example: '44',
+                   default: '1',
+                   pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
+                   description: 'One- to three-digit code prefix that routes the call to the country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -32,7 +34,9 @@ module Swagger
                    an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
-                   example: false
+                   example: true,
+                   default: false,
+                   description: 'Indicates phone number has a non-North American country code.'
           property :is_textable,
                    type: :boolean,
                    example: true,
@@ -82,13 +86,15 @@ module Swagger
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number.'
+                   number. Omit or set to null for non-North American phone numbers.'
           property :country_code,
                    type: :string,
-                   enum: ['1'],
-                   example: '1',
-                   description: 'First two to four digits of a non- North American phone number that routes the call to
-                   country of that phone number.'
+                   minLength: 1,
+                   maxLength: 3,
+                   example: '44',
+                   default: '1',
+                   pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
+                   description: 'One- to three-digit code prefix that routes the call to the country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -97,7 +103,9 @@ module Swagger
                    an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
-                   example: false
+                   example: true,
+                   default: false,
+                   description: 'Indicates phone number has a non-North American country code.'
           property :is_textable,
                    type: :boolean,
                    example: true,

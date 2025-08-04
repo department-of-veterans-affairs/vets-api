@@ -73,6 +73,7 @@ module VAProfile
 
       validates(
         :is_international,
+        presence: true,
         inclusion: { in: [true, false] }
       )
 
