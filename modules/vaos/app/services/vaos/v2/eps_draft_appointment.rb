@@ -28,7 +28,6 @@ module VAOS
     class EpsDraftAppointment
       include VAOS::CommunityCareConstants
 
-      LOGGER_TAG = CC_APPOINTMENTS
       REFERRAL_DRAFT_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_draft_station_id.access".freeze
       PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
 
@@ -174,7 +173,7 @@ module VAOS
           error_message: e.message,
           user_uuid: @current_user&.uuid
         }
-        Rails.logger.error("#{LOGGER_TAG}: Redis error", error_data)
+        Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
         set_error('Redis connection error', :bad_gateway)
       end
 
@@ -313,7 +312,7 @@ module VAOS
           error_message: e.message,
           user_uuid: @current_user&.uuid
         }
-        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots", error_data)
+        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
         nil
       end
 
@@ -335,7 +334,7 @@ module VAOS
             error_message: 'Provider appointment types data is not available',
             user_uuid: @current_user&.uuid
           }
-          Rails.logger.error("#{LOGGER_TAG}: Provider appointment types data is not available", error_data)
+          Rails.logger.error("#{CC_APPOINTMENTS}: Provider appointment types data is not available", error_data)
           raise Common::Exceptions::BackendServiceException.new(
             'PROVIDER_APPOINTMENT_TYPES_MISSING',
             {},
@@ -351,7 +350,7 @@ module VAOS
             error_message: 'No self-schedulable appointment types available for this provider',
             user_uuid: @current_user&.uuid
           }
-          Rails.logger.error("#{LOGGER_TAG}: No self-schedulable appointment types available for this provider",
+          Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable appointment types available for this provider",
                              error_data)
           raise Common::Exceptions::BackendServiceException.new(
             'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
@@ -447,7 +446,7 @@ module VAOS
           provider_specialty: referral.provider_specialty,
           user_uuid: @current_user&.uuid
         }
-        Rails.logger.error("#{LOGGER_TAG}: Provider not found while creating draft appointment", error_data)
+        Rails.logger.error("#{CC_APPOINTMENTS}: Provider not found while creating draft appointment", error_data)
       end
 
       ##
