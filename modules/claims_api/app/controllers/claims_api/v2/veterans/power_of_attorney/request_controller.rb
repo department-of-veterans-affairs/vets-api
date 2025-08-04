@@ -64,43 +64,52 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength
+        def decide
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
-
           request = find_poa_request!(lighthouse_id)
-
           proc_id = request.proc_id
 
           validate_decide_params!(proc_id:, decision:)
+          validate_decide_representative_params!(request.poa_code, representative_id)
 
           vet_icn = request.veteran_icn
           claimant_icn = request.claimant_icn
-
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
 
-          manage_rep_service = manage_representative_service
-
-          process_poa_decision(decision:,
-                               proc_id:,
-                               representative_id:,
-                               poa_code: request.poa_code,
-                               metadata: request.metadata,
-                               veteran: veteran_data,
-                               claimant: claimant_data)
-
-          manage_representative_update_poa_request(proc_id:, secondary_status: decision,
-                                                   declined_reason: form_attributes['declinedReason'],
-                                                   service: manage_rep_service)
+          # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            # Will either get null when a decision is declined or
+            # a poa.id for record saved in our DB when decision is accepted
+            decision_response = process_poa_decision(
+              decision:, proc_id:, representative_id:, poa_code: request.poa_code, metadata: request.metadata,
+              veteran: veteran_data, claimant: claimant_data
+            )
+            # updates the request with the decision in BGS (BEP)
+            manage_representative_update_poa_request(
+              proc_id:, secondary_status: decision, declined_reason: form_attributes['declinedReason'],
+              service: manage_representative_service
+            )
+          end
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
-
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                         view: :index_or_show,
-                                                                                         root: :data), status: :ok
+          # Two different responses needed, if declined no location URL is required
+          if decision_response.nil?
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
+                                                                                           view: :index_or_show,
+                                                                                           root: :data), status: :ok
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+              get_poa_response, view: :index_or_show, root: :data
+            ), status: :ok, location: url_for(
+              controller: 'power_of_attorney/base', action: 'status', id: decision_response.id, veteranId: vet_icn
+            )
+          end
         end
+        # rubocop:enable Metrics/MethodLength
 
         def create # rubocop:disable Metrics/MethodLength
           validate_country_code
@@ -152,13 +161,88 @@ module ClaimsApi
 
         private
 
+        def validate_decide_representative_params!(poa_code, representative_id)
+          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
+                                                                      poa_code, representative_id.to_s)
+          unless representative
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "The accredited representative with registration number #{representative_id} does not match " \
+                      "poa code: #{poa_code}."
+            )
+          end
+        end
+
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
-          @json_body = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
+          result = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
+          return nil if result.blank?
+
+          @json_body, type = result
+          validate_mapped_data!(veteran.participant_id, type, poa_code)
+          # build headers
+          @claimant_icn = claimant.icn.presence || claimant.mpi.icn if claimant
+          build_auth_headers(veteran)
+          attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
+          # save record
+          power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
+
+          claims_v2_logging('process_poa_decision',
+                            message: 'Record saved, sending to POA Form Builder Job')
+          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
+                                                         'post', representative_id)
+
+          power_of_attorney # return to the decide method for the response
+        rescue => e
+          claims_v2_logging('process_poa_decision',
+                            message: "Failed to save power of attorney record. Error: #{e}")
+          raise e
         end
         # rubocop:enable Metrics/ParameterLists
+
+        def validate_mapped_data!(veteran_participant_id, type, poa_code)
+          claims_v2_logging('process_poa_decision',
+                            message: "Data mapped, beginning to validate #{type} and build headers for record save")
+          # custom validations, must come first
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            user_profile:, veteran_participant_id:, poa_code:,
+            base: type
+          )
+          # JSON validations, all errors, including errors from the custom validations
+          # will be raised here if JSON errors exist
+          validate_json_schema(type.upcase)
+          # otherwise we raise the errors from the custom validations if no JSON
+          # errors exist
+          log_and_raise_decision_error_message! if @claims_api_forms_validation_errors
+        rescue JsonSchema::JsonApiMissingAttribute
+          log_and_raise_decision_error_message!
+        end
+
+        def log_and_raise_decision_error_message!
+          claims_v2_logging('process_poa_decision',
+                            message: 'Encountered issues validating the mapped data')
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'An error occurred while processing this decision. Please try again later.'
+          )
+        end
+
+        def build_auth_headers(veteran)
+          params[:veteranId] = veteran.icn.presence || veteran.mpi.icn
+
+          auth_headers
+        end
+
+        def decide_request_attributes(poa_code:, decide_form_attributes:)
+          {
+            status: ClaimsApi::PowerOfAttorney::PENDING,
+            auth_headers: set_auth_headers,
+            form_data: decide_form_attributes,
+            current_poa: poa_code,
+            header_hash:
+          }
+        end
 
         def build_veteran_or_dependent_data(icn)
           build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })

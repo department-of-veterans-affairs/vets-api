@@ -20,10 +20,9 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
   describe 'VALIDATOR_MAP' do
     it 'maps attachment IDs to their corresponding validator classes' do
       expected_map = {
-        'Social Security card' => IvcChampva::DocumentOcrValidators::Tesseract::SocialSecurityCardTesseractValidator,
-        'Explanation of Benefits' => IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator,
-        'Superbill' => IvcChampva::DocumentOcrValidators::Tesseract::SuperbillTesseractValidator,
-        'Pharmacy Claim' => IvcChampva::DocumentOcrValidators::Tesseract::PharmacyClaimTesseractValidator
+        'EOB' => IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator,
+        'medical invoice' => IvcChampva::DocumentOcrValidators::Tesseract::SuperbillTesseractValidator,
+        'pharmacy invoice' => IvcChampva::DocumentOcrValidators::Tesseract::PharmacyClaimTesseractValidator
       }
       expect(described_class::VALIDATOR_MAP).to eq(expected_map)
     end
@@ -47,35 +46,8 @@ RSpec.describe IvcChampva::SupportingDocumentValidator do
       allow(validator).to receive(:extracted_text).and_return('Sample OCR text')
     end
 
-    context 'when a direct validator mapping exists for Social Security card' do
-      let(:attachment_id) { 'Social Security card' }
-
-      before do
-        allow(IvcChampva::DocumentOcrValidators::Tesseract::SocialSecurityCardTesseractValidator)
-          .to receive(:new).and_return(mock_ssn_validator)
-        allow(mock_ssn_validator).to receive(:process_and_cache).with('Sample OCR text').and_return(0.8)
-        allow(mock_ssn_validator).to receive_messages(
-          results_cached?: true,
-          cached_validity: true,
-          cached_extracted_fields: { ssn: '123-45-6789', name: 'JOHN DOE' },
-          cached_confidence_score: 0.8,
-          document_type: 'social_security_card',
-          class: IvcChampva::DocumentOcrValidators::Tesseract::SocialSecurityCardTesseractValidator
-        )
-      end
-
-      it 'uses the mapped validator' do
-        result = validator.process
-        expect(result[:validator_type]).to include('SocialSecurityCardTesseractValidator')
-        expect(result[:document_type]).to eq('social_security_card')
-        expect(result[:is_valid]).to be true
-        expect(result[:extracted_fields]).to eq({ ssn: '123-45-6789', name: 'JOHN DOE' })
-        expect(result[:confidence]).to eq(0.8)
-      end
-    end
-
     context 'when a direct validator mapping exists for EOB' do
-      let(:attachment_id) { 'Explanation of Benefits' }
+      let(:attachment_id) { 'EOB' }
 
       before do
         allow(IvcChampva::DocumentOcrValidators::Tesseract::EobTesseractValidator)

@@ -217,5 +217,22 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividuals', type: :req
         end
       end
     end
+
+    context 'when the type matches a Veteran::Service::Representative type' do
+      let!(:ind1) do
+        create(:accredited_individual, :with_location, individual_type: 'claims_agent')
+      end
+
+      it 'returns accredited individuals of the corresponding type' do
+        # The type 'claim_agents' is from Veteran::Service::Representative
+        # but it should map to the individual_type 'claims_agent' in AccreditedIndividual.
+        get path, params: { type: 'claim_agents', lat:, long: }
+
+        parsed_response = JSON.parse(response.body)
+
+        expect(parsed_response['data'].pluck('id')).to eq([ind1.id])
+        expect(parsed_response['data'][0]['attributes']['individual_type']).to eq('claims_agent')
+      end
+    end
   end
 end
