@@ -820,70 +820,116 @@ describe TravelPay::ClaimsService do
           .and_return(double(body: documents_with_decision_letter))
       end
 
-      it 'includes decision_letter_reason for denied claims' do
-        allow_any_instance_of(TravelPay::ClaimsClient)
-          .to receive(:get_claim_by_id)
-          .and_return(double(body: claim_details_data_denied))
+      context 'when travel_pay_claims_management_decision_reason_api feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management_decision_reason_api,
+                                                    user).and_return(true)
+        end
 
-        # Mock the DocReader-based decision reason extraction
-        mock_doc_reader = instance_double(TravelPay::DocReader)
-        allow(TravelPay::DocReader).to receive(:new).and_return(mock_doc_reader)
-        allow(mock_doc_reader).to receive_messages(
-          denial_reasons: 'Authority 38 CFR 17.120 - Insufficient documentation', partial_payment_reasons: nil
-        )
+        it 'includes decision_letter_reason for denied claims' do
+          allow_any_instance_of(TravelPay::ClaimsClient)
+            .to receive(:get_claim_by_id)
+            .and_return(double(body: claim_details_data_denied))
 
-        mock_documents_service = instance_double(TravelPay::DocumentsService)
-        allow(TravelPay::DocumentsService).to receive(:new).and_return(mock_documents_service)
-        allow(mock_documents_service).to receive(:download_document).and_return({ body: 'mock_doc_data' })
+          # Mock the DocReader-based decision reason extraction
+          mock_doc_reader = instance_double(TravelPay::DocReader)
+          allow(TravelPay::DocReader).to receive(:new).and_return(mock_doc_reader)
+          allow(mock_doc_reader).to receive_messages(
+            denial_reasons: 'Authority 38 CFR 17.120 - Insufficient documentation', partial_payment_reasons: nil
+          )
 
-        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        result = service.get_claim_details(claim_id)
+          mock_documents_service = instance_double(TravelPay::DocumentsService)
+          allow(TravelPay::DocumentsService).to receive(:new).and_return(mock_documents_service)
+          allow(mock_documents_service).to receive(:download_document).and_return({ body: 'mock_doc_data' })
 
-        expect(result['decision_letter_reason']).to eq('Authority 38 CFR 17.120 - Insufficient documentation')
-        expect(result['claimStatus']).to eq('Denied')
+          claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+          result = service.get_claim_details(claim_id)
+
+          expect(result['decision_letter_reason']).to eq('Authority 38 CFR 17.120 - Insufficient documentation')
+          expect(result['claimStatus']).to eq('Denied')
+        end
+
+        it 'does not include decision_letter_reason for partial payment claims (due to bug in status transformation)' do
+          allow_any_instance_of(TravelPay::ClaimsClient)
+            .to receive(:get_claim_by_id)
+            .and_return(double(body: claim_details_data_partial))
+
+          claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+          result = service.get_claim_details(claim_id)
+
+          # Due to a bug in the service, the status is transformed before checking the condition
+          # 'PartialPayment' becomes 'Partial payment' but the condition checks for 'PartialPayment'
+          expect(result).not_to have_key('decision_letter_reason')
+          expect(result['claimStatus']).to eq('Partial payment')
+        end
+
+        it 'does not include decision_letter_reason for approved claims' do
+          allow_any_instance_of(TravelPay::ClaimsClient)
+            .to receive(:get_claim_by_id)
+            .and_return(double(body: claim_details_data_approved))
+
+          claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+          result = service.get_claim_details(claim_id)
+
+          expect(result).not_to have_key('decision_letter_reason')
+          expect(result['claimStatus']).to eq('Pre approved for payment')
+        end
+
+        it 'does not include decision_letter_reason when no decision letter document found' do
+          allow_any_instance_of(TravelPay::ClaimsClient)
+            .to receive(:get_claim_by_id)
+            .and_return(double(body: claim_details_data_denied))
+
+          # Mock no decision letter document
+          allow_any_instance_of(TravelPay::DocumentsClient)
+            .to receive(:get_document_ids)
+            .and_return(double(body: { 'data' => [{ 'documentId' => 'other_doc', 'filename' => 'receipt.pdf' }] }))
+
+          claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+          result = service.get_claim_details(claim_id)
+
+          expect(result).not_to have_key('decision_letter_reason')
+          expect(result['claimStatus']).to eq('Denied')
+        end
       end
 
-      it 'does not include decision_letter_reason for partial payment claims (due to bug in status transformation)' do
-        allow_any_instance_of(TravelPay::ClaimsClient)
-          .to receive(:get_claim_by_id)
-          .and_return(double(body: claim_details_data_partial))
+      context 'when travel_pay_claims_management_decision_reason_api feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management_decision_reason_api,
+                                                    user).and_return(false)
+        end
 
-        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        result = service.get_claim_details(claim_id)
+        it 'does not include decision_letter_reason for denied claims when feature flag is disabled' do
+          allow_any_instance_of(TravelPay::ClaimsClient)
+            .to receive(:get_claim_by_id)
+            .and_return(double(body: claim_details_data_denied))
 
-        # Due to a bug in the service, the status is transformed before checking the condition
-        # 'PartialPayment' becomes 'Partial payment' but the condition checks for 'PartialPayment'
-        expect(result).not_to have_key('decision_letter_reason')
-        expect(result['claimStatus']).to eq('Partial payment')
-      end
+          claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+          result = service.get_claim_details(claim_id)
 
-      it 'does not include decision_letter_reason for approved claims' do
-        allow_any_instance_of(TravelPay::ClaimsClient)
-          .to receive(:get_claim_by_id)
-          .and_return(double(body: claim_details_data_approved))
+          expect(result).not_to have_key('decision_letter_reason')
+          expect(result['claimStatus']).to eq('Denied')
+        end
 
-        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        result = service.get_claim_details(claim_id)
+        it 'does not include decision_letter_reason for paid claims when feature flag is disabled' do
+          paid_claim_data = {
+            'data' => {
+              'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+              'claimStatus' => 'Paid',
+              'claimNumber' => 'TC0000000000001'
+            }
+          }
 
-        expect(result).not_to have_key('decision_letter_reason')
-        expect(result['claimStatus']).to eq('Pre approved for payment')
-      end
+          allow_any_instance_of(TravelPay::ClaimsClient)
+            .to receive(:get_claim_by_id)
+            .and_return(double(body: paid_claim_data))
 
-      it 'does not include decision_letter_reason when no decision letter document found' do
-        allow_any_instance_of(TravelPay::ClaimsClient)
-          .to receive(:get_claim_by_id)
-          .and_return(double(body: claim_details_data_denied))
+          claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+          result = service.get_claim_details(claim_id)
 
-        # Mock no decision letter document
-        allow_any_instance_of(TravelPay::DocumentsClient)
-          .to receive(:get_document_ids)
-          .and_return(double(body: { 'data' => [{ 'documentId' => 'other_doc', 'filename' => 'receipt.pdf' }] }))
-
-        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        result = service.get_claim_details(claim_id)
-
-        expect(result).not_to have_key('decision_letter_reason')
-        expect(result['claimStatus']).to eq('Denied')
+          expect(result).not_to have_key('decision_letter_reason')
+          expect(result['claimStatus']).to eq('Paid')
+        end
       end
     end
   end
