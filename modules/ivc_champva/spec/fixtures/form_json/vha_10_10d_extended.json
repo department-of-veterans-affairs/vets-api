@@ -1,77 +1,130 @@
 {
   "veteran": {
-    "full_name": { "first": "Joe", "last": "Johnson" },
-    "ssn_or_tin": "123123123",
+    "full_name": {
+      "first": "Joe",
+      "last": "Johnson"
+    },
+    "ssn_or_tin": "",
     "va_claim_number": "",
     "date_of_birth": "01-01-1958",
     "phone_number": "",
     "address": {},
     "sponsor_is_deceased": true,
     "date_of_death": "01-01-2001",
-    "date_of_marriage": "",
+    "date_of_marriage": "02-02-2008",
     "is_active_service_death": false
   },
   "applicants": [
     {
-      "applicant_relationship_origin": { "relationship_to_veteran": "blood" },
+      "applicant_school_cert": [
+        {
+          "name": "Screenshot 2025-07-07 at 07.51.14.png",
+          "confirmation_code": "42892129-c549-419a-aca1-7f3ed795e8c8",
+          "attachment_id": "School enrollment certification form",
+          "is_encrypted": false
+        }
+      ],
+      "applicant_relationship_origin": {
+        "relationship_to_veteran": "blood"
+      },
       "applicant_email_address": "johnny@alvin.gov",
-      "applicant_ssn": "333221111",
-      "applicant_gender": { "gender": "male" },
+      "applicant_address": {
+        "country": "USA",
+        "street": "456 Circle Street",
+        "city": "Clinton",
+        "state": "AS",
+        "postal_code": "56790",
+        "street_combined": "456 Circle Street 456 Circle Street  "
+      },
+      "applicant_ssn": "345345345",
+      "applicant_phone": "555-555-1234",
+      "applicant_gender": {
+        "gender": "male"
+      },
       "applicant_relationship_to_sponsor": {
         "relationship_to_veteran": "child"
       },
-      "applicant_dependent_status": { "status": "enrolled" },
+      "applicant_dependent_status": {
+        "status": "enrolled"
+      },
       "applicant_enrolled_in_ohi": false,
       "applicant_dob": "01-04-2003",
-      "applicant_medicare_status": { "eligibility": "enrolled" },
-      "applicant_medicare_part_d": { "enrollment": "enrolled" },
-      "applicant_has_ohi": { "has_ohi": "yes" },
-      "secondary_additional_comments": "Secondary comment",
-      "secondary_medigap_plan": "D",
-      "applicant_secondary_insurance_type": "medigap",
-      "applicant_secondary_eob": true,
-      "applicant_secondary_has_prescription": true,
-      "applicant_secondary_through_employer": true,
-      "applicant_secondary_provider": "Secondary Provider Name",
-      "applicant_secondary_effective_date": "10-03-2020",
-      "applicant_secondary_expiration_date": "06-02-2023",
-      "applicant_has_secondary": true,
-      "primary_additional_comments": "Additional primary comment",
-      "primary_medigap_plan": "B",
-      "applicant_primary_insurance_type": "medigap",
-      "applicant_primary_eob": false,
-      "applicant_primary_has_prescription": true,
-      "applicant_primary_through_employer": true,
-      "applicant_primary_provider": "Primary Provider Name",
-      "applicant_primary_effective_date": "01-02-2001",
-      "applicant_primary_expiration_date": "03-03-2020",
-      "applicant_has_primary": true,
-      "applicant_phone": "5551112222",
-      "applicant_address": {
-        "country": "USA",
-        "street": "456 Street Avenue",
-        "city": "Cityland",
-        "state": "CA",
-        "postal_code": "43212",
-        "street_combined": "456 Street Avenue "
-      },
-      "applicant_new_address": "yes",
       "applicant_name": {
-        "first": "Applicant1",
-        "last": "Jones",
-        "suffix": "Sr."
+        "first": "Johnny",
+        "middle": "T",
+        "last": "Alvin",
+        "suffix": "Jr."
       },
-      "consent_to_mail_missing_required_files": true,
-      "certifier_role": "other",
-      "certifier_email": "certifier@email.gov",
-      "signature": "Certifier Jones",
+      "shares_address_with": "not-shared",
       "ssn_or_tin": "345345345",
       "vet_relationship": "child",
-      "applicant_supporting_documents": []
+      "applicant_supporting_documents": [],
+      "medicare": [
+        {
+          "medicare_part_a_part_b_front_card": [
+            {
+              "name": "ab_front.png",
+              "confirmation_code": "6043bb5e-5738-4811-abf4-87573ef2e815",
+              "attachment_id": "",
+              "is_encrypted": false
+            }
+          ],
+          "medicare_part_a_part_b_back_card": [
+            {
+              "name": "ab_back.png",
+              "confirmation_code": "a178864b-ea20-4131-9778-2a964f21b1e0",
+              "attachment_id": "",
+              "is_encrypted": false
+            }
+          ],
+          "medicare_participant": "28e7f1064a74",
+          "medicare_plan_type": "c",
+          "medicare_part_a_effective_date": "2023-01-15",
+          "medicare_part_b_effective_date": "2023-01-15",
+          "medicare_part_c_carrier": "Advantage Health Solutions",
+          "medicare_part_c_effective_date": "2023-02-01",
+          "has_pharmacy_benefits": true,
+          "has_medicare_part_d": true,
+          "medicare_part_d_carrier": "PharmaCare Plus",
+          "medicare_part_d_effective_date": "2023-02-01"
+        }
+      ],
+      "health_insurance": [
+        {
+          "insurance_card_front": [
+            {
+              "name": "ohi_front.png",
+              "confirmation_code": "0d21739a-632a-4773-90f6-480b2f2473ce",
+              "attachment_id": "",
+              "is_encrypted": false
+            }
+          ],
+          "insurance_card_back": [
+            {
+              "name": "ohi_back.png",
+              "confirmation_code": "925433d3-3342-4395-834c-083dbaa46b04",
+              "attachment_id": "",
+              "is_encrypted": false
+            }
+          ],
+          "healthcare_participants": {
+            "28e7f1064a74": true,
+            "274d8d2b37b3": true
+          },
+          "insurance_type": "medigap",
+          "medigap_plan": "K",
+          "provider": "Blue Cross Blue Shield",
+          "effective_date": "2024-10-01",
+          "expiration_date": "2024-10-02",
+          "through_employer": true,
+          "additional_comments": "Lorem"
+        }
+      ],
+      "applicant_medicare_advantage": false
     }
   ],
   "certification": {
-    "date": "05-06-2025",
+    "date": "07-07-2025",
     "last_name": "Jones",
     "middle_initial": "",
     "first_name": "Certifier",
@@ -82,14 +135,31 @@
     "state": "AL",
     "postal_code": "12312"
   },
-  "supporting_docs": [],
-  "has_applicant_over65": false,
+  "supporting_docs": [
+    {
+      "name": "ohi_front.png",
+      "confirmation_code": "0d21739a-632a-4773-90f6-480b2f2473ce",
+      "attachment_id": "",
+      "is_encrypted": false
+    },
+    {
+      "name": "ohi_back.png",
+      "confirmation_code": "925433d3-3342-4395-834c-083dbaa46b04",
+      "attachment_id": "",
+      "is_encrypted": false
+    }
+  ],
+  "certification_date": "2025-07-07",
+  "has_applicant_over_65": false,
   "certifier_role": "other",
   "statement_of_truth_signature": "Certifier Jones",
   "primary_contact_info": {
-    "name": { "first": "Certifier", "last": "Jones" },
+    "name": {
+      "first": "Certifier",
+      "last": "Jones"
+    },
     "email": "certifier@email.gov",
     "phone": "1231231234"
   },
-  "form_number": "10-10D"
+  "form_number": "10-10D-EXTENDED"
 }

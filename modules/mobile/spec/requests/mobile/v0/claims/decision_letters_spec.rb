@@ -13,12 +13,15 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
 
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(FakeVBMS.new)
-    allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent, nil).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_filter_doc_27_decision_letters_out).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_5103_letters, nil).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_sqd_letters, nil).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_boa_letters, nil).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_5103_letters, anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_sqd_letters, anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_boa_letters, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent).and_return(false)
+    allow(Flipper).to receive(:enabled?)
+      .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
+      .and_return(false)
   end
 
   # This endpoint's upstream service mocks it's own data for test env. HTTP client is not exposed by the

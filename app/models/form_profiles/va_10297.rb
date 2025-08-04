@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/ppiu/service'
 require 'vets/model'
 
 module VA10297
@@ -21,7 +20,10 @@ class FormProfiles::VA10297 < FormProfile
 
   def prefill
     @payment_information = initialize_payment_information
-    super
+    result = super
+    result[:form_data]['applicantFullName'].delete('suffix') # no name suffix needed in this schema
+
+    result
   end
 
   def metadata
@@ -55,7 +57,7 @@ class FormProfiles::VA10297 < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "FormProfiles::VA10297 Failed to retrieve PPIU data: #{e.message}"
+    Rails.logger.error "FormProfiles::VA10297 Failed to retrieve Payment Information data: #{e.message}"
     {}
   end
 

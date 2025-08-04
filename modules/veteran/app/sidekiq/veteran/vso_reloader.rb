@@ -161,14 +161,9 @@ module Veteran
     end
 
     def log_to_slack(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                       channel: '#api-benefits-claims',
-                                       username: 'VSOReloader')
-      client.notify(message)
-    end
+      return unless Settings.vsp_environment == 'production'
 
-    def log_to_slack_threshold_channel(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'VSOReloader')
       client.notify(message)
@@ -229,7 +224,7 @@ module Veteran
                 "Threshold: #{(threshold * 100).round(2)}%\n" \
                 'Action: Update skipped, manual review required'
 
-      log_to_slack_threshold_channel(message)
+      log_to_slack(message)
       log_message_to_sentry("VSO Reloader threshold exceeded for #{rep_type}", :warn,
                             previous_count:,
                             new_count:,

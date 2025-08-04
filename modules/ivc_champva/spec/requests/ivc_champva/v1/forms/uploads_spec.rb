@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'ves_api/client'
+require 'common/convert_to_pdf'
 
 RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
@@ -204,6 +205,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
 
+          context 'with retry feature enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
+            end
+          end
+
           it 'retries VES submission if it fails' do
             with_settings(Settings, vsp_environment: 'staging') do
               if data['form_number'] == '10-10D'
@@ -303,6 +310,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#submit_supporting_documents' do
     let(:file) { fixture_file_upload('doctors-note.gif') }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
+
     context 'successful transaction' do
       it 'renders the attachment as json' do
         clamscan = double(safe?: true)
@@ -321,6 +332,161 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           resp = JSON.parse(response.body)
           expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
           expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+        end
+      end
+    end
+
+    context 'LLM response integration' do
+      let(:clamscan) { double(safe?: true) }
+
+      before do
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      end
+
+      context 'when LLM conditions are met' do
+        before do
+          # Mock Flipper for both @current_user (which might be set) and nil (which is typical in these tests)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, nil).and_return(true)
+        end
+
+        it 'includes llm_response in the JSON for vha_10_7959a form' do
+          # Set up AWS mocking for individual test runs (prevents real AWS calls)
+          original_aws_config = Aws.config.dup
+          Aws.config.update(stub_responses: true)
+
+          # Ensure virus scan mock is set up for individual test runs
+          clamscan = double(safe?: true)
+          allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+          # Mock background job launching to prevent OCR job from hanging on file I/O
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Create a mock response that matches the structure returned by MockClient
+          # rubocop:disable Layout/LineLength
+          mock_response = {
+            body: {
+              answer: '```json
+                      {
+                        "doc_type": "EOB",
+                        "doc_type_matches": true,
+                        "valid": false,
+                        "confidence": 0.9,
+                        "missing_fields": [
+                          "Provider NPI (10-digit)",
+                          "Services Paid For (CPT/HCPCS code or description)"
+                        ],
+                        "present_fields": {
+                          "Date of Service": "01/29/13",
+                          "Provider Name": "Smith, Robert",
+                          "Amount Paid by Insurance": "0.00"
+                        },
+                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and Services Paid For."
+                      }
+                      ```'
+            }.to_json
+          }
+          # rubocop:enable Layout/LineLength
+
+          # Parse the response the same way call_llm_service does
+          parsed_response = JSON.parse(mock_response[:body])
+          answer_content = parsed_response['answer']
+          cleaned_content = answer_content.strip.gsub(/^```json\s*/, '').gsub(/\s*```$/, '')
+          mock_client_response = JSON.parse(cleaned_content)
+
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:call_llm_service)
+            .and_return(mock_client_response)
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data that matches MockClient structure
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to eq(mock_client_response)
+        ensure
+          # Restore original AWS config
+          Aws.config = original_aws_config if defined?(original_aws_config)
+        end
+
+        it 'does not include llm_response for non-7959A forms even when flipper is enabled' do
+          data = { form_id: '10-10D', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should NOT have LLM response data
+          expect(resp).not_to have_key('llm_response')
+        end
+
+        it 'successfully processes LLM validation end-to-end' do
+          # Mock background job launching to prevent OCR job from hanging
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
+          dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
+          allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(dummy_pdf_path)
+
+          # Mock file existence check for LlmService.validate_file_exists
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(dummy_pdf_path).and_return(true)
+
+          # Mock PromptManager since lookup path is not in the test environment
+          allow(IvcChampva::PromptManager).to receive(:get_prompt).and_return('Analyze this document.')
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data from MockClient
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to include(
+            'doc_type' => 'EOB',
+            'doc_type_matches' => true,
+            'valid' => false,
+            'confidence' => 0.9
+          )
+        end
+      end
+
+      context 'when LLM conditions are not met' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(false)
+        end
+
+        it 'does not include llm_response when flipper is disabled' do
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should NOT have LLM response data
+          expect(resp).not_to have_key('llm_response')
         end
       end
     end
@@ -344,6 +510,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#unlock_file' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
 
     context 'with locked PDF and no provided password' do
       let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
@@ -1022,6 +1192,49 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#add_blank_doc_and_stamp integration' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) { { 'form_number' => '10-7959A', 'supporting_docs' => [] } }
+
+    # Basic test form class with stamp_metadata method to verify
+    # it properly gates the functionality
+    let(:form) do
+      instance_double(IvcChampva::VHA107959a,
+                      form_id: '10-7959A',
+                      methods: [:stamp_metadata],
+                      stamp_metadata: { metadata: { 'test_key' => 'test_value' }, attachment_id: 'Test Attachment' })
+    end
+
+    it 'creates and adds a supporting document' do
+      # Mock out the PDF operations to avoid actually creating files
+      expect(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
+      expect(controller).to receive(:create_custom_attachment).and_return({ 'attachment_id' => 'doc1' })
+
+      # Check that a supporting doc gets added to the form_data
+      expect do
+        controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)
+      end.to change { parsed_form_data['supporting_docs'].length }.from(0).to(1)
+
+      expect(parsed_form_data['supporting_docs']).to include({ 'attachment_id' => 'doc1' })
+    end
+  end
+
+  describe '#add_blank_doc_and_stamp without stamp_metadata method' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form) { instance_double(IvcChampva::VHA1010d) }
+    let(:parsed_form_data) { { 'form_number' => '10-10D' } }
+
+    before do
+      allow(form).to receive(:methods).and_return([])
+    end
+
+    it 'does nothing when form has no stamp_metadata method' do
+      expect(IvcChampva::PdfStamper).not_to receive(:stamp_metadata_items)
+
+      controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)
+    end
+  end
+
   describe '#validate_mpi_profiles' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:parsed_form_data) do
@@ -1096,6 +1309,164 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         end.not_to raise_error
 
         expect(Rails.logger).to have_received(:error).with('Error validating MPI profiles: MPI service error')
+      end
+    end
+  end
+
+  describe '#launch_background_job' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:file_path) { '/tmp/some_file.pdf' }
+    let(:attachment_guid) { '12345' }
+    let(:mock_file) do
+      double('UploadedFile',
+             original_filename: 'some_file.pdf',
+             read: 'content',
+             path: file_path,
+             content_type: 'application/pdf').tap do |file|
+        allow(file).to receive(:respond_to?).with(:original_filename).and_return(true)
+        allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
+      end
+    end
+    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
+    let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
+
+    context 'when form_id is vha_10_7959a' do
+      let(:form_id) { 'vha_10_7959a' }
+
+      context 'when OCR feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
+        end
+
+        it 'queues TesseractOcrLoggerJob with correct arguments' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).to receive(:perform_async).with(
+            form_id,
+            attachment_guid,
+            attachment,
+            'EOB'
+          )
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'queues LlmLoggerJob with correct arguments' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).to receive(:perform_async).with(
+            form_id,
+            attachment_guid,
+            match(%r{^/.*\.pdf$}), # PDF path after conversion
+            'EOB'
+          )
+          # Mock the tempfile_from_attachment method to return a temp file
+          allow(controller).to receive(:tempfile_from_attachment).and_return(double(path: '/tmp/test_file.pdf'))
+          # Mock the Common::ConvertToPdf class to avoid loading issues
+          converter_double = double('ConvertToPdf')
+          allow(converter_double).to receive(:run).and_return('/tmp/converted.pdf')
+          stub_const('Common::ConvertToPdf', double('Class'))
+          allow(Common::ConvertToPdf).to receive(:new).and_return(converter_double)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+      end
+
+      context 'when OCR feature is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(false)
+        end
+
+        it 'does not queue TesseractOcrLoggerJob' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'does not queue LlmLoggerJob' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+      end
+    end
+
+    context 'when form_id is not vha_10_7959a' do
+      let(:form_id) { 'vha_10_10d' }
+
+      context 'when OCR feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
+        end
+
+        it 'does not queue TesseractOcrLoggerJob' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'does not queue LlmLoggerJob' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+      end
+    end
+  end
+
+  describe '#tempfile_from_attachment' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_7959a' }
+    let(:file_content) { 'test file content' }
+
+    context 'when attachment.file responds to original_filename' do
+      let(:mock_file) do
+        double('UploadedFile',
+               original_filename: 'some_file.gif',
+               read: file_content)
+      end
+
+      let(:attachment) do
+        instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+      end
+
+      it 'creates a tempfile with the original filename and random code' do
+        tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
+
+        expect(tmpfile).to be_a(Tempfile)
+        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.gif$/)
+        tmpfile.rewind
+        expect(tmpfile.read).to eq(file_content)
+        tmpfile.close
+        tmpfile.unlink
+      end
+    end
+
+    context 'when attachment.file does not respond to original_filename' do
+      let(:mock_file) do
+        double('File',
+               path: '/tmp/some_other_file.png',
+               read: file_content)
+      end
+
+      let(:attachment) do
+        instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+      end
+
+      it 'creates a tempfile with the basename and random code' do
+        tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
+
+        expect(tmpfile).to be_a(Tempfile)
+        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.png$/)
+        tmpfile.rewind
+        expect(tmpfile.read).to eq(file_content)
+        tmpfile.close
+        tmpfile.unlink
       end
     end
   end

@@ -60,10 +60,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
     end
+  end
 
-    it 'responds to GET #index with requires_oh flag' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
-        get '/my_health/v1/messaging/allrecipients?requires_oh=1'
+  context 'with requires_oh flag enabled' do
+    it 'responds to GET #index with requires_oh flipper' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
+          get '/my_health/v1/messaging/allrecipients'
+        end
       end
 
       expect(response).to be_successful

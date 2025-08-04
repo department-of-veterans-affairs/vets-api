@@ -1,0 +1,48 @@
+{
+  "applicantFullName": {
+    "first": "Test",
+    "last": "Personage"
+  },
+  "vaFileNumber": "123456789",
+  "ssn": "123456789",
+  "mailingAddress" :{
+    "street": "123 Test St",
+    "street2": "Apt B",
+    "city": "Test",
+    "state": "TN",
+    "postalCode": "12345",
+    "country": "USA"
+  },
+  "contactInfo": {
+    "emailAddress": "test@test.com",
+    "mobilePhone": "5551234567"
+  },
+  "dateOfBirth": "1970-01-01",
+   "statementOfTruthSignature": "John Hancock",
+  "dateSigned": "2025-01-01",
+  "hasCompletedActiveDuty": true,
+  "dateReleasedFromActiveDuty": "2025-01-01",
+  "activeDutyDuringHitechVets": true,
+  "isEmployed": true,
+  "highestLevelOfEducation": "BD",
+  "privacyAgreementAccepted": true,
+  "bankAccount": {
+    "accountType": "checking",
+    "routingNumber": "123456789",
+    "accountNumber": "123456"
+  },
+  "trainingProviders": {
+    "providers": [{
+      "providerName": "Test University",
+      "providerAddress": {
+        "street": "123 Example Ln",
+        "street2": "Bldg 2",
+        "city": "Test",
+        "state": "TN",
+        "postalCode": "12345",
+        "country": "USA"
+      }
+    }],
+    "plannedStartDate": "2025-02-02"
+  }
+}
