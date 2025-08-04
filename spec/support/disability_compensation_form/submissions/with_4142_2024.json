@@ -184,8 +184,8 @@
       {
         "providerFacilityName": "provider 2",
         "treatedDisabilityNames": {
-          "PTSD (post traumatic stress disorder)": false, 
-          "Coding Trauma": true, 
+          "PTSD (post traumatic stress disorder)": false,
+          "Coding Trauma": true,
           "Nasal Trauma": false
         },
         "treatmentDateRange": [
@@ -206,8 +206,8 @@
       {
         "providerFacilityName": "provider 3",
         "treatedDisabilityNames": {
-          "PTSD (post traumatic stress disorder)": true, 
-          "Coding Trauma": true, 
+          "PTSD (post traumatic stress disorder)": true,
+          "Coding Trauma": true,
           "Nasal Trauma": true
         },
         "treatmentDateRange": [
