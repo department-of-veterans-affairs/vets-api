@@ -21,7 +21,7 @@ module VRE
     def personalization
       default = super
       data = case @email_type
-             when :action_needed
+             when :error
                {
                  'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
                  'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),

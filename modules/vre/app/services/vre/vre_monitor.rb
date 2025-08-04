@@ -52,12 +52,5 @@ module VRE
     def form_id
       VRE::FORM_ID
     end
-
-    ##
-    # Class name for notification email
-    # @return [Class]
-    def send_email(claim_id, email_type)
-      VRE::NotificationEmail.new(claim_id).deliver(email_type)
-    end
   end
 end

@@ -294,6 +294,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
+  # @see ::Logging::BenefitsIntake::Monitor#track_submission_exhaustion
+  def send_email(email_type)
+    VRE::NotificationEmail.new(id).deliver(email_type)
+  end
+
   def send_confirmation_email(user, service, email_type, email_template)
     if user.va_profile_email.blank?
       Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
@@ -302,7 +307,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     if Flipper.enabled?(:vre_use_new_vfs_notification_library, user)
-      VRE::NotificationEmail.new(id).deliver(email_type)
+      send_email(email_type:)
     else
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
