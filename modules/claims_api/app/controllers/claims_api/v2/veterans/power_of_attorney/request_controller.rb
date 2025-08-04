@@ -164,7 +164,7 @@ module ClaimsApi
         def validate_decide_representative_params!(poa_code, representative_id)
           validate_accredited_representative(poa_code)
 
-          unless @representative.representative_id == representative_id
+          unless @representative.representative_id == representative_id.to_s
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
               detail: "The accredited representative with registration number #{representative_id} does not match " \
                       "poa code: #{poa_code}."
