@@ -2212,6 +2212,11 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles the display of decision reason parsed from the decision letter document on the claim details page.
+  travel_pay_claims_management_decision_reason_api:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the decision reason API functionality, including finding decision letter documents and extracting decision reasons from them.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
