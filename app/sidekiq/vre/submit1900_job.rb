@@ -44,7 +44,7 @@ module VRE
       end
     end
 
-    def monitor
+    def self.monitor
       if Flipper.enabled?(:vre_use_new_vfs_notification_library)
         @monitor ||= VRE::VREMonitor.new
       else

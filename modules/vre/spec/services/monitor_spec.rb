@@ -98,9 +98,6 @@ RSpec.describe VRE::VREMonitor do
       when 'submission not found'
         monitor_fn = -> { monitor.track_show404(claim.confirmation_number, current_user, monitor_error) }
         statsd_message = claim_stats_key
-      when 'fetching submission failed'
-        monitor_fn = -> { monitor.track_show_error(claim.confirmation_number, current_user, monitor_error) }
-        statsd_message = claim_stats_key
       when 'process attachment error'
         payload.merge!(
           in_progress_form_id: ipf.id,
@@ -145,7 +142,7 @@ RSpec.describe VRE::VREMonitor do
           form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           error: monitor_error.message,
-          user_account_uuid: current_user.uuid,
+          user_account_uuid: current_user.uuid
         )
         payload.delete(:message)
         monitor_fn = -> { monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error) }
@@ -168,7 +165,6 @@ RSpec.describe VRE::VREMonitor do
 
   it_behaves_like 'tracking other errors', 'fetching submission failed'
   it_behaves_like 'tracking other errors', 'submission not found'
-  it_behaves_like 'tracking other errors', 'fetching submission failed'
   it_behaves_like 'tracking other errors', 'process attachment error'
   it_behaves_like 'tracking other errors', 'send_confirmation_email failed'
   it_behaves_like 'tracking other errors', 'send_submitted_email failed'
@@ -197,7 +193,7 @@ RSpec.describe VRE::VREMonitor do
     let(:monitor_error) { create(:monitor_error) }
 
     it "tracks #{monitor_event} event#{has_confirmation_number ? '' : ' with no confirmation number'}" do
-      log_message = "#{message_prefix}"
+      log_message = message_prefix
       statsd_key = "#{submission_stats_key}.#{monitor_event}"
       log_level = :info
 

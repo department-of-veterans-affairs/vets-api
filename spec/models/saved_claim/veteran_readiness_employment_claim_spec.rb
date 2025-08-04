@@ -138,7 +138,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             end
 
             it 'sends confirmation email' do
-              expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+              expect(claim).to receive(:send_confirmation_email).with(user_object, 'VBMS', :confirmation_vbms, "ch31_vbms_fake_template_id")
 
               claim.send_to_vre(user_object)
             end
@@ -163,7 +163,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           it 'PDF is sent to Central Mail and not VBMS' do
             expect(claim).to receive(:process_attachments!)
             expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-            expect(claim).to receive(:send_lighthouse_confirmation_email)
+            expect(claim).to receive(:send_confirmation_email)
             expect(claim).not_to receive(:upload_to_vbms)
             expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
               user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -184,10 +184,64 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
     end
 
-    describe '#send_vbms_confirmation_email' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
+    describe '#send_confirmation_email' do
+      let(:user) do
+        OpenStruct.new(
+          edipi: '1007697216',
+          participant_id: '600061742',
+          first_name: 'WESLEY',
+          va_profile_email: 'test@example.com',
+          flipper_id: 'test-user-id'
+        )
+      end
+      let(:claim) { create_claim(form_type) }
 
+      context 'with new VFS notification library enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library, user)
+            .and_return(true)
+        end
+
+        it 'calls VRE::NotificationEmail for Lighthouse' do
+          notification = instance_double(VRE::NotificationEmail)
+          expect(VRE::NotificationEmail).to receive(:new)
+            .with(claim.id)
+            .and_return(notification)
+          expect(notification).to receive(:deliver)
+            .with(:confirmation_lighthouse)
+          
+          claim.send_confirmation_email(
+            user,
+            'Lighthouse',
+            :confirmation_lighthouse,
+            described_class::CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE
+          )
+        end
+
+        it 'calls VRE::NotificationEmail for VBMS' do
+          notification = instance_double(VRE::NotificationEmail)
+          expect(VRE::NotificationEmail).to receive(:new)
+            .with(claim.id)
+            .and_return(notification)
+          expect(notification).to receive(:deliver)
+            .with(:confirmation_vbms)
+          
+          claim.send_confirmation_email(
+            user,
+            'VBMS',
+            :confirmation_vbms,
+            described_class::CONFIRMATION_EMAIL_TEMPLATE_VBMS
+          )
+        end
+      end
+
+      context 'Legacy notification strategy' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library, user)
+            .and_return(false)
+        end
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
             user.va_profile_email,
@@ -198,26 +252,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             }
           )
 
-          claim.send_vbms_confirmation_email(user)
-        end
-      end
-    end
-
-    describe '#send_lighthouse_confirmation_email' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
-
-        it 'calls the VA notify email job' do
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            user.va_profile_email,
-            'ch31_central_mail_fake_template_id',
-            {
-              'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => user.first_name.upcase.presence
-            }
-          )
-
-          subject.send_lighthouse_confirmation_email(user)
+          claim.send_confirmation_email(user, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
         end
       end
     end

@@ -21,8 +21,10 @@ describe VRE::Submit1900Job do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
+  let(:notification) { instance_double('VRE::NotificationEmail') }
+  let(:msg) { { 'args' => [claim.id, encrypted_user] } }
+  let(:job) { described_class.new }
 
-  let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
     { 'args' => [], 'class' => 'VRE::Submit1900Job', 'error_message' => 'An error occurred',
       'queue' => 'default' }
@@ -31,7 +33,6 @@ describe VRE::Submit1900Job do
   %w[v1 v2].each do |form_type|
     context "with #{form_type}" do
       let(:claim) { create_claim(form_type) }
-      let(:job) { described_class.new }
 
       before do
         allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
@@ -41,22 +42,25 @@ describe VRE::Submit1900Job do
       end
 
       describe 'Notifications - using new VFS library' do
+        let(:monitor) { instance_double(VRE::VREMonitor) }
+
         before do
           allow(Flipper).to receive(:enabled?)
             .with(:vre_use_new_vfs_notification_library)
             .and_return(true)
+          allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
+          allow(described_class).to receive(:monitor).and_return(monitor)
         end
 
         it 'uses VFS New NotificationEmail when retries are exhausted' do
-          notification = instance_double(VRE::NotificationEmail)
-          expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification)
-          expect(notification).to receive(:deliver).with(:action_needed)
-
-          VRE::Submit1900Job.trigger_failure_events({ 'args' => [claim.id, encrypted_user] })
+          expect(monitor).to receive(:track_submission_exhaustion).with(msg, claim)
+          described_class.trigger_failure_events(msg)
         end
       end
 
       describe 'Notifications - using legacy fire-and-forget strategy' do
+        let(:monitor) { instance_double(VRE::Monitor) }
+
         before do
           allow(Flipper).to receive(:enabled?)
             .with(:vre_use_new_vfs_notification_library)
