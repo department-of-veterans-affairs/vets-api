@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :job do
+  include ActiveSupport::Testing::TimeHelpers
   subject(:job) { described_class.new }
 
   let(:client) { RepresentationManagement::GCLAWS::Client }
@@ -13,6 +14,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     allow(Sidekiq::Batch).to receive(:new).and_return(batch)
     allow(batch).to receive(:description=)
     allow(batch).to receive(:jobs).and_yield
+    slack_client = instance_double(SlackNotify::Client)
+    allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
+    allow(slack_client).to receive(:notify)
   end
 
   describe '#perform' do
@@ -60,6 +64,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
+      allow(entity_counts).to receive(:count_report).and_return('Count report generated successfully')
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
@@ -832,6 +837,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.instance_variable_set(:@representative_json_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
       job.instance_variable_set(:@accreditation_ids, [])
+      job.instance_variable_set(:@report, String.new)
 
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
@@ -1312,6 +1318,362 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         .with('Batching representative address updates from GCLAWS Accreditation API')
 
       job.send(:validate_rep_addresses)
+    end
+  end
+
+  describe '#finalize_and_send_report' do
+    let(:job) { described_class.new }
+
+    before do
+      allow(job).to receive(:log_to_slack_channel)
+      job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@start_time, 2.minutes.ago)
+    end
+
+    it 'calculates duration and appends it to the report' do
+      allow(job).to receive(:calculate_duration).and_return('2m 30s')
+
+      job.send(:finalize_and_send_report)
+
+      report = job.instance_variable_get(:@report)
+      expect(report).to include("\nJob Duration: 2m 30s\n")
+    end
+
+    it 'sends the complete report to Slack' do
+      initial_report = String.new('Initial report content')
+      job.instance_variable_set(:@report, initial_report)
+      allow(job).to receive(:calculate_duration).and_return('1m 15s')
+
+      job.send(:finalize_and_send_report)
+
+      expect(job).to have_received(:log_to_slack_channel).with(initial_report)
+    end
+  end
+
+  describe '#calculate_duration' do
+    let(:job) { described_class.new }
+
+    context 'when calculating duration in seconds only' do
+      it 'returns seconds format for duration under 1 minute' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 45.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('45s')
+      end
+    end
+
+    context 'when calculating duration in minutes and seconds' do
+      it 'returns minutes and seconds format for 2 minutes 30 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 2.minutes + 30.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('2m 30s')
+      end
+    end
+
+    context 'when calculating duration in hours, minutes and seconds' do
+      it 'returns full format for 2 hours 15 minutes 30 seconds' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = start_time + 2.hours + 15.minutes + 30.seconds
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('2h 15m 30s')
+      end
+    end
+
+    context 'when handling edge cases' do
+      it 'handles fractional seconds by truncating to integer' do
+        start_time = Time.parse('2023-12-01 12:00:00.750 UTC')
+        end_time = Time.parse('2023-12-01 12:00:45.250 UTC')
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('44s') # 44.5 seconds truncated to 44
+      end
+
+      it 'handles same start and end times' do
+        time = Time.parse('2023-12-01 12:00:00 UTC')
+
+        result = job.send(:calculate_duration, time, time)
+
+        expect(result).to eq('0s')
+      end
+
+      it 'works with Time objects that have different time zones' do
+        start_time = Time.parse('2023-12-01 12:00:00 UTC')
+        end_time = Time.parse('2023-12-01 13:15:30 EST') # 1h 15m 30s later in UTC
+
+        result = job.send(:calculate_duration, start_time, end_time)
+
+        expect(result).to eq('6h 15m 30s') # EST is UTC-5, so 13:15:30 EST = 18:15:30 UTC
+      end
+    end
+  end
+
+  describe '#individual_representative_json' do
+    let(:record) { instance_double(AccreditedIndividual, id: 42) }
+    let(:rep) do
+      {
+        'id' => 'ea154c64-bf20-47e0-9866-86ae988776a8',
+        'veteransServiceOrganization' => {
+          'name' => 'Less Law Firm',
+          'poa' => 'JQ8',
+          'number' => 210,
+          'id' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
+        },
+        'lastName' => 'aalaam',
+        'firstName' => 'judy',
+        'middleName' => 'M',
+        'workAddress1' => '123 Work St',
+        'workAddress2' => 'Apt 2',
+        'workAddress3' => '',
+        'workCity' => 'Work City',
+        'workState' => 'CA',
+        'workZip' => '12345'
+      }
+    end
+
+    it 'creates a JSON object for representative address validation' do
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result).to eq({
+                             id: 42,
+                             address: {
+                               address_pou: 'RESIDENCE/CHOICE',
+                               address_line1: '123 Work St',
+                               address_line2: 'Apt 2',
+                               address_line3: '',
+                               city: 'Work City',
+                               state: { state_code: 'CA' },
+                               zip_code5: '12345'
+                             }
+                           })
+    end
+
+    it 'handles nil address fields gracefully' do
+      rep['workAddress2'] = nil
+      rep['workAddress3'] = nil
+
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address][:address_line2]).to be_nil
+      expect(result[:address][:address_line3]).to be_nil
+    end
+
+    it 'handles empty string address fields' do
+      rep['workAddress2'] = ''
+      rep['workAddress3'] = ''
+
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address][:address_line2]).to eq('')
+      expect(result[:address][:address_line3]).to eq('')
+    end
+
+    it 'uses the record ID in the output' do
+      different_record = instance_double(AccreditedIndividual, id: 999)
+
+      result = job.send(:individual_representative_json, different_record, rep)
+
+      expect(result[:id]).to eq(999)
+    end
+
+    it 'structures state as a nested hash with state_code' do
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address][:state]).to eq({ state_code: 'CA' })
+    end
+
+    it 'handles missing address fields gracefully' do
+      rep['workCity'] = nil
+      rep['workState'] = nil
+      rep['workZip'] = nil
+
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address]).to include(
+        city: nil,
+        state: { state_code: nil },
+        zip_code5: nil
+      )
+    end
+  end
+
+  describe '#individual_agent_json' do
+    let(:record) { instance_double(AccreditedIndividual, id: 42) }
+    let(:agent) do
+      {
+        'id' => '123',
+        'number' => 'A123',
+        'poa' => 'ABC',
+        'firstName' => 'John',
+        'middleName' => 'A',
+        'lastName' => 'Doe',
+        'workAddress1' => '123 Main St',
+        'workAddress2' => 'Apt 456',
+        'workAddress3' => '',
+        'workZip' => '12345',
+        'workCountry' => 'USA',
+        'workPhoneNumber' => '555-1234',
+        'workEmailAddress' => 'john@example.com'
+      }
+    end
+
+    it 'creates a JSON object for agent address validation' do
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result).to eq({
+                             id: 42,
+                             address: {
+                               address_pou: 'RESIDENCE/CHOICE',
+                               address_line1: '123 Main St',
+                               address_line2: 'Apt 456',
+                               address_line3: '',
+                               city: nil,
+                               state: { state_code: nil },
+                               zip_code5: '12345'
+                             }
+                           })
+    end
+
+    it 'handles nil address fields gracefully' do
+      agent['workAddress2'] = nil
+      agent['workAddress3'] = nil
+
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address][:address_line2]).to be_nil
+      expect(result[:address][:address_line3]).to be_nil
+    end
+
+    it 'handles empty string address fields' do
+      agent['workAddress2'] = ''
+      agent['workAddress3'] = ''
+
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address][:address_line2]).to eq('')
+      expect(result[:address][:address_line3]).to eq('')
+    end
+
+    it 'uses the record ID in the output' do
+      different_record = instance_double(AccreditedIndividual, id: 999)
+
+      result = job.send(:individual_agent_json, different_record, agent)
+
+      expect(result[:id]).to eq(999)
+    end
+
+    it 'structures state as a nested hash with state_code' do
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address][:state]).to eq({ state_code: nil })
+    end
+
+    it 'handles missing address fields gracefully' do
+      agent['workAddress1'] = nil
+      agent['workZip'] = nil
+
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address]).to include(
+        address_line1: nil,
+        city: nil,
+        state: { state_code: nil },
+        zip_code5: nil
+      )
+    end
+  end
+
+  describe '#individual_attorney_json' do
+    let(:record) { instance_double(AccreditedIndividual, id: 42) }
+    let(:attorney) do
+      {
+        'id' => '789',
+        'number' => 'B789',
+        'poa' => 'GHI',
+        'firstName' => 'Bob',
+        'middleName' => 'C',
+        'lastName' => 'Johnson',
+        'workAddress1' => '321 Pine St',
+        'workAddress2' => 'Suite 789',
+        'workAddress3' => '',
+        'workCity' => 'Anytown',
+        'workState' => 'CA',
+        'workZip' => '98765',
+        'workNumber' => '555-9876',
+        'emailAddress' => 'bob@example.com'
+      }
+    end
+
+    it 'creates a JSON object for attorney address validation' do
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result).to eq({
+                             id: 42,
+                             address: {
+                               address_pou: 'RESIDENCE/CHOICE',
+                               address_line1: '321 Pine St',
+                               address_line2: 'Suite 789',
+                               address_line3: '',
+                               city: 'Anytown',
+                               state: { state_code: 'CA' },
+                               zip_code5: '98765'
+                             }
+                           })
+    end
+
+    it 'handles nil address fields gracefully' do
+      attorney['workAddress2'] = nil
+      attorney['workAddress3'] = nil
+
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address][:address_line2]).to be_nil
+      expect(result[:address][:address_line3]).to be_nil
+    end
+
+    it 'handles empty string address fields' do
+      attorney['workAddress2'] = ''
+      attorney['workAddress3'] = ''
+
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address][:address_line2]).to eq('')
+      expect(result[:address][:address_line3]).to eq('')
+    end
+
+    it 'uses the record ID in the output' do
+      different_record = instance_double(AccreditedIndividual, id: 999)
+
+      result = job.send(:individual_attorney_json, different_record, attorney)
+
+      expect(result[:id]).to eq(999)
+    end
+
+    it 'structures state as a nested hash with state_code' do
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address][:state]).to eq({ state_code: 'CA' })
+    end
+
+    it 'handles missing address fields gracefully' do
+      attorney['workCity'] = nil
+      attorney['workState'] = nil
+      attorney['workZip'] = nil
+
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address]).to include(
+        city: nil,
+        state: { state_code: nil },
+        zip_code5: nil
+      )
     end
   end
 end

@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+# SubmissionJob
+#
+# This Sidekiq job handles the submission of 10-10EZ health care applications to the HCA backend service.
+#
+# Why:
+# - Automates the process of submitting user health care applications asynchronously.
+# - Handles retries and error logging for robust, reliable processing.
+#
+# How:
+# - Decrypts the submitted form data.
+# - Submits the form to the HCA backend via the HCA::Service.
+# - Updates the HealthCareApplication record with the result or error state.
+# - Handles validation errors and logs them for analytics and auditing.
+#
+# See also: HCA::Service for submission logic, HealthCareApplication for persistence.
+
 require 'hca/service'
 require 'hca/soap_parser'
 

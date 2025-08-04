@@ -104,11 +104,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on site',
-      x: form_id == '686C-674' ? 400 : 300,
-      y: form_id == '686C-674' ? 675 : 775,
+      x: 400,
+      y: 675,
       text_only: true, # passing as text only because we override how the date is stamped in this instance
       timestamp:,
-      page_number: form_id == '686C-674' ? 6 : 0,
+      page_number: %w[686C-674 686C-674-V2].include?(form_id) ? 6 : 0,
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
@@ -171,7 +171,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     end
   end
 
-  def upload_to_vbms(path:, doc_type: '148')
+  def document_type
+    148
+  end
+
+  def upload_to_vbms(path:, doc_type: nil)
+    doc_type ||= document_type
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],

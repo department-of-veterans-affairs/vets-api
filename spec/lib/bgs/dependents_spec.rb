@@ -71,7 +71,7 @@ RSpec.describe BGS::Dependents do
           VCR.use_cassette('bgs/dependents/create/death') do
             dependents = BGS::Dependents.new(
               proc_id:,
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object
             ).create_all
 
@@ -80,7 +80,7 @@ RSpec.describe BGS::Dependents do
                 family_relationship_type_name: 'Spouse',
                 participant_relationship_type_name: 'Spouse',
                 type: 'death',
-                end_date: '2024-08-01T12:00:00+00:00'
+                end_date: '2020-01-01T12:00:00+00:00'
               )
             )
           end
@@ -92,16 +92,16 @@ RSpec.describe BGS::Dependents do
           VCR.use_cassette('bgs/dependents/create') do
             dependents = BGS::Dependents.new(
               proc_id:,
-              payload: all_flows_payload_v2,
+              payload: all_flows_payload,
               user: user_object
             ).create_all
 
             # TODO: this expectation will change when we get the new data keys from the FE
             expect(dependents).to include(
               a_hash_including(
-                divorce_state: 'ME',
-                divorce_city: 'portland',
-                end_date: DateTime.parse('2023-05-03 12:00:00').to_time.iso8601,
+                divorce_state: 'FL',
+                divorce_city: 'Tampa',
+                end_date: DateTime.parse('2020-01-01 12:00:00').to_time.iso8601,
                 type: 'divorce'
               )
             )
