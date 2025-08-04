@@ -38,6 +38,12 @@ module EVSS
 
       def transform_form_data(incoming_data)
         if generate_2024_version?
+          sub_id = @submission.id
+          Rails.logger.info('Using 2024 version of Form 4142',
+                            form4142_version: '2024',
+                            form526_submission_id: sub_id,
+                            submission_id: sub_id,
+                            submitted_claim_id: @submission.submitted_claim_id)
           # Transform the incoming data to match the expected new 2024 structure
           # For now, only provider facilities are transformed, but could need more in the future
           transform_provider_facilities(incoming_data)
