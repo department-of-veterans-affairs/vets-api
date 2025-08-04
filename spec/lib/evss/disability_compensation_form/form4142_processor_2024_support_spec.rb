@@ -63,19 +63,19 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
     it 'handles empty provider facilities' do
       empty_form_json = JSON.parse(form_json)
-      empty_form_json['providerFacility'] = []
+      empty_form_json['form4142']['providerFacility'] = []
 
-      transformed_data = processor.send(:transform_provider_facilities, empty_form_json)['providerFacility']
+      transformed_data = processor.send(:transform_provider_facilities, empty_form_json)['form4142']['providerFacility']
 
       expect(transformed_data).to eq([])
     end
 
     it 'handles missing providerFacility key' do
       form_without_facilities = JSON.parse(form_json)
-      form_without_facilities.delete('providerFacility')
+      form_without_facilities['form4142'].delete('providerFacility')
 
       transformed_data = processor.send(:transform_provider_facilities,
-                                        form_without_facilities)['providerFacility']
+                                        form_without_facilities)['form4142']['providerFacility']
 
       expect(transformed_data).to be_nil
     end
