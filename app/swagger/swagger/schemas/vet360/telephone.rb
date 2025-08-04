@@ -9,21 +9,24 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :PostVet360Telephone do
-          key :required, %i[phone_number area_code phone_type is_international country_code]
+          key :required, %i[phone_number phone_type is_international country_code]
           property :area_code,
                    type: :string,
+                   nullable: true,
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number.'
+                   number. Required when is_international is false. Omit or set null for non-North American numbers.'
           property :country_code,
                    type: :string,
-                   enum: ['1'],
+                   minLength: 1,
+                   maxLength: 3,
                    example: '1',
-                   description: 'First two to four digits of a non- North American phone number that routes the call to
-                   country of that phone number.'
+                   default: '1',
+                   pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
+                   description: 'One- to three-digit code that routes the call to the country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -32,7 +35,9 @@ module Swagger
                    an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
-                   example: false
+                   example: false,
+                   default: false,
+                   description: 'Indicates phone number has a non-North American country code.'
           property :is_textable,
                    type: :boolean,
                    example: true,
@@ -71,24 +76,27 @@ module Swagger
         end
 
         swagger_schema :PutVet360Telephone do
-          key :required, %i[id phone_number area_code phone_type is_international country_code]
+          key :required, %i[id phone_number phone_type is_international country_code]
           property :id,
                    type: :integer,
                    example: 1
           property :area_code,
                    type: :string,
+                   nullable: true,
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number.'
+                   number. Required when is_international is false. Omit or set null for non-North American numbers.'
           property :country_code,
                    type: :string,
-                   enum: ['1'],
+                   minLength: 1,
+                   maxLength: 3,
                    example: '1',
-                   description: 'First two to four digits of a non- North American phone number that routes the call to
-                   country of that phone number.'
+                   default: '1',
+                   pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
+                   description: 'One- to three-digit code that routes the call to the country of that phone number.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -97,7 +105,9 @@ module Swagger
                    an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
-                   example: false
+                   example: false,
+                   default: false,
+                   description: 'Indicates phone number has a non-North American country code.'
           property :is_textable,
                    type: :boolean,
                    example: true,
