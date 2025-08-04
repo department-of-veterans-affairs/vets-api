@@ -15,13 +15,10 @@ module IvcChampva
       end
 
       delegate :host, to: :settings
+      delegate :api_key, to: :settings
 
       def base_path
         settings.host
-      end
-
-      def api_key
-        settings.api_key
       end
 
       def service_name

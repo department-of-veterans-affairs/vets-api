@@ -16,8 +16,6 @@ module IvcChampva
         Settings.ivc_champva_llm_processor_api
       end
 
-
-
       ##
       # HTTP POST call to the LLM processor service to process a document
       #
