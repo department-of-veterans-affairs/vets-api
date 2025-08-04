@@ -36,6 +36,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            key: 'marketValueAtEstablishmentOverflow', # Fake key for overflow handling
+            limit: 13,
             dollar: true,
             question_num: 8,
             question_suffix: 'C',
@@ -56,6 +58,8 @@ module IncomeAndAssets
           # 8e
           'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
           'addedFundsAfterEstablishmentOverflow' => {
+            key: 'addedFundsAfterEstablishmentOverflow', # Fake key for overflow handling
+            limit: 11,
             question_num: 8,
             question_suffix: 'E',
             question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?',
@@ -86,6 +90,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            key: 'addedFundsAmountOverflow', # Fake key for overflow handling
+            limit: 11,
             dollar: true,
             question_num: 8,
             question_suffix: 'G',
@@ -95,6 +101,8 @@ module IncomeAndAssets
           # 8h
           'receivingIncomeFromTrust' => { key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]" },
           'receivingIncomeFromTrustOverflow' => {
+            key: 'receivingIncomeFromTrustOverflow', # Fake key for overflow handling
+            limit: 11,
             question_num: 8,
             question_suffix: 'H',
             question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? ',
@@ -207,11 +215,12 @@ module IncomeAndAssets
           'trustType' => IncomeAndAssets::Constants::TRUST_TYPES[item['trustType']],
           'addedFundsAfterEstablishment' => item['addedFundsAfterEstablishment'] ? 0 : 1,
           'addedFundsDate' => split_date(item['addedFundsDate']),
-          'addedFundsAmount' => split_currency_amount_sm(item['addedFundsAmount']),
+          'addedFundsAmount' => split_currency_amount_sm(item['addedFundsAmount'], { 'thousands' => 3 }),
           'receivingIncomeFromTrust' => item['receivingIncomeFromTrust'] ? 0 : 1,
-          'annualReceivedIncome' => split_currency_amount_sm(item['annualReceivedIncome']),
+          'annualReceivedIncome' => split_currency_amount_sm(item['annualReceivedIncome'], { 'thousands' => 3 }),
           'trustUsedForMedicalExpenses' => item['trustUsedForMedicalExpenses'] ? 0 : 1,
-          'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(item['monthlyMedicalReimbursementAmount']),
+          'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(item['monthlyMedicalReimbursementAmount'],
+                                                                          { 'thousands' => 3 }),
           'trustEstablishedForVeteransChild' => item['trustEstablishedForVeteransChild'] ? 0 : 1,
           'haveAuthorityOrControlOfTrust' => item['haveAuthorityOrControlOfTrust'] ? 0 : 1
         }
@@ -221,7 +230,14 @@ module IncomeAndAssets
           overflow["#{fieldname}Overflow"] = item[fieldname]
         end
 
-        expanded.merge(overflow)
+        overrides = {
+          'marketValueAtEstablishmentOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['marketValueAtEstablishment']),
+          'addedFundsAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['addedFundsAmount']),
+          'annualReceivedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['annualReceivedIncome']),
+          'monthlyMedicalReimbursementAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['monthlyMedicalReimbursementAmount'])
+        }
+
+        expanded.compact.merge(overflow).merge(overrides)
       end
     end
   end

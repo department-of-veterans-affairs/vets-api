@@ -36,6 +36,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            key: "marketValueAtEstablishmentOverflow[#{ITERATOR}]", # Fake key for overflow handling
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'C',
@@ -76,6 +78,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            key: "addedFundsAmountOverflow[#{ITERATOR}]", # Fake key for overflow handling
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'F',
@@ -118,6 +122,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
+            key: "annualReceivedIncomeOverflow[#{ITERATOR}]", # Fake key for overflow handling
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'I',
@@ -146,6 +152,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
           },
           'surrenderValueOverflow' => {
+            key: "surrenderValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
+            limit: 13,
             dollar: true,
             question_num: 9,
             question_suffix: 'K',
@@ -177,7 +185,7 @@ module IncomeAndAssets
       # @return [Hash]
       #
       def expand_item(item)
-        market_value = split_currency_amount_lg(item['marketValueAtEstablishment'], { 'millions' => 1 })
+        market_value = item['marketValueAtEstablishment']
         expanded = {
           'addedFundsDate' => split_date(item['addedFundsDate']),
           'addedFundsAmount' => split_currency_amount_lg(item['addedFundsAmount'], { 'millions' => 1 }),
@@ -188,7 +196,7 @@ module IncomeAndAssets
           'annualReceivedIncome' => split_currency_amount_lg(item['annualReceivedIncome'], { 'millions' => 1 }),
           'revocable' => item['revocable'] ? 0 : 1,
           'establishedDate' => split_date(item['establishedDate']),
-          'marketValueAtEstablishment' => market_value
+          'marketValueAtEstablishment' => split_currency_amount_lg(market_value, { 'millions' => 1 })
         }
 
         overflow = {}
@@ -196,7 +204,14 @@ module IncomeAndAssets
           overflow["#{fieldname}Overflow"] = item[fieldname]
         end
 
-        expanded.merge(overflow)
+        overrides = {
+          'addedFundsAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['addedFundsAmount']),
+          'surrenderValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['surrenderValue']),
+          'annualReceivedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['annualReceivedIncome']),
+          'marketValueAtEstablishmentOverflow' => ActiveSupport::NumberHelper.number_to_currency(market_value)
+        }
+
+        expanded.merge(overflow).merge(overrides)
       end
     end
   end

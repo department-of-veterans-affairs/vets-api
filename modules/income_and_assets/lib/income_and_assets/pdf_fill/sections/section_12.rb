@@ -154,12 +154,15 @@ module IncomeAndAssets
         overrides = {
           'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
-          'expectedIncome' => split_currency_amount_sm(item['expectedIncome']),
+          'expectedIncome' => split_currency_amount_sm(item['expectedIncome'], { 'thousands' => 3 }),
+          'expectedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['expectedIncome']),
           'paymentResumeDate' => split_date(payment_resume_date),
           'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
           'paymentWillNotResume' => payment_resume_date ? 0 : 1,
           'paymentWillResumeOverflow' => payment_resume_date ? 'YES' : 'NO',
-          'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'])
+          'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'],
+                                                                 { 'thousands' => 3 }),
+          'waivedGrossMonthlyIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['waivedGrossMonthlyIncome'])
         }
 
         expanded.merge(overrides)
