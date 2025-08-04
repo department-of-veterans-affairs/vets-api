@@ -69,19 +69,16 @@ module ClaimsApi
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
-
           request = find_poa_request!(lighthouse_id)
-
           proc_id = request.proc_id
 
           validate_decide_params!(proc_id:, decision:)
+          validate_decide_representative_params!(request.poa_code, representative_id)
 
           vet_icn = request.veteran_icn
           claimant_icn = request.claimant_icn
-
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
-
           # Will either get null when a decision is declined or
           # a poa.id for record saved in our DB when decision is accepted
           decision_response = process_poa_decision(decision:, proc_id:, representative_id:, poa_code: request.poa_code,
@@ -157,6 +154,17 @@ module ClaimsApi
         end
 
         private
+
+        def validate_decide_representative_params!(poa_code, representative_id)
+          validate_accredited_representative(poa_code)
+
+          unless @representative.representative_id == representative_id
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "The accredited representative with registration number #{representative_id} does not match " \
+                      "poa code: #{poa_code}."
+            )
+          end
+        end
 
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
