@@ -62,7 +62,16 @@ module SimpleFormsApi
               service = BenefitsIntakeService::Service.new
               service.valid_document?(document: file_path)
             rescue BenefitsIntakeService::Service::InvalidDocumentError => e
-              render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+              # Custom error message for form 40-10007
+              if params[:form_id] == '40-10007'
+                render json: { 
+                  errors: [{
+                    detail: "We weren't able to upload your file. Make sure the file is an accepted format and size before continuing."
+                  }]
+                }, status: :unprocessable_entity
+              else
+                render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+              end
               return
             end
           end
