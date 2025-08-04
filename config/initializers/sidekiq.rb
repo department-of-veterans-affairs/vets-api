@@ -52,8 +52,10 @@ Rails.application.reloader.to_prepare do
     end
 
     config.on(:startup) do
-      # Initialize and start the long-lived Kafka producer
-      Kafka.submit_test_event({"startup" => "true"})
+      if Flipper.enabled?(:kafka_producer)
+        # Initialize and start the long-lived Kafka producer
+        Kafka.submit_test_event({ 'startup' => 'true' })
+      end
     end
 
     config.on(:shutdown) do
