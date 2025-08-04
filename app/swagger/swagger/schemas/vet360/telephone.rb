@@ -9,20 +9,21 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :PostVet360Telephone do
-          key :required, %i[phone_number area_code phone_type is_international country_code]
+          key :required, %i[phone_number phone_type is_international country_code]
           property :area_code,
                    type: :string,
+                   nullable: true,
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number. Omit or set to null for non-North American phone numbers.'
+                   number. Required when is_international is false. Omit or set null for non-North American numbers.'
           property :country_code,
                    type: :string,
                    minLength: 1,
                    maxLength: 3,
-                   example: '44',
+                   example: '1',
                    default: '1',
                    pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
                    description: 'One- to three-digit code that routes the call to the country of that phone number.'
@@ -34,7 +35,7 @@ module Swagger
                    an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
-                   example: true,
+                   example: false,
                    default: false,
                    description: 'Indicates phone number has a non-North American country code.'
           property :is_textable,
@@ -75,23 +76,24 @@ module Swagger
         end
 
         swagger_schema :PutVet360Telephone do
-          key :required, %i[id phone_number area_code phone_type is_international country_code]
+          key :required, %i[id phone_number phone_type is_international country_code]
           property :id,
                    type: :integer,
                    example: 1
           property :area_code,
                    type: :string,
+                   nullable: true,
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number. Omit or set to null for non-North American phone numbers.'
+                   number. Required when is_international is false. Omit or set null for non-North American numbers.'
           property :country_code,
                    type: :string,
                    minLength: 1,
                    maxLength: 3,
-                   example: '44',
+                   example: '1',
                    default: '1',
                    pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
                    description: 'One- to three-digit code that routes the call to the country of that phone number.'
@@ -103,7 +105,7 @@ module Swagger
                    an establishment, in order to reach a specific party.'
           property :is_international,
                    type: :boolean,
-                   example: true,
+                   example: false,
                    default: false,
                    description: 'Indicates phone number has a non-North American country code.'
           property :is_textable,
