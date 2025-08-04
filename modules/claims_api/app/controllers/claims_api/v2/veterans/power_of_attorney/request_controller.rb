@@ -158,12 +158,12 @@ module ClaimsApi
 
         private
 
-        # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+        # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           result = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
-          return nil if result.nil?
+          return nil if result.blank?
 
           @json_body, type = result
           validate_mapped_data!(veteran.participant_id, type, poa_code)
@@ -173,19 +173,19 @@ module ClaimsApi
           attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
           # save record
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
-          if power_of_attorney.present?
-            claims_v2_logging('process_poa_decision',
-                              message: 'Record saved, sending to POA Form Builder Job')
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
-                                                           'post', representative_id)
-            power_of_attorney # return to the decide method for the response
-          end
+
+          claims_v2_logging('process_poa_decision',
+                            message: 'Record saved, sending to POA Form Builder Job')
+          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
+                                                         'post', representative_id)
+
+          power_of_attorney # return to the decide method for the response
         rescue => e
           claims_v2_logging('process_poa_decision',
                             message: "Failed to save power of attorney record. Error: #{e}")
           raise e
         end
-        # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+        # rubocop:enable Metrics/ParameterLists
 
         def validate_mapped_data!(veteran_participant_id, type, poa_code)
           claims_v2_logging('process_poa_decision',
