@@ -36,7 +36,7 @@ module TravelPay
       # .next_sibling: <w:p>NEW_LINE</w:p>
       # .next_sibling: <w:p>Partially paid for the following reason:</w:p>
       # .next_sibling: <w:p>ACTUAL TEXT</w:p>
-      heading.next_sibling.next_sibling.next_sibling.text.strip
+      heading.next_sibling&.next_sibling&.next_sibling&.text&.strip
     end
 
     def find_heading(heading_text)
