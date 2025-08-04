@@ -2,7 +2,6 @@
 
 module Eps
   class ProviderService < BaseService
-
     ##
     # Get provider data from EPS
     #
@@ -194,8 +193,8 @@ module Eps
           specialty_matches_count: specialty_matches.size,
           user_uuid: @current_user&.uuid
         }
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI",
-                          warn_data)
+        message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
+        Rails.logger.warn(message, warn_data)
       end
 
       address_match&.then { |provider| OpenStruct.new(provider) }
