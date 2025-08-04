@@ -14,7 +14,6 @@ module MyHealth
       STATSD_KEY_PREFIX = 'api.my_health.immunizations'
 
       before_action :check_feature_toggle
-      # skip_before_action :authenticate
 
       def index
         start_date = params[:start_date]
