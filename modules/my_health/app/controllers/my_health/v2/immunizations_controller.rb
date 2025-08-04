@@ -45,9 +45,12 @@ module MyHealth
           immunization = response.body['entry'].find { |entry| entry['resource']['id'] == id }
 
           unless immunization
-            raise Common::Client::Errors::ClientError.new('Immunization not found',
-                                                          status: 404)
+            render_error('Immunization Not Found',
+                         'The requested immunization record was not found',
+                         '404', 404, :not_found)
+            return
           end
+
           return_value = Lighthouse::VeteransHealth::Serializers::ImmunizationSerializer
                          .from_fhir(immunization['resource'])
 
