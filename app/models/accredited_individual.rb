@@ -37,7 +37,7 @@ class AccreditedIndividual < ApplicationRecord
 
   # Set the full_name attribute for the representative
   def set_full_name
-    self.full_name = [first_name, last_name].map(&:to_s).map(&:strip).reject(&:blank?).join(' ')
+    self.full_name = [first_name, last_name].map(&:to_s).map(&:strip).compact_blank.join(' ')
   end
 
   DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
