@@ -20,6 +20,10 @@ module IvcChampva
         settings.host
       end
 
+      def api_key
+        settings.api_key
+      end
+
       def service_name
         'LlmProcessorApi::Client'
       end
