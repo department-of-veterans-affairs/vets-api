@@ -102,11 +102,14 @@ module VAOS
       #   - { exists: true } if an appointment with the given referral exists,
       #   - { exists: false } if no appointment with the referral is found.
       def referral_appointment_already_exists?(referral_id, pagination_params = {})
-        vaos_response = get_all_appointments(pagination_params)
-        vaos_request_failures = vaos_response[:meta][:failures]
+        # Bypass VAOS call if EPS mocks are enabled since we don't have betamocks for it.
+        unless eps_appointments_service.config.mock_enabled?
+          vaos_response = get_all_appointments(pagination_params)
+          vaos_request_failures = vaos_response[:meta][:failures]
 
-        return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-        return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+          return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
+          return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+        end
 
         eps_appointments = eps_appointments_service.get_appointments[:data]
         # Filter out draft EPS appointments when checking referral usage
@@ -941,16 +944,18 @@ module VAOS
           'vaVideoCareAtAnAtlasLocation'
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif %w[MOBILE_ANY ADHOC].include?(vvs_kind)
+        elsif %w[ADHOC MOBILE_ANY MOBILE_ANY_GROUP MOBILE_GFE].include?(vvs_kind)
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
-          'vaInPerson'
+          vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+          vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
         end
       end
 
       # This should be called after set_type has been called
       def schedulable?(appointment)
-        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment) || cc?(appointment)
+        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
+        return appointment[:type] == APPOINTMENT_TYPES[:cc_request] if cc?(appointment)
         return true if appointment[:type] == APPOINTMENT_TYPES[:request]
         if appointment[:type] == APPOINTMENT_TYPES[:va] &&
            SCHEDULABLE_SERVICE_TYPES.include?(appointment[:service_type])

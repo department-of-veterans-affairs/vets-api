@@ -30,6 +30,14 @@ module AccreditedRepresentativePortal
 
     private
 
+    def deny_access_unless_686c_enabled
+      routing_error unless Flipper.enabled?(:accredited_representative_portal_submissions, @current_user)
+    end
+
+    def routing_error
+      raise Common::Exceptions::RoutingError, params[:path]
+    end
+
     def track_unique_session
       if @current_user.present?
         arp_session_key = :arp_session_started_for_user

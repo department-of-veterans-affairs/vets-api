@@ -202,6 +202,76 @@ module AccreditedRepresentativePortal
         end
       end
 
+      context 'when OGC returns no registration numbers and email case differs' do
+        let!(:representative) do
+          create(:representative,
+                 user_types: ['veteran_service_officer'],
+                 representative_id: 'REG123456',
+                 email: 'TEST@EXAMPLE.COM') # Uppercase email in database
+        end
+
+        before do
+          # Set user email to lowercase
+          user_account.set_all_emails(['test@example.com'])
+
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(nil)
+
+          allow(ogc_client).to receive(:post_icn_and_registration_combination)
+            .with(icn, 'REG123456')
+            .and_return(true)
+        end
+
+        it 'finds representative with case-insensitive email matching' do
+          result = user_account.send(:registration_numbers)
+
+          expect(result).to eq({ 'veteran_service_officer' => 'REG123456' })
+        end
+      end
+
+      context 'when OGC returns no registration numbers and multiple email cases exist' do
+        let!(:representative1) do
+          create(:representative,
+                 user_types: ['veteran_service_officer'],
+                 representative_id: 'REG123456',
+                 email: 'primary@EXAMPLE.COM')
+        end
+
+        let!(:representative2) do
+          create(:representative,
+                 user_types: ['attorney'],
+                 representative_id: 'REG789012',
+                 email: 'SECONDARY@example.com')
+        end
+
+        before do
+          # Set user emails with different cases
+          user_account.set_all_emails(['PRIMARY@example.com', 'secondary@EXAMPLE.COM'])
+
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(nil)
+
+          allow(ogc_client).to receive(:post_icn_and_registration_combination)
+            .with(icn, 'REG123456')
+            .and_return(true)
+
+          allow(ogc_client).to receive(:post_icn_and_registration_combination)
+            .with(icn, 'REG789012')
+            .and_return(true)
+        end
+
+        it 'finds all representatives with case-insensitive email matching' do
+          result = user_account.send(:registration_numbers)
+
+          expect(result).to eq({
+                                 'veteran_service_officer' => 'REG123456',
+                                 'attorney' => 'REG789012'
+                               })
+        end
+      end
+
       context 'when OGC returns no registration numbers' do
         let!(:representative) do
           create(:representative,

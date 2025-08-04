@@ -27,7 +27,7 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
   end
   let(:veteran_information) do
     { 'fullName' => { 'first' => 'Abraham', 'last' => 'Lincoln', 'suffix' => 'Jr.' },
-      'ssn' => '796111863', 'birthDate' => '1809-02-12' }
+      'ssnLastFour' => '1863', 'birthDate' => '1809-02-12' }
   end
   let(:contact_information) do
     { 'veteranAddress' => {

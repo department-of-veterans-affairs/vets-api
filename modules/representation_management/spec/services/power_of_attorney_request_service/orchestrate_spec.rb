@@ -9,7 +9,6 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
     end
 
     let(:user) { create(:user, :loa3) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:organization) { create(:organization, poa: 'B12') }
     let(:representative) { create(:representative, representative_id: '86753') }
     let(:dependent) { true }

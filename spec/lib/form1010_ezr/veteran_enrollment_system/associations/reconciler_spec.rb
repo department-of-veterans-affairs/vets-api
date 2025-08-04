@@ -24,7 +24,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
   describe '#reconcile_associations' do
     context 'when associations were deleted on the frontend' do
       it "adds the deleted associations back to the form's associations array with a " \
-         "'deleteIndicator' and returns all associations data in the VES format" do
+         "'deleteIndicator' and returns all associations data in the EZR schema format" do
         reconciled_associations = described_class.new(
           get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec'),
           primary_next_of_kin
@@ -32,7 +32,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
 
         # 'Emergency Contact' is added back to the associations array
         expect(reconciled_associations.count).to eq(2)
-        # The data is in the VES format
+        # The data is in the EZR schema format
         expect(reconciled_associations.find { |a| a['contactType'] == 'Emergency Contact' }).to eq(
           {
             'contactType' => 'Emergency Contact',
@@ -41,7 +41,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
               'middle' => 'MIDDLEECA',
               'last' => 'LASTECA'
             },
-            'relationType' => 'BROTHER',
+            'relationship' => 'BROTHER',
             'deleteIndicator' => true
           }
         )

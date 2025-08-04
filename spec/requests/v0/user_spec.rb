@@ -254,11 +254,10 @@ RSpec.describe 'V0::User', type: :request do
   end
 
   context 'GET /v0/user - MVI Integration', :skip_mvi do
-    let(:user) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
+    let(:user) { create(:user, :loa3, :no_mpi_profile) }
     let(:edipi) { '1005127153' }
 
     before do
-      create(:user_verification, idme_uuid: user.idme_uuid)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         sign_in_as(user)
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)

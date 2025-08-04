@@ -53,10 +53,9 @@ RSpec.describe User, type: :model do
   describe '#needs_accepted_terms_of_use' do
     context 'when user is verified' do
       let(:user) { build(:user, :loa3, needs_accepted_terms_of_use: nil) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
       context 'and user has an associated current terms of use agreements' do
-        let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account: user_verification.user_account) }
+        let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account: user.user_account) }
 
         it 'does not return true' do
           expect(user.needs_accepted_terms_of_use).to be_falsey
@@ -1185,26 +1184,29 @@ RSpec.describe User, type: :model do
   context 'user_verification methods' do
     let(:user) do
       described_class.new(
-        build(:user, :loa3,
-              idme_uuid:, logingov_uuid:,
-              edipi:, mhv_credential_uuid:, authn_context:)
+        build(:user, :loa3, uuid:,
+                            idme_uuid:, logingov_uuid:,
+                            edipi:, mhv_credential_uuid:, authn_context:, icn:, user_verification:)
       )
     end
     let(:authn_context) { LOA::IDME_LOA1_VETS }
+    let(:csp) { 'idme' }
     let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:edipi) { 'some-edipi' }
     let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
+    let(:icn) { 'some-icn' }
     let!(:user_verification) do
-      Login::UserVerifier.new(login_type: user.identity_sign_in[:service_name],
-                              auth_broker: user.identity_sign_in[:auth_broker],
+      Login::UserVerifier.new(login_type: csp,
+                              auth_broker: 'iam',
                               mhv_uuid: mhv_credential_uuid,
                               idme_uuid:,
                               dslogon_uuid: edipi,
                               logingov_uuid:,
-                              icn: user.icn).perform
+                              icn:).perform
     end
     let!(:user_account) { user_verification&.user_account }
+    let(:uuid) { user_account.id }
 
     describe '#user_verification' do
       it 'returns expected user_verification' do
@@ -1212,6 +1214,7 @@ RSpec.describe User, type: :model do
       end
 
       context 'when user is logged in with mhv' do
+        let(:csp) { 'mhv' }
         let(:authn_context) { 'myhealthevet' }
 
         context 'and there is an mhv_credential_uuid' do
@@ -1234,6 +1237,7 @@ RSpec.describe User, type: :model do
           context 'and user does not have an idme_uuid' do
             let(:idme_uuid) { nil }
             let(:user_verification) { nil }
+            let(:uuid) { SecureRandom.uuid }
 
             it 'returns nil' do
               expect(user.user_verification).to be_nil
@@ -1243,6 +1247,7 @@ RSpec.describe User, type: :model do
       end
 
       context 'when user is logged in with dslogon' do
+        let(:csp) { 'dslogon' }
         let(:authn_context) { 'dslogon' }
 
         context 'and there is an edipi' do
@@ -1267,6 +1272,7 @@ RSpec.describe User, type: :model do
           context 'and user does not have an idme_uuid' do
             let(:idme_uuid) { nil }
             let(:user_verification) { nil }
+            let(:uuid) { SecureRandom.uuid }
 
             it 'returns nil' do
               expect(user.user_verification).to be_nil
@@ -1277,7 +1283,7 @@ RSpec.describe User, type: :model do
 
       context 'when user is logged in with logingov' do
         let(:authn_context) { IAL::LOGIN_GOV_IAL1 }
-        let(:logingov_uuid) { 'some-logingov-uuid' }
+        let(:csp) { 'logingov' }
 
         it 'returns user verification with a matching logingov uuid' do
           expect(user.user_verification.logingov_uuid).to eq(logingov_uuid)
@@ -1298,6 +1304,7 @@ RSpec.describe User, type: :model do
         context 'and user does not have an idme_uuid' do
           let(:idme_uuid) { nil }
           let(:user_verification) { nil }
+          let(:uuid) { SecureRandom.uuid }
 
           it 'returns nil' do
             expect(user.user_verification).to be_nil
@@ -1314,9 +1321,8 @@ RSpec.describe User, type: :model do
 
     describe '#credential_lock' do
       context 'when the user has a UserVerification' do
-        let(:user) { build(:user, :loa3, icn: user_account.icn) }
-        let(:user_account) { build(:user_account) }
-        let(:user_verification) { create(:idme_user_verification, user_account:, idme_uuid: user.idme_uuid, locked:) }
+        let(:user_verification) { create(:idme_user_verification, locked:) }
+        let(:user) { build(:user, :loa3, user_verification:, idme_uuid: user_verification.idme_uuid) }
         let(:locked) { false }
 
         context 'when the UserVerification is not locked' do
@@ -1335,7 +1341,7 @@ RSpec.describe User, type: :model do
       end
 
       context 'when the user does not have a UserVerification' do
-        let(:user) { build(:user, :loa1) }
+        let(:user) { build(:user, :loa1, uuid: SecureRandom.uuid, user_verification: nil) }
 
         it 'returns nil' do
           expect(user.credential_lock).to be_nil
@@ -1350,7 +1356,6 @@ RSpec.describe User, type: :model do
     before do
       Flipper.enable(:veteran_onboarding_beta_flow, user)
       Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
-      create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
     context "when feature toggle is enabled, show onboarding flow depending on user's preferences" do
@@ -1379,12 +1384,7 @@ RSpec.describe User, type: :model do
     let(:user) { build(:user, :loa3) }
     let(:icn) { user.icn }
     let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
-
-    let!(:user_verification) do
-      create(:idme_user_verification, idme_uuid: user.idme_uuid, user_credential_email:, user_account:)
-    end
-    let(:user_credential_email) { create(:user_credential_email) }
-    let(:user_account) { create(:user_account, icn:) }
+    let(:user_account) { user.user_account }
     let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response: terms_of_use_response) }
     let(:terms_of_use_response) { 'accepted' }
 
@@ -1446,7 +1446,7 @@ RSpec.describe User, type: :model do
           end
 
           context 'and the user does not have an icn' do
-            let(:icn) { nil }
+            let(:user) { build(:user, :loa3, icn: nil) }
             let(:expected_error_message) { 'ICN must be present' }
 
             it_behaves_like 'mhv_user_account error'
@@ -1519,7 +1519,7 @@ RSpec.describe User, type: :model do
           end
 
           context 'and the user does not have an icn' do
-            let(:icn) { nil }
+            let(:user) { build(:user, :loa3, icn: nil) }
             let(:expected_error_message) { 'ICN must be present' }
 
             it_behaves_like 'mhv_user_account error'
@@ -1540,7 +1540,7 @@ RSpec.describe User, type: :model do
   describe '#create_mhv_account_async' do
     let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:) }
     let(:needs_accepted_terms_of_use) { false }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+    let(:user_verification) { user.user_verification }
 
     before { allow(MHV::AccountCreatorJob).to receive(:perform_async) }
 

@@ -13,7 +13,7 @@ module ClaimsApi
 
       def initialize(options = {})
         @errored_disability_claims = options[:errored_disability_claims] # Array of id
-        @errored_va_gov_claims = options[:errored_va_gov_claims] # Array of [id, transaction_id]
+        @errored_va_gov_claims = options[:errored_va_gov_claims] # Array of transaction_id
         @errored_poa = options[:errored_poa] # Array of id
         @errored_itf = options[:errored_itf] # Array of id
         @errored_ews = options[:errored_ews] # Array of id
@@ -84,9 +84,15 @@ module ClaimsApi
       end
 
       def build_error_block(title, errors)
-        text = if title == 'Va Gov Disability Compensation'
-                 errors.map { |eid, tid| "CID: #{link_value(eid, :eid)} / TID: #{link_value(tid, :tid)}" }.join("\n")
+        text = case title
+               when 'Va Gov Disability Compensation'
+                 # Search datadog for TID
+                 errors.map { |tid| "TID: #{link_value(tid, :tid)}" }.join("\n")
+               when 'Disability Compensation', 'Power of Attorney', 'Evidence Waiver'
+                 # Search datadog for UUID
+                 errors.map { |id| link_value(id, :id) }.join("\n")
                else
+                 # Currently no other error types reach here due to ITF early return on line 77
                  errors.join("\n")
                end
 
@@ -100,7 +106,9 @@ module ClaimsApi
       end
 
       def link_value(id, type = :eid)
+        original_id = id
         id = extract_tag_from_whitelist(id) if type == :tid
+        id ||= original_id if type == :tid
         return 'N/A' if id.blank?
 
         time_stamps = datadog_timestamps
@@ -123,7 +131,8 @@ module ClaimsApi
       # 'Form526Submission_3443656, user_uuid: [filtered], service_provider: lighthouse'
       # The KV-looking stuff isn't useful in a DD link, so extract the "tag" at the beginning of the string
       def extract_tag_from_whitelist(id)
-        return nil if TID_SUBSTRING_WHITELIST.none? { |s| id&.upcase&.include? s }
+        return nil unless id.is_a?(String)
+        return nil if TID_SUBSTRING_WHITELIST.none? { |s| id.upcase.include? s }
 
         # Not scanning for beginning single quote in case it's not there
         id.split(',').first.scan(/[a-zA-Z0-9_-]+/)[0]

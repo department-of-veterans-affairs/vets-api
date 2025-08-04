@@ -24,7 +24,7 @@
     },
     "meta": {
       "type": "object",
-      "required": ["updatedAt", "failedStationList", "sort", "pagination"],
+      "required": ["updatedAt", "failedStationList", "sort", "pagination", "recentlyRequested"],
       "properties": {
         "updatedAt": { "type": "string" },
         "failedStationList": { "type": "string" },
@@ -50,6 +50,10 @@
             "nonActive": { "type":"integer"},
             "renewal": { "type":"integer"}
           }
+        },
+        "recentlyRequested": {
+          "type": "array",
+          "items": { "type": "object" }
         }
       }
     }

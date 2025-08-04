@@ -26,7 +26,7 @@ module IncomeAndAssets
             question_num: 4,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship',
+            question_label: 'Relationship to Veteran',
             format_options: {
               humanize: true
             }
@@ -34,7 +34,7 @@ module IncomeAndAssets
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship4[#{ITERATOR}]",
             question_num: 4,
-            question_suffix: '(1)',
+            question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
             question_label: 'Relationship Type'
           },
@@ -71,7 +71,7 @@ module IncomeAndAssets
           'otherIncomeType' => {
             key: "F[0].OtherIncomeType4[#{ITERATOR}]",
             question_num: 4,
-            question_suffix: '(4)',
+            question_suffix: '(4)(OTHER)',
             question_text: 'SPECIFY THE TYPE OF INCOME',
             question_label: 'Other Income Type'
           },

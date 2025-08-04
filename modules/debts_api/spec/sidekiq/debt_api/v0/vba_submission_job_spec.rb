@@ -26,12 +26,44 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         allow_any_instance_of(DebtsApi::V0::FinancialStatusReportService)
           .to receive(:submit_vba_fsr).and_return(response)
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
-        allow(UserProfileAttributes).to receive(:find).and_return(user_data)
       end
 
-      it 'updates submission on success' do
-        described_class.new.perform(form_submission.id, user.uuid)
-        expect(form_submission.submitted?).to be(true)
+      context 'with Redis user data' do
+        before do
+          allow(UserProfileAttributes).to receive(:find).and_return(user_data)
+        end
+
+        it 'updates submission on success' do
+          described_class.new.perform(form_submission.id, user.uuid)
+          expect(form_submission.submitted?).to be(true)
+        end
+      end
+
+      context 'with fallback to form data' do
+        before do
+          allow(UserProfileAttributes).to receive(:find).and_return(nil)
+        end
+
+        it 'uses form data when Redis fails' do
+          expect(StatsD).to receive(:increment)
+            .with("#{described_class::STATS_KEY}.user_data_fallback_used").once
+          allow(StatsD).to receive(:increment)
+
+          described_class.new.perform(form_submission.id, user.uuid)
+          expect(form_submission.submitted?).to be(true)
+        end
+
+        it 'raises error when user data is completely missing' do
+          form_submission_no_user_data = create(
+            :debts_api_form5655_submission,
+            ipf_data: {}.to_json
+          )
+          allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission_no_user_data)
+
+          expect do
+            described_class.new.perform(form_submission_no_user_data.id, user.uuid)
+          end.to raise_error(described_class::MissingUserAttributesError)
+        end
       end
     end
 
@@ -60,6 +92,27 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(StatsD).to receive(:increment).with("#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.failure")
         expect(Rails.logger).to receive(:error).with('V0::Form5655::VBASubmissionJob failed, retrying: uhoh')
         expect { described_class.new.perform(form_submission.id, user_data.uuid) }.to raise_error('uhoh')
+      end
+    end
+
+    context 'with missing user attributes' do
+      before do
+        response = { status: 200 }
+        allow_any_instance_of(DebtsApi::V0::FinancialStatusReportService)
+          .to receive(:submit_vba_fsr).and_return(response)
+        allow(UserProfileAttributes).to receive(:find).and_return(nil)
+      end
+
+      it 'raises MissingUserAttributesError when user data is completely missing' do
+        form_submission_no_user_data = create(
+          :debts_api_form5655_submission,
+          ipf_data: {}.to_json
+        )
+        allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission_no_user_data)
+
+        expect do
+          described_class.new.perform(form_submission_no_user_data.id, user.uuid)
+        end.to raise_error(described_class::MissingUserAttributesError)
       end
     end
 

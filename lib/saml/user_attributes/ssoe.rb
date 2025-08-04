@@ -10,7 +10,7 @@ module SAML
       include SentryLogging
       include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name gender ssn birth_date
-                                   uuid idme_uuid logingov_uuid verified_at sec_id mhv_icn
+                                   idme_uuid logingov_uuid verified_at sec_id mhv_icn
                                    mhv_credential_uuid mhv_account_type edipi loa sign_in multifactor icn].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
@@ -62,11 +62,6 @@ module SAML
 
       def email
         safe_attr('va_eauth_emailaddress')
-      end
-
-      ### Identifiers
-      def uuid
-        idme_uuid || logingov_uuid
       end
 
       def idme_uuid

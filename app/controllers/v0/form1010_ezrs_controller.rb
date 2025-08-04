@@ -18,6 +18,8 @@ module V0
       render(json: result)
     end
 
+    def download_pdf; end
+
     private
 
     def record_submission_attempt

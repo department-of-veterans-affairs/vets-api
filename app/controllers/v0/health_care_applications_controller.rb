@@ -60,13 +60,19 @@ module V0
     def enrollment_status
       loa3 = current_user&.loa3?
 
-      icn =
-        if loa3
-          current_user.icn
-        else
-          Sentry.set_extras(user_loa: current_user&.loa)
-          HealthCareApplication.user_icn(HealthCareApplication.user_attributes(params[:userAttributes]))
-        end
+      icn = if loa3
+              current_user.icn
+            elsif request.get? && Flipper.enabled?(:hca_enrollment_status_filter_get)
+              # Return nil if `GET` request and user is not loa3
+              nil
+            else
+              Sentry.set_extras(user_loa: current_user&.loa)
+              user_attributes = params[:user_attributes]&.deep_transform_keys! do |key|
+                key.to_s.camelize(:lower).to_sym
+              end || params[:userAttributes]
+
+              HealthCareApplication.user_icn(HealthCareApplication.user_attributes(user_attributes))
+            end
 
       raise Common::Exceptions::RecordNotFound, nil if icn.blank?
 

@@ -91,6 +91,12 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           'prescription_name' => 'ASC',
           'dispensed_date' => 'DESC'
         )
+
+        recently_requested = JSON.parse(response.body)['meta']['recently_requested']
+        expect(recently_requested).to be_an(Array)
+        recently_requested.each do |prescription|
+          expect(prescription['disp_status']).to(satisfy { |status| ['Active: Refill in Process', 'Active: Submitted'].include?(status) })
+        end
       end
 
       it 'responds to GET #index with no parameters when camel-inflected' do
@@ -266,6 +272,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
                            DateTime.parse(expired_date) != zero_date &&
                            DateTime.parse(expired_date) >= cut_off_date)
           expect(meets_criteria).to be(true)
+        end
+        recently_requested = JSON.parse(response.body)['meta']['recently_requested']
+        expect(recently_requested).to be_an(Array)
+        recently_requested.each do |prescription|
+          expect(prescription['disp_status']).to(satisfy { |status| ['Active: Refill in Process', 'Active: Submitted'].include?(status) })
         end
       end
 

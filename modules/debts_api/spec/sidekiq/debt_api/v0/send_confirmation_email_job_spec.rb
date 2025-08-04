@@ -7,8 +7,10 @@ require 'sidekiq/testing'
 RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker do
   describe '#perform' do
     context 'when submissions are found' do
-      let!(:form_submission) { create(:debts_api_form5655_submission, state: 1) }
-      let(:user) { build(:user, :loa3) }
+      let!(:form_submission) do
+        create(:debts_api_form5655_submission, user_uuid: user.uuid, user_account: user.user_account, state: 1)
+      end
+      let(:user) { create(:user, :loa3) }
       let(:job_params) do
         {
           'email' => user.email,
@@ -35,7 +37,7 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
     end
 
     context 'when no submissions are found' do
-      let(:user) { build(:user, :loa3) }
+      let(:user) { create(:user, :loa3) }
       let(:job_params) do
         {
           'email' => user.email,
@@ -55,8 +57,10 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
     end
 
     context 'when an error occurs' do
-      let(:user) { build(:user, :loa3) }
-      let!(:form_submission) { create(:debts_api_form5655_submission, state: 1) }
+      let(:user) { create(:user, :loa3) }
+      let!(:form_submission) do
+        create(:debts_api_form5655_submission, user_uuid: user.uuid, user_account: user.user_account, state: 1)
+      end
       let(:job_params) do
         {
           'email' => user.email,

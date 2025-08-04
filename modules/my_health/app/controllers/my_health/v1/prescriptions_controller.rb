@@ -16,6 +16,7 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
+        recently_requested = get_recently_requested_prescriptions(resource.data)
         raw_data = resource.data.dup
         resource.records = resource_data_modifications(resource)
 
@@ -26,7 +27,7 @@ module MyHealth
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
-        options = { meta: resource.metadata.merge(filter_count) }
+        options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
@@ -81,9 +82,10 @@ module MyHealth
 
       def list_refillable_prescriptions
         resource = collection_resource
+        recently_requested = get_recently_requested_prescriptions(resource.data)
         resource.records = filter_data_by_refill_and_renew(resource.data)
 
-        options = { meta: resource.metadata }
+        options = { meta: resource.metadata.merge(recently_requested:) }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
@@ -94,6 +96,12 @@ module MyHealth
       end
 
       private
+
+      def get_recently_requested_prescriptions(data)
+        data.select do |item|
+          ['Active: Refill in Process', 'Active: Submitted'].include?(item.disp_status)
+        end
+      end
 
       # rubocop:disable ThreadSafety/NewThread
       # New threads are joined at the end
@@ -190,7 +198,7 @@ module MyHealth
           filter_count: {
             all_medications: count_grouped_prescriptions(non_modified_collection),
             active: count_active_medications(list),
-            recently_requested: count_recently_requested_medications(list),
+            recently_requested: get_recently_requested_prescriptions(list).length,
             renewal: list.select(&method(:renewable)).length,
             non_active: count_non_active_medications(list)
           }
@@ -203,11 +211,6 @@ module MyHealth
           'Active: Parked', 'Active: Submitted'
         ]
         list.select { |rx| active_statuses.include?(rx.disp_status) }.length
-      end
-
-      def count_recently_requested_medications(list)
-        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
-        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
       end
 
       def count_non_active_medications(list)

@@ -7,15 +7,24 @@ module TravelPay
       @user = user
     end
 
-    def get_claims(params = {})
+    DEFAULT_PAGE_SIZE = 50
+    DEFAULT_PAGE_NUMBER = 1
+
+    def get_claims(params)
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims(veis_token, btsss_token)
+      faraday_response = client.get_claims(veis_token, btsss_token, {
+                                             page_size: params['page_size'] || DEFAULT_PAGE_SIZE,
+                                             page_number: params['page_number'] || DEFAULT_PAGE_NUMBER
+                                           })
       raw_claims = faraday_response.body['data'].deep_dup
 
-      claims = filter_by_date(params['appt_datetime'], raw_claims)
-
       {
-        data: claims.map do |sc|
+        metadata: {
+          'pageNumber' => faraday_response.body['pageNumber'],
+          'pageSize' => faraday_response.body['pageSize'],
+          'totalRecordCount' => faraday_response.body['totalRecordCount']
+        },
+        data: raw_claims.map do |sc|
           sc['claimStatus'] = sc['claimStatus'].underscore.humanize
           sc
         end
@@ -23,30 +32,20 @@ module TravelPay
     end
 
     def get_claims_by_date_range(params = {})
-      validate_date_params(params['start_date'], params['end_date'])
+      date_range = get_date_range(params)
+
+      loop_params = {
+        page_size: params['page_size'] || DEFAULT_PAGE_SIZE,
+        page_number: params['page_number'] || DEFAULT_PAGE_NUMBER
+      }.merge!(date_range)
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
+      start_time = Time.current
+      all_claims = loop_and_paginate_claims(loop_params, veis_token, btsss_token)
+      elapsed_time = Time.current - start_time
+      Rails.logger.info(message: "Looped through #{all_claims[:data].size} claims in #{elapsed_time} seconds.")
 
-      if faraday_response.body['data']
-        raw_claims = faraday_response.body['data'].deep_dup
-
-        {
-          metadata: {
-            'status' => faraday_response.body['statusCode'],
-            'success' => faraday_response.body['success'],
-            'message' => faraday_response.body['message']
-          },
-          data: raw_claims&.map do |sc|
-            sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-            sc
-          end
-        }
-      end
-      # Because we're appending this to the Appointments object, we need to not just throw an exception
-      # TODO: Integrate error handling from the token client through every subsequent client/service
-    rescue Faraday::Error
-      nil
+      all_claims
     end
 
     # Retrieves expanded claim details with additional fields
@@ -129,18 +128,19 @@ module TravelPay
       claims
     end
 
-    def validate_date_params(start_date, end_date)
-      if start_date && end_date
-        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
+    def get_date_range(params)
+      # if we get one date, we need both dates
+      if params['start_date'] || params['end_date']
+        date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+        date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
       else
-        raise ArgumentError,
-              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
+        # if no dates are provided, default to 3 months ago - today
+        date_range = {
+          start_date: DateUtils.strip_timezone(3.months.ago).iso8601,
+          end_date: DateUtils.strip_timezone(Time.zone.now).iso8601
+        }
       end
-    rescue Date::Error => e
-      Rails.logger.debug(message:
-      "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
-      raise ArgumentError,
-            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+      date_range
     end
 
     def get_document_summaries(veis_token, btsss_token, claim_id)
@@ -158,6 +158,58 @@ module TravelPay
         end
       end
       documents
+    end
+
+    def loop_and_paginate_claims(params, veis_token, btsss_token)
+      page_number = params[:page_number]
+      all_claims = []
+      total_record_count = 0
+
+      client_params = params.deep_dup
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
+      total_record_count = faraday_response.body['totalRecordCount']
+      all_claims.concat(faraday_response.body['data'].deep_dup)
+
+      while all_claims.length < total_record_count
+        page_number += 1
+
+        client_params[:page_number] = page_number
+        faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
+
+        all_claims.concat(faraday_response.body['data'])
+      end
+
+      build_claims_response({ data: all_claims, total_record_count:, page_number:, status: 200 })
+    rescue => e
+      rescue_pagination_errors(e, { data: all_claims, total_record_count:,
+                                    page_number: page_number - 1 })
+    end
+
+    def build_claims_response(all_claims)
+      {
+        metadata: {
+          'status' => all_claims[:status], # for partial content == 206
+          'pageNumber' => all_claims[:page_number], # i.e., we got through page 2, so pick up on page 3
+          'totalRecordCount' => all_claims[:total_record_count]
+        },
+        data: all_claims[:data]&.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+          sc
+        end
+      }
+    end
+
+    def rescue_pagination_errors(e, claims)
+      if claims[:data].empty?
+        Rails.logger.error(message: "#{e}. Could not retrieve claims by date range.")
+        # TODO: replace this with the actual error
+        raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Could not retrieve claims.')
+      else
+        claims => { data:, total_record_count:, page_number: }
+        Rails.logger.error(message:
+        "#{e}. Retrieved #{data.size} of #{total_record_count} claims, ending on page #{page_number}.")
+        build_claims_response({ **claims, status: 206 })
+      end
     end
 
     def include_documents?

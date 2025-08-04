@@ -618,18 +618,6 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)['error']).to include('Unauthenticated Education inquiry submitted')
         end
-
-        it 'logs warning for unauthenticated education inquiry' do
-          expect(Rails.logger).to receive(:warn).with(
-            'Unauthenticated Education inquiry submitted',
-            inquiry: {
-              category: 'Education benefits and work study',
-              topic: 'Montgomery GI Bill'
-            }
-          )
-
-          post inquiry_path, params: education_inquiry_params
-        end
       end
 
       context 'topic-specific validation tests' do

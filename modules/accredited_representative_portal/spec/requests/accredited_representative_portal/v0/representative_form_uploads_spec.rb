@@ -35,7 +35,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     login_as(representative_user)
 
     allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
-      receive(:perform)
+      receive(:perform) do |_instance, saved_claim_id|
+        claim = SavedClaim.find(saved_claim_id)
+        claim.form_submissions << create(:form_submission, :pending)
+        claim.save!
+      end
     )
   end
 
@@ -134,16 +138,34 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       it 'makes the veteran request' do
         post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
         expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq(
+          {
+            'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+            'status' => '200'
+          }
+        )
       end
 
       it 'makes the veteran request with multiple attachments' do
         post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
         expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq(
+          {
+            'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+            'status' => '200'
+          }
+        )
       end
 
       it 'makes the claimant request' do
         post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
         expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq(
+          {
+            'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+            'status' => '200'
+          }
+        )
       end
     end
   end
@@ -193,8 +215,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end.not_to change(PersistentAttachments::VAForm, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
-                                                     'code' => '422', 'status' => '422' }] })
+      expect(parsed_response).to eq({
+                                      'errors' => [{
+                                        'title' => 'Unprocessable Entity',
+                                        'detail' => 'Invalid form',
+                                        'code' => '422',
+                                        'status' => '422'
+                                      }]
+                                    })
     end
   end
 
@@ -243,8 +271,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
-                                                     'code' => '422', 'status' => '422' }] })
+      expect(parsed_response).to eq({
+                                      'errors' => [{
+                                        'title' => 'Unprocessable Entity',
+                                        'detail' => 'Invalid form',
+                                        'code' => '422',
+                                        'status' => '422'
+                                      }]
+                                    })
     end
   end
 end

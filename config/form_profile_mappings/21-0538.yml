@@ -1,6 +1,6 @@
 veteranInformation:
   fullName: [identity_information, full_name]
-  ssn: [identity_information, ssn]
+  ssnLastFour: [identity_information, ssn_last_four]
   birthDate: [identity_information, date_of_birth]
 veteranContactInformation:
   veteranAddress: [contact_information, address]

@@ -49,6 +49,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           },
+          'fake_secret',
           { callback_klass: 'AccreditedRepresentativePortal::EmailDeliveryStatusCallback',
             callback_metadata: {
               form_number: 'Form Number',
@@ -78,6 +79,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           },
+          'fake_secret',
           nil
         )
 

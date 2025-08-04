@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/monitor'
+require 'claims_evidence_api/x_folder_uri'
+
 # Representation of a submission to ClaimsEvidence API
 # https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload
 #
@@ -25,28 +28,63 @@ class ClaimsEvidenceApi::Submission < Submission
                                  foreign_key: :claims_evidence_api_submissions_id,
                                  dependent: :destroy, inverse_of: :submission
   belongs_to :saved_claim, optional: true
+  belongs_to :persistent_attachment, optional: true
 
   alias_attribute :file_uuid, :va_claim_id
 
+  before_validation { self.form_id ||= saved_claim&.form_id }
+
+  after_create { monitor.track_event(:create, **tracking_attributes) }
+  after_update { monitor.track_event(:update, **tracking_attributes) }
+  after_destroy { monitor.track_event(:destroy, **tracking_attributes) }
+
+  # @see ClaimsEvidenceApi::Monitor::Record
+  def monitor
+    @monitor ||= ClaimsEvidenceApi::Monitor::Record.new(self)
+  end
+
+  # utility function to acquire the tracking attributes for _this_ record
+  def tracking_attributes
+    { id:, file_uuid:, form_id:, saved_claim_id:, persistent_attachment_id:, document_type: }
+  end
+
+  # retrieve the document_type of the associated evidence [PersistentAttachment|SavedClaim]
+  def document_type
+    persistent_attachment&.document_type || saved_claim&.document_type
+  end
+
+  # insert values into the reference data field
+  # unnamed values will be appended to the reference_data['data'] array
+  def update_reference_data(*args, **kwargs)
+    self.reference_data ||= {}
+    reference_data['data'] = (reference_data['data'] || []) + args
+    self.reference_data = self.reference_data.merge kwargs
+
+    self.x_folder_uri = kwargs[:x_folder_uri] if kwargs.key?(:x_folder_uri)
+  end
+
   # retrieve the header value from encrypted reference_data
-  def get_x_folder_uri
+  def x_folder_uri
+    self.reference_data ||= {}
     reference_data['x_folder_uri']
   end
 
-  # the Folder identifier that the file will be associated to
-  #   Header Format: folder-type:identifier-type:ID
-  # Valid Folder-Types:
-  # * VETERAN - Allows: FILENUMBER, SSN, PARTICIPANT_ID, SEARCH, ICN and EDIPI
-  # * PERSON - Allows: PARTICIPANT_ID, SEARCH
-  # eg. VETERAN:FILENUMBER:987267855
-  def set_x_folder_uri(type, identifier, id)
-    # TODO: validate arguments
+  # directly assign a folder identifier; value is split and sent through #x_folder_uri_set
+  #
+  # @param folder_identifier [String] x_folder_uri header value
+  def x_folder_uri=(folder_identifier)
+    folder_type, identifier_type, id = folder_identifier.split(':', 3)
+    x_folder_uri_set(folder_type, identifier_type, id)
+  end
 
-    data = reference_data || {}
-    data['x_folder_uri'] = "#{type}:#{identifier}:#{id}"
+  # set the folder identifier that the file will be associated to
+  # @see ClaimsEvidenceApi::XFolderUri#generate
+  def x_folder_uri_set(folder_type, identifier_type, id)
+    data = self.reference_data || {}
+    data['x_folder_uri'] = ClaimsEvidenceApi::XFolderUri.generate(folder_type, identifier_type, id)
 
     self.reference_data = data
 
-    get_x_folder_uri
+    x_folder_uri
   end
 end

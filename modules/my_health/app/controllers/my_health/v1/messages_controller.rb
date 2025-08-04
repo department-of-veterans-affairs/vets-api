@@ -35,12 +35,18 @@ module MyHealth
         message_params_h = message_params.to_h
         message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
         create_message_params = { message: message_params_h }.merge(upload_params)
-
-        client_response = if message.uploads.present?
-                            client.post_create_message_with_attachment(create_message_params)
-                          else
-                            client.post_create_message(message_params_h)
-                          end
+        client_response =
+          if message.uploads.present?
+            if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
+              Rails.logger.info('MHV SM: Using large attachments endpoint')
+              client.post_create_message_with_lg_attachments(create_message_params)
+            else
+              Rails.logger.info('MHV SM: Using standard attachments endpoint')
+              client.post_create_message_with_attachment(create_message_params)
+            end
+          else
+            client.post_create_message(message_params_h)
+          end
 
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
@@ -56,9 +62,9 @@ module MyHealth
         message_id = params[:id].try(:to_i)
         resource = if params[:full_body] == 'true'
                      # returns full body of message including attachments attributes
-                     client.get_full_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
+                     client.get_full_messages_for_thread(message_id)
                    else
-                     client.get_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
+                     client.get_messages_for_thread(message_id)
                    end
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
@@ -74,11 +80,18 @@ module MyHealth
         message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
         create_message_params = { message: message_params_h }.merge(upload_params)
 
-        client_response = if message.uploads.present?
-                            client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-                          else
-                            client.post_create_message_reply(params[:id], message_params_h)
-                          end
+        client_response =
+          if message.uploads.present?
+            if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
+              Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
+              client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
+            else
+              Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
+              client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+            end
+          else
+            client.post_create_message_reply(params[:id], message_params_h)
+          end
 
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
@@ -118,6 +131,14 @@ module MyHealth
 
       def upload_params
         @upload_params ||= { uploads: params[:uploads] }
+      end
+
+      def any_file_too_large
+        Array(@upload_params[:uploads]).any? { |upload| upload.size > 6.megabytes }
+      end
+
+      def total_size_too_large
+        Array(@upload_params[:uploads]).sum(&:size) > 10.megabytes
       end
     end
   end

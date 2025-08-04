@@ -25,8 +25,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       .and_return('fake_access_token')
   end
 
-  let(:user) { create(:user, :loa3, icn: '123498767V234859') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user) { create(:user, :loa3, :legacy_icn) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -455,7 +455,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with Lighthouse as submission provider' do
-        let(:user) { create(:user, :loa3, icn: '123498767V234859') }
+        let(:user) { create(:user, :loa3, :legacy_icn) }
         let(:submission) do
           create(:form526_submission,
                  :with_everything,

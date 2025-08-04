@@ -38,7 +38,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_MR_X_API_KEY>') { Settings.mhv.medical_records.x_api_key }
   c.filter_sensitive_data('<MHV_MR_X_API_KEY_V2>') { Settings.mhv.medical_records.x_api_key_v2 }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
-  c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
+  c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.api_gateway.hosts.sm_patient }
   c.filter_sensitive_data('<MPI_URL>') { IdentitySettings.mvi.url }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
@@ -56,10 +56,10 @@ VCR.configure do |c|
     Settings.lighthouse.benefits_education.client_id
   end
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_API_KEY>') do
-    Settings.benefits_intake_service.api_key
+    Settings.lighthouse.benefits_intake.api_key
   end
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_URL>') do
-    Settings.benefits_intake_service.url
+    BenefitsIntake::Service.configuration.service_path
   end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }

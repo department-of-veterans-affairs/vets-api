@@ -117,7 +117,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
         expect(FormSubmission).to receive(:create).with(
           form_type: '686C-674-V2',
           saved_claim: claim_v2,
-          user_account: nil
+          user_account: user.user_account
         ).and_return(FormSubmission.new)
         expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
                                                                benefits_intake_uuid: 'uuid')

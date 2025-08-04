@@ -8,10 +8,5 @@ class MessageThreadDetails < Message
   attribute :draft_date, Vets::Type::DateTimeString
   attribute :to_date, Vets::Type::DateTimeString
   attribute :has_attachments, Bool, default: false
-  (1..4).each do |i|
-    attribute :"attachment#{i}_id", Integer
-    attribute :"attachment#{i}_name", String
-    attribute :"attachment#{i}_size", Integer
-    attribute :"attachment#{i}_mime_type", String
-  end
+  attribute :attachments, Array
 end
