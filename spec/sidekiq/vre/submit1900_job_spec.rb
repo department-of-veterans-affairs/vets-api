@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../../../modules/vre/app/services/vre/notification_email'
 
 describe VRE::Submit1900Job do
+  let(:job) { described_class.new }
   let(:user_struct) do
     OpenStruct.new(
       edipi: '1007697216',
@@ -21,9 +22,10 @@ describe VRE::Submit1900Job do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
-  let(:notification) { instance_double('VRE::NotificationEmail') }
+  let(:notification) { instance_double(VRE::NotificationEmail) }
   let(:msg) { { 'args' => [claim.id, encrypted_user] } }
-  let(:job) { described_class.new }
+  let(:vre_monitor) { instance_double(VRE::VREMonitor) }
+  let(:legacy_monitor) { instance_double(VRE::Monitor) }
 
   let(:exhaustion_msg) do
     { 'args' => [], 'class' => 'VRE::Submit1900Job', 'error_message' => 'An error occurred',
@@ -42,38 +44,36 @@ describe VRE::Submit1900Job do
       end
 
       describe 'Notifications - using new VFS library' do
-        let(:monitor) { instance_double(VRE::VREMonitor) }
-
         before do
           allow(Flipper).to receive(:enabled?)
             .with(:vre_use_new_vfs_notification_library)
             .and_return(true)
-          allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
-          allow(described_class).to receive(:monitor).and_return(monitor)
+          allow(VRE::VREMonitor).to receive(:new).and_return(vre_monitor)
+          allow(job).to receive(:monitor).and_return(vre_monitor)
         end
 
         it 'uses VFS New NotificationEmail when retries are exhausted' do
-          expect(monitor).to receive(:track_submission_exhaustion).with(msg, claim)
+          expect(vre_monitor).to receive(:track_submission_exhaustion).with(msg, claim)
           described_class.trigger_failure_events(msg)
         end
       end
 
       describe 'Notifications - using legacy fire-and-forget strategy' do
-        let(:monitor) { instance_double(VRE::Monitor) }
-
         before do
           allow(Flipper).to receive(:enabled?)
             .with(:vre_use_new_vfs_notification_library)
             .and_return(false)
-          allow(VRE::Monitor).to receive(:new).and_return(monitor)
-          allow(monitor).to receive :track_submission_exhaustion
+          allow(VRE::Monitor).to receive(:new).and_return(legacy_monitor)
+          allow(job).to receive(:monitor).and_return(legacy_monitor)
+          allow(legacy_monitor).to receive :track_submission_exhaustion
         end
 
         describe 'email exception handling' do
           it 'when queue is exhausted' do
             VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
               exhaustion_msg['args'] = [claim.id, encrypted_user]
-              expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
+              expect(legacy_monitor).to receive(:track_submission_exhaustion)
+                .with(exhaustion_msg, claim.parsed_form['email'])
               expect(VANotify::EmailJob).to receive(:perform_async).with(
                 form_type == 'v1' ? 'test@gmail.xom' : 'email@test.com',
                 'form1900_action_needed_email_template_id',
@@ -92,7 +92,7 @@ describe VRE::Submit1900Job do
               expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
               exhaustion_msg['args'] = [claim.id, encrypted_user]
               claim.parsed_form.delete('email')
-              expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+              expect(legacy_monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
             end
           end
         end

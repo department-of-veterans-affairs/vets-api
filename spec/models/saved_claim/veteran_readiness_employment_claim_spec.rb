@@ -138,7 +138,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             end
 
             it 'sends confirmation email' do
-              expect(claim).to receive(:send_confirmation_email).with(user_object, 'VBMS', :confirmation_vbms, "ch31_vbms_fake_template_id")
+              expect(claim).to receive(:send_confirmation_email)
+                .with(user_object, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
 
               claim.send_to_vre(user_object)
             end
@@ -208,9 +209,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           expect(VRE::NotificationEmail).to receive(:new)
             .with(claim.id)
             .and_return(notification)
-          expect(notification).to receive(:deliver)
-            .with(:confirmation_lighthouse)
-          
+          expect(notification).to receive(:deliver).with(:confirmation_lighthouse)
+
           claim.send_confirmation_email(
             user,
             'Lighthouse',
@@ -226,7 +226,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             .and_return(notification)
           expect(notification).to receive(:deliver)
             .with(:confirmation_vbms)
-          
+
           claim.send_confirmation_email(
             user,
             'VBMS',
@@ -242,6 +242,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             .with(:vre_use_new_vfs_notification_library, user)
             .and_return(false)
         end
+
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
             user.va_profile_email,

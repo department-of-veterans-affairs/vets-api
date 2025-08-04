@@ -177,7 +177,7 @@ RSpec.describe VRE::VREMonitor do
         attachments: %w[pdf-attachment1 pdf-attachment2]
       }
     end
-    let(:lh_service) { instance_double('LighthouseService', uuid: 'uuid') }
+    let(:lh_service) { double('LighthouseService', uuid: 'uuid') }
     let(:base_payload) do
       {
         claim_id: claim.id,
