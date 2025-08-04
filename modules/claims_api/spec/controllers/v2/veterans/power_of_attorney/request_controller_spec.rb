@@ -704,6 +704,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
+    context 'returning a Lighthouse ID' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(true)
+      end
+
+      let(:sandbox_lh_id) { 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb' }
+
+      it 'returns a specific ID when the flipper is enabled' do
+        mock_ccg(scopes) do |auth_header|
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['data']['id']).to eq(sandbox_lh_id)
+        end
+      end
+    end
+
     context 'handling countryCodes' do
       it 'returns a 422 when the veteran countryCode has no match in the BRD countries list' do
         mock_ccg(scopes) do |auth_header|
