@@ -630,7 +630,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            "No address match found among 2 provider(s) for NPI",
+            'Community Care Appointments: No address match found among 2 provider(s) for NPI',
             hash_including(
               specialty_matches_count: 2
             )
@@ -814,7 +814,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: different_street_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            'Provider address partial match',
+            'Community Care Appointments: Provider address partial match',
             hash_including(
               street_matches: false,
               zip_matches: true
@@ -918,7 +918,7 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            "No address match found among 2 provider(s) for NPI",
+            'Community Care Appointments: No address match found among 2 provider(s) for NPI',
             hash_including(
               specialty_matches_count: 2
             )

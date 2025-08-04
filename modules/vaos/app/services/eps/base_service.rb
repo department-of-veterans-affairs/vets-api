@@ -8,6 +8,7 @@ module Eps
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
     include Eps::TokenAuthentication
+    include VAOS::CommunityCareConstants
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]

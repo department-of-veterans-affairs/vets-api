@@ -2,6 +2,7 @@
 
 module Eps
   class ProviderService < BaseService
+
     ##
     # Get provider data from EPS
     #
@@ -193,7 +194,8 @@ module Eps
           specialty_matches_count: specialty_matches.size,
           user_uuid: @current_user&.uuid
         }
-        Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI", warn_data)
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI",
+                          warn_data)
       end
 
       address_match&.then { |provider| OpenStruct.new(provider) }
@@ -215,8 +217,7 @@ module Eps
         timeout_seconds:,
         user_uuid: @current_user&.uuid
       }
-      Rails.logger.error("Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}",
-                         error_data)
+      Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(
         'PROVIDER_SLOTS_TIMEOUT',
         source: self.class.to_s
@@ -287,7 +288,7 @@ module Eps
           referral_address: "#{address[:street1]}, #{address[:zip]}",
           user_uuid: @current_user&.uuid
         }
-        Rails.logger.warn('Provider address partial match', warn_data)
+        Rails.logger.warn("#{CC_APPOINTMENTS}: Provider address partial match", warn_data)
       end
 
       street_matches && zip_matches
