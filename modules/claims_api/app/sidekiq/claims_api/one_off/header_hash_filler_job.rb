@@ -37,9 +37,7 @@ module ClaimsApi::OneOff
                                          error_message: e.message
         end
       end
-      remaining = model.constantize.where(header_hash: nil).count
-      ClaimsApi::Logger.log LOG_TAG,
-                            details: "Processed #{processed_count} records for #{model}. #{remaining} records remain."
+      ClaimsApi::Logger.log LOG_TAG, details: "Processed #{processed_count} records for #{model}"
     end
     # rubocop:enable Metrics/MethodLength
 
