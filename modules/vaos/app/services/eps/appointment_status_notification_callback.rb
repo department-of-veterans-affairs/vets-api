@@ -168,9 +168,8 @@ module Eps
 
     # Build StatsD tags for metrics
     #
-    # @param base_data [Hash] Base data containing user and appointment info
     # @return [Array<String>] Array of StatsD tags
-    def self.build_statsd_tags(base_data)
+    def self.build_statsd_tags
       [COMMUNITY_CARE_SERVICE_TAG]
     end
   end
