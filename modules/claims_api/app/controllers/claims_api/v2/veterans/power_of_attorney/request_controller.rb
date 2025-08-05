@@ -145,6 +145,10 @@ module ClaimsApi
                                                                     metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
+          # The only way to get an ID value returned in Sandbox since we do not save the requests
+          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            form_attributes['id'] = 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb'
+          end
 
           response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
                                                                                             view: :create,
@@ -162,9 +166,9 @@ module ClaimsApi
         private
 
         def validate_decide_representative_params!(poa_code, representative_id)
-          validate_accredited_representative(poa_code)
-
-          unless @representative.representative_id == representative_id.to_s
+          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
+                                                                      poa_code, representative_id.to_s)
+          unless representative
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
               detail: "The accredited representative with registration number #{representative_id} does not match " \
                       "poa code: #{poa_code}."
