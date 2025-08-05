@@ -72,30 +72,12 @@ module VAOS
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
-          eps_before_ids = appointments.select do |appt|
-            appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-          end.pluck(:id)
-
           filterer = AppointmentsPresentationFilter.new
           appointments.keep_if { |appt| filterer.user_facing?(appt) }
-
-          eps_after_ids = appointments.select do |appt|
-            appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-          end.pluck(:id)
-          removed_by_filter = eps_before_ids - eps_after_ids
-
-          Rails.logger.info("EPS Debug: Presentation filter removed #{removed_by_filter}") if removed_by_filter.any?
         end
 
         # log count of C&P appointments in the appointments list, per GH#78141
         log_cnp_appt_count(cnp_count) if cnp_count.positive?
-
-        # Log final EPS appointments
-        final_eps_ids = appointments.select do |appt|
-          appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-        end.pluck(:id)
-        Rails.logger.info("EPS Debug: Final response EPS appointments: #{final_eps_ids.any? ? final_eps_ids : 'none'}")
-
         {
           data: deserialized_appointments(appointments),
           meta: pagination(pagination_params).merge(partial_errors(response, __method__))
@@ -291,18 +273,10 @@ module VAOS
         normalized_new = eps_appointments.map(&:serializable_hash)
         existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
         date_and_time_for_referral_list = appointments.pluck(:start)
-
-        # Track which EPS appointments get rejected for duplication
-        rejected_ids = []
         merged_data = appointments + normalized_new.reject do |a|
-          duplicate = existing_referral_ids.include?(a.dig(:referral, :referral_number)) &&
-                      date_and_time_for_referral_list.include?(a[:start])
-          rejected_ids << a[:id] if duplicate
-          duplicate
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
         end
-
-        Rails.logger.info("EPS Debug: Merged #{eps_appointments.length} EPS appointments#{rejected_ids.any? ? ", removed duplicates #{rejected_ids}" : ''}")
-
         merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
@@ -1144,17 +1118,7 @@ module VAOS
         @eps_appointments ||= begin
           appointments = eps_appointments_service.get_appointments[:data]
           appointments = [] if appointments.blank? || appointments.all?(&:empty?)
-
-          # Filter out appointments missing start time and log removed IDs
-          removed_ids = []
-          appointments.reject! do |appt|
-            missing_start = appt.dig(:appointment_details, :start).nil?
-            removed_ids << appt[:id] if missing_start
-            missing_start
-          end
-
-          Rails.logger.info("EPS Debug: Kept #{appointments.length} appointments#{removed_ids.any? ? ", removed #{removed_ids}" : ''}")
-
+          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
           appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
         end
       end
