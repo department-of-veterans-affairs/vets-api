@@ -72,8 +72,8 @@ module Mobile
         VAOS::V2::AppointmentsService.new(@current_user)
       end
 
-      def appointments_proxy(user)
-        Mobile::V2::Appointments::Proxy.new(user)
+      def appointments_proxy
+        Mobile::V2::Appointments::Proxy.new(@current_user)
       end
 
       def appointment_id
@@ -81,12 +81,17 @@ module Mobile
       end
 
       def fetch_appointments
-        appointments_proxy(@current_user).get_appointments(
+        appointments, failures = appointments_proxy.get_appointments(
           start_date: validated_params[:start_date],
           end_date: validated_params[:end_date],
           include_pending: true,
           include_claims: include_claims?
         )
+
+        appointments.filter! { |appt| appt.is_pending == false } unless include_pending?
+        appointments.reverse! if validated_params[:reverse_sort]
+
+        [appointments, failures]
       rescue => e
         raise Common::Exceptions::BadGateway.new(detail: e.try(:errors).try(:first).try(:detail))
       end
