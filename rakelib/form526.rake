@@ -717,6 +717,7 @@ namespace :form526 do
   task in_progress_forms_return_point: :environment do |_task, _args|
     MAX_NUMBER_OF_FORMS = 10_000 unless defined? MAX_NUMBER_OF_FORMS
 
+    NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release' unless defined? NEW_RETURN_URL
 
     specific_ids = _args.extras.map(&:to_i)
     all_ipfs = specific_ids.any? ? specific_ids : InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
@@ -739,6 +740,7 @@ namespace :form526 do
     end
     Rails.logger.info(
       "Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})",
+      job_ids: job_ids,
       batch_id: batch.bid
     )
     job_ids
