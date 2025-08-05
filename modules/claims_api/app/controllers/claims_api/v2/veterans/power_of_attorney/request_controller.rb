@@ -145,6 +145,10 @@ module ClaimsApi
                                                                     metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
+          # The only way to get an ID value returned in Sandbox since we do not save the requests
+          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            form_attributes['id'] = 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb'
+          end
 
           response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
                                                                                             view: :create,
