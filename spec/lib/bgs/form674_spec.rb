@@ -5,14 +5,6 @@ require 'bgs/form674'
 
 RSpec.describe BGS::Form674 do
   # Performance tweak
-  # creating claims are computationally expensive because of the KMS encryption.
-  # Eat the cost once and clone it for each test
-  before(:all) do
-    @dependency_claim = create(:dependency_claim)
-    @dependency_claim_674_only = create(:dependency_claim_674_only)
-  end
-
-  # Performance tweak
   # This can be removed. Benchmarked all tests to see which tests are slowest.
   around do |example|
     puts "\nStarting: #{example.full_description}"
@@ -26,11 +18,13 @@ RSpec.describe BGS::Form674 do
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_v2_payload) { build(:form686c_674_v2) }
   let(:user_struct) { build(:user_struct) }
-  let(:saved_claim) { @dependency_claim }
-  let(:saved_claim_674_only) { @dependency_claim_674_only }
+  let(:saved_claim) { create(:dependency_claim) }
+  let(:saved_claim_674_only) { create(:dependency_claim_674_only) }
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
+    # Stub out the pdf_overflow_tracking method to speed up tests
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
   end
 
   context 'The system is able to submit 674s automatically' do
