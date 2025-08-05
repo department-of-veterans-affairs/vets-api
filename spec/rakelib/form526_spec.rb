@@ -172,11 +172,8 @@ describe 'form526 rake tasks', type: :request do
     end
 
     it 'processes specific IDs when IDS is provided' do
-      ENV['IDS'] = in_progress_form.id.to_s
       expect(Form526InProgressFormModifier).to receive(:perform_async).with([in_progress_form.id])
-      run_rake_task(ENV['IDS'])
-    ensure
-      ENV.delete('IDS')
+      run_rake_task(in_progress_form.id.to_s)
     end
 
     it 'processes all forms when IDS is not provided' do
