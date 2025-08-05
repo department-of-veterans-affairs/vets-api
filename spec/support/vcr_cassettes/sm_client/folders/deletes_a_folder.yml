@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: delete
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/674886"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/674886"
     body:
       encoding: US-ASCII
       string: ''

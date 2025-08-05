@@ -63,10 +63,7 @@ module VAOS
         @drive_time = nil
         @error = nil
 
-        if invalid_parameters?(current_user, referral_id, referral_consult_id)
-          set_error('Missing required parameters', :bad_request)
-          return
-        end
+        return unless validate_params(referral_id, referral_consult_id)
 
         build_appointment_draft(referral_id, referral_consult_id)
       end
@@ -100,6 +97,48 @@ module VAOS
         @slots = fetch_provider_slots(referral, provider, draft.id)
         @id = draft.id
         @provider = provider
+      end
+
+      ##
+      # Validate initialization requirements including authentication and parameters
+      #
+      # Performs upfront validation of user authentication and required parameters
+      # before any business logic processing begins.
+      #
+      # @param referral_id [String] The unique referral identifier
+      # @param referral_consult_id [String] The referral consultation identifier
+      # @return [Boolean] true if validation passed, false if validation failed (error set)
+      def validate_params(referral_id, referral_consult_id)
+        if @current_user.nil?
+          set_error('User authentication required', :unauthorized)
+          return false
+        end
+
+        missing_params = get_missing_parameters(referral_id, referral_consult_id, @current_user.icn)
+        if missing_params.any?
+          set_error("Missing required parameters: #{missing_params.join(', ')}", :bad_request)
+          return false
+        end
+
+        true
+      end
+
+      ##
+      # Identify which required parameters are missing or invalid
+      #
+      # Checks each required parameter and returns a list of the ones that are blank.
+      # Used to provide specific error messages about which parameters are missing.
+      #
+      # @param referral_id [String, nil] The referral identifier to validate
+      # @param referral_consult_id [String, nil] The consultation identifier to validate
+      # @param user_icn [String, nil] The user's ICN to validate
+      # @return [Array<String>] List of missing parameter names
+      def get_missing_parameters(referral_id, referral_consult_id, user_icn)
+        missing = []
+        missing << 'referral_id' if referral_id.blank?
+        missing << 'referral_consult_id' if referral_consult_id.blank?
+        missing << 'user ICN' if user_icn.blank?
+        missing
       end
 
       # =============================================================================
@@ -261,28 +300,44 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
+      rescue ArgumentError => e
+        Rails.logger.error("#{LOGGER_TAG}: Error fetching provider slots - #{e.class}: #{e.message}")
+        nil
       end
 
       ##
       # Extract the first self-schedulable appointment type ID from provider
       #
       # Filters the provider's appointment types to find self-schedulable options
-      # and returns the ID of the first available type. Logs errors if none found.
+      # and returns the ID of the first available type. Raises BackendServiceException
+      # if provider data is invalid or no self-schedulable types are available.
       #
       # @param provider [OpenStruct] The provider containing appointment types
-      # @return [String, nil] The appointment type ID, or nil if none available
+      # @return [String] The appointment type ID
+      # @raise [Common::Exceptions::BackendServiceException] When appointment types are missing
+      #   or no self-schedulable types are available
       def get_provider_appointment_type_id(provider)
         # Let external service BackendServiceExceptions bubble up naturally
         if provider.appointment_types.blank?
           Rails.logger.error("#{LOGGER_TAG}: Provider appointment types data is not available")
-          return nil
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_APPOINTMENT_TYPES_MISSING',
+            {},
+            502,
+            'Provider appointment types data is not available'
+          )
         end
 
         self_schedulable_types = provider.appointment_types.select { |apt| apt[:is_self_schedulable] == true }
 
         if self_schedulable_types.blank?
           Rails.logger.error("#{LOGGER_TAG}: No self-schedulable appointment types available for this provider")
-          return nil
+          raise Common::Exceptions::BackendServiceException.new(
+            'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
+            {},
+            502,
+            'No self-schedulable appointment types available for this provider'
+          )
         end
 
         self_schedulable_types.first[:id]
@@ -401,20 +456,6 @@ module VAOS
       def set_error(message, status)
         @error = { message:, status: }
         nil
-      end
-
-      ##
-      # Check if any required initialization parameters are missing or invalid
-      #
-      # Validates that all required parameters for appointment creation are present
-      # and properly formatted. Used for upfront validation in the constructor.
-      #
-      # @param current_user [User, nil] The user object to validate
-      # @param referral_id [String, nil] The referral identifier to validate
-      # @param referral_consult_id [String, nil] The consultation identifier to validate
-      # @return [Boolean] true if any parameters are invalid, false if all are valid
-      def invalid_parameters?(current_user, referral_id, referral_consult_id)
-        current_user.nil? || referral_id.blank? || referral_consult_id.blank? || current_user.icn.blank?
       end
 
       ##

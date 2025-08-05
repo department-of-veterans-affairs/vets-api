@@ -1414,4 +1414,564 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       end
     end
   end
+
+  describe 'registration_number validation' do
+    context 'when processing agents' do
+      let(:agent_with_number) do
+        {
+          'id' => '123',
+          'number' => 'A123',
+          'poa' => 'ABC',
+          'firstName' => 'John',
+          'lastName' => 'Doe',
+          'workAddress1' => '123 Main St',
+          'workZip' => '12345'
+        }
+      end
+
+      let(:agent_without_number) do
+        {
+          'id' => '456',
+          'number' => nil,
+          'poa' => 'DEF',
+          'firstName' => 'Jane',
+          'lastName' => 'Smith',
+          'workAddress1' => '456 Oak St',
+          'workZip' => '67890'
+        }
+      end
+
+      let(:record_with_number) { instance_double(AccreditedIndividual, id: 1, raw_address: nil) }
+      let(:record_without_number) { instance_double(AccreditedIndividual, id: 2, raw_address: nil) }
+
+      before do
+        job.instance_variable_set(:@agent_ids, [])
+        job.instance_variable_set(:@agent_json_for_address_validation, [])
+
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 1)
+          .and_return(instance_double(Faraday::Response,
+                                      body: { 'items' => [agent_with_number, agent_without_number] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        allow(AccreditedIndividual).to receive(:find_or_create_by) do |args|
+          case args[:ogc_id]
+          when '123' then record_with_number
+          when '456' then record_without_number
+          end
+        end
+
+        allow(record_with_number).to receive(:update)
+        allow(record_without_number).to receive(:update)
+      end
+
+      it 'updates agent records with valid registration_number' do
+        job.send(:update_agents)
+
+        expect(record_with_number).to have_received(:update)
+          .with(hash_including(registration_number: 'A123'))
+      end
+
+      it 'updates agent records with nil registration_number when number is missing' do
+        job.send(:update_agents)
+
+        expect(record_without_number).to have_received(:update)
+          .with(hash_including(registration_number: nil))
+      end
+
+      it 'ensures all agent updates include registration_number key' do
+        job.send(:update_agents)
+
+        expect(record_with_number).to have_received(:update) do |attrs|
+          expect(attrs).to have_key(:registration_number)
+        end
+
+        expect(record_without_number).to have_received(:update) do |attrs|
+          expect(attrs).to have_key(:registration_number)
+        end
+      end
+    end
+
+    context 'when processing attorneys' do
+      let(:attorney_with_number) do
+        {
+          'id' => '789',
+          'number' => 'B789',
+          'poa' => 'GHI',
+          'firstName' => 'Bob',
+          'lastName' => 'Johnson',
+          'workAddress1' => '321 Pine St',
+          'workCity' => 'Anytown',
+          'workState' => 'CA',
+          'workZip' => '98765'
+        }
+      end
+
+      let(:attorney_without_number) do
+        {
+          'id' => '012',
+          'number' => '',
+          'poa' => 'JKL',
+          'firstName' => 'Sarah',
+          'lastName' => 'Williams',
+          'workAddress1' => '654 Elm St',
+          'workCity' => 'Othertown',
+          'workState' => 'NY',
+          'workZip' => '54321'
+        }
+      end
+
+      let(:record_with_number) { instance_double(AccreditedIndividual, id: 3, raw_address: nil) }
+      let(:record_without_number) { instance_double(AccreditedIndividual, id: 4, raw_address: nil) }
+
+      before do
+        job.instance_variable_set(:@attorney_ids, [])
+        job.instance_variable_set(:@attorney_json_for_address_validation, [])
+
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 1)
+          .and_return(instance_double(Faraday::Response,
+                                      body: { 'items' => [attorney_with_number, attorney_without_number] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        allow(AccreditedIndividual).to receive(:find_or_create_by) do |args|
+          case args[:ogc_id]
+          when '789' then record_with_number
+          when '012' then record_without_number
+          end
+        end
+
+        allow(record_with_number).to receive(:update)
+        allow(record_without_number).to receive(:update)
+      end
+
+      it 'updates attorney records with valid registration_number' do
+        job.send(:update_attorneys)
+
+        expect(record_with_number).to have_received(:update)
+          .with(hash_including(registration_number: 'B789'))
+      end
+
+      it 'updates attorney records with empty string registration_number when number is empty' do
+        job.send(:update_attorneys)
+
+        expect(record_without_number).to have_received(:update)
+          .with(hash_including(registration_number: ''))
+      end
+
+      it 'ensures all attorney updates include registration_number key' do
+        job.send(:update_attorneys)
+
+        expect(record_with_number).to have_received(:update) do |attrs|
+          expect(attrs).to have_key(:registration_number)
+        end
+
+        expect(record_without_number).to have_received(:update) do |attrs|
+          expect(attrs).to have_key(:registration_number)
+        end
+      end
+    end
+
+    context 'when processing representatives' do
+      let(:rep_with_id) do
+        {
+          'id' => 'ea154c64-bf20-47e0-9866-86ae988776a8',
+          'representative' => {
+            'lastName' => 'aalaam',
+            'firstName' => 'judy',
+            'id' => 'dfc36f35-0464-450f-a85b-3fa639705826'
+          },
+          'veteransServiceOrganization' => {
+            'id' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
+          },
+          'workAddress1' => '123 Work St',
+          'workCity' => 'Work City',
+          'workState' => 'CA',
+          'workZip' => '12345'
+        }
+      end
+
+      let(:rep_without_id) do
+        {
+          'id' => 'b50ee54b-ff87-4c78-b41d-7ffe1a8f89e5',
+          'representative' => {
+            'lastName' => 'abad',
+            'firstName' => 'julia',
+            'id' => nil
+          },
+          'veteransServiceOrganization' => {
+            'id' => '8f8d4051-ddcc-4730-973e-9688559a91fc'
+          },
+          'workAddress1' => '456 Office Blvd',
+          'workCity' => 'Office Town',
+          'workState' => 'NY',
+          'workZip' => '54321'
+        }
+      end
+
+      let(:record_with_id) { instance_double(AccreditedIndividual, id: 200, raw_address: nil) }
+      let(:record_without_id) { instance_double(AccreditedIndividual, id: 201, raw_address: nil) }
+
+      before do
+        job.instance_variable_set(:@representative_ids, [])
+        job.instance_variable_set(:@representative_json_for_address_validation, [])
+        job.instance_variable_set(:@rep_to_vso_associations, {})
+
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::REPRESENTATIVES, page: 1)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [rep_with_id, rep_without_id] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::REPRESENTATIVES, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        allow(AccreditedIndividual).to receive(:find_or_create_by) do |args|
+          case args[:ogc_id]
+          when 'dfc36f35-0464-450f-a85b-3fa639705826' then record_with_id
+          when nil then record_without_id
+          end
+        end
+
+        allow(record_with_id).to receive(:update)
+        allow(record_without_id).to receive(:update)
+      end
+
+      it 'updates representative records with valid registration_number from representative ID' do
+        job.send(:update_reps)
+
+        expect(record_with_id).to have_received(:update)
+          .with(hash_including(registration_number: 'dfc36f35-0464-450f-a85b-3fa639705826'))
+      end
+
+      it 'updates representative records with nil registration_number when representative ID is missing' do
+        job.send(:update_reps)
+
+        expect(record_without_id).to have_received(:update)
+          .with(hash_including(registration_number: nil))
+      end
+
+      it 'ensures all representative updates include registration_number key' do
+        job.send(:update_reps)
+
+        expect(record_with_id).to have_received(:update) do |attrs|
+          expect(attrs).to have_key(:registration_number)
+        end
+
+        expect(record_without_id).to have_received(:update) do |attrs|
+          expect(attrs).to have_key(:registration_number)
+        end
+      end
+    end
+
+    context 'when testing data transformation methods directly' do
+      it 'includes registration_number in agent transformation' do
+        agent = { 'number' => 'A123', 'id' => '123', 'firstName' => 'John', 'lastName' => 'Doe' }
+        result = job.send(:data_transform_for_agent, agent)
+
+        expect(result).to have_key(:registration_number)
+        expect(result[:registration_number]).to eq('A123')
+      end
+
+      it 'includes registration_number in attorney transformation' do
+        attorney = { 'number' => 'B456', 'id' => '456', 'firstName' => 'Jane', 'lastName' => 'Smith' }
+        result = job.send(:data_transform_for_attorney, attorney)
+
+        expect(result).to have_key(:registration_number)
+        expect(result[:registration_number]).to eq('B456')
+      end
+
+      it 'includes registration_number in representative transformation' do
+        rep = {
+          'representative' => { 'id' => 'rep-id-789', 'firstName' => 'Bob', 'lastName' => 'Wilson' },
+          'workCity' => 'Test City',
+          'workState' => 'TX'
+        }
+        result = job.send(:data_transform_for_representative, rep)
+
+        expect(result).to have_key(:registration_number)
+        expect(result[:registration_number]).to eq('rep-id-789')
+      end
+
+      it 'handles nil registration_number values gracefully' do
+        agent = { 'number' => nil, 'id' => '999', 'firstName' => 'Test', 'lastName' => 'User' }
+        result = job.send(:data_transform_for_agent, agent)
+
+        expect(result).to have_key(:registration_number)
+        expect(result[:registration_number]).to be_nil
+      end
+
+      it 'handles empty string registration_number values gracefully' do
+        attorney = { 'number' => '', 'id' => '888', 'firstName' => 'Empty', 'lastName' => 'Number' }
+        result = job.send(:data_transform_for_attorney, attorney)
+
+        expect(result).to have_key(:registration_number)
+        expect(result[:registration_number]).to eq('')
+      end
+    end
+  end
+
+  describe '#individual_representative_json' do
+    let(:record) { instance_double(AccreditedIndividual, id: 42) }
+    let(:rep) do
+      {
+        'id' => 'ea154c64-bf20-47e0-9866-86ae988776a8',
+        'veteransServiceOrganization' => {
+          'name' => 'Less Law Firm',
+          'poa' => 'JQ8',
+          'number' => 210,
+          'id' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
+        },
+        'lastName' => 'aalaam',
+        'firstName' => 'judy',
+        'middleName' => 'M',
+        'workAddress1' => '123 Work St',
+        'workAddress2' => 'Apt 2',
+        'workAddress3' => '',
+        'workCity' => 'Work City',
+        'workState' => 'CA',
+        'workZip' => '12345'
+      }
+    end
+
+    it 'creates a JSON object for representative address validation' do
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result).to eq({
+                             id: 42,
+                             address: {
+                               address_pou: 'RESIDENCE/CHOICE',
+                               address_line1: '123 Work St',
+                               address_line2: 'Apt 2',
+                               address_line3: '',
+                               city: 'Work City',
+                               state: { state_code: 'CA' },
+                               zip_code5: '12345'
+                             }
+                           })
+    end
+
+    it 'handles nil address fields gracefully' do
+      rep['workAddress2'] = nil
+      rep['workAddress3'] = nil
+
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address][:address_line2]).to be_nil
+      expect(result[:address][:address_line3]).to be_nil
+    end
+
+    it 'handles empty string address fields' do
+      rep['workAddress2'] = ''
+      rep['workAddress3'] = ''
+
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address][:address_line2]).to eq('')
+      expect(result[:address][:address_line3]).to eq('')
+    end
+
+    it 'uses the record ID in the output' do
+      different_record = instance_double(AccreditedIndividual, id: 999)
+
+      result = job.send(:individual_representative_json, different_record, rep)
+
+      expect(result[:id]).to eq(999)
+    end
+
+    it 'structures state as a nested hash with state_code' do
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address][:state]).to eq({ state_code: 'CA' })
+    end
+
+    it 'handles missing address fields gracefully' do
+      rep['workCity'] = nil
+      rep['workState'] = nil
+      rep['workZip'] = nil
+
+      result = job.send(:individual_representative_json, record, rep)
+
+      expect(result[:address]).to include(
+        city: nil,
+        state: { state_code: nil },
+        zip_code5: nil
+      )
+    end
+  end
+
+  describe '#individual_agent_json' do
+    let(:record) { instance_double(AccreditedIndividual, id: 42) }
+    let(:agent) do
+      {
+        'id' => '123',
+        'number' => 'A123',
+        'poa' => 'ABC',
+        'firstName' => 'John',
+        'middleName' => 'A',
+        'lastName' => 'Doe',
+        'workAddress1' => '123 Main St',
+        'workAddress2' => 'Apt 456',
+        'workAddress3' => '',
+        'workZip' => '12345',
+        'workCountry' => 'USA',
+        'workPhoneNumber' => '555-1234',
+        'workEmailAddress' => 'john@example.com'
+      }
+    end
+
+    it 'creates a JSON object for agent address validation' do
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result).to eq({
+                             id: 42,
+                             address: {
+                               address_pou: 'RESIDENCE/CHOICE',
+                               address_line1: '123 Main St',
+                               address_line2: 'Apt 456',
+                               address_line3: '',
+                               city: nil,
+                               state: { state_code: nil },
+                               zip_code5: '12345'
+                             }
+                           })
+    end
+
+    it 'handles nil address fields gracefully' do
+      agent['workAddress2'] = nil
+      agent['workAddress3'] = nil
+
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address][:address_line2]).to be_nil
+      expect(result[:address][:address_line3]).to be_nil
+    end
+
+    it 'handles empty string address fields' do
+      agent['workAddress2'] = ''
+      agent['workAddress3'] = ''
+
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address][:address_line2]).to eq('')
+      expect(result[:address][:address_line3]).to eq('')
+    end
+
+    it 'uses the record ID in the output' do
+      different_record = instance_double(AccreditedIndividual, id: 999)
+
+      result = job.send(:individual_agent_json, different_record, agent)
+
+      expect(result[:id]).to eq(999)
+    end
+
+    it 'structures state as a nested hash with state_code' do
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address][:state]).to eq({ state_code: nil })
+    end
+
+    it 'handles missing address fields gracefully' do
+      agent['workAddress1'] = nil
+      agent['workZip'] = nil
+
+      result = job.send(:individual_agent_json, record, agent)
+
+      expect(result[:address]).to include(
+        address_line1: nil,
+        city: nil,
+        state: { state_code: nil },
+        zip_code5: nil
+      )
+    end
+  end
+
+  describe '#individual_attorney_json' do
+    let(:record) { instance_double(AccreditedIndividual, id: 42) }
+    let(:attorney) do
+      {
+        'id' => '789',
+        'number' => 'B789',
+        'poa' => 'GHI',
+        'firstName' => 'Bob',
+        'middleName' => 'C',
+        'lastName' => 'Johnson',
+        'workAddress1' => '321 Pine St',
+        'workAddress2' => 'Suite 789',
+        'workAddress3' => '',
+        'workCity' => 'Anytown',
+        'workState' => 'CA',
+        'workZip' => '98765',
+        'workNumber' => '555-9876',
+        'emailAddress' => 'bob@example.com'
+      }
+    end
+
+    it 'creates a JSON object for attorney address validation' do
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result).to eq({
+                             id: 42,
+                             address: {
+                               address_pou: 'RESIDENCE/CHOICE',
+                               address_line1: '321 Pine St',
+                               address_line2: 'Suite 789',
+                               address_line3: '',
+                               city: 'Anytown',
+                               state: { state_code: 'CA' },
+                               zip_code5: '98765'
+                             }
+                           })
+    end
+
+    it 'handles nil address fields gracefully' do
+      attorney['workAddress2'] = nil
+      attorney['workAddress3'] = nil
+
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address][:address_line2]).to be_nil
+      expect(result[:address][:address_line3]).to be_nil
+    end
+
+    it 'handles empty string address fields' do
+      attorney['workAddress2'] = ''
+      attorney['workAddress3'] = ''
+
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address][:address_line2]).to eq('')
+      expect(result[:address][:address_line3]).to eq('')
+    end
+
+    it 'uses the record ID in the output' do
+      different_record = instance_double(AccreditedIndividual, id: 999)
+
+      result = job.send(:individual_attorney_json, different_record, attorney)
+
+      expect(result[:id]).to eq(999)
+    end
+
+    it 'structures state as a nested hash with state_code' do
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address][:state]).to eq({ state_code: 'CA' })
+    end
+
+    it 'handles missing address fields gracefully' do
+      attorney['workCity'] = nil
+      attorney['workState'] = nil
+      attorney['workZip'] = nil
+
+      result = job.send(:individual_attorney_json, record, attorney)
+
+      expect(result[:address]).to include(
+        city: nil,
+        state: { state_code: nil },
+        zip_code5: nil
+      )
+    end
+  end
 end

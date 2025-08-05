@@ -2,7 +2,7 @@
 
 module IvcChampva
   class PromptManager
-    PROMPTS_DIR = File.join(File.dirname(__FILE__), '../../config/prompts')
+    PROMPTS_DIR = Rails.root.join('modules', 'ivc_champva', 'config', 'prompts').to_s
 
     # Mapping of document types to their corresponding prompt files
     DOCTYPE_PROMPT_MAP = {
