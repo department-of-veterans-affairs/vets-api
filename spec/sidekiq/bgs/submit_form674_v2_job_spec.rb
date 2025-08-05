@@ -5,11 +5,8 @@ require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   # Performance tweak
-  # creating claims are computationally expensive because of the KMS encryption.
-  # Eat the cost once and clone it for each test
-  before(:all) do
-    @dependency_claim = create(:dependency_claim)
-    @dependency_claim_674_only = create(:dependency_claim_674_only)
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
   end
 
   # Performance tweak
@@ -23,8 +20,8 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   end
 
   let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
-  let(:dependency_claim) { @dependency_claim }
-  let(:dependency_claim_674_only) { @dependency_claim_674_only }
+  let(:dependency_claim) { create(:dependency_claim) }
+  let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
   let(:client_stub) { instance_double(BGSV2::Form674) }
