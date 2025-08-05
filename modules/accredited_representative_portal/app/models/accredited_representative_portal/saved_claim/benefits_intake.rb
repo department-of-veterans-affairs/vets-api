@@ -26,11 +26,12 @@ module AccreditedRepresentativePortal
         # drawn to the fact that `PROPER_FORM_ID` is the alternative for dealing
         # with this overworking problem.
         #
-        def define_claim_type(form_id:, proper_form_id:, business_line:)
+        def define_claim_type(form_id:, proper_form_id:, business_line:, feature_flag:)
           Class.new(self) do
             const_set(:FORM_ID, form_id)
             const_set(:PROPER_FORM_ID, proper_form_id)
             const_set(:BUSINESS_LINE, business_line)
+            const_set(:FEATURE_FLAG, feature_flag)
 
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
@@ -47,14 +48,16 @@ module AccreditedRepresentativePortal
            define_claim_type(
              form_id: '21-686C_BENEFITS-INTAKE',
              proper_form_id: '21-686c',
-             business_line: BusinessLines::COMPENSATION
+             business_line: BusinessLines::COMPENSATION,
+             feature_flag: 'accredited_representative_portal_submissions'
            )
         ),
         (DisabilityClaim =
            define_claim_type(
              form_id: '21-526EZ_BENEFITS-INTAKE',
              proper_form_id: '21-526EZ',
-             business_line: BusinessLines::COMPENSATION
+             business_line: BusinessLines::COMPENSATION,
+             feature_flag: 'accredited_representative_portal_form_526ez'
            )
         )
       ].freeze
