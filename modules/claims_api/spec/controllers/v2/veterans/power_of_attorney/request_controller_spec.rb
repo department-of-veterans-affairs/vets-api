@@ -320,13 +320,11 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
         it 'raises an error if decision is not valid' do
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-              decide_request_with(id:, decision:, auth_header:)
-              expect(response).to have_http_status(:bad_request)
-              response_body = JSON.parse(response.body)
-              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
-              expect(response_body['errors'][0]['status']).to eq('400')
-            end
+            decide_request_with(id:, decision:, auth_header:)
+            expect(response).to have_http_status(:bad_request)
+            response_body = JSON.parse(response.body)
+            expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+            expect(response_body['errors'][0]['status']).to eq('400')
           end
         end
       end
@@ -342,8 +340,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
         allow(service).to receive(:get_poa_request).and_return({})
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
-          .to receive(:process_poa_decision).and_return(nil)
+          .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -355,6 +357,80 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect(response_body['data']['id']).to eq(id)
           end
         end
+      end
+
+      it 'includes location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+            decide_request_with(id:, decision:, auth_header:)
+
+            expect(response.headers).to have_key('Location')
+          end
+        end
+      end
+    end
+
+    context 'handling the ACCEPTED decision' do
+      let(:ptcpnt_id) { '600043284' }
+      let(:params) do
+        {
+          decision: 'ACCEPTED', proc_id: '09876', representative_id: '8942584724354', poa_code:,
+          metadata: {}, veteran:, claimant: nil
+        }
+      end
+      let(:poa_code) { '067' }
+      let(:form_type_code) { '2122a' }
+      let(:return_data) do
+        [{ 'data' => { 'attributes' => { 'some_key' => 'some_value' } } }, form_type_code]
+      end
+      let(:veteran) do
+        OpenStruct.new(
+          participant_id: ptcpnt_id
+        )
+      end
+      let(:form_attributes) do
+        { 'some_key' => 'some_value' }
+      end
+      let(:dummy_record) do
+        OpenStruct.new(id: '8675309')
+      end
+
+      before do
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler
+        ).to receive(:call).and_return(return_data)
+
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:build_auth_headers).and_return({})
+
+        allow(ClaimsApi::PowerOfAttorney).to receive(:create!).with(anything).and_return(dummy_record)
+
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:claims_v2_logging)
+      end
+
+      it 'returns nil from the decision handler' do
+        expect_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:validate_mapped_data!).with(ptcpnt_id, form_type_code, poa_code)
+
+        expect_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:decide_request_attributes).with(
+          poa_code:, decide_form_attributes: form_attributes
+        ).and_return(return_data[0]['data']['attributes'])
+
+        expect_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:claims_v2_logging).with(
+          'process_poa_decision', { message: 'Record saved, sending to POA Form Builder Job' }
+        )
+
+        returned_poa = subject.send(:process_poa_decision, **params)
+
+        expect(returned_poa.id).to eq(dummy_record.id)
       end
     end
 
@@ -383,7 +459,11 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       end
 
       it 'calls the decision handler' do
@@ -394,18 +474,72 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
                               representative_id:)
         end
       end
+
+      it 'does not include location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          decide_request_with(id:, decision:, auth_header:)
+
+          expect(response.headers).not_to have_key('Location')
+        end
+      end
+
+      context 'handling the decision' do
+        before do
+          allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:call)
+                                                                                          .and_return(nil)
+        end
+
+        let(:params) do
+          {
+            decision:, proc_id: '09876', representative_id: '8942584724354', poa_code: '083',
+            metadata: {}, veteran: nil, claimant: nil
+          }
+        end
+
+        it 'returns nil from the decision handler' do
+          res = subject.send(:process_poa_decision, **params)
+
+          expect(res).to be_nil
+        end
+      end
     end
 
-    context 'when id is present but invalid' do
-      let(:id) { '1' }
+    context 'validating the params' do
       let(:decision) { 'ACCEPTED' }
-      let(:representative_id) { '456' }
+      let(:representative_id) { 456 } # this comes in on the form as a integer, not a string
+      let(:poa_code) { '123' }
 
-      it 'raises an error' do
-        mock_ccg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
-            decide_request_with(id:, decision:, auth_header:, representative_id:)
-            expect(response).to have_http_status(:not_found)
+      context 'registration number and POA code combination do not belong to a representative' do
+        it 'raises ResourceNotFound error with descriptive message' do
+          expect do
+            subject.send(:validate_decide_representative_params!, poa_code, representative_id)
+          end.to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound)
+        end
+      end
+
+      context 'registration number and POA code combination belong to a representative' do
+        let!(:rep) { create(:representative, representative_id: '456', poa_codes: ['123']) }
+
+        it 'does not raise an error' do
+          expect do
+            subject.send(:validate_decide_representative_params!, poa_code, representative_id)
+          end.not_to raise_error
+        end
+      end
+
+      context 'when id is present but invalid' do
+        let(:id) { '1' }
+
+        it 'raises an error' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
+              decide_request_with(id:, decision:, auth_header:, representative_id:)
+
+              expect(response).to have_http_status(:not_found)
+              expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+                "Could not find Power of Attorney request with id: #{id}"
+              )
+            end
           end
         end
       end
@@ -553,6 +687,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)['data']['id']).not_to be_nil
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
+      end
+    end
+
+    context 'returning a Lighthouse ID' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(true)
+      end
+
+      let(:sandbox_lh_id) { 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb' }
+
+      it 'returns a specific ID when the flipper is enabled' do
+        mock_ccg(scopes) do |auth_header|
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['data']['id']).to eq(sandbox_lh_id)
+        end
       end
     end
 
