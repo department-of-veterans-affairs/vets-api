@@ -172,7 +172,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                               id: 'some_uuid', file: double(id: 'file0')))
               allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
                 double('response',
-                        context: double('context', http_response: double('http_response', status_code: 200)))
+                       context: double('context', http_response: double('http_response', status_code: 200)))
               )
               # Mock VES returning an error
               allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
