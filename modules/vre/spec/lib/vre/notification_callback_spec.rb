@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../../app/services/vre/vre_monitor'
-require_relative '../../app/services/vre/notification_callback'
+require 'vre/vre_monitor'
+require 'vre/notification_callback'
+require 'vre/notification_email'
 
 # relative to `spec` folder
 require 'rails_helper'

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../modules/vre/app/services/vre/notification_email'
+require 'vre/notification_email'
+require 'vre/vre_monitor'
 
 describe VRE::Submit1900Job do
   let(:job) { described_class.new }
