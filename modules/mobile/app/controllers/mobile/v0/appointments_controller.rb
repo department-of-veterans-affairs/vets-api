@@ -15,7 +15,6 @@ module Mobile
       def index
         staging_custom_error
         appointments, failures = fetch_appointments
-        appointments = filter_by_date_range(appointments)
         partial_errors = partial_errors(failures)
         status = get_response_status(failures)
         page_appointments, page_meta_data = paginate(appointments)
@@ -54,8 +53,8 @@ module Mobile
       def validated_params
         @validated_params ||= begin
           use_cache = params[:useCache] || true
-          start_date = params[:startDate] || appointments_cache_interface.latest_allowable_cache_start_date
-          end_date = params[:endDate] || appointments_cache_interface.earliest_allowable_cache_end_date
+          start_date = params[:startDate] || 3.months.ago.beginning_of_day.to_datetime
+          end_date = params[:endDate] || 1.month.from_now.end_of_day.to_datetime
           reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
           Mobile::V0::Contracts::Appointments.new.call(
@@ -75,6 +74,10 @@ module Mobile
         VAOS::V2::AppointmentsService.new(@current_user)
       end
 
+      def appointments_proxy(user)
+        Mobile::V2::Appointments::Proxy.new(user)
+      end
+
       def appointment_id
         params.require(:id)
       end
@@ -84,15 +87,14 @@ module Mobile
       end
 
       def fetch_appointments
-        appointments, failures = appointments_cache_interface.fetch_appointments(
-          user: @current_user, start_date: validated_params[:start_date], end_date: validated_params[:end_date],
-          fetch_cache: validated_params[:use_cache], include_claims: include_claims?
+        appointments_proxy(@current_user).get_appointments(
+          start_date: validated_params[:start_date],
+          end_date: validated_params[:end_date],
+          include_pending: true,
+          include_claims: include_claims?,
         )
-
-        appointments.filter! { |appt| appt.is_pending == false } unless include_pending?
-        appointments.reverse! if validated_params[:reverse_sort]
-
-        [appointments, failures]
+      rescue => e
+        raise Common::Exceptions::BadGateway.new(detail: e.try(:errors).try(:first).try(:detail))
       end
 
       # Data is aggregated from multiple servers and if any of the servers doesnt respond, we receive failures
@@ -150,10 +152,6 @@ module Mobile
 
       def appointment_creator
         @appointment_creator ||= Mobile::Shared::AppointmentCreator.new(@current_user)
-      end
-
-      def appointments_cache_interface
-        @appointments_cache_interface ||= Mobile::Shared::AppointmentsCacheInterface.new
       end
 
       def staging_custom_error
