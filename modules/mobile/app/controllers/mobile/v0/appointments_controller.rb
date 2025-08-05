@@ -10,8 +10,6 @@ module Mobile
       UPCOMING_DAYS_LIMIT = 30
       TRAVEL_PAY_DAYS_LIMIT = 30
 
-      after_action :clear_appointments_cache, only: %i[cancel create]
-
       def index
         staging_custom_error
         appointments, failures = fetch_appointments
@@ -80,10 +78,6 @@ module Mobile
 
       def appointment_id
         params.require(:id)
-      end
-
-      def clear_appointments_cache
-        Mobile::V0::Appointment.clear_cache(@current_user)
       end
 
       def fetch_appointments
