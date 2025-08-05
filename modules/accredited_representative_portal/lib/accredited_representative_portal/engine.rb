@@ -42,7 +42,7 @@ module AccreditedRepresentativePortal
 
         AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::FORM_TYPES.each do |form_class|
           ::BenefitsIntake::SubmissionStatusJob.register_handler(
-            form_class::PROPER_FORM_ID,
+            form_class::FORM_ID,
             AccreditedRepresentativePortal::SubmissionHandler
           )
         end
