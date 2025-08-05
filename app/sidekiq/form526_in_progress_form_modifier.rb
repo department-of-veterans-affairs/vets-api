@@ -41,7 +41,6 @@ class Form526InProgressFormModifier
       current_in_progress_form_id = in_progress_form.id
       form_parsed = JSON.parse(in_progress_form.form_data)
 
-      # TODO: Check this is the correct acknowldegement
       if form_parsed.dig('view:patient_acknowledgement', 'view:acknowledgement') == true
         change_return_url(in_progress_form, current_in_progress_form_id)
       else

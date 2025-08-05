@@ -720,13 +720,17 @@ namespace :form526 do
     NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release' unless defined? NEW_RETURN_URL
 
     specific_ids = _args.extras.map(&:to_i)
-    all_ipfs = specific_ids.any? ? specific_ids : InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
-                             .where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
+    all_ipfs = if specific_ids.any?
+                 specific_ids
+               else
+                 InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+                               .where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
+               end
     chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS).to_a
     Rails.logger.info("Processing #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS,
-                      job_count: chunked_ipfs.count)
+                                                                        job_count: chunked_ipfs.count)
     job_ids = process_batches(chunked_ipfs)
-    Rails.logger.info("Started batch job for in-progress forms", job_ids: job_ids)
+    Rails.logger.info('Started batch job for in-progress forms', job_ids:)
   end
 
   def process_batches(chunked_ipfs)
@@ -740,7 +744,7 @@ namespace :form526 do
     end
     Rails.logger.info(
       "Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})",
-      job_ids: job_ids,
+      job_ids:,
       batch_id: batch.bid
     )
     job_ids
