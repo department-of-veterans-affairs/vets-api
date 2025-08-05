@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/session"
+    uri: "<MHV_HOST>/v1/usermgmt/auth/session"
     body:
       encoding: US-ASCII
       string: ''
@@ -40,7 +40,7 @@ http_interactions:
   recorded_at: Fri, 23 Feb 2018 00:01:43 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/session"
+    uri: "<MHV_HOST>/v1/usermgmt/auth/session"
     body:
       encoding: US-ASCII
       string: ''
@@ -78,7 +78,7 @@ http_interactions:
   recorded_at: Fri, 23 Feb 2018 21:47:16 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+    uri: "<MHV_HOST>/v1/bluebutton/ess/geteligibledataclass"
     body:
       encoding: US-ASCII
       string: ''
