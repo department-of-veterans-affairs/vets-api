@@ -145,6 +145,46 @@ describe 'form526 rake tasks', type: :request do
       expect { silently { run_rake_task } }.not_to raise_error
     end
   end
+
+  describe 'form526:in_progress_forms_return_point' do
+    let!(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', metadata: { return_url: '/old-url' }) }
+    let!(:in_progress_form2) { create(:in_progress_form, form_id: '21-526EZ', metadata: { return_url: '/old-url2' }) }
+    let!(:in_progress_form3) { create(:in_progress_form, form_id: '21-526EZ', metadata: { return_url: '/old-url3' }) }
+
+    before do
+      Rake.application.rake_require '../rakelib/form526'
+    end
+    def run_rake_task(args_string)
+      Rake::Task['form526:in_progress_forms_return_point'].reenable
+      Rake.application.invoke_task "form526:in_progress_forms_return_point[#{args_string}]"
+    end
+    [
+      [[1,2,3], '3 ints'],
+      ['', 'no args'],
+      ['1,2,3', '3 ints as a string'],
+      [1, '1 int'],
+      [[], 'empty array'],
+      [nil, 'no args as nil'],
+    ].each do |(args_string, desc)|
+      it desc do
+        expect { run_rake_task(args_string) }.not_to raise_error
+      end
+    end
+
+    it 'processes specific IDs when IDS is provided' do
+      ENV['IDS'] = in_progress_form.id.to_s
+      expect(Form526InProgressFormModifier).to receive(:perform_async).with([in_progress_form.id])
+      run_rake_task(ENV['IDS'])
+    ensure
+      ENV.delete('IDS')
+    end
+
+    it 'processes all forms when IDS is not provided' do
+      ENV['IDS'] = nil
+      expect(Form526InProgressFormModifier).to receive(:perform_async).with(array_including(in_progress_form.id, in_progress_form2.id, in_progress_form3.id))
+      Rake::Task['form526:in_progress_forms_return_point'].invoke
+    end
+  end
 end
 
 def silently

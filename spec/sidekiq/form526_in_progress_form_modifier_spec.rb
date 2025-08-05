@@ -7,6 +7,17 @@ RSpec.describe Form526InProgressFormModifier, type: :worker do
     Sidekiq::Job.clear_all
   end
 
+  describe 'job enqueuing' do
+    it 'enqueues the job with the correct arguments' do
+      ipf_ids = [1, 2, 3]
+      expect { Form526InProgressFormModifier.perform_async(ipf_ids) }
+        .to change(Form526InProgressFormModifier.jobs, :size).by(1)
+
+      job = Form526InProgressFormModifier.jobs.last
+      expect(job['args']).to eq([ipf_ids])
+    end
+  end
+
   describe '#validate_ipf_id_array_return_ipfs' do
     let(:modifier) { described_class.new }
 

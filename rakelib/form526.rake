@@ -83,10 +83,6 @@ namespace :form526 do
       )
     end
 
-    MAX_NUMBER_OF_FORMS = 10_000 unless defined? MAX_NUMBER_OF_FORMS
-
-    NEW_RETURN_URL = '/supporting-evidence/private-medical-records-authorize-release' unless defined? NEW_RETURN_URL
-
     def date_range_mode(args_array)
       start_date = args_array.first&.to_date || 30.days.ago.utc
       end_date = args_array.second&.to_date || Time.zone.now.utc
@@ -716,27 +712,37 @@ namespace :form526 do
   end
 
   desc 'Set new return url data for in-progress Form 526 submissions'
-  task in_progress_forms_return_point: :environment do
-    all_ipfs = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+  # If specific IDs are provided, use those; otherwise, find all in-progress forms
+  # Pass optional IDs as an array via the command line, e.g. rake 'form526:in_progress_forms_return_point[1,2,3]'
+  task in_progress_forms_return_point: :environment do |_task, _args|
+    MAX_NUMBER_OF_FORMS = 10_000 unless defined? MAX_NUMBER_OF_FORMS
+
+
+    specific_ids = _args.extras.map(&:to_i)
+    all_ipfs = specific_ids.any? ? specific_ids : InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
                              .where("metadata->>'return_url' != '#{NEW_RETURN_URL}'").pluck(:id)
-    chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS)
-    Rails.logger.info("Found #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS,
-                                                                   job_count: chunked_ipfs.count)
-    jids = []
+    chunked_ipfs = all_ipfs.each_slice(MAX_NUMBER_OF_FORMS).to_a
+    Rails.logger.info("Processing #{all_ipfs.count} in-progress forms", max_number_per_job: MAX_NUMBER_OF_FORMS,
+                      job_count: chunked_ipfs.count)
+    job_ids = process_batches(chunked_ipfs)
+    Rails.logger.info("Started batch job for in-progress forms", job_ids: job_ids)
+  end
+
+  def process_batches(chunked_ipfs)
+    job_ids = []
     batch = Sidekiq::Batch.new
     batch.description = 'Form 526 In Progress Form Modifier - Resetting Return URLs for 4142 IPFs'
     batch.jobs do
       chunked_ipfs.each do |ipf_ids|
-        jids << Form526InProgressFormModifier.perform_async(ipf_ids)
+        job_ids << Form526InProgressFormModifier.perform_async(ipf_ids)
       end
     end
     Rails.logger.info(
       "Started batch job for in-progress forms, to monitor progress you can run Sidekiq::Batch::Status.new(#{batch.bid})",
-      job_ids: jids,
       batch_id: batch.bid
     )
+    job_ids
   end
-
   # Check a selected collection of form526_submissions
   # (class: Form526Submission) for valid form526 content.
   #
