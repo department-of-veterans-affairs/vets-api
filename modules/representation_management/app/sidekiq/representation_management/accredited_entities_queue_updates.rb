@@ -326,12 +326,14 @@ module RepresentationManagement
     #
     # @return [void]
     def delete_removed_accredited_individuals
+      # @force_update_types are only present when manually reprocessing entity types.  They aren't present in the 
+      # ordinary daily job run.
       if @force_update_types.any?
         # Only delete records of types that were actually processed
         processed_individual_types = []
-        processed_individual_types << 'claims_agent' if @force_update_types.include?(AGENTS)
-        processed_individual_types << 'attorney' if @force_update_types.include?(ATTORNEYS)
-        processed_individual_types << 'representative' if @force_update_types.include?(REPRESENTATIVES)
+        processed_individual_types << ENTITY_CONFIG.agents.individual_type if @force_update_types.include?(AGENTS)
+        processed_individual_types << ENTITY_CONFIG.attorneys.individual_type if @force_update_types.include?(ATTORNEYS)
+        processed_individual_types << ENTITY_CONFIG.representatives.individual_type if @force_update_types.include?(REPRESENTATIVES)
 
         return if processed_individual_types.empty?
 
