@@ -66,6 +66,7 @@ module ClaimsApi
 
         # rubocop:disable Metrics/MethodLength
         def decide
+          validate_json_schema('DECIDE')
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
