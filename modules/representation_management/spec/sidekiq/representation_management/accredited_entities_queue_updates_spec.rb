@@ -94,7 +94,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(agent_record).to receive(:raw_address)
       allow(attorney_record).to receive(:raw_address)
 
-
       # Mock VSO and Representative API responses
       allow(client).to receive(:get_accredited_entities)
         .with(type: RepresentationManagement::VSOS, page: 1)
@@ -529,12 +528,12 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_individuals) }
           .to change(AccreditedIndividual, :count).by(-3)
 
-        expect(AccreditedIndividual.exists?(old_agent.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(old_attorney.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(old_representative.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(current_agent.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(current_attorney.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(current_representative.id)).to be_truthy
+        expect(AccreditedIndividual).not_to exist(old_agent.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+        expect(AccreditedIndividual).not_to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(current_attorney.id)
+        expect(AccreditedIndividual).to exist(current_representative.id)
       end
     end
 
@@ -547,10 +546,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_individuals) }
           .to change(AccreditedIndividual, :count).by(-1)
 
-        expect(AccreditedIndividual.exists?(old_agent.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(old_attorney.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(old_representative.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(current_agent.id)).to be_truthy
+        expect(AccreditedIndividual).not_to exist(old_agent.id)
+        expect(AccreditedIndividual).to exist(old_attorney.id)
+        expect(AccreditedIndividual).to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_agent.id)
       end
     end
 
@@ -563,10 +562,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_individuals) }
           .to change(AccreditedIndividual, :count).by(-1)
 
-        expect(AccreditedIndividual.exists?(old_agent.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(old_attorney.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(old_representative.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(current_attorney.id)).to be_truthy
+        expect(AccreditedIndividual).to exist(old_agent.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+        expect(AccreditedIndividual).to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_attorney.id)
       end
     end
 
@@ -579,10 +578,10 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_individuals) }
           .to change(AccreditedIndividual, :count).by(-1)
 
-        expect(AccreditedIndividual.exists?(old_agent.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(old_attorney.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(old_representative.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(current_representative.id)).to be_truthy
+        expect(AccreditedIndividual).to exist(old_agent.id)
+        expect(AccreditedIndividual).to exist(old_attorney.id)
+        expect(AccreditedIndividual).not_to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_representative.id)
       end
     end
 
@@ -595,11 +594,11 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_individuals) }
           .to change(AccreditedIndividual, :count).by(-2)
 
-        expect(AccreditedIndividual.exists?(old_agent.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(old_attorney.id)).to be_falsey
-        expect(AccreditedIndividual.exists?(old_representative.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(current_agent.id)).to be_truthy
-        expect(AccreditedIndividual.exists?(current_attorney.id)).to be_truthy
+        expect(AccreditedIndividual).not_to exist(old_agent.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+        expect(AccreditedIndividual).to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(current_attorney.id)
       end
     end
 
@@ -1266,9 +1265,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_organizations) }
           .to change(AccreditedOrganization, :count).by(-1)
 
-        expect(AccreditedOrganization.exists?(old_vso.id)).to be_falsey
-        expect(AccreditedOrganization.exists?(current_vso1.id)).to be_truthy
-        expect(AccreditedOrganization.exists?(current_vso2.id)).to be_truthy
+        expect(AccreditedOrganization).not_to exist(old_vso.id)
+        expect(AccreditedOrganization).to exist(current_vso1.id)
+        expect(AccreditedOrganization).to exist(current_vso2.id)
       end
     end
 
@@ -1281,9 +1280,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_organizations) }
           .to change(AccreditedOrganization, :count).by(-1)
 
-        expect(AccreditedOrganization.exists?(old_vso.id)).to be_falsey
-        expect(AccreditedOrganization.exists?(current_vso1.id)).to be_truthy
-        expect(AccreditedOrganization.exists?(current_vso2.id)).to be_truthy
+        expect(AccreditedOrganization).not_to exist(old_vso.id)
+        expect(AccreditedOrganization).to exist(current_vso1.id)
+        expect(AccreditedOrganization).to exist(current_vso2.id)
       end
     end
 
@@ -1306,7 +1305,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accredited_organizations) }
           .to change(AccreditedOrganization, :count).by(-1)
 
-        expect(AccreditedOrganization.exists?(old_vso.id)).to be_falsey
+        expect(AccreditedOrganization).not_to exist(old_vso.id)
       end
     end
 
@@ -1336,9 +1335,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accreditations) }
           .to change(Accreditation, :count).by(-1)
 
-        expect(Accreditation.exists?(old_accreditation.id)).to be_falsey
-        expect(Accreditation.exists?(current_accreditation1.id)).to be_truthy
-        expect(Accreditation.exists?(current_accreditation2.id)).to be_truthy
+        expect(Accreditation).not_to exist(old_accreditation.id)
+        expect(Accreditation).to exist(current_accreditation1.id)
+        expect(Accreditation).to exist(current_accreditation2.id)
       end
     end
 
@@ -1351,9 +1350,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accreditations) }
           .to change(Accreditation, :count).by(-1)
 
-        expect(Accreditation.exists?(old_accreditation.id)).to be_falsey
-        expect(Accreditation.exists?(current_accreditation1.id)).to be_truthy
-        expect(Accreditation.exists?(current_accreditation2.id)).to be_truthy
+        expect(Accreditation).not_to exist(old_accreditation.id)
+        expect(Accreditation).to exist(current_accreditation1.id)
+        expect(Accreditation).to exist(current_accreditation2.id)
       end
     end
 
@@ -1366,9 +1365,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accreditations) }
           .to change(Accreditation, :count).by(-1)
 
-        expect(Accreditation.exists?(old_accreditation.id)).to be_falsey
-        expect(Accreditation.exists?(current_accreditation1.id)).to be_truthy
-        expect(Accreditation.exists?(current_accreditation2.id)).to be_truthy
+        expect(Accreditation).not_to exist(old_accreditation.id)
+        expect(Accreditation).to exist(current_accreditation1.id)
+        expect(Accreditation).to exist(current_accreditation2.id)
       end
     end
 
@@ -1381,7 +1380,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accreditations) }
           .to change(Accreditation, :count).by(-1)
 
-        expect(Accreditation.exists?(old_accreditation.id)).to be_falsey
+        expect(Accreditation).not_to exist(old_accreditation.id)
       end
     end
 
@@ -1414,7 +1413,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect { job.send(:delete_removed_accreditations) }
           .to change(Accreditation, :count).by(-1)
 
-        expect(Accreditation.exists?(old_accreditation.id)).to be_falsey
+        expect(Accreditation).not_to exist(old_accreditation.id)
       end
     end
   end
@@ -2137,5 +2136,4 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       )
     end
   end
-
 end
