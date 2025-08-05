@@ -57,7 +57,7 @@ module SimpleFormsApi
           attachment.file = params['file']
           file_path = params['file'].tempfile.path
           # Validate the document using BenefitsIntakeService
-          if %w[40-0247 40-10007].include?(params[:form_id])
+          if %w[40-0247 40-10007].include?(params[:form_id]) && File.extname(file_path).downcase == '.pdf'
             begin
               service = BenefitsIntakeService::Service.new
               service.valid_document?(document: file_path)
@@ -103,9 +103,7 @@ module SimpleFormsApi
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
 
-        if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
-        end
+        send_intent_received_email(parsed_form_data, confirmation_number, expiration_date) if confirmation_number
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity, Exceptions::BenefitsClaimsApiDownError => e
@@ -127,15 +125,13 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, reference_number: }
         )
 
-        if Flipper.enabled?(:simple_forms_email_confirmations)
-          case status
-          when 'VALIDATED', 'ACCEPTED'
-            send_sahsha_email(parsed_form_data, :confirmation, reference_number)
-          when 'REJECTED'
-            send_sahsha_email(parsed_form_data, :rejected, reference_number)
-          when 'DUPLICATE'
-            send_sahsha_email(parsed_form_data, :duplicate)
-          end
+        case status
+        when 'VALIDATED', 'ACCEPTED'
+          send_sahsha_email(parsed_form_data, :confirmation, reference_number)
+        when 'REJECTED'
+          send_sahsha_email(parsed_form_data, :rejected, reference_number)
+        when 'DUPLICATE'
+          send_sahsha_email(parsed_form_data, :duplicate)
         end
 
         { json: { reference_number:, status:, submission_api: 'sahsha' }, status: lgy_response.status }
@@ -155,13 +151,11 @@ module SimpleFormsApi
         )
 
         if status == 200
-          begin
-            send_confirmation_email(parsed_form_data, confirmation_number)
-          rescue => e
-            Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
-          end
+          send_confirmation_email_safely(parsed_form_data, confirmation_number)
 
           presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+
+          add_vsi_flash_safely(form, submission)
         end
 
         build_response(confirmation_number, presigned_s3_url, status)
@@ -251,7 +245,7 @@ module SimpleFormsApi
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
-        return unless Flipper.enabled?(:submission_pdf_s3_upload)
+        return unless %w[production staging test].include?(Settings.vsp_environment)
 
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
         attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
@@ -313,8 +307,6 @@ module SimpleFormsApi
       end
 
       def send_confirmation_email(parsed_form_data, confirmation_number)
-        return unless Flipper.enabled?(:simple_forms_email_confirmations)
-
         config = {
           form_data: parsed_form_data,
           form_number: form_id,
@@ -358,6 +350,25 @@ module SimpleFormsApi
           user: @current_user
         )
         notification_email.send
+      end
+
+      def send_confirmation_email_safely(parsed_form_data, confirmation_number)
+        send_confirmation_email(parsed_form_data, confirmation_number)
+      rescue => e
+        Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
+      end
+
+      def add_vsi_flash_safely(form, submission)
+        return unless Flipper.enabled?(:priority_processing_request_apply_vsi_flash, @current_user)
+
+        if form.respond_to?(:add_vsi_flash) && params[:form_number] == '20-10207'
+          form.add_vsi_flash
+
+          Rails.logger.info('Simple Forms API - VSI Flash Applied', submission_id: submission.id)
+        end
+      rescue => e
+        Rails.logger.error('Simple Forms API - Controller-level VSI Flash Error', error: e.message,
+                                                                                  submission_id: submission.id)
       end
     end
   end

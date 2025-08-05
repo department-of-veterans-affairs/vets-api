@@ -55,4 +55,23 @@ RSpec.describe Lighthouse::FailureNotification, type: :job do
       end
     end
   end
+
+  context 'when retries are exhausted' do
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:increment)
+    end
+
+    let(:message) { 'Lighthouse::FailureNotification email could not be sent' }
+    let(:statsd_tags) { ['service:claim-status', "function: #{message}"] }
+
+    it 'logs failure and increments silent_failure metric' do
+      expect(Rails.logger)
+        .to receive(:info)
+        .with(message)
+      Lighthouse::FailureNotification.within_sidekiq_retries_exhausted_block do
+        expect(StatsD).to receive(:increment).with('silent_failure', tags: statsd_tags)
+      end
+    end
+  end
 end

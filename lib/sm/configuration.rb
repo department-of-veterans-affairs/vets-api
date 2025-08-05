@@ -10,6 +10,9 @@ require 'common/client/middleware/response/snakecase'
 require 'faraday/multipart'
 require 'sm/middleware/response/sm_parser'
 
+# No more Errors => Flipper error: undefined method column_for_attribute' for class Flipper::Gate
+require 'flipper_utils'
+
 module SM
   ##
   # HTTP client configuration for {SM::Client}, sets the token, base path and a service name for breakers and metrics
@@ -22,11 +25,15 @@ module SM
       Settings.mhv.sm.app_token
     end
 
+    def x_api_key
+      Settings.mhv.sm.x_api_key
+    end
+
     ##
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.sm.host}/mhv-sm-api/patient/v1/"
+      "#{Settings.mhv.api_gateway.hosts.sm_patient}/#{Settings.mhv.sm.gw_base_path}"
     end
 
     ##

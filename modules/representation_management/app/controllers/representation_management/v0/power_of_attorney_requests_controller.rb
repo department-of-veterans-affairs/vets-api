@@ -65,7 +65,6 @@ module RepresentationManagement
           RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate.new(
             data: flatten_form_params.merge(consent_limits: form.normalized_limitations_of_consent),
             dependent:,
-            form_data_object: form,
             service_branch:,
             user: current_user
           ).call

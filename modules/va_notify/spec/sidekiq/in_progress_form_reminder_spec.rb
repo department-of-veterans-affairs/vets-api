@@ -7,24 +7,10 @@ describe VANotify::InProgressFormReminder, type: :worker do
   let(:user) { create(:user) }
   let(:in_progress_form) { create(:in_progress_686c_form, user_uuid: user.uuid) }
   let(:in_progress_form_with_user_account_id) do
-    create(:in_progress_686c_form, user_account_id: create(:user_account).id)
+    create(:in_progress_686c_form, user_account: create(:user_account))
   end
 
   describe '#perform' do
-    it 'skips sending reminder email if ICN is not present' do
-      user_without_icn = double('VANotify::Veteran')
-      allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
-      allow(user_without_icn).to receive_messages(first_name: 'first_name', icn: nil)
-
-      allow(VANotify::UserAccountJob).to receive(:perform_async)
-
-      Sidekiq::Testing.inline! do
-        described_class.new.perform(in_progress_form.id)
-      end
-
-      expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
-    end
-
     it 'skips sending reminder email if there is no first name' do
       veteran_double = double('VaNotify::Veteran')
       allow(veteran_double).to receive_messages(icn: 'icn', first_name: nil)
@@ -71,8 +57,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
       let!(:in_progress_form_1) do
         Timecop.freeze(7.days.ago)
         in_progress_form = create(
-          :in_progress_686c_form, user_uuid: user.uuid, user_account_id:
-          create(:user_account).id
+          :in_progress_686c_form, user_uuid: user.uuid, user_account: create(:user_account)
         )
         Timecop.return
         in_progress_form

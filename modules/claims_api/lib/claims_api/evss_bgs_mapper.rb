@@ -19,29 +19,29 @@ module ClaimsApi
 
     def map_and_build_object # rubocop:disable Metrics/MethodLength
       claim = EVSSClaim.new
-      claim['data'] = @data
+      claim.data = @data
 
-      claim['evss_id'] = @data['benefit_claim_id']
-      claim['data']['contention_list'] = contentions
-      claim['data']['va_representative'] = @data['poa']
-      claim['data']['development_letter_sent'] = @data['development_letter_sent']
-      claim['data']['decision_letter_sent'] = @data['decision_notification_sent']
-      claim['data']['documents_needed'] = @data['wwsnfy'].present?
+      claim.evss_id = @data['benefit_claim_id']
+      claim.data['contention_list'] = contentions
+      claim.data['va_representative'] = @data['poa']
+      claim.data['development_letter_sent'] = @data['development_letter_sent']
+      claim.data['decision_letter_sent'] = @data['decision_notification_sent']
+      claim.data['documents_needed'] = @data['wwsnfy'].present?
 
-      claim['data']['waiver5103_submitted'] = @data['filed5103_waiver_ind'] == 'Y'
-      claim['data']['requested_decision'] = @data['filed5103_waiver_ind'] == 'Y'
+      claim.data['waiver5103_submitted'] = @data['filed5103_waiver_ind'] == 'Y'
+      claim.data['requested_decision'] = @data['filed5103_waiver_ind'] == 'Y'
 
-      claim['data']['claim_type'] = @data['claim_status']
-      claim['data']['date'] = format_bgs_date(@data&.dig('claim_dt'))
-      claim['data']['min_est_claim_date'] = format_bgs_date(@data['min_est_claim_complete_dt'])
-      claim['data']['max_est_claim_date'] = format_bgs_date(@data['max_est_claim_complete_dt'])
-      claim['data']['claim_phase_dates'] = get_bgs_phase_completed_dates(@data)
-      claim['data']['status_type'] = @data['claim_status_type']
-      claim['data']['status'] = phase.to_s
-      claim['data']['open'] = claim['data']['status'].downcase != 'complete'
-      claim['data']['claim_dt'].to_s
-      claim['data']['claim_complete_date'] = format_bgs_date(@data['claim_complete_dt'])
-      claim['list_data'] = claim['data']
+      claim.data['claim_type'] = @data['claim_status']
+      claim.data['date'] = format_bgs_date(@data&.dig('claim_dt'))
+      claim.data['min_est_claim_date'] = format_bgs_date(@data['min_est_claim_complete_dt'])
+      claim.data['max_est_claim_date'] = format_bgs_date(@data['max_est_claim_complete_dt'])
+      claim.data['claim_phase_dates'] = get_bgs_phase_completed_dates(@data)
+      claim.data['status_type'] = @data['claim_status_type']
+      claim.data['status'] = phase.to_s
+      claim.data['open'] = claim.data['status'].downcase != 'complete'
+      claim.data['claim_dt'].to_s
+      claim.data['claim_complete_date'] = format_bgs_date(@data['claim_complete_dt'])
+      claim.list_data = claim.data
 
       claim
     end

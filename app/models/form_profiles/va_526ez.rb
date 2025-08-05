@@ -4,17 +4,18 @@ require 'evss/disability_compensation_form/service'
 require 'evss/pciu_address/service'
 require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
+require 'vets/model'
 
 module VA526ez
   class FormSpecialIssue
-    include Virtus.model
+    include Vets::Model
 
     attribute :code, String
     attribute :name, String
   end
 
   class FormRatedDisability
-    include Virtus.model
+    include Vets::Model
 
     attribute :name, String
     attribute :rated_disability_id, String
@@ -27,13 +28,13 @@ module VA526ez
   end
 
   class FormRatedDisabilities
-    include Virtus.model
+    include Vets::Model
 
-    attribute :rated_disabilities, Array[FormRatedDisability]
+    attribute :rated_disabilities, FormRatedDisability, array: true
   end
 
   class FormPaymentAccountInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :account_type, String
     attribute :account_number, String
@@ -42,19 +43,19 @@ module VA526ez
   end
 
   class FormAddress
-    include Virtus.model
+    include Vets::Model
 
-    attribute :country
-    attribute :city
-    attribute :state
-    attribute :zip_code
-    attribute :address_line_1
-    attribute :address_line_2
-    attribute :address_line_3
+    attribute :country, String
+    attribute :city, String
+    attribute :state, String
+    attribute :zip_code, String
+    attribute :address_line_1, String
+    attribute :address_line_2, String
+    attribute :address_line_3, String
   end
 
   class FormContactInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :mailing_address, FormAddress
     attribute :primary_phone, String
@@ -62,7 +63,7 @@ module VA526ez
   end
 
   class FormVeteranContactInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :veteran, FormContactInformation
   end
@@ -70,10 +71,10 @@ module VA526ez
   # internal form prefill
   # does not reach out to external services
   class Form526Prefill
-    include Virtus.model
+    include Vets::Model
 
     attribute :started_form_version, String
-    attribute :sync_modern_0781_flow, Boolean
+    attribute :sync_modern_0781_flow, Bool
   end
 end
 
@@ -139,7 +140,7 @@ class FormProfiles::VA526ez < FormProfile
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
-      rated_disabilities: response.rated_disabilities
+      rated_disabilities: response.rated_disabilities.map(&:attribute_values)
     )
   end
 

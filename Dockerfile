@@ -24,7 +24,7 @@ RUN groupadd --gid $USER_ID nonroot \
 WORKDIR /app
 
 RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget ca-certificates-java file \
+RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget unzip ca-certificates-java file \
   imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -61,7 +61,14 @@ RUN bundle install \
   && rm -rf /usr/local/bundle/cache/*.gem \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \
   && find /usr/local/bundle/gems/ -name "*.o" -delete \
-  && find /usr/local/bundle/gems/ -name ".git" -type d -prune -execdir rm -rf {} +
+  && find /usr/local/bundle/gems/ -name ".git" -type d -prune -execdir rm -rf {} + \
+  # 🔧 fix bad permissions from Nokogiri 1.18.7 (only if installed)
+  && for d in /usr/local/bundle/gems/nokogiri-*; do \
+       if [ -d "$d" ]; then \
+         find "$d" -type f -exec chmod a+r {} \; && \
+         find "$d" -type d -exec chmod a+rx {} \; ; \
+       fi \
+     done
 COPY --chown=nonroot:nonroot . .
 
 # Make the ImageMagick script executable

@@ -87,7 +87,7 @@ module SignIn
     end
 
     def sso_not_enabled_for_device_sso_scope?
-      scope == Constants::Auth::DEVICE_SSO && !client_config.device_sso_enabled?
+      scope == Constants::Auth::DEVICE_SSO && !client_config.api_sso_enabled?
     end
 
     def remove_base64_padding(data)

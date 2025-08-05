@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://api.wellhive.com/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true
+      uri: <VAOS_EPS_API_URL>/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true
       body:
         encoding: US-ASCII
         string: ''

@@ -1,0 +1,82 @@
+{
+  "vista": {
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "9fc29a49-16d1-4a19-b5a1-fa8c9b2bf2b7",
+          "code": {
+            "text": "CH"
+          },
+          "category": [
+            {
+              "coding": [
+                {
+                  "code": "CH"
+                }
+              ]
+            }
+          ],
+          "effectiveDateTime": "2025-01-23T21:06:20+00:00",
+          "contained": [
+            {
+              "resourceType": "Organization",
+              "id": "org1",
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "pract1",
+              "name": [
+                {
+                  "given": ["MARCI", "P"],
+                  "family": "MCGUIRE"
+                }
+              ]
+            },
+            {
+              "resourceType": "Specimen",
+              "id": "spec1",
+              "type": {
+                "text": "SERUM"
+              }
+            },
+            {
+              "resourceType": "Observation",
+              "id": "obs1",
+              "code": {
+                "text": "GLUCOSE"
+              },
+              "valueQuantity": {
+                "value": 99.0,
+                "unit": "mg/dL"
+              },
+              "referenceRange": [
+                {
+                  "text": "70 - 110"
+                }
+              ],
+              "status": "final",
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES"
+                }
+              ]
+            }
+          ],
+          "specimen": {
+            "reference": "Specimen/spec1"
+          },
+          "basedOn": [
+            {
+              "reference": "ServiceRequest/sr1"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "oracle-health": {
+    "entry": []
+  }
+}

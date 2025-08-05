@@ -19,6 +19,24 @@ module AskVAApi
           }
         end
 
+        def category
+          inquiry_params[:select_category]
+        end
+
+        def topic
+          inquiry_params[:select_topic]
+        end
+
+        def inquiry_education_related?
+          # A user MUST be logged in to submit under **either** of these 2 conditions. (Confirmed with Becky)
+          education_benefits? || benefits_outside_us_edu?
+        end
+
+        def education_benefits?
+          category == 'Education benefits and work study' &&
+            topic != 'Veteran Readiness and Employment (Chapter 31)'
+        end
+
         private
 
         def inquiry_about
@@ -86,22 +104,9 @@ module AskVAApi
           inquiry_params[:your_role]
         end
 
-        def education_benefits?
-          category == 'Education benefits and work study' &&
-            topic != 'Veteran Readiness and Employment (Chapter 31)'
-        end
-
         def benefits_outside_us_edu?
           category == 'Benefits issues outside the U.S.' &&
             topic == 'Education benefits and work study'
-        end
-
-        def category
-          inquiry_params[:select_category]
-        end
-
-        def topic
-          inquiry_params[:select_topic]
         end
 
         def general_question?

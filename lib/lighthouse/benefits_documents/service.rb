@@ -48,9 +48,31 @@ module BenefitsDocuments
       FileUtils.rm_rf(@base_path) if @base_path
     end
 
+    # gets all claim letters from the lighthouse claims-letters/search endpoint
+    def claim_letters_search(doc_type_ids: nil, participant_id: nil, file_number: nil)
+      config.claim_letters_search(doc_type_ids:, participant_id:, file_number:)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/search')
+    end
+
+    # retrieves the octet-stream of a single claim letter from the lighthouse claims-letters/download endpoint
+    def claim_letter_download(document_uuid:, participant_id: nil, file_number: nil)
+      config.claim_letter_download(document_uuid:, participant_id:, file_number:)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/download')
+    end
+
+    def validate_claimant_can_upload(document_data)
+      response = config.claimant_can_upload_document(document_data)
+      response.body.dig('data', 'valid') # boolean
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/documents/validate/claimant')
+      false
+    end
+
     private
 
-    def submit_document(file, file_params, lighthouse_client_id = nil)
+    def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength
       user_icn = @user.icn
       document_data = build_lh_doc(file, file_params)
       claim_id = file_params[:claimId] || file_params[:claim_id]
@@ -58,6 +80,25 @@ module BenefitsDocuments
       unless claim_id
         raise Common::Exceptions::InternalServerError,
               ArgumentError.new('Claim id is required')
+      end
+
+      Rails.logger.info('file_name present?', file&.original_filename.present?)
+      Rails.logger.info('file extension', file&.original_filename&.split('.')&.last)
+      Rails.logger.info('file content type', file&.content_type)
+      Rails.logger.info('participant_id present?', @user.participant_id.present?)
+
+      if presumed_duplicate?(claim_id, file)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'DOC_UPLOAD_DUPLICATE',
+          source: self.class.name
+        )
+      end
+
+      if Flipper.enabled?(:benefits_documents_validate_claimant) && !validate_claimant_can_upload(document_data)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'DOC_UPLOAD_INVALID_CLAIMANT',
+          source: self.class.name
+        )
       end
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
@@ -91,6 +132,7 @@ module BenefitsDocuments
         tracked_item_id: document.tracked_item_id&.first,
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
         user_account:,
+        file_size: File.size(document.file_obj),
         template_metadata: { personalisation: create_personalisation(document) }.to_json
       )
       StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
@@ -168,6 +210,30 @@ module BenefitsDocuments
       Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(
         :cst_synchronous_evidence_uploads, @user
       )
+    end
+
+    def presumed_duplicate?(claim_id, file)
+      user_account = UserAccount.find_by(id: @user.user_account_uuid)
+      es = EvidenceSubmission.where(
+        claim_id:,
+        user_account:,
+        upload_status: [
+          BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
+          BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED],
+          BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+        ]
+      )
+      return false unless es.exists?
+
+      es.find_each do |submission|
+        filename = JSON.parse(submission.template_metadata).dig('personalisation', 'file_name')
+        if (filename == file.original_filename) &&
+           (submission.file_size.nil? || submission.file_size == File.size(file))
+          return true
+        end
+      end
+
+      false
     end
   end
 end

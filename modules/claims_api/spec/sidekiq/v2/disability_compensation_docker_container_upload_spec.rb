@@ -151,7 +151,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         Sidekiq::Testing.inline! do
           expect do
             subject.perform_async(claim.id)
-          end.not_to raise_error(Common::Exceptions::BackendServiceException)
+          end.not_to raise_error
         end
 
         claim.reload
@@ -181,7 +181,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         Sidekiq::Testing.inline! do
           expect do
             subject.perform_async(claim.id)
-          end.not_to raise_error(Common::Exceptions::BackendServiceException)
+          end.not_to raise_error
         end
 
         claim.reload
@@ -242,7 +242,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         Sidekiq::Testing.inline! do
           expect do
             subject.perform_async(claim.id)
-          end.not_to raise_error(Common::Exceptions::BackendServiceException)
+          end.not_to raise_error
         end
 
         claim.reload

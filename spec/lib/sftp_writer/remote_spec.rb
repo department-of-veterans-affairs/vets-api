@@ -22,7 +22,8 @@ RSpec.describe SFTPWriter::Remote do
       double(
         'Config',
         key_path: 'spec/fixtures/files/idme_cert.crt', host: 'sftp.example.com',
-        user: 'test_user', port: 22, relative_path: '/remote/path'
+        user: 'test_user', port: 22, relative_path: '/remote/path',
+        allow_staging_uploads: false
       )
     end
 

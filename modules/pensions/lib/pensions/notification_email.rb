@@ -35,5 +35,11 @@ module Pensions
     def callback_klass
       Pensions::NotificationCallback.to_s
     end
+
+    # Add 'claim_id' to the metadata for consistency in DataDog and Pensions::Monitor
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
+    def callback_metadata
+      super.merge(claim_id: claim.id)
+    end
   end
 end

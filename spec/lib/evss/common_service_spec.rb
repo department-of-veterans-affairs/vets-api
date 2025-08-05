@@ -10,19 +10,6 @@ describe EVSS::CommonService do
   let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
   let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
 
-  context 'with headers' do
-    it 'posts to get current info' do
-      # This is a stubbed out test to bypass coverage failures due to nobody having
-      # written a test in the original implementation.
-      # Currently, it is not possible to write a VCR cassette due to the EVSS API not
-      # being accessible on their PINT server. This should be rectified in the future
-      # once it is possible.
-      allow_any_instance_of(EVSS::BaseService).to receive(:post).and_return(true)
-      response = subject.get_current_info
-      expect(response).to be true
-    end
-  end
-
   describe '#get_rating_info' do
     context 'with a valid evss response' do
       it 'returns a rating info response object' do

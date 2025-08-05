@@ -13,10 +13,10 @@ module UnifiedHealthData
       Settings.mhv.uhd
     end
 
-    delegate :app_id, :app_token, :subject, :user_type, to: :settings
+    delegate :app_id, :app_token, :x_api_key, :subject, :user_type, to: :settings
 
     def base_path
-      "#{settings.host}/mhvapi/v1/medicalrecords/"
+      "#{settings.host}/v1/medicalrecords/"
     end
 
     def service_name

@@ -14,6 +14,8 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
     before do
       sign_in(user)
+      Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+      Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
     end
 
     # The following provides a description of the different termination reason codes:
@@ -55,26 +57,25 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
           expect(episode['period_of_service_type_text']).to eq('National Guard member')
           expect(episode['termination_reason_code']).to eq('S')
           expect(episode['termination_reason_text']).to eq('Separation from personnel category or organization')
-          expect(json.dig('attributes', 'vet_status_eligibility')).to eq({ 'confirmed' => true, 'message' => [] })
+          expect(json.dig('attributes', 'vet_status_eligibility')).to eq(
+            { 'confirmed' => true, 'message' => [], 'title' => '', 'status' => '' }
+          )
         end
       end
 
       it 'returns no service history episodes' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
           get '/v0/profile/service_history'
-          problem_message = [
-            'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status ' \
-            'card for you right now.',
-            'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711).' \
-            ' They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-          ]
           json = json_body_for(response)
           episodes = json.dig('attributes', 'service_history')
           vet_status_eligibility = json.dig('attributes', 'vet_status_eligibility')
 
           expect(response).to be_ok
           expect(episodes.count).to eq(0)
-          expect(vet_status_eligibility).to eq({ 'confirmed' => false, 'message' => problem_message })
+          expect(vet_status_eligibility).to eq({ 'confirmed' => false,
+                                                 'message' => VeteranVerification::Constants::NOT_FOUND_MESSAGE,
+                                                 'title' => VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                                 'status' => VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
         end
       end
 
@@ -149,6 +150,66 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
             expect(response).to have_http_status(:bad_request)
           end
+        end
+      end
+    end
+
+    describe 'eligible benefits logging' do
+      context 'with log_eligible_benefits feature flag on' do
+        before { allow(Flipper).to receive(:enabled?).with(:log_eligible_benefits).and_return(true) }
+
+        context 'when service history response succeeds' do
+          it 'logs eligible benefits' do
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).to receive(:perform_async).with(
+              user.uuid,
+              {
+                dischargeStatus: ['GENERAL_DISCHARGE'],
+                branchOfService: ['ARMY'],
+                serviceDates: [{ beginDate: '2002-02-02', endDate: '2008-12-01' }]
+              }
+            )
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+              get '/v0/profile/service_history'
+            end
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'when service history response fails' do
+          it 'does not log eligible benefits' do
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
+              get '/v0/profile/service_history'
+            end
+
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'when params creation fails' do
+          it 'logs error, does not log benefits, and does not cause request error' do
+            allow(BenefitsDiscovery::Params).to receive(:service_history_params).and_raise(StandardError.new('oops'))
+            expect(Rails.logger).to receive(:error).with('Error logging eligible benefits: oops')
+            expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+              get '/v0/profile/service_history'
+            end
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'with log_eligible_benefits feature flag off' do
+        before { allow(Flipper).to receive(:enabled?).with(:log_eligible_benefits).and_return(false) }
+
+        it 'does not log eligible benefits' do
+          expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).not_to receive(:perform_async)
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+            get '/v0/profile/service_history'
+          end
+          expect(response).to have_http_status(:ok)
         end
       end
     end

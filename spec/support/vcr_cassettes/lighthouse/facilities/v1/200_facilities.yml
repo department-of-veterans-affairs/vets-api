@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities?ids=vha_442
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities?facilityIds=vha_442"
     body:
       encoding: US-ASCII
       string: ''
@@ -14,30 +14,38 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - abcde
+      - "<LIGHTHOUSE_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
-      message: ''
+      message: OK
     headers:
       Date:
-      - Wed, 03 Apr 2024 17:09:33 GMT
+      - Mon, 19 May 2025 22:10:50 GMT
       Content-Type:
       - application/json
+      Transfer-Encoding:
+      - chunked
       Connection:
       - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '44'
       X-Ratelimit-Limit-Minute:
       - '60'
       Ratelimit-Remaining:
-      - '53'
+      - '44'
       Ratelimit-Reset:
-      - '27'
+      - '10'
       Ratelimit-Limit:
       - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '53'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="999783040", dtSInfo;desc="0"
+      X-Envoy-Upstream-Service-Time:
+      - '13'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
@@ -50,457 +58,51 @@ http_interactions:
       - SAMEORIGIN
       Pragma:
       - no-cache
-      Transfer-Encoding:
-      - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{
-  "data": [
-    {
-      "id": "nca_042",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Baxter Springs City Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/BaxterSprings.asp",
-        "lat": 37.03205750,
-        "long": -94.77066050,
-        "timeZone": "America/Chicago",
-        "address": {
-          "mailing": {
-            "zip": "66713",
-            "city": "Leavenworth",
-            "state": "KS",
-            "address1": "150 Muncie Rd"
-          },
-          "physical": {
-            "zip": "66713",
-            "city": "Baxter Springs",
-            "state": "KS",
-            "address1": "Baxter Springs City Cemetery"
-          }
-        },
-        "phone": {
-          "fax": "9137584136",
-          "main": "9137584105"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_054",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Congressional Cemetery Government Lots",
-        "facilityType": "va_cemetery",
-        "classification": "Government Lots",
-        "website": "https://www.cem.va.gov/cems/lots/Congressional.asp",
-        "lat": 38.88277970,
-        "long": -76.97901110,
-        "timeZone": "America/New_York",
-        "address": {
-          "mailing": {
-            "zip": "21228",
-            "city": "Baltimore",
-            "state": "MD",
-            "address1": "5501 Frederick Avenue"
-          },
-          "physical": {
-            "zip": "20003",
-            "city": "Washington",
-            "state": "DC",
-            "address1": "1801 E Street, SE"
-          }
-        },
-        "phone": {
-          "fax": "4106441563",
-          "main": "4106449696"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_055",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Evergreen Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/Evergreen.asp",
-        "lat": 39.06965130,
-        "long": -84.46885410,
-        "timeZone": "America/New_York",
-        "address": {
-          "mailing": {
-            "zip": "40356",
-            "city": "Nicholasville",
-            "state": "KY",
-            "address1": "6980 Danville Rd"
-          },
-          "physical": {
-            "zip": "41071",
-            "city": "Southgate",
-            "state": "KY",
-            "address1": "25 South Alexandria Pike"
-          }
-        },
-        "phone": {
-          "fax": "859-887-4860",
-          "main": "859-885-5727"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_058",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Forest Lawn Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/ForestLawn.asp",
-        "lat": 41.33124280,
-        "long": -95.99361190,
-        "timeZone": "America/Chicago",
-        "address": {
-          "mailing": {
-            "zip": "66048",
-            "city": "Leavenworth",
-            "state": "KS",
-            "address1": "150 Muncie Rd"
-          },
-          "physical": {
-            "zip": "68112",
-            "city": "Omaha",
-            "state": "NE",
-            "address1": "7909 Mormon Bridge Rd"
-          }
-        },
-        "phone": {
-          "fax": "9137584136",
-          "main": "9137584105"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_059",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Fort Crawford Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/Fort_Crawford.asp",
-        "lat": 43.04707820,
-        "long": -91.14648480,
-        "timeZone": "America/Chicago",
-        "address": {
-          "mailing": {
-            "zip": "53295-4000",
-            "city": "Milwaukee",
-            "state": "WI",
-            "address1": "5000 W. National Ave, Bldg. 1301"
-          },
-          "physical": {
-            "zip": "53821",
-            "city": "Prairie du Chien",
-            "state": "WI",
-            "address1": "413 S. Beaumont Rd"
-          }
-        },
-        "phone": {
-          "fax": "4143825321",
-          "main": "4143825300"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_061",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Green Mount Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/Green_Mount.asp",
-        "lat": 44.25730710,
-        "long": -72.59974600,
-        "timeZone": "America/New_York",
-        "address": {
-          "mailing": {
-            "zip": "02532",
-            "city": "Bourne",
-            "state": "MA",
-            "address1": "Off Connery Ave."
-          },
-          "physical": {
-            "zip": "05602",
-            "city": "Montpelier",
-            "state": "VT",
-            "address1": "250 State Street"
-          }
-        },
-        "phone": {
-          "fax": "5085649946",
-          "main": "5085637113"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_062",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Lakeside Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/Lakeside.asp",
-        "lat": 43.01735370,
-        "long": -82.43269330,
-        "timeZone": "America/Detroit",
-        "address": {
-          "mailing": {
-            "zip": "48442",
-            "city": "Holly",
-            "state": "MI",
-            "address1": "4200 Belford Rd"
-          },
-          "physical": {
-            "zip": "48060",
-            "city": "Port Huron",
-            "state": "MI",
-            "address1": "3781 Gratiot St"
-          }
-        },
-        "phone": {
-          "fax": "2483280612",
-          "main": "2483280386"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_063",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Mound Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/Mound.asp",
-        "lat": 42.71931550,
-        "long": -87.81609560,
-        "timeZone": "America/Chicago",
-        "address": {
-          "mailing": {
-            "zip": "53295-4000",
-            "city": "Milwaukee",
-            "state": "WI",
-            "address1": "5000 W. National Ave, Bldg. 1301"
-          },
-          "physical": {
-            "zip": "53405",
-            "city": "Racine",
-            "state": "WI",
-            "address1": "1147 West Blvd"
-          }
-        },
-        "phone": {
-          "fax": "4143825321",
-          "main": "4143825300"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_064",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Mound City Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/MoundCity.asp",
-        "lat": 38.14555200,
-        "long": -94.81322820,
-        "timeZone": "America/Chicago",
-        "address": {
-          "mailing": {
-            "zip": "66506",
-            "city": "Leavenworth",
-            "state": "KS",
-            "address1": "150 Muncie Rd"
-          },
-          "physical": {
-            "zip": "66506",
-            "city": "Mound City",
-            "state": "KS",
-            "address1": "Woodland Cemetery"
-          }
-        },
-        "phone": {
-          "fax": "9137584136",
-          "main": "9137584105"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    },
-    {
-      "id": "nca_065",
-      "type": "va_facilities",
-      "attributes": {
-        "name": "Mount Moriah Cemetery Soldiers'' Lot",
-        "facilityType": "va_cemetery",
-        "classification": "Soldiers Lot",
-        "website": "https://www.cem.va.gov/cems/lots/MountMoriah.asp",
-        "lat": 39.93245530,
-        "long": -75.23679670,
-        "timeZone": "America/New_York",
-        "address": {
-          "mailing": {
-            "zip": "08010",
-            "city": "Beverly",
-            "state": "NJ",
-            "address1": "916 Bridgeboro Road"
-          },
-          "physical": {
-            "zip": "19142",
-            "city": "Philadelphia",
-            "state": "PA",
-            "address1": "62nd Street and Kingsessing Avenue"
-          }
-        },
-        "phone": {
-          "fax": "6098714691",
-          "main": "6098775460"
-        },
-        "hours": {
-          "monday": "Sunrise - Sundown",
-          "tuesday": "Sunrise - Sundown",
-          "wednesday": "Sunrise - Sundown",
-          "thursday": "Sunrise - Sundown",
-          "friday": "Sunrise - Sundown",
-          "saturday": "Sunrise - Sundown",
-          "sunday": "Sunrise - Sundown"
-        },
-        "operatingStatus": {
-          "code": "NORMAL"
-        }
-      }
-    }
-  ],
-  "links": {
-    "self": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=1&per_page=10",
-    "first": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=1&per_page=10",
-    "next": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=2&per_page=10",
-    "last": "https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=257&per_page=10"
-  },
-  "meta": {
-    "pagination": {
-      "currentPage": 1,
-      "perPage": 10,
-      "totalPages": 257,
-      "totalEntries": 2564
-    }
-  }
-}'
+      string: '{"data":[{"id":"vha_442","type":"va_facilities","attributes":{"name":"Cheyenne
+        VA Medical Center","facilityType":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","parent":{"id":"vha_442","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442"},"website":"https://www.va.gov/cheyenne-health-care/locations/cheyenne-va-medical-center/","lat":41.148027,"long":-104.7862575,"timeZone":"America/Denver","address":{"physical":{"zip":"82001-5356","city":"Cheyenne","state":"WY","address1":"2360
+        East Pershing Boulevard"}},"phone":{"fax":"307-778-7381","main":"307-778-7550","pharmacy":"866-420-6337","afterHours":"307-778-7550","patientAdvocate":"307-778-7550
+        x17573","mentalHealthClinic":"307-778-7349","enrollmentCoordinator":"307-778-7550
+        x17579","healthConnect":"833-983-0484"},"hours":{"monday":"24/7","tuesday":"24/7","wednesday":"24/7","thursday":"24/7","friday":"24/7","saturday":"24/7","sunday":"24/7"},"operationalHoursSpecialInstructions":["Normal
+        business hours are Monday through Friday, 8:00 a.m. to 4:30 p.m."],"services":{"health":[{"name":"Addiction
+        and substance use care","serviceId":"addiction","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/addiction"},{"name":"Audiology
+        and speech","serviceId":"audiology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/audiology"},{"name":"Cancer
+        care","serviceId":"cancer","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/cancer"},{"name":"Cardiology","serviceId":"cardiology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/cardiology"},{"name":"CaregiverSupport","serviceId":"caregiverSupport","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/caregiverSupport"},{"name":"Chiropractic","serviceId":"chiropractic","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/chiropractic"},{"name":"COVID-19
+        vaccines","serviceId":"covid19Vaccine","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/covid19Vaccine"},{"name":"Dental/oral
+        surgery","serviceId":"dental","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/dental"},{"name":"Emergency
+        care","serviceId":"emergencyCare","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/emergencyCare"},{"name":"Veteran
+        readiness and employment programs","serviceId":"employmentPrograms","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/employmentPrograms"},{"name":"Gastroenterology","serviceId":"gastroenterology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/gastroenterology"},{"name":"Homeless
+        Veteran care","serviceId":"homeless","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/homeless"},{"name":"Infectious
+        disease","serviceId":"infectiousDisease","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/infectiousDisease"},{"name":"Internal
+        medicine","serviceId":"internalMedicine","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/internalMedicine"},{"name":"Laboratory
+        and pathology","serviceId":"laboratory","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/laboratory"},{"name":"LGBTQ+
+        Veteran care","serviceId":"lgbtq","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/lgbtq"},{"name":"Mental
+        health care","serviceId":"mentalHealth","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/mentalHealth"},{"name":"Military
+        sexual trauma care","serviceId":"militarySexualTrauma","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/militarySexualTrauma"},{"name":"Minority
+        Veteran care","serviceId":"minorityCare","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/minorityCare"},{"name":"My
+        HealtheVet coordinator","serviceId":"myHealtheVetCoordinator","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/myHealtheVetCoordinator"},{"name":"Neurology","serviceId":"neurology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/neurology"},{"name":"Nutrition,
+        food, and dietary care","serviceId":"nutrition","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/nutrition"},{"name":"Ophthalmology","serviceId":"ophthalmology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/ophthalmology"},{"name":"Optometry","serviceId":"optometry","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/optometry"},{"name":"Otolaryngology","serviceId":"otolaryngology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/otolaryngology"},{"name":"Patient
+        advocates","serviceId":"patientAdvocates","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/patientAdvocates"},{"name":"Pharmacy","serviceId":"pharmacy","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/pharmacy"},{"name":"Physical
+        medicine and rehabilitation","serviceId":"physicalMedicine","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/physicalMedicine"},{"name":"Physical
+        therapy, occupational therapy and kinesiotherapy","serviceId":"physicalTherapy","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/physicalTherapy"},{"name":"Podiatry","serviceId":"podiatry","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/podiatry"},{"name":"Primary
+        care","serviceId":"primaryCare","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/primaryCare"},{"name":"Prosthetics
+        and rehabilitation","serviceId":"prosthetics","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/prosthetics"},{"name":"PTSD
+        care","serviceId":"ptsd","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/ptsd"},{"name":"Pulmonary
+        medicine","serviceId":"pulmonaryMedicine","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/pulmonaryMedicine"},{"name":"Radiology","serviceId":"radiology","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/radiology"},{"name":"Registry
+        exams","serviceId":"registryExams","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/registryExams"},{"name":"Rehabilitation
+        and extended care","serviceId":"rehabilitation","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/rehabilitation"},{"name":"Sleep
+        medicine","serviceId":"sleepMedicine","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/sleepMedicine"},{"name":"Social
+        work","serviceId":"socialWork","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/socialWork"},{"name":"Spinal
+        cord injuries and disorders","serviceId":"spinalInjury","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/spinalInjury"},{"name":"Suicide
+        prevention","serviceId":"suicidePrevention","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/suicidePrevention"},{"name":"Telehealth","serviceId":"telehealth","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/telehealth"},{"name":"Returning
+        service member care","serviceId":"transitionCounseling","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/transitionCounseling"},{"name":"Travel
+        reimbursement","serviceId":"travelReimbursement","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/travelReimbursement"},{"name":"Urgent
+        care","serviceId":"urgentCare","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/urgentCare"},{"name":"Blind
+        and low vision rehabilitation","serviceId":"vision","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/vision"},{"name":"Whole
+        health","serviceId":"wholeHealth","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/wholeHealth"},{"name":"Women
+        Veteran care","serviceId":"womensHealth","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/womensHealth"},{"name":"Wound
+        care and ostomy","serviceId":"wound","link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services/wound"}],"link":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities/vha_442/services"},"satisfaction":{"health":{"primaryCareUrgent":0.8600000143051147,"primaryCareRoutine":0.9399999976158142,"specialtyCareUrgent":0.8100000023841858,"specialtyCareRoutine":0.8899999856948853},"effectiveDate":"2025-02-04"},"mobile":false,"operatingStatus":{"code":"NORMAL"},"visn":"19"}}],"links":{"self":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities?facilityIds=vha_442&page=1&per_page=10","first":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities?facilityIds=vha_442&page=1&per_page=10","last":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/va_facilities/v1/facilities?facilityIds=vha_442&page=1&per_page=10"},"meta":{"pagination":{"currentPage":1,"perPage":10,"totalPages":1,"totalEntries":1}}}'
   recorded_at: Wed, 20 Oct 2021 15:59:16 GMT
-recorded_with: VCR 6.2.0
+recorded_with: VCR 6.3.1

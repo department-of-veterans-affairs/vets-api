@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<VEIS_AUTH_URL>/tenant_id/oauth2/token"
+    body:
+      encoding: US-ASCII
+      string: 'client_id=client_id&client_secret=client_secret&client_info=1&grant_type=client_credentials&resource=resource_id'
+  response:
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "access_token": "string",
+          "contactId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+- request:
+    method: post
+    uri: https://www.example.com/v0/sign_in/token
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "access_token": "sts_token"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+- request:
+    method: post
+    uri:  https://btsss.gov/api/v2/Auth/access-token
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "accessToken": "btsss_token"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT

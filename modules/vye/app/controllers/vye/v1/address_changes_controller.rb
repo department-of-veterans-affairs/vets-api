@@ -6,6 +6,12 @@ module Vye
       def create
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
+        if Flipper.enabled?(:disable_bdn_processing)
+          Rails.logger.warn("DISABLE BDN PROCESSING: received unexpected call to AddressChangesController, UserInfo ID: #{user_info&.id}") # rubocop:disable Layout/LineLength
+          render json: {}, status: :bad_request
+          return
+        end
+
         user_info.address_changes.create!(create_params.merge(origin: 'frontend'))
       end
 

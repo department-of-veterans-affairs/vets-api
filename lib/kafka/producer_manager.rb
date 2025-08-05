@@ -3,6 +3,8 @@
 require 'singleton'
 require 'waterdrop'
 require 'kafka/oauth_token_refresher'
+require 'kafka/enhanced_listener'
+require 'datadog/statsd'
 
 module Kafka
   class ProducerManager
@@ -59,6 +61,26 @@ module Kafka
 
         Rails.logger.info "WaterDrop [#{producer_id}] delivered message with offset: #{offset}"
       end
+
+      setup_datadog_instrumentation
+    end
+
+    def setup_datadog_instrumentation
+      list_class_ref = Kafka::EnhancedListener
+      listener = list_class_ref.new do |config|
+        statsd_addr = ENV['STATSD_ADDR'] || '127.0.0.1:8125'
+        host, port = statsd_addr.split(':')
+        config.client = Datadog::Statsd.new(host, port)
+        config.default_tags = ["host:#{host}"]
+        config.rd_kafka_metrics = config.rd_kafka_metrics + [
+          list_class_ref::RdKafkaMetric.new(:count, :brokers, 'connects', 'connects'),
+          list_class_ref::RdKafkaMetric.new(:count, :brokers, 'disconnects', 'disconnects'),
+          list_class_ref::RdKafkaMetric.new(:gauge, :brokers, 'rxidle', 'rxidle'),
+          list_class_ref::RdKafkaMetric.new(:broker_service_check, :brokers, 'state', 'state')
+        ]
+      end
+
+      producer.monitor.subscribe(listener)
     end
   end
 end

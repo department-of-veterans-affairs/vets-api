@@ -98,11 +98,28 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   end
 
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
-  def set_api_cookie!
+  def set_api_cookie
     return unless @session_object
 
     session.delete :value
     @session_object.to_hash.each { |k, v| session[k] = v }
+  end
+
+  def set_cerner_eligibility_cookie
+    cookie_name = V1::SessionsController::CERNER_ELIGIBLE_COOKIE_NAME
+    existing = cookies.signed[cookie_name].present?
+
+    eligible = @current_user.cerner_eligible?
+
+    cookies.signed.permanent[cookie_name] = {
+      value: eligible,
+      domain: IdentitySettings.sign_in.info_cookie_domain
+    }
+
+    unless existing
+      Rails.logger.info('[SessionsController] Cerner Eligibility', eligible:, cookie_action: :set,
+                                                                   icn: @current_user.icn)
+    end
   end
 
   def set_session_expiration_header
@@ -134,7 +151,9 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     return unless @session_object
 
     user = User.find(@session_object.uuid)
-    @current_user = user if (skip_terms_check || !user&.needs_accepted_terms_of_use) && !user&.credential_lock
+    if (skip_terms_check || !user&.needs_accepted_terms_of_use) && !user&.credential_lock && user&.identity
+      @current_user = user
+    end
   end
 
   def sso_cookie_content

@@ -4,10 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::VeteranOnboardingsController, type: :controller do
   let(:user) { create(:user, :loa3) }
-  let(:veteran_onboarding) do
-    user_verification = create(:user_verification, idme_uuid: user.identity.idme_uuid)
-    create(:veteran_onboarding, user_account: user_verification.user_account)
-  end
+  let(:veteran_onboarding) { create(:veteran_onboarding, user_account: user.user_account) }
 
   before do
     Flipper.enable(:veteran_onboarding_beta_flow, user)

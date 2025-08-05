@@ -19,8 +19,7 @@ module ClaimsApi
         poa_code_from_form('2122a', poa)
         res = send_representative_notification(poa, rep)
       end
-      process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
-      schedule_follow_up_check(res.id) if res.present?
+      schedule_follow_up_check(res.id, poa_id) if res.present?
     rescue => e
       handle_failure(poa_id, e, process)
     end
@@ -58,8 +57,8 @@ module ClaimsApi
           rep_first_name: value_or_default_for_field(rep.first_name),
           rep_last_name: value_or_default_for_field(rep.last_name),
           representative_type: value_or_default_for_field(poa.form_data.dig('representative', 'type')),
-          address: value_or_default_for_field(build_ind_poa_address(poa)),
-          location: value_or_default_for_field(rep_location(poa)),
+          address: value_or_default_for_field(build_ind_poa_address(rep)),
+          location: value_or_default_for_field(rep_location(rep)),
           email: value_or_default_for_field(rep.email),
           phone: rep_phone(rep)
         },
@@ -103,11 +102,10 @@ module ClaimsApi
       end
     end
 
-    def rep_location(poa)
-      address = poa.form_data.dig('representative', 'address')
-      city = address['city']
-      state = address['stateCode']
-      zip = rep_zip(address)
+    def rep_location(rep)
+      city = rep.city
+      state = rep.state_code
+      zip = rep_zip(rep)
 
       build_location(city, state, zip)
     end
@@ -125,9 +123,9 @@ module ClaimsApi
       [location, zip].compact_blank.join(' ')
     end
 
-    def rep_zip(address)
-      first_five = address['zipCode']
-      last_four = address['zipCodeSuffix']
+    def rep_zip(rep)
+      first_five = rep.zip_code
+      last_four = rep.zip_suffix
 
       format_zip_values(first_five, last_four)
     end
@@ -153,11 +151,10 @@ module ClaimsApi
       auth_headers[ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY]
     end
 
-    def build_ind_poa_address(poa)
-      form_data = poa&.form_data
-      address_line1 = form_data&.dig('representative', 'address', 'addressLine1')
-      address_line2 = form_data&.dig('representative', 'address', 'addressLine2')
-      address_line3 = form_data&.dig('representative', 'address', 'addressLine3')
+    def build_ind_poa_address(rep)
+      address_line1 = rep.address_line1
+      address_line2 = rep.address_line2
+      address_line3 = rep.address_line3
 
       build_address(address_line1, address_line2, address_line3)
     end
@@ -175,7 +172,11 @@ module ClaimsApi
     end
 
     def claimant_first_name(poa)
-      poa.form_data.dig('claimant', 'firstName').presence || poa.auth_headers['va_eauth_firstName']
+      claimant = poa.form_data&.dig('claimant')
+      claimant_name = claimant&.dig('firstName')
+      fallback = poa.auth_headers&.dig('dependent', 'first_name') || poa.auth_headers&.[]('va_eauth_firstName')
+
+      claimant_name.presence || fallback
     end
 
     def organization_filing?(form_data)
@@ -187,8 +188,8 @@ module ClaimsApi
       poa.form_data.dig(base, 'poaCode')
     end
 
-    def schedule_follow_up_check(notification_id)
-      ClaimsApi::VANotifyFollowUpJob.perform_async(notification_id)
+    def schedule_follow_up_check(notification_id, poa_id)
+      ClaimsApi::VANotifyFollowUpJob.perform_async(notification_id, poa_id)
     end
 
     def skip_notification_email?

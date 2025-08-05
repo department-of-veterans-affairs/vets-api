@@ -5,11 +5,10 @@ require 'rails_helper'
 RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate do
   describe '#call' do
     subject do
-      described_class.new(data:, dependent:, form_data_object:, service_branch:, user:)
+      described_class.new(data:, dependent:, service_branch:, user:)
     end
 
     let(:user) { create(:user, :loa3) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:organization) { create(:organization, poa: 'B12') }
     let(:representative) { create(:representative, representative_id: '86753') }
     let(:dependent) { true }
@@ -53,7 +52,6 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
         representative_id: representative.representative_id
       }
     end
-    let(:form_data_object) { RepresentationManagement::Form2122Data.new(data) }
 
     it 'creates a new AccreditedRepresentativePortal::PowerOfAttorneyRequest' do
       expect { subject.call }.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count).by(1)
@@ -90,13 +88,16 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
 
     context 'when there is an error' do
       before do
-        data[:record_consent] = 'abc'
+        data[:consent_limits] = ['foobar']
       end
 
       it 'returns a meaningful error message' do
         result = subject.call
 
-        expect(result[:errors]).to eq(['value at `/authorizations/recordDisclosure` is not a boolean'])
+        expect(result[:errors]).to eq(
+          ['value at `/authorizations/recordDisclosureLimitations/0` is not one of: ["ALCOHOLISM", ' \
+           '"DRUG_ABUSE", "HIV", "SICKLE_CELL"]']
+        )
       end
 
       it 'does not create a new AccreditedRepresentativePortal::PowerOfAttorneyRequest' do

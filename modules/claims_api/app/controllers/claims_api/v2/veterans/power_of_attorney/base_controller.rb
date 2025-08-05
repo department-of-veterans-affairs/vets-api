@@ -20,8 +20,9 @@ module ClaimsApi
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
         def show
-          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
+          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
+
           if poa_code.blank?
             render json: { data: }
           else
@@ -81,12 +82,15 @@ module ClaimsApi
         end
 
         def attributes
+          base = form_attributes.key?('serviceOrganization') ? 'serviceOrganization' : 'representative'
+          new_poa_code = form_attributes.dig(base, 'poaCode')
+
           {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: set_auth_headers,
             form_data: form_attributes,
-            current_poa: current_poa_code,
-            header_md5:
+            current_poa: new_poa_code,
+            header_hash:
           }
         end
 
@@ -192,6 +196,13 @@ module ClaimsApi
                                                                     'Authorization').to_json)
         end
 
+        def header_hash
+          @header_hash ||= Digest::SHA256.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
+                                                                        'va_eauth_service_transaction_id',
+                                                                        'va_eauth_issueinstant',
+                                                                        'Authorization').to_json)
+        end
+
         def get_poa_code(form_number)
           rep_or_org = form_number.upcase == FORM_NUMBER_INDIVIDUAL ? 'representative' : 'serviceOrganization'
           form_attributes&.dig(rep_or_org, 'poaCode')
@@ -214,10 +225,10 @@ module ClaimsApi
         def nullable_icn
           current_user.icn
         rescue => e
-          log_message_to_sentry('Failed to retrieve icn for consumer',
-                                :warning,
-                                body: e.message)
-
+          ClaimsApi::Logger.log 'POABaseController',
+                                level: :warn,
+                                detail: 'Failed to retrieve icn for consumer',
+                                error_message: e.message
           nil
         end
 

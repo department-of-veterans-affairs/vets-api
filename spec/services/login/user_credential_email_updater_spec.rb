@@ -31,22 +31,22 @@ RSpec.describe Login::UserCredentialEmailUpdater do
       end
 
       context 'and user verification is defined' do
-        let(:user_verification) { create(:user_verification) }
+        let!(:user_verification) { create(:user_verification) }
 
         context 'and user credential email already exists associated to the user verification' do
-          let!(:user_credential_email) { create(:user_credential_email, user_verification:) }
-
           it 'does not create a new credential email' do
             expect { subject }.not_to change(UserCredentialEmail, :count)
           end
 
           it 'saves given credential email on existing user credential email object' do
             subject
-            expect(user_credential_email.reload.credential_email).to eq(credential_email)
+            expect(user_verification.user_credential_email.reload.credential_email).to eq(credential_email)
           end
         end
 
         context 'and user credential email does not already exist' do
+          let!(:user_verification) { create(:idme_user_verification) }
+
           it 'creates a new credential email' do
             expect { subject }.to change(UserCredentialEmail, :count)
           end

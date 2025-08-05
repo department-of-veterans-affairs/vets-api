@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class BbmiNotificationController < MrController
+      class BbmiNotificationController < MRController
         # Retrieves the BBMI notification setting
         # @return [JSON] BBMI notification setting
         def status

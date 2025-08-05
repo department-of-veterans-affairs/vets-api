@@ -31,8 +31,15 @@ module DebtsApi
       end
 
       def submissions
-        submissions = DebtsApi::V0::Form5655Submission.where(user_uuid: current_user.uuid)
-        render json: { 'submissions' => submissions.map { |sub| { 'id' => sub.id } } }
+        submissions = DebtsApi::V0::Form5655Submission
+                      .where(user_uuid: current_user.uuid)
+                      .order(created_at: :desc)
+
+        render json: {
+          'submissions' => submissions.map do |submission|
+            DebtsApi::V0::Form5655SubmissionSerializer.new(submission).serialize
+          end
+        }
       end
 
       def rehydrate

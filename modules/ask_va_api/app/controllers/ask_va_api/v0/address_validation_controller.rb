@@ -7,9 +7,8 @@ require 'va_profile/v3/address_validation/service'
 
 module AskVAApi
   module V0
-    class AddressValidationController < ApplicationController
+    class AddressValidationController < ::ApplicationController
       skip_before_action :authenticate
-      skip_before_action :verify_authenticity_token
       service_tag 'profile'
 
       def create
@@ -21,6 +20,9 @@ module AskVAApi
 
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
+        if Settings.vsp_environment == 'staging'
+          Rails.logger.info("Staging Address valid: #{address.valid?}, Address POU: #{address.address_pou}")
+        end
         Rails.logger.warn('AddressValidationController#create request completed', sso_logging_info)
 
         render(json: service.address_suggestions(address))
@@ -36,7 +38,6 @@ module AskVAApi
           :address_pou,
           :address_type,
           :city,
-          :country_name,
           :country_code_iso3,
           :international_postal_code,
           :province,

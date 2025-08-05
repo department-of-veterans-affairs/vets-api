@@ -31,23 +31,18 @@ module AccreditedRepresentativePortal
       end
     end
 
-    ##
-    # If we had a regular ID column, we could use `eager_encrypt` which would be
-    # more performant:
-    # https://github.com/ankane/kms_encrypted/blob/master/README.md?plain=1#L155
-    #
     has_kms_key
-
     has_encrypted :reason, key: :kms_key, **lockbox_options
 
-    validates :power_of_attorney_request, uniqueness: true
+    # Modify the error message for uniqueness validation
+    # rubocop:disable Rails/I18nLocaleTexts
+    validates :power_of_attorney_request, uniqueness: {
+      message: 'has already been taken'
+    }
+    # rubocop:enable Rails/I18nLocaleTexts
     validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
 
     class << self
-      ##
-      # Adding this public class method in addition to `create!` because this
-      # implementation causes the uniqueness validation to be expressed.
-      #
       def create_with_resolving!(resolving:, **attrs)
         transaction do
           resolving.save!

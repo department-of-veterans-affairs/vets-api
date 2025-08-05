@@ -2,6 +2,7 @@
 
 require 'json'
 require 'common/client/base'
+require 'ivc_champva/monitor'
 require_relative 'configuration'
 
 module IvcChampva
@@ -13,6 +14,12 @@ module IvcChampva
     class Client < Common::Client::Base
       configuration IvcChampva::VesApi::Configuration
 
+      def settings
+        Settings.ivc_champva_ves_api
+      end
+
+      delegate :api_key, to: :settings
+
       ##
       # HTTP POST call to the VES VFMP CHAMPVA Application service to submit a 10-10d application.
       #
@@ -20,14 +27,16 @@ module IvcChampva
       # @param acting_user [string, nil] the acting user for the application
       # @param ves_request_data [IvcChampva::VesRequest] preformatted request data
       def submit_1010d(transaction_uuid, acting_user, ves_request_data)
-        resp = connection.post("#{config.base_path}/champva-applications") do |req|
+        resp = connection.post("#{config.base_path}/ves-vfmp-app-svc/champva-applications") do |req|
           req.headers = headers(transaction_uuid, acting_user)
           req.body = ves_request_data.to_json
         end
 
-        # TODO: log the response
+        monitor.track_ves_response(transaction_uuid, resp.status, resp.body)
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
+
+        resp
       rescue => e
         raise VesApiError, e.message.to_s
       end
@@ -41,10 +50,19 @@ module IvcChampva
       def headers(transaction_uuid, acting_user)
         {
           :content_type => 'application/json',
-          'apiKey' => Settings.ivc_champva.ves_api.api_key.to_s,
+          'apiKey' => settings.api_key,
           'transactionUUId' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }
+      end
+
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [IvcChampva::Monitor]
+      #
+      def monitor
+        @monitor ||= IvcChampva::Monitor.new
       end
     end
   end

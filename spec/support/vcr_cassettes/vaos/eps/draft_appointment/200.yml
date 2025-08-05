@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://api.wellhive.com/care-navigation/v1/appointments
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/appointments
     body:
       encoding: UTF-8
       string: '{"patientId":"care-nav-patient-casey","referralId":"ref-123"}'

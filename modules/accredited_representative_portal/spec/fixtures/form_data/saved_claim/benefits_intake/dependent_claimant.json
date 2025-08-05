@@ -1,0 +1,19 @@
+{
+  "veteran": {
+    "name": {
+      "first": "John",
+      "last": "Doe"
+    },
+    "postalCode": "62704",
+    "ssn": "123456789",
+    "dateOfBirth": "1980-12-31"
+  },
+  "dependent": {
+    "name": {
+      "first": "John",
+      "last": "Doe"
+    },
+    "ssn": "012345678",
+    "dateOfBirth": "1980-12-31"
+  }
+}

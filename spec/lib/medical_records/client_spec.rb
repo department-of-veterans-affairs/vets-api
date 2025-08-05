@@ -7,12 +7,16 @@ require 'stringio'
 describe MedicalRecords::Client do
   context 'when a valid session exists', :vcr do
     before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_medical_records_support_new_model_allergy).and_return(false)
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_medical_records_support_new_model_health_condition).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(false)
+
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
             @client ||= begin
               client = MedicalRecords::Client.new(session: { user_id: '22406991', icn: '1013868614V792025' })
               client.authenticate
@@ -39,6 +43,201 @@ describe MedicalRecords::Client do
     let(:client) { @client }
     let(:entries) { ['Entry 1', 'Entry 2', 'Entry 3', 'Entry 4', 'Entry 5'] }
     let(:info_log_buffer) { StringIO.new }
+
+    context 'when new-model flipper flags are enabled' do
+      let(:user_uuid)    { 'user-123' }
+      let(:allergy_key)  { "#{user_uuid}-allergies" }
+      let(:vac_key)      { "#{user_uuid}-vaccines" }
+      let(:cond_key)     { "#{user_uuid}-conditions" }
+      let(:fake_bundle)  { double('FHIR::Bundle', entry: []) }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_new_model_allergy).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_new_model_health_condition).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_new_model_vaccine).and_return(true)
+
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_backend_allergy).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_backend_health_condition).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_backend_pagination_vaccine).and_return(true)
+      end
+
+      shared_examples 'a transformed-record list' do |method_name, model_class, fhir_resource_class, key_suffix|
+        # Build the cache key dynamically from the user_uuid and suffix:
+        let(:cache_key) { "#{user_uuid}-#{key_suffix}" }
+        let(:fake_bundle) { double('FHIR::Bundle', entry: []) }
+
+        # Shared setup for FHIR fetch scenarios
+        shared_context 'fhir fetch setup' do |flipper_flags|
+          let(:fetched_resources) { [double('resA'), double('resB')] }
+          let(:resource_wrappers) { fetched_resources.map { |r| double(resource: r) } }
+          let(:model_objs)        { [double('objA'), double('objB')] }
+          let(:fake_collection)   { double('Vets::Collection', records: model_objs) }
+
+          before do
+            flipper_flags.each do |flag, value|
+              allow(Flipper).to receive(:enabled?).with(flag).and_return(value)
+            end
+            allow(model_class).to receive(:get_cached)
+            allow(client).to receive(:fhir_search).and_return(fake_bundle)
+            allow(fake_bundle).to receive(:entry).and_return(resource_wrappers)
+            allow(model_class).to receive(:from_fhir).and_return(*model_objs)
+            allow(model_class).to receive(:set_cached)
+            allow(Vets::Collection).to receive(:new)
+              .with(model_objs, model_class)
+              .and_return(fake_collection)
+          end
+        end
+
+        describe "##{method_name}" do
+          context 'when cache is present' do
+            let(:cached_records) { [double('r1'), double('r2')] }
+            let(:fake_collection) { double('Vets::Collection', records: cached_records) }
+
+            before do
+              # Return an array of “cached_records” so that client.list_* returns data from cache
+              allow(model_class).to receive(:get_cached).with(cache_key).and_return(cached_records)
+              # Prevent any FHIR calls from happening
+              allow(client).to receive(:fhir_search)
+              # Build a Vets::Collection around the cached records
+              allow(Vets::Collection).to receive(:new)
+                .with(cached_records, model_class)
+                .and_return(fake_collection)
+            end
+
+            it 'returns a Vets::Collection built from the cache and does not call FHIR' do
+              coll = client.send(method_name, user_uuid)
+              expect(coll).to eq(fake_collection)
+              expect(client).not_to have_received(:fhir_search)
+            end
+          end
+
+          context 'when cache is empty' do
+            let(:fetched_resources) { [double('res1'), double('res2')] }
+            let(:resource_wrappers) { fetched_resources.map { |r| double(resource: r) } }
+            let(:model_objs)        { [double('m1'), double('m2')] }
+            let(:fake_collection)   { double('Vets::Collection', records: model_objs) }
+
+            before do
+              # Simulate no cache so get_cached returns nil
+              allow(model_class).to receive(:get_cached).with(cache_key).and_return(nil)
+              # When fhir_search is called, return the fake_bundle
+              allow(client).to receive(:fhir_search).and_return(fake_bundle)
+              # Simulate that fake_bundle.entry yields two entries, each wrapping one fetched_resource
+              allow(fake_bundle).to receive(:entry).and_return(resource_wrappers)
+              # Each fetched_resource will be turned into one model object
+              allow(model_class).to receive(:from_fhir).and_return(*model_objs)
+              # Ensure set_cached is stubbed so we can verify it was called
+              allow(model_class).to receive(:set_cached)
+              # Finally, build a Vets::Collection around the two model_objs
+              allow(Vets::Collection).to receive(:new)
+                .with(model_objs, model_class)
+                .and_return(fake_collection)
+            end
+
+            it 'fetches via FHIR, wraps in Vets::Collection, and writes to cache' do
+              coll = client.send(method_name, user_uuid)
+              expect(client).to have_received(:fhir_search).with(
+                fhir_resource_class,
+                search: hash_including(parameters: hash_including(patient: anything))
+              )
+              expect(model_class).to have_received(:set_cached).with(cache_key, model_objs)
+              expect(coll).to eq(fake_collection)
+            end
+          end
+
+          context 'when cache is disabled (use_cache: false)' do
+            include_context 'fhir fetch setup', {}
+            it 'bypasses cache and fetches via FHIR, writes to cache, and returns Vets::Collection' do
+              coll = client.send(method_name, user_uuid, use_cache: false)
+              expect(model_class).not_to have_received(:get_cached)
+              expect(client).to have_received(:fhir_search).with(
+                fhir_resource_class,
+                search: hash_including(parameters: hash_including(patient: anything))
+              )
+              expect(model_class).to have_received(:set_cached).with(cache_key, model_objs)
+              expect(coll).to eq(fake_collection)
+            end
+          end
+
+          context 'when backend pagination flags are false' do
+            include_context 'fhir fetch setup', {
+              mhv_medical_records_support_backend_pagination_allergy: false,
+              mhv_medical_records_support_backend_pagination_health_condition: false,
+              mhv_medical_records_support_backend_pagination_vaccine: false
+            }
+            it 'does not use the cache and fetches via FHIR' do
+              coll = client.send(method_name, user_uuid, use_cache: true)
+              expect(model_class).not_to have_received(:get_cached)
+              expect(client).to have_received(:fhir_search).with(
+                fhir_resource_class,
+                search: hash_including(parameters: hash_including(patient: anything))
+              )
+              expect(model_class).to have_received(:set_cached).with(cache_key, model_objs)
+              expect(coll).to eq(fake_collection)
+            end
+          end
+        end
+      end
+
+      describe '#list_allergies' do
+        it_behaves_like 'a transformed-record list',
+                        :list_allergies,
+                        MHV::MR::Allergy,
+                        FHIR::AllergyIntolerance,
+                        'allergies'
+      end
+
+      describe '#get_allergy' do
+        let(:allergy_id) { 30_242 }
+
+        it 'gets a single allergy using the new model', :vcr do
+          VCR.use_cassette 'mr_client/get_an_allergy' do
+            allergy = client.get_allergy(allergy_id)
+            expect(allergy).to be_a(MHV::MR::Allergy)
+          end
+        end
+      end
+
+      describe '#list_vaccines' do
+        it_behaves_like 'a transformed-record list',
+                        :list_vaccines,
+                        MHV::MR::Vaccine,
+                        FHIR::Immunization,
+                        'vaccines'
+      end
+
+      describe '#get_vaccine' do
+        it 'gets a single vaccine', :vcr do
+          VCR.use_cassette 'mr_client/get_a_vaccine' do
+            vaccine = client.get_vaccine(2_954)
+            expect(vaccine).to be_a(MHV::MR::Vaccine)
+          end
+        end
+      end
+
+      describe '#list_conditions' do
+        it_behaves_like 'a transformed-record list',
+                        :list_conditions,
+                        MHV::MR::HealthCondition,
+                        FHIR::Condition,
+                        'conditions'
+      end
+
+      describe '#get_condition' do
+        it 'gets a single health condition', :vcr do
+          VCR.use_cassette 'mr_client/get_a_health_condition' do
+            condition = client.get_condition(4169)
+            expect(condition).to be_a(MHV::MR::HealthCondition)
+          end
+        end
+      end
+    end
 
     describe 'Getting a patient by identifier' do
       let(:patient_id) { 12_345 }
@@ -84,7 +283,7 @@ describe MedicalRecords::Client do
 
     it 'gets a list of allergies', :vcr do
       VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-        allergy_list = client.list_allergies
+        allergy_list = client.list_allergies('uuid')
         expect(
           a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
         ).to have_been_made.at_least_once
@@ -111,7 +310,7 @@ describe MedicalRecords::Client do
 
     it 'gets a list of vaccines', :vcr do
       VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-        vaccine_list = client.list_vaccines
+        vaccine_list = client.list_vaccines('uuid')
         expect(vaccine_list).to be_a(FHIR::Bundle)
         expect(
           a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
@@ -150,7 +349,7 @@ describe MedicalRecords::Client do
 
     it 'gets a list of health conditions', :vcr do
       VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
-        condition_list = client.list_conditions
+        condition_list = client.list_conditions('uuid')
         expect(
           a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
         ).to have_been_made.at_least_once
@@ -209,7 +408,7 @@ describe MedicalRecords::Client do
 
     it 'gets a multi-page list of FHIR resources', :vcr do
       VCR.use_cassette 'mr_client/get_multiple_fhir_pages' do
-        allergies_list = client.list_allergies
+        allergies_list = client.list_allergies('uuid')
         expect(allergies_list).to be_a(FHIR::Bundle)
         expect(allergies_list.total).to eq(5)
         expect(allergies_list.entry.count).to eq(5)
@@ -427,14 +626,6 @@ describe MedicalRecords::Client do
         end
       end
 
-      context 'when response is a HAPI-1363 error' do
-        let(:result) { OpenStruct.new(code: 500, body: { issue: [{ diagnostics: 'HAPI-1363' }] }.to_json) }
-
-        it 'raises a PatientNotFound exception' do
-          expect { client.handle_api_errors(result) }.to raise_error(MedicalRecords::PatientNotFound)
-        end
-      end
-
       context 'when diagnostics are missing in the response' do
         let(:result) { OpenStruct.new(code: 400, body: {}.to_json) }
 
@@ -446,50 +637,52 @@ describe MedicalRecords::Client do
   end
 
   context 'when the patient is not found', :vcr do
-    # Here we test using list_allergies instead of get_patient_by_identifier directly because the PatientNotFound
-    # exception is eaten while creating the session and later re-thrown if no patient ID exists while trying to
-    # access FHIR resources.
-
-    it 'does not find a patient by identifer (HAPI-1363)', :vcr do
+    it 'returns :patient_not_found for 202 response', :vcr do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier_hapi_1363' do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-            partial_client ||= begin
-              partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
-                                                                     icn: '1013868614V792025' })
-              partial_client.authenticate
-              VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-                expect do
-                  partial_client.list_allergies
-                end.to raise_error(MedicalRecords::PatientNotFound)
-              end
+          VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
+            partial_client = MedicalRecords::Client.new(session: {
+                                                          user_id: '22406991',
+                                                          icn: '1013868614V792025'
+                                                        })
+            partial_client.authenticate
+
+            VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+              result = partial_client.list_allergies('uuid')
+              expect(result).to eq(:patient_not_found)
             end
           end
         end
       end
     end
+  end
 
-    it 'does not find a patient by identifer (202)', :vcr do
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
-        VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-            partial_client ||= begin
-              partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
-                                                                     icn: '1013868614V792025' })
-              partial_client.authenticate
-              VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-                expect do
-                  partial_client.list_allergies
-                end.to raise_error(MedicalRecords::PatientNotFound)
-              end
-            end
-          end
-        end
-      end
+  describe '#rewrite_next_link' do
+    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test', icn: 'test' }) }
+
+    it 'rewrites full URL to relative path for /v1/fhir' do
+      next_url = 'https://example.org/v1/fhir?_getpages=abc&_getpagesoffset=1&_count=2'
+      bundle = FHIR::Bundle.new(
+        link: [FHIR::Bundle::Link.new(relation: 'next', url: next_url)]
+      )
+      allow(client).to receive(:base_path).and_return('https://fwdproxy.va.gov/v1/fhir/')
+      client.send(:rewrite_next_link, bundle)
+
+      expect(bundle.link.find { |l| l.relation == 'next' }.url)
+        .to eq('https://fwdproxy.va.gov/v1/fhir?_getpages=abc&_getpagesoffset=1&_count=2')
+    end
+
+    it 'rewrites full URL to relative path for /fhir' do
+      next_url = 'https://example.org/fhir?_getpages=xyz&_count=1'
+      bundle = FHIR::Bundle.new(
+        link: [FHIR::Bundle::Link.new(relation: 'next', url: next_url)]
+      )
+      allow(client).to receive(:base_path).and_return('https://fwdproxy.va.gov/fhir/')
+      client.send(:rewrite_next_link, bundle)
+
+      expect(bundle.link.find { |l| l.relation == 'next' }.url)
+        .to eq('https://fwdproxy.va.gov/fhir?_getpages=xyz&_count=1')
     end
   end
 

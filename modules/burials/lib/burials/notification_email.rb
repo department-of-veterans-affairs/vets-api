@@ -35,7 +35,7 @@ module Burials
         'street_address' => street_address,
         'city_state_zip' => city_state_zip,
         # confirmation, error
-        'first_name' => claim.claimaint_first_name&.upcase,
+        'first_name' => claim.claimant_first_name&.upcase,
         # received
         'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
       }
@@ -46,6 +46,12 @@ module Burials
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass
     def callback_klass
       Burials::NotificationCallback.to_s
+    end
+
+    # Add 'claim_id' to the metadata for consistency in DataDog and Burials::Monitor
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
+    def callback_metadata
+      super.merge(claim_id: claim.id)
     end
   end
 end

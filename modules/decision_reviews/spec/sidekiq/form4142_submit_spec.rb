@@ -25,12 +25,14 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
     service
   end
 
-  let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
+  let(:user_verification) { create(:idme_user_verification) }
+  let(:user_account) { user_verification.user_account }
+  let(:user_uuid) { create(:user, :loa3, idme_uuid: user_verification.idme_uuid, ssn: '212222112').uuid }
   let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
   let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
   let(:mpi_service) do
     service = instance_double(MPI::Service, find_profile_by_identifier: nil)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_account.icn, identifier_type: anything)
                                                           .and_return(find_profile_response)
     service
   end
@@ -48,12 +50,54 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
   describe 'perform' do
     let(:submitted_appeal_uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
     let(:appeal_submission) do
-      create(:appeal_submission_module, :with_one_upload_module, submitted_appeal_uuid:, type_of_appeal: 'SC')
+      create(:appeal_submission_module, :with_one_upload_module, user_account:, submitted_appeal_uuid:,
+                                                                 type_of_appeal: 'SC')
     end
     let(:user) { build(:user, :loa3) }
     let(:request_body) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }
 
     context 'when form4142 data exists' do
+      context 'when form4142_data is a hash without providerFacility' do
+        it 'returns the transformed data without changes' do
+          data = { 'privacyAgreementAccepted' => true }
+          expect(transform_form4142_data(data)).to eq(data)
+        end
+      end
+
+      context 'when form4142 data contains providerFacility with issues' do
+        it 'converts the issues array to a comma-separated conditionsTreated string' do
+          data = {
+            'privacyAgreementAccepted' => true,
+            'providerFacility' => [
+              {
+                'providerFacilityName' => 'Test Provider',
+                'issues' => %w[Hypertension Diabetes PTSD]
+              },
+              {
+                'providerFacilityName' => 'First Provider',
+                'issues' => ['Hypertension']
+              }
+            ]
+          }
+
+          expected = {
+            'privacyAgreementAccepted' => true,
+            'providerFacility' => [
+              {
+                'providerFacilityName' => 'Test Provider',
+                'conditionsTreated' => 'Hypertension, Diabetes, PTSD'
+              },
+              {
+                'providerFacilityName' => 'First Provider',
+                'conditionsTreated' => 'Hypertension'
+              }
+            ]
+          }
+
+          expect(transform_form4142_data(data)).to eq(expected)
+        end
+      end
+
       it '#decrypt_form properly decrypts encrypted payloads' do
         form4142 = request_body['form4142']
         payload = get_and_rejigger_required_info(
@@ -64,6 +108,9 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
       end
 
       it 'generates a 4142 PDF and sends it to Lighthouse API' do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
+
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             expect do

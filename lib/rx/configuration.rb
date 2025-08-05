@@ -12,6 +12,9 @@ require 'rx/middleware/response/rx_failed_station'
 require 'rx/middleware/response/rx_raise_error'
 require 'typhoeus'
 
+# No more Errors => Flipper error: undefined method column_for_attribute' for class Flipper::Gate
+require 'flipper_utils'
+
 module Rx
   ##
   # HTTP client configuration for {Rx::Client}, sets the token, base path and a service name for breakers and metrics
@@ -24,19 +27,18 @@ module Rx
       Settings.mhv.rx.app_token
     end
 
-    def app_token_va_gov
-      Settings.mhv.rx.app_token_va_gov
+    ##
+    # @return [String] API GW key set in `settings.yml` via credstash
+    #
+    def x_api_key
+      Settings.mhv.rx.x_api_key
     end
 
     ##
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
-        "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
-      else
-        "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
-      end
+      "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
     end
 
     ##

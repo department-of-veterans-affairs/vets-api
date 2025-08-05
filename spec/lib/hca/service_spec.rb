@@ -5,6 +5,12 @@
 require 'rails_helper'
 require 'hca/service'
 
+DEFAULT_RUN_AT = 'Mon, 16 Jun 2025 17:21:51 GMT'
+
+def with_run_at(custom_date = nil)
+  { run_at: custom_date || DEFAULT_RUN_AT }
+end
+
 describe HCA::Service do
   include SchemaMatchers
 
@@ -25,6 +31,8 @@ describe HCA::Service do
      )))
   end
   let(:current_user) { build(:user, :loa3, icn: nil) }
+
+  let(:vcr_options) { VCR::MATCH_EVERYTHING.merge(erb: true, record: :once) }
 
   describe '#submit_form' do
     before do
@@ -54,10 +62,10 @@ describe HCA::Service do
       end
 
       context 'logs submission payload size' do
-        it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        it 'works', with_run_at do
           VCR.use_cassette(
             'hca/short_form',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
             expect(result[:success]).to be(true)
@@ -86,10 +94,10 @@ describe HCA::Service do
       end
 
       context 'with hasDemographicNoAnswer true' do
-        it 'submits successfully to hca', run_at: 'Fri, 05 May 2023 10:04:13 GMT' do
+        it 'submits successfully to hca', with_run_at do
           VCR.use_cassette(
             'hca/demographic_no',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             form = get_fixture('hca/demographic_no')
             expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
@@ -101,10 +109,10 @@ describe HCA::Service do
       end
 
       context 'with a medicare claim number' do
-        it 'submits successfully to hca', run_at: 'Wed, 27 Jul 2022 23:54:25 GMT' do
+        it 'submits successfully to hca', with_run_at do
           VCR.use_cassette(
             'hca/medicare_claim_num',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             form = get_fixture('hca/medicare_claim_num')
             expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
@@ -116,10 +124,10 @@ describe HCA::Service do
       end
 
       context 'submitting tera questions' do
-        it 'works', run_at: 'Fri, 23 Feb 2024 19:47:28 GMT' do
+        it 'works', with_run_at do
           VCR.use_cassette(
             'hca/tera',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             form = get_fixture('hca/tera')
             expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
@@ -130,10 +138,10 @@ describe HCA::Service do
       end
 
       context 'submitting short form' do
-        it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        it 'works', with_run_at do
           VCR.use_cassette(
             'hca/short_form',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
             expect(result[:success]).to be(true)
@@ -161,10 +169,10 @@ describe HCA::Service do
             allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
           end
 
-          it 'works', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+          it 'works', with_run_at do
             VCR.use_cassette(
               'hca/submit_with_attachment_formatted_correctly',
-              VCR::MATCH_EVERYTHING.merge(erb: true)
+              vcr_options
             ) do
               result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
               expect(result[:success]).to be(true)
@@ -178,7 +186,7 @@ describe HCA::Service do
           end
 
           context 'with a non-pdf attachment' do
-            it 'works', run_at: 'Wed, 12 Feb 2025 20:53:34 GMT' do
+            it 'works', with_run_at do
               hca_attachment = build(:hca_attachment)
               hca_attachment.set_file_data!(
                 Rack::Test::UploadedFile.new(
@@ -202,7 +210,7 @@ describe HCA::Service do
 
               VCR.use_cassette(
                 'hca/submit_with_attachment_jpg_formatted_correctly',
-                VCR::MATCH_EVERYTHING.merge(erb: true)
+                vcr_options
               ) do
                 result = HCA::Service.new.submit_form(health_care_application.parsed_form)
                 expect(result[:success]).to be(true)
@@ -217,10 +225,10 @@ describe HCA::Service do
             allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
           end
 
-          it 'works', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+          it 'works', with_run_at do
             VCR.use_cassette(
               'hca/submit_with_attachment',
-              VCR::MATCH_EVERYTHING.merge(erb: true)
+              vcr_options
             ) do
               result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
               expect(result[:success]).to be(true)
@@ -234,7 +242,7 @@ describe HCA::Service do
           end
 
           context 'with a non-pdf attachment' do
-            it 'works', run_at: 'Wed, 17 Jul 2024 18:04:51 GMT' do
+            it 'works', with_run_at do
               hca_attachment = build(:hca_attachment)
               hca_attachment.set_file_data!(
                 Rack::Test::UploadedFile.new(
@@ -258,7 +266,7 @@ describe HCA::Service do
 
               VCR.use_cassette(
                 'hca/submit_with_attachment_jpg',
-                VCR::MATCH_EVERYTHING.merge(erb: true)
+                vcr_options
               ) do
                 result = HCA::Service.new.submit_form(health_care_application.parsed_form)
                 expect(result[:success]).to be(true)
@@ -302,10 +310,10 @@ describe HCA::Service do
       end
 
       context 'logs submission payload size' do
-        it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        it 'works', with_run_at do
           VCR.use_cassette(
             'hca/short_form',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
             expect(result[:success]).to be(true)
@@ -363,10 +371,10 @@ describe HCA::Service do
       end
 
       context 'with hasDemographicNoAnswer true' do
-        it 'submits successfully to hca', run_at: 'Fri, 05 May 2023 10:04:13 GMT' do
+        it 'submits successfully to hca', with_run_at do
           VCR.use_cassette(
             'hca/demographic_no',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             form = get_fixture('hca/demographic_no')
             expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
@@ -378,10 +386,10 @@ describe HCA::Service do
       end
 
       context 'with a medicare claim number' do
-        it 'submits successfully to hca', run_at: 'Wed, 27 Jul 2022 23:54:25 GMT' do
+        it 'submits successfully to hca', with_run_at do
           VCR.use_cassette(
             'hca/medicare_claim_num',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             form = get_fixture('hca/medicare_claim_num')
             expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
@@ -393,10 +401,10 @@ describe HCA::Service do
       end
 
       context 'submitting tera questions' do
-        it 'works', run_at: 'Fri, 23 Feb 2024 19:47:28 GMT' do
+        it 'works', with_run_at do
           VCR.use_cassette(
             'hca/tera',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             form = get_fixture('hca/tera')
             expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
@@ -407,10 +415,10 @@ describe HCA::Service do
       end
 
       context 'submitting short form' do
-        it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        it 'works', with_run_at do
           VCR.use_cassette(
             'hca/short_form',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            vcr_options
           ) do
             result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
             expect(result[:success]).to be(true)
@@ -438,10 +446,10 @@ describe HCA::Service do
             allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
           end
 
-          it 'works', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+          it 'works', with_run_at do
             VCR.use_cassette(
               'hca/submit_with_attachment_formatted_correctly',
-              VCR::MATCH_EVERYTHING.merge(erb: true)
+              vcr_options
             ) do
               result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
               expect(result[:success]).to be(true)
@@ -455,7 +463,7 @@ describe HCA::Service do
           end
 
           context 'with a non-pdf attachment' do
-            it 'works', run_at: 'Wed, 12 Feb 2025 20:53:34 GMT' do
+            it 'works', with_run_at do
               hca_attachment = build(:hca_attachment)
               hca_attachment.set_file_data!(
                 Rack::Test::UploadedFile.new(
@@ -479,7 +487,7 @@ describe HCA::Service do
 
               VCR.use_cassette(
                 'hca/submit_with_attachment_jpg_formatted_correctly',
-                VCR::MATCH_EVERYTHING.merge(erb: true)
+                vcr_options
               ) do
                 result = HCA::Service.new.submit_form(health_care_application.parsed_form)
                 expect(result[:success]).to be(true)
@@ -494,10 +502,10 @@ describe HCA::Service do
             allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
           end
 
-          it 'works', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+          it 'works', with_run_at do
             VCR.use_cassette(
               'hca/submit_with_attachment',
-              VCR::MATCH_EVERYTHING.merge(erb: true)
+              vcr_options
             ) do
               result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
               expect(result[:success]).to be(true)
@@ -511,7 +519,7 @@ describe HCA::Service do
           end
 
           context 'with a non-pdf attachment' do
-            it 'works', run_at: 'Wed, 17 Jul 2024 18:04:51 GMT' do
+            it 'works', with_run_at do
               hca_attachment = build(:hca_attachment)
               hca_attachment.set_file_data!(
                 Rack::Test::UploadedFile.new(
@@ -535,7 +543,7 @@ describe HCA::Service do
 
               VCR.use_cassette(
                 'hca/submit_with_attachment_jpg',
-                VCR::MATCH_EVERYTHING.merge(erb: true)
+                vcr_options
               ) do
                 result = HCA::Service.new.submit_form(health_care_application.parsed_form)
                 expect(result[:success]).to be(true)

@@ -15,7 +15,7 @@ module SignIn
     private
 
     def jwt_encode_service_account_access_token
-      JWT.encode(payload, private_key, Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM)
+      JWT.encode(payload, private_key, Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM, jwt_header)
     end
 
     def payload
@@ -36,6 +36,13 @@ module SignIn
 
     def private_key
       OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_encode_key))
+    end
+
+    def jwt_header
+      {
+        typ: 'JWT',
+        kid: JWT::JWK.new(private_key).kid
+      }
     end
   end
 end

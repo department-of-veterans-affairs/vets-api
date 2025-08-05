@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# app/controllers/v0/mdot/suppliesc_controller.rb
 module Swagger
   module Requests
     module MDOT
@@ -26,43 +27,60 @@ module Swagger
 
               schema do
                 key :type, :object
-                key :required, [:order]
 
-                property :use_permanent_address, type: :boolean
-                property :use_temporary_address, type: :boolean
-                property :additional_requests, type: :string
-
-                property :permanent_address do
-                  key :type, :object
-
-                  property :street, type: :string
-                  property :street2, type: :string
-                  property :city, type: :string
-                  property :state, type: :string
-                  property :country, type: :string
-                  property :postal_code, type: :string
-                end
-
+                property :use_permanent_address, type: :boolean, example: true
+                property :use_temporary_address, type: :boolean, example: false
+                property :vet_email, type: :string, example: 'vet1@va.gov'
                 property :order do
                   key :type, :array
 
                   items do
                     key :type, :object
-
-                    property :product_id, type: :string
+                    property :product_id, type: :integer, example: 2499
                   end
+                end
+
+                property :permanent_address do
+                  key :type, :object
+                  property :is_military, type: :boolean, example: false
+                  property :street, type: :string, example: '125 SOME RD'
+                  property :street2, type: :string, example: 'APT 101'
+                  property :city, type: :string, example: 'DENVER'
+                  property :state, type: :string, example: 'CO'
+                  property :country, type: :string, example: 'United States'
+                  property :postal_code, type: :string, example: '11111'
+                end
+
+                property :temporary_address do
+                  key :type, :object
+                  property :is_military, type: :boolean, example: false
+                  property :street, type: :string, example: '17250 w colfax ave'
+                  property :street2, type: :string, example: 'a-204'
+                  property :city, type: :string, example: 'Golden'
+                  property :state, type: :string, example: 'CO'
+                  property :country, type: :string, example: 'United States'
+                  property :postal_code, type: :string, example: '80401'
                 end
               end
             end
 
             response 200 do
-              key :description, 'mdot order response'
-
+              key :description, 'Response is OK'
               schema do
-                key :required, %i[status order_id]
-
-                property :status, type: :string
-                property :order_id, type: :string
+                key :type, :array
+                items do
+                  key :type, :object
+                  property :product_id, type: :integer, example: 2499
+                  property :order_id, type: :integer, example: 1001
+                  property :status,
+                           type: :string,
+                           example: 'Order Processed',
+                           enum: [
+                             'Order Processed',
+                             'Order Pending',
+                             'Unable to order item since the last order was less than 5 months ago.'
+                           ]
+                end
               end
             end
           end

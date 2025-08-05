@@ -36,7 +36,7 @@ describe IvcChampva::Retry do
         raise StandardError, 'Standard error'
       end
 
-      expect(attempts).to eq(max_attempts)
+      expect(attempts).to eq(max_attempts + 1) # +1 for the initial attempt
     end
 
     it 'retries the block if the error matches the retry conditions' do
@@ -52,7 +52,7 @@ describe IvcChampva::Retry do
         raise StandardError, 'Standard Error'
       end
 
-      expect(attempts).to eq(max_attempts)
+      expect(attempts).to eq(max_attempts + 1) # +1 for the initial attempt
     end
 
     it 'does not retry if the error does not match the retry conditions' do

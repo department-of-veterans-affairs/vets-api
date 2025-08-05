@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: <VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035
+    body:
+      encoding: UTF-8
+      string: '{"associations":[{"address":{"city":"Ontario","country":"CAN","line1":"834
+        NE 36th St","provinceCode":"ON","postalCode":"21534"},"name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"role":"OTHER_NEXT_OF_KIN","relationType":"DAUGHTER","primaryPhone":"1239183546","alternatePhone":"2658351234","lastUpdateDate":"2025-04-24T17:08:31Z"},{"address":{"city":"Blacksburg","country":"USA","line1":"823
+        SE 2nd St","state":"VA","zipCode":"24060"},"name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"role":"OTHER_EMERGENCY_CONTACT","relationType":"UNRELATED_FRIEND","primaryPhone":"9564738265","alternatePhone":"9563740017","lastUpdateDate":"2025-04-24T17:08:31Z"},{"address":{"city":"Dulles","country":"USA","line1":"476
+        Test Ave","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"role":"PRIMARY_NEXT_OF_KIN","relationType":"SON","primaryPhone":"1239131234","alternatePhone":"7254551234","lastUpdateDate":"2025-04-24T17:08:31Z"},{"address":{"city":"Dulles","country":"USA","line1":"28
+        NW 78th St","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"role":"EMERGENCY_CONTACT","relationType":"BROTHER","primaryPhone":"7452743546","alternatePhone":"2699352134","lastUpdateDate":"2025-04-24T17:08:31Z"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 24 Apr 2025 18:07:04 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '627'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="245981115"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"associations":[{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"status":"UPDATED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"status":"UPDATED"},{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"status":"UPDATED"},{"role":"EMERGENCY_CONTACT","name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"status":"UPDATED"}]},"messages":[{"description":"The
+        request was successfully processed.","code":"completed_success"}]}'
+  recorded_at: Thu, 24 Apr 2025 17:08:31 GMT
+recorded_with: VCR 6.3.1

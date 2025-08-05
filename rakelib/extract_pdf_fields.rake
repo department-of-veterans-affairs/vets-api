@@ -5,7 +5,7 @@ require 'pdf_forms'
 namespace :pdf do
   desc 'Extract PDF form field metadata and save them to a Ruby file. ' \
        'Used when adding a new form to PdfFill::Filler' \
-       'Example: bundle exec rake pdf:extract_fields[lib/pdf_fill/forms/pdfs/10-10EZ.pdf]' \
+       'Example: bundle exec rake pdf:extract_fields\[lib/pdf_fill/forms/pdfs/10-10EZ.pdf\]' \
        'generated file will be in lib/pdf_fill/forms/10-10EZ_field_data.json'
   task :extract_fields, [:pdf_path] => :environment do |_t, args|
     pdf_path = args[:pdf_path]

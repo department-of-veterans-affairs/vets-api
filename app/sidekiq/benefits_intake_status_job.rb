@@ -155,9 +155,10 @@ class BenefitsIntakeStatusJob
               end
       if claim.present? && email.present?
         claim.send_failure_email(email)
-        Dependents::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
+        claim.monitor.log_silent_failure_no_confirmation(context, call_location:)
       else
-        Dependents::Monitor.new.log_silent_failure(context, call_location:)
+        monitor = claim.present? ? claim.monitor : Dependents::Monitor.new(false)
+        monitor.log_silent_failure(context, call_location:)
       end
     end
 

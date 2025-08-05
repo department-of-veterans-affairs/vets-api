@@ -1,0 +1,33 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_MR_HOST>/v1/usermgmt/activity"
+    body:
+      encoding: UTF-8
+      string: '{"userProfileId":21207668,"activityType":"Allergy","action":"create","completionTime":"Wed,
+        30 Apr 2025 12:44:08 GMT","performerType":"Self","detailValue":null,"status":1}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Date:
+      - Wed, 30 Apr 2025 12:44:09 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Wed, 30 Apr 2025 12:44:09 GMT
+recorded_with: VCR 6.3.1

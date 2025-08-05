@@ -3,7 +3,9 @@ name: Deploy Delay Notifications
 on:
   schedule:
     - cron: "*/10 * * * *" # Runs every 10 minutes
-
+permissions:
+  id-token: write
+  contents: read
 jobs:
   check-deployment:
     runs-on: ubuntu-latest
@@ -103,8 +105,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
 
       - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb

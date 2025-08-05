@@ -25,9 +25,8 @@ module Forms
 
       def submissions
         query = FormSubmission.with_latest_benefits_intake_uuid(@user_account)
-                              .with_form_types(@allowed_forms)
-                              .order(:created_at)
-        query.to_a
+        query = query.with_form_types(@allowed_forms) if @allowed_forms.present?
+        query.order(:created_at).to_a
       end
 
       def intake_statuses(submissions)

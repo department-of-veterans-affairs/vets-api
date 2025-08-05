@@ -22,7 +22,7 @@ module AccreditedRepresentativePortal
 
     class Scope < ApplicationPolicy::Scope
       def resolve
-        @scope.for_power_of_attorney_holders(
+        @scope.unredacted.for_power_of_attorney_holders(
           @user.user_account.active_power_of_attorney_holders
         )
       end

@@ -34,15 +34,20 @@ module VAOS
 
       def response_values
         {
-          detail: detail(@env.body),
+          detail: extract_detail(@env.body),
           source: { vamf_url: VAOS::Anonymizers.anonymize_uri_icn(@env.url), vamf_body: @env.body,
                     vamf_status: @env.status }
         }
       end
 
+      # Override parent's detail method to match signature
+      def detail
+        response_values[:detail]
+      end
+
       private
 
-      def detail(body)
+      def extract_detail(body)
         parsed = JSON.parse(body)
         if parsed['errors']
           parsed['errors'].first['errorMessage']

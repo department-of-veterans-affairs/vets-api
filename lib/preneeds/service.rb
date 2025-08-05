@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'vets/collection'
 
 module Preneeds
   # Proxy Service for the EOAS (Eligibility Office Automation System) Service's PreNeed Applications endpoints.
@@ -28,7 +29,7 @@ module Preneeds
       soap = savon_client.build_request(:get_cemeteries, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
 
-      Common::Collection.new(Cemetery, **json)
+      Vets::Collection.new(json[:data], Cemetery, metadata: json[:metadata], errors: json[:errors])
     end
 
     # POST to submit a {Preneeds::BurialForm}

@@ -3,7 +3,7 @@
 require 'accredited_representation/constants'
 
 class AccreditedIndividual < ApplicationRecord
-  # Represents an accredited individual (attorney, claims agent, representative) as defined by he OGC accreditation
+  # Represents an accredited individual (attorney, claims agent, representative) as defined by the OGC accreditation
   # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
   # accreditation.
   #
@@ -32,6 +32,13 @@ class AccreditedIndividual < ApplicationRecord
     'claims_agent' => 'claims_agent',
     'representative' => 'representative'
   }
+
+  before_save :set_full_name
+
+  # Set the full_name attribute for the representative
+  def set_full_name
+    self.full_name = [first_name, last_name].map(&:to_s).map(&:strip).compact_blank.join(' ')
+  end
 
   DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
 

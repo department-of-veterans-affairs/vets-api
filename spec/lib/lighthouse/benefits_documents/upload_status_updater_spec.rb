@@ -80,7 +80,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :acknowledgement_date)
                 .from(nil)
-                .to(be_within(1.second).of((current_date_time + 30.days)))
+                .to(be_within(1.second).of(current_date_time + 30.days))
                 .and change(lighthouse_document_upload, :failed_date)
                 .from(nil)
                 .to(be_within(1.second).of(current_date_time))
@@ -102,7 +102,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :delete_date)
                 .from(nil)
-                .to(be_within(1.second).of((current_date_time + 60.days)))
+                .to(be_within(1.second).of(current_date_time + 60.days))
                 .and change(lighthouse_document_upload, :upload_status)
                 .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])

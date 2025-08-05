@@ -24,6 +24,17 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(response).to have_http_status(:ok)
       end
 
+      it 'returns a veteran status' do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+          get(:show)
+        end
+
+        json = JSON.parse(response.body)
+        veteran_status = json['data']['attributes']['veteran_status']
+
+        expect(veteran_status).to eq('VETERAN')
+      end
+
       it 'returns a payment account' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           get(:show)
@@ -84,6 +95,7 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(json['control_information']['can_update_direct_deposit']).to be(false)
         expect(json['control_information']['has_payment_address']).to be(false)
         expect(json['control_information']['is_edu_claim_available']).to be(false)
+        expect(json['veteran_status']).not_to eq('VETERAN')
       end
     end
 
@@ -143,6 +155,41 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(e['code']).to eq('direct.deposit.api.gateway.timeout')
       end
     end
+
+    context 'logging for 5XX errors' do
+      context 'when there is a 504 error' do
+        before { allow(Rails.logger).to receive(:error) }
+
+        it 'uses rails error logging' do
+          expect(Rails.logger).to receive(:error).with(
+            a_string_including('Direct Deposit API error'),
+            hash_including(
+              :error_class,
+              :error_message,
+              :user_uuid,
+              :backtrace
+            )
+          )
+
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/504_response') do
+            get(:show)
+          end
+
+          expect(response).to have_http_status(:gateway_timeout)
+        end
+      end
+
+      context 'when there is a 404 error' do
+        it 'does not use rails error logging' do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/404_response') do
+            get(:show)
+          end
+
+          expect(Rails.logger).not_to receive(:error)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
   end
 
   describe '#update successful' do
@@ -178,6 +225,14 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
       expect(response).to have_http_status(:ok)
     end
 
+    it 'returns a veteran status of VETERAN' do
+      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+        put(:update, params:)
+      end
+      body = JSON.parse(response.body)
+      expect(body['data']['attributes']['veteran_status']).to eq('VETERAN')
+    end
+
     it 'capitalizes account type' do
       VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
         put(:update, params:)
@@ -202,14 +257,10 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
     end
 
     context 'when user does not have an associated email address' do
-      before do
-        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-      end
-
-      it 'logs a message to Sentry' do
+      it 'logs a message with Rails Logger' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
-          expect(Sentry).to receive(:capture_message).once
+          expect(Rails.logger).to receive(:info)
 
           put(:update, params:)
           expect(response).to have_http_status(:ok)
@@ -323,6 +374,13 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(e['code']).to eq('direct.deposit.account.number.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
+
+      it 'returns a fraud indicator error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/422_fraud_indicator') do
+          put(:update, params:)
+        end
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
 
     context 'when user profile info is invalid' do
@@ -406,22 +464,40 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
-  end
 
-  describe '#update feature flag' do
-    let(:params) do
-      {
-        payment_account: {
-          account_type: 'CHECKING',
-          routing_number: '031000503',
-          account_number: '12345678'
-        },
-        control_information: {
-          can_update_direct_deposit: true,
-          is_corp_available: true,
-          is_edu_claim_available: true
-        }
-      }
+    context 'logging for 5XX errors' do
+      context 'when there is a 502 error' do
+        before { allow(Rails.logger).to receive(:error) }
+
+        it 'uses rails error logging' do
+          expect(Rails.logger).to receive(:error).with(
+            a_string_including('Direct Deposit API error'),
+            hash_including(
+              :error_class,
+              :error_message,
+              :user_uuid,
+              :backtrace
+            )
+          )
+
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/502_update_response') do
+            put(:update, params:)
+          end
+
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context 'when there is a 404 error' do
+        it 'does not use rails error logging' do
+          VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_fraud') do
+            put(:update, params:)
+          end
+
+          expect(Rails.logger).not_to receive(:error)
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
     end
   end
 end

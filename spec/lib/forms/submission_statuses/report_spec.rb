@@ -27,7 +27,12 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     before do
       create(:form_submission, :with_form214142, user_account_id: user_account.id)
       create(:form_submission, :with_form210845, user_account_id: user_account.id)
+
+      # This form is not in the allowed forms list and should not be included
       create(:form_submission, :with_form_blocked, user_account_id: user_account.id)
+
+      # This 20-10207 form is older than 60 days and should not be included in the results
+      create(:form_submission, :with_form2010207, user_account_id: user_account.id)
     end
 
     context 'has statuses' do
@@ -42,7 +47,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
                   'guid' => '4b846069-e496-4f83-8587-42b570f24483',
                   'message' => 'message',
                   'status' => 'received',
-                  'updated_at' => '2024-03-13T18:51:00.953Z'
+                  'updated_at' => 2.days.ago
                 }
               },
               {
@@ -52,7 +57,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
                   'guid' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
                   'message' => 'message',
                   'status' => 'received',
-                  'updated_at' => '2024-03-08T19:30:39.939Z'
+                  'updated_at' => 3.days.ago
                 }
               }
             ],
@@ -123,7 +128,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
                   'detail' => 'detail',
                   'guid' => '4b846069-e496-4f83-8587-42b570f24483',
                   'message' => 'message',
-                  'updated_at' => '2024-03-13T18:51:00.953Z',
+                  'updated_at' => 2.days.ago,
                   'status' => 'received'
                 }
               }

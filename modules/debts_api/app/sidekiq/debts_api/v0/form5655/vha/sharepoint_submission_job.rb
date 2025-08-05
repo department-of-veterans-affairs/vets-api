@@ -31,18 +31,61 @@ module DebtsApi
     #
     # @submission_id {Form5655Submission} - FSR submission record
     #
-    def perform(submission_id)
-      form_submission = DebtsApi::V0::Form5655Submission.find(submission_id)
-      sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
+    def perform(submission_id, retry_count = 0)
+      locked = DebtsApi::V0::Form5655Submission.with_advisory_lock("sharepoint-#{submission_id}",
+                                                                   timeout_seconds: 15) do
+        process_submission(submission_id)
+      end
 
+      handle_lock_result(locked, submission_id, retry_count)
+    end
+
+    private
+
+    def process_submission(submission_id)
+      form_submission = DebtsApi::V0::Form5655Submission.find(submission_id)
+
+      if form_submission.submitted?
+        Rails.logger.info('Skipping already submitted FSR', submission_id:)
+        return true
+      end
+
+      upload_to_sharepoint(form_submission, submission_id)
+    end
+
+    def upload_to_sharepoint(form_submission, submission_id)
+      sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
       Rails.logger.info('5655 Form Uploading to SharePoint API', submission_id:)
 
-      sharepoint_request.upload(
-        form_contents: form_submission.form,
-        form_submission:,
-        station_id: form_submission.form['facilityNum']
-      )
-      StatsD.increment("#{STATS_KEY}.success")
+      begin
+        sharepoint_request.upload(
+          form_contents: form_submission.form,
+          form_submission:,
+          station_id: form_submission.form['facilityNum']
+        )
+        StatsD.increment("#{STATS_KEY}.success")
+        true
+      rescue => e
+        Rails.logger.error("SharePoint submission failed: #{e.message}", submission_id:)
+        StatsD.increment("#{STATS_KEY}.failure")
+        raise e
+      end
+    end
+
+    def handle_lock_result(locked, submission_id, retry_count)
+      return if locked
+
+      Rails.logger.warn("SharePoint job skipped: No advisory lock for submission #{submission_id} in 15s")
+      StatsD.increment("#{STATS_KEY}.lock_timeout")
+
+      if retry_count < 3
+        retry_delay = 60.seconds
+        Rails.logger.info("Retry SharePoint job for submission #{submission_id}, try #{retry_count + 1} of 3")
+        self.class.perform_in(retry_delay, submission_id, retry_count + 1)
+      else
+        Rails.logger.error("SharePoint job failed after 3 retry attempts for submission #{submission_id}")
+        StatsD.increment("#{STATS_KEY}.max_retries_exceeded")
+      end
     end
   end
 end

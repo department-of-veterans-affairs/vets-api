@@ -33,11 +33,7 @@ module SignIn
     end
 
     def idme_auth_service
-      @idme_auth_service ||= begin
-        @idme_auth_service = Idme::Service.new
-        @idme_auth_service.type = type
-        @idme_auth_service
-      end
+      @idme_auth_service ||= Idme::Service.new(type:, optional_scopes: idme_optional_scopes)
     end
 
     def logingov_auth_service
@@ -50,6 +46,12 @@ module SignIn
         @mock_auth_service.type = type
         @mock_auth_service
       end
+    end
+
+    def idme_optional_scopes
+      return nil if client_config.blank?
+
+      client_config.access_token_attributes & Idme::Service::OPTIONAL_SCOPES
     end
 
     def logingov_optional_scopes

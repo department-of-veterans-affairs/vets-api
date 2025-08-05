@@ -15,14 +15,11 @@ RSpec.describe 'relationships', :skip_mvi, type: :request do
     let(:current_user) { build(:user, :vaos) }
 
     describe 'GET relationships' do
-      let(:params) { { clinical_service_id: 'primaryCare', facility_id: '100' } }
-
       context 'patient relationships' do
         it 'successfully returns patient relationships' do
           VCR.use_cassette('vaos/v2/relationships/get_relationships',
                            match_requests_on: %i[method path query]) do
-            get '/vaos/v2/relationships?clinicalServiceId=primaryCare&facilityId=100', params:,
-                                                                                       headers: inflection_header
+            get '/vaos/v2/relationships?clinical_service_id=primaryCare&facility_id=100', headers: inflection_header
             expect(response).to have_http_status(:ok)
 
             relationships = JSON.parse(response.body)['data']
@@ -37,12 +34,33 @@ RSpec.describe 'relationships', :skip_mvi, type: :request do
           end
         end
 
+        it 'successfully returns patient relationships filtered by date' do
+          VCR.use_cassette('vaos/v2/relationships/get_relationships_has_availability',
+                           match_requests_on: %i[method path query]) do
+            get '/vaos/v2/relationships?clinical_service_id=primaryCare&facility_id=100' \
+                '&has_availability_before=2026-05-13T17:42:00Z',
+                headers: inflection_header
+            expect(response).to have_http_status(:ok)
+
+            relationships = JSON.parse(response.body)['data']
+            expect(relationships).not_to be_nil
+            expect(relationships.length).to eq(4)
+            relationships.each do |relationship|
+              expect(relationship['type']).to eq('relationship')
+              expect(relationship['attributes']['hasAvailability']).not_to be_nil
+            end
+
+            meta = JSON.parse(response.body)['meta']
+            expect(meta['failures']).to eq([])
+          end
+        end
+
         it 'returns patient relationships containing partial errors' do
           VCR.use_cassette('vaos/v2/relationships/get_relationships_partial_error',
                            match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
-            get '/vaos/v2/relationships?clinicalServiceId=primaryCare&facilityId=100', params:,
-                                                                                       headers: inflection_header
+            get '/vaos/v2/relationships?clinical_service_id=primaryCare&facility_id=100', headers: inflection_header
+
             expect(response).to have_http_status(:ok)
 
             relationships = JSON.parse(response.body)['data']

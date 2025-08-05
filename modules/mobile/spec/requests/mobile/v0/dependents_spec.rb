@@ -8,6 +8,11 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
 
   let!(:user) { sis_user(ssn: '796043735') }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
+  end
+
   describe '#index' do
     it 'returns a list of dependents' do
       expected_data = [

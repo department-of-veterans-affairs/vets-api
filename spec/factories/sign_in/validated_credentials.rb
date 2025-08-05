@@ -14,13 +14,15 @@ FactoryBot.define do
         all_emails: [Faker::Internet.email] }
     end
     device_sso { false }
+    web_sso_session_id { Faker::Internet.uuid }
 
     initialize_with do
       new(user_verification:,
           client_config:,
           credential_email:,
           user_attributes:,
-          device_sso:)
+          device_sso:,
+          web_sso_session_id:)
     end
   end
 end

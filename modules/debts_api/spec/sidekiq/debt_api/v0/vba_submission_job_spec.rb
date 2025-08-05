@@ -6,7 +6,17 @@ require 'sidekiq/testing'
 
 RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
   describe '#perform' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
+    let!(:form_submission) do
+      create(
+        :debts_api_form5655_submission,
+        ipf_data: {
+          'personal_data' => {
+            'email_address' => 'test@test.com',
+            'veteran_full_name' => { 'first' => 'John' }
+          }
+        }.to_json
+      )
+    end
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
@@ -16,17 +26,59 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         allow_any_instance_of(DebtsApi::V0::FinancialStatusReportService)
           .to receive(:submit_vba_fsr).and_return(response)
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
-        allow(UserProfileAttributes).to receive(:find).and_return(user_data)
       end
 
-      it 'updates submission on success' do
-        described_class.new.perform(form_submission.id, user.uuid)
-        expect(form_submission.submitted?).to be(true)
+      context 'with Redis user data' do
+        before do
+          allow(UserProfileAttributes).to receive(:find).and_return(user_data)
+        end
+
+        it 'updates submission on success' do
+          described_class.new.perform(form_submission.id, user.uuid)
+          expect(form_submission.submitted?).to be(true)
+        end
+      end
+
+      context 'with fallback to form data' do
+        before do
+          allow(UserProfileAttributes).to receive(:find).and_return(nil)
+        end
+
+        it 'uses form data when Redis fails' do
+          expect(StatsD).to receive(:increment)
+            .with("#{described_class::STATS_KEY}.user_data_fallback_used").once
+          allow(StatsD).to receive(:increment)
+
+          described_class.new.perform(form_submission.id, user.uuid)
+          expect(form_submission.submitted?).to be(true)
+        end
+
+        it 'raises error when user data is completely missing' do
+          form_submission_no_user_data = create(
+            :debts_api_form5655_submission,
+            ipf_data: {}.to_json
+          )
+          allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission_no_user_data)
+
+          expect do
+            described_class.new.perform(form_submission_no_user_data.id, user.uuid)
+          end.to raise_error(described_class::MissingUserAttributesError)
+        end
       end
     end
 
     context 'failure' do
-      let(:form_submission) { create(:debts_api_form5655_submission) }
+      let!(:form_submission) do
+        create(
+          :debts_api_form5655_submission,
+          ipf_data: {
+            'personal_data' => {
+              'email_address' => 'test@test.com',
+              'veteran_full_name' => { 'first' => 'John' }
+            }
+          }.to_json
+        )
+      end
 
       before do
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
@@ -43,8 +95,39 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
       end
     end
 
+    context 'with missing user attributes' do
+      before do
+        response = { status: 200 }
+        allow_any_instance_of(DebtsApi::V0::FinancialStatusReportService)
+          .to receive(:submit_vba_fsr).and_return(response)
+        allow(UserProfileAttributes).to receive(:find).and_return(nil)
+      end
+
+      it 'raises MissingUserAttributesError when user data is completely missing' do
+        form_submission_no_user_data = create(
+          :debts_api_form5655_submission,
+          ipf_data: {}.to_json
+        )
+        allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission_no_user_data)
+
+        expect do
+          described_class.new.perform(form_submission_no_user_data.id, user.uuid)
+        end.to raise_error(described_class::MissingUserAttributesError)
+      end
+    end
+
     context 'with retries exhausted' do
-      let(:form_submission) { create(:debts_api_form5655_submission) }
+      let!(:form_submission) do
+        create(
+          :debts_api_form5655_submission,
+          ipf_data: {
+            'personal_data' => {
+              'email_address' => 'test@test.com',
+              'veteran_full_name' => { 'first' => 'John' }
+            }
+          }.to_json
+        )
+      end
       let(:config) { described_class }
       let(:missing_attributes_exception) do
         e = DebtsApi::V0::Form5655::VBASubmissionJob::MissingUserAttributesError.new('abc-123')
@@ -67,10 +150,6 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         }
       end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(false)
-      end
-
       it 'handles MissingUserAttributesError' do
         expected_log_message = <<~LOG
           V0::Form5655::VBASubmissionJob retries exhausted:
@@ -83,6 +162,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
           "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
         )
         expect(StatsD).to receive(:increment).with("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.failure")
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.send_failed_form_email.enqueue')
+        expect(StatsD).to receive(:increment).with(
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        )
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
         )
@@ -102,6 +185,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(StatsD).to receive(:increment).with(
           "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
         )
+        expect(StatsD).to receive(:increment).with(
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        )
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.send_failed_form_email.enqueue')
         expect(StatsD).to receive(:increment).with("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.failure")
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'

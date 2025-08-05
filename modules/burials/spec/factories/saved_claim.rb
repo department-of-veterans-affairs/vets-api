@@ -34,19 +34,19 @@ FactoryBot.define do
 
     trait :pending do
       after(:create) do |claim|
-        create(:form_submission, :pending, saved_claim_id: claim.id)
+        create(:lighthouse_submission, :pending, saved_claim_id: claim.id)
       end
     end
 
-    trait :success do
+    trait :submitted do
       after(:create) do |claim|
-        create(:form_submission, :success, saved_claim_id: claim.id)
+        create(:lighthouse_submission, :submitted, saved_claim_id: claim.id)
       end
     end
 
     trait :failure do
       after(:create) do |claim|
-        create(:form_submission, :failure, saved_claim_id: claim.id)
+        create(:lighthouse_submission, :failure, saved_claim_id: claim.id)
       end
     end
   end

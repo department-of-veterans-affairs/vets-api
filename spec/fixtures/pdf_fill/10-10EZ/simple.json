@@ -16,11 +16,11 @@
     "country": "USA"
   },
   "isMedicaidEligible": true,
-  "isEssentialAcaCoverage": true,
+  "isEssentialAcaCoverage": false,
   "vaMedicalFacility": "520GA",
   "maritalStatus": "Never Married",
   "isEnrolledMedicarePartA": false,
   "lastServiceBranch": "air force",
   "lastEntryDate": "1998-01-01",
-  "lastDischargeDate": "2004-01-01"
+  "lastDischargeDate": ""
 }

@@ -12,6 +12,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_sc_status_updater_job_enabled)
                                             .and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
       end
 

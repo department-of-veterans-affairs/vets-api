@@ -15,25 +15,16 @@ describe 'bb client' do
         vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ]
   end
 
+  let(:client) { @client }
+
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     VCR.use_cassette 'bb_client/session' do
       @client ||= begin
-        client = BB::Client.new(session: { user_id: '5751732' })
+        client = BB::Client.new(session: { user_id: '21207668' })
         client.authenticate
         client
       end
     end
-  end
-
-  let(:client) { @client }
-
-  # Need to pull the last updated to determine the staleness / freshness of the data
-  # will revisit this later.
-  it 'gets a list of extract statuses', :vcr do
-    client_response = client.get_extract_status
-    expect(client_response).to be_a(Common::Collection)
-    expect(client_response.members.first).to be_a(ExtractStatus)
   end
 
   context 'with sentry enabled' do
@@ -48,12 +39,32 @@ describe 'bb client' do
         client.get_extract_status
       end
     end
+
+    it 'gets a text version of a report', :vcr do
+      response_headers = {}
+      header_cb = lambda do |headers|
+        headers.each { |k, v| response_headers[k] = v }
+      end
+      response_stream = Enumerator.new do |stream|
+        client.get_download_report('txt', header_cb, stream)
+      end
+      response_stream.each { |_| }
+      expect(response_headers['Content-Type']).to eq('text/plain')
+    end
+  end
+
+  # Need to pull the last updated to determine the staleness / freshness of the data
+  # will revisit this later.
+  it 'gets a list of extract statuses', :vcr do
+    client_response = client.get_extract_status
+    expect(client_response).to be_a(Vets::Collection)
+    expect(client_response.members.first).to be_a(ExtractStatus)
   end
 
   # These are the list of eligible data classes that can be used to generate a report
   it 'gets a list of eligible data classes', :vcr do
     client_response = client.get_eligible_data_classes
-    expect(client_response).to be_a(Common::Collection)
+    expect(client_response).to be_a(Vets::Collection)
     expect(client_response.type).to eq(EligibleDataClass)
     expect(client_response.cached?).to be(true)
     expect(client_response.members).to all(respond_to(:name))

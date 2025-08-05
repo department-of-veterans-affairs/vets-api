@@ -13,7 +13,7 @@
     },
     "meta": {
       "type": "object",
-      "required": ["updatedAt", "failedStationList", "sort"],
+      "required": ["updatedAt", "failedStationList", "sort", "recentlyRequested"],
       "properties": {
         "updatedAt": { "type": "string" },
         "failedStationList": { "type": "string" },
@@ -29,6 +29,10 @@
             "nonActive": { "type":"integer"},
             "renewal": { "type":"integer"}
           }
+        },
+        "recentlyRequested": {
+          "type": "array",
+          "items": { "type": "object" }
         }
       }
     }

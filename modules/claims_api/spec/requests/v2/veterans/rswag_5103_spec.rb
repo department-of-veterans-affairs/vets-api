@@ -5,6 +5,8 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
+require_relative '../../../../lib/bgs_service/e_benefits_bnft_claim_status_web_service'
+require_relative '../../../../lib/bgs_service/person_web_service'
 
 # doc generation for V2 5103 temporarily disabled
 describe 'EvidenceWaiver5103',
@@ -20,7 +22,7 @@ describe 'EvidenceWaiver5103',
       ]
       consumes 'application/json'
       produces 'application/json'
-      description 'Submit Evidence Waiver 5103 for Veteran.'
+      description 'Submit Evidence Waiver 5103 for a VA claimant.'
 
       parameter name: :id,
                 in: :path,
@@ -32,7 +34,7 @@ describe 'EvidenceWaiver5103',
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }

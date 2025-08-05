@@ -6,11 +6,13 @@ module IvcChampva
       # Displays a list of all form submission batches that include a missing PEGA status
       #
       # @param [boolean] silent whether or not to `puts` the batch information
+      # @param [boolean] ignore_last_minute whether or not to ignore submissions made < 1 minute ago
       #
       # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
       #   IvcChampvaForm records matching that UUID
-      def get_missing_statuses(silent: false)
+      def get_missing_statuses(silent: false, ignore_last_minute: false)
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
+        all_nil_statuses = all_nil_statuses.where('created_at < ?', 1.minute.ago) if ignore_last_minute
         batches = batch_records(all_nil_statuses)
 
         return batches if silent
@@ -72,12 +74,14 @@ module IvcChampva
 
         form = batch[0] # Grab a representative form
         fraction = "#{nil_in_batch.length}/#{batch.length}"
+        # rubocop:disable Rails/Output
         puts '---'
         puts "#{form.first_name} #{form.last_name} missing PEGA status on #{fraction} attachments - #{form.email}\n"
         puts "Form UUID:   #{form.form_uuid}"
         puts "Form:   #{form.form_number}"
         puts "Uploaded at: #{form.created_at}"
         puts "S3 Status:   #{batch.distinct.pluck(:s3_status)}\n"
+        # rubocop:enable Rails/Output
 
         nil
       end

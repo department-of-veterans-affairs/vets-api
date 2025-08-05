@@ -5,11 +5,8 @@ module Ccra
   # to the CCRA service.
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
-    include TokenAuthentication
 
     STATSD_KEY_PREFIX = 'api.ccra'
-    REDIS_TOKEN_KEY = REDIS_CONFIG[:ccra_access_token][:namespace]
-    REDIS_TOKEN_TTL = REDIS_CONFIG[:ccra_access_token][:each_ttl]
 
     ##
     # Returns the configuration for the CCRA service.
@@ -25,6 +22,17 @@ module Ccra
     # @return [Hash] The settings loaded from the VAOS configuration.
     def settings
       @settings ||= Settings.vaos.ccra
+    end
+
+    private
+
+    ##
+    # Get appropriate headers based on whether mocks are enabled. With Betamocks we
+    # bypass the need to request tokens.
+    #
+    # @return [Hash] Headers for the request or empty hash if mocks are enabled
+    def request_headers
+      config.mock_enabled? ? {} : headers
     end
   end
 end

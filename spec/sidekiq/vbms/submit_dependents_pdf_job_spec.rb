@@ -29,7 +29,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
         before do
           expect(SavedClaim::DependencyClaim)
             .to receive(:find).with(dependency_claim.id)
-            .and_return(dependency_claim)
+            .and_return(dependency_claim).at_least(:once)
         end
 
         context '686 form' do
@@ -38,7 +38,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
               hash_including(vet_info)
             )
 
-            expect(dependency_claim).to receive(:upload_pdf).with('686C-674-V2')
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
 
             described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
           end
@@ -50,7 +50,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
               hash_including(vet_info)
             )
 
-            expect(dependency_claim).to receive(:upload_pdf).with('21-674-V2', doc_type: '142')
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
 
             described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
           end
@@ -62,8 +62,8 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
               hash_including(vet_info)
             )
 
-            expect(dependency_claim).to receive(:upload_pdf).with('686C-674-V2')
-            expect(dependency_claim).to receive(:upload_pdf).with('21-674-V2', doc_type: '142')
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
 
             described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, true)
           end
@@ -80,7 +80,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
         before do
           expect(SavedClaim::DependencyClaim)
             .to receive(:find).with(dependency_claim.id)
-            .and_return(dependency_claim)
+            .and_return(dependency_claim).at_least(:once)
         end
 
         context '686 form' do
@@ -126,7 +126,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
   context 'with an invalid submission' do
     it 'sends an error message if no claim exists' do
       job = described_class.new
-      expect(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:warn).at_least(:once)
 
       expect do
         job.perform('non-existent-claim', encrypted_vet_info, true, false)
@@ -136,11 +136,11 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
     it 'raises an error if there is nothing in the dependents_application is empty' do
       expect(SavedClaim::DependencyClaim)
         .to receive(:find).with(invalid_dependency_claim.id)
-        .and_return(invalid_dependency_claim)
+        .and_return(invalid_dependency_claim).at_least(:once)
 
       job = described_class.new
 
-      expect(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:error)
 
       vet_info['veteran_information'].delete('ssn')
       expect do

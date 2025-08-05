@@ -76,7 +76,6 @@ RSpec.describe RepresentationManagement::Form2122DigitalSubmission, type: :model
     subject { described_class.new(user:, dependent:, organization_id:) }
 
     let(:user) { create(:user, :loa3) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:dependent) { false }
     let(:organization_id) { 'ABC' }
 
@@ -197,7 +196,7 @@ RSpec.describe RepresentationManagement::Form2122DigitalSubmission, type: :model
         end
       end
 
-      context 'when the user has a participant id' do
+      context 'when the user has an ICN' do
         it 'does not add the blank ICN error to the form' do
           subject.valid?
 

@@ -21,9 +21,14 @@ describe Kafka::AvroProducer do
     }
   end
   let(:invalid_payload_format) { 'invalid' }
-  let(:topic3_payload_value) do
+  let(:topic_payload_value) do
     "\x00\x00\x00\x00\x05\x00\n12345\x00\x02\x12ICN123456" \
     "\x12VASI98765\x00\x00\x00\x00\x10received(2024-03-04T12:00:00Z\x00".b
+  end
+  let(:topic) { 'submission_trace_form_status_change_test' }
+
+  before do
+    allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
   end
 
   after do
@@ -34,12 +39,12 @@ describe Kafka::AvroProducer do
     # valid data format
     it 'validates the payload against the schema' do
       VCR.use_cassette('kafka/topics') do
-        avro_producer.produce('topic-3', valid_payload)
+        avro_producer.produce(topic, valid_payload)
         expect(avro_producer.producer.client.messages.length).to eq(1)
-        topic_3_messages = avro_producer.producer.client.messages_for('topic-3')
+        topic_3_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
         expect(topic_3_messages.length).to eq(1)
         expect(topic_3_messages[0][:payload]).to be_a(String)
-        expect(topic_3_messages[0][:payload]).to eq(topic3_payload_value)
+        expect(topic_3_messages[0][:payload]).to eq(topic_payload_value)
       end
     end
 
@@ -50,7 +55,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -62,7 +67,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -74,7 +79,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -85,7 +90,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -97,7 +102,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -108,7 +113,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -120,7 +125,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -131,7 +136,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -143,7 +148,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -155,7 +160,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -166,7 +171,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -177,7 +182,7 @@ describe Kafka::AvroProducer do
       valid_payload_with_add_ids['additionalIds'] = %w[1 123 abc456]
 
       VCR.use_cassette('kafka/topics') do
-        avro_producer.produce('topic-3', valid_payload_with_add_ids)
+        avro_producer.produce(topic, valid_payload_with_add_ids)
         expect(avro_producer.producer.client.messages.length).to eq(1)
       end
     end
@@ -188,7 +193,7 @@ describe Kafka::AvroProducer do
 
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload)
+          avro_producer.produce(topic, invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -197,7 +202,7 @@ describe Kafka::AvroProducer do
     it 'raises a validation error for invalid payload' do
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', invalid_payload_format)
+          avro_producer.produce(topic, invalid_payload_format)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
@@ -205,7 +210,7 @@ describe Kafka::AvroProducer do
     it 'raises a validation error for missing payload' do
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce('topic-3', nil)
+          avro_producer.produce(topic, nil)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end

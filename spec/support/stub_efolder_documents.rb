@@ -30,8 +30,6 @@ def stub_efolder_show_document
   end
 end
 
-private
-
 def efolder_service
   efolder_service = double
   expect(Efolder::Service).to receive(:new).and_return(efolder_service)

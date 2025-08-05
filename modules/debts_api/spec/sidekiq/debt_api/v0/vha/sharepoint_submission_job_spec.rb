@@ -63,6 +63,49 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
           expect(form_submission).to receive(:register_failure)
         end
       end
+
+      context 'with advisory lock' do
+        let(:sharepoint_request) { instance_double(DebtManagementCenter::Sharepoint::Request) }
+
+        before do
+          allow(DebtManagementCenter::Sharepoint::Request).to receive(:new).and_return(sharepoint_request)
+          allow(sharepoint_request).to receive(:upload)
+        end
+
+        it 'uses an advisory lock during processing' do
+          expect(DebtsApi::V0::Form5655Submission).to receive(:with_advisory_lock)
+            .with("sharepoint-#{form_submission.id}", timeout_seconds: 15)
+            .and_yield
+
+          subject.perform(form_submission.id)
+        end
+
+        it 'skips processing for already submitted forms' do
+          allow(form_submission).to receive(:submitted?).and_return(true)
+
+          expect(DebtsApi::V0::Form5655Submission).to receive(:with_advisory_lock)
+            .with("sharepoint-#{form_submission.id}", timeout_seconds: 15)
+            .and_yield
+
+          expect(sharepoint_request).not_to receive(:upload)
+
+          subject.perform(form_submission.id)
+        end
+
+        it 'logs SharePoint errors' do
+          expect(Rails.logger).to receive(:error)
+            .with('SharePoint submission failed: Something went wrong', { submission_id: form_submission.id })
+
+          expect(DebtsApi::V0::Form5655Submission).to receive(:with_advisory_lock)
+            .with("sharepoint-#{form_submission.id}", timeout_seconds: 15)
+            .and_yield
+
+          error = StandardError.new('Something went wrong')
+          allow(sharepoint_request).to receive(:upload).and_raise(error)
+
+          expect { subject.perform(form_submission.id) }.to raise_error(StandardError)
+        end
+      end
     end
   end
 end

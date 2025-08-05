@@ -55,7 +55,11 @@ module ClaimsApi
           options = build_options_and_validate(type)
 
           bgs_response = bgs_itf_service.insert_intent_to_file(options)
+
           if bgs_response.empty?
+            ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
+            raise ::Common::Exceptions::BadGateway
+          elsif bgs_response[:detail] == 'Veteran ID not found'
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
           else

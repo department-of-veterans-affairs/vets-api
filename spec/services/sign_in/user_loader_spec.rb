@@ -143,7 +143,7 @@ RSpec.describe SignIn::UserLoader do
         end
 
         it 'reloads user object so that MPI can be called for additional attributes' do
-          expect(subject.edipi).to be edipi
+          expect(subject.edipi).to eq edipi
         end
 
         context 'when the user can create MHV account' do
@@ -156,6 +156,17 @@ RSpec.describe SignIn::UserLoader do
           it 'enqueues an MHV::AccountCreatorJob' do
             subject
             expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
+          end
+        end
+
+        context 'when the user can provision cerner' do
+          before do
+            allow(Identity::CernerProvisionerJob).to receive(:perform_async)
+          end
+
+          it 'enqueues a Cerner::ProvisionerJob' do
+            subject
+            expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user_icn, :sis)
           end
         end
       end

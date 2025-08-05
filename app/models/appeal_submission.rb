@@ -6,8 +6,8 @@ class AppealSubmission < ApplicationRecord
   include DecisionReview::SavedClaim::Service
 
   APPEAL_TYPES = %w[HLR NOD SC].freeze
-  validates :user_uuid, :submitted_appeal_uuid, presence: true
-  belongs_to :user_account, dependent: nil, optional: true
+  validates :submitted_appeal_uuid, presence: true
+  belongs_to :user_account, dependent: nil, optional: false
   validates :type_of_appeal, inclusion: APPEAL_TYPES
 
   has_kms_key
@@ -45,7 +45,6 @@ class AppealSubmission < ApplicationRecord
       raise 'Must pass in a version of the DecisionReview Service' if decision_review_service.nil?
 
       appeal_submission = new(type_of_appeal: 'NOD',
-                              user_uuid: current_user.uuid,
                               user_account: current_user.user_account,
                               board_review_option: request_body_hash['data']['attributes']['boardReviewOption'],
                               upload_metadata: decision_review_service.class.file_upload_metadata(current_user))
@@ -90,9 +89,8 @@ class AppealSubmission < ApplicationRecord
 
   def get_mpi_profile
     @mpi_profile ||= begin
-      service = ::MPI::Service.new
-      response = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
-      response ||= service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
+      response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn,
+                                                             identifier_type: MPI::Constants::ICN)&.profile
       raise 'Failed to fetch MPI profile' if response.nil?
 
       response

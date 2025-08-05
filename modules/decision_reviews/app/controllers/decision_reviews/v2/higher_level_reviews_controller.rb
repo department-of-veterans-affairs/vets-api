@@ -25,7 +25,7 @@ module DecisionReviews
                             .body
         submitted_appeal_uuid = hlr_response_body.dig('data', 'id')
         ActiveRecord::Base.transaction do
-          AppealSubmission.create!(user_uuid: @current_user.uuid, user_account: @current_user.user_account,
+          AppealSubmission.create!(user_account: @current_user.user_account,
                                    type_of_appeal: 'HLR', submitted_appeal_uuid:)
 
           store_saved_claim(claim_class: ::SavedClaim::HigherLevelReview, form: request_body_hash.to_json,

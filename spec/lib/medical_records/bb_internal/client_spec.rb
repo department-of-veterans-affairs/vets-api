@@ -7,17 +7,6 @@ require 'stringio'
 UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 describe BBInternal::Client do
-  before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-    VCR.use_cassette 'mr_client/bb_internal/session_auth' do
-      @client ||= begin
-        client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
-        client.authenticate
-        client
-      end
-    end
-  end
-
   let(:client) { @client }
 
   RSpec.shared_context 'redis setup' do
@@ -35,6 +24,16 @@ describe BBInternal::Client do
     before do
       allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
       allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+    end
+  end
+
+  before do
+    VCR.use_cassette 'mr_client/bb_internal/session_auth' do
+      @client ||= begin
+        client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
+        client.authenticate
+        client
+      end
     end
   end
 
@@ -251,12 +250,16 @@ describe BBInternal::Client do
     end
 
     it 'raises a ServiceError when the patient is not found' do
-      empty_response = double('Response', body: nil)
-      allow(client).to receive(:perform).and_return(empty_response)
+      empty_response = instance_double(Faraday::Response, body: nil)
 
-      expect { client.get_patient }.to raise_error(Common::Exceptions::ServiceError) do |error|
+      fake_conn = instance_double(Faraday::Connection,
+                                  get: empty_response)
+
+      expect do
+        client.get_patient(conn: fake_conn)
+      end.to raise_error(Common::Exceptions::ServiceError) { |error|
         expect(error.errors.first[:detail]).to eq('Patient not found')
-      end
+      }
     end
 
     describe '#get_sei_vital_signs_summary' do
@@ -485,6 +488,36 @@ describe BBInternal::Client do
 
       it 'returns false' do
         expect(client.send(:invalid?, session_data)).to be false
+      end
+    end
+  end
+
+  describe '#get_sei_emergency_contacts' do
+    it "retrieves the patient's emergency contacts" do
+      VCR.use_cassette 'mr_client/bb_internal/get_sei_emergency_contacts' do
+        emergency_contacts = client.get_sei_emergency_contacts
+
+        expect(emergency_contacts).to be_an(Array)
+        expect(emergency_contacts).not_to be_empty
+
+        first_record = emergency_contacts.first
+        expect(first_record).to be_a(Hash)
+        expect(first_record).to have_key('firstName')
+        expect(first_record['firstName']).to be_a(String)
+        expect(first_record).to have_key('lastName')
+        expect(first_record['lastName']).to be_a(String)
+        expect(first_record).to have_key('contactInfoContactMethod')
+        expect(first_record['contactInfoContactMethod']).to be_a(String)
+        expect(first_record).to have_key('contactInfoEmail')
+        expect(first_record['contactInfoEmail']).to be_a(String)
+        expect(first_record).to have_key('addressStreet1')
+        expect(first_record['addressStreet1']).to be_a(String)
+        expect(first_record).to have_key('addressCity')
+        expect(first_record['addressCity']).to be_a(String)
+        expect(first_record).to have_key('addressState')
+        expect(first_record['addressState']).to be_a(String)
+        expect(first_record).to have_key('addressPostalCode')
+        expect(first_record['addressPostalCode']).to be_a(String)
       end
     end
   end

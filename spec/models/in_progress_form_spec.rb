@@ -70,6 +70,20 @@ RSpec.describe InProgressForm, type: :model do
         in_progress_form.save
         expect(in_progress_form.metadata['expiresAt']).to eq(1_622_505_600)
       end
+
+      it 'does not update expires_at on save' do
+        # make sure the 526 form does not update the expires_at time when the form is updated
+        disability_form = create(:in_progress_form, form_id: '21-526EZ')
+        disability_prev_time = disability_form.expires_at
+        disability_form.save
+        expect(disability_prev_time == disability_form.expires_at).to be(true)
+
+        # make sure we did not affect the default form/functionality
+        default_form = create(:in_progress_form)
+        default_prev_time = default_form.expires_at
+        default_form.save
+        expect(default_prev_time == default_form.expires_at).to be(false)
+      end
     end
 
     context 'when the form is 5655' do
@@ -192,7 +206,6 @@ RSpec.describe InProgressForm, type: :model do
 
     let(:form_id) { in_progress_form.form_id }
     let(:user) { create(:user) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
     context 'and in progress form exists associated with user uuid' do
       let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
@@ -217,7 +230,6 @@ RSpec.describe InProgressForm, type: :model do
     subject { InProgressForm.for_user(user) }
 
     let(:user) { create(:user) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
     let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
     let(:expected_in_progress_forms_id) { [in_progress_form_user_uuid.id, in_progress_form_user_account.id] }

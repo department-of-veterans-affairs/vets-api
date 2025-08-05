@@ -1,11 +1,8 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: "<VAOS_CCRA_API_URL>/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList"
-    body:
-      encoding: UTF-8
-      string: '{"ICN":"invalid","ReferralStatus":"''S'',''BP'',''AP'',''AC'',''A'',''I''"}'
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/invalid/referrals?status='S','BP','AP','AC','A','I'"
     headers:
       Accept:
       - application/json

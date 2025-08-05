@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'bgs/children'
+require 'bgsv2/children'
 
 RSpec.describe BGS::Children do
   let(:user_object) { create(:evss_user, :loa3) }
@@ -179,7 +180,7 @@ RSpec.describe BGS::Children do
 
       it 'returns a hash for biological child that does not live with veteran' do
         VCR.use_cassette('bgs/dependents/create') do
-          children = BGS::Children.new(
+          children = BGSV2::Children.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object
@@ -215,11 +216,11 @@ RSpec.describe BGS::Children do
         }
 
         VCR.use_cassette('bgs/children/apdopted_child_lives_with_veteran') do
-          expect_any_instance_of(BGS::Service).to receive(:create_address)
+          expect_any_instance_of(BGSV2::Service).to receive(:create_address)
             .with(a_hash_including(veteran_address_info)).at_most(4).times
             .and_call_original
 
-          children = BGS::Children.new(
+          children = BGSV2::Children.new(
             proc_id:,
             payload: adopted_payload,
             user: user_object
@@ -237,7 +238,7 @@ RSpec.describe BGS::Children do
 
       it 'returns a hash for step child and spouse/parent of step child' do
         VCR.use_cassette('bgs/dependents/create') do
-          children = BGS::Children.new(
+          children = BGSV2::Children.new(
             proc_id:,
             payload: add_step_child_payload,
             user: user_object
@@ -267,7 +268,7 @@ RSpec.describe BGS::Children do
     context 'reporting stepchild no longer part of household' do
       it 'returns an hash that represents a stepchild getting half of their expenses paid' do
         VCR.use_cassette('bgs/children/create_all') do
-          children = BGS::Children.new(
+          children = BGSV2::Children.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object
@@ -287,7 +288,7 @@ RSpec.describe BGS::Children do
     context 'report marriage of a child under 18' do
       it 'returns a hash that represents a married child under 18' do
         VCR.use_cassette('bgs/dependents/create') do
-          children = BGS::Children.new(
+          children = BGSV2::Children.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object
@@ -308,7 +309,7 @@ RSpec.describe BGS::Children do
     context 'report child 18 or older has stopped attending school' do
       it 'returns an hash that represents a married child under 18' do
         VCR.use_cassette('bgs/dependents/create') do
-          children = BGS::Children.new(
+          children = BGSV2::Children.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object

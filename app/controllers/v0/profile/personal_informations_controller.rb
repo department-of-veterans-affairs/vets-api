@@ -39,19 +39,33 @@ module V0
       end
 
       def log_errors_for(response)
-        if response.gender.nil? || response.birth_date.nil?
-          log_message_to_sentry(
-            'mpi missing data bug',
-            :info,
-            {
-              response:,
-              params:,
-              gender: response.gender,
-              birth_date: response.birth_date
-            },
-            profile: 'pciu_profile'
-          )
-        end
+        return unless response.gender.nil? || response.birth_date.nil?
+
+        Rails.logger.error("mpi missing data: #{I18n.t('common.exceptions.MVI_BD502.detail')}", {
+                             response: sanitize_data(response.to_h),
+                             params: sanitize_data(params),
+                             gender: response.gender,
+                             birth_date: response.birth_date,
+                             mvi_status_code: I18n.t('common.exceptions.MVI_BD502.status')
+                           })
+      end
+
+      def sanitize_data(data)
+        data.except(
+          :source_system_user,
+          :address_line1,
+          :address_line2,
+          :address_line3,
+          :city_name,
+          :vet360_id,
+          :county,
+          :state_code,
+          :zip_code5,
+          :zip_code4,
+          :phone_number,
+          :country_code_iso3,
+          :preferred_name
+        )
       end
     end
   end

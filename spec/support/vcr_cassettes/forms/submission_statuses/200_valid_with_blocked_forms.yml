@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/services/vba_documents/v1/uploads/report"
+    body:
+      encoding: UTF-8
+      string: '{"ids":["4b846069-e496-4f83-8587-42b570f24483","d0c6cea6-9885-4e2f-8e0c-708d5933833a","84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c"]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - piYqU6hX4xaFLbpd5Ch3L6F1CW8N4qy4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Jun 2025 23:11:47 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '13'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Etag:
+      - W/"6df9d576561fb416444688b50d368d88"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 565d5f4f5af4fb45f4ec95eb1604eb8b68d94aea
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 23b4b1dc-70c9-466b-bbb7-972d22ab2e1b
+      X-Runtime:
+      - '0.007580'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"4b846069-e496-4f83-8587-42b570f24483","type":"document_upload","attributes":{"guid":"4b846069-e496-4f83-8587-42b570f24483","status":"received","code":null,"detail":"","final_status":false,"updated_at":null,"uploaded_pdf":{"total_documents":1,"total_pages":2,"content":{"page_count":2,"dimensions":{"height":11.0,"width":8.5,"oversized_pdf":false},"file_size":1564186,"attachments":[]},"line_of_business":"CMP"}}},{"id":"d0c6cea6-9885-4e2f-8e0c-708d5933833a","type":"document_upload","attributes":{"guid":"d0c6cea6-9885-4e2f-8e0c-708d5933833a","status":"received","code":null,"detail":"","final_status":false,"updated_at":null,"uploaded_pdf":{"total_documents":1,"total_pages":2,"content":{"page_count":2,"dimensions":{"height":11.0,"width":8.5,"oversized_pdf":false},"file_size":1562996,"attachments":[]},"line_of_business":"CMP"}}},{"id":"84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c","type":"document_upload","attributes":{"guid":"84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c","status":"error","code":"DOC105","detail":"Invalid
+        or unknown id","final_status":null,"updated_at":null,"uploaded_pdf":null}}]}'
+  recorded_at: Wed, 04 Jun 2025 23:11:47 GMT
+recorded_with: VCR 6.3.1

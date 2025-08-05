@@ -51,5 +51,17 @@ module Common
     def deep_compact(hash)
       deep_remove_helper(hash, &:nil?)
     end
+
+    # Recursively converts OpenStructs (and arrays of OpenStructs) to hashes.
+    def deep_to_h(obj)
+      case obj
+      when OpenStruct
+        obj.to_h.transform_values { |v| deep_to_h(v) }
+      when Array
+        obj.map { |v| deep_to_h(v) }
+      else
+        obj
+      end
+    end
   end
 end

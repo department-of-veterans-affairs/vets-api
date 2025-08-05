@@ -30,7 +30,7 @@ module V0
       # If EVSS's list of rated disabilities does not match our prefilled rated disabilities
       if rated_disabilities_evss.present? &&
          arr_to_compare(parsed_form_data['ratedDisabilities']) !=
-         arr_to_compare(rated_disabilities_evss.rated_disabilities)
+         arr_to_compare(rated_disabilities_evss.rated_disabilities.map(&:attributes))
 
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')

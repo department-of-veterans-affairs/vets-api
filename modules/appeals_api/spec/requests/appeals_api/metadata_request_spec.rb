@@ -25,20 +25,13 @@ describe 'metadata request api', type: :request do
 
   RSpec.shared_examples 'a failed healthcheck' do |path|
     it 'returns a failed healthcheck due to s3' do
-      # Slack notification expected
-      messenger_instance = instance_double(AppealsApi::Slack::Messager)
-      expected_notify = { class: 'AppealsApi::MetadataController',
-                          warning: ':warning: ' \
-                                   'Appeals API healthcheck failed: unable to connect to AWS S3 bucket.' }
-      expect(AppealsApi::Slack::Messager).to receive(:new).with(expected_notify).and_return(messenger_instance)
-      expect(messenger_instance).to receive(:notify!).once
-
       # stub failed s3 up call
       s3_client = instance_double(Aws::S3::Client)
       expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
       s3_resource = instance_double(Aws::S3::Resource)
       allow(s3_resource).to receive(:client).and_return(s3_client)
       allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
+      expect(Rails.logger).to receive(:error).with('Appeals API S3 healthcheck failed')
 
       get path
 

@@ -33,7 +33,9 @@ class FormSubmissionAttempt < ApplicationRecord
     event :fail do
       after do
         form_type = form_submission.form_type
+        claim_id = form_submission&.saved_claim_id
         log_info = { form_submission_id:,
+                     claim_id:,
                      benefits_intake_uuid:,
                      form_type:,
                      user_account_uuid: form_submission.user_account_id }
@@ -97,6 +99,7 @@ class FormSubmissionAttempt < ApplicationRecord
       form_submission_id:,
       benefits_intake_uuid:,
       form_type: form_submission&.form_type,
+      claim_id: form_submission&.saved_claim_id,
       from_state: aasm.from_state,
       to_state: aasm.to_state,
       event: aasm.current_event

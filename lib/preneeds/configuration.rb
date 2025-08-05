@@ -15,7 +15,7 @@ module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
     # Number of seconds before timeout
     #
-    TIMEOUT = 30
+    TIMEOUT = 60
 
     # @return [String] The base path for the external EOAS service
     #

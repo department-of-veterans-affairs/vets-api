@@ -22,10 +22,17 @@ module MHVAC
     end
 
     ##
+    # @return [String] API GW key set in `settings.yml` via credstash
+    #
+    def x_api_key
+      Settings.mhv.rx.x_api_key
+    end
+
+    ##
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
+      "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
     end
 
     ##
