@@ -146,9 +146,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_request_duration_monitoring:
-    actor_type: user
-    description: Enables logging of 10-10CG request durations to StatsD
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -171,9 +168,6 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_enrollment_status_filter_get:
-    actor_type: user
-    description: Filters out query params from GET requests for the enrollment_status endpoint.
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -757,6 +751,10 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
+  digital_dispute_duplicate_prevention:
+    actor_type: user
+    description: Enables duplicate prevention for digital dispute submissions
+    enable_in_development: false
   event_bus_gateway_emails_enabled:
     actor_type: user
     description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
