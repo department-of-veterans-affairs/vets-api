@@ -57,7 +57,10 @@ Rails.application.reloader.to_prepare do
         begin
           Kafka.submit_test_event({ 'startup' => 'true' })
         rescue => e
-          Rails.logger.error("Kafka.submit_test_event failed during Sidekiq startup: #{e.message}\n#{e.backtrace.join("\n")}")
+          Rails.logger.error(
+            "Kafka.submit_test_event failed during Sidekiq startup: \
+            #{e.message}\n#{e.backtrace.join('\n')}"
+          )
         end
       end
     end
