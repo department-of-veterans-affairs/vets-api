@@ -85,7 +85,7 @@ module Mobile
           start_date: validated_params[:start_date],
           end_date: validated_params[:end_date],
           include_pending: true,
-          include_claims: include_claims?,
+          include_claims: include_claims?
         )
       rescue => e
         raise Common::Exceptions::BadGateway.new(detail: e.try(:errors).try(:first).try(:detail))
