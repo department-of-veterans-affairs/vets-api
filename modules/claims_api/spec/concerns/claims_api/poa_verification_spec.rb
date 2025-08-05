@@ -124,9 +124,7 @@ describe FakeController do
             last_name:
           ).and_return([])
 
-          # Return empty for suffix
-
-          # Mock the middle_name and middle_initial search to return empty
+          # Mock the suffix and middle_name/middle_initial search to return empty
           allow(subject.instance_variable_get(:@current_user)).to receive_messages(suffix: nil,
                                                                                    middle_name: 'Alexander')
           allow(Veteran::Service::Representative).to receive(:all_for_user).with(
