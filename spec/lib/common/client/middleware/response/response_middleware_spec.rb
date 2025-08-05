@@ -38,7 +38,7 @@ describe Common::Client::Middleware::Response do
           <soapenv:Fault>
             <faultcode>soapenv:Server</faultcode>
             <faultstring>Policy Falsified</faultstring>
-            <faultactor>https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/session</faultactor>
+            <faultactor>https://essapi-sysb.myhealth.va.gov/v1/usermgmt/auth/session</faultactor>
             <detail>
               <l7:policyResult status="Assertion Falsified" xmlns:l7="http://www.layer7tech.com/ws/policy/fault"/>
             </detail>
