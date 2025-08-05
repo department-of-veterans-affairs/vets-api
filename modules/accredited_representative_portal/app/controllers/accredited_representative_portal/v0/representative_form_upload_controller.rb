@@ -14,11 +14,9 @@ module AccreditedRepresentativePortal
         upload_scanned_form
         upload_supporting_documents
       ]
-      before_action :deny_access_unless_submissions_enabled, only: %i[
-        submit
-        upload_scanned_form
-        upload_supporting_documents
-      ]
+      before_action only: %i[submit upload_scanned_form upload_supporting_documents] do
+        deny_access_unless_form_enabled(form_id)
+      end
 
       # rubocop:disable Metrics/MethodLength
       def submit
