@@ -338,6 +338,8 @@ module RepresentationManagement
       if @force_update_types.any?
         # Only delete records of types that were actually processed
 
+        # If no individual types were processed, return early to avoid deleting any records.
+        # This safeguards against accidental deletion when no types were selected for processing.
         return if processed_individual_types.empty?
 
         # Delete only records of processed types that are not in the current ID lists
