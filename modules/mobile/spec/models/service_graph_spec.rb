@@ -48,7 +48,7 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
       end
 
       it 'does not include upstream services in the list' do
-        expect(affected_services.keys).not_to include(%i[bgs evss])
+        expect(affected_services.keys).not_to include(%i[bgs lighthouse])
       end
 
       it 'includes downstream windows with the upstream start time' do
@@ -71,7 +71,7 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
       end
 
       it 'does not include upstream services in the list' do
-        expect(affected_services.keys).not_to include(%i[bgs evss])
+        expect(affected_services.keys).not_to include(%i[bgs lighthouse])
       end
 
       it 'includes downstream windows with the earliest upstream start time' do

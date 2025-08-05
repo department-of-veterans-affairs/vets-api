@@ -12,7 +12,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do

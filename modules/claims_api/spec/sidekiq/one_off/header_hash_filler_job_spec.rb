@@ -42,7 +42,7 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
     it 'logs count of records processed' do
       expect(ClaimsApi::Logger).to receive(:log).with(
         'header_hash_filler_job',
-        details: 'ClaimsApi::PowerOfAttorney completed with 10 record(s)'
+        details: 'Processed 10 records for ClaimsApi::PowerOfAttorney. 0 records remain.'
       )
 
       subject.perform 'ClaimsApi::PowerOfAttorney'
@@ -53,6 +53,13 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
       expect do
         subject.perform 'ClaimsApi::PowerOfAttorney'
       end.not_to(change { ClaimsApi::PowerOfAttorney.where(header_hash: nil).count })
+    end
+
+    it 'can force processing' do
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_run_header_hash_filler_job).and_return false
+      expect do
+        subject.perform 'ClaimsApi::PowerOfAttorney', force: true
+      end.to change { ClaimsApi::PowerOfAttorney.where(header_hash: nil).count }.from(10).to(0)
     end
 
     it 'logs an error and returns cleanly if filling header_hash fails' do
@@ -67,6 +74,15 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
       end.not_to raise_error
     end
 
+    it 'Can handle empty form_data field for ClaimsApi::PowerOfAttorney' do
+      poa = ClaimsApi::PowerOfAttorney.first
+      poa.update_column(:form_data_ciphertext, nil) # rubocop:disable Rails/SkipsModelValidations
+      expect do
+        subject.perform('ClaimsApi::PowerOfAttorney', [poa.id])
+      end.not_to raise_error
+      expect(poa.reload.header_hash).not_to be_blank
+    end
+
     it 'works on AutoEstablishedClaims too' do
       create_list(:auto_established_claim, 10)
       ClaimsApi::AutoEstablishedClaim.update_all(header_hash: nil) # rubocop:disable Rails/SkipsModelValidations
@@ -74,6 +90,18 @@ RSpec.describe ClaimsApi::OneOff::HeaderHashFillerJob, type: :job do
       expect do
         subject.perform 'ClaimsApi::AutoEstablishedClaim'
       end.to change { ClaimsApi::AutoEstablishedClaim.where(header_hash: nil).count }.from(9).to(0)
+    end
+
+    it 'can handle empty form_data field for AutoEstablishedClaims' do
+      create_list(:auto_established_claim, 10)
+      ClaimsApi::AutoEstablishedClaim.update_all(header_hash: nil) # rubocop:disable Rails/SkipsModelValidations
+      aec = ClaimsApi::AutoEstablishedClaim.where(header_hash: nil).first
+      aec.update_column(:form_data_ciphertext, nil) # rubocop:disable Rails/SkipsModelValidations
+      aec.reload
+      expect do
+        subject.perform('ClaimsApi::AutoEstablishedClaim', [aec.id])
+      end.not_to raise_error
+      expect(aec.reload.header_hash).not_to be_blank
     end
   end
 end

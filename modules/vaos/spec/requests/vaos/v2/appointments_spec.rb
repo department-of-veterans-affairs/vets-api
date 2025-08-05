@@ -1401,7 +1401,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                           .to receive(:get_appointments)
                           .and_return(OpenStruct.new(data: []))
 
-                        allow(StatsD).to receive(:increment)
+                        allow(StatsD).to receive(:increment).with(any_args)
 
                         expect(StatsD).to receive(:increment)
                           .with(described_class::APPT_DRAFT_CREATION_SUCCESS_METRIC,
@@ -1412,8 +1412,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                           .with(described_class::REFERRAL_DRAFT_STATIONID_METRIC,
                                 tags: [
                                   'service:community_care_appointments',
-                                  'referring_provider_id:528A6',
-                                  'referral_provider_id:7894563210'
+                                  'referring_facility_code:528A6',
+                                  'provider_npi:7894563210',
+                                  'station_id:528A6'
                                 ])
                           .once
 
@@ -1793,6 +1794,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           error = response_obj['errors'].first
           expect(error['title']).to eq('Appointment creation failed')
           expect(error['detail']).to eq('Redis connection error')
+        end
+      end
+
+      context 'when request params are missing' do
+        it 'returns a bad_request status and appropriate error message' do
+          post '/vaos/v2/appointments/draft', params: { referral_consult_id: '12345' }, headers: inflection_header
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to include('param is missing or the value is empty: referral_number')
         end
       end
     end
