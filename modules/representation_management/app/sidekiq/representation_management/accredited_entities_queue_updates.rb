@@ -321,19 +321,22 @@ module RepresentationManagement
       individual_entity_json(record, rep, :representative)
     end
 
+    def processed_individual_types
+      # Determine which individual types were processed based on force_update_types
+      [AGENTS, ATTORNEYS, REPRESENTATIVES].filter_map do |type|
+        ENTITY_CONFIG.public_send(type.downcase).individual_type if @force_update_types.include?(type)
+      end
+    end
+
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
     # When force_update_types is specified, only deletes records of the processed types
     #
     # @return [void]
     def delete_removed_accredited_individuals
-      # @force_update_types are only present when manually reprocessing entity types.  They aren't present in the 
+      # @force_update_types are only present when manually reprocessing entity types.  They aren't present in the
       # ordinary daily job run.
       if @force_update_types.any?
         # Only delete records of types that were actually processed
-        processed_individual_types = []
-        processed_individual_types << ENTITY_CONFIG.agents.individual_type if @force_update_types.include?(AGENTS)
-        processed_individual_types << ENTITY_CONFIG.attorneys.individual_type if @force_update_types.include?(ATTORNEYS)
-        processed_individual_types << ENTITY_CONFIG.representatives.individual_type if @force_update_types.include?(REPRESENTATIVES)
 
         return if processed_individual_types.empty?
 
