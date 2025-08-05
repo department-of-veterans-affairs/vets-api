@@ -506,38 +506,24 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'validating the params' do
       let(:decision) { 'ACCEPTED' }
-      let(:representative_id) { '456' }
+      let(:representative_id) { 456 } # this comes in on the form as a integer, not a string
       let(:poa_code) { '123' }
-      let(:representative) do
-        OpenStruct.new(
-          representative_id: '789'
-        )
+
+      context 'registration number and POA code combination do not belong to a representative' do
+        it 'raises ResourceNotFound error with descriptive message' do
+          expect do
+            subject.send(:validate_decide_representative_params!, poa_code, representative_id)
+          end.to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound)
+        end
       end
 
-      context 'registration number is present but does not match the record' do
-        before do
-          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
-          allow_any_instance_of(described_class).to receive(:validate_accredited_representative)
-            .with(anything)
-            .and_return(nil)
+      context 'registration number and POA code combination belong to a representative' do
+        let!(:rep) { create(:representative, representative_id: '456', poa_codes: ['123']) }
 
-          instance = described_class.new
-          instance.instance_variable_set(:@representative, representative)
-          allow(described_class).to receive(:new).and_return(instance)
-        end
-
-        let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
-
-        it 'raises an error' do
-          mock_ccg(scopes) do |auth_header|
-            decide_request_with(id:, decision:, auth_header:, representative_id:)
-
-            expect(response).to have_http_status(:not_found)
-            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
-              "The accredited representative with registration number #{representative_id} does not match " \
-              "poa code: #{poa_code}."
-            )
-          end
+        it 'does not raise an error' do
+          expect do
+            subject.send(:validate_decide_representative_params!, poa_code, representative_id)
+          end.not_to raise_error
         end
       end
 
