@@ -17,8 +17,9 @@ module Swagger
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
-                   description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number. Required when is_international is false. Omit or set null for non-North American numbers.'
+                   description: 'The three-digit code that begins a North American Numbering Plan (NANP) phone number
+                   (U.S., Canada, and some Caribbean countries). Required when is_international is false. Omit or set
+                   null for non-NANP numbers.'
           property :country_code,
                    type: :string,
                    minLength: 1,
@@ -26,7 +27,8 @@ module Swagger
                    example: '1',
                    default: '1',
                    pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
-                   description: 'One- to three-digit code that routes the call to the country of that phone number.'
+                   description: 'One- to three-digit code that routes the call to the country of that phone number.
+                   Defaults to the NANP country code.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -37,7 +39,7 @@ module Swagger
                    type: :boolean,
                    example: false,
                    default: false,
-                   description: 'Indicates phone number has a non-North American country code.'
+                   description: 'Indicates phone number has a non-NANP country code.'
           property :is_textable,
                    type: :boolean,
                    example: true,
@@ -56,8 +58,8 @@ module Swagger
                    minLength: 1,
                    maxLength: 14,
                    pattern: ::VAProfile::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
-                   description: 'Number that follows an area code for a North American phone number, or a country code
-                   for a non-North American phone number.'
+                   description: 'Number that follows an area code for a NANP phone number, or a country code
+                   for a non-NANP phone number.'
           property :phone_type,
                    type: :string,
                    enum: ::VAProfile::Models::Telephone::PHONE_TYPES,
@@ -87,8 +89,9 @@ module Swagger
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
-                   description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
-                   number. Required when is_international is false. Omit or set null for non-North American numbers.'
+                   description: 'The three-digit code that begins a North American Numbering Plan (NANP) phone number
+                   (U.S., Canada, and some Caribbean countries). Required when is_international is false. Omit or set
+                   null for non-NANP numbers.'
           property :country_code,
                    type: :string,
                    minLength: 1,
@@ -96,7 +99,8 @@ module Swagger
                    example: '1',
                    default: '1',
                    pattern: ::VAProfile::Models::Telephone::VALID_COUNTRY_CODE_REGEX.inspect,
-                   description: 'One- to three-digit code that routes the call to the country of that phone number.'
+                   description: 'One- to three-digit code that routes the call to the country of that phone number.
+                   Defaults to the NANP country code.'
           property :extension,
                    type: :string,
                    example: '101',
@@ -107,7 +111,7 @@ module Swagger
                    type: :boolean,
                    example: false,
                    default: false,
-                   description: 'Indicates phone number has a non-North American country code.'
+                   description: 'Indicates phone number has a non-NANP country code.'
           property :is_textable,
                    type: :boolean,
                    example: true,
@@ -126,8 +130,8 @@ module Swagger
                    minLength: 1,
                    maxLength: 14,
                    pattern: ::VAProfile::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
-                   description: 'Number that follows an area code for a North American phone number, or a country code
-                   for a non-North American phone number.'
+                   description: 'Number that follows an area code for a NANP phone number, or a country code
+                   for a non-NANP phone number.'
           property :phone_type,
                    type: :string,
                    enum: ::VAProfile::Models::Telephone::PHONE_TYPES,
