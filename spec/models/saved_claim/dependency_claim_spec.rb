@@ -3,13 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyClaim do
-  # Performance tweak: create records once for the whole spec
-  before(:all) do
-    @dependency_claim = create(:dependency_claim)
-    @dependency_claim_v2 = create(:dependency_claim_v2)
-  end
+  subject(:saved_claim) { create(:dependency_claim) }
 
-  subject(:saved_claim) { @dependency_claim }
+  # Performance tweak
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
+  end
 
   # Performance tweak
   # This can be removed. Benchmarked all tests to see which tests are slowest.
@@ -21,7 +23,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
   end
 
-  let(:subject_v2) { @dependency_claim_v2 }
+  let(:subject_v2) { create(:dependency_claim_v2) }
 
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
@@ -64,14 +66,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when :va_dependents_v2 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-
-        # We aren't testing the PDF generation here so we can fake it
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:to_pdf)
-          .and_return(file_path)
-
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:process_pdf) do |_, path, *_|
-          path # just return the fake pdf path
-        end
+        allow(subject).to receive(:process_pdf).and_return(file_path)
       end
 
       it 'uploads to vbms' do
@@ -89,14 +84,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'uploader v2' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-
-        # We aren't testing the PDF generation here so we can fake it
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:to_pdf)
-          .and_return(file_path_v2)
-
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:process_pdf) do |_, path, *_|
-          path # just return the fake pdf path
-        end
+        allow(subject_v2).to receive(:process_pdf).and_return(file_path_v2)
       end
 
       it 'when :va_dependents_v2 is enabled' do
@@ -275,8 +263,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow_any_instance_of(SavedClaim::DependencyClaim)
-        .to receive(:pdf_overflow_tracking)
     end
 
     it 'has a form id of 686C-674-V2' do
