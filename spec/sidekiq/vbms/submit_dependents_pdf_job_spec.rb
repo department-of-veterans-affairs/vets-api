@@ -3,23 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe VBMS::SubmitDependentsPdfJob do
-  before(:all) do
-    @shared_claim = create(:dependency_claim)
-    @invalid_claim = create(:dependency_claim_no_vet_information)
-  end
-
   # Performance tweak
-  # This can be removed. Benchmarked all tests to see which tests are slowest.
-  around do |example|
-    puts "\nStarting: #{example.full_description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
   end
 
-  let(:invalid_dependency_claim) { @invalid_claim }
-  let(:dependency_claim) { @shared_claim }
+  let(:invalid_dependency_claim) { create(:dependency_claim_no_vet_information) }
+  let(:dependency_claim) { create(:dependency_claim) }
   let(:vet_info) do
     {
       'veteran_information' => {
