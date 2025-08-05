@@ -36,22 +36,22 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
     end
   end
 
-  context 'sets and retrieves x_folder_uri' do
+  context 'sets and retrieves folder_identifier' do
     it 'accepts separate arguments' do
       subject = described_class.new
 
       args = %w[VETERAN FILENUMBER 987267855]
-      x_folder_uri = subject.x_folder_uri_set(*args)
-      expect(x_folder_uri).to eq subject.x_folder_uri
-      expect(x_folder_uri).to eq args.join(':')
+      folder_identifier = subject.folder_identifier_set(*args)
+      expect(folder_identifier).to eq subject.folder_identifier
+      expect(folder_identifier).to eq args.join(':')
     end
 
     it 'directly assigns the value' do
       subject = described_class.new
 
       fid = 'VETERAN:FILENUMBER:987267855'
-      subject.x_folder_uri = fid
-      expect(fid).to eq subject.x_folder_uri
+      subject.folder_identifier = fid
+      expect(fid).to eq subject.folder_identifier
     end
   end
 end
