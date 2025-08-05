@@ -111,8 +111,6 @@ module BGS
                            'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", { error: e })
       submit_to_central_service(claim:)
-
-      raise e
     end
 
     def submit_claim_via_claims_evidence(claim)
