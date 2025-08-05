@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: "<MHV_MR_HOST>/mhvapi/security/v1/login"
+      uri: "<MHV_MR_HOST>/v1/security/login"
       body:
         encoding: UTF-8
         string: '{"appId":"103","appToken":"<MHV_MR_APP_TOKEN>","subject":"1013868614V792025","userType":"PATIENT","authParams":{"PATIENT_SUBJECT_ID_TYPE":"ICN"}}'
@@ -30,7 +30,7 @@ http_interactions:
           - Access-Control-Request-Headers
           - Access-Control-Request-Method
           - Origin
-        Authorization:
+        X-amzn-remapped-authorization:
           # Basic JWT that only contains { "subjectId": "12345" } for decoding purposes
           - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0SWQiOiIxMjM0NSJ9.WujYD8tr4-lBowBUNgW0oO679pk-7fQlgRHtZSJAyC0
         X-Content-Type-Options:
