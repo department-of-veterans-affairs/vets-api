@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
 require 'mobile/v0/exceptions/custom_errors'
-require 'securerandom'
 
 module Mobile
   module V0
     class TravelPayClaimsController < ApplicationController
       before_action :authenticate
-      before_action :validate_index_params, only: [:index]
       after_action :clear_appointments_cache, only: %i[create]
 
       def index
-        claims_response = fetch_claims_from_service
-        claims = transform_claims_data(claims_response[:data])
+        claims_response = claims_service.get_claims_by_date_range(
+          'start_date' => index_params[:start_date].to_s,
+          'end_date' => index_params[:end_date].to_s,
+          'page_number' => index_params[:page_number]
+        )
+        claims = claims_response[:data].map { |claim_data| normalize_claim_summary(claim_data) }
         status = claims_response[:metadata]['status'] == 206 ? :partial_content : :ok
 
         render json: Mobile::V0::TravelPayClaimSummarySerializer.new(claims, { meta: claims_response[:metadata] }),
@@ -33,12 +35,12 @@ module Mobile
 
         submitted_claim = smoc_service.submit_mileage_expense(appt_params)
 
-        new_claim_hash = normalize_submission_response({
-                                                         'claimId' => submitted_claim['claimId'],
-                                                         'status' => submitted_claim['status'],
-                                                         'createdOn' => DateTime.now.to_fs(:iso8601),
-                                                         'modifiedOn' => DateTime.now.to_fs(:iso8601)
-                                                       })
+        new_claim_hash = normalize_claim_summary({
+                                                           'claimId' => submitted_claim['claimId'],
+                                                           'status' => submitted_claim['status'],
+                                                           'createdOn' => DateTime.now.to_fs(:iso8601),
+                                                           'modifiedOn' => DateTime.now.to_fs(:iso8601)
+                                                         }, use_validated_params: true)
 
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
@@ -46,37 +48,36 @@ module Mobile
 
       private
 
-      def fetch_claims_from_service
-        TravelPay::ClaimsService.new(auth_manager, @current_user).get_claims_by_date_range(
-          'start_date' => @index_params[:start_date].to_s,
-          'end_date' => @index_params[:end_date].to_s,
-          'page_number' => @index_params[:page_number]
+      def claims_service
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
+      end
+
+      def normalize_claim_summary(claim_data, use_validated_params: false)
+        Mobile::V0::TravelPayClaimSummary.new(
+          id: claim_data['id'] || claim_data['claimId'],
+          claimNumber: claim_data['claimNumber'] || '',
+          claimStatus: claim_data['claimStatus'] || claim_data['status']&.underscore&.humanize,
+          appointmentDateTime: claim_data['appointmentDateTime'] || (validated_params[:appointment_date_time] if use_validated_params),
+          facilityId: claim_data['facilityId'] || (validated_params[:facility_station_number] if use_validated_params),
+          facilityName: claim_data['facilityName'] || (validated_params[:facility_name] if use_validated_params),
+          totalCostRequested: claim_data['totalCostRequested'] || 0,
+          reimbursementAmount: claim_data['reimbursementAmount'] || 0,
+          createdOn: claim_data['createdOn'],
+          modifiedOn: claim_data['modifiedOn']
         )
       end
 
-      def transform_claims_data(claims_data)
-        claims_data.map do |claim_data|
-          Mobile::V0::TravelPayClaimSummary.new(
-            id: claim_data['id'],
-            claimNumber: claim_data['claimNumber'],
-            claimStatus: claim_data['claimStatus'],
-            appointmentDateTime: claim_data['appointmentDateTime'],
-            facilityId: claim_data['facilityId'],
-            facilityName: claim_data['facilityName'],
-            totalCostRequested: claim_data['totalCostRequested'],
-            reimbursementAmount: claim_data['reimbursementAmount'],
-            createdOn: claim_data['createdOn'],
-            modifiedOn: claim_data['modifiedOn']
-          )
+      def index_params
+        get_all_params = {
+          start_date: params['start_date'],
+          end_date: params['end_date']
+        }
+
+        if params['page_number'].present? && !params['page_number'].empty?
+          get_all_params[:page_number] = params['page_number']
         end
-      end
 
-      def validate_index_params
-        contract = Mobile::V0::Contracts::TravelPayClaims.new
-        result = contract.call(params.to_unsafe_h)
-        raise Common::Exceptions::ValidationErrors, result unless result.success?
-
-        @index_params = result.to_h
+        @index_params ||= Mobile::V0::Contracts::TravelPayClaims.new.call(get_all_params)
       end
 
       def validated_params
@@ -93,21 +94,6 @@ module Mobile
         end
 
         @validated_params ||= Mobile::V0::Contracts::TravelPaySmoc.new.call(smoc_params)
-      end
-
-      def normalize_submission_response(submitted_claim)
-        Mobile::V0::TravelPayClaimSummary.new({
-                                                id: submitted_claim['claimId'],
-                                                claimNumber: '',
-                                                claimStatus: submitted_claim['status'].underscore.humanize,
-                                                appointmentDateTime: validated_params[:appointment_date_time],
-                                                facilityId: validated_params[:facility_station_number],
-                                                facilityName: validated_params[:facility_name],
-                                                totalCostRequested: 0,
-                                                reimbursementAmount: 0,
-                                                createdOn: submitted_claim['createdOn'],
-                                                modifiedOn: submitted_claim['modifiedOn']
-                                              })
       end
 
       def auth_manager

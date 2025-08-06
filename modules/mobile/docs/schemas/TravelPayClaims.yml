@@ -30,5 +30,5 @@ properties:
     description: Array of travel pay claims. Will be empty if no claims are found within the specified date range.
     minItems: 0
     items:
-      $ref: 'TravelPayClaimSummary.yml'
+      $ref: './TravelPayClaimSummary.yml'
     example: []

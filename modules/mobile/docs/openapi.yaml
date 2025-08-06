@@ -3993,7 +3993,7 @@ paths:
             application/json:
               schema:
                 $ref: ./schemas/TravelPayClaims.yml
-          description: Partial Content - More claims exist beyond the current page
+          description: Partial Content
         '400':
           $ref: '#/components/responses/400'
         '401':

@@ -24,7 +24,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('travel_pay_claims_response')
-          
+
           json = response.parsed_body
           expect(json['meta']['status']).to eq(200)
           expect(json['meta']['pageNumber']).to eq(1)
@@ -46,7 +46,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           expect(response).to have_http_status(:partial_content)
           expect(response.body).to match_json_schema('travel_pay_claims_response')
-          
+
           json = response.parsed_body
 
           # Verify 206 status indicates partial content
@@ -65,20 +65,26 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
     end
 
     context 'failure paths' do
-      it 'returns unprocessable entity when start_date is missing' do
+      it 'returns validation error when start_date is missing' do
         params = { 'end_date' => '2024-03-31T23:59:59' }
 
         get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        json = response.parsed_body
+        expect(json['errors'].first['title']).to eq('Validation Error')
+        expect(json['errors'].first['detail']).to include('start_date must be filled')
+        expect(json['errors'].first['status']).to eq('422')
       end
 
-      it 'returns unprocessable entity when end_date is missing' do
+      it 'returns validation error when end_date is missing' do
         params = { 'start_date' => '2024-01-01T00:00:00' }
 
         get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        json = response.parsed_body
+        expect(json['errors'].first['title']).to eq('Validation Error')
+        expect(json['errors'].first['detail']).to include('end_date must be filled')
+        expect(json['errors'].first['status']).to eq('422')
       end
 
       it 'returns internal server error when dates have invalid format' do
