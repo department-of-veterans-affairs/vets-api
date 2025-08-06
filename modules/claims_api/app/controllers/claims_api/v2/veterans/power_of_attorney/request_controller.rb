@@ -79,15 +79,21 @@ module ClaimsApi
           claimant_icn = request.claimant_icn
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
-          # Will either get null when a decision is declined or
-          # a poa.id for record saved in our DB when decision is accepted
-          decision_response = process_poa_decision(decision:, proc_id:, representative_id:, poa_code: request.poa_code,
-                                                   metadata: request.metadata, veteran: veteran_data,
-                                                   claimant: claimant_data)
-          # updates the request with the decision in BGS (BEP)
-          manage_representative_update_poa_request(proc_id:, secondary_status: decision,
-                                                   declined_reason: form_attributes['declinedReason'],
-                                                   service: manage_representative_service)
+
+          # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            # Will either get null when a decision is declined or
+            # a poa.id for record saved in our DB when decision is accepted
+            decision_response = process_poa_decision(
+              decision:, proc_id:, representative_id:, poa_code: request.poa_code, metadata: request.metadata,
+              veteran: veteran_data, claimant: claimant_data
+            )
+            # updates the request with the decision in BGS (BEP)
+            manage_representative_update_poa_request(
+              proc_id:, secondary_status: decision, declined_reason: form_attributes['declinedReason'],
+              service: manage_representative_service
+            )
+          end
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
           # Two different responses needed, if declined no location URL is required
@@ -139,6 +145,10 @@ module ClaimsApi
                                                                     metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
+          # The only way to get an ID value returned in Sandbox since we do not save the requests
+          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            form_attributes['id'] = 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb'
+          end
 
           response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
                                                                                             view: :create,
@@ -156,9 +166,9 @@ module ClaimsApi
         private
 
         def validate_decide_representative_params!(poa_code, representative_id)
-          validate_accredited_representative(poa_code)
-
-          unless @representative.representative_id == representative_id
+          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
+                                                                      poa_code, representative_id.to_s)
+          unless representative
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
               detail: "The accredited representative with registration number #{representative_id} does not match " \
                       "poa code: #{poa_code}."
