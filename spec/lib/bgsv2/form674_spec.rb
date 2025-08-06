@@ -13,6 +13,8 @@ RSpec.describe BGSV2::Form674 do
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
+    # performance tweak
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
   end
 
   context 'The system is able to submit 674s automatically' do
