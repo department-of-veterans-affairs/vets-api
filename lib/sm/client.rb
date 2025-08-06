@@ -541,13 +541,15 @@ module SM
     #
     def get_all_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-all-triage-teams"
-      get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
+      data = get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
         path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
         AllTriageTeams.set_cached(cache_key, data.records)
         data
       end
+      data.records = data.records.filter { |team| !team.blocked_status }
+      data
     end
     # @!endgroup
 
