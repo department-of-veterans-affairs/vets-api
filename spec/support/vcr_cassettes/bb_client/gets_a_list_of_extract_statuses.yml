@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/extractstatus"
+    uri: "<MHV_MR_HOST>/v1/bluebutton/ess/extractstatus"
     body:
       encoding: US-ASCII
       string: ''
@@ -14,6 +14,8 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -21,16 +23,24 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - Apache-Coyote/1.1
+      Date:
+      - Wed, 26 Mar 2025 14:31:53 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1119'
-      Date:
-      - Tue, 31 Jan 2017 00:01:44 GMT
+      - '1218'
+      X-Amzn-Requestid:
+      - a46b26a1-4d22-4b0d-8a27-1dec1b3ff0e6
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - ICdp9EMGvHMFrZA=
+      X-Amzn-Remapped-Date:
+      - Wed, 26 Mar 2025 14:31:53 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
-      encoding: UTF-8
+      encoding: ASCII-8BIT
       string: '{"facilityExtractStatusList":[{"extractType":"ChemistryHematology","lastUpdated":"Thu,
         19 Jan 2017 14:37:50 EST","status":"OK","createdOn":"Thu, 19 Jan 2017 14:37:47
         EST","stationNumber":""},{"extractType":"ImagingStudy","lastUpdated":"Thu,
@@ -44,6 +54,5 @@ http_interactions:
         2017 14:37:52 EST","status":"OK","createdOn":"Thu, 19 Jan 2017 14:37:47 EST","stationNumber":""},{"extractType":"Appointments","lastUpdated":"Thu,
         19 Jan 2017 14:37:48 EST","status":"ERROR","createdOn":"Thu, 19 Jan 2017 14:37:47
         EST","stationNumber":""}]}'
-    http_version: 
-  recorded_at: Tue, 31 Jan 2017 00:01:44 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Wed, 26 Mar 2025 14:31:53 GMT
+recorded_with: VCR 6.3.1
