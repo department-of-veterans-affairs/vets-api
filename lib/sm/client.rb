@@ -548,7 +548,7 @@ module SM
         AllTriageTeams.set_cached(cache_key, data.records)
         data
       end
-      data.records = data.records.filter { |team| !team.blocked_status }
+      data.records = data.records.reject(&:blocked_status)
       data
     end
     # @!endgroup
