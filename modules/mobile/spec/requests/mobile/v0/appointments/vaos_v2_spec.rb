@@ -374,7 +374,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
 
       describe 'healthcare provider names' do
-        let(:erb_template_params) { { start_date: '2022-01-01T00:00:00Z', end_date: '2022-02-01T23:59:59Z' } }
+        let(:erb_template_params) { { start_date: '2022-01-01T19:25:00Z', end_date: '2022-02-01T23:59:59Z' } }
 
         context 'when provider id is formatted correctly' do
           it 'is set as expected' do
@@ -478,7 +478,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
-                               erb: { start_date: '2021-10-24T00:00:00Z', end_date: '2022-02-24T23:59:59Z' },
+                               erb: { start_date: '2022-01-24T00:00:00Z', end_date: '2022-02-24T23:59:59Z' },
                                match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
@@ -750,7 +750,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
 
       describe 'healthcare provider names' do
-        let(:erb_template_params) { { start_date: '2022-01-01T00:00:00Z', end_date: '2022-02-01T23:59:59Z' } }
+        let(:erb_template_params) { { start_date: '2022-01-01T19:25:00Z', end_date: '2022-02-01T23:59:59Z' } }
 
         it 'is set as expected' do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
@@ -821,7 +821,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_vpg',
-                               erb: { start_date: '2021-10-24T00:00:00Z', end_date: '2022-02-24T23:59:59Z' },
+                               erb: { start_date: '2022-01-24T00:00:00Z', end_date: '2022-02-24T23:59:59Z' },
                                match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
