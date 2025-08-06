@@ -28,7 +28,9 @@ RSpec.describe BGS::DependentV2Service do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive(:id).and_return('1234')
+    allow(claim).to receive_messages(id: '1234', use_v2: true, user_account_id: user.user_account_uuid,
+                                     submittable_686?: false, submittable_674?: true, add_veteran_info: true,
+                                     valid?: true, persistent_attachments: [], upload_pdf: true)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
@@ -321,7 +323,7 @@ RSpec.describe BGS::DependentV2Service do
 
   context 'claims evidence enabled' do
     let(:claim) { build(:dependency_claim_v2) }
-    let(:pa) { build(:claim_evidence) }
+    let(:pa) { build(:claim_evidence, id: 23) }
     let(:ssn) { '123456789' }
     let(:folder_identifier) { "VETERAN:SSN:#{ssn}" }
     let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
@@ -349,18 +351,45 @@ RSpec.describe BGS::DependentV2Service do
                                                     "#{stats_key}.submit_pdf.begin")
       expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return uploader
 
-      expect(uploader).to receive(:upload_file).with(pdf_path, '686C-674-V2', claim.id, nil, claim.document_type,
-                                                     claim.created_at)
-      expect(uploader).to receive(:upload_file).with(pdf_path, '21-674-V2', claim.id, nil, '142', claim.created_at)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674-V2',
+                                                                   doctype: claim.document_type)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '21-674-V2',
+                                                                   doctype: '142')
 
       expect(claim).to receive(:persistent_attachments).and_return([pa])
       expect(stamper).to receive(:run).and_return(pdf_path)
-      expect(uploader).to receive(:upload_file).with(pdf_path, '21-674-V2', claim.id, nil, pa.document_type,
-                                                     claim.created_at)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, pa.id, file_path: pdf_path, form_id: '21-674-V2',
+                                                                          doctype: pa.document_type)
 
       expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
+      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+    end
+  end
+
+  describe '#submit_pdf_job' do
+    before do
+      allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
+    end
+
+    it 'calls the VBMS::SubmitDependentsPdfJob with the correct arguments' do
+      service = BGS::DependentV2Service.new(user)
+      expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
+        claim.id, encrypted_vet_info, false,
+        true
+      )
+      # use 'send' to call the private method
+      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+    end
+
+    it 'in case of error it logs the exception and submits to central service' do
+      service = BGS::DependentV2Service.new(user)
+      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError, 'Test error')
+      expect(Rails.logger).to receive(:warn)
+      expect(service).to receive(:submit_to_central_service).with(claim:)
+
+      # use 'send' to call the private method
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
     end
   end
