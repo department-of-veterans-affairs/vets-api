@@ -4,12 +4,14 @@ module VAOS
   module V2
     class SlotsController < VAOS::BaseController
       def index
-        response = systems_service.get_available_slots(location_id:,
-                                                       clinic_id:,
-                                                       clinical_service: nil,
-                                                       provider_id: nil,
-                                                       start_dt:,
-                                                       end_dt:)
+        response = systems_service.get_available_slots({
+                                                         location_id:,
+                                                         clinic_id:,
+                                                         clinical_service: nil,
+                                                         provider_id: nil,
+                                                         start_dt:,
+                                                         end_dt:
+                                                       })
         render json: VAOS::V2::SlotsSerializer.new(response)
       end
 
@@ -26,12 +28,14 @@ module VAOS
           }
 
         else
-          response = systems_service.get_available_slots(location_id:,
-                                                         clinic_id: params[:clinic_id],
-                                                         clinical_service: params[:clinical_service],
-                                                         provider_id: params[:provider_id],
-                                                         start_dt:,
-                                                         end_dt:)
+          response = systems_service.get_available_slots({
+                                                           location_id:,
+                                                           clinic_id:,
+                                                           clinical_service: nil,
+                                                           provider_id: nil,
+                                                           start_dt:,
+                                                           end_dt:
+                                                         })
           render json: VAOS::V2::SlotsSerializer.new(response)
         end
       end
@@ -60,15 +64,15 @@ module VAOS
       end
 
       def clinic_id
-        params.require(:clinic_id)
+        params[:clinic_id]
       end
 
       def provider_id
-        params.permit(:provider_id)
+        params[:provider_id]
       end
 
       def clinical_service
-        params.permit(:clinical_service)
+        params[:clinical_service]
       end
 
       def start_dt

@@ -14,12 +14,14 @@ module Mobile
         start_date = params[:start_date] || now.iso8601
         end_date = params[:end_date] || two_months_from_now.iso8601
 
-        response = systems_service.get_available_slots(location_id: facility_id,
-                                                       clinic_id:,
-                                                       clinical_service: nil,
-                                                       provider_id: nil,
-                                                       start_dt: start_date,
-                                                       end_dt: end_date)
+        response = systems_service.get_available_slots({
+                                                         location_id: facility_id,
+                                                         clinic_id:,
+                                                         clinical_service: nil,
+                                                         provider_id: nil,
+                                                         start_dt: start_date,
+                                                         end_dt: end_date
+                                                       })
 
         render json: Mobile::V0::ClinicSlotsSerializer.new(response)
       end
@@ -29,12 +31,14 @@ module Mobile
           start_date = params[:start_date] || now.iso8601
           end_date = params[:end_date] || two_months_from_now.iso8601
 
-          response = systems_service.get_available_slots(location_id: facility_id,
-                                                         clinic_id: params[:clinic_id],
-                                                         clinical_service: params[:clinical_service],
-                                                         provider_id: params[:provider_id],
-                                                         start_dt: start_date,
-                                                         end_dt: end_date)
+          response = systems_service.get_available_slots({
+                                                           location_id: facility_id,
+                                                           clinic_id:,
+                                                           clinical_service: nil,
+                                                           provider_id: nil,
+                                                           start_dt: start_date,
+                                                           end_dt: end_date
+                                                         })
 
           render json: Mobile::V0::ClinicSlotsSerializer.new(response)
         else
@@ -68,11 +72,11 @@ module Mobile
       end
 
       def provider_id
-        params.permit(:provider_id)
+        params[:provider_id]
       end
 
       def clinical_service
-        params.permit(:clinical_service)
+        params[:clinical_service]
       end
 
       def now
