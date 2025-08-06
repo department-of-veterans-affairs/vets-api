@@ -34,8 +34,13 @@ module DebtsApi
 
         success_result(submission)
       rescue => e
-        submission&.register_failure(e.message)
-        failure_result(e)
+        if Flipper.enabled?(:financial_management_digital_dispute_async)
+          Rails.logger.error("DigitalDisputeSubmissionService error: #{e.message}\n#{e.backtrace.join("\n")}")
+          raise e
+        else
+          submission&.register_failure(e.message)
+          failure_result(e)
+        end
       end
 
       private
@@ -43,7 +48,7 @@ module DebtsApi
       attr_reader :files, :metadata
 
       def send_to_dmc
-        measure_latency("#{DebtsApi::V0::DigitalDispute::STATS_KEY}.vba.latency") do
+        measure_latency("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.vba.latency") do
           perform(:post, 'dispute-debt', build_payload)
         end
       end
