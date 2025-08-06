@@ -79,7 +79,7 @@ module SimpleFormsApi
         isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
       }
 
-      if Rails.env.eql?('development') || Settings.hostname.eql?('staging-api.va.gov')
+      if Rails.env.eql?('development') || Settings.vsp_environment == 'staging'
         payload[:careFacilityAddress][:country] = care_facility_address&.fetch('country', nil)
       end
 
