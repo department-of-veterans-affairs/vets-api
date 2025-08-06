@@ -121,9 +121,9 @@ module PdfFill
       # other properties in the merged document without having to do extra steps.
       target = HexaPDF::Document.open(file_paths.first)
 
-      file_paths.each do |file_path|
+      file_paths.drop(1).each do |file_path|
         pdf = HexaPDF::Document.open(file_path)
-        pdf.pages.map do |page|
+        pdf.pages.each do |page|
           target.pages << target.import(page)
         end
       end
