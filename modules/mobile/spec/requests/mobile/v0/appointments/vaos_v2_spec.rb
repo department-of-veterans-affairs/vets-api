@@ -16,7 +16,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:appointments_parallel_api_calls, instance_of(User)).and_return(parallel_api_calls_enabled)
+      allow(Flipper).to receive(:enabled?).with(:appointments_parallel_api_calls,
+                                                instance_of(User)).and_return(parallel_api_calls_enabled)
     end
   end
 
@@ -58,7 +59,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'when user has access' do
               it 'returns ok' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
                                      match_requests_on: %i[method uri]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -75,7 +77,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             it 'location is populated' do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
+                                   match_requests_on: %i[method uri]) do
                     get '/mobile/v0/appointments', headers: sis_headers, params:
                   end
                 end
@@ -118,7 +121,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri],
                                                                                  allow_playback_repeats: true) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
+                                   match_requests_on: %i[method uri]) do
                     get '/mobile/v0/appointments', headers: sis_headers, params:
                   end
                 end
@@ -148,7 +152,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             it 'vetextId is correct' do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
+                                   match_requests_on: %i[method uri]) do
                     get '/mobile/v0/appointments', headers: sis_headers, params:
                   end
                 end
@@ -227,7 +232,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
             it 'appends claim info when travel_pay_claims flag is passed' do
               # This needs to be enabled for the claims to be appended in the VAOS service
-              allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                        instance_of(User)).and_return(true)
 
               # Verify that the TravelPay::AuthManager is called with the correct client number
               expect(TravelPay::AuthManager).to receive(:new).with('56789', instance_of(User))
@@ -235,7 +241,9 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                   VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_200_for_travel_pay',
-                                   allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+                                   allow_playback_repeats: true,
+                                   match_requests_on: %i[method path],
+                                   tag: :force_utf8) do
                     VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range',
                                      match_requests_on: %i[method path]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -297,14 +305,17 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
             it 'does not append claim info when flag is not passed' do
               # This needs to be enabled for the claims to be appended in the VAOS service
-              allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                        instance_of(User)).and_return(true)
 
               params[:include] = []
 
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                   VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_200_for_travel_pay',
-                                   allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+                                   allow_playback_repeats: true,
+                                   match_requests_on: %i[method path],
+                                   tag: :force_utf8) do
                     VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range',
                                      match_requests_on: %i[method path]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -369,7 +380,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'when provider id is formatted correctly' do
               it 'is set as expected' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
                                      erb: erb_template_params,
                                      match_requests_on: %i[method uri]) do
@@ -391,14 +403,16 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
                 expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
                 expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
-                expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
+                expect(appointment_with_practitioner_list['attributes']['healthcareProvider'])
+                  .to eq('MATTHEW ENGHAUSER')
               end
             end
 
             context 'when provider id is formatted incorrectly' do
               it 'parses out correct id and makes successful provider call' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_bad_id',
                                      erb: erb_template_params,
                                      match_requests_on: %i[method uri]) do
@@ -420,7 +434,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
                 expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
                 expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
-                expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
+                expect(appointment_with_practitioner_list['attributes']['healthcareProvider'])
+                  .to eq('MATTHEW ENGHAUSER')
               end
             end
           end
@@ -429,7 +444,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'when appointment identifier with the system VistADefinedTerms/409_84 is found' do
               it 'finds an appointment ien' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_with_ien_200',
                                      match_requests_on: %i[method uri]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -448,7 +464,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'when appointment identifier with the system VistADefinedTerms/409_84 is not found' do
               it 'sets appointment ien to nil' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
                                      match_requests_on: %i[method uri]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -500,7 +517,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               assert_schema_conform(418)
               expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
                                                                   'body' => 'Custom error body. \\n This explains to ' \
-                                                                            'the user the details of the ongoing issue.',
+                                                                            'the user the details of the ' \
+                                                                            'ongoing issue.',
                                                                   'status' => 418,
                                                                   'source' => 'VAOS',
                                                                   'telephone' => '999-999-9999',
@@ -544,7 +562,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'user has access' do
               it 'returns ok' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_vpg',
                                      match_requests_on: %i[method uri]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -775,7 +794,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'when appointment identifier with the system VistADefinedTerms/409_84 is found' do
               it 'finds an appointment ien' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_with_ien_200_vpg',
                                      match_requests_on: %i[method uri]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -791,7 +811,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             context 'when appointment identifier with the system VistADefinedTerms/409_84 is not found' do
               it 'sets appointment ien to nil' do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200',
+                                   match_requests_on: %i[method uri]) do
                     VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_vpg',
                                      match_requests_on: %i[method uri]) do
                       get '/mobile/v0/appointments', headers: sis_headers, params:
@@ -852,7 +873,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               let!(:user) { sis_user(icn: '1012846043V576341', vha_facility_ids: []) }
 
               it 'returns forbidden error' do
-                VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200',
+                                 match_requests_on: %i[method uri]) do
                   get '/mobile/v0/appointments', headers: sis_headers
                 end
 

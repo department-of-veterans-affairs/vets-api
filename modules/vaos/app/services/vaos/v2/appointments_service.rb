@@ -1151,7 +1151,7 @@ module VAOS
       def merge_all_travel_claims_parallel(start_date, end_date, _appointments, tp_client)
         # Create the service and fetch claims data without appointments
         service = TravelPay::ClaimAssociationService.new(user, tp_client)
-        
+
         # Prepare the date range
         date_range = TravelPay::DateUtils.try_parse_date_range(start_date, end_date)
         date_range = date_range.transform_values { |t| TravelPay::DateUtils.strip_timezone(t).iso8601 }
@@ -1172,12 +1172,10 @@ module VAOS
 
           # Return both the claims data and the service for later merging
           {
-            claims_data: claims_data,
+            claims_data:,
             metadata: service.send(:build_metadata, faraday_response.body),
-            service: service
+            service:
           }
-        else
-          nil
         end
       rescue => e
         Rails.logger.error("Failed to fetch travel claims in parallel: #{e.message}")
