@@ -206,10 +206,10 @@ module ClaimsApi
         # Choose which validation method to use based on Flipper
         def validate_form_526_submission_values_with_flipper!
           if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
-            ClaimsApi::AltDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind(self).call
+            ClaimsApi::AltDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind_call(self)
             ClaimsApi::Logger.log('526', detail: 'Using alternative disability compensation validations')
           else
-            ClaimsApi::DisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind(self).call
+            ClaimsApi::DisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind_call(self)
             ClaimsApi::Logger.log('526', detail: 'Using standard disability compensation validations')
           end
         end
