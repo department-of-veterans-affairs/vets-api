@@ -81,12 +81,10 @@ describe VAOS::V2::SystemsService do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method path query]) do
             expect do
-              subject.get_available_slots(location_id: '983',
-                                          clinic_id: '1081',
-                                          clinical_service: nil,
-                                          provider_id: nil,
-                                          start_dt: '2021-10-01T00:00:00Z',
-                                          end_dt: '2021-12-31T23:59:59Z')
+              subject.get_available_slots({ location_id: '983',
+                                            clinic_id: '1081',
+                                            start_dt: '2021-10-01T00:00:00Z',
+                                            end_dt: '2021-12-31T23:59:59Z' })
             end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_502/)
           end
         end
@@ -95,12 +93,10 @@ describe VAOS::V2::SystemsService do
       context 'when the upstream server returns status code 200' do
         it 'returns a list of available slots' do
           VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method path query]) do
-            available_slots = subject.get_available_slots(location_id: '983',
-                                                          clinic_id: '1081',
-                                                          clinical_service: nil,
-                                                          provider_id: nil,
-                                                          start_dt: '2021-10-26T00:00:00Z',
-                                                          end_dt: '2021-12-30T23:59:59Z')
+            available_slots = subject.get_available_slots({ location_id: '983',
+                                                            clinic_id: '1081',
+                                                            start_dt: '2021-10-26T00:00:00Z',
+                                                            end_dt: '2021-12-30T23:59:59Z' })
             expect(available_slots.size).to eq(730)
             expect(available_slots[400].id).to eq('3230323131323031323130303A323032313132303132313330')
             expect(available_slots[400].start).to eq('2021-12-01T21:00:00Z')
