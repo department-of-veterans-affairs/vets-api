@@ -5,6 +5,10 @@ require 'dependents/notification_callback'
 require 'dependents/notification_email'
 
 RSpec.describe Dependents::NotificationEmail do
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:saved_claim) { create(:dependency_claim) }
 
   describe '#deliver' do
