@@ -11,11 +11,11 @@ RSpec.describe ClaimsEvidenceApi::Validation do
     end
 
     it 'raises an InvalidFolderType' do
-      expect { subject.validate_folder_identifier('invalid') }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidFolderType
+      expect { subject.validate_folder_identifier('invalid') }.to raise_error ClaimsEvidenceApi::FolderIdentifier::InvalidFolderType
     end
 
     it 'raises an InvalidIdentifierType' do
-      expect { subject.validate_folder_identifier('VETERAN:invalid:ID') }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidIdentifierType
+      expect { subject.validate_folder_identifier('VETERAN:invalid:ID') }.to raise_error ClaimsEvidenceApi::FolderIdentifier::InvalidIdentifierType
     end
   end
 
