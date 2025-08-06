@@ -4,8 +4,18 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
+# This whole suite is approx 57 tests as of this review. It looks deceptively smaller
+# than it is.
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
+
+  around do |example|
+    puts "\nStarting: #{example.full_description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  end
 
   describe '#combine_extras' do
     subject do
@@ -46,6 +56,36 @@ describe PdfFill::Filler, type: :model do
 
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
+    before do
+      # We are not testing the pdftk wrapper here, we are testing the fill_form method
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields) do |_instance, _path|
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper)
+        .to receive(:fill_form) do |_instance, _template, output, _hash, **_opts|
+          FileUtils.mkdir_p(File.dirname(output))
+          File.write(output, "%PDF-1.4\n% Fake PDF\n") # minimal valid PDF header
+          output
+        end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_instance, _a, _b, output|
+        File.write(output, "%PDF-1.4\n% Fake Combined PDF\n")
+        output
+      end
+
+      allow(PdfFill::Filler).to receive(:stamp_form) do |file_path, _submit_date|
+        stamped = file_path.sub('.pdf', '_stamped.pdf')
+        File.write(stamped, "%PDF-1.4\n% Fake Stamped PDF\n")
+        stamped
+      end
+
+      allow(File).to receive(:delete) # prevent accidental file deletion in tests
+    end
+
     [
       {
         form_id: '686C-674',
@@ -60,6 +100,7 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  # there are approx. 46 tests here which is deceptive.
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
        22-10216 22-10215 22-10215a].each do |form_id|
