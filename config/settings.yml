@@ -105,33 +105,26 @@ check_in:
     retry_attempt_expiry: 604800
   chip_api_v2:
     base_path: <%= ENV['check_in__chip_api_v2__base_path'] %>
-    base_path_v2: <%= ENV['check_in__vaec_cie__chip__base_path'] %>
+    host: <%= ENV['check_in__chip_api_v2__host'] %>
     mock: <%= ENV['check_in__chip_api_v2__mock'] %>
     redis_session_prefix: check_in_chip_v2
     service_name: CHIP-API
     timeout: 30
     tmp_api_id: <%= ENV['check_in__chip_api_v2__tmp_api_id'] %>
-    tmp_api_id_v2: <%= ENV['check_in__vaec_cie__chip__api_id'] %>
     tmp_api_user: <%= ENV['check_in__chip_api_v2__tmp_api_user'] %>
-    tmp_api_user_v2: <%= ENV['check_in__vaec_cie__chip__password'] %>
     tmp_api_username: <%= ENV['check_in__chip_api_v2__tmp_api_username'] %>
-    tmp_api_username_v2: <%= ENV['check_in__vaec_cie__chip__username'] %>
     url: <%= ENV['check_in__chip_api_v2__url'] %>
-    url_v2: <%= ENV['check_in__vaec_cie__chip__url'] %>
   lorota_v2:
     api_id: <%= ENV['check_in__lorota_v2__api_id'] %>
-    api_id_v2: <%= ENV['check_in__vaec_cie__lorota__api_id'] %>
     api_key: <%= ENV['check_in__lorota_v2__api_key'] %>
-    api_key_v2: <%= ENV['check_in__vaec_cie__lorota__api_key'] %>
     base_path: <%= ENV['check_in__lorota_v2__base_path'] %>
-    base_path_v2: <%= ENV['check_in__vaec_cie__lorota__base_path'] %>
+    host: <%= ENV['check_in__lorota_v2__host'] %>
     key_path: "/srv/vets-api/secret/check-in.lorota.v1.key"
     mock: <%= ENV['check_in__lorota_v2__mock'] %>
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
     service_name: LoROTA-API
     url: <%= ENV['check_in__lorota_v2__url'] %>
-    url_v2: <%= ENV['check_in__vaec_cie__lorota__url'] %>
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
@@ -801,7 +794,6 @@ maintenance:
     coe: <%= ENV['maintenance__services__coe'] %>
     community_care_ds: <%= ENV['maintenance__services__community_care_ds'] %>
     decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
-    disability_compensation_form: <%= ENV['maintenance__services__disability_compensation_form'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
@@ -1700,6 +1692,7 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
+  api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
   auth_endpoint: <%= ENV['veteran_readiness_and_employment__auth_endpoint'] %>
   base_url: <%= ENV['veteran_readiness_and_employment__base_url'] %>
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
@@ -1765,6 +1758,16 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  email:
+    error:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
+    confirmation_lighthouse:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
+    confirmation_vbms:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

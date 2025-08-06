@@ -142,6 +142,9 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
+  caregiver_use_rails_logging_over_sentry:
+    actor_type: user
+    description: Use Rails for logging instead of Sentry
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -326,10 +329,6 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
-  check_in_experience_use_vaec_cie_endpoints:
-    actor_type: user
-    description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
-    enable_in_development: false
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
@@ -1924,6 +1923,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_use_new_vfs_notification_library:
+    actor_type: user
+    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
