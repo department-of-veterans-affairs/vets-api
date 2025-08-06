@@ -22,8 +22,8 @@ module VAOS
           response = systems_service.get_available_slots({
                                                            location_id:,
                                                            clinic_id:,
-                                                           clinical_service: nil,
-                                                           provider_id: nil,
+                                                           clinical_service:,
+                                                           provider_id:,
                                                            start_dt:,
                                                            end_dt:
                                                          })
