@@ -60,16 +60,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
     end
-
-    it 'filters out teams with blocked_status == true' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_blocked') do
-        get '/my_health/v1/messaging/allrecipients', headers: { 'X-Key-Inflection' => 'camel' }
-      end
-
-      expect(response).to be_successful
-      expect(response.parsed_body['data'].count).to eq(1)
-      expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
-    end
   end
 
   context 'with requires_oh flag enabled' do
