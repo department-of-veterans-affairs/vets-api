@@ -179,7 +179,8 @@
           "state": "MD",
           "country": "USA",
           "postalCode": "21200-1111"
-        }
+        },
+        "conditionsTreated": "PTSD (post traumatic stress disorder)"
       },
       {
         "providerFacilityName": "provider 2",
@@ -201,7 +202,8 @@
           "state": "MD",
           "country": "USA",
           "postalCode": "21200-1111"
-        }
+        },
+        "conditionsTreated": "Coding Trauma"
       },
       {
         "providerFacilityName": "provider 3",
@@ -223,7 +225,8 @@
           "state": "MD",
           "country": "USA",
           "postalCode": "21200-1111"
-        }
+        },
+        "conditionsTreated": "PTSD (post traumatic stress disorder), Coding Trauma, Nasal Trauma"
       }
     ],
     "vaFileNumber": "796068949",
@@ -244,7 +247,8 @@
     },
     "email": "test@email.com",
     "veteranPhone": "2024561111",
-    "veteranServiceNumber": "23784678"
+    "veteranServiceNumber": "23784678",
+    "signatureDate": "2025-08-01 11:17:56"
   },
   "form0781": null,
   "form8940": null
