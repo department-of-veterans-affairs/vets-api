@@ -445,9 +445,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow(File).to receive(:exist?).and_call_original
           allow(File).to receive(:exist?).with(dummy_pdf_path).and_return(true)
 
-          # Mock PromptManager since lookup path is not in the test environment
-          allow(IvcChampva::PromptManager).to receive(:get_prompt).and_return('Analyze this document.')
-
           data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
 
           post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
