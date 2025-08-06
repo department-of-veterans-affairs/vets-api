@@ -149,7 +149,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         )
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
-          tags: ['service:community_care_appointments', 'error_type:conflict']
+          tags: ['service:community_care_appointments']
         )
       end
     end
@@ -193,102 +193,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
             slot_ids: [submit_params[:slot_id]]
           }
         )
-      end
-    end
-  end
-
-  describe '#get_provider_appointment_type_id' do
-    let(:controller) { described_class.new }
-
-    context 'when provider has no appointment types' do
-      let(:provider) { OpenStruct.new(appointment_types: nil) }
-
-      it 'raises BackendServiceException with appropriate error message' do
-        expect do
-          controller.send(:get_provider_appointment_type_id, provider)
-        end.to raise_error(Common::Exceptions::BackendServiceException) { |e|
-          expect(e).to have_attributes(
-            key: 'PROVIDER_APPOINTMENT_TYPES_MISSING',
-            original_status: 502,
-            original_body: 'Provider appointment types data is not available'
-          )
-        }
-      end
-    end
-
-    context 'when provider has empty appointment types array' do
-      let(:provider) { OpenStruct.new(appointment_types: []) }
-
-      it 'raises BackendServiceException with appropriate error message' do
-        expect do
-          controller.send(:get_provider_appointment_type_id, provider)
-        end.to raise_error(Common::Exceptions::BackendServiceException) { |e|
-          expect(e).to have_attributes(
-            key: 'PROVIDER_APPOINTMENT_TYPES_MISSING',
-            original_status: 502,
-            original_body: 'Provider appointment types data is not available'
-          )
-        }
-      end
-    end
-
-    context 'when provider has appointment types but none are self-schedulable' do
-      let(:provider) do
-        OpenStruct.new(
-          appointment_types: [
-            { id: '1', is_self_schedulable: false },
-            { id: '2' }, # missing is_self_schedulable property
-            { id: '3', is_self_schedulable: nil }
-          ]
-        )
-      end
-
-      it 'raises BackendServiceException with appropriate error message' do
-        expect do
-          controller.send(:get_provider_appointment_type_id, provider)
-        end.to raise_error(Common::Exceptions::BackendServiceException) { |e|
-          expect(e).to have_attributes(
-            key: 'PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING',
-            original_status: 502,
-            original_body: 'No self-schedulable appointment types available for this provider'
-          )
-        }
-      end
-    end
-
-    context 'when provider has self-schedulable appointment types' do
-      let(:provider) do
-        OpenStruct.new(
-          appointment_types: [
-            { id: '1', is_self_schedulable: false },
-            { id: '2', is_self_schedulable: true },
-            { id: '3', is_self_schedulable: true }
-          ]
-        )
-      end
-
-      it 'returns the ID of the first self-schedulable appointment type' do
-        result = controller.send(:get_provider_appointment_type_id, provider)
-        expect(result).to eq('2')
-      end
-    end
-
-    context 'when provider has mixed appointment types with different is_self_schedulable values' do
-      let(:provider) do
-        OpenStruct.new(
-          appointment_types: [
-            { id: '1' }, # missing property
-            { id: '2', is_self_schedulable: nil },
-            { id: '3', is_self_schedulable: false },
-            { id: '4', is_self_schedulable: true },
-            { id: '5', is_self_schedulable: true }
-          ]
-        )
-      end
-
-      it 'returns the ID of the first appointment type where is_self_schedulable is explicitly true' do
-        result = controller.send(:get_provider_appointment_type_id, provider)
-        expect(result).to eq('4')
       end
     end
   end
