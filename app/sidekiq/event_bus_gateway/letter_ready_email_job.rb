@@ -71,12 +71,26 @@ module EventBusGateway
       
       tracker.event(event_params)
       
+      # Track in Datadog for operational monitoring
+      StatsD.increment('event_bus_gateway.decision_letter_email.sent', tags: [
+        "ep_code:#{ep_code}",
+        "service:event-bus-gateway",
+        "email_type:decision_letter"
+      ])
+      
       ::Rails.logger.info('Decision Letter Email Tracked', {
         ep_code: ep_code,
         participant_id: participant_id,
         ga_tracking_id: Settings.google_analytics.tracking_id
       })
     rescue => e
+      # Track failures in Datadog
+      StatsD.increment('event_bus_gateway.decision_letter_email.tracking_failed', tags: [
+        "ep_code:#{ep_code}",
+        "service:event-bus-gateway",
+        "error_type:#{e.class.name}"
+      ])
+      
       ::Rails.logger.error('Failed to track decision letter email', {
         ep_code: ep_code,
         participant_id: participant_id,
