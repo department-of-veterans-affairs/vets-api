@@ -67,7 +67,7 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
   # Needed for FE to differentiate between 200 response and error
-  def is_in_receipt_of_pension
+  def is_in_receipt_of_pension # rubocop:disable Naming/PredicatePrefix
     case awards_pension[:is_in_receipt_of_pension]
     when true
       1
@@ -78,10 +78,10 @@ class FormProfiles::VA686c674v2 < FormProfile
     end
   end
 
-  # @return [Integer] the net worth limit for pension, default is 159240 as of 2025 
+  # @return [Integer] the net worth limit for pension, default is 159240 as of 2025
   # Default will be cached in future enhancement
   def net_worth_limit
-    awards_pension[:net_worth_limit] || 159240
+    awards_pension[:net_worth_limit] || 159240 # rubocop:disable Style/NumericLiterals
   end
 
   # @return [Hash] the awards pension data from BID service or an empty hash if the request fails

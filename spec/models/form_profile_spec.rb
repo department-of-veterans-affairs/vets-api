@@ -186,7 +186,7 @@ RSpec.describe FormProfile, type: :model do
         'veteranSsnLastFour' => '1863',
         'veteranVaFileNumberLastFour' => '1863',
         'isInReceiptOfPension' => -1,
-        'netWorthLimit' => 159240
+        'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
       },
       'veteranInformation' => {
         'fullName' => {
@@ -1136,7 +1136,7 @@ RSpec.describe FormProfile, type: :model do
 
         expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
-      
+
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
@@ -1609,7 +1609,7 @@ RSpec.describe FormProfile, type: :model do
           context 'with a 686c-674 v1 form' do
             it 'omits address fields in 686c-674 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                              allow_playback_repeats: true) do
+                               allow_playback_repeats: true) do
                 expect_prefilled('686C-674')
               end
             end
@@ -1618,7 +1618,7 @@ RSpec.describe FormProfile, type: :model do
           context 'with a 686c-674-v2 form' do
             it 'omits address fields in 686c-674-V2 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                              allow_playback_repeats: true) do
+                               allow_playback_repeats: true) do
                 expect_prefilled('686C-674-V2')
               end
             end
@@ -1631,25 +1631,25 @@ RSpec.describe FormProfile, type: :model do
 
               it 'prefills when user is in receipt of pension' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                              allow_playback_repeats: true) do
+                                 allow_playback_repeats: true) do
                   VCR.use_cassette('bid/awards/get_awards_pension') do
                     prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
-                    
+
                     expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
-                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094)
+                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
                   end
                 end
               end
 
               it 'prefills when bid awards service returns an error' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                allow_playback_repeats: true) do
+                                 allow_playback_repeats: true) do
                   allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(StandardError)
-                  
+
                   prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
-                  
+
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240)
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
                 end
               end
             end
