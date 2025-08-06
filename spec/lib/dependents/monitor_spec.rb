@@ -12,14 +12,6 @@ RSpec.describe Dependents::Monitor do
       }
   end
 
-  around do |example|
-    puts "\nStarting: #{example.full_description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
-  end
-
   let(:claim) { create(:dependency_claim) }
   let(:claim_v2) { create(:dependency_claim_v2) }
   let(:monitor_v1) { described_class.new(claim.id) }
