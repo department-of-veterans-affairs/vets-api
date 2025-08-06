@@ -11,9 +11,9 @@ RSpec.describe VRE::NotificationEmail do
   describe '#deliver' do
     it 'successfully sends an email' do
       expect(VRE::NotificationEmail).to receive(:new).with(saved_claim.id).and_return(notification)
-      expect(notification).to receive(:deliver).with(:action_needed)
+      expect(notification).to receive(:deliver).with(:error)
 
-      notification_email.deliver(:action_needed)
+      notification_email.deliver(:error)
     end
   end
 end
