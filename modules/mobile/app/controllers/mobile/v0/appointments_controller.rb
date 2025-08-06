@@ -51,7 +51,7 @@ module Mobile
       def validated_params
         @validated_params ||= begin
           use_cache = params[:useCache] || true
-          start_date = params[:startDate] || 3.months.ago.beginning_of_day.to_datetime
+          start_date = params[:startDate] || DateTime.now
           end_date = params[:endDate] || 1.month.from_now.end_of_day.to_datetime
           reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
