@@ -24,6 +24,7 @@ module AccreditedRepresentativePortal
 
         saved_claim = service.perform(
           type: form_class,
+          user_account_id: current_user.icn,
           metadata:, attachment_guids:,
           claimant_representative:
         )

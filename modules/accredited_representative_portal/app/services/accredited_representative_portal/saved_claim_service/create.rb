@@ -19,7 +19,7 @@ module AccreditedRepresentativePortal
 
       class << self
         def perform(
-          type:, metadata:, attachment_guids:,
+          type:, metadata:, user_account_id:, attachment_guids:,
           claimant_representative:
         )
           type.new.tap do |saved_claim|
@@ -28,6 +28,7 @@ module AccreditedRepresentativePortal
             form_id = saved_claim.class::PROPER_FORM_ID
             organize_attachments!(form_id, attachment_guids).tap do |attachments|
               saved_claim.form_attachment = attachments[:form]
+              saved_claim.user_account_id = user_account_id
 
               attachments[:documentations].each do |attachment|
                 saved_claim.persistent_attachments << attachment

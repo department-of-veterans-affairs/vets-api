@@ -1401,6 +1401,10 @@ vanotify:
       email:
         error:
           template_id: arp_error_email_template_id
+        received:
+          template_id: arp_received_email_template_id
+        confirmation:
+          template_id: arp_confirmation_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:
