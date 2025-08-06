@@ -24,7 +24,9 @@ module V0
         # since the email content is the same for all decision letters thus far
         EventBusGateway::LetterReadyEmailJob.perform_async(
           participant_id,
-          send_email_params[:template_id]
+          send_email_params[:template_id],
+          # include ep_code for google analytics
+          send_email_params[:ep_code]
         )
       end
       head :ok
@@ -49,12 +51,9 @@ module V0
         return false
       end
 
-      # Normalize ep_code to handle both "EP180" and "180" formats
-      normalized_ep_code = ep_code.start_with?('EP') ? ep_code : "EP#{ep_code}"
-
       # Check if this EP code requires a feature flag
-      if FEATURE_FLAGGED_EP_CODES.key?(normalized_ep_code)
-        Flipper.enabled?(FEATURE_FLAGGED_EP_CODES[normalized_ep_code])
+      if FEATURE_FLAGGED_EP_CODES.key?(ep_code)
+        Flipper.enabled?(FEATURE_FLAGGED_EP_CODES[ep_code])
       else
         # All other EP codes (EP010, EP110, EP020, etc.) are always enabled
         true
