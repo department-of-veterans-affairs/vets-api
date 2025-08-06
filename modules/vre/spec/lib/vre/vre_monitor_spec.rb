@@ -199,45 +199,45 @@ RSpec.describe VRE::VREMonitor do
       log_level = :info
 
       # Set up payload and message based on event type
-      payload, msg = case monitor_event
-                     when 'begun'
-                       log_message += ' submission to LH begun'
-                       [base_payload.except(:attachments, :file), nil]
-                     when 'attempt'
-                       log_message += ' submission to LH attempted'
-                       [base_payload, nil]
-                     when 'success'
-                       log_message += ' submission to LH succeeded'
-                       [base_payload.except(:attachments, :file), nil]
-                     when 'failure'
-                       log_level = :warn
-                       log_message += ' submission to LH failed, retrying'
-                       [base_payload.except(:attachments, :file).merge(message: monitor_error.message), nil]
-                     when 'exhausted'
-                       log_level = :error
-                       log_message += ' submission to LH exhausted!'
-                       msg = { 'args' => [claim.id, current_user.user_account_uuid] }
-                       payload = if has_confirmation_number
-                                   {
-                                     confirmation_number: claim.confirmation_number,
-                                     user_account_uuid: current_user.user_account_uuid,
-                                     form_id: claim.form_id,
-                                     claim_id: claim.id,
-                                     message: msg,
-                                     tags: monitor.tags
-                                   }
-                                 else
-                                   {
-                                     confirmation_number: nil,
-                                     user_account_uuid: current_user.user_account_uuid,
-                                     form_id: nil,
-                                     claim_id: claim.id,
-                                     message: msg,
-                                     tags: monitor.tags
-                                   }
-                                 end
-                       [payload, msg]
-                     end
+      payload, = case monitor_event
+                 when 'begun'
+                   log_message += ' submission to LH begun'
+                   [base_payload.except(:attachments, :file), nil]
+                 when 'attempt'
+                   log_message += ' submission to LH attempted'
+                   [base_payload, nil]
+                 when 'success'
+                   log_message += ' submission to LH succeeded'
+                   [base_payload.except(:attachments, :file), nil]
+                 when 'failure'
+                   log_level = :warn
+                   log_message += ' submission to LH failed, retrying'
+                   [base_payload.except(:attachments, :file).merge(message: monitor_error.message), nil]
+                 when 'exhausted'
+                   log_level = :error
+                   log_message += ' submission to LH exhausted!'
+                   msg = { 'args' => [claim.id, current_user.user_account_uuid] }
+                   payload = if has_confirmation_number
+                               {
+                                 confirmation_number: claim.confirmation_number,
+                                 user_account_uuid: current_user.user_account_uuid,
+                                 form_id: claim.form_id,
+                                 claim_id: claim.id,
+                                 message: msg,
+                                 tags: monitor.tags
+                               }
+                             else
+                               {
+                                 confirmation_number: nil,
+                                 user_account_uuid: current_user.user_account_uuid,
+                                 form_id: nil,
+                                 claim_id: claim.id,
+                                 message: msg,
+                                 tags: monitor.tags
+                               }
+                             end
+                   [payload, msg]
+                 end
 
       expect(monitor).to receive(:track_request).with(
         log_level,
