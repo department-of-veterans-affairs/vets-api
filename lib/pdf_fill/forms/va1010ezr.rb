@@ -224,7 +224,8 @@ module PdfFill
         input == true ? value : OFF
       end
 
-      # Maps a boolean value to an integer for radio button selection (1 for true, 2 for false, or 'OFF' if undefined).
+      # Maps a boolean value to an integer for radio button
+      # selection ('YES' for true, 'NO' for false, or 'OFF' if undefined).
       def map_radio_box_value(value)
         case value
         when true
