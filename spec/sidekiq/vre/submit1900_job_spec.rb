@@ -5,7 +5,6 @@ require 'vre/notification_email'
 require 'vre/vre_monitor'
 
 describe VRE::Submit1900Job do
-  let(:job) { described_class.new }
   let(:user_struct) do
     OpenStruct.new(
       edipi: '1007697216',
@@ -50,7 +49,7 @@ describe VRE::Submit1900Job do
             .with(:vre_use_new_vfs_notification_library)
             .and_return(true)
           allow(VRE::VREMonitor).to receive(:new).and_return(vre_monitor)
-          allow(job).to receive(:monitor).and_return(vre_monitor)
+          allow(described_class).to receive(:monitor).and_return(vre_monitor)
         end
 
         it 'uses VFS New NotificationEmail when retries are exhausted' do
@@ -65,12 +64,12 @@ describe VRE::Submit1900Job do
             .with(:vre_use_new_vfs_notification_library)
             .and_return(false)
           allow(VRE::Monitor).to receive(:new).and_return(legacy_monitor)
-          allow(job).to receive(:monitor).and_return(legacy_monitor)
+          allow(described_class).to receive(:monitor).and_return(legacy_monitor)
           allow(legacy_monitor).to receive :track_submission_exhaustion
         end
 
         describe 'email exception handling' do
-          it 'when queue is exhausted' do
+          it 'tracks submission exhaustion with email from claim form' do
             VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
               exhaustion_msg['args'] = [claim.id, encrypted_user]
               expect(legacy_monitor).to receive(:track_submission_exhaustion)
@@ -87,7 +86,7 @@ describe VRE::Submit1900Job do
             end
           end
 
-          it 'when queue is exhausted with no email' do
+          it 'tracks submission exhaustion when no email available' do
             user_struct.va_profile_email = nil
             VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
               expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
