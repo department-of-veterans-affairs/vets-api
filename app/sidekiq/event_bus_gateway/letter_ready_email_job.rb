@@ -15,13 +15,16 @@ module EventBusGateway
       'api.va.gov' => 'www.va.gov'
     }.freeze
 
-    def perform(participant_id, template_id)
+    def perform(participant_id, template_id, ep_code = nil)
       notify_client.send_email(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
         personalisation: { host: HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
                            first_name: get_first_name_from_participant_id(participant_id) }
       )
+      
+      # Track decision letter emails in Google Analytics
+      track_decision_letter_email(ep_code, participant_id) if ep_code
     rescue => e
       record_email_send_failure(e)
     end
@@ -47,6 +50,38 @@ module EventBusGateway
       error_message = 'LetterReadyEmailJob errored'
       ::Rails.logger.error(error_message, { message: error.message })
       StatsD.increment('event_bus_gateway', tags: ['service:event-bus-gateway', "function: #{error_message}"])
+    end
+
+    def track_decision_letter_email(ep_code, participant_id)
+      return unless Settings.google_analytics.tracking_id.present?
+      
+      tracker = Staccato.tracker(Settings.google_analytics.tracking_id)
+      
+      event_params = {
+        category: 'email',
+        action: 'sent',
+        label: "decision_letter_#{ep_code.downcase}",
+        non_interactive: true,
+        campaign_name: "decision_letter_#{ep_code.downcase}",
+        campaign_medium: 'email',
+        campaign_source: 'event-bus-gateway',
+        document_title: "Decision Letter - #{ep_code}",
+        document_path: "/v0/event_bus_gateway/send_email"
+      }
+      
+      tracker.event(event_params)
+      
+      ::Rails.logger.info('Decision Letter Email Tracked', {
+        ep_code: ep_code,
+        participant_id: participant_id,
+        ga_tracking_id: Settings.google_analytics.tracking_id
+      })
+    rescue => e
+      ::Rails.logger.error('Failed to track decision letter email', {
+        ep_code: ep_code,
+        participant_id: participant_id,
+        error: e.message
+      })
     end
   end
 end
