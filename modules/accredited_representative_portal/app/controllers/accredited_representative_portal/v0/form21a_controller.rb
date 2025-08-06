@@ -41,6 +41,8 @@ module AccreditedRepresentativePortal
       end
 
       def create_attachment
+        # TODO: Need to figure out why file information is not being pulled through
+        # Currently only see guid
         form_attachment = Form21aAttachment.new
         form_data = params[:form_attachment]
         form_attachment.set_file_data!(
