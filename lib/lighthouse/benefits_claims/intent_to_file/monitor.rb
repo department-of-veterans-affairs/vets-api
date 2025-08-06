@@ -124,35 +124,35 @@ module BenefitsClaims
       # ITF controller metrics and logging
 
       def track_show_itf(form_id, itf_type, user_uuid)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "version:v1"]
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", 'version:v1']
         StatsD.increment("#{STATSD_V1_KEY_PREFIX}.#{itf_type}.show", tags:)
         context = { itf_type:, form_id:, user_uuid: }
         Rails.logger.info('IntentToFilesController ITF show', context)
       end
 
       def track_submit_itf(form_id, itf_type, user_uuid)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "version:v1"]
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", 'version:v1']
         StatsD.increment("#{STATSD_V1_KEY_PREFIX}.#{itf_type}.submit", tags:)
         context = { itf_type:, form_id:, user_uuid: }
         Rails.logger.info('IntentToFilesController ITF submit', context)
       end
 
       def track_missing_user_icn_itf_controller(method, form_id, itf_type, user_uuid, error)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", "version:v1"]
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
         StatsD.increment('v1.user.icn.blank', tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
         Rails.logger.info('IntentToFilesController ITF user.icn is blank', context)
       end
 
       def track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", "version:v1"]
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
         StatsD.increment('v1.user.participant_id.blank', tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
         Rails.logger.info('IntentToFilesController ITF user.participant_id is blank', context)
       end
 
       def track_invalid_itf_type_itf_controller(method, form_id, itf_type, user_uuid, error)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", "version:v1"]
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
         StatsD.increment('v1.itf.type.invalid', tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
         Rails.logger.info('IntentToFilesController ITF invalid ITF type', context)
