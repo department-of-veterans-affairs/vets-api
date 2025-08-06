@@ -20,9 +20,9 @@ module V0
       ::Rails.logger.info("#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.index.#{@api_provider} error",
                           { message_type: 'cst.api_provider.error',
                             error_type: e.class.to_s,
-                            error_backtrace: e.backtrace,
+                            error_backtrace: e.backtrace&.first(3),
                             api_provider: @api_provider })
-      throw e
+      raise e
     end
 
     def show
@@ -36,9 +36,9 @@ module V0
       ::Rails.logger.info("#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.show.#{@api_provider} error",
                           { message_type: 'cst.api_provider.error',
                             error_type: e.class.to_s,
-                            error_backtrace: e.backtrace,
+                            error_backtrace: e.backtrace&.first(3),
                             api_provider: @api_provider })
-      throw e
+      raise e
     end
 
     private
