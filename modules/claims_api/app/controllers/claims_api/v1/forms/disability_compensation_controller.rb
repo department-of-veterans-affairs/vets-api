@@ -13,6 +13,7 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < ClaimsApi::V1::Forms::Base
         include ClaimsApi::DisabilityCompensationValidations
+        include ClaimsApi::AltDisabilityCompensationValidations
         include ClaimsApi::PoaVerification
         include ClaimsApi::DocumentValidations
 
@@ -36,7 +37,7 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          validate_form_526_submission_values_with_flipper!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
@@ -151,7 +152,7 @@ module ClaimsApi
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          validate_form_526_submission_values_with_flipper!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
@@ -201,6 +202,17 @@ module ClaimsApi
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        # Choose which validation method to use based on Flipper
+        def validate_form_526_submission_values_with_flipper!
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            ClaimsApi::AltDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind(self).call
+            ClaimsApi::Logger.log('526', detail: 'Using alternative disability compensation validations')
+          else
+            ClaimsApi::DisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind(self).call
+            ClaimsApi::Logger.log('526', detail: 'Using standard disability compensation validations')
+          end
+        end
 
         def sanitize_account_type
           form_attributes['directDeposit']['accountType'] = form_attributes['directDeposit']['accountType'].upcase
