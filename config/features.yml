@@ -764,10 +764,6 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
-  event_bus_gateway_emails_enabled:
-    actor_type: user
-    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
-    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1462,6 +1458,16 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+  ep120_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
+    enable_in_development: true
+  ep180_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
+    enable_in_development: true
   pension_income_and_assets_overflow_pdf_redesign:
     actor_type: user
     description: >
