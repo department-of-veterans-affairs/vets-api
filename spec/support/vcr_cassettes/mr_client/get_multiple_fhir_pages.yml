@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/AllergyIntolerance?_count=200&clinical-status=active&patient=2952&verification-status:not=entered-in-error"
+      uri: "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance?_count=200&clinical-status=active&patient=2952&verification-status:not=entered-in-error"
       body:
         encoding: US-ASCII
         string: ""
@@ -50,13 +50,13 @@ http_interactions:
             "total": 5,
             "link": [ {
               "relation": "self",
-              "url": "<MHV_MR_HOST>/fhir/AllergyIntolerance?_count=3&patient=7005"
+              "url": "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance?_count=3&patient=7005"
             }, {
               "relation": "next",
-              "url": "<MHV_MR_HOST>/fhir?_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=3&_count=3&_pretty=true&_bundletype=searchset"
+              "url": "<MHV_MR_HOST>/v1/fhir?_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=3&_count=3&_pretty=true&_bundletype=searchset"
             } ],
             "entry": [ {
-              "fullUrl": "<MHV_MR_HOST>/fhir/AllergyIntolerance/10502",
+              "fullUrl": "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance/10502",
               "resource": {
                 "resourceType": "AllergyIntolerance",
                 "id": "10502",
@@ -128,7 +128,7 @@ http_interactions:
                 "mode": "match"
               }
             }, {
-              "fullUrl": "<MHV_MR_HOST>/fhir/AllergyIntolerance/10503",
+              "fullUrl": "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance/10503",
               "resource": {
                 "resourceType": "AllergyIntolerance",
                 "id": "10503",
@@ -216,7 +216,7 @@ http_interactions:
                 "mode": "match"
               }
             }, {
-              "fullUrl": "<MHV_MR_HOST>/fhir/AllergyIntolerance/10504",
+              "fullUrl": "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance/10504",
               "resource": {
                 "resourceType": "AllergyIntolerance",
                 "id": "10504",
@@ -300,7 +300,7 @@ http_interactions:
     recorded_at: Wed, 06 Sep 2023 19:49:55 GMT
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir?_bundletype=searchset&_count=3&_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=3&_pretty=true"
+      uri: "<MHV_MR_HOST>/v1/fhir?_bundletype=searchset&_count=3&_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=3&_pretty=true"
       body:
         encoding: US-ASCII
         string: ""
@@ -332,7 +332,7 @@ http_interactions:
         X-Request-Id:
           - 24263f0171b49173accc31e4ac5dd9a6
         Content-Location:
-          - <MHV_MR_HOST>/fhir/Bundle/fa0a7025-d9bf-49c9-82be-033ec716651e
+          - <MHV_MR_HOST>/v1/fhir/Bundle/fa0a7025-d9bf-49c9-82be-033ec716651e
         Last-Modified:
           - Wed, 06 Sep 2023 19:49:55 GMT
         Strict-Transport-Security:
@@ -350,13 +350,13 @@ http_interactions:
             "total": 5,
             "link": [ {
               "relation": "self",
-              "url": "<MHV_MR_HOST>/fhir?_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=3&_count=3&_pretty=true&_bundletype=searchset"
+              "url": "<MHV_MR_HOST>/v1/fhir?_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=3&_count=3&_pretty=true&_bundletype=searchset"
             }, {
               "relation": "previous",
-              "url": "<MHV_MR_HOST>/fhir?_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=0&_count=3&_pretty=true&_bundletype=searchset"
+              "url": "<MHV_MR_HOST>/v1/fhir?_getpages=fa0a7025-d9bf-49c9-82be-033ec716651e&_getpagesoffset=0&_count=3&_pretty=true&_bundletype=searchset"
             } ],
             "entry": [ {
-              "fullUrl": "<MHV_MR_HOST>/fhir/AllergyIntolerance/10506",
+              "fullUrl": "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance/10506",
               "resource": {
                 "resourceType": "AllergyIntolerance",
                 "id": "10506",
@@ -431,7 +431,7 @@ http_interactions:
                 "mode": "match"
               }
             }, {
-              "fullUrl": "<MHV_MR_HOST>/fhir/AllergyIntolerance/10505",
+              "fullUrl": "<MHV_MR_HOST>/v1/fhir/AllergyIntolerance/10505",
               "resource": {
                 "resourceType": "AllergyIntolerance",
                 "id": "10505",
