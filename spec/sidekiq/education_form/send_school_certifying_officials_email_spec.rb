@@ -114,7 +114,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
         expect(sco_email.body.encoded).to include("Student's name: MARKO")
         expect(sco_email.body.encoded).to include("Student's school email address: user@school.edu")
         expect(sco_email.body.encoded).to include("Student's school ID number: 01010101")
-        expect(sco_email.body.encoded).to include("Student’s VA student identifier number: 003334")
+        expect(sco_email.body.encoded).to include("Student's VA student identifier number: 003334")
 
         # Add a line to download the contents of the email to a file
         File.write('tmp/sco_email_body.html', sco_email.body)
