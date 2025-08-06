@@ -43,11 +43,7 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
-      else
-        "#{Settings.mhv.medical_records.host}/fhir/"
-      end
+      "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
     end
 
     ##
@@ -326,9 +322,7 @@ module MedicalRecords
 
     def default_headers
       headers = { 'Cache-Control' => 'no-cache' }
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        headers['x-api-key'] = Settings.mhv.medical_records.x_api_key
-      end
+      headers['x-api-key'] = Settings.mhv.medical_records.x_api_key
       headers
     end
 

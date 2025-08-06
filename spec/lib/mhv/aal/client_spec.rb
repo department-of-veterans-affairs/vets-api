@@ -23,8 +23,7 @@ RSpec.describe AAL::Client do
   let(:exists) { false }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
-    VCR.use_cassette 'mr_client/bb_internal/apigw_session_auth' do
+    VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
         client = AAL::MRClient.new(session: { user_id: })
         client.authenticate
