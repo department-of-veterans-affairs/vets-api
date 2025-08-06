@@ -117,8 +117,8 @@ module PdfFill
       end
 
       def merge_healthcare_info
-        merge_value('isMedicaidEligible', :map_radio_box_value)
-        @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(@form_data['isEnrolledMedicarePartA'])
+        merge_value('isMedicaidEligible', :map_select_value)
+        @form_data['isEnrolledMedicarePartA'] = map_select_value(@form_data['isEnrolledMedicarePartA'])
       end
 
       def merge_veteran_service_info
@@ -171,10 +171,10 @@ module PdfFill
       end
 
       def merge_tera
-        merge_value('radiationCleanupEfforts', :map_check_box)
-        merge_value('gulfWarService', :map_check_box)
-        merge_value('combatOperationService', :map_check_box)
-        merge_value('exposedToAgentOrange', :map_check_box)
+        merge_value('radiationCleanupEfforts', :map_select_value)
+        merge_value('gulfWarService', :map_select_value)
+        merge_value('combatOperationService', :map_select_value)
+        merge_value('exposedToAgentOrange', :map_select_value)
       end
 
       def merge_single_dependent
@@ -185,13 +185,13 @@ module PdfFill
         dependent['becameDependent'] = EZ_FORMATTER.format_date(dependent['becameDependent'])
 
         dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
-        dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
-        dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
-        dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
+        dependent['attendedSchoolLastYear'] = map_select_value(dependent['attendedSchoolLastYear'])
+        dependent['disabledBefore18'] = map_select_value(dependent['disabledBefore18'])
+        dependent['cohabitedLastYear'] = map_select_value(dependent['cohabitedLastYear'])
       end
 
       def merge_dependents
-        merge_value('provideSupportLastYear', :map_radio_box_value)
+        merge_value('provideSupportLastYear', :map_select_value)
 
         return if @form_data['dependents'].blank?
 
@@ -224,21 +224,9 @@ module PdfFill
         input == true ? value : OFF
       end
 
-      # Maps a boolean value to an integer for radio button
+      # Maps a boolean value to an integer for radion button or checkbox
       # selection ('YES' for true, 'NO' for false, or 'OFF' if undefined).
-      def map_radio_box_value(value)
-        case value
-        when true
-          'YES'
-        when false
-          'NO'
-        else
-          OFF
-        end
-      end
-
-      # Maps a boolean value to a 'YES' or 'NO' for checkbox fields.
-      def map_check_box(value)
+      def map_select_value(value)
         case value
         when true
           'YES'
