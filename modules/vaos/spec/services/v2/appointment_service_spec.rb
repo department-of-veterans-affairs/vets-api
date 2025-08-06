@@ -817,6 +817,39 @@ describe VAOS::V2::AppointmentsService do
             end
           end
         end
+
+        context 'with parallel execution feature toggle' do
+          it 'uses parallel execution when toggle is enabled' do
+            # Enable the parallel execution toggle
+            allow(Flipper).to receive(:enabled?).with(:appointments_parallel_api_calls, user).and_return(true)
+            
+            # Mock to verify parallel methods are called
+            # merge_all_travel_claims_parallel should return truthy value so merge_travel_claims_with_appointments gets called
+            expect(subject).to receive(:merge_all_travel_claims_parallel).and_return({ 'claims' => [] })
+            expect(subject).to receive(:merge_travel_claims_with_appointments).and_return([])
+            
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
+            end
+          end
+
+          it 'uses sequential execution when toggle is disabled' do
+            # Disable the parallel execution toggle
+            allow(Flipper).to receive(:enabled?).with(:appointments_parallel_api_calls, user).and_return(false)
+            
+            # Mock to verify sequential method is called instead
+            expect(subject).to receive(:merge_all_travel_claims).and_return([])
+            expect(subject).not_to receive(:merge_all_travel_claims_parallel)
+            
+            VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                               allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+                subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
+              end
+            end
+          end
+        end
       end
     end
 

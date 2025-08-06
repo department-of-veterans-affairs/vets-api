@@ -5,6 +5,7 @@ require 'common/client/errors'
 require 'map/security_token/errors'
 require 'json'
 require 'memoist'
+require 'concurrent'
 
 module VAOS
   module V2
@@ -55,20 +56,57 @@ module VAOS
                            tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
         cnp_count = 0
 
-        response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
-        return response if response.dig(:meta, :failures)
+        # Check if we need travel pay claims to enable parallel execution
+        needs_travel_pay_claims = Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+        # Feature toggle for parallel API execution - allows gradual rollout and easy rollback if needed
+        parallel_execution_enabled = Flipper.enabled?(:appointments_parallel_api_calls, user)
 
-        appointments = response.body[:data]
+        if needs_travel_pay_claims && parallel_execution_enabled
+          # Execute VAOS appointments and travel pay claims in parallel
+          vaos_future = Concurrent::Future.execute do
+            send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+          end
 
-        appointments.each do |appt|
-          prepare_appointment(appt, include)
-          cnp_count += 1 if cnp?(appt)
-        end
+          travel_pay_future = Concurrent::Future.execute do
+            # Pre-fetch travel claims for the date range
+            merge_all_travel_claims_parallel(start_date, end_date, [], tp_client)
+          end
 
-        appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+          # Wait for VAOS response
+          response = vaos_future.value
+          return response if response.dig(:meta, :failures)
 
-        if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-          appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+          appointments = response.body[:data]
+
+          appointments.each do |appt|
+            prepare_appointment(appt, include)
+            cnp_count += 1 if cnp?(appt)
+          end
+
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
+          # Get the pre-fetched travel claims and merge with appointments
+          travel_claims_result = travel_pay_future.value
+          if travel_claims_result
+            appointments = merge_travel_claims_with_appointments(appointments, travel_claims_result, tp_client)
+          end
+        else
+          # Original sequential flow
+          response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+          return response if response.dig(:meta, :failures)
+
+          appointments = response.body[:data]
+
+          appointments.each do |appt|
+            prepare_appointment(appt, include)
+            cnp_count += 1 if cnp?(appt)
+          end
+
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
+          if needs_travel_pay_claims
+            appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+          end
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
@@ -1107,6 +1145,58 @@ module VAOS
       def merge_one_travel_claim(appointment, tp_client)
         service = TravelPay::ClaimAssociationService.new(user, tp_client)
         service.associate_single_appointment_to_claim({ 'appointment' => appointment })
+      end
+
+      # Fetch travel claims for a date range independently (for parallel execution)
+      def merge_all_travel_claims_parallel(start_date, end_date, _appointments, tp_client)
+        # Create the service and fetch claims data without appointments
+        service = TravelPay::ClaimAssociationService.new(user, tp_client)
+        
+        # Prepare the date range
+        date_range = TravelPay::DateUtils.try_parse_date_range(start_date, end_date)
+        date_range = date_range.transform_values { |t| TravelPay::DateUtils.strip_timezone(t).iso8601 }
+        client_params = {
+          page_size: service.class::DEFAULT_PAGE_SIZE
+        }.merge!(date_range)
+
+        # Fetch travel claims data
+        service.send(:auth_manager).authorize => { veis_token:, btsss_token: }
+        faraday_response = service.send(:client).get_claims_by_date(veis_token, btsss_token, client_params)
+
+        if faraday_response.status == 200
+          raw_claims = faraday_response.body['data'].deep_dup
+          claims_data = raw_claims&.map do |sc|
+            sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+            sc
+          end
+
+          # Return both the claims data and the service for later merging
+          {
+            claims_data: claims_data,
+            metadata: service.send(:build_metadata, faraday_response.body),
+            service: service
+          }
+        else
+          nil
+        end
+      rescue => e
+        Rails.logger.error("Failed to fetch travel claims in parallel: #{e.message}")
+        nil
+      end
+
+      # Merge pre-fetched travel claims with appointments
+      def merge_travel_claims_with_appointments(appointments, travel_claims_result, _tp_client)
+        return appointments unless travel_claims_result && travel_claims_result[:claims_data]
+
+        service = travel_claims_result[:service]
+        claims_data = travel_claims_result[:claims_data]
+        metadata = travel_claims_result[:metadata]
+
+        # Use the private append_claims method to merge the data
+        service.send(:append_claims, appointments, claims_data, metadata)
+      rescue => e
+        Rails.logger.error("Failed to merge travel claims with appointments: #{e.message}")
+        appointments
       end
 
       def eps_appointments_service
