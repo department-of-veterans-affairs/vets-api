@@ -33,23 +33,23 @@ module DebtsApi
 
       def execute_async_job
         user_params = {
-            'uuid' => current_user.uuid,
-            'ssn' => current_user.ssn,
-            'participant_id' => current_user.participant_id
+          'uuid' => current_user.uuid,
+          'ssn' => current_user.ssn,
+          'participant_id' => current_user.participant_id
+        }
+
+        metadata = parse_metadata(submission_params[:metadata])
+
+        # base64 encoding so job can handle files
+        base_64_files = submission_params[:files].map do |file|
+          {
+            'fileName' => file.original_filename,
+            'fileContents' => Base64.strict_encode64(file.read)
           }
-
-          metadata = parse_metadata(submission_params[:metadata])
-
-          # base64 encoding so job can handle files
-          base_64_files = submission_params[:files].map do |file|
-            {
-              'fileName' => file.original_filename,
-              'fileContents' => Base64.strict_encode64(file.read)
-            }
         end
-          DebtsApi::V0::DigitalDisputeJob.perform_async(
-            user_params, metadata, base_64_files
-          )
+        DebtsApi::V0::DigitalDisputeJob.perform_async(
+          user_params, metadata, base_64_files
+        )
       end
 
       def process_submission

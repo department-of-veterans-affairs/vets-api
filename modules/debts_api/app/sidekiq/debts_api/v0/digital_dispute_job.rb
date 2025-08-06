@@ -25,9 +25,16 @@ module DebtsApi
       ActionDispatch::Http::UploadedFile.new(
         filename: file_hash['fileName'],
         type: 'application/pdf',
-        tempfile: tempfile,
-        head: "Content-Disposition: form-data; name=\"file\"; filename=\"#{file_hash['fileName']}\"\r\nContent-Type: application/pdf\r\n"
+        tempfile:,
+        head: file_head(file_hash)
       )
+    end
+
+    def file_head(file_hash)
+      [
+        %(Content-Disposition: form-data; name="file"; filename="#{file_hash['fileName']}"),
+        'Content-Type: application/pdf'
+      ].join("\r\n") << "\r\n"
     end
   end
 end
