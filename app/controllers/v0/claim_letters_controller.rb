@@ -22,7 +22,7 @@ module V0
                           { message_type: 'cst.api_provider.error',
                             error_type: e.class.to_s,
                             error_backtrace: e.backtrace,
-                            api_provider: })
+                            api_provider: @api_provider})
       throw e
     end
 
@@ -39,7 +39,7 @@ module V0
                           { message_type: 'cst.api_provider.error',
                             error_type: e.class.to_s,
                             error_backtrace: e.backtrace,
-                            api_provider: })
+                            api_provider: @api_provider})
       throw e
     end
 
