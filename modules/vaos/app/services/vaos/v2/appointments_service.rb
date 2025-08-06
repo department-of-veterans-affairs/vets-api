@@ -1176,13 +1176,17 @@ module VAOS
           appointments = [] if appointments.blank? || appointments.all?(&:empty?)
 
           # Log removed appointments without start time
-          removed_ids = appointments.select do |appt|
+          removed_appts = appointments.select do |appt|
             appt.dig(:appointment_details, :start).nil?
-          end.pluck(:id)
+          end
+          removed_eps_appts = removed_appts.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+          removed_facilities = extract_facility_identifiers(removed_eps_appts)
           appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
 
-          kept_ids = appointments.pluck(:id)
-          Rails.logger.info("EPS Debug: Kept #{kept_ids}#{removed_ids.any? ? ", removed #{removed_ids}" : ''}")
+          kept_eps_appts = appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+          kept_facilities = extract_facility_identifiers(kept_eps_appts)
+          removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
+          Rails.logger.info("EPS Debug: Kept #{kept_facilities}#{removed_msg}")
 
           appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
         end
