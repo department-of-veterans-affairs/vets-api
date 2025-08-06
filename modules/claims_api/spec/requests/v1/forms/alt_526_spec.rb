@@ -74,7 +74,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               VCR.use_cassette('claims_api/brd/countries') do
                 json_data = JSON.parse data
                 params = json_data
-                params['data']['attributes']['claimDate'] = claim_date_after 
+                params['data']['attributes']['claimDate'] = claim_date_after
                 post path, params: params.to_json, headers: headers.merge(auth_header)
                 expect(response).to have_http_status(:bad_request)
               end

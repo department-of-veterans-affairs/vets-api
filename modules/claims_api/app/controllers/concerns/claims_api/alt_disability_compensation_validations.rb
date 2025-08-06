@@ -5,7 +5,7 @@ require 'brd/brd'
 require 'bgs_service/standard_data_service'
 
 module ClaimsApi
-  module AltDisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
+  module AltDisabilityCompensationValidations
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -20,7 +20,8 @@ module ClaimsApi
       return if form_attributes['claimDate'].blank?
       return if DateTime.parse(form_attributes['claimDate']) <= Time.zone.now
 
-      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
+      exception_msg = 'The request failed validation, because the claim date was in the future.'
+      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', exception_msg)
     end
   end
 end
