@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'ssoe/configuration'
-require 'nokogiri'
 
 module SSOe
   class Service < Common::Client::Base
@@ -58,15 +57,29 @@ module SSOe
     end
 
     def parse_response(response_body)
-      doc = Nokogiri::XML(response_body)
-      doc.remove_namespaces!
+      parsed = Hash.from_xml(response_body)
 
-      icn = extract_icn(doc)
-      return { success: true, icn: } if icn.present?
+      if parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
+        icn = parsed['Envelope']['Body']['getSSOeTraitsByCSPIDResponse']['icn']
+        return { success: true, icn: } if icn.present?
+      end
 
-      fault = extract_fault(doc)
-      return fault if fault
+      if parsed.dig('Envelope', 'Body', 'Fault')
+        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode')
+        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring')
 
+        return {
+          success: false,
+          error: {
+            code: fault_code || 'UnknownError',
+            message: fault_string || 'Unable to parse SOAP response'
+          }
+        }
+      end
+
+      unknown_error
+    rescue => e
+      Rails.logger.error("[SSOe::Service::parse_response] Error parsing response: #{e.class} - #{e.message}")
       unknown_error
     end
 

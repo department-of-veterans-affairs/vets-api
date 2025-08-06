@@ -8,7 +8,7 @@ require 'ssoe/models/address'
 
 # rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe SSOe::Service, type: :service do
-  let(:service) { described_class.new }
+  subject(:service) { described_class.new }
 
   describe '#get_traits' do
     let(:user) do
@@ -35,33 +35,50 @@ RSpec.describe SSOe::Service, type: :service do
     let(:credential_id) { '12345' }
 
     context 'when the response is successful' do
-      let(:raw_response) do
-        double(
-          'raw_response',
-          body: <<~XML
-            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-              <soap:Body>
+      context 'parse_response' do
+        it 'parses ICN response' do
+          body = <<~XML
+            <Envelope>
+              <Body>
                 <getSSOeTraitsByCSPIDResponse>
                   <icn>123498767V234859</icn>
                 </getSSOeTraitsByCSPIDResponse>
-              </soap:Body>
-            </soap:Envelope>
+              </Body>
+            </Envelope>
           XML
-        )
-      end
 
-      before do
-        allow(service).to receive(:perform).and_return(raw_response)
-      end
+          result = service.send(:parse_response, body)
+          expect(result).to eq({ success: true, icn: '123498767V234859' })
+        end
 
-      it 'returns the raw response body' do
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-        expect(response).to eq({ success: true, icn: '123498767V234859' })
+        it 'parses fault response' do
+          body = <<~XML
+            <Envelope>
+              <Body>
+                <Fault>
+                  <faultcode>soap:Client</faultcode>
+                  <faultstring>Error</faultstring>
+                </Fault>
+              </Body>
+            </Envelope>
+          XML
+
+          result = service.send(:parse_response, body)
+          expect(result).to eq({ success: false, error: { code: 'soap:Client', message: 'Error' } })
+        end
+
+        it 'handles unknown response format' do
+          body = '<unexpected>response</unexpected>'
+
+          result = service.send(:parse_response, body)
+          expect(result).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 'UnknownError',
+                                   message: 'Unable to parse SOAP response'
+                                 }
+                               })
+        end
       end
     end
 
@@ -120,41 +137,55 @@ RSpec.describe SSOe::Service, type: :service do
 
     context 'when there is a connection error' do
       before do
-        allow(service).to receive(:perform).and_raise(Faraday::ConnectionFailed, 'Connection error')
+        VCR.configure { |c| c.allow_http_connections_when_no_cassette = true }
+        allow(Faraday).to receive(:post).and_raise(Faraday::ConnectionFailed, 'Connection error')
+      end
+
+      after do
+        VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
       end
 
       it 'logs the error and returns nil' do
         expect(Rails.logger).to receive(:error).with(/Connection error/)
+
         response = service.get_traits(
           credential_method:,
           credential_id:,
           user:,
           address:
         )
+
         expect(response).to be_nil
       end
     end
 
     context 'when there is a timeout error' do
       before do
-        allow(service).to receive(:perform).and_raise(Faraday::TimeoutError, 'Timeout error')
+        VCR.configure { |c| c.allow_http_connections_when_no_cassette = true }
+        allow(Faraday).to receive(:post).and_raise(Faraday::TimeoutError, 'Timeout error')
+      end
+
+      after do
+        VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
       end
 
       it 'logs the error and returns nil' do
-        expect(Rails.logger).to receive(:error).with(/Timeout error/)
+        expect(Rails.logger).to receive(:error).with(/Connection error: Common::Client::Errors::ClientError/)
+
         response = service.get_traits(
           credential_method:,
           credential_id:,
           user:,
           address:
         )
+
         expect(response).to be_nil
       end
     end
 
     context 'when an unexpected error occurs' do
       before do
-        allow(service).to receive(:perform).and_raise(StandardError, 'Unexpected error')
+        allow(Faraday).to receive(:post).and_raise(StandardError, 'Unexpected error')
       end
 
       it 'logs the error and returns nil' do
@@ -167,52 +198,6 @@ RSpec.describe SSOe::Service, type: :service do
         )
         expect(response).to be_nil
       end
-    end
-  end
-
-  describe '#parse_response' do
-    it 'parses ICN response' do
-      body = <<~XML
-        <Envelope>
-          <Body>
-            <getSSOeTraitsByCSPIDResponse>
-              <icn>123498767V234859</icn>
-            </getSSOeTraitsByCSPIDResponse>
-          </Body>
-        </Envelope>
-      XML
-
-      result = service.send(:parse_response, body)
-      expect(result).to eq({ success: true, icn: '123498767V234859' })
-    end
-
-    it 'parses fault response' do
-      body = <<~XML
-        <Envelope>
-          <Body>
-            <Fault>
-              <faultcode>soap:Client</faultcode>
-              <faultstring>Error</faultstring>
-            </Fault>
-          </Body>
-        </Envelope>
-      XML
-
-      result = service.send(:parse_response, body)
-      expect(result).to eq({ success: false, error: { code: 'soap:Client', message: 'Error' } })
-    end
-
-    it 'handles unknown response format' do
-      body = '<unexpected>response</unexpected>'
-
-      result = service.send(:parse_response, body)
-      expect(result).to eq({
-                             success: false,
-                             error: {
-                               code: 'UnknownError',
-                               message: 'Unable to parse SOAP response'
-                             }
-                           })
     end
   end
 end
