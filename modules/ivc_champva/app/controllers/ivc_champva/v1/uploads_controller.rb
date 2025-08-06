@@ -248,9 +248,8 @@ module IvcChampva
             # Prepare the base response
             response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
 
-            # Add LLM analysis if enabled (convert form_id to mapped format)
-            mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
-            llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
+            # Add LLM analysis if enabled
+            llm_result = call_llm_service(attachment, params[:form_id], params['attachment_id'])
             response_data[:llm_response] = llm_result if llm_result.present?
 
             render json: response_data
@@ -326,10 +325,13 @@ module IvcChampva
           tmpfile = tempfile_from_attachment(attachment, form_id)
           pdf_path = Common::ConvertToPdf.new(tmpfile).run
 
+          # Convert form_id to mapped format for LLM service
+          mapped_form_id = FORM_NUMBER_MAP[form_id]
+
           # Call LLM service synchronously
           llm_service = IvcChampva::LlmService.new
           llm_service.process_document(
-            form_id:,
+            form_id: mapped_form_id,
             file_path: pdf_path,
             uuid: attachment.guid,
             attachment_id:
