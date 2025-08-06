@@ -10,16 +10,34 @@ module DebtsApi
       def create
         StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.initiated")
 
-        result = process_submission
+        # 1. base64 files
+        # 2. serilize user stuff
+          # Needs:
+            # user.uuid
+            # user.ssn
+            # user.participant_id
+        user = {
+          'uuid' => current_user.uuid,
+          'ssn' => current_user.ssn,
+          'participant_id' => current_user.participant_id
+        }
 
-        if result[:success]
+        base_64_files = submission_params[:files].map do |file|
+          {
+            'fileName' => file.original_filename,
+            'fileContents' => Base64.strict_encode64(file.read)
+          }
+        end
+
+        digital_dispute = DebtsApi::V0::DigitalDispute.new(current_user, submission_params[:files])
+
+        if digital_dispute.valid?
           StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.success")
           render json: {
             message: result[:message],
             submission_id: result[:submission_id]
           }, status: :ok
         else
-          StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.failure")
           render json: { errors: result[:errors] }, status: :unprocessable_entity
         end
       end
