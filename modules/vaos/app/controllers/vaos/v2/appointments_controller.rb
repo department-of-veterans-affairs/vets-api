@@ -7,14 +7,15 @@ module VAOS
     class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
       before_action :authorize_with_facilities
 
+      include VAOS::CommunityCareConstants
+
+      # Local constants for this controller
       PARTIAL_RESPONSE_METRIC = 'api.vaos.va_mobile.response.partial'
-      APPT_DRAFT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_draft_creation.success'
-      APPT_DRAFT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_draft_creation.failure'
-      APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
-      APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
-      APPT_CREATION_DURATION_METRIC = 'api.vaos.appointment_creation.duration'
-      REFERRAL_DRAFT_STATIONID_METRIC = 'api.vaos.referral_draft_station_id.access'
-      PROVIDER_DRAFT_NETWORK_ID_METRIC = 'api.vaos.provider_draft_network_id.access'
+      APPT_DRAFT_CREATION_SUCCESS_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.success".freeze
+      APPT_DRAFT_CREATION_FAILURE_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.failure".freeze
+      APPT_CREATION_SUCCESS_METRIC = "#{STATSD_PREFIX}.appointment_creation.success".freeze
+      APPT_CREATION_FAILURE_METRIC = "#{STATSD_PREFIX}.appointment_creation.failure".freeze
+      APPT_CREATION_DURATION_METRIC = "#{STATSD_PREFIX}.appointment_creation.duration".freeze
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -27,7 +28,6 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      CC_APPOINTMENTS = 'Community Care Appointments'
 
       def index
         appointments[:data].each do |appt|
@@ -78,19 +78,19 @@ module VAOS
         draft_appt = VAOS::V2::EpsDraftAppointment.new(current_user, referral_id, referral_consult_id)
 
         if draft_appt.error
-          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
           render json: { errors: [{ title: 'Appointment creation failed', detail: draft_appt.error[:message] }] },
                  status: draft_appt.error[:status]
         else
-          StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
+          StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
           ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
           render json: Eps::DraftAppointmentSerializer.new(draft_appt), status: :created
         end
       rescue Redis::BaseError => e
-        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
         handle_redis_error(e)
       rescue => e
-        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
         handle_appointment_creation_error(e)
       end
 
@@ -128,16 +128,16 @@ module VAOS
 
         if appointment[:error]
           StatsD.increment(APPT_CREATION_FAILURE_METRIC,
-                           tags: ['service:community_care_appointments', "error_type:#{appointment[:error]}"])
+                           tags: [COMMUNITY_CARE_SERVICE_TAG])
           return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         log_referral_booking_duration(submit_params[:referral_number])
 
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: ['service:community_care_appointments'])
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
-        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ['service:community_care_appointments'])
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
         handle_appointment_creation_error(e)
       end
 
@@ -478,7 +478,12 @@ module VAOS
       # @return [void]
       # @see Redis::BaseError
       def handle_redis_error(error)
-        Rails.logger.error("#{CC_APPOINTMENTS}: #{error.class}}")
+        error_data = {
+          error_class: error.class.name,
+          error_message: error.message,
+          user_uuid: current_user&.uuid
+        }
+        Rails.logger.error("#{CC_APPOINTMENTS}: Redis error", error_data)
         render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
@@ -523,13 +528,17 @@ module VAOS
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
       def handle_appointment_creation_error(e)
+        error_data = {
+          error_class: e.class.name,
+          error_message: e.message,
+          user_uuid: current_user&.uuid
+        }
+
+        Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error", error_data)
+
         if e.is_a?(ActionController::ParameterMissing)
-          error_message = "#{CC_APPOINTMENTS}: Appointment creation error: #{e.class} - #{e.message}\n"
-          error_message += e.backtrace&.join("\n") if e.backtrace
-          Rails.logger.error(error_message)
           status_code = :bad_request
         else
-          Rails.logger.error("#{CC_APPOINTMENTS}: Appointment creation error: #{e.class}")
           original_status = e.respond_to?(:original_status) ? e.original_status : nil
           status_code = appointment_error_status(original_status)
         end
@@ -599,7 +608,7 @@ module VAOS
         return unless start_time
 
         duration = (Time.current.to_f - start_time) * 1000
-        StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: ['service:community_care_appointments'])
+        StatsD.histogram(APPT_CREATION_DURATION_METRIC, duration, tags: [COMMUNITY_CARE_SERVICE_TAG])
       end
     end
   end
