@@ -117,11 +117,13 @@ module PdfFill
     # @return [void]
     #
     def merge_pdfs(*file_paths, new_file_path)
-      target = HexaPDF::Document.new
+      # Use the first file as the target document so that we get its metadata and
+      # other properties in the merged document without having to do extra steps.
+      target = HexaPDF::Document.open(file_paths.first)
 
       file_paths.each do |file_path|
         pdf = HexaPDF::Document.open(file_path)
-        pdf.pages.each do |page|
+        pdf.pages.map do |page|
           target.pages << target.import(page)
         end
       end

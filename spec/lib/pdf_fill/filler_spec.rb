@@ -31,11 +31,7 @@ describe PdfFill::Filler, type: :model do
       it 'generates extras and combine the files' do
         file_path = 'tmp/pdfs/file_path_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
-        expect(described_class::PDF_FORMS).to receive(:cat).once.with(
-          old_file_path,
-          'extras.pdf',
-          file_path
-        )
+        expect(described_class).to receive(:merge_pdfs).once.with(old_file_path, 'extras.pdf', file_path)
         expect(File).to receive(:delete).once.with('extras.pdf')
         expect(File).to receive(:delete).once.with(old_file_path)
 
