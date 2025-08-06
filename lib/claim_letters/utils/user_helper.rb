@@ -23,7 +23,7 @@ module ClaimLetters
       def self.safe_get(user, attribute)
         case user
         when Hash
-          user[attribute] || user[attribute.to_s]
+          user[attribute] || user[attribute.to_s] || user[attribute.to_sym]
         when nil
           nil
         else
