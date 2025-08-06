@@ -85,7 +85,7 @@ module BGS
     end
 
     def claims_evidence_uploader
-      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
+      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source: self.class.to_s)
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
