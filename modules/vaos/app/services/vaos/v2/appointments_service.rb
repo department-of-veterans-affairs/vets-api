@@ -72,30 +72,33 @@ module VAOS
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
-          eps_before = appointments.select do |appt|
+          eps_before_appts = appointments.select do |appt|
             appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-          end.pluck(:id)
+          end
+          eps_before_facilities = extract_facility_identifiers(eps_before_appts)
 
           filterer = AppointmentsPresentationFilter.new
           appointments.keep_if { |appt| filterer.user_facing?(appt) }
 
-          eps_after = appointments.select do |appt|
+          eps_after_appts = appointments.select do |appt|
             appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-          end.pluck(:id)
-          removed = eps_before - eps_after
+          end
+          eps_after_facilities = extract_facility_identifiers(eps_after_appts)
+          removed_facilities = eps_before_facilities - eps_after_facilities
 
-          removed_msg = removed.any? ? ", removed #{removed}" : ''
-          Rails.logger.info("EPS Debug: Presentation filter kept #{eps_after}#{removed_msg}")
+          removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
+          Rails.logger.info("EPS Debug: Presentation filter kept #{eps_after_facilities}#{removed_msg}")
         end
 
         # log count of C&P appointments in the appointments list, per GH#78141
         log_cnp_appt_count(cnp_count) if cnp_count.positive?
 
         # Log final EPS appointments
-        final_eps = appointments.select do |appt|
+        final_eps_appts = appointments.select do |appt|
           appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-        end.pluck(:id)
-        Rails.logger.info("EPS Debug: Final response #{final_eps.any? ? final_eps : 'none'}")
+        end
+        final_eps_facilities = extract_facility_identifiers(final_eps_appts)
+        Rails.logger.info("EPS Debug: Final response #{final_eps_facilities.any? ? final_eps_facilities : 'none'}")
 
         {
           data: deserialized_appointments(appointments),
@@ -302,14 +305,38 @@ module VAOS
           duplicate
         end
 
-        kept_eps_ids = normalized_new.pluck(:id) - rejected_ids
-        duplicates_msg = rejected_ids.any? ? ", removed duplicates #{rejected_ids}" : ''
-        Rails.logger.info("EPS Debug: Merge kept #{kept_eps_ids}#{duplicates_msg}")
+        kept_eps_appts = normalized_new.reject { |appt| rejected_ids.include?(appt[:id]) }
+        kept_eps_facilities = extract_facility_identifiers(kept_eps_appts)
+        rejected_eps_appts = normalized_new.select { |appt| rejected_ids.include?(appt[:id]) }
+        rejected_facilities = extract_facility_identifiers(rejected_eps_appts)
+        duplicates_msg = rejected_facilities.any? ? ", removed duplicates #{rejected_facilities}" : ''
+        Rails.logger.info("EPS Debug: Merge kept #{kept_eps_facilities}#{duplicates_msg}")
 
         merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
       memoize :get_facility_timezone_memoized
+
+      # Extract facility identifiers from appointments for privacy-safe logging
+      # Returns array of "facility_name (facility_id)" strings, or location_id if facility info unavailable
+      def extract_facility_identifiers(appointments)
+        appointments.map do |appt|
+          if appt.is_a?(Hash)
+            # For regular appointments with merged facility info
+            if appt.dig(:location, 'name') && appt.dig(:location, 'id')
+              "#{appt[:location]['name']} (#{appt[:location]['id']})"
+            elsif appt[:location_id]
+              "facility #{appt[:location_id]}"
+            else
+              'unknown facility'
+            end
+          else
+            # For EPS appointments or other objects
+            location_id = appt.try(:location_id) || appt.try(:[], :location_id)
+            location_id ? "facility #{location_id}" : 'unknown facility'
+          end
+        end
+      end
 
       private
 
