@@ -4,6 +4,22 @@ require 'rails_helper'
 require 'dependents/monitor'
 
 RSpec.describe Dependents::Monitor do
+  # Performance tweak
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
+  end
+
+  around do |example|
+    puts "\nStarting: #{example.full_description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  end
+
   let(:claim) { create(:dependency_claim) }
   let(:claim_v2) { create(:dependency_claim_v2) }
   let(:monitor_v1) { described_class.new(claim.id) }
