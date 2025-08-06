@@ -5,7 +5,7 @@ require 'brd/brd'
 require 'bgs_service/standard_data_service'
 
 module ClaimsApi
-  module AltDisabilityCompensationValidations
+  module RevisedDisabilityCompensationValidations
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -13,8 +13,6 @@ module ClaimsApi
       # ensure 'claimDate', if provided, is a valid date not in the future
       validate_form_526_submission_claim_date!
     end
-
-    private
 
     def validate_form_526_submission_claim_date!
       return if form_attributes['claimDate'].blank?
