@@ -89,13 +89,18 @@ module PdfFill
       private
 
       def merge_full_name(type)
+        if @form_data[type].nil? && type == 'veteranFullName'
+          log_error(type, @form_data[type])
+        end
+
         @form_data[type] = EZ_FORMATTER.format_full_name(@form_data[type])
       end
 
       def merge_veteran_info
         merge_full_name('veteranFullName')
-        merge_ssn('veteranSocialSecurityNumber')
-        merge_sex('gender')
+        merge_veteran_date_of_birth('veteranDateOfBirth')
+        merge_veteran_ssn('veteranSocialSecurityNumber')
+        merge_veteran_sex('gender')
         merge_phone('homePhone')
         merge_phone('mobilePhone')
         merge_marital_status
@@ -103,8 +108,20 @@ module PdfFill
         merge_address_street('veteranHomeAddress')
       end
 
-      def merge_ssn(type)
+      def merge_veteran_ssn(type)
+        if @form_data[type].nil?
+          log_error(type, @form_data[type])
+        end
+
         @form_data[type] = format_ssn(@form_data[type])
+      end
+
+      def merge_veteran_date_of_birth(type)
+        if @form_data[type].nil?
+          log_error(type, @form_data[type])
+        end
+
+        @form_data['veteranDateOfBirth'] = format_date(@form_data['veteranDateOfBirth'])
       end
 
       def merge_phone(type)
@@ -139,11 +156,11 @@ module PdfFill
         )
       end
 
-      def merge_sex(type)
+      def merge_veteran_sex(type)
         value = SEX[@form_data[type]]
+
         if value.nil?
-          Rails.logger.error('Invalid sex value when filling out 10-10EZR pdf.',
-                             { type:, value: @form_data[type] })
+          log_error(type, @form_data[type])
         end
 
         @form_data[type] = value
@@ -224,7 +241,7 @@ module PdfFill
         input == true ? value : OFF
       end
 
-      # Maps a boolean value to an integer for radion button or checkbox
+      # Maps a boolean value to an integer for radio button or checkbox
       # selection ('YES' for true, 'NO' for false, or 'OFF' if undefined).
       def map_select_value(value)
         case value
@@ -235,6 +252,16 @@ module PdfFill
         else
           OFF
         end
+      end
+
+      def log_error(type, value)
+        Rails.logger.error(
+          "Invalid #{type} value when filling out 10-10EZR pdf.",
+          {
+            type:,
+            value: @form_data[type]
+          }
+        )
       end
 
       def format_date(value)
