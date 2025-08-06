@@ -87,14 +87,14 @@ module BenefitsDocuments
       Rails.logger.info('file content type', file&.content_type)
       Rails.logger.info('participant_id present?', @user.participant_id.present?)
 
-      if Flipper.enabled?(:benefits_documents_filter_duplicates) && presumed_duplicate?(claim_id, file)
+      if presumed_duplicate?(claim_id, file)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'DOC_UPLOAD_DUPLICATE',
           source: self.class.name
         )
       end
 
-      if Flipper.enabled?(:benefits_documents_validate_claimant) && !validate_claimant_can_upload(document_data)
+      unless validate_claimant_can_upload(document_data)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'DOC_UPLOAD_INVALID_CLAIMANT',
           source: self.class.name

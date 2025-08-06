@@ -73,8 +73,20 @@ module ClaimsApi
         # rubocop:enable Metrics/MethodLength
 
         def representative_type(poa_code)
-          representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+          representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)',
+                                                                    poa_code).order(created_at: :desc).first
+          validate_representative!(representative, poa_code)
+
           representative.user_types.first.upcase
+        end
+
+        def validate_representative!(representative, poa_code)
+          # there must be a representative
+          if representative.blank?
+            raise ::Common::Exceptions::ResourceNotFound.new(
+              detail: "Could not find an Accredited Representative with poa code: #{poa_code}"
+            )
+          end
         end
       end
     end

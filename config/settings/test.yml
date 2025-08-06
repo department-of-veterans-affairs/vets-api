@@ -104,26 +104,33 @@ check_in:
     retry_attempt_expiry: 604800
   chip_api_v2:
     base_path: dev
-    host: ~
+    base_path_v2: dev
     mock: false
     redis_session_prefix: check_in_chip_v2
     service_name: CHIP-API
     timeout: 30
     tmp_api_id: 2dcdrrn5zc
+    tmp_api_id_v2: 2dcdrrn5zc
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_user_v2: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_username: vetsapiTempUser
+    tmp_api_username_v2: vetsapiTempUser
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    url_v2: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   lorota_v2:
     api_id: 22t00c6f97
+    api_id_v2: 22t00c6f97
     api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
+    api_key_v2: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
     base_path: dev
-    host: ~
+    base_path_v2: dev
     key_path: modules/vaos/config/rsa/sandbox_rsa
     mock: false
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
     service_name: LoROTA-API
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    url_v2: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
@@ -801,6 +808,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
@@ -920,9 +928,7 @@ mhv:
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
-    base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:
@@ -1398,6 +1404,11 @@ vanotify:
           template_id: burial_submitted_email_template_id
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
+    accredited_representative_portal:
+      api_key: fake_secret
+      email:
+        error:
+          template_id: arp_error_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:
