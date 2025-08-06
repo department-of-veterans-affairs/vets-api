@@ -114,5 +114,48 @@ describe FakeController do
         expect(res).to be(true)
       end
     end
+
+    context 'logging in exactly_one_rep_match?' do
+      context 'when called via find_by_poa_code' do
+        before do
+          # Set up expectations for first/last name lookup to fail, so we reach find_by_poa_code
+          allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+            first_name:,
+            last_name:
+          ).and_return([])
+
+          # Mock the suffix and middle_name/middle_initial search to return empty
+          allow(subject.instance_variable_get(:@current_user)).to receive_messages(suffix: nil,
+                                                                                   middle_name: 'Alexander')
+          allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+            first_name:,
+            last_name:,
+            middle_initial: 'A'
+          ).and_return([])
+        end
+
+        it 'logs when exactly one rep is found' do
+          # Create a rep with the matching POA code
+          rep = create(:representative, representative_id: '12345', first_name:,
+                                        last_name:, poa_codes: [poa_code])
+
+          allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+            first_name:,
+            last_name:,
+            poa_code:
+          ).and_return([rep])
+
+          expect(ClaimsApi::Logger).to receive(:log).with(
+            'poa_verification',
+            rep_method: 'find_by_poa_code',
+            details: "Found 1 reps for POA code #{poa_code}"
+          )
+
+          # Call the method
+          result = subject.valid_poa_code_for_current_user?(poa_code)
+          expect(result).to be(true)
+        end
+      end
+    end
   end
 end
