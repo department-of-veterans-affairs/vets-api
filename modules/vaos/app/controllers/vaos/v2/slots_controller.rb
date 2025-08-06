@@ -16,7 +16,7 @@ module VAOS
       end
 
       def facility_slots
-        if error == bad_request(params)
+        if (error = bad_request(params))
           render status: :bad_request, json: { errors: [{ status: 400, detail: error }] }
         else
           response = systems_service.get_available_slots({
