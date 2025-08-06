@@ -86,15 +86,12 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
   def awards_pension
-    begin
-      @awards_pension ||= pension_award_response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
+    @awards_pension ||= begin
+      response = pension_award_service.get_awards_pension
+      response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
     rescue
-      @awards_pension = {}
+      {}
     end
-  end
-
-  def pension_award_response
-    @pension_award_response ||= pension_award_service.get_awards_pension
   end
 
   def pension_award_service
