@@ -154,17 +154,18 @@ describe 'form526 rake tasks', type: :request do
     before do
       Rake.application.rake_require '../rakelib/form526'
     end
+
     def run_rake_task(args_string)
       Rake::Task['form526:in_progress_forms_return_point'].reenable
       Rake.application.invoke_task "form526:in_progress_forms_return_point[#{args_string}]"
     end
     [
-      [[1,2,3], '3 ints'],
+      [[1, 2, 3], '3 ints'],
       ['', 'no args'],
       ['1,2,3', '3 ints as a string'],
       [1, '1 int'],
       [[], 'empty array'],
-      [nil, 'no args as nil'],
+      [nil, 'no args as nil']
     ].each do |(args_string, desc)|
       it desc do
         expect { run_rake_task(args_string) }.not_to raise_error
@@ -177,8 +178,8 @@ describe 'form526 rake tasks', type: :request do
     end
 
     it 'processes all forms when IDS is not provided' do
-      ENV['IDS'] = nil
-      expect(Form526InProgressFormModifier).to receive(:perform_async).with(array_including(in_progress_form.id, in_progress_form2.id, in_progress_form3.id))
+      expect(Form526InProgressFormModifier).to receive(:perform_async).with(array_including(in_progress_form.id,
+                                                                                            in_progress_form2.id, in_progress_form3.id))
       Rake::Task['form526:in_progress_forms_return_point'].invoke
     end
   end
