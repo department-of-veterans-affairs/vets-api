@@ -179,7 +179,8 @@ describe 'form526 rake tasks', type: :request do
 
     it 'processes all forms when IDS is not provided' do
       expect(Form526InProgressFormModifier).to receive(:perform_async).with(array_including(in_progress_form.id,
-                                                                                            in_progress_form2.id, in_progress_form3.id))
+                                                                                            in_progress_form2.id,
+                                                                                            in_progress_form3.id))
       Rake::Task['form526:in_progress_forms_return_point'].invoke
     end
   end
