@@ -27,6 +27,12 @@ class TransactionalEmailMailer < ApplicationMailer
     "#{name.first} #{name.last}"
   end
 
+  def stub_name(name)
+    return '' if name.nil?
+
+    "#{name.first[0..3]}#{name.last[0]}".upcase
+  end
+
   def template(name = self.class::TEMPLATE)
     template_file = File.read("app/mailers/views/#{name}.html.erb")
     ERB.new(template_file).result(binding)
