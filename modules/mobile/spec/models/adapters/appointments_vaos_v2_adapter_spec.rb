@@ -24,6 +24,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
+  let(:missing_vvs_kind_id) { '50101' }
 
   def appointment_data(index = nil)
     appts = index ? raw_data[index] : raw_data
@@ -57,7 +58,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
-    expect(adapted_appointments.size).to eq(16)
+    expect(adapted_appointments.size).to eq(17)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
 
@@ -193,9 +194,19 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_ONSITE')
       end
 
-      it 'sets unknown vvs kind appointments to VA' do
-        appt = appointment_by_id(telehealth_onsite_id, overrides: { telehealth: { vvs_kind: 'OTHER' } })
+      it 'sets telehealth appointments without vvs_kind to VA when vvs_vista_video_appt is missing' do
+        appt = appointment_by_id(missing_vvs_kind_id)
         expect(appt.appointment_type).to eq('VA')
+      end
+
+      it 'sets telehealth appointments without vvs_kind to VA when vvs_vista_video_appt is false' do
+        appt = appointment_by_id(missing_vvs_kind_id, overrides: { extension: { vvs_vista_video_appt: false } })
+        expect(appt.appointment_type).to eq('VA')
+      end
+
+      it 'sets telehealth appointments without vvs_kind to VA_VIDEO_CONNECT_HOME when vvs_vista_video_appt is true' do
+        appt = appointment_by_id(missing_vvs_kind_id, overrides: { extension: { vvs_vista_video_appt: true } })
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
       end
     end
   end

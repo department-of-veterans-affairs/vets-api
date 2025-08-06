@@ -23,7 +23,7 @@ module AccreditedRepresentativePortal
         service = SavedClaimService::Create
 
         saved_claim = service.perform(
-          type: SavedClaim::BenefitsIntake::DependencyClaim,
+          type: form_class,
           metadata:, attachment_guids:,
           claimant_representative:
         )
@@ -65,6 +65,14 @@ module AccreditedRepresentativePortal
 
       private
 
+      def form_id
+        if params[:form_id].present?
+          params[:form_id].gsub(/-UPLOAD/, '')
+        else
+          submit_params[:formData][:formNumber]
+        end
+      end
+
       def authorize_attachment_upload
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
       end
@@ -85,8 +93,7 @@ module AccreditedRepresentativePortal
         service = SavedClaimService::Attach
 
         attachment = service.perform(
-          model_klass, file: params[:file], form_id:
-          SavedClaim::BenefitsIntake::DependencyClaim::PROPER_FORM_ID
+          model_klass, file: params[:file], form_id: form_class::PROPER_FORM_ID
         )
 
         json = serializer_klass.new(attachment).as_json
@@ -109,6 +116,10 @@ module AccreditedRepresentativePortal
       rescue service::UnknownError => e
         # Is there any particular reason to prefer `e.cause` over `e`?
         raise Common::Exceptions::InternalServerError, e.cause
+      end
+
+      def form_class
+        SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
       end
     end
   end

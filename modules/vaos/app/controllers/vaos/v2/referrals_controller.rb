@@ -5,8 +5,10 @@ module VAOS
     # ReferralsController provides endpoints for fetching CCRA referrals
     # It uses the Ccra::ReferralService to interact with the underlying CCRA API
     class ReferralsController < VAOS::BaseController
-      REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
-      REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
+      include VAOS::CommunityCareConstants
+
+      REFERRAL_DETAIL_VIEW_METRIC = "#{STATSD_PREFIX}.referral_detail.access".freeze
+      REFERRAL_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_station_id.access".freeze
       REFERRING_FACILITY_CODE_FIELD = 'referring_facility_code'
       REFERRAL_PROVIDER_NPI_FIELD = 'referral_provider_npi'
 
@@ -112,7 +114,7 @@ module VAOS
         station_id = sanitize_log_value(response&.station_id)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
-                           'service:community_care_appointments',
+                           COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
                            "referral_provider_npi:#{provider_npi}",
                            "station_id:#{station_id}"

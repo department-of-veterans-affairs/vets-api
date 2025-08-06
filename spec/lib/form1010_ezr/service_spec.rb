@@ -189,7 +189,8 @@ RSpec.describe Form1010Ezr::Service do
       context 'when no error occurs' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
@@ -210,7 +211,8 @@ RSpec.describe Form1010Ezr::Service do
         context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                      instance_of(User)).and_return(true)
             allow_any_instance_of(
               HCA::EnrollmentEligibility::Service
             ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
@@ -334,7 +336,8 @@ RSpec.describe Form1010Ezr::Service do
         context "when the 'ezr_emergency_contacts_enabled' flipper is enabled" do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled,
+                                                      instance_of(User)).and_return(true)
           end
 
           context 'when an error occurs in the associations service' do
@@ -505,7 +508,7 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'when the form includes next of kin and/or emergency contact info' do
-          it 'returns a success object', run_at: 'Wed, 18 Jun 2025 18:58:43 GMT' do
+          it 'returns a success object', run_at: 'Thu, 24 Jul 2025 15:30:34 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_associations',
               { match_requests_on: %i[method uri body], erb: true }
@@ -513,8 +516,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(service.submit_sync(form_with_associations)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 443_148_464,
-                  timestamp: '2025-06-18T13:58:43.116-05:00'
+                  formSubmissionId: 443_830_966,
+                  timestamp: '2025-07-24T13:10:42.638-05:00'
                 }
               )
             end
