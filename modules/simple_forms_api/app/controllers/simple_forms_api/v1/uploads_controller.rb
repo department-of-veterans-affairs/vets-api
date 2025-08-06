@@ -86,7 +86,7 @@ module SimpleFormsApi
         true
       rescue BenefitsIntakeService::Service::InvalidDocumentError => e
         if params[:form_id] == '40-10007'
-          detail_msg = "We weren't able to upload your file. Make sure the file is an " \
+          detail_msg = "We weren't able to upload your file. Make sure the file is in an " \
                        'accepted format and size before continuing.'
           render json: {
             errors: [{
