@@ -15,24 +15,20 @@ module PdfFill
       EZR_FORMATTER = PdfFill::Forms::Formatters::Va1010ezr
       KEY = PdfFill::Forms::FieldMappings::Va1010ezr::KEY
 
-      MARITAL_STATUS = {
-        'Married' => 1,
-        'Never Married' => 2,
-        'Separated' => 3,
-        'Widowed' => 4,
-        'Divorced' => 5
-      }.freeze
-
       DEPENDENT_RELATIONSHIP = {
-        'Son' => 1,
         'Daughter' => 2,
-        'Stepson' => 3,
-        'Stepdaughter' => 4
+        'Son' => 1,
+        'Stepdaughter' => 4,
+        'Stepson' => 3
       }.freeze
 
-      SEX = {
-        'F' => 0,
-        'M' => 1
+      ETHNICITY_MAP = {
+        'hasDemographicNoAnswer' => 6,
+        'isAmericanIndianOrAlaskanNative' => 2,
+        'isAsian' => 1,
+        'isBlackOrAfricanAmerican' => 3,
+        'isNativeHawaiianOrOtherPacificIslander' => 5,
+        'isWhite' => 4
       }.freeze
 
       # Exposure values correspond to true for each key in the pdf options
@@ -49,13 +45,17 @@ module PdfFill
         'exposureToWarfareAgents' => 2
       }.freeze
 
-      ETHNICITY_MAP = {
-        'isAsian' => 1,
-        'isAmericanIndianOrAlaskanNative' => 2,
-        'isBlackOrAfricanAmerican' => 3,
-        'isWhite' => 4,
-        'isNativeHawaiianOrOtherPacificIslander' => 5,
-        'hasDemographicNoAnswer' => 6
+      MARITAL_STATUS = {
+        'Divorced' => 5,
+        'Married' => 1,
+        'Never Married' => 2,
+        'Separated' => 3,
+        'Widowed' => 4
+      }.freeze
+
+      SEX = {
+        'F' => 0,
+        'M' => 1
       }.freeze
 
       # All date fields on the form so we can iterate over them to format them as the pdf form expects
