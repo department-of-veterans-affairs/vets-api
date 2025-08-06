@@ -169,7 +169,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v686_c_674_expected_v2) do
+  let(:v686_c_674_v2_expected) do
     {
       'veteranContactInformation' => {
         'veteranAddress' => {
@@ -184,7 +184,9 @@ RSpec.describe FormProfile, type: :model do
       },
       'nonPrefill' => {
         'veteranSsnLastFour' => '1863',
-        'veteranVaFileNumberLastFour' => '1863'
+        'veteranVaFileNumberLastFour' => '1863',
+        'isInReceiptOfPension' => -1,
+        'netWorthLimit' => 159240
       },
       'veteranInformation' => {
         'fullName' => {
@@ -1134,7 +1136,7 @@ RSpec.describe FormProfile, type: :model do
 
         expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
-
+      
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
@@ -1603,21 +1605,54 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_vaprofile(true)
         end
 
-        it 'omits address fields in 686c-674 form' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                           allow_playback_repeats: true) do
-            prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
-            v686_c_674_expected['veteranContactInformation']
-            expect(prefilled_data).to eq(v686_c_674_expected)
+        context 'with a 686c-674 form' do
+          context 'with a 686c-674 v1 form' do
+            it 'omits address fields in 686c-674 form' do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                              allow_playback_repeats: true) do
+                expect_prefilled('686C-674')
+              end
+            end
           end
-        end
 
-        it 'omits address fields in 686c-674-V2 form' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                           allow_playback_repeats: true) do
-            prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
-            v686_c_674_expected_v2['veteranContactInformation']
-            expect(prefilled_data).to eq(v686_c_674_expected_v2)
+          context 'with a 686c-674-v2 form' do
+            it 'omits address fields in 686c-674-V2 form' do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                              allow_playback_repeats: true) do
+                expect_prefilled('686C-674-V2')
+              end
+            end
+
+            context 'with pension awards prefill' do
+              let(:user) { create(:evss_user, :loa3) }
+              let(:form_profile) do
+                FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
+              end
+
+              it 'prefills when user is in receipt of pension' do
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                              allow_playback_repeats: true) do
+                  VCR.use_cassette('bid/awards/get_awards_pension') do
+                    prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                    
+                    expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
+                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094)
+                  end
+                end
+              end
+
+              it 'prefills when bid awards service returns an error' do
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                allow_playback_repeats: true) do
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(StandardError)
+                  
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                  
+                  expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240)
+                end
+              end
+            end
           end
         end
 
