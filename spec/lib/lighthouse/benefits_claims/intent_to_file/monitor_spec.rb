@@ -16,13 +16,14 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_create_itf_initiated' do
       it 'logs a create ITF initiated' do
+        tags = ['itf_type:pension', 'version:v0']
         log = "Lighthouse::CreateIntentToFileJob create pension ITF initiated for form ##{ipf.id}"
         payload = {
           itf_type: 'pension',
           form_start_date: ipf.created_at,
           user_account_uuid: current_user.user_account_uuid
         }
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.initiated")
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.initiated", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_itf_initiated('pension', ipf.created_at, current_user.user_account_uuid, ipf.id)
@@ -40,6 +41,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
               'type' => 'pension',
               'status' => 'active' } } }
 
+        tags = ['itf_type:pension', 'version:v0']
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF active record found'
         payload = {
           itf_type: 'pension',
@@ -48,7 +50,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           form_start_date: ipf.created_at,
           user_account_uuid: current_user.user_account_uuid
         }
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.active_found")
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.active_found", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_itf_active_found('pension', ipf.created_at, current_user.user_account_uuid, itf_found)
@@ -57,6 +59,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_create_itf_begun' do
       it 'logs a create ITF begun' do
+        tags = ['itf_type:pension', 'version:v0']
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF begun'
         payload = {
           itf_type: 'pension',
@@ -64,7 +67,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_account_uuid: current_user.user_account_uuid
         }
 
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.begun")
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.begun", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_itf_begun('pension', ipf.created_at, current_user.user_account_uuid)
@@ -73,6 +76,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_create_itf_success' do
       it 'logs a create ITF success' do
+        tags = ['itf_type:pension', 'version:v0']
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF succeeded'
         payload = {
           itf_type: 'pension',
@@ -80,7 +84,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_account_uuid: current_user.user_account_uuid
         }
 
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.success")
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.success", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_itf_success('pension', ipf.created_at, current_user.user_account_uuid)
@@ -89,6 +93,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_create_itf_failure' do
       it 'logs a create ITF failure' do
+        tags = ['itf_type:pension', 'version:v0']
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF failed'
         payload = {
           itf_type: 'pension',
@@ -97,7 +102,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           errors: monitor_error.message
         }
 
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.failure")
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.failure", tags:)
         expect(Rails.logger).to receive(:warn).with(log, payload)
 
         monitor.track_create_itf_failure('pension', ipf.created_at, current_user.user_account_uuid, monitor_error)
@@ -106,6 +111,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_create_itf_exhaustion' do
       it 'logs a create ITF exhaustion' do
+        tags = ["form_id:#{ipf.form_id}", 'itf_type:pension', 'version:v0']
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF exhausted'
         payload = {
           error: monitor_error.message,
@@ -115,7 +121,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
         }
 
         expect(monitor).to receive(:log_silent_failure).with(payload, current_user.user_account_uuid, anything)
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.exhausted")
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.exhausted", tags:)
         expect(Rails.logger).to receive(:error).with(log, payload)
 
         monitor.track_create_itf_exhaustion('pension', ipf, monitor_error.message)
@@ -124,6 +130,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_missing_user_icn' do
       it 'logs a missing user ICN' do
+        tags = ["form_id:#{ipf.form_id}", 'version:v0']
         log = 'V0 InProgressFormsController async ITF user.icn is blank'
         payload = {
           error: monitor_error.message,
@@ -131,7 +138,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_account_uuid: current_user.user_account_uuid
         }
 
-        expect(StatsD).to receive(:increment).with('user.icn.blank')
+        expect(StatsD).to receive(:increment).with('user.icn.blank', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_user_icn(ipf, monitor_error)
@@ -140,6 +147,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_missing_user_pid' do
       it 'logs a missing user PID' do
+        tags = ["form_id:#{ipf.form_id}", 'version:v0']
         log = 'V0 InProgressFormsController async ITF user.participant_id is blank'
         payload = {
           error: monitor_error.message,
@@ -147,7 +155,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_account_uuid: current_user.user_account_uuid
         }
 
-        expect(StatsD).to receive(:increment).with('user.participant_id.blank')
+        expect(StatsD).to receive(:increment).with('user.participant_id.blank', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_user_pid(ipf, monitor_error)
@@ -156,6 +164,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_missing_form' do
       it 'logs a missing form' do
+        tags = ["form_id:#{ipf.form_id}", 'version:v0']
         log = 'V0 InProgressFormsController async ITF form is missing'
         payload = {
           error: monitor_error.message,
@@ -163,7 +172,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_account_uuid: current_user.user_account_uuid
         }
 
-        expect(StatsD).to receive(:increment).with('form.missing')
+        expect(StatsD).to receive(:increment).with('form.missing', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_form(ipf, monitor_error)
@@ -172,6 +181,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_invalid_itf_type' do
       it 'logs an invalid ITF type' do
+        tags = ["form_id:#{ipf.form_id}", 'version:v0']
         log = 'V0 InProgressFormsController async ITF invalid ITF type'
         payload = {
           error: monitor_error.message,
@@ -179,7 +189,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_account_uuid: current_user.user_account_uuid
         }
 
-        expect(StatsD).to receive(:increment).with('itf.type.invalid')
+        expect(StatsD).to receive(:increment).with('itf.type.invalid', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_invalid_itf_type(ipf, monitor_error)
