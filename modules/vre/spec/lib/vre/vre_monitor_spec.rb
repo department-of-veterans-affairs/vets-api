@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vre/vre_monitor'
 
 RSpec.describe VRE::VREMonitor do
   let(:monitor) { described_class.new }

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vre/notification_email'
 
 RSpec.describe VRE::NotificationEmail do
   let(:saved_claim) { create(:vre_veteran_readiness_employment_claim) }

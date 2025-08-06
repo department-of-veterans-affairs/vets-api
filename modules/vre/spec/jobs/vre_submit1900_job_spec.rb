@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vre/vre_monitor'
 
 describe VRE::VRESubmit1900Job do
   let(:user_struct) do
