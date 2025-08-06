@@ -6,6 +6,7 @@ require 'lighthouse/benefits_claims/intent_to_file/monitor'
 RSpec.describe BenefitsClaims::IntentToFile::Monitor do
   let(:monitor) { described_class.new }
   let(:itf_stats_key) { described_class::STATSD_KEY_PREFIX }
+  let(:itf_v1_stats_key) { described_class::STATSD_V1_KEY_PREFIX }
   let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form, user_account: current_user.user_account) }
 
@@ -187,15 +188,15 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_show_itf' do
       it 'logs a show ITF' do
-        tags = ['form_id:21P-527EZ', 'itf_type:pension']
-        log = 'V0 IntentToFilesController ITF show'
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'version:v1']
+        log = 'IntentToFilesController ITF show'
         payload = {
           itf_type: 'pension',
           form_id: '21P-527EZ',
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.show", tags:)
+        expect(StatsD).to receive(:increment).with("#{itf_v1_stats_key}.pension.show", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_show_itf('21P-527EZ', 'pension', current_user.uuid)
@@ -204,15 +205,15 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_submit_itf' do
       it 'logs a submit ITF' do
-        tags = ['form_id:21P-527EZ', 'itf_type:pension']
-        log = 'V0 IntentToFilesController ITF submit'
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'version:v1']
+        log = 'IntentToFilesController ITF submit'
         payload = {
           itf_type: 'pension',
           form_id: '21P-527EZ',
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.submit", tags:)
+        expect(StatsD).to receive(:increment).with("#{itf_v1_stats_key}.pension.submit", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_submit_itf('21P-527EZ', 'pension', current_user.uuid)
@@ -221,8 +222,8 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_missing_user_icn_itf_controller' do
       it 'logs a missing user ICN' do
-        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post']
-        log = 'V0 IntentToFilesController ITF user.icn is blank'
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post', 'version:v1']
+        log = 'IntentToFilesController ITF user.icn is blank'
         payload = {
           error: 'error',
           method: 'post',
@@ -231,7 +232,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with('user.icn.blank', tags:)
+        expect(StatsD).to receive(:increment).with('v1.user.icn.blank', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_user_icn_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
@@ -240,8 +241,8 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_missing_user_pid_itf_controller' do
       it 'logs a missing user PID' do
-        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post']
-        log = 'V0 IntentToFilesController ITF user.participant_id is blank'
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post', 'version:v1']
+        log = 'IntentToFilesController ITF user.participant_id is blank'
         payload = {
           error: 'error',
           method: 'post',
@@ -250,7 +251,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with('user.participant_id.blank', tags:)
+        expect(StatsD).to receive(:increment).with('v1.user.participant_id.blank', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_user_pid_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
@@ -259,8 +260,8 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
 
     describe '#track_invalid_itf_type_itf_controller' do
       it 'logs an invalid ITF type' do
-        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post']
-        log = 'V0 IntentToFilesController ITF invalid ITF type'
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post', 'version:v1']
+        log = 'IntentToFilesController ITF invalid ITF type'
         payload = {
           error: 'error',
           method: 'post',
@@ -269,7 +270,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with('itf.type.invalid', tags:)
+        expect(StatsD).to receive(:increment).with('v1.itf.type.invalid', tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_invalid_itf_type_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
