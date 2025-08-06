@@ -251,10 +251,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 
   # Expire stale POA request records every night at midnight
-  mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
+  mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
 
-  # Redact expired POA request records every night at midnight
-  mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
+  # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
+  mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
