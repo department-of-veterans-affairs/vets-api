@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'accredited_representative_portal/submission_handler'
 require 'accredited_representative_portal/monitor'
@@ -79,7 +80,7 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
     it 'calls super after sending notification' do
       allow(notification).to receive(:deliver).with(:received)
 
-      expect_any_instance_of(::BenefitsIntake::SubmissionHandler::SavedClaim).to receive(:on_success)
+      expect_any_instance_of(BenefitsIntake::SubmissionHandler::SavedClaim).to receive(:on_success)
 
       instance.handle(:success)
     end

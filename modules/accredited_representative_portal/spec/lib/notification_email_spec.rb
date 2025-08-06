@@ -9,9 +9,9 @@ RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
   describe '#deliver' do
     it 'successfully sends an error email' do
       saved_claim_claimant_representative = create(:saved_claim_claimant_representative,
-        saved_claim_id: saved_claim.id)
+                                                   saved_claim_id: saved_claim.id)
       create(:representative,
-        representative_id: saved_claim_claimant_representative.accredited_individual_registration_number)
+             representative_id: saved_claim_claimant_representative.accredited_individual_registration_number)
 
       expect(SavedClaim).to receive(:find).with(saved_claim.id).and_return(saved_claim)
 
