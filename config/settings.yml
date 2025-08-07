@@ -1390,12 +1390,12 @@ vanotify:
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
       email:
+        confirmation:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__confirmation__template_id'] %>
         error:
           template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
         received:
           template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__received__template_id'] %>
-        confirmation:
-          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__confirmation__template_id'] %>
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:
