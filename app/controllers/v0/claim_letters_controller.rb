@@ -17,9 +17,9 @@ module V0
       log_metadata_to_datadog(docs)
 
       render json: docs
-    rescue => error
-      log_api_provider_error(error)
-      raise error
+    rescue => e
+      log_api_provider_error(e)
+      raise e
     end
 
     def show
@@ -28,9 +28,9 @@ module V0
       service.get_letter(document_id) do |data, mime_type, disposition, filename|
         send_data(data, type: mime_type, disposition:, filename:)
       end
-    rescue => error
-      log_api_provider_error(error)
-      raise error
+    rescue => e
+      log_api_provider_error(e)
+      raise e
     end
 
     private
@@ -66,11 +66,11 @@ module V0
       metric_key = "#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.#{action_name}.#{@api_provider}"
       StatsD.increment(metric_key)
       ::Rails.logger.info("#{metric_key} error", {
-        message_type: 'cst.api_provider.error',
-        error_type: error.class.to_s,
-        error_backtrace: error.backtrace&.first(3),
-        api_provider: @api_provider
-      })
+                            message_type: 'cst.api_provider.error',
+                            error_type: error.class.to_s,
+                            error_backtrace: error.backtrace&.first(3),
+                            api_provider: @api_provider
+                          })
     end
   end
 end
