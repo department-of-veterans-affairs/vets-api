@@ -3,22 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader_helpers do
-  before do
-    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
-  end
-
-  # Performance tweak
-  # This can be removed. Benchmarked all tests to see which tests are slowest.
-  around do |example|
-    puts "\nStarting: #{example.full_description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
-  end
-
   stub_virus_scan
   subject(:job) { described_class.new }
+
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
+  end
 
   let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
