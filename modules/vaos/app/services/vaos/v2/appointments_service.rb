@@ -1149,34 +1149,13 @@ module VAOS
 
       # Fetch travel claims for a date range independently (for parallel execution)
       def merge_all_travel_claims_parallel(start_date, end_date, _appointments, tp_client)
-        # Create the service and fetch claims data without appointments
         service = TravelPay::ClaimAssociationService.new(user, tp_client)
+        client_params = build_travel_claims_client_params(start_date, end_date, service)
 
-        # Prepare the date range
-        date_range = TravelPay::DateUtils.try_parse_date_range(start_date, end_date)
-        date_range = date_range.transform_values { |t| TravelPay::DateUtils.strip_timezone(t).iso8601 }
-        client_params = {
-          page_size: service.class::DEFAULT_PAGE_SIZE
-        }.merge!(date_range)
-
-        # Fetch travel claims data
         service.send(:auth_manager).authorize => { veis_token:, btsss_token: }
         faraday_response = service.send(:client).get_claims_by_date(veis_token, btsss_token, client_params)
 
-        if faraday_response.status == 200
-          raw_claims = faraday_response.body['data'].deep_dup
-          claims_data = raw_claims&.map do |sc|
-            sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-            sc
-          end
-
-          # Return both the claims data and the service for later merging
-          {
-            claims_data:,
-            metadata: service.send(:build_metadata, faraday_response.body),
-            service:
-          }
-        end
+        process_travel_claims_response(faraday_response, service)
       rescue => e
         Rails.logger.error("Failed to fetch travel claims in parallel: #{e.message}")
         nil
@@ -1196,6 +1175,33 @@ module VAOS
         Rails.logger.error("Failed to merge travel claims with appointments: #{e.message}")
         appointments
       end
+
+      def build_travel_claims_client_params(start_date, end_date, service)
+        date_range = TravelPay::DateUtils.try_parse_date_range(start_date, end_date)
+        date_range = date_range.transform_values { |t| TravelPay::DateUtils.strip_timezone(t).iso8601 }
+
+        {
+          page_size: service.class::DEFAULT_PAGE_SIZE
+        }.merge!(date_range)
+      end
+
+      def process_travel_claims_response(faraday_response, service)
+        return nil unless faraday_response.status == 200
+
+        raw_claims = faraday_response.body['data'].deep_dup
+        claims_data = raw_claims&.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+          sc
+        end
+
+        {
+          claims_data:,
+          metadata: service.send(:build_metadata, faraday_response.body),
+          service:
+        }
+      end
+
+      public
 
       def eps_appointments_service
         @eps_appointments_service ||=
