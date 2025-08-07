@@ -124,7 +124,7 @@ module AccreditedRepresentativePortal
           end
           span.set_tag('form_upload.file_size', params[:file].size) if params[:file].respond_to?(:size)
 
-          json = serializer_klass.new(attachment).as_json.deep_transform_keys(&:camelize).deep_transform_keys! do |key|
+          json = serializer_klass.new(attachment).as_json.deep_transform_keys! do |key|
             key.camelize(:lower)
           end
 
