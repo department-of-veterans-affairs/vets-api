@@ -36,7 +36,11 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            ClaimsApi::RevisedDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind_call(self)
+          else
+            validate_form_526_submission_values!
+          end
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
@@ -151,7 +155,13 @@ module ClaimsApi
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            ClaimsApi::RevisedDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind_call(self)
+          else
+            validate_form_526_submission_values!
+          end
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
