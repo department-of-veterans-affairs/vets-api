@@ -23,9 +23,11 @@ describe DecisionReviewV1::Processor::Form4142Processor do
            form_json:,
            submitted_claim_id: 1)
   end
+
   let(:processor) do
     described_class.new(form_data: submission.form['form4142'], submission_id: submission.id)
   end
+
   let(:received_date) do
     submission.created_at.in_time_zone(described_class::TIMEZONE).strftime(described_class::SIGNATURE_TIMESTAMP_FORMAT)
   end
@@ -40,6 +42,13 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     context 'when schema validation is not enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
+
+        # Use a minimal PDF file so metadata works. We don't want to incur the cost of generating a real PDF
+        fake_pdf_path = Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf').to_s
+
+        allow_any_instance_of(Processors::BaseForm4142Processor)
+          .to receive(:generate_stamp_pdf)
+          .and_return(fake_pdf_path)
       end
 
       context 'with invalid form data' do
@@ -58,16 +67,23 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
+
+        # Use a pregenerated PDF file to reduce the cost of generate_stamp_pdf
+        # The pdf was generated once with an after clause and running the first it in the first context below.
+        # See commented out after below in case this ever needs to be done again.
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
+          .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
       end
+
+      # Uncomment this and comment the above if you want to generate a new PDF.
+      # Run it once and uncomment the above and comment this.
+      # after do
+      #  FileUtils.cp(processor.instance_variable_get(:@pdf_path), 'spec/fixtures/pdf_fill/21-4142/test_output.pdf')
+      # end
 
       context 'with valid form data' do
         it 'initializes with submission and form data' do
-          expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-            .and_call_original
-            .once
-            .with(form4142, anything, described_class::FORM_SCHEMA_ID)
-          # Note on the expectation: #anything is a special keyword that matches any argument.
-          # We used it here since the uuid is created at runtime.
+          processor = described_class.new(form_data: form4142, submission_id: submission.id)
 
           expect(processor.instance_variable_get(:@submission)).to eq(submission)
           expect(processor.instance_variable_get(:@pdf_path)).to be_a(String)
@@ -188,6 +204,13 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         it 'does not raise a validation error when flipper is disabled' do
           allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
 
+          # Use a minimal PDF file so metadata works. We don't want to incur the cost of generating a real PDF
+          fake_pdf_path = Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf').to_s
+
+          allow_any_instance_of(Processors::BaseForm4142Processor)
+            .to receive(:generate_stamp_pdf)
+            .and_return(fake_pdf_path)
+
           expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
             .not_to raise_error
         end
@@ -203,6 +226,14 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       # Isolate template testing from validation
       allow(Flipper).to receive(:enabled?).with(validation_flag).and_return(false)
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_call_original
+
+      # generate_stamp_pdf is needed but we don't want to incur the cost of the methods it calls.
+      allow_any_instance_of(described_class).to receive(:add_signature_stamp)
+        .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+      allow_any_instance_of(described_class).to receive(:add_vagov_timestamp)
+        .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+      allow_any_instance_of(described_class).to receive(:submission_date_stamp)
+        .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
     end
 
     describe 'template selection logic' do
@@ -212,6 +243,9 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         end
 
         it 'selects 2018 legacy form class ID' do
+          allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
+            .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+
           expect(processor.send(:generate_2024_version?)).to be false
           expect(processor.send(:selected_form_class_id)).to eq('21-4142')
         end
@@ -219,6 +253,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         it 'calls PDF filler with 2018 legacy form ID' do
           expect(PdfFill::Filler).to receive(:fill_ancillary_form)
             .with(hash_including('veteranFullName' => anything), anything, '21-4142')
+            .and_wrap_original do |_m|
+              # Short-circuit the heavy logic
+              Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s
+            end
 
           processor
         end
@@ -230,6 +268,9 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         end
 
         it 'selects 2024 form class ID' do
+          allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
+            .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+
           expect(processor.send(:generate_2024_version?)).to be true
           expect(processor.send(:selected_form_class_id)).to eq('21-4142-2024')
         end
@@ -237,18 +278,31 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         it 'calls PDF filler with 2024 form ID' do
           expect(PdfFill::Filler).to receive(:fill_ancillary_form)
             .with(hash_including('veteranFullName' => anything), anything, '21-4142-2024')
+            .and_wrap_original do |_m|
+              # Short-circuit the heavy logic
+              Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s
+            end
 
           processor
         end
 
         it 'requires signature stamping when signature is present' do
-          # Assuming the test data includes signature information
-          expect(processor.send(:needs_signature_stamp?)).to be true
+          # We don't need this heavy processing as we're just testing needs_signature_stamp
+          allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
+            .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+
+          test_processor = described_class.new(form_data: form4142, submission_id: submission.id)
+          expect(test_processor.send(:needs_signature_stamp?)).to be true
         end
       end
     end
 
     describe 'feature flag integration' do
+      before do
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
+          .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+      end
+
       it 'correctly reads the team-specific template flag' do
         expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
         processor.send(:generate_2024_version?)
