@@ -141,6 +141,7 @@ module Users
       nil
     end
 
+    # rubocop:disable Metrics/MethodLength
     def mpi_profile
       status = user.mpi_status
       if status == :ok
@@ -165,6 +166,7 @@ module Users
         nil
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def veteran_status
       {
