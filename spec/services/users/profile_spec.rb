@@ -573,8 +573,9 @@ RSpec.describe Users::Profile do
         end
 
         it 'logs errors for mpi_profile' do
-          allow(logging_user).to receive(:mpi_status).and_return(:error)
-          allow(logging_user).to receive(:mpi_error).and_return(mpi_error)
+          allow(logging_user).to receive_messages(
+            mpi_status: :error, mpi_error:
+          )
           expect(Rails.logger).to receive(:warn) do |log_arg|
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_mpi_log_hash)
