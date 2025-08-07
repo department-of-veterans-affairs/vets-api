@@ -10,10 +10,9 @@ module SentryLogging
   DEPRECATION_MESSAGE = 'SentryLogging is deprecated and will be removed in October 2025. ' \
                         'Use Vets::SharedLogging instead.'
   DEPRECATION_INSTANCE = ActiveSupport::Deprecation.new
-  DEPRECATION_STATE = { shown: false }.freeze
 
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
-    show_deprecation_warning
+    # show_deprecation_warning
     level = normalize_level(level, nil)
     formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
     rails_logger(level, formatted_message)
@@ -25,7 +24,7 @@ module SentryLogging
   end
 
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
-    show_deprecation_warning
+    # show_deprecation_warning
     level = normalize_level(level, exception)
 
     if Settings.sentry.dsn.present?
@@ -75,12 +74,18 @@ module SentryLogging
 
   private
 
-  def show_deprecation_warning
-    return if DEPRECATION_STATE[:shown]
+  # def show_deprecation_warning
+  #   # Use a thread-safe approach with a mutex and instance variable on the module singleton
+  #   @deprecation_mutex ||= Mutex.new
+  #   return if instance_variable_defined?(:@deprecation_shown) && @deprecation_shown
 
-    DEPRECATION_INSTANCE.warn(DEPRECATION_MESSAGE)
-    DEPRECATION_STATE[:shown] = true
-  end
+  #   @deprecation_mutex.synchronize do
+  #     return if @deprecation_shown
+
+  #     DEPRECATION_INSTANCE.warn(DEPRECATION_MESSAGE)
+  #     @deprecation_shown = true
+  #   end
+  # end
 
   def set_sentry_metadata(extra_context, tags_context)
     Sentry.set_extras(extra_context) if non_nil_hash?(extra_context)
