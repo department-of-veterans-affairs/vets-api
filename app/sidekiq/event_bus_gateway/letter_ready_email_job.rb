@@ -69,6 +69,7 @@ module EventBusGateway
         document_path: "/v0/event_bus_gateway/send_email"
       }
       
+      # Track in GA
       tracker.event(event_params)
       
       # Track in Datadog for operational monitoring
