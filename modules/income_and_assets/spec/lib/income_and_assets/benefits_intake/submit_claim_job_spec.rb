@@ -23,8 +23,6 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
         let(:omit_esign_stamp) { true }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:pension_income_and_assets_overflow_pdf_redesign,
-                                                    anything).and_return(extras_redesign)
           job.instance_variable_set(:@claim, claim)
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
           allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
