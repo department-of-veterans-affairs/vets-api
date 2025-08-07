@@ -49,5 +49,12 @@ module ClaimsApi
                                                           exception_msg)
       end
     end
+
+    def validate_service_periods_present!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+      if service_periods.nil?
+        raise ::Common::Exceptions::UnprocessableEntity.new({ detail: 'List of service periods must be provided' })
+      end
+    end
   end
 end
