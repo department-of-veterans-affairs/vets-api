@@ -192,7 +192,6 @@ RSpec.describe FormProfile, type: :model do
           'last' => user.last_name.capitalize,
           'suffix' => 'Jr.'
         },
-        'ssn' => '796111863',
         'birthDate' => '1809-02-12'
       }
     }
