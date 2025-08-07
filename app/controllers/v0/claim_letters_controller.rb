@@ -5,6 +5,8 @@ require 'claim_letters/providers/claim_letters/lighthouse_claim_letters_provider
 
 module V0
   class ClaimLettersController < ApplicationController
+    before_action :set_api_provider
+
     Sentry.set_tags(feature: 'claim-letters')
     service_tag 'claim-status'
 
@@ -15,14 +17,9 @@ module V0
       log_metadata_to_datadog(docs)
 
       render json: docs
-    rescue => e
-      StatsD.increment("#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.index.#{@api_provider}")
-      ::Rails.logger.info("#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.index.#{@api_provider} error",
-                          { message_type: 'cst.api_provider.error',
-                            error_type: e.class.to_s,
-                            error_backtrace: e.backtrace&.first(3),
-                            api_provider: @api_provider })
-      raise e
+    rescue => error
+      log_api_provider_error(error)
+      raise error
     end
 
     def show
@@ -31,26 +28,24 @@ module V0
       service.get_letter(document_id) do |data, mime_type, disposition, filename|
         send_data(data, type: mime_type, disposition:, filename:)
       end
-    rescue => e
-      StatsD.increment("#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.show.#{@api_provider}")
-      ::Rails.logger.info("#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.show.#{@api_provider} error",
-                          { message_type: 'cst.api_provider.error',
-                            error_type: e.class.to_s,
-                            error_backtrace: e.backtrace&.first(3),
-                            api_provider: @api_provider })
-      raise e
+    rescue => error
+      log_api_provider_error(error)
+      raise error
     end
 
     private
 
+    def set_api_provider
+      @use_lighthouse = Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
+      @api_provider = @use_lighthouse ? 'lighthouse' : 'VBMS'
+    end
+
     def service
-      use_lighthouse = Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider, @current_user)
-      @api_provider = use_lighthouse ? 'lighthouse' : 'VBMS'
       ::Rails.logger.info('Choosing Claim Letters API Provider via cst_claim_letters_use_lighthouse_api_provider',
                           { message_type: 'cst.api_provider',
                             api_provider: @api_provider })
       Datadog::Tracing.active_trace&.set_tag('api_provider', @api_provider)
-      if use_lighthouse
+      if @use_lighthouse
         LighthouseClaimLettersProvider.new(@current_user)
       else
         ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
@@ -65,6 +60,17 @@ module V0
       ::Rails.logger.info('DDL Document Types Metadata',
                           { message_type: 'ddl.doctypes_metadata',
                             document_type_metadata: docs_metadata })
+    end
+
+    def log_api_provider_error(error)
+      metric_key = "#{VBMS_LIGHTHOUSE_MIGRATION_STATSD_KEY_PREFIX}.#{action_name}.#{@api_provider}"
+      StatsD.increment(metric_key)
+      ::Rails.logger.info("#{metric_key} error", {
+        message_type: 'cst.api_provider.error',
+        error_type: error.class.to_s,
+        error_backtrace: error.backtrace&.first(3),
+        api_provider: @api_provider
+      })
     end
   end
 end
