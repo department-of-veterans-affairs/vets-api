@@ -42,15 +42,21 @@ module Mobile
 
           render json: Mobile::V0::ClinicSlotsSerializer.new(response)
         else
-          render status: :bad_request, json: {
-            errors: [
-              {
-                status: 400,
-                detail: 'clinic_id or clinical_service is required.'
-              }
-            ]
-          }
+          render_facility_slots_error
         end
+      end
+
+      private
+
+      def render_facility_slots_error
+        render status: :bad_request, json: {
+          errors: [
+            {
+              status: 400,
+              detail: 'clinic_id or clinical_service is required.'
+            }
+          ]
+        }
       end
 
       private
