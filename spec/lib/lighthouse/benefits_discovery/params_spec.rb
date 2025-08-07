@@ -8,7 +8,12 @@ RSpec.describe BenefitsDiscovery::Params do
 
   let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
   let(:prepared_service_history_params) do
-    [{ startDate: '2012-03-02', endDate: '2018-10-31', dischargeStatus: 'HONORABLE_DISCHARGE', branchOfService: 'ARMY' }]
+    [{
+      startDate: '2012-03-02',
+      endDate: '2018-10-31',
+      dischargeStatus: 'HONORABLE_DISCHARGE',
+      branchOfService: 'ARMY'
+    }]
   end
 
   before do
