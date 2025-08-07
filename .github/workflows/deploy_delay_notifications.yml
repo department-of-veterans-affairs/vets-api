@@ -32,17 +32,63 @@ jobs:
       - name: Get deployed SHA for development
         id: dev-deploy-sha
         run: |
-          deployed_sha=$(curl -s https://dev-api.va.gov/v0/status | jq -r .git_revision)
-          echo "dev_deployed_sha=${deployed_sha}" >> $GITHUB_ENV
+          response=$(curl -s -w "\n%{http_code}" https://dev-api.va.gov/v0/status)
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+          
+          if [ "$http_code" == "503" ]; then
+            echo "⚠️ Dev API is in maintenance mode"
+            echo "dev_deployed_sha=" >> $GITHUB_ENV
+            echo "dev_maintenance=true" >> $GITHUB_ENV
+          elif [ "$http_code" != "200" ]; then
+            echo "❌ API returned HTTP $http_code"
+            echo "Response: $body"
+            echo "dev_deployed_sha=" >> $GITHUB_ENV
+            echo "dev_error=true" >> $GITHUB_ENV
+          else
+            deployed_sha=$(echo "$body" | jq -r .git_revision 2>/dev/null || echo "")
+            if [ -z "$deployed_sha" ] || [ "$deployed_sha" == "null" ]; then
+              echo "❌ Failed to parse git_revision from response"
+              echo "Response: $body"
+              echo "dev_deployed_sha=" >> $GITHUB_ENV
+              echo "dev_error=true" >> $GITHUB_ENV
+            else
+              echo "✅ Successfully retrieved SHA: ${deployed_sha:0:8}"
+              echo "dev_deployed_sha=${deployed_sha}" >> $GITHUB_ENV
+            fi
+          fi
 
       - name: Get deployed SHA for staging
         id: staging-deploy-sha
         run: |
-          deployed_sha=$(curl -s https://staging-api.va.gov/v0/status | jq -r .git_revision)
-          echo "staging_deployed_sha=${deployed_sha}" >> $GITHUB_ENV
+          response=$(curl -s -w "\n%{http_code}" https://staging-api.va.gov/v0/status)
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+          
+          if [ "$http_code" == "503" ]; then
+            echo "⚠️ Staging API is in maintenance mode"
+            echo "staging_deployed_sha=" >> $GITHUB_ENV
+            echo "staging_maintenance=true" >> $GITHUB_ENV
+          elif [ "$http_code" != "200" ]; then
+            echo "❌ API returned HTTP $http_code"
+            echo "Response: $body"
+            echo "staging_deployed_sha=" >> $GITHUB_ENV
+            echo "staging_error=true" >> $GITHUB_ENV
+          else
+            deployed_sha=$(echo "$body" | jq -r .git_revision 2>/dev/null || echo "")
+            if [ -z "$deployed_sha" ] || [ "$deployed_sha" == "null" ]; then
+              echo "❌ Failed to parse git_revision from response"
+              echo "Response: $body"
+              echo "staging_deployed_sha=" >> $GITHUB_ENV
+              echo "staging_error=true" >> $GITHUB_ENV
+            else
+              echo "✅ Successfully retrieved SHA: ${deployed_sha:0:8}"
+              echo "staging_deployed_sha=${deployed_sha}" >> $GITHUB_ENV
+            fi
+          fi
 
       - name: Check deployment status for development
-        if: ${{ env.latest_sha != '' && env.dev_deployed_sha != '' }}
+        if: ${{ env.latest_sha != '' }}
         id: check-dev-status
         run: |
           latest_sha=${{ env.latest_sha }}
@@ -51,8 +97,17 @@ jobs:
           info_message="Latest commit (${latest_sha:0:8}, ${commit_time}) to development"
           action_items="\n- <https://argocd.vfs.va.gov/applications/vets-api-dev|ArgoCD dev>\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml?query=branch%3Amaster|Build, Push, & Deploy> GitHub Action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>"
 
-
-          if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
+          # Check for maintenance or error conditions
+          if [ "${{ env.dev_maintenance }}" == "true" ]; then
+            echo "Development environment is in maintenance mode."
+            echo "dev_summary=⚠️ Development environment is in maintenance mode. Unable to check deployment status." >> $GITHUB_OUTPUT
+          elif [ "${{ env.dev_error }}" == "true" ]; then
+            echo "Error retrieving development deployment status."
+            echo "dev_summary=❌ Error retrieving development deployment status. Check the environment health." >> $GITHUB_OUTPUT
+          elif [ -z "${deployed_sha}" ]; then
+            echo "Unable to retrieve deployment SHA for development."
+            echo "dev_summary=❌ Unable to retrieve deployment SHA for development." >> $GITHUB_OUTPUT
+          elif [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "dev_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '45 minutes ago' +%s)" ]; then
@@ -69,7 +124,7 @@ jobs:
           fi
 
       - name: Check deployment status for staging
-        if: ${{ always() && env.latest_sha != '' && env.staging_deployed_sha != '' }}
+        if: ${{ always() && env.latest_sha != '' }}
         id: check-staging-status
         run: |
           latest_sha=${{ env.latest_sha }}
@@ -78,7 +133,17 @@ jobs:
           info_message="Latest commit (${latest_sha:0:8}, ${commit_time}) to staging"
           action_items="\n- <https://argocd.vfs.va.gov/applications/vets-api-staging|ArgoCD staging>\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml?query=branch%3Amaster|Build, Push, & Deploy> GitHub Action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>"
 
-          if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
+          # Check for maintenance or error conditions
+          if [ "${{ env.staging_maintenance }}" == "true" ]; then
+            echo "Staging environment is in maintenance mode."
+            echo "staging_summary=⚠️ Staging environment is in maintenance mode. Unable to check deployment status." >> $GITHUB_OUTPUT
+          elif [ "${{ env.staging_error }}" == "true" ]; then
+            echo "Error retrieving staging deployment status."
+            echo "staging_summary=❌ Error retrieving staging deployment status. Check the environment health." >> $GITHUB_OUTPUT
+          elif [ -z "${deployed_sha}" ]; then
+            echo "Unable to retrieve deployment SHA for staging."
+            echo "staging_summary=❌ Unable to retrieve deployment SHA for staging." >> $GITHUB_OUTPUT
+          elif [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "staging_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
           elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '45 minutes ago' +%s)" ]; then
