@@ -56,7 +56,7 @@ module Mobile
         Mobile::V0::TravelPayClaimSummary.new(
           id: claim_data['id'] || claim_data['claimId'],
           claimNumber: claim_data['claimNumber'] || '',
-          claimStatus: claim_data['claimStatus'] || claim_data['status']&.underscore&.humanize,
+          claimStatus: (claim_data['claimStatus'] || claim_data['status']).underscore.humanize,
           appointmentDateTime: claim_data['appointmentDateTime'] || (validated_params[:appointment_date_time] if use_validated_params),
           facilityId: claim_data['facilityId'] || (validated_params[:facility_station_number] if use_validated_params),
           facilityName: claim_data['facilityName'] || (validated_params[:facility_name] if use_validated_params),
