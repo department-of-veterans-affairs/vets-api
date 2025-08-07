@@ -10,7 +10,7 @@ module SentryLogging
   DEPRECATION_MESSAGE = 'SentryLogging is deprecated and will be removed in October 2025. ' \
                         'Use Vets::SharedLogging instead.'
   DEPRECATION_INSTANCE = ActiveSupport::Deprecation.new
-  @@deprecation_warning_shown = false
+  DEPRECATION_STATE = { shown: false }.freeze
 
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     show_deprecation_warning
@@ -76,10 +76,10 @@ module SentryLogging
   private
 
   def show_deprecation_warning
-    return if @@deprecation_warning_shown
+    return if DEPRECATION_STATE[:shown]
 
     DEPRECATION_INSTANCE.warn(DEPRECATION_MESSAGE)
-    @@deprecation_warning_shown = true
+    DEPRECATION_STATE[:shown] = true
   end
 
   def set_sentry_metadata(extra_context, tags_context)
