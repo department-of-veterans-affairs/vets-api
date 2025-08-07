@@ -22,7 +22,6 @@ module EventBusGateway
         personalisation: { host: HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
                            first_name: get_first_name_from_participant_id(participant_id) }
       )
-      
       # Track decision letter emails in Google Analytics
       track_decision_letter_email(ep_code, participant_id) if ep_code
     rescue => e
