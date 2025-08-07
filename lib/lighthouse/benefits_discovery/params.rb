@@ -30,13 +30,13 @@ module BenefitsDiscovery
         code = sh.character_of_discharge_code
         discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
         if discharge_type.nil?
-          Rails.logger.error("No matching discharge code for: #{discharge_type}")
+          Rails.logger.error("No matching discharge code for: #{code}")
           next
         end
         {
           startDate: sh.begin_date,
           endDate: sh.end_date,
-          dischargeStatus: discharge_type,
+          dischargeStatus: "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE",
           branchOfService: sh.branch_of_service&.upcase
         }
       end
@@ -56,19 +56,6 @@ module BenefitsDiscovery
       end
     end
 
-    # def discharge_status
-    #   service_history.map do |sh|
-    #     code = sh.character_of_discharge_code
-    #     discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
-    #     if discharge_type.nil?
-    #       Rails.logger.error("No matching discharge code for: #{discharge_type}")
-    #       nil
-    #     else
-    #       "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE"
-    #     end
-    #   end.compact
-    # end
-
     # this is also temporary code used for discovery purposes
     class << self
       def service_history(episodes)
@@ -76,13 +63,13 @@ module BenefitsDiscovery
           code = sh.character_of_discharge_code
           discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
           if discharge_type.nil?
-            Rails.logger.error("No matching discharge code for: #{discharge_type}")
+            Rails.logger.error("No matching discharge code for: #{code}")
             next
           end
           {
             startDate: sh.begin_date,
             endDate: sh.end_date,
-            dischargeStatus: discharge_type,
+            dischargeStatus: "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE",
             branchOfService: sh.branch_of_service&.upcase
           }
         end
