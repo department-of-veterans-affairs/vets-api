@@ -793,6 +793,7 @@ maintenance:
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
     appeals: P9S4RFU
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
+    askva: <%= ENV['maintenance__services__askva'] %>
     avs: <%= ENV['maintenance__services__avs'] %>
     bgs: P5Q2OCZ
     carma: <%= ENV['maintenance__services__carma'] %>
@@ -801,6 +802,7 @@ maintenance:
     coe: <%= ENV['maintenance__services__coe'] %>
     community_care_ds: <%= ENV['maintenance__services__community_care_ds'] %>
     decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
+    disability_compensation_form: <%= ENV['maintenance__services__disability_compensation_form'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
