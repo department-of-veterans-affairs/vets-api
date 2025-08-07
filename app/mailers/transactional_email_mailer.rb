@@ -15,12 +15,6 @@ class TransactionalEmailMailer < ApplicationMailer
     )
   end
 
-  def first_initial_last_name(name)
-    return '' if name.nil?
-
-    "#{name.first[0, 1]} #{name.last}"
-  end
-
   def first_and_last_name(name)
     return '' if name.nil?
 
