@@ -8,7 +8,7 @@ RSpec.describe BenefitsDiscovery::Params do
 
   let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
   let(:prepared_service_history_params) do
-    [{ startDate: "2012-03-02", endDate: "2018-10-31", dischargeStatus: "honorable", branchOfService: "ARMY" }]
+    [{ startDate: '2012-03-02', endDate: '2018-10-31', dischargeStatus: 'honorable', branchOfService: 'ARMY' }]
   end
 
   before do
@@ -19,10 +19,10 @@ RSpec.describe BenefitsDiscovery::Params do
     it 'returns the correct prepared parameters' do
       expected_params = {
         dateOfBirth: '1809-02-12',
-        dischargeStatus: ['GENERAL_DISCHARGE'],
-        branchOfService: ['ARMY'],
         disabilityRating: 100,
-        serviceDates: [{ beginDate: '2002-02-02', endDate: '2008-12-01' }]
+        serviceHistory: [{
+          startDate: '2002-02-02', endDate: '2008-12-01', dischargeStatus: 'general', branchOfService: 'ARMY'
+        }]
       }
 
       VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
