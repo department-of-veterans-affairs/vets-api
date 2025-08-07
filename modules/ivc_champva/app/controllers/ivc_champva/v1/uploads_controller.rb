@@ -248,9 +248,8 @@ module IvcChampva
             # Prepare the base response
             response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
 
-            # Add LLM analysis if enabled (convert form_id to mapped format)
-            mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
-            llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
+            # Add LLM analysis if enabled
+            llm_result = call_llm_service(attachment, params[:form_id], params['attachment_id'])
             response_data[:llm_response] = llm_result if llm_result.present?
 
             render json: response_data
@@ -280,7 +279,7 @@ module IvcChampva
       end
 
       def launch_ocr_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == 'vha_10_7959a'
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # queue Tesseract OCR job for tmpfile
             IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment, attachment_id)
@@ -294,7 +293,7 @@ module IvcChampva
       end
 
       def launch_llm_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == 'vha_10_7959a'
+        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # create a temp file from the persistent attachment object
             tmpfile = tempfile_from_attachment(attachment, form_id)
@@ -314,22 +313,25 @@ module IvcChampva
       ##
       # Calls the LLM service synchronously for immediate response
       # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file
-      # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
+      # @param [String] form_id The mapped form ID (e.g., '10-7959A')
       # @param [String] attachment_id The document type/attachment ID
       # @return [Hash, nil] LLM analysis result or nil if conditions not met
       def call_llm_service(attachment, form_id, attachment_id)
         return nil unless Flipper.enabled?(:champva_claims_llm_validation, @current_user)
-        return nil unless form_id == 'vha_10_7959a'
+        return nil unless form_id == '10-7959A'
 
         begin
           # create a temp file from the persistent attachment object
           tmpfile = tempfile_from_attachment(attachment, form_id)
           pdf_path = Common::ConvertToPdf.new(tmpfile).run
 
+          # Convert form_id to mapped format for LLM service
+          mapped_form_id = FORM_NUMBER_MAP[form_id]
+
           # Call LLM service synchronously
           llm_service = IvcChampva::LlmService.new
           llm_service.process_document(
-            form_id:,
+            form_id: mapped_form_id,
             file_path: pdf_path,
             uuid: attachment.guid,
             attachment_id:
