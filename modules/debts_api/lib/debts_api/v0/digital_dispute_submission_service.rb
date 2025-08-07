@@ -22,10 +22,12 @@ module DebtsApi
       end
 
       def call
+        submission = nil # needed in case validation fails before submission is assigned
         validate_files_present
         validate_files
 
-        submission = create_submission_record
+        submission = find_or_create_submission_for_idempotency
+        return success_result(submission) if @skip_processing
         return duplicate_submission_result(submission) if check_duplicate?(submission)
 
         send_to_dmc
@@ -35,6 +37,7 @@ module DebtsApi
         success_result(submission)
       rescue => e
         if Flipper.enabled?(:financial_management_digital_dispute_async)
+          submission&.register_failure(e.message)
           Rails.logger.error("DigitalDisputeSubmissionService error: #{e.message}\n#{e.backtrace.join("\n")}")
           raise e
         else
@@ -94,6 +97,26 @@ module DebtsApi
         name = File.basename(filename)
         name = name.tr(':', '_')
         name.gsub(/[.](?=.*[.])/, '')
+      end
+
+      def find_or_create_submission_for_idempotency
+        debt_ids = @metadata[:disputes]
+        return create_submission_record if debt_ids.blank?
+
+        existing = DebtsApi::V0::DigitalDisputeSubmission
+                     .where(user_uuid: @user.uuid, debt_identifiers: debt_ids)
+                     .order(created_at: :desc)
+                     .first
+
+        case existing&.state
+        when 'succeeded', 'pending'
+          @skip_processing = true
+          return existing
+        when 'failed'
+          return existing # retrying failed submission
+        else
+          create_submission_record
+        end
       end
 
       def create_submission_record
