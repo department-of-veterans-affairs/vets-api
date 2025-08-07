@@ -48,7 +48,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).twice.and_return(true)
 
         expect(Rails.logger).to receive(:info).with(
-          'finish form attachment creation',
+          'begin form attachment creation',
           {
             file_data_present: true,
             klass: 'ActionDispatch::Http::UploadedFile',
@@ -75,7 +75,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
         file_data = 'foo'
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
         expect(Rails.logger).to receive(:info).with(
-          'finish form attachment creation',
+          'begin form attachment creation',
           {
             file_data_present: true,
             klass: 'String',
@@ -100,7 +100,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
         expect(Rails.logger).to receive(:info).with(
-          'finish form attachment creation',
+          'begin form attachment creation',
           {
             file_data_present: true,
             klass: 'ActionDispatch::Http::UploadedFile',
@@ -131,7 +131,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
         expect(Rails.logger).to receive(:info).with(
-          'finish form attachment creation',
+          'begin form attachment creation',
           {
             file_data_present: true,
             klass: 'ActionDispatch::Http::UploadedFile',

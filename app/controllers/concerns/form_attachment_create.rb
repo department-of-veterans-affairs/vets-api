@@ -6,7 +6,7 @@ module FormAttachmentCreate
   def create
     debug_timestamp = Time.current.iso8601
     if Flipper.enabled?(:hca_log_form_attachment_create)
-      Rails.logger.info('finish form attachment creation',
+      Rails.logger.info('begin form attachment creation',
                         {
                           file_data_present: filtered_params[:file_data].present?,
                           klass: filtered_params[:file_data]&.class&.name,
