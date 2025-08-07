@@ -105,10 +105,10 @@ RSpec.describe BenefitsDiscovery::Params do
     end
   end
 
-  describe '.service_history' do
+  describe '.service_history_params' do
     it 'returns discharge status, branch of service, and service dates' do
       service_history_episodes = Array.wrap(build(:service_history))
-      expect(described_class.service_history(service_history_episodes)).to eq(prepared_service_history_params)
+      expect(described_class.service_history_params(service_history_episodes)).to eq(prepared_service_history_params)
     end
   end
 end

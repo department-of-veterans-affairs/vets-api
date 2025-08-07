@@ -58,7 +58,7 @@ module BenefitsDiscovery
 
     # this is also temporary code used for discovery purposes
     class << self
-      def service_history(episodes)
+      def service_history_params(episodes)
         episodes.map do |sh|
           code = sh.character_of_discharge_code
           discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]

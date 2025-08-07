@@ -84,7 +84,7 @@ module V0
       end
 
       def log_eligible_benefits(episodes)
-        params = ::BenefitsDiscovery::Params.service_history(episodes)
+        params = ::BenefitsDiscovery::Params.service_history_params(episodes)
         Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob.perform_async(current_user.uuid, params)
       rescue => e
         Rails.logger.error("Error logging eligible benefits: #{e.message}")
