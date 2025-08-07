@@ -801,7 +801,7 @@ maintenance:
     1010ezr: ~
     appeals: P9S4RFU
     arcgis: P45YBFA
-    askva: <%= ENV['maintenance__services__askva'] %>
+    askva: ~
     avs: ~
     bgs: P5Q2OCZ
     carma: P6XLE0T
