@@ -112,6 +112,15 @@ Rails.application.reloader.to_prepare do
     logger: Rails.logger,
     plugins: [plugin]
   )
+  Breakers.configure do |config|
+    config.service :MDOT do
+      # Circuit breaker settings
+    end
+
+    config.service :'dgi/letters' do
+      # Circuit breaker settings
+    end
+  end
 
   # No need to prefix it when using the namespace
   Breakers.redis_prefix = ''
