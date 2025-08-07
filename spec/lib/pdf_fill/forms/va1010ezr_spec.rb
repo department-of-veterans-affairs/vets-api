@@ -45,7 +45,7 @@ describe PdfFill::Forms::Va1010ezr do
             }
           )
         end
-        
+
         described_class.new(
           get_fixture('pdf_fill/10-10EZR/simple_with_missing_veteran_info')
         ).merge_fields

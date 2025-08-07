@@ -89,9 +89,7 @@ module PdfFill
       private
 
       def merge_full_name(type)
-        if @form_data[type].nil? && type == 'veteranFullName'
-          log_error(type, @form_data[type])
-        end
+        log_error(type, @form_data[type]) if @form_data[type].nil? && type == 'veteranFullName'
 
         @form_data[type] = EZ_FORMATTER.format_full_name(@form_data[type])
       end
@@ -109,17 +107,13 @@ module PdfFill
       end
 
       def merge_veteran_ssn(type)
-        if @form_data[type].nil?
-          log_error(type, @form_data[type])
-        end
+        log_error(type, @form_data[type]) if @form_data[type].nil?
 
         @form_data[type] = format_ssn(@form_data[type])
       end
 
       def merge_veteran_date_of_birth(type)
-        if @form_data[type].nil?
-          log_error(type, @form_data[type])
-        end
+        log_error(type, @form_data[type]) if @form_data[type].nil?
 
         @form_data['veteranDateOfBirth'] = format_date(@form_data['veteranDateOfBirth'])
       end
@@ -159,9 +153,7 @@ module PdfFill
       def merge_veteran_sex(type)
         value = SEX[@form_data[type]]
 
-        if value.nil?
-          log_error(type, @form_data[type])
-        end
+        log_error(type, @form_data[type]) if value.nil?
 
         @form_data[type] = value
       end
@@ -254,7 +246,7 @@ module PdfFill
         end
       end
 
-      def log_error(type, value)
+      def log_error(type, _value)
         Rails.logger.error(
           "Invalid #{type} value when filling out 10-10EZR pdf.",
           {
