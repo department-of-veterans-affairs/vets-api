@@ -1,0 +1,15 @@
+{
+  "personalInformation": {
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "emailAddress": "jane.smith@example.com",
+    "phoneNumber": "555-987-6543"
+  },
+  "applicationDetails": {
+    "programName": "Test Education Program",
+    "startDate": "2024-08-15",
+    "endDate": "2025-05-30"
+  },
+  "statementOfTruthSignature": "Jane Smith",
+  "dateSigned": "2024-03-01"
+}
