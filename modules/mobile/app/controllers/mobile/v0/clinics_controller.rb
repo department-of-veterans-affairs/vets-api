@@ -59,8 +59,6 @@ module Mobile
         }
       end
 
-      private
-
       def systems_service
         VAOS::V2::SystemsService.new(@current_user)
       end
