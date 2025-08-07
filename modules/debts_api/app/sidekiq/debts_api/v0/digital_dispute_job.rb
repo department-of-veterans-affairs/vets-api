@@ -11,7 +11,7 @@ module DebtsApi
         decoded_file(file)
       end
 
-      service = DigitalDisputeSubmissionService.new(user, decoded_files, metadata)
+      service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, decoded_files, metadata)
       service.call
     end
 
