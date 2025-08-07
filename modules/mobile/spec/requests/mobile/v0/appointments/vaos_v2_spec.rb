@@ -64,23 +64,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         end
       end
 
-      # describe 'start and end date params' do
-      #   it 'returns appointments within the date range' do
-      #     VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-      #       VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-      #         VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_range_of_dates',
-      #                          match_requests_on: %i[method uri]) do
-      #           get '/mobile/v0/appointments', headers: sis_headers, params:
-      #         end
-      #       end
-      #     end
-      #     appointments = response.parsed_body['data']
-      #     expect(appointments.count).to eq(5)
-      #     expect(response).to have_http_status(:ok)
-      #     assert_schema_conform(200)
-      #   end
-      # end
-
       context 'backfill facility service returns data' do
         it 'location is populated' do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
