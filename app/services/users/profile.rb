@@ -135,7 +135,9 @@ module Users
         fax_number: person.fax_number
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
+      error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
+      scaffold.errors << error_hash
+      log_external_service_error(error_hash)
       nil
     end
 
@@ -157,7 +159,9 @@ module Users
           active_mhv_ids: user.active_mhv_ids
         }
       else
-        scaffold.errors << Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
+        error_hash = Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
+        scaffold.errors << error_hash
+        log_external_service_error(error_hash)
         nil
       end
     end
@@ -169,7 +173,9 @@ module Users
         served_in_military: user.served_in_military?
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
+      error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
+      scaffold.errors << error_hash
+      log_external_service_error(error_hash)
       nil
     end
 
@@ -221,6 +227,16 @@ module Users
       {
         show: user.show_onboarding_flow_on_login
       }
+    end
+
+    def log_external_service_error(error_hash)
+      Rails.logger.warn(
+        {
+          error: error_hash,
+          user_uuid: user.uuid,
+          loa: user.loa
+        }.to_json
+      )
     end
   end
 end
