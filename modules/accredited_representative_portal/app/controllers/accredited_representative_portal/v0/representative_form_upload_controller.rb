@@ -119,10 +119,10 @@ module AccreditedRepresentativePortal
           # Trace tags
           span.set_tag('form_upload.form_id', attachment.form_id)
           span.set_tag('form_upload.attachment_type', model_klass.name)
-          if params['file'].respond_to?(:original_filename)
-            span.set_tag('form_upload.file_name', params['file'].original_filename)
+          if params[:file].respond_to?(:original_filename)
+            span.set_tag('form_upload.file_name', params[:file].original_filename)
           end
-          span.set_tag('form_upload.file_size', params['file'].size) if params['file'].respond_to?(:size)
+          span.set_tag('form_upload.file_size', params[:file].size) if params[:file].respond_to?(:size)
 
           json = serializer_klass.new(attachment).as_json.deep_transform_keys(&:camelize).deep_transform_keys! do |key|
             key.camelize(:lower)
