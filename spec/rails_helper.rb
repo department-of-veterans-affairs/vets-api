@@ -131,7 +131,6 @@ RSpec.configure do |config|
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
-  config.raise_errors_for_deprecations!
 
   %i[controller mdot_helpers request].each do |type|
     config.include(MDOTHelpers, type:)

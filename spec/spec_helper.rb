@@ -143,6 +143,7 @@ RSpec.configure do |config|
   config.filter_run_excluding skip: true unless ENV['PENDING'] == 'true'
   config.run_all_when_everything_filtered = true
   config.example_status_persistence_file_path = 'tmp/specs.txt'
+  config.raise_errors_for_deprecations!
 
   config.default_retry_count = 3 if ENV['CI']
 
