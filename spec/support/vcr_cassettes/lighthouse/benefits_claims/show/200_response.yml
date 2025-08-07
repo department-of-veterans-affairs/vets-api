@@ -420,6 +420,32 @@ http_interactions:
           "status": "NEEDED_FROM_OTHERS",
           "uploaded": true,
           "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "VA DD214",
+          "displayName": "Secondary Action Required",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "VA DD214",
+          "displayName": "Stage 2 Development",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
           }
           ]
           }

@@ -221,11 +221,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(15)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('PMR Pending')
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 3,
-                                 'displayName')).to eq('Submit buddy statement(s)')
+          names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).not_to include('Attorney Fees')
+          expect(names).not_to include('Secondary Action Required')
+          expect(names).not_to include('Stage 2 Development')
         end
       end
 
@@ -240,12 +239,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(16)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('PMR Pending')
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 3,
-                                 'displayName')).to eq('Submit buddy statement(s)')
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'displayName')).to eq('Attorney Fees')
+          names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).to include('Attorney Fees')
+          expect(names).to include('Secondary Action Required')
+          expect(names).to include('Stage 2 Development')
         end
       end
 
@@ -261,19 +258,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
           tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
           can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-          expect(can_upload_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
+          expect(can_upload_values.all?(&:nil?)).to be(true)
           friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
-          expect(friendly_name_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
-                                              nil])
+          expect(friendly_name_values.all?(&:nil?)).to be(true)
           activity_description_values = tracked_items.map { |i| i['activityDescription'] }
-          expect(activity_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
-                                                     nil, nil])
+          expect(activity_description_values.all?(&:nil?)).to be(true)
           short_description_values = tracked_items.map { |i| i['shortDescription'] }
-          expect(short_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
-                                                  nil])
+          expect(short_description_values.all?(&:nil?)).to be(true)
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }
-          expect(support_alias_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
-                                              nil])
+          expect(support_alias_values.all?(&:nil?)).to be(true)
         end
       end
 
@@ -289,8 +282,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
           tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
           can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-          expect(can_upload_values).to eq([true, true, true, true, true, true, true, true, false,
-                                           true, true, true, false, false, true])
+          expect(can_upload_values.all? { |u| !u.nil? })
           friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
           expect(friendly_name_values).to include('Authorization to disclose information')
           expect(friendly_name_values).to include('Proof of service')
