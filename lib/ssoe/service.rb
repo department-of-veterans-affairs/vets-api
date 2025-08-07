@@ -59,20 +59,18 @@ module SSOe
     def parse_response(response_body)
       parsed = Hash.from_xml(response_body)
 
-      if parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
-        icn = parsed['Envelope']['Body']['getSSOeTraitsByCSPIDResponse']['icn']
-        return { success: true, icn: } if icn.present?
-      end
+      icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
+      return { success: true, icn: } if icn.present?
+
+      fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
+      fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
 
       if parsed.dig('Envelope', 'Body', 'Fault')
-        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode')
-        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring')
-
         return {
           success: false,
           error: {
-            code: fault_code || 'UnknownError',
-            message: fault_string || 'Unable to parse SOAP response'
+            code: fault_code,
+            message: fault_string
           }
         }
       end
@@ -81,25 +79,6 @@ module SSOe
     rescue => e
       Rails.logger.error("[SSOe::Service::parse_response] Error parsing response: #{e.class} - #{e.message}")
       unknown_error
-    end
-
-    def extract_icn(doc)
-      doc.at_xpath('//getSSOeTraitsByCSPIDResponse/icn')&.text
-    end
-
-    def extract_fault(doc)
-      fault = doc.at_xpath('//Fault')
-      return unless fault
-
-      fault_code = fault.at_xpath('faultcode')&.text
-      fault_string = fault.at_xpath('faultstring')&.text
-      {
-        success: false,
-        error: {
-          code: fault_code,
-          message: fault_string
-        }
-      }
     end
 
     def unknown_error
