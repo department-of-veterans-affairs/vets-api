@@ -136,4 +136,4 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       end
     end
   end
-end 
+end
