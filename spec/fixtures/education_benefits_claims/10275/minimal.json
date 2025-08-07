@@ -1,0 +1,15 @@
+{
+  "personalInformation": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "emailAddress": "john.doe@example.com",
+    "phoneNumber": "555-123-4567"
+  },
+  "applicationDetails": {
+    "programName": "Test Program",
+    "startDate": "2024-09-01",
+    "endDate": "2025-06-30"
+  },
+  "statementOfTruthSignature": "John Doe",
+  "dateSigned": "2024-03-01"
+}
