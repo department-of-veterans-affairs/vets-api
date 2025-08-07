@@ -118,6 +118,7 @@ module PdfFill
       end
 
       return if k.blank?
+
       # If multiple keys(read-only, etc) are mapped to the same value, set the value for each key
       # Example PDF field data:
       # {
@@ -138,9 +139,7 @@ module PdfFill
       #   key: ['F[0].P3[0].VeteransName[0]', 'F[0].P4[0].VeteransName[0]',
       #   question_text: "VETERAN'S NAME (Last, First, Middle Name)."
       # }
-      if !k.is_a?(Array) && i.present?
-        k = k.gsub(ITERATOR, i.to_s)
-      end
+      k = k.gsub(ITERATOR, i.to_s) if !k.is_a?(Array) && i.present?
 
       if k.is_a?(Array)
         k.each do |key|
