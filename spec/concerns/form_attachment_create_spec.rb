@@ -45,7 +45,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'validates and saves attachment' do
         file_data = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).twice.and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).twice.and_return(true)
 
         expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
@@ -73,7 +73,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
 
       it 'logs validation failure when attachment is not a type of UploadedFile' do
         file_data = 'foo'
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
         expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
           {
@@ -97,7 +97,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'logs failure to save to cloud' do
         file_data = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
         expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
@@ -128,7 +128,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'logs failure to save to db' do
         file_data = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
         expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
