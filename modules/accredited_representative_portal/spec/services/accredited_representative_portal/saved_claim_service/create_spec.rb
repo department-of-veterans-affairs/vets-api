@@ -20,7 +20,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
     )
   end
 
-  let(:user_account) { create(:user_account) } # Add this line - you may need to adjust the factory name
+  let(:user_account) { create(:user_account) }
 
   let(:claimant_representative) do
     AccreditedRepresentativePortal::ClaimantRepresentative.new(
@@ -46,10 +46,12 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   describe 'with valid metadata' do
     fixture_path =
       'form_data/saved_claim/benefits_intake/dependent_claimant.json'
+
     dependent_claimant_form =
       load_fixture(fixture_path) do |fixture|
         JSON.parse(fixture)
       end
+
     let(:metadata) { dependent_claimant_form }
 
     describe 'attachment composition' do
@@ -57,6 +59,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
       let(:form_b) { create(:persistent_attachment_va_form, form_id: '21-686c') }
       let(:attachment_a) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
       let(:attachment_b) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
+
       let(:already_parented_attachment) do
         create(
           ##
@@ -67,6 +70,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
           form_id: '21-686c'
         )
       end
+
       let(:extraneous_type_attachment) do
         create(:persistent_attachment, form_id: '21-686c')
       end
@@ -102,16 +106,20 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
             expect_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
               receive(:perform)
             )
+
             claim = perform
+
             expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
             )
+
             claimant_representative_associated =
               AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
                 **claimant_representative.to_h,
                 saved_claim_id: claim.id,
                 claimant_type: 'dependent'
               )
+
             expect(claimant_representative_associated).to(
               be(true)
             )
@@ -137,16 +145,20 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
             expect_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
               receive(:perform)
             )
+
             claim = perform
+
             expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
             )
+
             claimant_representative_associated =
               AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
                 **claimant_representative.to_h,
                 saved_claim_id: claim.id,
                 claimant_type: 'dependent'
               )
+
             expect(claimant_representative_associated).to(
               be(true)
             )
