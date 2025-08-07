@@ -118,14 +118,7 @@ module PdfFill
       end
 
       return if k.blank?
-
-      k = k.gsub(ITERATOR, i.to_s) unless i.nil?
-
       # If multiple keys(read-only, etc) are mapped to the same value, set the value for each key
-      # Example field mapping:
-      # {
-      #   key: ['F[0].P3[0].VeteransName[0]', 'F[0].P4[0].VeteransName[0]', 'F[0].P5[0].VeteransName[0]'],
-      # }
       # Example PDF field data:
       # {
       #   "key": "F[0].P3[0].VeteransName[0]",
@@ -134,12 +127,21 @@ module PdfFill
       #   "type": "Text"
       # },
       # {
-      #   "key": "F[0].P3[0].VeteransName[0]",
+      #   "key": "F[0].P4[0].VeteransName[0]",
       #   "question_text": "VETERAN'S NAME (Last, First, Middle Name). This is a read only field. It is " \
       #                    "pre-filled from Page 3.",
       #   "options": null,
       #   "type": "Text"
       # }
+      # Example field mapping:
+      # {
+      #   key: ['F[0].P3[0].VeteransName[0]', 'F[0].P4[0].VeteransName[0]',
+      #   question_text: "VETERAN'S NAME (Last, First, Middle Name)."
+      # }
+      if !k.is_a?(Array) && i.present?
+        k = k.gsub(ITERATOR, i.to_s)
+      end
+
       if k.is_a?(Array)
         k.each do |key|
           @pdftk_form[key] = new_value
