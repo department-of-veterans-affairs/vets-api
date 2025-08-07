@@ -54,19 +54,19 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       end
     end
 
-          context 'with EP180 and feature flag enabled' do
-        let(:params) { { template_id: '5678', ep_code: 'EP180' } }
+    context 'with EP180 and feature flag enabled' do
+      let(:params) { { template_id: '5678', ep_code: 'EP180' } }
 
-        before do
-          allow(Flipper).to receive(:enabled?).with(:ep180_decision_letter_notifications).and_return(true)
-        end
-
-        it 'invokes the letter ready email job' do
-          expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', 'EP180')
-          post :send_email, params: params
-          expect(response).to have_http_status(:ok)
-        end
+      before do
+        allow(Flipper).to receive(:enabled?).with(:ep180_decision_letter_notifications).and_return(true)
       end
+
+      it 'invokes the letter ready email job' do
+        expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', 'EP180')
+        post :send_email, params: params
+        expect(response).to have_http_status(:ok)
+      end
+    end
 
     context 'with EP180 and feature flag disabled' do
       let(:params) { { template_id: '5678', ep_code: 'EP180' } }
