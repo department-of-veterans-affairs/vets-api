@@ -3,7 +3,6 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/field_mappings/va1010ezr'
 require 'pdf_fill/forms/formatters/va1010ez'
-require 'pdf_fill/forms/formatters/va1010ezr'
 require 'form1010_ezr/service'
 
 module PdfFill
@@ -11,8 +10,7 @@ module PdfFill
     class Va1010ezr < FormBase
       FORM_ID = Form1010Ezr::Service::FORM_ID
       OFF = 'Off'
-      EZ_FORMATTER = PdfFill::Forms::Formatters::Va1010ez
-      EZR_FORMATTER = PdfFill::Forms::Formatters::Va1010ezr
+      FORMATTER = PdfFill::Forms::Formatters::Va1010ez
       KEY = PdfFill::Forms::FieldMappings::Va1010ezr::KEY
 
       DEPENDENT_RELATIONSHIP = {
@@ -91,7 +89,7 @@ module PdfFill
       def merge_full_name(type)
         log_error(type, @form_data[type]) if @form_data[type].nil? && type == 'veteranFullName'
 
-        @form_data[type] = EZ_FORMATTER.format_full_name(@form_data[type])
+        @form_data[type] = FORMATTER.format_full_name(@form_data[type])
       end
 
       def merge_veteran_info
@@ -189,9 +187,9 @@ module PdfFill
       def merge_single_dependent
         dependent = @form_data['dependents'].first
 
-        dependent['fullName'] = EZ_FORMATTER.format_full_name(dependent['fullName'])
-        dependent['dateOfBirth'] = EZ_FORMATTER.format_date(dependent['dateOfBirth'])
-        dependent['becameDependent'] = EZ_FORMATTER.format_date(dependent['becameDependent'])
+        dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
+        dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
+        dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
 
         dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
         dependent['attendedSchoolLastYear'] = map_select_value(dependent['attendedSchoolLastYear'])
@@ -210,7 +208,7 @@ module PdfFill
       def merge_single_association(type)
         association = @form_data[type].first
 
-        association['fullName'] = EZ_FORMATTER.format_full_name(association['fullName'])
+        association['fullName'] = FORMATTER.format_full_name(association['fullName'])
         association['address'] = combine_full_address(association['address'])
         association['primaryPhone'] = format_phone_number(association['primaryPhone'])
       end
@@ -257,15 +255,15 @@ module PdfFill
       end
 
       def format_date(value)
-        EZ_FORMATTER.format_date(value)
+        FORMATTER.format_date(value)
       end
 
       def format_ssn(value)
-        EZR_FORMATTER.format_ssn(value)
+        FORMATTER.format_ssn(value)
       end
 
       def format_phone_number(value)
-        EZR_FORMATTER.format_phone_number(value)
+        FORMATTER.format_phone_number(value)
       end
     end
   end
