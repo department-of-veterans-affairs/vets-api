@@ -163,6 +163,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           }
         }
       end
+
       it 'does not raise an error' do
         expect { subject.validate_service_periods_present! }.not_to raise_error
       end
@@ -172,6 +173,60 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       it 'raises an UnprocessableEntity error' do
         expect { subject.validate_service_periods_present! }
           .to raise_error(Common::Exceptions::UnprocessableEntity)
+      end
+    end
+  end
+
+  describe '#validate_service_periods_quantity!' do
+    context 'when <= 100 service periods are provided' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => Array.new(100) do |_i|
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => '2005-01-01'
+              }
+            end
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_service_periods_quantity! }.not_to raise_error
+      end
+    end
+
+    context 'when > 100 service periods are provided' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => Array.new(101) do |_i|
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => '2005-01-01'
+              }
+            end
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_service_periods_quantity! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when fewer than 1 service_periods are provided' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => { 'servicePeriods' => [] }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_service_periods_quantity! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
   end
