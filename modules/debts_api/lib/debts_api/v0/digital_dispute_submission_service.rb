@@ -36,12 +36,11 @@ module DebtsApi
 
         success_result(submission)
       rescue => e
+        submission&.register_failure(e.message)
         if Flipper.enabled?(:financial_management_digital_dispute_async)
-          submission&.register_failure(e.message)
           Rails.logger.error("DigitalDisputeSubmissionService error: #{e.message}\n#{e.backtrace.join("\n")}")
           raise e
         else
-          submission&.register_failure(e.message)
           failure_result(e)
         end
       end
@@ -104,16 +103,16 @@ module DebtsApi
         return create_submission_record if debt_ids.blank?
 
         existing = DebtsApi::V0::DigitalDisputeSubmission
-                     .where(user_uuid: @user.uuid, debt_identifiers: debt_ids)
-                     .order(created_at: :desc)
-                     .first
+                   .where(user_uuid: @user.uuid, debt_identifiers: debt_ids)
+                   .order(created_at: :desc)
+                   .first
 
         case existing&.state
         when 'succeeded', 'pending'
           @skip_processing = true
-          return existing
+          existing
         when 'failed'
-          return existing # retrying failed submission
+          existing # retrying failed submission
         else
           create_submission_record
         end
