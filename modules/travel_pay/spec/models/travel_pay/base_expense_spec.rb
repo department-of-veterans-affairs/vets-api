@@ -120,8 +120,9 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
   end
 
   describe 'claim association' do
-    let(:mock_claim) { double('Claim', id: 'claim-uuid-123') }
     subject { described_class.new(valid_attributes) }
+
+    let(:mock_claim) { double('Claim', id: 'claim-uuid-123') }
 
     describe '#claim' do
       context 'when claim_id is nil' do
@@ -131,19 +132,20 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       end
 
       context 'when claim_id is set' do
+        let(:expense_with_claim) { described_class.new(valid_attributes.merge(claim_id: 'claim-uuid-123')) }
+
         before do
-          subject.claim_id = 'claim-uuid-123'
-          allow(subject).to receive(:find_claim_by_id).with('claim-uuid-123').and_return(mock_claim)
+          allow(expense_with_claim).to receive(:find_claim_by_id).with('claim-uuid-123').and_return(mock_claim)
         end
 
         it 'returns the associated claim' do
-          expect(subject.claim).to eq(mock_claim)
+          expect(expense_with_claim.claim).to eq(mock_claim)
         end
 
         it 'memoizes the claim' do
-          subject.claim
-          expect(subject).to receive(:find_claim_by_id).exactly(0).times
-          subject.claim
+          expense_with_claim.claim
+          expect(expense_with_claim).to receive(:find_claim_by_id).exactly(0).times
+          expense_with_claim.claim
         end
       end
     end
@@ -164,8 +166,9 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
   end
 
   describe 'receipt association' do
-    let(:mock_receipt) { double('Receipt', id: 'receipt-uuid-456') }
     subject { described_class.new(valid_attributes) }
+
+    let(:mock_receipt) { double('Receipt', id: 'receipt-uuid-456') }
 
     describe '#receipt_association' do
       it 'returns the receipt attribute' do
