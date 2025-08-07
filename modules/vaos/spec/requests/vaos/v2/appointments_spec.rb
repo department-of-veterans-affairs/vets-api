@@ -1434,28 +1434,28 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                             allow(StatsD).to receive(:increment).with(any_args)
 
-                            expect(StatsD).to receive(:increment)
-                              .with(described_class::APPT_DRAFT_CREATION_SUCCESS_METRIC,
-                                    tags: ['service:community_care_appointments'])
-                              .once
+                        expect(StatsD).to receive(:increment)
+                          .with('api.vaos.appointment_draft_creation.success',
+                                tags: ['service:community_care_appointments'])
+                          .once
 
-                            expect(StatsD).to receive(:increment)
-                              .with(described_class::REFERRAL_DRAFT_STATIONID_METRIC,
-                                    tags: [
-                                      'service:community_care_appointments',
-                                      'referring_facility_code:528A6',
-                                      'provider_npi:7894563210',
-                                      'station_id:528A6'
-                                    ])
-                              .once
+                        expect(StatsD).to receive(:increment)
+                          .with('api.vaos.referral_draft_station_id.access',
+                                tags: [
+                                  'service:community_care_appointments',
+                                  'referring_facility_code:528A6',
+                                  'provider_npi:7894563210',
+                                  'station_id:528A6'
+                                ])
+                          .once
 
-                            expect(StatsD).to receive(:increment)
-                              .with(described_class::PROVIDER_DRAFT_NETWORK_ID_METRIC,
-                                    tags: [
-                                      'service:community_care_appointments',
-                                      'network_id:sandbox-network-5vuTac8v'
-                                    ])
-                              .once
+                        expect(StatsD).to receive(:increment)
+                          .with('api.vaos.provider_draft_network_id.access',
+                                tags: [
+                                  'service:community_care_appointments',
+                                  'network_id:sandbox-network-5vuTac8v'
+                                ])
+                          .once
 
                             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
                             expect(response).to have_http_status(:created)

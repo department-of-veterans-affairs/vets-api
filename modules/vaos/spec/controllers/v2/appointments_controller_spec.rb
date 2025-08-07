@@ -149,7 +149,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
         )
         expect(StatsD).to have_received(:increment).with(
           described_class::APPT_CREATION_FAILURE_METRIC,
-          tags: ['service:community_care_appointments', 'error_type:conflict']
+          tags: ['service:community_care_appointments']
         )
       end
     end
