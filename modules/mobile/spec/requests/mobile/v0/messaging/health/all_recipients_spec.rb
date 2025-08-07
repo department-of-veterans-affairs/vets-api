@@ -53,7 +53,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
     end
 
     it 'filters out teams with preferred_team == false' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_preferred_team') do
+      VCR.use_cassette('sm_client/triage_teams/gets_all_triage_team_recipients_include_preferred_team') do
         get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
       end
       expect(response).to be_successful
