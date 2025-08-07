@@ -70,14 +70,7 @@ RSpec.describe SSOe::Service, type: :service do
         it 'handles unknown response format' do
           body = '<unexpected>response</unexpected>'
 
-          result = service.send(:parse_response, body)
-          expect(result).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 'UnknownError',
-                                   message: 'Unable to parse SOAP response'
-                                 }
-                               })
+          expect { service.send(:parse_response, body) }.to raise_error(StandardError, 'Unable to parse SOAP response')
         end
       end
     end
@@ -122,16 +115,9 @@ RSpec.describe SSOe::Service, type: :service do
     end
 
     context 'when the response is unexpected' do
-      it 'returns an unknown error' do
-        response = service.send(:parse_response, '<unexpected>response</unexpected>')
-
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 'UnknownError',
-                                   message: 'Unable to parse SOAP response'
-                                 }
-                               })
+      it 'raises an error' do
+        body = '<unexpected>response</unexpected>'
+        expect { service.send(:parse_response, body) }.to raise_error(StandardError, 'Unable to parse SOAP response')
       end
     end
 
@@ -183,20 +169,30 @@ RSpec.describe SSOe::Service, type: :service do
       end
     end
 
-    context 'when an unexpected error occurs' do
+    context 'when an unexpected error occurs', vcr: false do
       before do
-        allow(Faraday).to receive(:post).and_raise(StandardError, 'Unexpected error')
+        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_raise(StandardError, 'Unexpected error')
       end
 
-      it 'logs the error and returns nil' do
-        expect(Rails.logger).to receive(:error).with(/Unexpected error/)
+      it 'logs the error and returns an unknown error response' do
+        expect(Rails.logger).to receive(:error).with(
+          /\[SSOe::Service::get_traits\] Unexpected error: StandardError - Unexpected error/
+        )
+
         response = service.get_traits(
           credential_method:,
           credential_id:,
           user:,
           address:
         )
-        expect(response).to be_nil
+
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 'UnknownError',
+                                   message: 'Unable to parse SOAP response'
+                                 }
+                               })
       end
     end
   end
