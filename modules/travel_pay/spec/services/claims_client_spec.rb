@@ -46,6 +46,12 @@ describe TravelPay::ClaimsClient do
           200,
           {},
           {
+            'totalRecordCount' => 3,
+            'statusCode' => 200,
+            'success' => true,
+            'pageNumber' => 1,
+            'pageSize' => 50,
+            'message' => 'Successfully retrieved claims',
             'data' => [
               {
                 'id' => 'uuid1',
@@ -82,7 +88,10 @@ describe TravelPay::ClaimsClient do
       expected_ids = %w[uuid1 uuid2 uuid3]
 
       client = TravelPay::ClaimsClient.new
-      claims_response = client.get_claims('veis_token', 'btsss_token')
+      claims_response = client.get_claims('veis_token', 'btsss_token', {
+                                            page_number: 1,
+                                            page_size: 50
+                                          })
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
       expect(StatsD).to have_received(:measure)

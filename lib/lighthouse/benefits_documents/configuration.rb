@@ -20,6 +20,7 @@ module BenefitsDocuments
     DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
     CLAIMS_LETTERS_SEARCH_PATH = "#{BASE_PATH}/claim-letters/search".freeze
     CLAIMS_LETTER_DOWNLOAD_PATH = "#{BASE_PATH}/claim-letters/download".freeze
+    DOCUMENT_VALIDATE_CLAIMANT_PATH = "#{DOCUMENTS_PATH}/validate/claimant".freeze
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
 
@@ -177,6 +178,31 @@ module BenefitsDocuments
         }
       }
       connection.post(CLAIMS_LETTER_DOWNLOAD_PATH, body, headers)
+    end
+
+    ##
+    # Validates that a claimant (via participant ID) can upload documents of the
+    # given document type for the provided claim ID
+    #
+    # @return [Faraday::Response] response from POST request
+    #
+    def claimant_can_upload_document(document_data)
+      headers = { 'Authorization' => "Bearer #{
+          access_token(
+            nil,
+            nil,
+            {}
+          )
+        }" }
+
+      body = {
+        'data' => {
+          'docType' => document_data.document_type,
+          'participantId' => document_data.participant_id,
+          'claimId' => document_data.claim_id
+        }
+      }
+      connection.post(DOCUMENT_VALIDATE_CLAIMANT_PATH, body, headers)
     end
 
     ##

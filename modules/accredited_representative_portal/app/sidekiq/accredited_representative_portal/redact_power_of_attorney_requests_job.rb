@@ -91,23 +91,25 @@ module AccreditedRepresentativePortal
         submission = request.power_of_attorney_form_submission
         resolution = request.resolution
 
-        # 1. Delete associated form
-        form&.delete
+        if Flipper.enabled?(:accredited_representative_portal_full_poa_redaction)
+          # 1. Delete associated form
+          form&.delete
 
-        # 2. Redact submission data using update_columns direct to the db
-        # we're using #update_columns to skip validation because the redaction
-        # removes required fields and will leave the record invalid
-        # rubocop:disable Rails/SkipsModelValidations
-        if submission.present?
-          submission.update_columns(
-            # Use the actual ciphertext/key column names
-            service_response_ciphertext: nil,
-            error_message_ciphertext: nil
-          )
+          # 2. Redact submission data using update_columns direct to the db
+          # we're using #update_columns to skip validation because the redaction
+          # removes required fields and will leave the record invalid
+          # rubocop:disable Rails/SkipsModelValidations
+          if submission.present?
+            submission.update_columns(
+              # Use the actual ciphertext/key column names
+              service_response_ciphertext: nil,
+              error_message_ciphertext: nil
+            )
+          end
+
+          # 3. Redact resolution data using update_columns
+          resolution.update_columns(reason_ciphertext: nil) if resolution.present?
         end
-
-        # 3. Redact resolution data using update_columns
-        resolution.update_columns(reason_ciphertext: nil) if resolution.present?
 
         # 4. Mark request as redacted
         # update_column is fine here as it's just one field

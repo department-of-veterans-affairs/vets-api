@@ -58,6 +58,18 @@ module Burials
     end
 
     ##
+    # Provides a mapping from claim attachment keys (as used in claim models)
+    # to in-progress form keys (as used in InProgressForm#form_data) for Burials
+    def attachment_key_map
+      {
+        transportationReceipts: :transportation_receipts,
+        deathCertificate: :death_certificate,
+        militarySeparationDocuments: :military_separation_documents,
+        additionalEvidence: :additional_evidence
+      }.freeze
+    end
+
+    ##
     # Parse claimant's email address from the parsed_form.
     #
     # @return [String, nil]
@@ -83,6 +95,11 @@ module Burials
     # @return [String]
     def business_line
       'NCA'
+    end
+
+    # the VBMS document type for _this_ claim type
+    def document_type
+      133
     end
 
     ##
@@ -119,6 +136,13 @@ module Burials
       claimed << 'Plot Allowance' if parsed_form['plotAllowance']
       claimed << 'Transportation' if parsed_form['transportation']
       claimed
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(email_type)
+      Burials::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

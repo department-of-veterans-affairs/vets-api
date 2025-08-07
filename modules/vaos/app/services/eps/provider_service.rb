@@ -82,7 +82,6 @@ module Eps
 
       loop do
         check_pagination_timeout(start_time, provider_id)
-
         params = build_slot_params(next_token, opts)
         response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
                            request_headers_with_correlation_id)
@@ -110,35 +109,96 @@ module Eps
     # matching NPI, specialty and address.
     #
     def search_provider_services(npi:, specialty:, address:)
-      with_monitoring do
-        query_params = { npi:, isSelfSchedulable: true }
-        response = perform(:get, "/#{config.base_path}/provider-services", query_params,
-                           request_headers_with_correlation_id)
+      validate_search_params(npi, specialty, address)
 
-        return nil if response.body[:provider_services].blank?
+      response = fetch_provider_services(npi)
+      return nil if response.body[:provider_services].blank?
 
-        # Step 1: Filter providers by specialty only
-        specialty_matches = response.body[:provider_services].select do |provider|
-          specialty_matches?(provider, specialty)
-        end
+      specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
+      return nil if specialty_matches.empty?
 
-        return nil if specialty_matches.empty?
+      return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
 
-        # Step 2: Filter specialty matches by address
-        address_match = specialty_matches.find do |provider|
-          address_matches?(provider, address)
-        end
-
-        if address_match.nil?
-          Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI")
-        end
-
-        # Return address match if found, otherwise nil (avoid false positives)
-        address_match&.then { |provider| OpenStruct.new(provider) }
-      end
+      find_address_match(specialty_matches, address)
     end
 
     private
+
+    ##
+    # Validates required search parameters
+    #
+    # @param npi [String] Provider NPI
+    # @param specialty [String] Provider specialty
+    # @param address [Hash] Provider address
+    # @raise [ArgumentError] If any required parameter is blank
+    #
+    def validate_search_params(npi, specialty, address)
+      raise ArgumentError, 'Provider NPI is required and cannot be blank' if npi.blank?
+      raise ArgumentError, 'Provider specialty is required and cannot be blank' if specialty.blank?
+      raise ArgumentError, 'Provider address is required and cannot be blank' if address.blank?
+    end
+
+    ##
+    # Fetches provider services from EPS API
+    #
+    # @param npi [String] Provider NPI
+    # @return [Object] Response from EPS API
+    #
+    def fetch_provider_services(npi)
+      with_monitoring do
+        query_params = { npi:, isSelfSchedulable: true }
+        perform(:get, "/#{config.base_path}/provider-services", query_params,
+                request_headers_with_correlation_id)
+      end
+    end
+
+    ##
+    # Filters providers by specialty
+    #
+    # @param providers [Array] List of providers from EPS response
+    # @param specialty [String] Specialty to match
+    # @return [Array] Providers matching the specialty
+    #
+    def filter_by_specialty(providers, specialty)
+      providers.select do |provider|
+        specialty_matches?(provider, specialty)
+      end
+    end
+
+    ##
+    # Handles the case when only one specialty match is found
+    #
+    # @param specialty_matches [Array] List of specialty matches
+    # @return [OpenStruct] The single provider match
+    #
+    def handle_single_specialty_match(specialty_matches)
+      Rails.logger.info('Single specialty match found for NPI, skipping address validation')
+      OpenStruct.new(specialty_matches.first)
+    end
+
+    ##
+    # Finds provider that matches both specialty and address
+    #
+    # @param specialty_matches [Array] List of specialty matches
+    # @param address [Hash] Address to match against
+    # @return [OpenStruct, nil] Provider match or nil if no match found
+    #
+    def find_address_match(specialty_matches, address)
+      address_match = specialty_matches.find do |provider|
+        address_matches?(provider, address)
+      end
+
+      if address_match.nil?
+        warn_data = {
+          specialty_matches_count: specialty_matches.size,
+          user_uuid: @current_user&.uuid
+        }
+        message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
+        Rails.logger.warn(message, warn_data)
+      end
+
+      address_match&.then { |provider| OpenStruct.new(provider) }
+    end
 
     ##
     # Checks if pagination has exceeded the timeout limit
@@ -151,9 +211,12 @@ module Eps
       timeout_seconds = config.pagination_timeout_seconds
       return unless Time.current - start_time > timeout_seconds
 
-      Rails.logger.error(
-        "Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}"
-      )
+      error_data = {
+        provider_id:,
+        timeout_seconds:,
+        user_uuid: @current_user&.uuid
+      }
+      Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(
         'PROVIDER_SLOTS_TIMEOUT',
         source: self.class.to_s
@@ -163,14 +226,19 @@ module Eps
     ##
     # Builds parameters for slot request based on token availability
     #
-    # @param next_token [String] Token for pagination
-    # @param opts [Hash] Original request options
+    # For initial requests (next_token is nil), validates all required parameters including appointmentId.
+    # For pagination requests (next_token is present), includes both nextToken and appointmentId.
+    # The appointmentId is guaranteed to exist in opts when next_token is present, since next_token
+    # only exists after a successful initial request that required appointmentId.
+    #
+    # @param next_token [String] Token for pagination (only present for subsequent requests)
+    # @param opts [Hash] Original request options containing appointmentId and other required params
     # @return [Hash] Parameters for the API request
     #
     def build_slot_params(next_token, opts)
-      return { nextToken: next_token } if next_token
+      return { nextToken: next_token, appointmentId: opts[:appointmentId] } if next_token
 
-      required_params = %i[appointmentTypeId startOnOrAfter startBefore]
+      required_params = %i[appointmentTypeId startOnOrAfter startBefore appointmentId]
       missing_params = required_params - opts.keys
 
       raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
@@ -212,10 +280,14 @@ module Eps
 
       # Log for monitoring if some components match but not all (helps identify format issues)
       if zip_matches && !street_matches
-        Rails.logger.warn("Provider address partial match - Street: #{street_matches}, " \
-                          "Zip: #{zip_matches}. " \
-                          "Provider: '#{provider_address}', " \
-                          "Referral: '#{address[:street1]}, #{address[:zip]}'")
+        warn_data = {
+          street_matches:,
+          zip_matches:,
+          provider_address:,
+          referral_address: "#{address[:street1]}, #{address[:zip]}",
+          user_uuid: @current_user&.uuid
+        }
+        Rails.logger.warn("#{CC_APPOINTMENTS}: Provider address partial match", warn_data)
       end
 
       street_matches && zip_matches

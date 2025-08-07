@@ -101,6 +101,9 @@ http_interactions:
        "statusCode": 200,
         "message": "nice job everyone",
         "success": true,
+        "pageNumber": 1,
+        "pageSize": 50,
+        "totalRecordCount": 1,
         "data": [
           {
             "id": "claim_id_1",

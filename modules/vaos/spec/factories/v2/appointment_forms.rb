@@ -375,7 +375,7 @@ FactoryBot.define do
       telehealth
       extension do
         {
-          vvs_vista_video_appt: 'true'
+          vvs_vista_video_appt: true
         }
       end
     end
@@ -385,7 +385,7 @@ FactoryBot.define do
       telehealth
       extension do
         {
-          vvs_vista_video_appt: 'false'
+          vvs_vista_video_appt: false
         }
       end
     end

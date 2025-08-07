@@ -44,17 +44,17 @@ module AccreditedRepresentativePortal
     end
 
     def self.report_success(base_metric, tags)
-      StatsD.increment("#{base_metric}.delivered", **tags)
-      StatsD.increment('silent_failure_avoided', **tags)
+      StatsD.increment("#{base_metric}.delivered", tags:)
+      StatsD.increment('silent_failure_avoided', tags:)
     end
 
     def self.report_failure(notification, base_metric, tags)
-      StatsD.increment("#{base_metric}.#{notification.status}", **tags)
+      StatsD.increment("#{base_metric}.#{notification.status}", tags:)
       Rails.logger.error(build_log_payload(notification, tags).to_json)
     end
 
     def self.report_other(notification, base_metric, tags)
-      StatsD.increment("#{base_metric}.other", **tags)
+      StatsD.increment("#{base_metric}.other", tags:)
       Rails.logger.warn(build_log_payload(notification, tags).merge(message: 'Unhandled callback status').to_json)
     end
 
