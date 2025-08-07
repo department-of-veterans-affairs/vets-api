@@ -11,7 +11,6 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
   end
 
   describe 'POST #send_email' do
-
     context 'with EP120 and feature flag enabled' do
       let(:params) { { template_id: '5678', ep_code: 'EP120' } }
 
@@ -21,7 +20,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'invokes the letter ready email job' do
         expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', 'EP120')
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -35,7 +34,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'does not invoke any email jobs' do
         expect(EventBusGateway::LetterReadyEmailJob).not_to receive(:perform_async)
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -49,7 +48,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'invokes the letter ready email job' do
         expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', '120')
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -63,7 +62,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'invokes the letter ready email job' do
         expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', 'EP180')
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -77,7 +76,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'does not invoke any email jobs' do
         expect(EventBusGateway::LetterReadyEmailJob).not_to receive(:perform_async)
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -91,7 +90,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'invokes the letter ready email job' do
         expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', '180')
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -101,7 +100,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
       it 'invokes the letter ready email job' do
         expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('123456789', '5678', 'EP110')
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -110,7 +109,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       let(:params) { { template_id: '5678' } }
 
       it 'returns a bad request error' do
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)).to eq({ 'error' => 'ep_code is required' })
       end
@@ -120,7 +119,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       let(:params) { { template_id: '5678', ep_code: '' } }
 
       it 'returns a bad request error' do
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)).to eq({ 'error' => 'ep_code is required' })
       end
@@ -130,7 +129,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       let(:params) { { ep_code: 'EP110' } }
 
       it 'returns a bad request error' do
-        post :send_email, params: params
+        post(:send_email, params:)
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)).to eq({ 'error' => 'template_id is required' })
       end

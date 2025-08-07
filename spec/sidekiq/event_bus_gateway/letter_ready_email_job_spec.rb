@@ -62,10 +62,10 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
         expect(tracker).to receive(:event).with(expected_event_params)
         expect(Rails.logger).to receive(:info).with('Decision Letter Email Tracked', {
-          ep_code: 'EP120',
-          participant_id: participant_id,
-          ga_tracking_id: 'UA-XXXXXXXXX-1'
-        })
+                                                      ep_code: 'EP120',
+                                                      participant_id:,
+                                                      ga_tracking_id: 'UA-XXXXXXXXX-1'
+                                                    })
 
         subject.new.perform(participant_id, template_id, ep_code)
       end
@@ -86,10 +86,10 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
         expect(tracker).to receive(:event).with(expected_event_params)
         expect(Rails.logger).to receive(:info).with('Decision Letter Email Tracked', {
-          ep_code: 'EP180',
-          participant_id: participant_id,
-          ga_tracking_id: 'UA-XXXXXXXXX-1'
-        })
+                                                      ep_code: 'EP180',
+                                                      participant_id:,
+                                                      ga_tracking_id: 'UA-XXXXXXXXX-1'
+                                                    })
 
         subject.new.perform(participant_id, template_id, ep_code)
       end
@@ -107,10 +107,10 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         allow(Rails.logger).to receive(:error)
 
         expect(Rails.logger).to receive(:error).with('Failed to track decision letter email', {
-          ep_code: ep_code,
-          error: 'GA tracking failed',
-          participant_id: participant_id
-        })
+                                                       ep_code:,
+                                                       error: 'GA tracking failed',
+                                                       participant_id:
+                                                     })
 
         subject.new.perform(participant_id, template_id, ep_code)
       end
