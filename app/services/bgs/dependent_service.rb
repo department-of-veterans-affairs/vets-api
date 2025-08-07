@@ -21,6 +21,8 @@ module BGS
 
     STATS_KEY = 'bgs.dependent_service'
 
+    class PDFSubmissionError < StandardError; end
+
     def initialize(user)
       @first_name = user.first_name
       @middle_name = user.middle_name
@@ -55,9 +57,9 @@ module BGS
         @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
       end
 
-      {
-        submit_form_job_id:
-      }
+      { submit_form_job_id: }
+    rescue PDFSubmissionError
+      submit_to_central_service(claim:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
@@ -106,13 +108,10 @@ module BGS
       @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
     rescue => e
-      # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       @monitor.track_event('warn',
                            'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      submit_to_central_service(claim:)
-
-      raise e
+      raise PDFSubmissionError, e.message
     end
 
     def submit_claim_via_claims_evidence(claim)
