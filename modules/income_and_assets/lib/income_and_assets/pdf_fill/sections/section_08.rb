@@ -58,8 +58,6 @@ module IncomeAndAssets
           # 8e
           'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
           'addedFundsAfterEstablishmentOverflow' => {
-            key: 'addedFundsAfterEstablishmentOverflow', # Fake key for overflow handling
-            limit: 11,
             question_num: 8,
             question_suffix: 'E',
             question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?',
@@ -101,8 +99,6 @@ module IncomeAndAssets
           # 8h
           'receivingIncomeFromTrust' => { key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]" },
           'receivingIncomeFromTrustOverflow' => {
-            key: 'receivingIncomeFromTrustOverflow', # Fake key for overflow handling
-            limit: 11,
             question_num: 8,
             question_suffix: 'H',
             question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? ',
@@ -225,6 +221,17 @@ module IncomeAndAssets
           'haveAuthorityOrControlOfTrust' => item['haveAuthorityOrControlOfTrust'] ? 0 : 1
         }
 
+        merge_overflow_and_overrides(item, expanded)
+      end
+
+      ##
+      # Merges overflow fields and overrides into the expanded trust data.
+      #
+      # @param item [Hash] The original trust item data.
+      # @param expanded [Hash] The expanded trust data.
+      # @return [Hash] The merged data with overflow and overrides.
+      #
+      def merge_overflow_and_overrides(item, expanded)
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = item[fieldname]

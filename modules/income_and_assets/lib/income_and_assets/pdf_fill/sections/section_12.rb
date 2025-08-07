@@ -144,10 +144,8 @@ module IncomeAndAssets
         recipient_relationship = item['recipientRelationship']
         payment_resume_date = item['paymentResumeDate']
 
-        overflow_fields = %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome]
-
         expanded = item.clone
-        overflow_fields.each do |field|
+        %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome].each do |field|
           expanded["#{field}Overflow"] = item[field]
         end
 

@@ -185,7 +185,6 @@ module IncomeAndAssets
       # @return [Hash]
       #
       def expand_item(item)
-        market_value = item['marketValueAtEstablishment']
         expanded = {
           'addedFundsDate' => split_date(item['addedFundsDate']),
           'addedFundsAmount' => split_currency_amount_lg(item['addedFundsAmount'], { 'millions' => 1 }),
@@ -196,9 +195,21 @@ module IncomeAndAssets
           'annualReceivedIncome' => split_currency_amount_lg(item['annualReceivedIncome'], { 'millions' => 1 }),
           'revocable' => item['revocable'] ? 0 : 1,
           'establishedDate' => split_date(item['establishedDate']),
-          'marketValueAtEstablishment' => split_currency_amount_lg(market_value, { 'millions' => 1 })
+          'marketValueAtEstablishment' => split_currency_amount_lg(item['marketValueAtEstablishment'],
+                                                                   { 'millions' => 1 })
         }
 
+        merge_overflow_and_overrides(item, expanded)
+      end
+
+      ##
+      # Merges overflow fields and overrides into the expanded annuity data.
+      #
+      # @param item [Hash] The original annuity item data.
+      # @param expanded [Hash] The expanded annuity data.
+      # @return [Hash] The merged data with overflow and overrides.
+      #
+      def merge_overflow_and_overrides(item, expanded)
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = item[fieldname]
@@ -208,7 +219,7 @@ module IncomeAndAssets
           'addedFundsAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['addedFundsAmount']),
           'surrenderValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['surrenderValue']),
           'annualReceivedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['annualReceivedIncome']),
-          'marketValueAtEstablishmentOverflow' => ActiveSupport::NumberHelper.number_to_currency(market_value)
+          'marketValueAtEstablishmentOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['marketValueAtEstablishment'])
         }
 
         expanded.merge(overflow).merge(overrides)

@@ -127,13 +127,13 @@ module PdfFill
       return true if pdftk_keys[:always_overflow]
       return true if arr.size > (pdftk_keys[:limit] || 0)
 
-      # Removed iterative check for overflow on each item in the array
-      # as it was causing entire arrays to overflow even if a single
-      # field within the array exceeded the field level character limit.
-      # This was leading to unnecessary overflow handling for arrays
-      # that did not actually exceed the overall array limit.
-      # This change ensures that only the array as a whole is checked
-      # against the defined limit, rather than each individual item.
+      arr.each do |item|
+        next if item.blank? || !item.is_a?(Hash)
+
+        item.each do |k, v|
+          return true if overflow?(pdftk_keys[k], v)
+        end
+      end
 
       false
     end
