@@ -19,6 +19,7 @@ module Mobile
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
         resource.records = resource.records.reject(&:blocked_status)
+        resource.records = resource.records.select(&:preferred_team)
         resource = resource.sort(params[:sort])
 
         # Even though this is a collection action we are not going to paginate
