@@ -44,6 +44,7 @@ module AccreditedRepresentativePortal
       @intake_service = ::BenefitsIntake::Service.new
       @user_account_uuid = @claim.user_account_id
       @monitor = AccreditedRepresentativePortal::Monitor.new
+      send_confirmation_email
     end
 
     def send_confirmation_email
