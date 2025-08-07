@@ -29,7 +29,9 @@ RSpec.describe BGS::DependentService do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive(:id).and_return('1234')
+    allow(claim).to receive_messages(id: '1234', use_v2: false, user_account_id: user.user_account_uuid,
+                                     submittable_686?: false, submittable_674?: true, add_veteran_info: true,
+                                     valid?: true, persistent_attachments: [], upload_pdf: true, form_id: '686C-674')
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
@@ -165,6 +167,43 @@ RSpec.describe BGS::DependentService do
           true, true
         )
         service.submit_686c_form(claim)
+      end
+    end
+
+    context 'on error' do
+      let(:monitor) { instance_double(Dependents::Monitor) }
+
+      before do
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor).at_least(:once)
+        allow(monitor).to receive(:track_event).at_least(:once)
+      end
+
+      it 'submits to backup job on pdf submission errors' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError,
+                                                                                  'Test error')
+          service = BGS::DependentService.new(user)
+          expect(service).not_to receive(:log_exception_to_sentry)
+          expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
+          expect(service).to receive(:submit_to_central_service)
+
+          service.submit_686c_form(claim)
+        end
+      end
+
+      it 'in case of other errors it logs the exception and raises a custom error' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(BGS::SubmitForm686cJob).to receive(:perform_async).and_raise(StandardError,
+                                                                             'Test error')
+
+          service = BGS::DependentService.new(user)
+          expect(service).to receive(:log_exception_to_sentry)
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
+
+          expect do
+            service.submit_686c_form(claim)
+          end.to raise_error(StandardError, 'Test error')
+        end
       end
     end
   end
@@ -365,6 +404,32 @@ RSpec.describe BGS::DependentService do
                                                     "#{stats_key}.submit_pdf.completed")
 
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+    end
+  end
+
+  describe '#submit_pdf_job' do
+    before do
+      allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
+    end
+
+    it 'calls the VBMS::SubmitDependentsPdfJob with the correct arguments' do
+      service = BGS::DependentService.new(user)
+      expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+        claim.id, encrypted_vet_info, false,
+        true
+      )
+      # use 'send' to call the private method
+      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+    end
+
+    it 'in case of error it logs the exception and raises a custom error' do
+      service = BGS::DependentService.new(user)
+      allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError, 'Test error')
+      expect(Rails.logger).to receive(:warn)
+      expect do
+        service.send(:submit_pdf_job, claim:,
+                                      encrypted_vet_info:)
+      end.to raise_error(BGS::DependentService::PDFSubmissionError, 'Test error')
     end
   end
 end

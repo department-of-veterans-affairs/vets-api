@@ -168,6 +168,43 @@ RSpec.describe BGS::DependentV2Service do
         service.submit_686c_form(claim)
       end
     end
+
+    context 'on error' do
+      let(:monitor) { instance_double(Dependents::Monitor) }
+
+      before do
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor).at_least(:once)
+        allow(monitor).to receive(:track_event).at_least(:once)
+      end
+
+      it 'submits to backup job on pdf submission errors' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError,
+                                                                                    'Test error')
+          service = BGS::DependentV2Service.new(user)
+          expect(service).not_to receive(:log_exception_to_sentry)
+          expect(BGS::SubmitForm686cV2Job).not_to receive(:perform_async)
+          expect(service).to receive(:submit_to_central_service)
+
+          service.submit_686c_form(claim)
+        end
+      end
+
+      it 'in case of other errors it logs the exception and raises a custom error' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          allow(BGS::SubmitForm686cV2Job).to receive(:perform_async).and_raise(StandardError,
+                                                                               'Test error')
+
+          service = BGS::DependentV2Service.new(user)
+          expect(service).to receive(:log_exception_to_sentry)
+          expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
+
+          expect do
+            service.submit_686c_form(claim)
+          end.to raise_error(StandardError, 'Test error')
+        end
+      end
+    end
   end
 
   describe '#get_dependents' do
@@ -384,14 +421,14 @@ RSpec.describe BGS::DependentV2Service do
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
     end
 
-    it 'in case of error it logs the exception and submits to central service' do
+    it 'in case of error it logs the exception and raises a custom error' do
       service = BGS::DependentV2Service.new(user)
       allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError, 'Test error')
       expect(Rails.logger).to receive(:warn)
-      expect(service).to receive(:submit_to_central_service).with(claim:)
-
-      # use 'send' to call the private method
-      service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+      expect do
+        service.send(:submit_pdf_job, claim:,
+                                      encrypted_vet_info:)
+      end.to raise_error(BGS::DependentV2Service::PDFSubmissionError, 'Test error')
     end
   end
 end
