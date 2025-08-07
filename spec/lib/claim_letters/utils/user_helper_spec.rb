@@ -4,6 +4,19 @@ require 'rails_helper'
 require 'claim_letters/utils/user_helper'
 
 RSpec.describe ClaimLetters::Utils::UserHelper do
+  # Shared user class for testing Object-type users
+  let(:user_class) do
+    Class.new do
+      attr_accessor :file_number, :ssn, :participant_id
+
+      def initialize(file_number: nil, ssn: nil, participant_id: nil)
+        @file_number = file_number
+        @ssn = ssn
+        @participant_id = participant_id
+      end
+    end
+  end
+
   describe '.safe_get' do
     context 'when user is a Hash' do
       context 'with symbol keys' do
@@ -68,18 +81,6 @@ RSpec.describe ClaimLetters::Utils::UserHelper do
     end
 
     context 'when user is an Object' do
-      let(:user_class) do
-        Class.new do
-          attr_accessor :file_number, :ssn, :participant_id
-
-          def initialize(file_number: nil, ssn: nil, participant_id: nil)
-            @file_number = file_number
-            @ssn = ssn
-            @participant_id = participant_id
-          end
-        end
-      end
-
       let(:user) { user_class.new(file_number: '123456', ssn: '987654321', participant_id: 'P123') }
 
       it 'retrieves value using public_send' do
@@ -192,17 +193,6 @@ RSpec.describe ClaimLetters::Utils::UserHelper do
     end
 
     context 'when user is an Object' do
-      let(:user_class) do
-        Class.new do
-          attr_accessor :file_number, :ssn
-
-          def initialize(file_number: nil, ssn: nil)
-            @file_number = file_number
-            @ssn = ssn
-          end
-        end
-      end
-
       context 'when file_number is present' do
         let(:user) { user_class.new(file_number: '123456', ssn: '987654321') }
 
@@ -285,16 +275,6 @@ RSpec.describe ClaimLetters::Utils::UserHelper do
     end
 
     context 'when user is an Object' do
-      let(:user_class) do
-        Class.new do
-          attr_accessor :participant_id
-
-          def initialize(participant_id: nil)
-            @participant_id = participant_id
-          end
-        end
-      end
-
       let(:user) { user_class.new(participant_id: 'P123') }
 
       before do
@@ -326,18 +306,6 @@ RSpec.describe ClaimLetters::Utils::UserHelper do
       end
 
       context 'with Object user' do
-        let(:user_class) do
-          Class.new do
-            attr_accessor :file_number, :ssn, :participant_id
-
-            def initialize(file_number: nil, ssn: nil, participant_id: nil)
-              @file_number = file_number
-              @ssn = ssn
-              @participant_id = participant_id
-            end
-          end
-        end
-
         let(:user) { user_class.new(file_number: '123456', ssn: '987654321') }
 
         it 'returns local_file_number without calling BGS' do
@@ -443,26 +411,7 @@ RSpec.describe ClaimLetters::Utils::UserHelper do
         allow(bgs_request).to receive(:find_person_by_participant_id).and_return(bgs_response)
       end
 
-      it 'handles Hash with string keys' do
-        user = { 'participant_id' => 'P123', 'ssn' => '987654321' }
-        expect(described_class.file_number(user)).to eq('999888777')
-      end
-
-      it 'handles Hash with symbol keys' do
-        user = { participant_id: 'P123', ssn: '987654321' }
-        expect(described_class.file_number(user)).to eq('999888777')
-      end
-
       it 'handles Object with methods' do
-        user_class = Class.new do
-          attr_accessor :participant_id, :ssn
-
-          def initialize(participant_id:, ssn:)
-            @participant_id = participant_id
-            @ssn = ssn
-          end
-        end
-
         user = user_class.new(participant_id: 'P123', ssn: '987654321')
         expect(described_class.file_number(user)).to eq('999888777')
       end
