@@ -145,6 +145,8 @@ check_in:
     client_number: ~
     client_number_oh: ~
     client_secret: ~
+    travel_pay_client_id: ~
+    travel_pay_client_secret: ~
     e_subscription_key: ~
     redis_token_expiry: 3540
     s_subscription_key: ~
