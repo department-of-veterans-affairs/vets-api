@@ -37,8 +37,8 @@ module AccreditedRepresentativePortal
           )
 
           confirmation_number = saved_claim
-                                  .latest_submission_attempt
-                                  .benefits_intake_uuid
+                                .latest_submission_attempt
+                                .benefits_intake_uuid
 
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
