@@ -1149,11 +1149,12 @@ FactoryBot.define do
           'full_name' => {
             'first' => 'Wesley',
             'last' => 'Ford',
-            'middle' => nil
           },
           'ssn' => '987654321',
           'va_file_number' => '987654321'
-        }
+        },
+        'statement_of_truth_signature': 'Wesley Ford',
+        'statement_of_truth_certified': true
       }
     end
   end

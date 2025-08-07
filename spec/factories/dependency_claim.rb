@@ -695,8 +695,7 @@ FactoryBot.define do
           birth_date: '1980-01-01',
           full_name: {
             first: 'Mark',
-            last: 'Webb',
-            middle: nil
+            last: 'Webb'
           },
           ssn: '000000000',
           va_file_number: '000000000'
