@@ -16,7 +16,7 @@ module VAOS
       end
 
       def facility_slots
-        if (error = bad_request(params))
+        if (error = facility_slots_bad_request(params))
           render status: :bad_request, json: { errors: [{ status: 400, detail: error }] }
         else
           response = systems_service.get_available_slots({
@@ -37,7 +37,7 @@ module VAOS
         VAOS::V2::SystemsService.new(current_user)
       end
 
-      def bad_request(params)
+      def facility_slots_bad_request(params)
         # If provider_id is passed, clinical_service is also required
         if params[:provider_id]
           return 'provider_id and clinical_service is required.' unless params[:clinical_service]
