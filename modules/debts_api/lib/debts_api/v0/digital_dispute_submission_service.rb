@@ -99,7 +99,7 @@ module DebtsApi
       end
 
       def find_or_create_submission_for_idempotency
-        debt_ids = @metadata[:disputes]
+        debt_ids = @metadata&.dig(:disputes)
         return create_submission_record if debt_ids.blank?
 
         existing = DebtsApi::V0::DigitalDisputeSubmission
