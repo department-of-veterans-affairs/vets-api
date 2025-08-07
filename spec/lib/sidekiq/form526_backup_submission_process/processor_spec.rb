@@ -12,6 +12,14 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
+  around do |example|
+    puts "\nStarting: #{example.description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.description} (#{duration.round(2)}s)\n\n"
+  end
+
   context 'veteran with a foreign address' do
     describe 'submission and document metadata' do
       before do
@@ -116,6 +124,20 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
   end
 
   describe '#get_form0781_pdf' do
+    # performance hit Form526Submission > Sidekiq::Form526BackupSubmissionProcess::Processor#get_form0781_pdf >
+    #   EVSS::DisabilityCompensationForm::SubmitForm0781#get_docs > process_0781 > generate_stamp_pdf >
+    #   PdfFill::Filler.fill_ancillary_form & PDFUtilities::DatestampPdf
+    # Probably any pdf will work here but work with one that's as close to real as possible
+    before do
+      allow(PdfFill::Filler)
+        .to receive(:fill_ancillary_form)
+        .and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+
+      allow_any_instance_of(PDFUtilities::DatestampPdf)
+        .to receive(:run)
+        .and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+    end
+
     context 'generates a 0781 version 1 pdf' do
       let(:submission) { create(:form526_submission, :with_0781, submit_endpoint: 'benefits_intake_api') } # rubocop:disable Naming/VariableNumber
 
