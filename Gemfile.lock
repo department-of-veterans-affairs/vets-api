@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 0a486fa277cff15bb5bd3dae4efb12690cdfb80d
+  revision: f1c0e22c567c1ae861dba2b1682ef5a633e48a9d
   branch: master
   specs:
-    vets_json_schema (25.1.4)
+    vets_json_schema (25.1.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -651,7 +651,7 @@ GEM
     jsonapi-parser (0.1.1)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
-    jwe (1.1.0)
+    jwe (1.1.1)
       base64
     jwt (2.10.2)
       base64

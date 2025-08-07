@@ -66,13 +66,13 @@ module ClaimsApi
 
         # rubocop:disable Metrics/MethodLength
         def decide
+          validate_json_schema('DECIDE')
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
           request = find_poa_request!(lighthouse_id)
           proc_id = request.proc_id
 
-          validate_decide_params!(proc_id:, decision:)
           validate_decide_representative_params!(request.poa_code, representative_id)
 
           vet_icn = request.veteran_icn
@@ -145,6 +145,10 @@ module ClaimsApi
                                                                     metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
+          # The only way to get an ID value returned in Sandbox since we do not save the requests
+          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            form_attributes['id'] = 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb'
+          end
 
           response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
                                                                                             view: :create,
@@ -162,9 +166,9 @@ module ClaimsApi
         private
 
         def validate_decide_representative_params!(poa_code, representative_id)
-          validate_accredited_representative(poa_code)
-
-          unless @representative.representative_id == representative_id
+          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
+                                                                      poa_code, representative_id)
+          unless representative
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
               detail: "The accredited representative with registration number #{representative_id} does not match " \
                       "poa code: #{poa_code}."
@@ -292,20 +296,6 @@ module ClaimsApi
           if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s.upcase].blank?
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'The country provided is not valid.'
-            )
-          end
-        end
-
-        def validate_decide_params!(proc_id:, decision:)
-          if proc_id.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('procId',
-                                                             detail: 'procId is required')
-          end
-
-          unless decision.present? && %w[accepted declined].include?(decision)
-            raise ::Common::Exceptions::ParameterMissing.new(
-              'decision',
-              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
         end
