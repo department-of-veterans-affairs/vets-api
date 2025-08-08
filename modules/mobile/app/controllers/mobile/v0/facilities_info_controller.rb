@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class FacilitiesInfoController < ApplicationController
-      SORT_METHODS = %w[home current alphabetical appointments].freeze
+      SORT_METHODS = %w[home current alphabetical].freeze
 
       before_action :validate_sort_method_inclusion!, only: %i[schedulable]
       before_action :validate_home_sort!, only: %i[schedulable], if: -> { params[:sort] == 'home' }
