@@ -1302,7 +1302,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
       end
     end
-    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
+    let(:attachment) { double('PersistentAttachments::MilitaryRecords', id: 123, file: mock_file, guid: attachment_guid, to_pdf: file_path) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
 
     context 'when form_id is 10-7959A' do

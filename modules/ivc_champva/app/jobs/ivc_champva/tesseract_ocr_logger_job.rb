@@ -15,7 +15,7 @@ module IvcChampva
     # @param attachment_record_id [Integer] The ID of the attachment record to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
-    def perform(form_id, uuid, attachment_record_id, attachment_id)
+    def perform(form_id, uuid, attachment_record_id, attachment_id) # rubocop:disable Metrics/MethodLength
       return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
 
       Rails.logger.info(
@@ -24,25 +24,11 @@ module IvcChampva
       )
 
       # Find the attachment record
-      attachment = PersistentAttachments::MilitaryRecords.find_by(id: attachment_record_id)
-      unless attachment
-        Rails.logger.warn(
-          "IvcChampva::TesseractOcrLoggerJob Attachment record not found for ID: #{attachment_record_id}. " \
-          'Record may have been deleted.'
-        )
-        return
-      end
+      attachment = get_attachment(attachment_record_id)
+      return if attachment.blank?
 
       begin
         begin
-          # Verify attachment has a valid file before processing
-          unless attachment.file.present?
-            Rails.logger.warn(
-              "IvcChampva::TesseractOcrLoggerJob Attachment #{attachment_record_id} has no file data"
-            )
-            return
-          end
-
           # Create a tempfile from the persistent attachment object
           tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
           file_path = tempfile.path
@@ -63,6 +49,26 @@ module IvcChampva
       rescue => e
         Rails.logger.error("IvcChampva::TesseractOcrLoggerJob failed with error: #{e.message}")
       end
+    end
+
+    def get_attachment(attachment_record_id)
+      attachment = PersistentAttachments::MilitaryRecords.find_by(id: attachment_record_id)
+      unless attachment
+        Rails.logger.warn(
+          "IvcChampva::TesseractOcrLoggerJob Attachment record not found for ID: #{attachment_record_id}."
+        )
+        return
+      end
+
+      # Verify attachment has a valid file before processing
+      if attachment.file.blank?
+        Rails.logger.warn(
+          "IvcChampva::TesseractOcrLoggerJob Attachment #{attachment_record_id} has no file data"
+        )
+        return
+      end
+
+      attachment
     end
 
     ## Runs the Tesseract OCR validator
