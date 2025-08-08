@@ -43,6 +43,15 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       expect(response).to match_camelized_response_schema('all_triage_teams')
     end
 
+    it 'filters out teams with blocked_status == true' do
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_blocked') do
+        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+      end
+      expect(response).to be_successful
+      expect(response.parsed_body['data'].count).to eq(1)
+      expect(response).to match_camelized_response_schema('all_triage_teams')
+    end
+
     context 'when there are cached triage teams' do
       let(:params) { { useCache: true } }
 
