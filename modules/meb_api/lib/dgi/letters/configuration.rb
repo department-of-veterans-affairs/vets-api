@@ -29,6 +29,10 @@ module MebApi
         def mock_enabled?
           Settings.dgi.vets.mock || false
         end
+
+        def breakers_service
+          BaseService.create_breakers_service(service_name: 'DGI/Letters')
+        end
       end
     end
   end
