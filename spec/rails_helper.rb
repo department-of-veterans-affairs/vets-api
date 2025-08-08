@@ -210,6 +210,18 @@ BGS.configure do |config|
   config.logger = Rails.logger
 end
 
+CarrierWave::Uploader::Base.class_eval do
+  class << self
+    alias_method :original_configure, :configure
+
+    def configure(&block)
+      puts 'CarrierWave.configure called from:'
+      puts caller[0..5]
+      original_configure(&block)
+    end
+  end
+end
+
 Gem::Deprecate.skip = true
 
 Shoulda::Matchers.configure do |config|
