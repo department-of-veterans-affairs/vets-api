@@ -65,6 +65,10 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  appointments_parallel_api_calls:
+    actor_type: user
+    description: Enables parallel execution of VAOS and Travel Pay API calls for improved performance
+    enable_in_development: false
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
