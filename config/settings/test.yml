@@ -1718,6 +1718,7 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
+  api_key: ~
   auth_endpoint: https://fake_url.com/auth/oauth/token
   base_url: https://fake_url.com
   credentials: fake_auth
@@ -1783,6 +1784,16 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  email:
+    confirmation_lighthouse:
+      flipper_id: false
+      template_id: 'confirmation_lighthouse'
+    confirmation_vbms:
+      flipper_id: false
+      template_id: 'confirmation_vbms'
+    error:
+      flipper_id: false
+      template_id: 'error'
 vetext:
   mock: ~
 vetext_push:
