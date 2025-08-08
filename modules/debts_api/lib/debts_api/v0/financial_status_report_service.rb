@@ -55,6 +55,7 @@ module DebtsApi
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
+            'submission_type' => 'fsr',
             'email' => @user.email,
             'first_name' => @user.first_name,
             'user_uuid' => @user.uuid,

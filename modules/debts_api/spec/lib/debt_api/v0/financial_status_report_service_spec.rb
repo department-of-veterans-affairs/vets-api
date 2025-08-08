@@ -82,6 +82,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
             expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
               5.minutes,
               {
+                'submission_type' => 'fsr',
                 'email' => user.email,
                 'first_name' => user.first_name,
                 'template_id' => 'fake_template_id',

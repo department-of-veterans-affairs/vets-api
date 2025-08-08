@@ -15,6 +15,10 @@ module DebtsApi
 
       configuration DebtManagementCenter::DebtsConfiguration
 
+      SUBMISSION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_submission_email
+      CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_confirmation_email
+      FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
+
       def initialize(user, files, metadata = nil)
         super(user)
         @files = files
