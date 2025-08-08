@@ -309,7 +309,7 @@ features:
   check_in_experience_travel_pay_api:
     actor_type: user
     description: Enables the use of Travel Pay API for travel claim operations
-    enable_in_development: false
+    enable_in_development: true
   check_in_experience_lorota_travel_reimbursement:
     actor_type: user
     description: Enables the full LoROTA standalone mileage-only travel reimbursement feature
