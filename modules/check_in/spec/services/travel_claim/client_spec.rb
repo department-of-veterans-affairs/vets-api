@@ -100,6 +100,23 @@ describe TravelClaim::Client do
     end
   end
 
+  describe '#system_access_token' do
+    it 'posts to /api/v2/auth/system-access-token' do
+      ok_resp = Faraday::Response.new(response_body: { data: { accessToken: 'abc' } }, status: 200)
+      expect_any_instance_of(Faraday::Connection).to receive(:post).with('/api/v2/auth/system-access-token')
+                                                                   .and_return(ok_resp)
+      subject.system_access_token
+    end
+
+    it 'logs and raises on error' do
+      exception = Common::Exceptions::BackendServiceException.new(nil, {}, 401, { error: 'Unauthorized' })
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(exception)
+
+      expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+      expect { subject.system_access_token }.to raise_error(exception)
+    end
+  end
+
   describe '#submit_claim' do
     let(:access_token) { 'test-token' }
     let(:icn) { 'test-patient-icn' }
