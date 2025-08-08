@@ -232,13 +232,18 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
 
-        it 'removes the associations from the form and returns a success object',
+        it 'creates a PII log, removes the associations from the form, and returns a success object',
            run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit_with_associations_removed',
             match_requests_on: %i[method uri body],
             erb: true
           ) do
+              expect(PersonalInformationLog).to receive(:create!).with(
+                data: form_with_associations,
+                error_class: 'Form1010Ezr handle associations'
+              )
+
             expect(service.submit_form(form_with_associations)).to eq(
               {
                 success: true,
