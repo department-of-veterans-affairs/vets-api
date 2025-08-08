@@ -149,7 +149,8 @@ module IncomeAndAssets
           'incomeFrequency' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
           'incomeLastReceivedDate' => split_date(income_last_received_date),
           'incomeLastReceivedDateOverflow' => format_date_to_mm_dd_yyyy(income_last_received_date),
-          'grossAnnualAmount' => split_currency_amount_sm(item['grossAnnualAmount'])
+          'grossAnnualAmount' => split_currency_amount_sm(item['grossAnnualAmount'], { 'thousands' => 3 }),
+          'grossAnnualAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['grossAnnualAmount'])
         }
 
         expanded.merge(overrides)
