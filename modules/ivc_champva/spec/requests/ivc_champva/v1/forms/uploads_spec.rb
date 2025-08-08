@@ -350,7 +350,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, nil).and_return(true)
         end
 
-        it 'includes llm_response in the JSON for vha_10_7959a form' do
+        it 'includes llm_response in the JSON for 10-7959A form' do
           # Set up AWS mocking for individual test runs (prevents real AWS calls)
           original_aws_config = Aws.config.dup
           Aws.config.update(stub_responses: true)
@@ -1327,8 +1327,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
 
-    context 'when form_id is vha_10_7959a' do
-      let(:form_id) { 'vha_10_7959a' }
+    context 'when form_id is 10-7959A' do
+      let(:form_id) { '10-7959A' }
 
       context 'when OCR feature is enabled' do
         before do
@@ -1390,8 +1390,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       end
     end
 
-    context 'when form_id is not vha_10_7959a' do
-      let(:form_id) { 'vha_10_10d' }
+    context 'when form_id is not 10-7959A' do
+      let(:form_id) { '10-10d' }
 
       context 'when OCR feature is enabled' do
         before do
@@ -1418,7 +1418,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
   describe '#tempfile_from_attachment' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-    let(:form_id) { 'vha_10_7959a' }
+    let(:form_id) { '10-7959A' }
     let(:file_content) { 'test file content' }
 
     context 'when attachment.file responds to original_filename' do
@@ -1436,7 +1436,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.gif$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.gif$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
@@ -1459,7 +1459,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.png$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.png$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
