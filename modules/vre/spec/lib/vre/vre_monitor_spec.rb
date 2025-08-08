@@ -199,45 +199,57 @@ RSpec.describe VRE::VREMonitor do
       log_level = :info
 
       # Set up payload and message based on event type
-      payload, = case monitor_event
-                 when 'begun'
-                   log_message += ' submission to LH begun'
-                   [base_payload.except(:attachments, :file), nil]
-                 when 'attempt'
-                   log_message += ' submission to LH attempted'
-                   [base_payload, nil]
-                 when 'success'
-                   log_message += ' submission to LH succeeded'
-                   [base_payload.except(:attachments, :file), nil]
-                 when 'failure'
-                   log_level = :warn
-                   log_message += ' submission to LH failed, retrying'
-                   [base_payload.except(:attachments, :file).merge(message: monitor_error.message), nil]
-                 when 'exhausted'
-                   log_level = :error
-                   log_message += ' submission to LH exhausted!'
-                   msg = { 'args' => [claim.id, current_user.user_account_uuid] }
-                   payload = if has_confirmation_number
-                               {
-                                 confirmation_number: claim.confirmation_number,
-                                 user_account_uuid: current_user.user_account_uuid,
-                                 form_id: claim.form_id,
-                                 claim_id: claim.id,
-                                 message: msg,
-                                 tags: monitor.tags
-                               }
-                             else
-                               {
-                                 confirmation_number: nil,
-                                 user_account_uuid: current_user.user_account_uuid,
-                                 form_id: nil,
-                                 claim_id: claim.id,
-                                 message: msg,
-                                 tags: monitor.tags
-                               }
-                             end
-                   [payload, msg]
-                 end
+      payload, msg = case monitor_event
+                     when 'begun'
+                       log_message += ' submission to LH begun'
+                       [base_payload.except(:attachments, :file), nil]
+                     when 'attempt'
+                       log_message += ' submission to LH attempted'
+                       [base_payload, nil]
+                     when 'success'
+                       log_message += ' submission to LH succeeded'
+                       [base_payload.except(:attachments, :file), nil]
+                     when 'failure'
+                       log_level = :warn
+                       log_message += ' submission to LH failed, retrying'
+                       [base_payload.except(:attachments, :file).merge(message: monitor_error.message), nil]
+                     when 'exhausted'
+                       log_level = :error
+                       log_message += ' submission to LH exhausted!'
+                       msg = { 'args' => [claim.id, current_user.user_account_uuid] }
+                       payload = if has_confirmation_number
+                                   {
+                                     confirmation_number: claim.confirmation_number,
+                                     user_account_uuid: current_user.user_account_uuid,
+                                     form_id: claim.form_id,
+                                     claim_id: claim.id,
+                                     message: msg,
+                                     tags: monitor.tags
+                                   }
+                                 else
+                                   {
+                                     confirmation_number: nil,
+                                     user_account_uuid: current_user.user_account_uuid,
+                                     form_id: nil,
+                                     claim_id: claim.id,
+                                     message: msg,
+                                     tags: monitor.tags
+                                   }
+                                 end
+                       [payload, msg]
+                     end
+
+      if monitor_event == 'exhausted'
+        if has_confirmation_number
+          notification = double(VRE::NotificationEmail)
+          expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification)
+          expect(notification).to receive(:deliver).with(:error)
+        else
+          expect(VRE::NotificationEmail).not_to receive(:new)
+          expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.user_account_uuid,
+                                                               anything)
+        end
+      end
 
       expect(monitor).to receive(:track_request).with(
         log_level,
@@ -256,6 +268,8 @@ RSpec.describe VRE::VREMonitor do
         monitor.track_submission_success(claim, lh_service, current_user.uuid)
       when 'failure'
         monitor.track_submission_retry(claim, lh_service, current_user.uuid, monitor_error)
+      when 'exhausted'
+        monitor.track_submission_exhaustion(msg, has_confirmation_number ? claim : nil)
       end
     end
   end
@@ -264,6 +278,8 @@ RSpec.describe VRE::VREMonitor do
   it_behaves_like 'tracking submission', 'attempt', true
   it_behaves_like 'tracking submission', 'success', true
   it_behaves_like 'tracking submission', 'failure', true
+  it_behaves_like 'tracking submission', 'exhausted', true
+  it_behaves_like 'tracking submission', 'exhausted', false
 
   describe '#service_name' do
     it 'returns expected name' do
