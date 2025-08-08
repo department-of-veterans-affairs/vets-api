@@ -30,8 +30,13 @@ module AccreditedRepresentativePortal
 
     private
 
-    def deny_access_unless_686c_enabled
+    def deny_access_unless_submissions_enabled
       routing_error unless Flipper.enabled?(:accredited_representative_portal_submissions, @current_user)
+    end
+
+    def deny_access_unless_form_enabled(form_id)
+      form_class = SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
+      routing_error unless Flipper.enabled?(form_class::FEATURE_FLAG)
     end
 
     def routing_error
