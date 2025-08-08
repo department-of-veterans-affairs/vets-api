@@ -2,6 +2,7 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api_submission/metadata_validator'
+require 'accredited_representative_portal/monitor'
 
 module AccreditedRepresentativePortal
   module V0
@@ -28,6 +29,7 @@ module AccreditedRepresentativePortal
           claimant_representative:
         )
 
+        send_confirmation_email(saved_claim)
         render json: {
           confirmationNumber:
             saved_claim.latest_submission_attempt.benefits_intake_uuid,
@@ -71,6 +73,36 @@ module AccreditedRepresentativePortal
         else
           submit_params[:formData][:formNumber]
         end
+      end
+
+      def send_confirmation_email(saved_claim)
+        AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
+      rescue => e
+        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, user_account_id, 'confirmation', e)
+      end
+
+      def monitor(claim)
+        @monitor ||= AccreditedRepresentativePortal::Monitor.new(claim:)
+      end
+
+      def intake_service
+        @intake_service ||= ::BenefitsIntake::Service.new
+      end
+
+      def user_account_id
+        return @user_account_id if defined?(@user_account_id)
+
+        unless current_user&.icn
+          @user_account_id = nil
+          return @user_account_id
+        end
+
+        user_account = UserAccount.find_by(icn: current_user.icn)
+        @user_account_id = user_account&.id
+
+        Rails.logger.warn("UserAccount not found for ICN: #{current_user.icn}") unless @user_account_id
+
+        @user_account_id
       end
 
       def authorize_attachment_upload
