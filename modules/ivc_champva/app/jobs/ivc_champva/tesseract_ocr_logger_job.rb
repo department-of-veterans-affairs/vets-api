@@ -13,6 +13,7 @@ module IvcChampva
     # @param form_id [String] The ID of the current form, e.g., 'vha_10_10d'
     # @param uuid [String, nil] The UUID associated with the attachment
     # @param attachment_record_id [Integer] The ID of the attachment record to be processed
+    # @param attachment_record_id [Integer] The ID of the attachment record to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
     def perform(form_id, uuid, attachment_record_id, attachment_id) # rubocop:disable Metrics/MethodLength
@@ -20,6 +21,7 @@ module IvcChampva
 
       Rails.logger.info(
         "IvcChampva::TesseractOcrLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}," \
+        " attachment_record_id: #{attachment_record_id}, attachment_id: #{attachment_id}"
         " attachment_record_id: #{attachment_record_id}, attachment_id: #{attachment_id}"
       )
 
@@ -29,6 +31,14 @@ module IvcChampva
 
       begin
         begin
+          # Verify attachment has a valid file before processing
+          unless attachment.file.present?
+            Rails.logger.warn(
+              "IvcChampva::TesseractOcrLoggerJob Attachment #{attachment_record_id} has no file data"
+            )
+            return
+          end
+
           # Create a tempfile from the persistent attachment object
           tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
           file_path = tempfile.path
@@ -41,6 +51,7 @@ module IvcChampva
           result = run_ocr(file_path, uuid, attachment_id)
         ensure
           # Clean up the tempfile
+          tempfile&.close!
           tempfile&.close!
         end
 
