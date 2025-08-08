@@ -28,7 +28,7 @@ module IvcChampva
           req.body = build_multipart_body(request_data)
         end
 
-        monitor.track_llm_processor_response(transaction_uuid, resp.status, resp.body)
+        monitor.track_llm_processor_response(transaction_uuid, resp.status, resp.body.to_s)
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
 
