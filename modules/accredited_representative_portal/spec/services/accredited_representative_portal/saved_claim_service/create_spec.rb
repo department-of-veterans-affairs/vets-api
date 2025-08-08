@@ -7,10 +7,8 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   subject(:perform) do
     described_class.perform(
       type: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim,
-      attachment_guids: attachments.map(&:guid),
-      metadata:,
-      claimant_representative:,
-      user_account_id: user_account.id
+      attachment_guids: attachments.map(&:guid), metadata:,
+      claimant_representative:
     )
   end
 
@@ -19,8 +17,6 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
       receive(:perform)
     )
   end
-
-  let(:user_account) { create(:user_account) }
 
   let(:claimant_representative) do
     AccreditedRepresentativePortal::ClaimantRepresentative.new(
@@ -79,6 +75,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         let(:extraneous_form_type_attachment) do
           create(:persistent_attachment_va_form, form_id: 'nonsense')
         end
+
         let(:attachments) { [extraneous_form_type_attachment] }
 
         it 'raises `WrongAttachmentsError`' do

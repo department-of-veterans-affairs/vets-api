@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'accredited_representative_portal/monitor'
-require 'accredited_representative_portal/notification_email'
-require 'lighthouse/benefits_intake/service'
-
 module AccreditedRepresentativePortal
   class SubmitBenefitsIntakeClaimJob < Lighthouse::SubmitBenefitsIntakeClaim
     ##
@@ -41,16 +37,6 @@ module AccreditedRepresentativePortal
           service.instance_variable_set(:@uuid, upload[:uuid])
           service.instance_variable_set(:@location, upload[:location])
         end
-      @intake_service = ::BenefitsIntake::Service.new
-      @user_account_uuid = @claim.user_account_id
-      @monitor = AccreditedRepresentativePortal::Monitor.new
-      send_confirmation_email
-    end
-
-    def send_confirmation_email
-      AccreditedRepresentativePortal::NotificationEmail.new(@claim.id).deliver(:confirmation)
-    rescue => e
-      @monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'confirmation', e)
     end
 
     ##
