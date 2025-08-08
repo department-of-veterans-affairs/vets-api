@@ -31,14 +31,6 @@ module IvcChampva
 
       begin
         begin
-          # Verify attachment has a valid file before processing
-          unless attachment.file.present?
-            Rails.logger.warn(
-              "IvcChampva::TesseractOcrLoggerJob Attachment #{attachment_record_id} has no file data"
-            )
-            return
-          end
-
           # Create a tempfile from the persistent attachment object
           tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
           file_path = tempfile.path
