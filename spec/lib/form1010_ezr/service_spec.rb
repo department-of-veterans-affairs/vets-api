@@ -239,10 +239,10 @@ RSpec.describe Form1010Ezr::Service do
             match_requests_on: %i[method uri body],
             erb: true
           ) do
-              expect(PersonalInformationLog).to receive(:create!).with(
-                data: form_with_associations,
-                error_class: 'Form1010Ezr handle associations'
-              )
+            expect(PersonalInformationLog).to receive(:create!).with(
+              data: form_with_associations,
+              error_class: 'Form1010Ezr handle associations'
+            )
 
             expect(service.submit_form(form_with_associations)).to eq(
               {
