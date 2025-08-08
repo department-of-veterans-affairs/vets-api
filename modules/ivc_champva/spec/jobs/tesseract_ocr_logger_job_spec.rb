@@ -29,7 +29,9 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
 
   before do
     allow(File).to receive(:exist?).and_return(true)
-    allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(id: attachment_record_id).and_return(attachment)
+    allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+      .with(id: attachment_record_id)
+      .and_return(attachment)
     allow(IvcChampva::SupportingDocumentValidator).to receive(:new).and_return(validator)
     allow(validator).to receive(:process).and_return(result)
     allow(Rails.logger).to receive(:info)
@@ -100,7 +102,9 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       end
 
       it 'logs a warning and returns early when attachment record is not found' do
-        allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(id: attachment_record_id).and_return(nil)
+        allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+          .with(id: attachment_record_id)
+          .and_return(nil)
 
         job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
         expect(Rails.logger).to have_received(:warn).with(
