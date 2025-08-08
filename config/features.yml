@@ -68,6 +68,12 @@ features:
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
+  ar_poa_request_failure_claimant_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_rep_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -2345,5 +2351,5 @@ features:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
   calculator_constants_versioning:
-    actor_type: 
+    actor_type:
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
