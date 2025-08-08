@@ -7,6 +7,7 @@ RSpec.describe VRE::VREMonitor do
   let(:monitor) { described_class.new }
 
   # using the old model until we migrate all functionality to the new module
+  # TODO: Migrate to new model by 10/2025
   let(:claim) { create(:veteran_readiness_employment_claim) }
   # let(:claim) { create(:vre_veteran_readiness_employment_claim) }
 
