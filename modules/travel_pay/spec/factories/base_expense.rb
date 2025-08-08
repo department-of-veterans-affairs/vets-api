@@ -13,7 +13,7 @@ FactoryBot.define do
     end
 
     trait :with_receipt do
-      receipt { 'mock_receipt_object' }
+      receipt { double('Receipt', id: SecureRandom.uuid) }
     end
 
     trait :high_cost do

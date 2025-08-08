@@ -51,7 +51,7 @@ module TravelPay
     def as_json(_options = {})
       result = attributes.dup
       result['claim_id'] = claim_id
-      result['has_receipt'] = !receipt.nil?
+      result['has_receipt'] = receipt.present?
       result['receipt'] = receipt
       result['expense_type'] = expense_type
       result
