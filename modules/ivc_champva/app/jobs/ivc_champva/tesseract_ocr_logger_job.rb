@@ -12,19 +12,37 @@ module IvcChampva
     ## Performs the job
     # @param form_id [String] The ID of the current form, e.g., 'vha_10_10d'
     # @param uuid [String, nil] The UUID associated with the attachment
-    # @param [PersistentAttachments::MilitaryRecords] attachment Attachment object containing the file to be processed
+    # @param attachment_record_id [Integer] The ID of the attachment record to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
-    def perform(form_id, uuid, attachment, attachment_id)
+    def perform(form_id, uuid, attachment_record_id, attachment_id)
       return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
 
       Rails.logger.info(
         "IvcChampva::TesseractOcrLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}," \
-        " attachment_id: #{attachment_id}"
+        " attachment_record_id: #{attachment_record_id}, attachment_id: #{attachment_id}"
       )
+
+      # Find the attachment record
+      attachment = PersistentAttachments::MilitaryRecords.find_by(id: attachment_record_id)
+      unless attachment
+        Rails.logger.warn(
+          "IvcChampva::TesseractOcrLoggerJob Attachment record not found for ID: #{attachment_record_id}. " \
+          'Record may have been deleted.'
+        )
+        return
+      end
 
       begin
         begin
+          # Verify attachment has a valid file before processing
+          unless attachment.file.present?
+            Rails.logger.warn(
+              "IvcChampva::TesseractOcrLoggerJob Attachment #{attachment_record_id} has no file data"
+            )
+            return
+          end
+
           # Create a tempfile from the persistent attachment object
           tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
           file_path = tempfile.path
