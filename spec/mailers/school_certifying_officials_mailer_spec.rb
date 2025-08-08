@@ -24,8 +24,8 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
     context 'applicant information in email body' do
       it 'includes veteran full name' do
         name = applicant.veteranFullName
-        first_initial_last_name = "#{name.first[0, 1]} #{name.last}"
-        expect(subject.body.raw_source).to include("Student's name: #{first_initial_last_name}")
+        stub_name = "#{name.first[0..3]}#{name.last[0]}".upcase
+        expect(subject.body.raw_source).to include("Student's name: #{stub_name}")
       end
 
       it 'includes school email address' do
