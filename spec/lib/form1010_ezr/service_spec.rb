@@ -178,7 +178,6 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
-
   describe '#submit_form' do
     context 'when no error occurs' do
       before do
@@ -234,7 +233,7 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         it 'removes the associations from the form and returns a success object',
-            run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
+           run_at: 'Wed, 18 Jun 2025 16:12:43 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit_with_associations_removed',
             match_requests_on: %i[method uri body],
@@ -346,7 +345,7 @@ RSpec.describe Form1010Ezr::Service do
           end
 
           it 'increments statsD, logs the error to sentry, and raises the error',
-              run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+             run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit',
               { match_requests_on: %i[method uri body], erb: true }
@@ -426,7 +425,7 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+         run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
           { match_requests_on: %i[method uri body], erb: true }
@@ -451,8 +450,8 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
-            'order (if applicable)',
-            run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
+           'order (if applicable)',
+           run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
             { match_requests_on: %i[method uri body], erb: true }
