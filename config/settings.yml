@@ -1625,7 +1625,6 @@ vba_documents:
   slack:
     api_key: <%= ENV['vba_documents__slack__api_key'] %>
     channel_id: <%= ENV['vba_documents__slack__channel_id'] %>
-    daily_notification_hour: 7
     default_alert_email: <%= ENV['vba_documents__slack__default_alert_email'] %>
     enabled: <%= ENV['vba_documents__slack__enabled'] %>
     in_flight_notification_hung_time_in_days: 14
@@ -1640,8 +1639,6 @@ vba_documents:
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: <%= ENV['vbms__ca_cert'] %>
   cert: <%= ENV['vbms__cert'] %>

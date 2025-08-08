@@ -1644,7 +1644,6 @@ vba_documents:
   slack:
     api_key: ''
     channel_id: ''
-    daily_notification_hour: 7
     default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
@@ -1661,8 +1660,6 @@ vba_documents:
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
