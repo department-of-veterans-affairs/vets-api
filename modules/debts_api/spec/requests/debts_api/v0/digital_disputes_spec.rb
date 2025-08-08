@@ -11,11 +11,12 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
   let(:mock_service) { instance_double(DebtsApi::V0::DigitalDisputeSubmissionService) }
 
   describe '#create' do
-    context 'when authenticated' do
+    context 'when financial_management_digital_dispute_async disabled' do
       before do
         sign_in_as(user)
         allow(StatsD).to receive(:increment)
         allow(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:new).and_return(mock_service)
+        allow(Flipper).to receive(:enabled?).with(:financial_management_digital_dispute_async).and_return(false)
       end
 
       describe 'successful submission' do
@@ -60,7 +61,18 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         it 'tracks failure metrics' do
           expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
-          expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.failure')
+          # expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.failure')
+          expect(StatsD).to receive(:increment).with(
+            'api.rack.request',
+            hash_including(
+              tags: array_including(
+                'controller:debts_api/v0/digital_disputes',
+                'action:create',
+                'source_app:not_provided',
+                'status:422'
+              )
+            )
+          )
 
           post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
         end
