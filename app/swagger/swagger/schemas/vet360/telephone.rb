@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# testing
+
 require 'va_profile/models/telephone'
 
 module Swagger
