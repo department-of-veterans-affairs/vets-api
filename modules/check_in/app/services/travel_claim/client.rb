@@ -15,7 +15,7 @@ module TravelClaim
     attr_reader :settings, :check_in, :client_number
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
-                   :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
+                   :subscription_key, :e_subscription_key, :s_subscription_key, :service_name, :auth_url_v2, :claims_url_v2, :claims_base_path_v2
 
     ##
     # Builds a Client instance
@@ -45,6 +45,19 @@ module TravelClaim
       connection(server_url: auth_url).post("/#{tenant_id}/oauth2/v2.0/token") do |req|
         req.headers = default_headers
         req.body = URI.encode_www_form(auth_params)
+      end
+    rescue => e
+      log_message_to_sentry(e.original_body, :error,
+                            { uuid: check_in.uuid },
+                            { external_service: service_name, team: 'check-in' })
+      raise e
+    end
+
+    def system_access_token
+      connection(server_url: auth_url_v2).post('/api/v2/auth/system-access-token') do |req|
+        req.headers['Content-Type'] = 'application/json'
+        req.headers['X-Correlation-ID'] = SecureRandom.uuid
+        req.body = { secret: settings.travel_pay_client_secret }.to_json
       end
     rescue => e
       log_message_to_sentry(e.original_body, :error,
