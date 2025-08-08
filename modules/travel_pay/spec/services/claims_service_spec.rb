@@ -706,13 +706,13 @@ describe TravelPay::ClaimsService do
         claim = {
           'documents' => [
             { 'filename' => 'receipt.pdf' },
-            { 'filename' => 'Decision Letter.docx', 'id' => 'decision_doc_id' },
+            { 'filename' => 'Decision Letter.docx', 'documentId' => 'decision_doc_id' },
             { 'filename' => 'other.pdf' }
           ]
         }
 
         result = service.send(:find_decision_letter_document, claim)
-        expect(result['id']).to eq('decision_doc_id')
+        expect(result['documentId']).to eq('decision_doc_id')
         expect(result['filename']).to eq('Decision Letter.docx')
       end
 
@@ -720,13 +720,13 @@ describe TravelPay::ClaimsService do
         claim = {
           'documents' => [
             { 'filename' => 'receipt.pdf' },
-            { 'filename' => 'Rejection Letter.docx', 'id' => 'rejection_doc_id' },
+            { 'filename' => 'Rejection Letter.docx', 'documentId' => 'rejection_doc_id' },
             { 'filename' => 'other.pdf' }
           ]
         }
 
         result = service.send(:find_decision_letter_document, claim)
-        expect(result['id']).to eq('rejection_doc_id')
+        expect(result['documentId']).to eq('rejection_doc_id')
         expect(result['filename']).to eq('Rejection Letter.docx')
       end
 
@@ -759,12 +759,45 @@ describe TravelPay::ClaimsService do
       it 'handles case insensitive matching' do
         claim = {
           'documents' => [
-            { 'filename' => 'decision letter.pdf', 'id' => 'decision_doc_id' }
+            { 'filename' => 'decision letter.pdf', 'documentId' => 'decision_doc_id' }
           ]
         }
 
         result = service.send(:find_decision_letter_document, claim)
-        expect(result['id']).to eq('decision_doc_id')
+        expect(result['documentId']).to eq('decision_doc_id')
+      end
+
+      it 'returns nil when decision letter document has no documentId' do
+        claim = {
+          'documents' => [
+            { 'filename' => 'Decision Letter.docx' }
+          ]
+        }
+
+        result = service.send(:find_decision_letter_document, claim)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when decision letter document has empty documentId' do
+        claim = {
+          'documents' => [
+            { 'filename' => 'Decision Letter.docx', 'documentId' => '' }
+          ]
+        }
+
+        result = service.send(:find_decision_letter_document, claim)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when decision letter document has nil documentId' do
+        claim = {
+          'documents' => [
+            { 'filename' => 'Decision Letter.docx', 'documentId' => nil }
+          ]
+        }
+
+        result = service.send(:find_decision_letter_document, claim)
+        expect(result).to be_nil
       end
     end
 
