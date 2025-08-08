@@ -2,6 +2,7 @@
 
 require 'res/ch31_form'
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
@@ -12,9 +13,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
-  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email
+  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.veteran_readiness_and_employment.email.confirmation_vbms.template_id
   CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE =
-    Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email
+    Settings.veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -294,14 +295,21 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
-  def send_confirmation_email(user, service, _email_type, email_template)
+  # @see ::Logging::BenefitsIntake::Monitor#track_submission_exhaustion
+  def send_email(email_type)
+    VRE::NotificationEmail.new(id).deliver(email_type)
+  end
+
+  def send_confirmation_email(user, service, email_type, email_template)
     if user.va_profile_email.blank?
       Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
                         { user_uuid: user&.uuid })
       return
     end
 
-    unless Flipper.enabled?(:vre_use_new_vfs_notification_library, user)
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library, user)
+      send_email(email_type)
+    else
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
         email_template,
