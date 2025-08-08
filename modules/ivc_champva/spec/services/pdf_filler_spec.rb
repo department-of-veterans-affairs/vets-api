@@ -85,11 +85,16 @@ describe IvcChampva::PdfFiller do
         def add_accented_characters_to_form(data, form_number) # rubocop:disable Metrics/MethodLength
           case form_number
           when 'vha_10_7959f_1', 'vha_10_7959f_2'
+            # Test individual address components AND the string fields used in PDF
             data['veteran']['mailing_address']['street'] = 'Cañón de Flores 123'
             data['veteran']['mailing_address']['city'] = 'São Paulo'
             data['veteran']['mailing_address']['country'] = 'México'
             data['veteran']['physical_address']['street'] = 'Rúa de la Princesa 456'
             data['veteran']['physical_address']['city'] = 'Málaga'
+            data['veteran']['physical_address']['country'] = 'España'
+            # Test the critical string fields that are actually used in the PDF mapping
+            data['veteran']['mailing_address_string'] = "Cañón de Flores 123\nSão Paulo, México\n12345"
+            data['veteran']['physical_address_string'] = "Rúa de la Princesa 456\nMálaga, España\n54321"
           when 'vha_10_10d'
             data['veteran']['address']['street'] = 'Cañón de Flores 123'
             data['veteran']['address']['city'] = 'São Paulo'
@@ -119,11 +124,16 @@ describe IvcChampva::PdfFiller do
         end
 
         def verify_transliteration_10_7959f(data)
+          # Verify individual address fields are transliterated
           expect(data['veteran']['mailing_address']['street']).to eq('Canon de Flores 123')
           expect(data['veteran']['mailing_address']['city']).to eq('Sao Paulo')
           expect(data['veteran']['mailing_address']['country']).to eq('Mexico')
           expect(data['veteran']['physical_address']['street']).to eq('Rua de la Princesa 456')
           expect(data['veteran']['physical_address']['city']).to eq('Malaga')
+          expect(data['veteran']['physical_address']['country']).to eq('Espana')
+          # Verify the string fields that are actually used in the PDF are transliterated but preserve formatting
+          expect(data['veteran']['mailing_address_string']).to eq("Canon de Flores 123\nSao Paulo Mexico\n12345")
+          expect(data['veteran']['physical_address_string']).to eq("Rua de la Princesa 456\nMalaga Espana\n54321")
         end
 
         def verify_transliteration_10_10d(data)

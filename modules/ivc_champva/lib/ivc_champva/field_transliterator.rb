@@ -59,10 +59,18 @@ module IvcChampva
     def transliterate_string(string)
       return string if string.blank?
 
-      I18n.transliterate(string)
-          .gsub(@char_filter, '')
-          .strip
-          .first(@max_length)
+      # Preserve actual newlines by temporarily replacing them
+      temp_string = string.gsub("\n", 'NEWLINEPLACEHOLDER')
+      result = I18n.transliterate(temp_string)
+                   .gsub(@char_filter, '')
+                   .gsub('NEWLINEPLACEHOLDER', "\n")
+
+      # For strings with newlines, don't strip to preserve formatting
+      if string.include?("\n")
+        result.first(@max_length)
+      else
+        result.strip.first(@max_length)
+      end
     end
   end
 end
