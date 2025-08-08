@@ -101,7 +101,9 @@ describe IvcChampva::PdfFiller do
             data['veteran']['address']['country'] = 'México'
             data['applicants'][0]['applicant_address']['street'] = 'Rúa de la Princesa 456'
             data['applicants'][0]['applicant_address']['city'] = 'Málaga'
+            data['applicants'][0]['applicant_email_address'] = 'applicant1@test.com'
             data['applicants'][1]['applicant_address']['country'] = 'España'
+            data['applicants'][1]['applicant_email_address'] = 'applicant2@test.com'
           when 'vha_10_7959a', 'vha_10_7959c'
             data['applicant_address']['street'] = 'Cañón de Flores 123'
             data['applicant_address']['city'] = 'São Paulo'
@@ -144,6 +146,10 @@ describe IvcChampva::PdfFiller do
           expect(data['veteran']['address']['country']).to eq('Mexico')
           expect(data['applicants'][0]['applicant_address']['street']).to eq('Rua de la Princesa 456')
           expect(data['applicants'][0]['applicant_address']['city']).to eq('Malaga')
+          expect(data['applicants'][1]['applicant_address']['country']).to eq('Espana')
+          # Verify applicant email addresses are NOT transliterated
+          expect(data['applicants'][0]['applicant_email_address']).to eq('applicant1@test.com')
+          expect(data['applicants'][1]['applicant_email_address']).to eq('applicant2@test.com')
         end
 
         def verify_transliteration_10_7959a_10_7959c(data)

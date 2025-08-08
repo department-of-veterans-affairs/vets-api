@@ -59,8 +59,11 @@ module IvcChampva
     private
 
     def transliterate_fields(form)
-      field_patterns = [/street/i, /city/i, /state/i, /country/i, /postal_code/i, /address/i]
-      skip_keys = ['email_address']
+      field_patterns = [
+        /street/i, /city/i, /state/i, /country/i, /postal_code/i,
+        /^.*_address$/i, /^.*_address_string$/i, /address$/i
+      ]
+      skip_keys = %w[email_address applicant_email_address]
       IvcChampva::FieldTransliterator.transliterate_all!(form.data, field_patterns:, skip_keys:)
     end
 
