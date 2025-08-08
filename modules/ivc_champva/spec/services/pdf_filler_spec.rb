@@ -134,6 +134,8 @@ describe IvcChampva::PdfFiller do
           # Verify the string fields that are actually used in the PDF are transliterated but preserve formatting
           expect(data['veteran']['mailing_address_string']).to eq("Canon de Flores 123\nSao Paulo Mexico\n12345")
           expect(data['veteran']['physical_address_string']).to eq("Rua de la Princesa 456\nMalaga Espana\n54321")
+          # Verify email addresses are NOT transliterated
+          expect(data['veteran']['email_address']).to eq('veteran@mail.com')
         end
 
         def verify_transliteration_10_10d(data)
