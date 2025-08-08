@@ -47,7 +47,7 @@ module DebtsApi
           }
         end
         DebtsApi::V0::DigitalDisputeJob.perform_async(
-          user_params, metadata, base_64_files
+          user_params, base_64_files, metadata
         )
       end
 
