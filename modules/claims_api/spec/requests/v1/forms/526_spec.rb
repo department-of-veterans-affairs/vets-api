@@ -32,6 +32,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     stub_poa_verification
     Timecop.freeze(Time.zone.now)
     stub_claims_api_auth_token
+
+    # Force this flipper to return false for all tests in this file so we use the
+    # original DisabilityCompensationValidations:
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
   end
 
   after do

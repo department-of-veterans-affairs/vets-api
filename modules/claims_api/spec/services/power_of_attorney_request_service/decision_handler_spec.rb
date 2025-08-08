@@ -41,13 +41,36 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler do
 
       declined_subject.call
     end
+
+    it 'returns an empty array' do
+      allow_any_instance_of(
+        ClaimsApi::PowerOfAttorneyRequestService::DeclinedDecisionHandler
+      ).to receive(:call).and_return(anything)
+
+      res = declined_subject.call
+
+      expect(res).to eq([])
+    end
   end
 
   context "When the decision is 'Accepted'" do
+    let(:data) { { 'data' => { 'attributes' => { 'id' => '123' } } } }
+    let(:type) { '2122' }
+
     it 'calls the accepted decision service handler' do
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler).to receive(:call)
 
       accepted_subject.call
+    end
+
+    it 'returns an array of values' do
+      allow_any_instance_of(
+        ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler
+      ).to receive(:call).and_return([data, type])
+
+      res = accepted_subject.call
+
+      expect(res).to eq([data, type])
     end
   end
 

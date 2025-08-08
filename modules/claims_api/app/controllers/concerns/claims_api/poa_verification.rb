@@ -94,8 +94,14 @@ module ClaimsApi
 
       private
 
-      def exactly_one_rep_match?(reps, poa_code)
-        reps.first.poa_codes.include?(poa_code) if reps.count == 1
+      def exactly_one_rep_match?(reps, poa_code, rep_method: nil)
+        count = reps.count
+        # Optional debug logging to help diagnose what's happening in valid_poa_code_for_current_user?
+        if rep_method
+          ClaimsApi::Logger.log('poa_verification', rep_method:,
+                                                    details: "Found #{count} reps for POA code #{poa_code}")
+        end
+        reps.first.poa_codes.include?(poa_code) if count == 1
       end
 
       def find_by_suffix(poa_code)
@@ -124,13 +130,16 @@ module ClaimsApi
                                                                            last_name: @current_user.last_name,
                                                                            poa_code:)
 
-        exactly_one_rep_match?(reps_by_poa_code, poa_code)
+        # Log out count and poa code when we reach this point (since this is the final
+        # check before we fall into handle_not_found)
+        exactly_one_rep_match?(reps_by_poa_code, poa_code, rep_method: 'find_by_poa_code')
       end
 
       def handle_not_found(reps, poa_code)
         ClaimsApi::Logger.log 'poa_verification',
                               detail: "Found #{reps.size} reps for POA code #{poa_code}",
-                              level: :warn, poa_code:, rep_count: reps.size, current_users_uuid: @current_user.uuid
+                              level: :warn, poa_code:, rep_size: reps.size, rep_count: reps.count,
+                              current_users_uuid: @current_user.uuid
         raise ::Common::Exceptions::UnprocessableEntity, detail: 'Ambiguous VSO Representative Results' if reps.size > 1
 
         # Intentionally does not raise in other cases. Doing so would break some shared behavior.

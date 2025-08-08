@@ -16,8 +16,6 @@ module IvcChampva
         Settings.ivc_champva_llm_processor_api
       end
 
-      delegate :api_key, to: :settings
-
       ##
       # HTTP POST call to the LLM processor service to process a document
       #
@@ -47,7 +45,7 @@ module IvcChampva
       # @return [Hash] the headers
       def headers(transaction_uuid, acting_user)
         {
-          'apiKey' => settings.api_key,
+          'apiKey' => config.api_key,
           'transactionUUID' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }

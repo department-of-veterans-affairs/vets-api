@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 0a486fa277cff15bb5bd3dae4efb12690cdfb80d
+  revision: f1c0e22c567c1ae861dba2b1682ef5a633e48a9d
   branch: master
   specs:
-    vets_json_schema (25.1.4)
+    vets_json_schema (25.1.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -245,26 +245,27 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1136.0)
-    aws-sdk-core (3.227.0)
+    aws-partitions (1.1140.0)
+    aws-sdk-core (3.228.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
+      bigdecimal
       jmespath (~> 1, >= 1.6.1)
       logger
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.108.0)
-      aws-sdk-core (~> 3, >= 3.227.0)
+    aws-sdk-kms (1.109.0)
+      aws-sdk-core (~> 3, >= 3.228.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.194.0)
-      aws-sdk-core (~> 3, >= 3.227.0)
+    aws-sdk-s3 (1.195.0)
+      aws-sdk-core (~> 3, >= 3.228.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.101.0)
-      aws-sdk-core (~> 3, >= 3.227.0)
+    aws-sdk-sns (1.103.0)
+      aws-sdk-core (~> 3, >= 3.228.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -650,7 +651,7 @@ GEM
     jsonapi-parser (0.1.1)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
-    jwe (1.1.0)
+    jwe (1.1.1)
       base64
     jwt (2.10.2)
       base64

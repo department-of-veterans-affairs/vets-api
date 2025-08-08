@@ -135,6 +135,12 @@ RSpec.describe BenefitsClaims::Service do
               expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
               expect(response.dig('data', 'attributes', 'trackedItems', 0,
                                   'displayName')).to eq('PMR Pending')
+              expect(response.dig('data', 'attributes', 'trackedItems', 1, 'status')).to eq('NEEDED_FROM_OTHERS')
+              expect(response.dig('data', 'attributes', 'trackedItems', 1,
+                                  'displayName')).to eq('Proof of service (DD214, etc.)')
+              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+              expect(response.dig('data', 'attributes', 'trackedItems', 2,
+                                  'displayName')).to eq('NG1 - National Guard Records Request')
             end
           end
         end

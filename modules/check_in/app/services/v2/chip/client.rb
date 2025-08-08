@@ -31,7 +31,7 @@ module V2
 
       attr_reader :settings, :claims_token, :check_in_session
 
-      def_delegators :settings, :base_path, :tmp_api_id, :url, :service_name
+      def_delegators :settings, :service_name
 
       ##
       # Builds a Client instance
@@ -227,6 +227,22 @@ module V2
 
       def mock_enabled?
         settings.mock || Flipper.enabled?('check_in_experience_mock_enabled') || false
+      end
+
+      def use_vaec_cie_endpoints?
+        Flipper.enabled?('check_in_experience_use_vaec_cie_endpoints') || false
+      end
+
+      def base_path
+        use_vaec_cie_endpoints? ? settings.base_path_v2 : settings.base_path
+      end
+
+      def tmp_api_id
+        use_vaec_cie_endpoints? ? settings.tmp_api_id_v2 : settings.tmp_api_id
+      end
+
+      def url
+        use_vaec_cie_endpoints? ? settings.url_v2 : settings.url
       end
     end
   end

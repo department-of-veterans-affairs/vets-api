@@ -50,8 +50,8 @@ module SignIn
                                                      :access_token_audience,
                                                      :access_token_duration,
                                                      scopes: [],
-                                                     certificates: [],
-                                                     access_token_user_attributes: [])
+                                                     access_token_user_attributes: [],
+                                                     certs_attributes: %i[id pem _destroy])
     end
 
     def set_service_account_config

@@ -17,7 +17,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
   let(:aal_client) { instance_spy(AAL::MRClient) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(true)
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)

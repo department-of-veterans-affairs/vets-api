@@ -33,7 +33,7 @@ module ClaimsApi
 
         data, type = make_call_for_decision(handler_class)
 
-        @decision == 'accepted' ? [data, type] : nil
+        @decision == 'accepted' ? [data, type] : []
       end
 
       private
