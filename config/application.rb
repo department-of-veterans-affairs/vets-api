@@ -82,7 +82,6 @@ module VetsAPI
     config.flipper.memoize = false
 
     config.middleware.insert_before(0, HttpMethodNotAllowed)
-    config.middleware.use OliveBranch::Middleware, inflection_header: 'X-Key-Inflection'
     config.middleware.use SourceAppMiddleware
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
@@ -124,6 +123,8 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: IdentitySettings.session_cookie.secure,
                                    http_only: true
+
+    config.middleware.use OliveBranch::Middleware, inflection_header: 'X-Key-Inflection'
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
