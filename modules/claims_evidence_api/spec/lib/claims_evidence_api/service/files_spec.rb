@@ -36,7 +36,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
   end
 
   before do
-    service.x_folder_uri = folder_identifier
+    service.folder_identifier = folder_identifier
   end
 
   it_behaves_like 'a ClaimsEvidenceApi::Service class'
@@ -52,8 +52,8 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
       service.create(file_path, provider_data:)
     end
 
-    it 'raises an exception if x_folder_uri is not defined' do
-      service.instance_variable_set(:@x_folder_uri, nil)
+    it 'raises an exception if folder_identifier/x_folder_uri is not defined' do
+      service.instance_variable_set(:@folder_identifier, nil)
       expect { service.create(file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::UndefinedXFolderURI
     end
 
@@ -96,8 +96,8 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
       service.overwrite(uuid, file_path, provider_data:)
     end
 
-    it 'raises an exception if x_folder_uri is not defined' do
-      service.instance_variable_set(:@x_folder_uri, nil)
+    it 'raises an exception if folder_identifier/x_folder_uri is not defined' do
+      service.instance_variable_set(:@folder_identifier, nil)
       expect { service.overwrite(uuid, file_path, provider_data:) }.to raise_error ClaimsEvidenceApi::Service::Files::UndefinedXFolderURI
     end
 

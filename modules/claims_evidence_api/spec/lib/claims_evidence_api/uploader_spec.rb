@@ -15,7 +15,8 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:pdf_path) { 'path/to/pdf.pdf' }
   let(:content_source) { __FILE__ }
 
-  let(:uploader) { ClaimsEvidenceApi::Uploader.new('VETERAN:SSN:123456789', content_source:) }
+  let(:folder_identifier) { 'VETERAN:SSN:123456789' }
+  let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source:) }
   # stamping is stubbed, but will raise an error if the provided stamp_set is invalid
   let(:claim_stamp_set) { [anything] }
   let(:attachment_stamp_set) { [anything] }
@@ -34,32 +35,9 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
     allow(pa).to receive(:to_pdf).and_return pdf_path
   end
 
-  describe '#upload_file' do
-    it 'performs the upload and tracking' do
-      args = { saved_claim_id: claim.id, persistent_attachment_id: nil, form_id: claim.form_id }
-      expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
-      expect(submission.submission_attempts).to receive(:create).and_return attempt
-
-      provider_data = {
-        contentSource: content_source,
-        dateVaReceivedDocument: claim.created_at,
-        documentTypeId: claim.document_type
-      }
-      response = build(:claims_evidence_service_files_response, :success)
-      expect(service).to receive(:upload).with(pdf_path, provider_data:).and_return response
-
-      uploader.upload_file(pdf_path, claim.form_id, claim.id, nil, claim.document_type, claim.created_at)
-
-      expect(submission.file_uuid).to eq response.body['uuid']
-      expect(attempt.status).to eq 'accepted'
-      expect(attempt.metadata).to eq JSON.parse(provider_data.to_json)
-      expect(attempt.response).to eq response.body
-    end
-  end
-
   context 'with generating the pdf and stamping' do
     it 'creates tracking entries on successful upload' do
-      args = { saved_claim: claim, persistent_attachment_id: nil, form_id: claim.form_id }
+      args = { saved_claim_id: claim.id, persistent_attachment_id: nil, form_id: claim.form_id }
       expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
@@ -86,7 +64,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with pdf_path provided and no stamp set' do
     it 'successfully uploads an attachment' do
-      args = { saved_claim: claim, persistent_attachment_id: pa.id, form_id: claim.form_id }
+      args = { saved_claim_id: claim.id, persistent_attachment_id: pa.id, form_id: claim.form_id }
       expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
@@ -105,7 +83,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
       expect(monitor).to receive(:track_upload_attempt)
       expect(monitor).to receive(:track_upload_success)
 
-      uploader.upload_evidence_pdf(claim.id, pa.id, pdf_path)
+      uploader.upload_evidence(claim.id, pa.id, file_path: pdf_path)
 
       expect(submission.file_uuid).to eq response.body['uuid']
       expect(attempt.status).to eq 'accepted'
@@ -116,7 +94,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with unsuccessful upload' do
     it 'raises an exception' do
-      args = { saved_claim: claim, persistent_attachment_id: pa.id, form_id: claim.form_id }
+      args = { saved_claim_id: claim.id, persistent_attachment_id: pa.id, form_id: claim.form_id }
       expect(ClaimsEvidenceApi::Submission).to receive(:find_or_create_by).with(**args).and_return submission
       expect(submission.submission_attempts).to receive(:create).and_return attempt
 
@@ -135,7 +113,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
       expect(monitor).to receive(:track_upload_attempt)
       expect(monitor).to receive(:track_upload_failure)
 
-      expect { uploader.upload_evidence_pdf(claim.id, pa.id, pdf_path) }.to raise_error error
+      expect { uploader.upload_evidence(claim.id, pa.id, file_path: pdf_path) }.to raise_error error
 
       expect(error.message).to eq 'VEFSERR40009'
       expect(submission.file_uuid).to be_nil
@@ -147,11 +125,27 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   context 'with invalid folder_identifier' do
     it 'raises an error on initialization' do
-      expect { ClaimsEvidenceApi::Uploader.new('INVALID') }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidFolderType
+      expect { ClaimsEvidenceApi::Uploader.new('INVALID') }.to raise_error ClaimsEvidenceApi::FolderIdentifier::InvalidFolderType
     end
 
     it 'raises an error attempting to update the identifier' do
-      expect { uploader.folder_identifier = 'INVALID' }.to raise_error ClaimsEvidenceApi::XFolderUri::InvalidFolderType
+      expect { uploader.folder_identifier = 'INVALID' }.to raise_error ClaimsEvidenceApi::FolderIdentifier::InvalidFolderType
+    end
+  end
+
+  context 'claim with attachments' do # for coverage
+    let(:claim) { build(:fake_saved_claim, :with_attachments, id: 23) }
+
+    before do
+      uploader.instance_variable_set(:@submission, submission)
+    end
+
+    it 'calls upload evidence for each attachment' do
+      expect(uploader).to receive(:upload_evidence).with(claim.id, stamp_set: nil)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, claim.persistent_attachments[0].id, stamp_set: nil)
+      expect(uploader).to receive(:upload_evidence).with(claim.id, claim.persistent_attachments[1].id, stamp_set: nil)
+
+      uploader.upload_saved_claim_evidence(claim.id)
     end
   end
 end

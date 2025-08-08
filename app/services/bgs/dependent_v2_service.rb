@@ -21,6 +21,8 @@ module BGS
 
     STATS_KEY = 'bgs.dependent_service'
 
+    class PDFSubmissionError < StandardError; end
+
     def initialize(user)
       @first_name = user.first_name
       @middle_name = user.middle_name
@@ -55,9 +57,9 @@ module BGS
         @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
       end
 
-      {
-        submit_form_job_id:
-      }
+      { submit_form_job_id: }
+    rescue PDFSubmissionError
+      submit_to_central_service(claim:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
@@ -106,11 +108,10 @@ module BGS
       @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
     rescue => e
-      # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       @monitor.track_event('warn',
                            'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      submit_to_central_service(claim:)
+      raise PDFSubmissionError, e.message
     end
 
     def submit_claim_via_claims_evidence(claim)
@@ -119,8 +120,8 @@ module BGS
 
       if claim.submittable_686?
         form_id = '686C-674-V2'
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
+        file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
 
       form_id = submit_674_via_claims_evidence(claim) if claim.submittable_674?
@@ -134,14 +135,14 @@ module BGS
 
       form_674_pdfs = []
       claim.parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claim.created_at, form_id, index)
-        file_uuid = claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
-        form_674_pdfs << [file_uuid, pdf_path]
+        file_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claim.created_at, form_id, index)
+        file_uuid = claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
+        form_674_pdfs << [file_uuid, file_path]
       end
 
       # compensate for the abnormal nature of 674 V2 submissions
       if form_674_pdfs.length > 1
-        file_uuid = form_674_pdfs.pluck(0) # linter wants `.pluck`, not `.map { |fp| fp[0] }`
+        file_uuid = form_674_pdfs.map { |fp| fp[0] } # rubocop:disable Rails/Pluck
         submission = claims_evidence_uploader.submission
         submission.update_reference_data(students: form_674_pdfs)
         submission.file_uuid = file_uuid.to_s # set to stringified array
@@ -155,8 +156,8 @@ module BGS
       stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
-        pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, pa.id, doctype, claim.created_at)
+        file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+        claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
       end
     end
 

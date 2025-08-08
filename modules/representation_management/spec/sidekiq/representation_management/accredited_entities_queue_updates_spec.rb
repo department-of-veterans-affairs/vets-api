@@ -94,12 +94,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(agent_record).to receive(:raw_address)
       allow(attorney_record).to receive(:raw_address)
 
-      # Mock ActiveRecord for deletion
-      relation = double('ActiveRecord::Relation')
-      allow(AccreditedIndividual).to receive(:where).and_return(relation)
-      allow(relation).to receive(:not).and_return(relation)
-      allow(relation).to receive(:find_each)
-
       # Mock VSO and Representative API responses
       allow(client).to receive(:get_accredited_entities)
         .with(type: RepresentationManagement::VSOS, page: 1)
@@ -515,44 +509,106 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   end
 
   describe '#delete_removed_accredited_individuals' do
-    let(:agent_id) { 1 }
-    let(:attorney_id) { 2 }
-    let(:old_record) { instance_double(AccreditedIndividual, id: 3) }
-    let(:relation) { double('ActiveRecord::Relation') }
+    let!(:current_agent) { create(:accredited_individual, :claims_agent) }
+    let!(:current_attorney) { create(:accredited_individual, :attorney) }
+    let!(:current_representative) { create(:accredited_individual, :representative) }
+    let!(:old_agent) { create(:accredited_individual, :claims_agent) }
+    let!(:old_attorney) { create(:accredited_individual, :attorney) }
+    let!(:old_representative) { create(:accredited_individual, :representative) }
 
     before do
-      job.instance_variable_set(:@agent_ids, [agent_id])
-      job.instance_variable_set(:@attorney_ids, [attorney_id])
-      job.instance_variable_set(:@representative_ids, [])
-
-      allow(AccreditedIndividual).to receive(:where).and_return(relation)
-      allow(relation).to receive(:not).with(id: [agent_id, attorney_id]).and_return(relation)
-      allow(relation).to receive(:find_each).and_yield(old_record)
-      allow(old_record).to receive(:destroy)
-
-      # Instead of stubbing the log_error method on the job,
-      # stub Rails.logger which is an external dependency
-      allow(Rails.logger).to receive(:error)
+      job.instance_variable_set(:@agent_ids, [current_agent.id])
+      job.instance_variable_set(:@attorney_ids, [current_attorney.id])
+      job.instance_variable_set(:@representative_ids, [current_representative.id])
+      job.instance_variable_set(:@force_update_types, [])
     end
 
-    it 'deletes records not in the agent or attorney ids' do
-      job.send(:delete_removed_accredited_individuals)
-      expect(old_record).to have_received(:destroy)
+    context 'when no force update types are specified' do
+      it 'deletes all records not in current ID lists' do
+        expect { job.send(:delete_removed_accredited_individuals) }
+          .to change(AccreditedIndividual, :count).by(-3)
+
+        expect(AccreditedIndividual).not_to exist(old_agent.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+        expect(AccreditedIndividual).not_to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(current_attorney.id)
+        expect(AccreditedIndividual).to exist(current_representative.id)
+      end
     end
 
-    context 'when an error occurs during deletion' do
+    context 'when forcing updates for agents only' do
       before do
-        allow(old_record).to receive(:destroy).and_raise(StandardError.new('Delete error'))
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS])
       end
 
-      it 'logs an error' do
-        job.send(:delete_removed_accredited_individuals)
+      it 'only deletes agent records not in current ID lists' do
+        expect { job.send(:delete_removed_accredited_individuals) }
+          .to change(AccreditedIndividual, :count).by(-1)
 
-        # Expect the external dependency to be called instead
-        error_text_heading = 'RepresentationManagement::AccreditedEntitiesQueueUpdates error:'
-        error_text_message = 'Error deleting old accredited individual with ID 3: Delete error'
-        expect(Rails.logger).to have_received(:error)
-          .with("#{error_text_heading} #{error_text_message}")
+        expect(AccreditedIndividual).not_to exist(old_agent.id)
+        expect(AccreditedIndividual).to exist(old_attorney.id)
+        expect(AccreditedIndividual).to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_agent.id)
+      end
+    end
+
+    context 'when forcing updates for attorneys only' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::ATTORNEYS])
+      end
+
+      it 'only deletes attorney records not in current ID lists' do
+        expect { job.send(:delete_removed_accredited_individuals) }
+          .to change(AccreditedIndividual, :count).by(-1)
+
+        expect(AccreditedIndividual).to exist(old_agent.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+        expect(AccreditedIndividual).to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_attorney.id)
+      end
+    end
+
+    context 'when forcing updates for representatives only' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::REPRESENTATIVES])
+      end
+
+      it 'only deletes representative records not in current ID lists' do
+        expect { job.send(:delete_removed_accredited_individuals) }
+          .to change(AccreditedIndividual, :count).by(-1)
+
+        expect(AccreditedIndividual).to exist(old_agent.id)
+        expect(AccreditedIndividual).to exist(old_attorney.id)
+        expect(AccreditedIndividual).not_to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_representative.id)
+      end
+    end
+
+    context 'when forcing updates for multiple types' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS, RepresentationManagement::ATTORNEYS])
+      end
+
+      it 'only deletes records of the specified types' do
+        expect { job.send(:delete_removed_accredited_individuals) }
+          .to change(AccreditedIndividual, :count).by(-2)
+
+        expect(AccreditedIndividual).not_to exist(old_agent.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+        expect(AccreditedIndividual).to exist(old_representative.id)
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(current_attorney.id)
+      end
+    end
+
+    context 'when forcing updates for non-individual types only' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::VSOS])
+      end
+
+      it 'does not delete any individual records' do
+        expect { job.send(:delete_removed_accredited_individuals) }.not_to change(AccreditedIndividual, :count)
       end
     end
   end
@@ -1195,63 +1251,169 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   end
 
   describe '#delete_removed_accredited_organizations' do
-    let(:old_vso) { instance_double(AccreditedOrganization, id: 999) }
-    let(:relation) { double('ActiveRecord::Relation') }
+    let!(:current_vso1) { create(:accredited_organization) }
+    let!(:current_vso2) { create(:accredited_organization) }
+    let!(:old_vso) { create(:accredited_organization) }
 
     before do
-      job.instance_variable_set(:@vso_ids, [100, 101])
-
-      allow(AccreditedOrganization).to receive(:where).and_return(relation)
-      allow(relation).to receive(:not).with(id: [100, 101]).and_return(relation)
-      allow(relation).to receive(:find_each).and_yield(old_vso)
-      allow(old_vso).to receive(:destroy)
+      job.instance_variable_set(:@vso_ids, [current_vso1.id, current_vso2.id])
+      job.instance_variable_set(:@force_update_types, [])
     end
 
-    it 'deletes organizations not in the current VSO ids' do
-      job.send(:delete_removed_accredited_organizations)
-      expect(old_vso).to have_received(:destroy)
+    context 'when no force update types are specified' do
+      it 'deletes organizations not in the current VSO ids' do
+        expect { job.send(:delete_removed_accredited_organizations) }
+          .to change(AccreditedOrganization, :count).by(-1)
+
+        expect(AccreditedOrganization).not_to exist(old_vso.id)
+        expect(AccreditedOrganization).to exist(current_vso1.id)
+        expect(AccreditedOrganization).to exist(current_vso2.id)
+      end
     end
 
-    context 'when an error occurs during deletion' do
+    context 'when forcing updates for VSOs' do
       before do
-        allow(old_vso).to receive(:destroy).and_raise(StandardError.new('Delete error'))
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::VSOS])
       end
 
-      it 'logs an error' do
-        expect(Rails.logger).to receive(:error)
-          .with(/Error deleting old accredited organization with ID 999: Delete error/)
-        job.send(:delete_removed_accredited_organizations)
+      it 'deletes organizations not in the current VSO ids' do
+        expect { job.send(:delete_removed_accredited_organizations) }
+          .to change(AccreditedOrganization, :count).by(-1)
+
+        expect(AccreditedOrganization).not_to exist(old_vso.id)
+        expect(AccreditedOrganization).to exist(current_vso1.id)
+        expect(AccreditedOrganization).to exist(current_vso2.id)
+      end
+    end
+
+    context 'when forcing updates for non-VSO types only' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS])
+      end
+
+      it 'does not delete any organizations' do
+        expect { job.send(:delete_removed_accredited_organizations) }.not_to change(AccreditedOrganization, :count)
+      end
+    end
+
+    context 'when forcing updates for multiple types including VSOs' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS, RepresentationManagement::VSOS])
+      end
+
+      it 'deletes organizations not in the current VSO ids' do
+        expect { job.send(:delete_removed_accredited_organizations) }
+          .to change(AccreditedOrganization, :count).by(-1)
+
+        expect(AccreditedOrganization).not_to exist(old_vso.id)
+      end
+    end
+
+    context 'when forcing updates for multiple types not including VSOs' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS, RepresentationManagement::ATTORNEYS])
+      end
+
+      it 'does not delete any organizations' do
+        expect { job.send(:delete_removed_accredited_organizations) }.not_to change(AccreditedOrganization, :count)
       end
     end
   end
 
   describe '#delete_removed_accreditations' do
-    let(:old_accreditation) { instance_double(Accreditation, id: 999) }
-    let(:relation) { double('ActiveRecord::Relation') }
+    let!(:current_accreditation1) { create(:accreditation) }
+    let!(:current_accreditation2) { create(:accreditation) }
+    let!(:old_accreditation) { create(:accreditation) }
 
     before do
-      job.instance_variable_set(:@accreditation_ids, [300, 301])
-
-      allow(Accreditation).to receive(:where).and_return(relation)
-      allow(relation).to receive(:not).with(id: [300, 301]).and_return(relation)
-      allow(relation).to receive(:find_each).and_yield(old_accreditation)
-      allow(old_accreditation).to receive(:destroy)
+      job.instance_variable_set(:@accreditation_ids, [current_accreditation1.id, current_accreditation2.id])
+      job.instance_variable_set(:@force_update_types, [])
     end
 
-    it 'deletes accreditations not in the current accreditation ids' do
-      job.send(:delete_removed_accreditations)
-      expect(old_accreditation).to have_received(:destroy)
+    context 'when no force update types are specified' do
+      it 'deletes accreditations not in the current accreditation ids' do
+        expect { job.send(:delete_removed_accreditations) }
+          .to change(Accreditation, :count).by(-1)
+
+        expect(Accreditation).not_to exist(old_accreditation.id)
+        expect(Accreditation).to exist(current_accreditation1.id)
+        expect(Accreditation).to exist(current_accreditation2.id)
+      end
     end
 
-    context 'when an error occurs during deletion' do
+    context 'when forcing updates for representatives' do
       before do
-        allow(old_accreditation).to receive(:destroy).and_raise(StandardError.new('Delete error'))
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::REPRESENTATIVES])
       end
 
-      it 'logs an error' do
-        expect(Rails.logger).to receive(:error)
-          .with(/Error deleting old accreditation with ID 999: Delete error/)
-        job.send(:delete_removed_accreditations)
+      it 'deletes accreditations not in the current accreditation ids' do
+        expect { job.send(:delete_removed_accreditations) }
+          .to change(Accreditation, :count).by(-1)
+
+        expect(Accreditation).not_to exist(old_accreditation.id)
+        expect(Accreditation).to exist(current_accreditation1.id)
+        expect(Accreditation).to exist(current_accreditation2.id)
+      end
+    end
+
+    context 'when forcing updates for VSOs' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::VSOS])
+      end
+
+      it 'deletes accreditations not in the current accreditation ids' do
+        expect { job.send(:delete_removed_accreditations) }
+          .to change(Accreditation, :count).by(-1)
+
+        expect(Accreditation).not_to exist(old_accreditation.id)
+        expect(Accreditation).to exist(current_accreditation1.id)
+        expect(Accreditation).to exist(current_accreditation2.id)
+      end
+    end
+
+    context 'when forcing updates for representatives and VSOs' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::REPRESENTATIVES, RepresentationManagement::VSOS])
+      end
+
+      it 'deletes accreditations not in the current accreditation ids' do
+        expect { job.send(:delete_removed_accreditations) }
+          .to change(Accreditation, :count).by(-1)
+
+        expect(Accreditation).not_to exist(old_accreditation.id)
+      end
+    end
+
+    context 'when forcing updates for types that do not affect accreditations' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS])
+      end
+
+      it 'does not delete any accreditations' do
+        expect { job.send(:delete_removed_accreditations) }.not_to change(Accreditation, :count)
+      end
+    end
+
+    context 'when forcing updates for agents and attorneys only' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS, RepresentationManagement::ATTORNEYS])
+      end
+
+      it 'does not delete any accreditations' do
+        expect { job.send(:delete_removed_accreditations) }.not_to change(Accreditation, :count)
+      end
+    end
+
+    context 'when forcing updates for agents but also representatives' do
+      before do
+        job.instance_variable_set(:@force_update_types, [RepresentationManagement::AGENTS, RepresentationManagement::REPRESENTATIVES])
+      end
+
+      it 'deletes accreditations because representatives are included' do
+        expect { job.send(:delete_removed_accreditations) }
+          .to change(Accreditation, :count).by(-1)
+
+        expect(Accreditation).not_to exist(old_accreditation.id)
       end
     end
   end

@@ -18,6 +18,7 @@ module Mobile
         resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
+        resource.records = resource.records.reject(&:blocked_status)
         resource = resource.sort(params[:sort])
 
         # Even though this is a collection action we are not going to paginate
