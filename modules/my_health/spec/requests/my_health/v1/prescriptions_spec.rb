@@ -20,7 +20,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
   before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
-    Flipper.enable(:mhv_medications_display_documentation_content)
     sign_in_as(current_user)
   end
 
@@ -515,15 +514,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(response).to have_http_status(:service_unavailable)
           error = JSON.parse(response.body)['error']
           expect(error).to include('Unable to fetch documentation')
-        end
-
-        it 'responds with not_found when the feature is disabled' do
-          Flipper.disable(:mhv_medications_display_documentation_content)
-          VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/21296515/documentation'
-          end
-          expect(response).to have_http_status(:not_found)
-          expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })
         end
       end
 
