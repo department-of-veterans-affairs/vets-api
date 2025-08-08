@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe TravelPay::BaseExpense, type: :model do
   let(:valid_attributes) do
     {
-      description: 'Hotel accommodation',
-      cost_requested: 150.00,
+      description: 'General expense',
+      cost_requested: 100.00,
       purchase_date: Time.current
     }
   end
@@ -194,8 +194,8 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
 
     it 'returns a hash representation including core attributes' do
       json = subject.as_json
-      expect(json['description']).to eq('Hotel accommodation')
-      expect(json['cost_requested']).to eq(150.00)
+      expect(json['description']).to eq('General expense')
+      expect(json['cost_requested']).to eq(100.00)
       expect(json['claim_id']).to eq('claim-123')
     end
 
@@ -226,8 +226,32 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
           'custom'
         end
 
+        def custom_calculation
+          cost_requested * 1.1
+        end
+
+        def custom_method
+          'extended functionality'
+        end
+
         def self.name
           'CustomExpense'
+        end
+      end
+    end
+
+    let(:hotel_expense_class) do
+      Class.new(described_class) do
+        def expense_type
+          'hotel'
+        end
+
+        def hotel_specific_method
+          'hotel specific logic'
+        end
+
+        def self.name
+          'HotelExpense'
         end
       end
     end
@@ -237,6 +261,23 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       expect(custom_expense.expense_type).to eq('custom')
     end
 
+    it 'allows subclasses to add custom calculation methods' do
+      custom_expense = custom_expense_class.new(valid_attributes)
+      expect(custom_expense.custom_calculation).to be_within(0.01).of(110.0)
+    end
+
+    it 'supports multiple inheritance scenarios' do
+      hotel_expense = hotel_expense_class.new(valid_attributes)
+      expect(hotel_expense.expense_type).to eq('hotel')
+      expect(hotel_expense.hotel_specific_method).to eq('hotel specific logic')
+      expect(hotel_expense).to be_valid
+    end
+
+    it 'allows subclasses to add additional methods' do
+      custom_expense = custom_expense_class.new(valid_attributes)
+      expect(custom_expense.custom_method).to eq('extended functionality')
+    end
+
     it 'inherits all validations' do
       custom_expense = custom_expense_class.new
       custom_expense.valid?
@@ -244,22 +285,30 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       expect(custom_expense.errors[:cost_requested]).to include("can't be blank")
       expect(custom_expense.errors[:purchase_date]).to include("can't be blank")
     end
+
+    it 'maintains ActiveModel functionality in subclasses' do
+      custom_expense = custom_expense_class.new(valid_attributes)
+      json = custom_expense.as_json
+      expect(json['expense_type']).to eq('custom')
+      expect(json['description']).to eq('General expense')
+      expect(json['cost_requested']).to eq(100.00)
+    end
   end
 
   describe 'instantiation scenarios' do
     context 'creating a basic expense' do
       let(:expense) do
         described_class.new(
-          description: 'Taxi fare',
-          cost_requested: 45.75,
+          description: 'Generic expense',
+          cost_requested: 50.00,
           purchase_date: Date.current
         )
       end
 
       it 'creates a valid expense' do
         expect(expense).to be_valid
-        expect(expense.description).to eq('Taxi fare')
-        expect(expense.cost_requested).to eq(45.75)
+        expect(expense.description).to eq('Generic expense')
+        expect(expense.cost_requested).to eq(50.00)
         expect(expense.expense_type).to eq('other')
       end
     end
@@ -267,8 +316,8 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     context 'creating an expense with claim association' do
       let(:expense) do
         described_class.new(
-          description: 'Meal expense',
-          cost_requested: 25.50,
+          description: 'Expense with claim',
+          cost_requested: 75.00,
           purchase_date: Date.current,
           claim_id: 'uuid-123'
         )
@@ -284,8 +333,8 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       let(:mock_receipt) { double('Receipt', id: 'receipt-123') }
       let(:expense) do
         described_class.new(
-          description: 'Gas expense',
-          cost_requested: 75.00,
+          description: 'Expense with receipt',
+          cost_requested: 25.00,
           purchase_date: Date.current,
           receipt: mock_receipt
         )

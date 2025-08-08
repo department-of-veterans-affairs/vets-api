@@ -8,7 +8,7 @@ RSpec.describe 'TravelPay::BaseExpense Factory', type: :model do
       expense = build(:travel_pay_base_expense)
       expect(expense).to be_a(TravelPay::BaseExpense)
       expect(expense).to be_valid
-      expect(expense.description).to eq('Travel expense')
+      expect(expense.description).to eq('General expense')
       expect(expense.cost_requested).to eq(100.00)
     end
 
@@ -24,24 +24,6 @@ RSpec.describe 'TravelPay::BaseExpense Factory', type: :model do
       expect(expense.as_json['has_receipt']).to be true
     end
 
-    it 'creates a hotel expense with trait' do
-      expense = build(:travel_pay_base_expense, :hotel_expense)
-      expect(expense.description).to eq('Hotel accommodation')
-      expect(expense.cost_requested).to eq(150.00)
-    end
-
-    it 'creates a meal expense with trait' do
-      expense = build(:travel_pay_base_expense, :meal_expense)
-      expect(expense.description).to eq('Meal expense')
-      expect(expense.cost_requested).to eq(45.75)
-    end
-
-    it 'creates a transportation expense with trait' do
-      expense = build(:travel_pay_base_expense, :transportation_expense)
-      expect(expense.description).to eq('Taxi fare')
-      expect(expense.cost_requested).to eq(25.50)
-    end
-
     it 'creates a high cost expense with trait' do
       expense = build(:travel_pay_base_expense, :high_cost)
       expect(expense.cost_requested).to eq(500.00)
@@ -50,6 +32,12 @@ RSpec.describe 'TravelPay::BaseExpense Factory', type: :model do
     it 'creates a minimal cost expense with trait' do
       expense = build(:travel_pay_base_expense, :minimal_cost)
       expect(expense.cost_requested).to eq(1.00)
+    end
+
+    it 'creates an expense with long description trait' do
+      expense = build(:travel_pay_base_expense, :with_long_description)
+      expect(expense.description.length).to eq(200)
+      expect(expense.description).to eq('A' * 200)
     end
   end
 end

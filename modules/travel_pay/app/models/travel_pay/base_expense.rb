@@ -53,6 +53,7 @@ module TravelPay
       result['claim_id'] = claim_id
       result['has_receipt'] = !receipt.nil?
       result['receipt'] = receipt
+      result['expense_type'] = expense_type
       result
     end
 
