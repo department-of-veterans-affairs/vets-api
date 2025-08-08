@@ -105,26 +105,33 @@ check_in:
     retry_attempt_expiry: 604800
   chip_api_v2:
     base_path: <%= ENV['check_in__chip_api_v2__base_path'] %>
-    host: <%= ENV['check_in__chip_api_v2__host'] %>
+    base_path_v2: <%= ENV['check_in__vaec_cie__chip__base_path'] %>
     mock: <%= ENV['check_in__chip_api_v2__mock'] %>
     redis_session_prefix: check_in_chip_v2
     service_name: CHIP-API
     timeout: 30
     tmp_api_id: <%= ENV['check_in__chip_api_v2__tmp_api_id'] %>
+    tmp_api_id_v2: <%= ENV['check_in__vaec_cie__chip__api_id'] %>
     tmp_api_user: <%= ENV['check_in__chip_api_v2__tmp_api_user'] %>
+    tmp_api_user_v2: <%= ENV['check_in__vaec_cie__chip__password'] %>
     tmp_api_username: <%= ENV['check_in__chip_api_v2__tmp_api_username'] %>
+    tmp_api_username_v2: <%= ENV['check_in__vaec_cie__chip__username'] %>
     url: <%= ENV['check_in__chip_api_v2__url'] %>
+    url_v2: <%= ENV['check_in__vaec_cie__chip__url'] %>
   lorota_v2:
     api_id: <%= ENV['check_in__lorota_v2__api_id'] %>
+    api_id_v2: <%= ENV['check_in__vaec_cie__lorota__api_id'] %>
     api_key: <%= ENV['check_in__lorota_v2__api_key'] %>
+    api_key_v2: <%= ENV['check_in__vaec_cie__lorota__api_key'] %>
     base_path: <%= ENV['check_in__lorota_v2__base_path'] %>
-    host: <%= ENV['check_in__lorota_v2__host'] %>
+    base_path_v2: <%= ENV['check_in__vaec_cie__lorota__base_path'] %>
     key_path: "/srv/vets-api/secret/check-in.lorota.v1.key"
     mock: <%= ENV['check_in__lorota_v2__mock'] %>
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
     service_name: LoROTA-API
     url: <%= ENV['check_in__lorota_v2__url'] %>
+    url_v2: <%= ENV['check_in__vaec_cie__lorota__url'] %>
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
@@ -786,6 +793,7 @@ maintenance:
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
     appeals: P9S4RFU
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
+    askva: <%= ENV['maintenance__services__askva'] %>
     avs: <%= ENV['maintenance__services__avs'] %>
     bgs: P5Q2OCZ
     carma: <%= ENV['maintenance__services__carma'] %>
@@ -794,6 +802,7 @@ maintenance:
     coe: <%= ENV['maintenance__services__coe'] %>
     community_care_ds: <%= ENV['maintenance__services__community_care_ds'] %>
     decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
+    disability_compensation_form: <%= ENV['maintenance__services__disability_compensation_form'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
@@ -1616,7 +1625,6 @@ vba_documents:
   slack:
     api_key: <%= ENV['vba_documents__slack__api_key'] %>
     channel_id: <%= ENV['vba_documents__slack__channel_id'] %>
-    daily_notification_hour: 7
     default_alert_email: <%= ENV['vba_documents__slack__default_alert_email'] %>
     enabled: <%= ENV['vba_documents__slack__enabled'] %>
     in_flight_notification_hung_time_in_days: 14
@@ -1631,8 +1639,6 @@ vba_documents:
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: <%= ENV['vbms__ca_cert'] %>
   cert: <%= ENV['vbms__cert'] %>
