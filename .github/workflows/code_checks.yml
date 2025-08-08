@@ -27,6 +27,28 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     steps:
+      - name: Debug - Print environment context
+        run: |
+          echo "=== LINTING & SECURITY DEBUG INFO ==="
+          echo "Event name: ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR number: ${{ github.event.pull_request.number }}"
+            echo "PR head ref: ${{ github.event.pull_request.head.ref }}"
+            echo "PR head sha: ${{ github.event.pull_request.head.sha }}"
+            echo "PR base ref: ${{ github.event.pull_request.base.ref }}"
+            echo "PR base sha: ${{ github.event.pull_request.base.sha }}"
+            echo "PR head repo: ${{ github.event.pull_request.head.repo.full_name }}"
+            echo "PR base repo: ${{ github.event.pull_request.base.repo.full_name }}"
+          fi
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner architecture: ${{ runner.arch }}"
+          echo "Workspace: ${{ github.workspace }}"
+          echo "=================================="
+
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
         uses: actions/checkout@v4
@@ -40,18 +62,70 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Debug - Verify checkout state
+        run: |
+          echo "=== POST-CHECKOUT DEBUG INFO ==="
+          echo "Current directory: $(pwd)"
+          echo "Git status:"
+          git status --porcelain || echo "Git status failed"
+          echo "Current HEAD:"
+          git rev-parse HEAD || echo "Git rev-parse failed" 
+          echo "Current branch:"
+          git branch --show-current || echo "Git branch failed"
+          echo "Git log (last 3 commits):"
+          git log --oneline -3 || echo "Git log failed"
+          echo "File count in workspace:"
+          find . -type f | wc -l || echo "File count failed"
+          echo "Ruby version check:"
+          which ruby || echo "Ruby not found"
+          echo "Bundle version check:"
+          which bundle || echo "Bundle not found"
+          echo "=================================="
+
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
+      - name: Debug - Verify Ruby setup
+        run: |
+          echo "=== POST-RUBY-SETUP DEBUG INFO ==="
+          echo "Ruby version:"
+          ruby --version || echo "Ruby version check failed"
+          echo "Bundler version:"
+          bundle --version || echo "Bundler version check failed"
+          echo "Gemfile exists:"
+          ls -la Gemfile* || echo "Gemfile check failed"
+          echo "Bundle check (gems installed):"
+          bundle check || echo "Bundle check failed - gems may not be installed"
+          echo "Bundle list (first 10 gems):"
+          bundle list | head -10 || echo "Bundle list failed"
+          echo "====================================="
+
       - name: Run bundle-audit (checks gems for CVE issues)
-        run: bundle exec bundle-audit check --update --ignore CVE-2024-27456
+        run: |
+          echo "=== STARTING BUNDLE-AUDIT ==="
+          echo "Command: bundle exec bundle-audit check --update --ignore CVE-2024-27456"
+          bundle exec bundle-audit check --update --ignore CVE-2024-27456
+          echo "Bundle-audit exit code: $?"
+          echo "=== BUNDLE-AUDIT COMPLETED ==="
 
       - name: Run Rubocop
-        run: bundle exec rubocop --parallel --format github
+        run: |
+          echo "=== STARTING RUBOCOP ==="
+          echo "Command: bundle exec rubocop --parallel --format github"
+          echo "Files to be checked:"
+          bundle exec rubocop --list-files | wc -l || echo "Could not count files"
+          bundle exec rubocop --parallel --format github
+          echo "Rubocop exit code: $?"
+          echo "=== RUBOCOP COMPLETED ==="
 
       - name: Run Brakeman
-        run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
+        run: |
+          echo "=== STARTING BRAKEMAN ==="
+          echo "Command: bundle exec brakeman --ensure-latest --confidence-level=2 --format github"
+          bundle exec brakeman --ensure-latest --confidence-level=2 --format github
+          echo "Brakeman exit code: $?"
+          echo "=== BRAKEMAN COMPLETED ==="
 
       # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label
@@ -82,6 +156,35 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
     steps:
+      - name: Debug - Print test environment context
+        run: |
+          echo "=== TEST JOB DEBUG INFO ==="
+          echo "Event name: ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR number: ${{ github.event.pull_request.number }}"
+            echo "PR head ref: ${{ github.event.pull_request.head.ref }}"
+            echo "PR head sha: ${{ github.event.pull_request.head.sha }}"
+            echo "PR base ref: ${{ github.event.pull_request.base.ref }}"
+            echo "PR base sha: ${{ github.event.pull_request.base.sha }}"
+          fi
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner architecture: ${{ runner.arch }}"
+          echo "Docker version:"
+          docker --version || echo "Docker not available"
+          echo "Docker Compose version:"
+          docker compose version || echo "Docker Compose not available"
+          echo "Available disk space:"
+          df -h || echo "Disk space check failed"
+          echo "Available memory:"
+          free -h || echo "Memory check failed"
+          echo "CPU info:"
+          nproc || echo "CPU count failed"
+          echo "============================="
+
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
         uses: actions/checkout@v4
@@ -95,11 +198,56 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Debug - Verify test checkout state
+        run: |
+          echo "=== POST-TEST-CHECKOUT DEBUG INFO ==="
+          echo "Current directory: $(pwd)"
+          echo "Docker compose files:"
+          ls -la docker-compose* || echo "Docker compose files not found"
+          echo "Git status:"
+          git status --porcelain || echo "Git status failed"
+          echo "Current HEAD:"
+          git rev-parse HEAD || echo "Git rev-parse failed"
+          echo "File count in workspace:"
+          find . -type f | wc -l || echo "File count failed"
+          echo "Check if ECR_REGISTRY secret is available:"
+          if [ -n "${{ secrets.ECR_REGISTRY }}" ]; then
+            echo "ECR_REGISTRY secret is set"
+          else
+            echo "ECR_REGISTRY secret is NOT set"
+          fi
+          echo "====================================="
+
+      - name: Debug - Pre Docker login
+        run: |
+          echo "=== PRE-DOCKER-LOGIN DEBUG INFO ==="
+          echo "DockerHub user secret available: ${{ secrets.DOCKERHUB_USER != '' }}"
+          echo "DockerHub password secret available: ${{ secrets.DOCKERHUB_PASSWORD != '' }}"
+          echo "Docker daemon status:"
+          docker info --format "{{.ServerVersion}}" || echo "Docker daemon not accessible"
+          echo "================================="
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Debug - Post Docker login
+        run: |
+          echo "=== POST-DOCKER-LOGIN DEBUG INFO ==="
+          echo "Docker login successful"
+          echo "Docker images available:"
+          docker images || echo "Could not list docker images"
+          echo "===================================="
+
+      - name: Debug - Pre AWS configuration
+        run: |
+          echo "=== PRE-AWS-CONFIG DEBUG INFO ==="
+          echo "AWS assume role variable: ${{ vars.AWS_ASSUME_ROLE != '' }}"
+          echo "AWS CLI version:"
+          aws --version || echo "AWS CLI not available"
+          echo "==============================="
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -107,17 +255,53 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
+      - name: Debug - Post AWS configuration
+        run: |
+          echo "=== POST-AWS-CONFIG DEBUG INFO ==="
+          echo "AWS identity:"
+          aws sts get-caller-identity || echo "AWS identity check failed"
+          echo "AWS region:"
+          aws configure get region || echo "AWS region check failed"
+          echo "==============================="
+
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
 
+      - name: Debug - Post ECR login
+        run: |
+          echo "=== POST-ECR-LOGIN DEBUG INFO ==="
+          echo "ECR login registry: ${{ steps.ecr-login.outputs.registry }}"
+          echo "ECR registry with slash env: $ECR_REGISTRY_WITH_SLASH"
+          echo "==============================="
+
       - name: Set Environment Variable
-        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+        run: |
+          echo "=== SETTING USER ID ==="
+          USER_ID=$(id -u)
+          echo "VETS_API_USER_ID=$USER_ID" >> $GITHUB_ENV
+          echo "User ID set to: $USER_ID"
+          echo "======================="
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Debug - Pre Docker build
+        run: |
+          echo "=== PRE-DOCKER-BUILD DEBUG INFO ==="
+          echo "VETS_API_USER_ID: ${{ env.VETS_API_USER_ID }}"
+          echo "BUNDLE_ENTERPRISE secret available: ${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM != '' }}"
+          echo "Docker buildx version:"
+          docker buildx version || echo "Docker buildx not available"
+          echo "Docker buildx ls:"
+          docker buildx ls || echo "Could not list buildx instances"
+          echo "Dockerfile exists:"
+          ls -la Dockerfile* || echo "Dockerfile not found"
+          echo "Available disk space before build:"
+          df -h || echo "Disk space check failed"
+          echo "====================================="
 
       - name: Build Docker Image
         uses: docker/build-push-action@v6
@@ -134,6 +318,29 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Debug - Post Docker build
+        run: |
+          echo "=== POST-DOCKER-BUILD DEBUG INFO ==="
+          echo "Docker images after build:"
+          docker images | grep vets-api || echo "vets-api image not found"
+          echo "Available disk space after build:"
+          df -h || echo "Disk space check failed"
+          echo "Docker image inspection:"
+          docker inspect vets-api --format='{{.Size}}' || echo "Could not inspect image size"
+          echo "====================================="
+
+      - name: Debug - Pre database setup
+        run: |
+          echo "=== PRE-DATABASE-SETUP DEBUG INFO ==="
+          echo "COMPOSE_BASH_CMD: ${{ env.COMPOSE_BASH_CMD }}"
+          echo "Docker compose services:"
+          docker compose -f docker-compose.test.yml config --services || echo "Could not list services"
+          echo "Docker compose ps (before):"
+          docker compose -f docker-compose.test.yml ps || echo "Could not show compose status"
+          echo "Available memory before setup:"
+          free -h || echo "Memory check failed"
+          echo "======================================"
+
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
@@ -144,16 +351,69 @@ jobs:
             ${{ env.COMPOSE_BASH_CMD }}
             "bundle exec rake parallel:setup[24]"
 
+      - name: Debug - Post database setup
+        run: |
+          echo "=== POST-DATABASE-SETUP DEBUG INFO ==="
+          echo "Docker compose ps (after setup):"
+          docker compose -f docker-compose.test.yml ps || echo "Could not show compose status"
+          echo "Check database connections:"
+          ${{ env.COMPOSE_BASH_CMD }} "bundle exec rails runner 'puts ActiveRecord::Base.connection.execute(\"SELECT 1\").values.first'" || echo "Database connection test failed"
+          echo "Available disk space after setup:"
+          df -h || echo "Disk space check failed"
+          echo "Available memory after setup:"
+          free -h || echo "Memory check failed"
+          echo "======================================"
+
       - name: Setup system tmp dir
-        run: >
-          ${{ env.COMPOSE_BASH_CMD }}
-          "mkdir -p tmp/systmp"
+        run: |
+          echo "=== SETTING UP SYSTEM TMP DIR ==="
+          ${{ env.COMPOSE_BASH_CMD }} "mkdir -p tmp/systmp"
+          echo "Tmp dir created successfully"
+          echo "================================"
+
+      - name: Debug - Pre test execution
+        run: |
+          echo "=== PRE-TEST-EXECUTION DEBUG INFO ==="
+          echo "System status before tests:"
+          echo "Available memory:"
+          free -h || echo "Memory check failed"
+          echo "Available disk space:"
+          df -h || echo "Disk space check failed"
+          echo "Docker container status:"
+          docker compose -f docker-compose.test.yml ps || echo "Could not show compose status"
+          echo "Test file count (spec files):"
+          find . -name "*_spec.rb" | wc -l || echo "Could not count spec files"
+          echo "Modules directory:"
+          ls -la modules/ || echo "Modules directory not found"
+          echo "===================================="
 
       - name: Run Specs
         timeout-minutes: 15
-        run: >
-          ${{ env.COMPOSE_BASH_CMD }}
-          "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
+        run: |
+          echo "=== STARTING TEST EXECUTION ==="
+          echo "Test command: TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
+          echo "Starting at: $(date)"
+          ${{ env.COMPOSE_BASH_CMD }} "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
+          echo "Test execution completed at: $(date)"
+          echo "Test exit code: $?"
+          echo "==============================="
+
+      - name: Debug - Post test execution
+        if: always()
+        run: |
+          echo "=== POST-TEST-EXECUTION DEBUG INFO ==="
+          echo "Final system status:"
+          echo "Available memory:"
+          free -h || echo "Memory check failed"
+          echo "Available disk space:"
+          df -h || echo "Disk space check failed"
+          echo "Docker container logs (last 50 lines):"
+          docker compose -f docker-compose.test.yml logs --tail=50 || echo "Could not get container logs"
+          echo "Test artifacts generated:"
+          ls -la log/ || echo "No log directory found"
+          ls -la coverage/ || echo "No coverage directory found"
+          ls -la tmp/ || echo "No tmp directory found"
+          echo "====================================="
 
       - name: Upload Coverage Report
         if: always()
