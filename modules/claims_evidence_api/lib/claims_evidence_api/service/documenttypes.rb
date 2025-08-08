@@ -5,6 +5,7 @@ require 'claims_evidence_api/service/base'
 module ClaimsEvidenceApi
   module Service
     # DocumentTypes API
+    # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/Document%20Types
     class DocumentTypes < Base
       # @see #retrieve
       def self.get

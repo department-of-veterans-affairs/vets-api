@@ -8,10 +8,6 @@ require 'claims_evidence_api/folder_identifier'
 require 'common/client/base'
 
 module ClaimsEvidenceApi
-  # Proxy Service for the ClaimsEvidence API
-  #
-  # @see https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
-  # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html
   module Service
     # Base service class for API
     class Base < Common::Client::Base

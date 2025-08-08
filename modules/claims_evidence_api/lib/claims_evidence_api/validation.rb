@@ -5,7 +5,6 @@ require 'claims_evidence_api/validation/field'
 require 'claims_evidence_api/folder_identifier'
 
 module ClaimsEvidenceApi
-  # Validations to be used with ClaimsEvidence API requests
   module Validation
     module_function
 

@@ -6,6 +6,7 @@ require 'common/virus_scan'
 module ClaimsEvidenceApi
   module Service
     # Files API
+    # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File
     class Files < Base
       # POST upload/create a file to a vbms folder
       # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload

@@ -86,7 +86,6 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
     let(:context) { { foo: :bar, test: 23 } }
 
     describe '#track_upload' do
-      # track_request(level, msg, METRIC, call_location:, message:, tags:, **context)
       %i[begun attempt success].each do |action|
         it "tracks #{action}" do
           message = "#{uploader.class}: upload #{action}"
