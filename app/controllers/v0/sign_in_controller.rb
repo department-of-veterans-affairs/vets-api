@@ -47,6 +47,7 @@ module V0
       handle_pre_login_error(e, client_id)
     rescue => e
       log_message_to_sentry(e.message, :error)
+      log_message_to_rails(e.message, :error)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     end
@@ -86,6 +87,7 @@ module V0
       handle_pre_login_error(e, state_payload&.client_id)
     rescue => e
       log_message_to_sentry(e.message, :error)
+      log_message_to_rails(e.message, :error)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
       handle_pre_login_error(e, state_payload&.client_id)
     end
