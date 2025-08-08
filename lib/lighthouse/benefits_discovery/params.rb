@@ -26,7 +26,7 @@ module BenefitsDiscovery
     private
 
     def service_history
-      service_history_episodes.map do |sh|
+      service_history_episodes.filter_map do |sh|
         code = sh.character_of_discharge_code
         discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
         if discharge_type.nil?
@@ -59,7 +59,7 @@ module BenefitsDiscovery
     # this is also temporary code used for discovery purposes
     class << self
       def service_history_params(episodes)
-        episodes.map do |sh|
+        episodes.filter_map do |sh|
           code = sh.character_of_discharge_code
           discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
           if discharge_type.nil?
