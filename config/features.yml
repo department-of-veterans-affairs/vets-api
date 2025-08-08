@@ -458,6 +458,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  cst_friendly_evidence_requests:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
@@ -2185,6 +2189,21 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
+  travel_pay_claims_management_decision_reason:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the front-end display of decision reason parsed from the decision letter document on the claim details page.
+      Enabled - The Travel Pay FE will show a decision reason section on the claims details page if it receives decision reason text from the API.
+      Disabled - The Travel Pay FE will hide the decision reason section on the claims details page.
+  travel_pay_claims_management_decision_reason_api:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the decision reason API functionality, including finding decision letter documents and extracting decision reasons from them.
+      The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
+      Enabled - Decision letter documents are parsed and the decision reason is extracted.
+      Disabled - Decision letter documents are not parsed for the decision reason.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
