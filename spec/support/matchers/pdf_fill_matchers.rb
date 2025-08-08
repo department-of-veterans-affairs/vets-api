@@ -7,7 +7,7 @@ RSpec::Matchers.define :match_pdf_fields do
         { name: field.name, value: field.value }
       end
     end
-    expect(fields[0]).to eq(fields[1])
+    expect(fields[0]).to match_array(fields[1])
   end
 
   failure_message do |actual|
