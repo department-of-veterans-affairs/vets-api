@@ -9,17 +9,16 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :PostVet360Telephone do
-          key :required, %i[phone_number phone_type is_international country_code]
+          key :required, %i[phone_number area_code phone_type is_international country_code]
           property :area_code,
                    type: :string,
-                   nullable: true,
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American Numbering Plan (NANP) phone number
-                   (U.S., Canada, and some Caribbean countries). Required when is_international is false. Omit or set
-                   null for non-NANP numbers.'
+                   (U.S., Canada, and some Caribbean countries). Required when is_international is false. Set to null
+                   for non-NANP numbers.'
           property :country_code,
                    type: :string,
                    minLength: 1,
@@ -78,20 +77,19 @@ module Swagger
         end
 
         swagger_schema :PutVet360Telephone do
-          key :required, %i[id phone_number phone_type is_international country_code]
+          key :required, %i[id phone_number area_code phone_type is_international country_code]
           property :id,
                    type: :integer,
                    example: 1
           property :area_code,
                    type: :string,
-                   nullable: true,
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
                    pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American Numbering Plan (NANP) phone number
-                   (U.S., Canada, and some Caribbean countries). Required when is_international is false. Omit or set
-                   null for non-NANP numbers.'
+                   (U.S., Canada, and some Caribbean countries). Required when is_international is false. Set to null
+                   for non-NANP numbers.'
           property :country_code,
                    type: :string,
                    minLength: 1,
