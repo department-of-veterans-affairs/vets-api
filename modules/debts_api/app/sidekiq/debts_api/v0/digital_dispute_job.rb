@@ -4,6 +4,7 @@ require 'debts_api/v0/digital_dispute_submission_service'
 
 module DebtsApi
   class V0::DigitalDisputeJob
+    include Sidekiq::Worker
 
     sidekiq_retries_exhausted do |job, ex|
       user_data = job['args'][0]
