@@ -34,31 +34,12 @@ module TravelPay
     # appointments: [VAOS::Appointment + travelPayClaim]
 
     def associate_appointments_to_claims(params = {})
-      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
-      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
-      client_params = {
-        page_size: DEFAULT_PAGE_SIZE
-      }.merge!(date_range)
+      client_params = prepare_client_params(params)
+      faraday_response = fetch_claims_data(client_params)
 
-      auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
-
-      if faraday_response.status == 200
-        raw_claims = faraday_response.body['data'].deep_dup
-
-        data = raw_claims&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-          sc
-        end
-
-        append_claims(params['appointments'],
-                      data,
-                      build_metadata(faraday_response.body))
-
-      end
+      process_claims_response(faraday_response, params['appointments'])
     rescue => e
-      append_error(params['appointments'],
-                   rescue_errors(e))
+      append_error(params['appointments'], rescue_errors(e))
     end
 
     def associate_single_appointment_to_claim(params = {})
@@ -169,6 +150,48 @@ module TravelPay
 
     def client
       TravelPay::ClaimsClient.new
+    end
+
+    def log_forbidden_response(faraday_response)
+      correlation_id = faraday_response.headers['X-Correlation-ID']
+      veteran_status = @user.veteran_status
+      Rails.logger.warn(@user)
+      Rails.logger.warn(
+        message: 'Travel Pay claims request returned 403 Forbidden',
+        user_uuid: @user.user_account_uuid,
+        is_veteran: veteran_status&.veteran?,
+        correlation_id:
+      )
+    end
+
+    def prepare_client_params(params)
+      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+      {
+        page_size: DEFAULT_PAGE_SIZE
+      }.merge!(date_range)
+    end
+
+    def fetch_claims_data(client_params)
+      auth_manager.authorize => { veis_token:, btsss_token: }
+      client.get_claims_by_date(veis_token, btsss_token, client_params)
+    end
+
+    def process_claims_response(faraday_response, appointments)
+      log_forbidden_response(faraday_response) if faraday_response.status == 403
+
+      return unless faraday_response.status == 200
+
+      raw_claims = faraday_response.body['data'].deep_dup
+      data = transform_claims_data(raw_claims)
+      append_claims(appointments, data, build_metadata(faraday_response.body))
+    end
+
+    def transform_claims_data(raw_claims)
+      raw_claims&.map do |sc|
+        sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+        sc
+      end
     end
   end
 end
