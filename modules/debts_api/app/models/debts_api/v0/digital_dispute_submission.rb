@@ -45,6 +45,7 @@ module DebtsApi
       end
 
       def register_failure(message)
+        StatsD.increment("#{STATS_KEY}.failure")
         failed!
         update(error_message: message)
       end

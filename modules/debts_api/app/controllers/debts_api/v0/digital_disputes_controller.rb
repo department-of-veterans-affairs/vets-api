@@ -23,7 +23,6 @@ module DebtsApi
               submission_id: result[:submission_id]
             }, status: :ok
           else
-            StatsD.increment("#{V0::DigitalDisputeSubmission::STATS_KEY}.failure")
             render json: { errors: result[:errors] }, status: :unprocessable_entity
           end
         end

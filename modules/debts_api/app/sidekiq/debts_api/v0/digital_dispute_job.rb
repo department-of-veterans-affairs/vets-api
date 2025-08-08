@@ -4,6 +4,29 @@ require 'debts_api/v0/financial_status_report_service'
 
 module DebtsApi
   class V0::DigitalDisputeJob
+
+    sidekiq_retries_exhausted do |job, ex|
+      user_data = job['args'][0]
+      metadata = job['args'][2]
+
+      debt_ids =
+        if metadata.is_a?(Hash)
+          metadata[:disputes] || metadata['disputes']
+        else
+          nil
+        end
+
+      if user_data && debt_ids.present?
+        submission = DebtsApi::V0::DigitalDisputeSubmission
+                       .where(user_uuid: user_data['uuid'], debt_identifiers: debt_ids)
+                       .order(created_at: :desc)
+                       .first
+        submission&.register_failure("Retries exhausted: #{ex.class}: #{ex.message}")
+      end
+
+      Rails.logger.error("DigitalDisputeJob retries exhausted: #{ex.class}: #{ex.message} | args=#{job['args'].inspect}")
+    end
+
     def perform(user_data, files, metadata)
       user = OpenStruct.new(uuid: user_data['uuid'], ssn: user_data['ssn'], participant_id: user_data['participant_id'])
 
