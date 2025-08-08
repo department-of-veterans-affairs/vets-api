@@ -518,115 +518,58 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'when hca service raises an error' do
-        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
-          before do
-            test_veteran.delete('email')
-            allow_any_instance_of(HCA::Service).to receive(:submit_form) do
-              raise error
-            end
-          end
-
-          context 'with a validation error' do
-            let(:error) { HCA::SOAPParser::ValidationError.new }
-
-            it 'renders error message' do
-              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
-
-              subject
-
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'Validation error',
-                    'code' => 'HCA422',
-                    'status' => '422'
-                  }
-                ]
-              )
-            end
-          end
-
-          context 'with a SOAP error' do
-            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-            before do
-              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-            end
-
-            it 'renders error message' do
-              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
-
-              subject
-
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'error message',
-                    'code' => 'VA900',
-                    'status' => '400'
-                  }
-                ]
-              )
-            end
+        before do
+          test_veteran.delete('email')
+          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+            raise error
           end
         end
 
-        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+        context 'with a validation error' do
+          let(:error) { HCA::SOAPParser::ValidationError.new }
+
+          it 'renders error message' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
+
+            subject
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'Validation error',
+                  'code' => 'HCA422',
+                  'status' => '422'
+                }
+              ]
+            )
+          end
+        end
+
+        context 'with a SOAP error' do
+          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
           before do
-            Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
-            test_veteran.delete('email')
-            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-            allow_any_instance_of(HCA::Service).to receive(:post) do
-              raise error
-            end
+            allow(Settings.sentry).to receive(:dsn).and_return('asdf')
           end
 
-          context 'with a validation error' do
-            let(:error) { HCA::SOAPParser::ValidationError.new }
+          it 'renders error message' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
-            it 'renders error message' do
-              subject
+            subject
 
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'Validation error',
-                    'code' => 'HCA422',
-                    'status' => '422'
-                  }
-                ]
-              )
-            end
-          end
-
-          context 'with a SOAP error' do
-            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-            before do
-              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-            end
-
-            it 'renders error message' do
-              subject
-
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'error message',
-                    'code' => 'VA900',
-                    'status' => '400'
-                  }
-                ]
-              )
-            end
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'error message',
+                  'code' => 'VA900',
+                  'status' => '400'
+                }
+              ]
+            )
           end
         end
       end
