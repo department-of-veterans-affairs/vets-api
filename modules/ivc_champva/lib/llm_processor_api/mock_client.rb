@@ -30,8 +30,8 @@ module IvcChampva
       private
 
       ##
-      # Returns a simple mock response body as JSON string
-      # The real API returns JSON with an 'answer' field containing the LLM response
+      # Returns a simple mock response body as Hash
+      # Matches the real API response format after Faraday JSON parsing
       def mock_response_body
         mock_llm_response = {
           doc_type: 'EOB',
@@ -51,10 +51,10 @@ module IvcChampva
                  '\'Services Paid For (CPT/HCPCS code or description)\'.'
         }
 
-        # Wrap in the expected response format
+        # Return as Hash to match Faraday JSON parsing behavior
         {
-          answer: "```json\n#{JSON.pretty_generate(mock_llm_response)}\n```"
-        }.to_json
+          'answer' => "```json\n#{JSON.pretty_generate(mock_llm_response)}\n```"
+        }
       end
     end
   end
