@@ -313,7 +313,7 @@ features:
   check_in_experience_lorota_travel_reimbursement:
     actor_type: user
     description: Enables the full LoROTA standalone mileage-only travel reimbursement feature
-    enable_in_development: false
+    enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
