@@ -1767,15 +1767,15 @@ veteran_readiness_and_employment:
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
   email:
-    error:
-      flipper_id: false
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
     confirmation_lighthouse:
       flipper_id: false
       template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
     confirmation_vbms:
       flipper_id: false
       template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
+    error:
+      flipper_id: false
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:
