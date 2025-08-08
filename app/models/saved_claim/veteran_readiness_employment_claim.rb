@@ -365,6 +365,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     service = bgs_client
     vet_info = parsed_form['veteranAddress']
 
+    Rails.logger.warn('VRE claim: Veteran address is missing, cannot determine regional office.') if vet_info.blank?
+
     regional_office_response = service.routing.get_regional_office_by_zip_code(
       vet_info['postalCode'], vet_info['country'], vet_info['state'], 'VRE', parsed_form['veteranInformation']['ssn']
     )
