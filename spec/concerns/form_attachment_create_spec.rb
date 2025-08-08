@@ -20,7 +20,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
   end
 
   describe '#create' do
-    context 'with Sentry logging enabled' do
+    context 'with :hca_log_form_attachment_create enabled' do
       let(:controller_class) do
         Class.new(ApplicationController) do
           include FormAttachmentCreate
@@ -45,20 +45,22 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'validates and saves attachment' do
         file_data = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).twice.and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).twice.and_return(true)
 
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
-          :info,
-          file_data_present: true,
-          klass: 'ActionDispatch::Http::UploadedFile',
-          debug_timestamp: anything
+          {
+            file_data_present: true,
+            klass: 'ActionDispatch::Http::UploadedFile',
+            debug_timestamp: anything
+          }
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:info).with(
           'finish form attachment creation',
-          :info,
-          serialized: true,
-          debug_timestamp: anything
+          {
+            serialized: true,
+            debug_timestamp: anything
+          }
         )
 
         form_attachment = double(HCAAttachment)
@@ -71,20 +73,23 @@ RSpec.describe FormAttachmentCreate, type: :controller do
 
       it 'logs validation failure when attachment is not a type of UploadedFile' do
         file_data = 'foo'
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
+        expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
-          :info,
-          file_data_present: true,
-          klass: 'String',
-          debug_timestamp: anything
+          {
+            file_data_present: true,
+            klass: 'String',
+            debug_timestamp: anything
+          }
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+
+        expect(Rails.logger).to receive(:info).with(
           'form attachment error 1 - validate class',
-          :info,
-          phase: 'FAC_validate',
-          klass: 'String',
-          exception: 'Invalid field value'
+          {
+            phase: 'FAC_validate',
+            klass: 'String',
+            exception: 'Invalid field value'
+          }
         )
         post(:create, params: { hca_attachment: { file_data: } })
       end
@@ -92,22 +97,25 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'logs failure to save to cloud' do
         file_data = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
-          :info,
-          file_data_present: true,
-          klass: 'ActionDispatch::Http::UploadedFile',
-          debug_timestamp: anything
+          {
+            file_data_present: true,
+            klass: 'ActionDispatch::Http::UploadedFile',
+            debug_timestamp: anything
+          }
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+
+        expect(Rails.logger).to receive(:info).with(
           'form attachment error 2 - save to cloud',
-          :info,
-          has_pass: false,
-          ext: File.extname(file_data).last(5),
-          phase: 'FAC_cloud',
-          exception: 'Unprocessable Entity'
+          {
+            has_pass: false,
+            ext: File.extname(file_data).last(5),
+            phase: 'FAC_cloud',
+            exception: 'Unprocessable Entity'
+          }
         )
 
         form_attachment = double(HCAAttachment)
@@ -120,21 +128,24 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'logs failure to save to db' do
         file_data = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-        expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(Rails.logger).to receive(:info).with(
           'begin form attachment creation',
-          :info,
-          file_data_present: true,
-          klass: 'ActionDispatch::Http::UploadedFile',
-          debug_timestamp: anything
+          {
+            file_data_present: true,
+            klass: 'ActionDispatch::Http::UploadedFile',
+            debug_timestamp: anything
+          }
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+
+        expect(Rails.logger).to receive(:info).with(
           'form attachment error 3 - save to db',
-          :info,
-          phase: 'FAC_db',
-          errors: 'error text',
-          exception: 'Record invalid'
+          {
+            phase: 'FAC_db',
+            errors: 'error text',
+            exception: 'Record invalid'
+          }
         )
 
         form_attachment = double(HCAAttachment)
