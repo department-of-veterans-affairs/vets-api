@@ -9,8 +9,7 @@ module V0
       'EP180' => :ep180_decision_letter_notifications
     }.freeze
 
-    def send_email
-      # Validate required parameters
+    def send_email      # Validate required parameters
       unless send_email_params[:ep_code].present?
         return render json: { error: 'ep_code is required' }, status: :bad_request
       end
