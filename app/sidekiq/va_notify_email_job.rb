@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Is this one still being used or is it obsolete/deprecated?
 class VANotifyEmailJob
   include Sidekiq::Job
   include SentryLogging

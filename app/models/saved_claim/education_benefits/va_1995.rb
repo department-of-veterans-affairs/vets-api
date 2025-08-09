@@ -3,6 +3,8 @@
 class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
   add_form_and_validation('22-1995')
 
+  ZSF_DD_TAG_FUNCTION  = 'form_1995_failure_confirmation_email_sending'
+
   # Pulled from https://github.com/department-of-veterans-affairs/vets-website/src/applications/edu-benefits/utils/helpers.jsx#L100
   # & https://github.com/department-of-veterans-affairs/vets-website/blob/main/src/applications/edu-benefits/utils/labels.jsx
   BENEFIT_TITLE_FOR_1995 = {
@@ -26,8 +28,17 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
 
   private
 
+  # rubocop:disable Metrics/MethodLength
   def send_confirmation_email(parsed_form_data, email)
     benefit_claimed = BENEFIT_TITLE_FOR_1995[parsed_form_data['benefit']] || ''
+
+    callback_options = {
+      callback_metadata: {
+        notification_type: 'error',
+        form_number: '22-1995',
+        statsd_tags: { service: 'submit-1995-form', function: 'DefaultFunction' }
+      }
+    }
 
     VANotify::EmailJob.perform_async(
       email,
@@ -38,7 +49,13 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
         'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
         'confirmation_number' => education_benefits_claim.confirmation_number,
         'regional_office_address' => regional_office_address
-      }
+      },
+      callback_options
     )
+
+    notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email, callback_options)
+
+    notify_response = notify_client.send_email()
   end
+  # rubocop:enable Metrics/MethodLength
 end
