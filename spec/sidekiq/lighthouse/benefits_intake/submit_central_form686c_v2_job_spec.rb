@@ -6,6 +6,13 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
   stub_virus_scan
   subject(:job) { described_class.new }
 
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
+  end
+
   let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
   let(:claim_v2) { create(:dependency_claim_v2) }
@@ -161,6 +168,16 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
 
     describe 'get files from claim' do
       subject { job.get_files_from_claim }
+
+      # Performance tweak
+      # We are not testing the PDF generation or process_pdf method here. These are computationally expensive
+      # and are tested in other specs
+      # rubocop:disable RSpec/SubjectStub
+      before do
+        allow(claim_v2).to receive(:to_pdf).and_return('mocked.pdf')
+        allow(job).to receive(:process_pdf).and_return('mocked-processed.pdf')
+      end
+      # rubocop:enable RSpec/SubjectStub
 
       it 'compiles 686 and 674 files and returns attachments array with the generated 674' do
         job.instance_variable_set('@claim', claim_v2)

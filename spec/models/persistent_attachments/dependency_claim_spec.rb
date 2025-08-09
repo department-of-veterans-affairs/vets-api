@@ -22,6 +22,11 @@ RSpec.describe PersistentAttachments::DependencyClaim, :uploader_helpers do
   end
 
   context 'stamp_text', run_at: '2017-08-01 01:01:00 EDT' do
+    # Performance tweak
+    before do
+      allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+    end
+
     it 'offsets a user timestamp by their browser data' do
       instance.saved_claim = create(
         :dependency_claim

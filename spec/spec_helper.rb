@@ -202,6 +202,9 @@ RSpec.configure do |config|
     metadata[:enable_csrf_protection] = true
   end
 
+  config.profile_examples = 20
+  config.example_status_persistence_file_path = 'tmp/rspec_examples.txt'
+
   config.before(:all, :enable_csrf_protection) do
     @original_allow_forgery_protection = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true

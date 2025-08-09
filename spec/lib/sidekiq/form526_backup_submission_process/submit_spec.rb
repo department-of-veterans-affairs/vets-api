@@ -10,6 +10,16 @@ require 'evss/disability_compensation_form/form4142_processor'
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
 
+  # Performance tweak
+  # This can be removed. Benchmarked all tests to see which tests are slowest.
+  around do |example|
+    puts "\nStarting: #{example.full_description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  end
+
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
@@ -120,6 +130,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
+        def create_fake_pdf(filename)
+          path = Rails.root.join('tmp', filename)
+          File.binwrite(path, "%PDF-1.4\n%Fake PDF for tests\n")
+          path.to_s
+        end
+
         before do
           upload_data.each do |ud|
             file = Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
@@ -127,6 +143,43 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             sea.set_file_data!(file)
             sea.save!
           end
+
+          fake_processor =
+            instance_double(
+              EVSS::DisabilityCompensationForm::Form4142Processor,
+              request_body: { 
+                'metadata' => { 'receiveDt' => submission.created_at.iso8601 }.to_json
+              },
+              pdf_path: 'fake4142.pdf'
+            )
+
+          allow(EVSS::DisabilityCompensationForm::Form4142Processor)
+            .to receive(:new)
+            .and_return(fake_processor)
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_form4142_pdf) do |processor|
+              fake_file = create_fake_pdf('fake4142.pdf')
+              processor.docs << { type: '21-4142', file: fake_file }
+            end
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_form0781_pdf) do |processor|
+              fake_file = create_fake_pdf('fake0781.pdf')
+              processor.docs << { type: '21-0781', file: fake_file }
+            end
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_form8940_pdf) do |processor|
+              fake_file = create_fake_pdf('fake8940.pdf')
+              processor.docs << { type: '21-8940', file: fake_file }
+            end
+
+          allow_any_instance_of(Sidekiq::Form526BackupSubmissionProcess::Processor)
+            .to receive(:get_bdd_pdf) do |processor|
+              fake_file = create_fake_pdf('fakebdd.pdf')
+              processor.docs << { type: 'bdd', file: fake_file }
+            end
         end
 
         it 'creates a job for submission' do
@@ -162,7 +215,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                   expect(
                     submission.created_at.in_time_zone('Central Time (US & Canada)')
                   ).to be_within(1.second).of(form4142_received_date)
-
                   # Form 0781 Backup Submission Process
                   expect(submission.form['form0781']).not_to be_nil
                   # not really a way to test the dates here

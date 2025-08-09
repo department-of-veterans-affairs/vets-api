@@ -6,6 +6,11 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   stub_virus_scan
   subject(:job) { described_class.new }
 
+  # Performance tweak
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
   let(:claim_v2) { create(:dependency_claim_v2) }

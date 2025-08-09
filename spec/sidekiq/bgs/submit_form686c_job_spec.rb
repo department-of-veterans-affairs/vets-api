@@ -50,6 +50,8 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     allow(OpenStruct).to receive(:new)
       .with(hash_including(icn: vet_info['veteran_information']['icn']))
       .and_return(user_struct)
+
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
   end
 
   context 'successfully' do
