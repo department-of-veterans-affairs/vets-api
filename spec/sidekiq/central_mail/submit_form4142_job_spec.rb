@@ -6,6 +6,20 @@ require 'evss/disability_compensation_auth_headers' # required to build a Form52
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   subject { described_class }
 
+  # Performance tweak
+  # This can be removed. Benchmarked all tests to see which tests are slowest.
+  around do |example|
+    puts "\nStarting: #{example.description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.description} (#{duration.round(2)}s)\n\n"
+  end
+
+  # Use existing fixture simple.pdf as test input
+  let(:fixture_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf') }
+  let(:test_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf') }
+
   before do
     Sidekiq::Job.clear_all
     # Make Job use old CentralMail route for all tests
@@ -15,6 +29,22 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     # not used in tests unless explicitly enabled
     Flipper.disable(:disability_526_form4142_use_2024_template)
     Flipper.disable(:disability_526_form4142_validate_schema)
+
+    # Stub out pdf methods as they are not needed for these tests and are cpu expensive
+    FileUtils.cp(fixture_pdf, test_pdf) unless File.exist?(test_pdf)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:fill_form_template)
+      .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_signature_stamp)
+      .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_vagov_timestamp)
+      .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:submission_date_stamp)
+      .and_return(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'test_output.pdf').to_s)
+  end
+
+  # Clean up the test output file
+  after do
+    FileUtils.rm_f(test_pdf)
   end
 
   #######################
@@ -115,8 +145,11 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         end
 
         it 'raises a standard error' do
+          puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: starting perform"
           subject.perform_async(submission.id)
+          puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: finished perform, starting drain"
           expect { described_class.drain }.to raise_error(StandardError)
+          puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S.%3N')}: finished drain"
         end
       end
     end
