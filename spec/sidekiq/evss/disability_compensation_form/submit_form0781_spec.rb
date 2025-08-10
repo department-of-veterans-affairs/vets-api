@@ -61,6 +61,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       context 'with a successful submission job' do
+        let(:path_to_0781_fixture) { 'spec/fixtures/pdf_fill/21-0781/simple.pdf' }
+        let(:path_to_0781a_fixture) { 'spec/fixtures/pdf_fill/21-0781a/kitchen_sink.pdf' }
+        let(:parsed_0781_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781'] }
+        let(:parsed_0781a_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a'] }
+
+        before do
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+            .and_return(path_to_0781_fixture)
+
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
+            .and_return(path_to_0781a_fixture)
+
+          allow(File).to receive(:delete)
+        end
+
         it 'queues a job for submit' do
           expect do
             subject.perform_async(submission.id)
@@ -77,25 +96,38 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
       end
 
-      context 'with a submission timeout' do
+      context 'with exceptions' do
+        let(:path_to_0781_fixture) { 'spec/fixtures/pdf_fill/21-0781/simple.pdf' }
+        let(:parsed_0781_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781'] }
+
         before do
-          allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .and_return(path_to_0781_fixture)
+
+          allow(File).to receive(:delete)
         end
 
-        it 'raises a gateway timeout error' do
-          subject.perform_async(submission.id)
-          expect { described_class.drain }.to raise_error(StandardError)
-        end
-      end
+        context 'with a submission timeout' do
+          before do
+            allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+          end
 
-      context 'with an unexpected error' do
-        before do
-          allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
+          it 'raises a gateway timeout error' do
+            subject.perform_async(submission.id)
+            expect { described_class.drain }.to raise_error(StandardError)
+          end
         end
 
-        it 'raises a standard error' do
-          subject.perform_async(submission.id)
-          expect { described_class.drain }.to raise_error(StandardError)
+        context 'with an unexpected error' do
+          before do
+            allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
+          end
+
+          it 'raises a standard error' do
+            subject.perform_async(submission.id)
+            expect { described_class.drain }.to raise_error(StandardError)
+          end
         end
       end
     end
@@ -108,6 +140,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                  saved_claim_id: saved_claim_with_0781v2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
+      end
+
+      let(:path_to_0781a_fixture) { 'spec/fixtures/pdf_fill/21-0781a/kitchen_sink.pdf' }
+      let(:parsed_0781a_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a'] }
+
+      before do
+        allow_any_instance_of(described_class)
+          .to receive(:generate_stamp_pdf)
+          .and_return(path_to_0781a_fixture)
+
+        allow(File).to receive(:delete)
       end
 
       context 'with a successful submission job' do
@@ -363,14 +406,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when a submission has both 0781 and 0781a' do
+          before do
+            allow_any_instance_of(described_class)
+              .to receive(:generate_stamp_pdf)
+              .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+              .and_return(path_to_0781_fixture)
+
+            allow_any_instance_of(described_class)
+              .to receive(:generate_stamp_pdf)
+              .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
+              .and_return(path_to_0781a_fixture)
+          end
+
           context 'when the request is successful' do
             it 'uploads both documents to Lighthouse' do
               # 0781
-              allow_any_instance_of(described_class)
-                .to receive(:generate_stamp_pdf)
-                .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
-                .and_return(path_to_0781_fixture)
-
               allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
                 .to receive(:generate_upload_document)
                 .and_return(lighthouse_0781_document)
@@ -380,11 +430,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                 .with(File.read(path_to_0781_fixture), lighthouse_0781a_document)
 
               # 0781a
-              allow_any_instance_of(described_class)
-                .to receive(:generate_stamp_pdf)
-                .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
-                .and_return(path_to_0781a_fixture)
-
               allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
                 .to receive(:generate_upload_document)
                 .and_return(lighthouse_0781a_document)
@@ -460,6 +505,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               # Skip additional logging that occurs in Lighthouse::ServiceException handling
               allow(Rails.logger).to receive(:error)
 
+              allow_any_instance_of(described_class)
+                .to receive(:generate_stamp_pdf)
+                .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+                .and_return(path_to_0781_fixture)
+
               allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
                 .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
             end
@@ -494,15 +544,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         context 'when a submission has 0781a only' do
           before do
             submission.update(form_json: form0781a_only)
+
+            allow_any_instance_of(described_class)
+              .to receive(:generate_stamp_pdf)
+              .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
+              .and_return(path_to_0781a_fixture)
           end
 
           context 'when a request is successful' do
             it 'uploads to Lighthouse' do
-              allow_any_instance_of(described_class)
-                .to receive(:generate_stamp_pdf)
-                .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
-                .and_return(path_to_0781a_fixture)
-
               allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
                 .to receive(:generate_upload_document)
                 .and_return(lighthouse_0781a_document)
@@ -771,10 +821,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
         context 'when Lighthouse returns an error response' do
           let(:exception_errors) { [{ detail: 'Something Broke' }] }
+          let(:path_to_0781_fixture) { 'spec/fixtures/pdf_fill/21-0781/simple.pdf' }
 
           before do
             # Skip additional logging that occurs in Lighthouse::ServiceException handling
             allow(Rails.logger).to receive(:error)
+
+            allow_any_instance_of(described_class)
+              .to receive(:generate_stamp_pdf)
+              .and_return(path_to_0781_fixture)
 
             allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
               .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
