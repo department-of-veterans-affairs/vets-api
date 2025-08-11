@@ -41,6 +41,7 @@ ALLOWLIST = %w[
   page
   persistent_attachment_id
   qqtotalfilesize
+  queue_time
   reply_id
   saved_claim_id
   service
@@ -53,6 +54,7 @@ ALLOWLIST = %w[
   submission_id
   tags
   tempfile
+  time_to_transition
   to_date
   type
   useCache
