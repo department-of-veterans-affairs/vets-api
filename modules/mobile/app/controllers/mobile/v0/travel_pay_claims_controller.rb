@@ -35,12 +35,20 @@ module Mobile
 
         submitted_claim = smoc_service.submit_mileage_expense(appt_params)
 
-        new_claim_hash = normalize_claim_summary({
-                                                   'claimId' => submitted_claim['claimId'],
-                                                   'status' => submitted_claim['status'],
-                                                   'createdOn' => DateTime.now.to_fs(:iso8601),
-                                                   'modifiedOn' => DateTime.now.to_fs(:iso8601)
-                                                 }, use_validated_params: true)
+        normalized_submitted_claim_data = {
+          'id' => submitted_claim['claimId'],
+          'claimNumber' => '',
+          'claimStatus' => submitted_claim['status'].underscore.humanize,
+          'appointmentDateTime' => validated_params[:appointment_date_time],
+          'facilityId' => validated_params[:facility_station_number],
+          'facilityName' => validated_params[:facility_name],
+          'totalCostRequested' => 0,
+          'reimbursementAmount' => 0,
+          'createdOn' => DateTime.now.to_fs(:iso8601),
+          'modifiedOn' => DateTime.now.to_fs(:iso8601)
+        }
+
+        new_claim_hash = normalize_claim_summary(normalized_submitted_claim_data)
 
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
@@ -52,20 +60,18 @@ module Mobile
         @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
 
-      def normalize_claim_summary(claim_data, use_validated_params: false)
+      def normalize_claim_summary(claim)
         Mobile::V0::TravelPayClaimSummary.new(
-          id: claim_data['id'] || claim_data['claimId'],
-          claimNumber: claim_data['claimNumber'] || '',
-          claimStatus: (claim_data['claimStatus'] || claim_data['status']).underscore.humanize,
-          appointmentDateTime: claim_data['appointmentDateTime'] || (if use_validated_params
-                                                                       validated_params[:appointment_date_time]
-                                                                     end),
-          facilityId: claim_data['facilityId'] || (validated_params[:facility_station_number] if use_validated_params),
-          facilityName: claim_data['facilityName'] || (validated_params[:facility_name] if use_validated_params),
-          totalCostRequested: claim_data['totalCostRequested'] || 0,
-          reimbursementAmount: claim_data['reimbursementAmount'] || 0,
-          createdOn: claim_data['createdOn'],
-          modifiedOn: claim_data['modifiedOn']
+          id: claim['id'],
+          claimNumber: claim['claimNumber'],
+          claimStatus: claim['claimStatus'],
+          appointmentDateTime: claim['appointmentDateTime'],
+          facilityId: claim['facilityId'],
+          facilityName: claim['facilityName'],
+          totalCostRequested: claim['totalCostRequested'],
+          reimbursementAmount: claim['reimbursementAmount'],
+          createdOn: claim['createdOn'],
+          modifiedOn: claim['modifiedOn']
         )
       end
 
