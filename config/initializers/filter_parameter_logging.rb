@@ -12,6 +12,7 @@ ALLOWLIST = %w[
   class
   code
   confirmation_number
+  consumer_name
   content_type
   controller
   cookie_id
