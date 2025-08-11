@@ -2122,6 +2122,10 @@ features:
     actor_type: user
     description: Enable the Intent to File for Pension
     enable_in_development: true
+  pension_itf_skip_missing_person_error_enabled:
+    actor_type: user
+    description: Enable ability to skip the missing person error when creating an ITF for Pension
+    enable_in_development: true
   pension_itf_show_alert:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension

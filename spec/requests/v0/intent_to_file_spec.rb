@@ -16,6 +16,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
   before do
     sign_in_as(user)
     Flipper.disable(:disability_compensation_production_tester)
+    Flipper.disable(:pension_itf_skip_missing_person_error_enabled)
 
     allow(BenefitsClaims::IntentToFile::Monitor).to receive(:new).and_return(monitor)
   end
