@@ -689,7 +689,7 @@ FactoryBot.define do
           },
           use_v2: true,
           days_till_expires: 365,
-          privacy_agreement_accepted: true,
+          privacy_agreement_accepted: true
         },
         veteran_information: {
           birth_date: '1980-01-01',
