@@ -9,6 +9,12 @@ module AccreditedRepresentativePortal
       'manually' => 'received'
     }.freeze
 
+    def initialize(object, *args)
+      raise ArgumentError, 'Object cannot be nil' if object.nil?
+
+      super
+    end
+
     attribute :submitted_date do |object|
       object.created_at&.to_date&.iso8601
     end
