@@ -50,13 +50,6 @@ module ClaimsApi
       end
     end
 
-    def validate_service_periods_present!
-      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
-      if service_periods.nil?
-        raise ::Common::Exceptions::UnprocessableEntity.new({ detail: 'List of service periods must be provided' })
-      end
-    end
-
     def validate_service_periods_quantity!
       service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
       sp_size = service_periods.size

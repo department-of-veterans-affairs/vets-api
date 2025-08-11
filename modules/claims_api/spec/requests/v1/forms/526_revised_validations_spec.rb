@@ -149,34 +149,6 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
   end
 
-  describe '#validate_service_periods_present!' do
-    context 'when service_periods are provided' do
-      let(:form_attributes) do
-        {
-          'serviceInformation' => {
-            'servicePeriods' => [
-              {
-                'activeDutyBeginDate' => 1.year.ago.to_date.iso8601,
-                'activeDutyEndDate' => 1.day.from_now.to_date.iso8601
-              }
-            ]
-          }
-        }
-      end
-
-      it 'does not raise an error' do
-        expect { subject.validate_service_periods_present! }.not_to raise_error
-      end
-    end
-
-    context 'when service_periods are not provided' do
-      it 'raises an UnprocessableEntity error' do
-        expect { subject.validate_service_periods_present! }
-          .to raise_error(Common::Exceptions::UnprocessableEntity)
-      end
-    end
-  end
-
   describe '#validate_service_periods_quantity!' do
     context 'when <= 100 service periods are provided' do
       let(:form_attributes) do
