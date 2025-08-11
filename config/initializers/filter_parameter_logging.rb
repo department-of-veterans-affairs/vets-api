@@ -50,6 +50,7 @@ ALLOWLIST = %w[
   sort
   startDate
   startedFormVersion
+  statsd
   status
   submission_id
   tags
