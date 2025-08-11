@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module BenefitsClaims
   module Constants
     CLAIM_TYPE_LANGUAGE_MAP = {
@@ -25,7 +26,7 @@ module BenefitsClaims
       'Submit buddy statement(s)' => 'Witness or corroboration statements',
       'ASB - tell us where, when, how exposed' => 'Asbestos exposure information',
       'HAIMS STR Request' => 'Service treatment records',
-      'Name of disability needed'=> 'Name of disability',
+      'Name of disability needed' => 'Name of disability',
       'NG1 - National Guard Records Request' => 'National Guard service treatment records',
       'DBQ RESP Sleep Apnea' => 'Sleep apnea exam',
       'DBQ MUSC Back (thoracolumbar spine)' => 'Back pain exam',
@@ -73,29 +74,35 @@ module BenefitsClaims
       'ASB - tell us where, when, how exposed' => 'To process your disability claim for asbestos exposure, we' \
                                                   ' need a bit more information from you.',
       'HAIMS STR Request' => 'We’ve requested your service treatment records from the Department of Defense.',
-      'Name of disability needed' => 'We need to know what your disability is and how it’s connected to your military service.',
+      'Name of disability needed' => 'We need to know what your disability is and how it’s connected' \
+                                     ' to your military service.',
       'DBQ RESP Sleep Apnea' => 'We’ve requested an exam to learn more about your sleep apnea.' \
                                 ' The examiner’s office will contact you to schedule this appointment.',
       'DBQ MUSC Back (thoracolumbar spine)' => 'We’ve requested an exam to understand your back condition.' \
-                                                ' The examiner’s office will contact you to schedule this appointment.',
+                                               ' The examiner’s office will contact you to schedule this appointment.',
       'DBQ MUSC Knee and Lower Leg' => 'We’ve requested an exam for your knee and lower leg.' \
                                        ' The examiner’s office will contact you to schedule this appointment.',
-      'DBQ NEURO Headaches (including migraines)' => 'We’ve requested an exam for your headaches.' \
-                                                     ' The examiner’s office will contact you to schedule this appointment.',
+      'DBQ NEURO Headaches (including migraines)' => 'We’ve requested an exam for your headaches. The' \
+                                                     ' examiner’s office will contact you to schedule' \
+                                                     ' this appointment.',
       '21-4142' => 'We need your permission to request your personal information from a non-VA source,' \
-                    ' like a private doctor or hospital.',
+                   ' like a private doctor or hospital.',
       '21-4142a' => 'We need information about where you received treatment so we can request your medical' \
                     ' records from non-VA medical providers.',
       'DBQ PSYCH PTSD initial' => 'We’ve requested an exam related to your PTSD. The examiner’s' \
                                   ' office will contact you to schedule this appointment.',
-      'SSA medical evidence requested' => 'We’ve asked the Social Security Administration (SSA) for your medical records.',
+      'SSA medical evidence requested' => 'We’ve asked the Social Security Administration (SSA) for your medical' \
+                                          ' records.',
       'DBQ PSYCH PTSD Review' => 'We’ve requested a follow-up exam related to your PTSD. The examiner’s' \
                                  ' office will contact you to schedule this appointment.',
-      'Clarification of Claimed Issue' => 'We need more information or a medical diagnosis for the condition in your benefits claim.',
-      'DBQ GU Male Reproductive Organ' => 'We’ve requested an exam to understand the condition affecting your reproductive health.' \
-                                            ' The examiner’s office will contact you to schedule this appointment.',
+      'Clarification of Claimed Issue' => 'We need more information or a medical diagnosis for the condition in your' \
+                                          ' benefits claim.',
+      'DBQ GU Male Reproductive Organ' => 'We’ve requested an exam to understand the condition affecting your' \
+                                          ' reproductive health. The examiner’s office will contact you to' \
+                                          ' schedule this appointment.',
       'ASB-medical evid of disease (biopsy) needed' => 'We need medical documentation that supports your claim.',
-      'NG1 - National Guard Records Request' => 'We’ve asked your National Guard unit for your service treatment records.'
+      'NG1 - National Guard Records Request' => 'We’ve asked your National Guard unit for your' \
+                                                ' service treatment records.'
     }.freeze
 
     SUPPORT_ALIASES_MAPPING = {
@@ -171,3 +178,4 @@ module BenefitsClaims
     }.freeze
   end
 end
+# rubocop:enable Metrics/ModuleLength
