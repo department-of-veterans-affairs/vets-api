@@ -3,7 +3,7 @@ namespace :tmp do
   desc 'Clear tmp but keep pids, cache, and sockets'
   task selective_clear: [:environment] do
     root = Rails.root.join('tmp').to_s
-    keep = %w[pids cache sockets].map { |d| File.join(root, d) }
+    keep = %w[pids cache sockets benchmarks].map { |d| File.join(root, d) }
 
     Dir.glob(File.join(root, '*'), File::FNM_DOTMATCH).each do |path|
       # Skip current dir, parent dir, and anything in the keep list
