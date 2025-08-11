@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-To expediate the development and usage of the module within submission processes (specifically Dependents), the main goal is to provide means to upload claim evidence files.
+To expedite the development and usage of the module within submission processes (specifically Dependents), the main goal is to provide means to upload claim evidence files.
 
 ## Decision
 

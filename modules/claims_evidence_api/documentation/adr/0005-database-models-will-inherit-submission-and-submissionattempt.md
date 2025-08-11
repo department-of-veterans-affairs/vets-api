@@ -16,4 +16,4 @@ The models used will inherit/extend the general Submission and SubmissionAttempt
 
 ## Consequences
 
-The base set up and form of each submission will be consistent with other services using the same structure. Certain fields will need to be alaised to be relevant to the ClaimsEvidence module.
+The base set up and form of each submission will be consistent with other services using the same structure. Certain fields will need to be aliased to be relevant to the ClaimsEvidence module.
