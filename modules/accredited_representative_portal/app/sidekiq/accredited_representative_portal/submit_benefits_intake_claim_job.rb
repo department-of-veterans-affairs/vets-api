@@ -58,7 +58,7 @@ module AccreditedRepresentativePortal
     end
 
     def stamping_form_class
-      @claims.class::STAMPING_FORM_CLASS
+      @claim.class::STAMPING_FORM_CLASS
     end
 
     ##
