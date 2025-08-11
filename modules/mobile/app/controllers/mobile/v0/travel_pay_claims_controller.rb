@@ -6,7 +6,6 @@ module Mobile
   module V0
     class TravelPayClaimsController < ApplicationController
       before_action :authenticate
-      after_action :clear_appointments_cache, only: %i[create]
 
       def index
         claims_response = claims_service.get_claims_by_date_range(
@@ -112,10 +111,6 @@ module Mobile
 
       def smoc_service
         @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user, 'VAHB')
-      end
-
-      def clear_appointments_cache
-        Mobile::V0::Appointment.clear_cache(@current_user)
       end
     end
   end
