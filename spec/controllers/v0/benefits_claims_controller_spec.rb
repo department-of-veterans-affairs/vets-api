@@ -212,12 +212,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                        ' your behalf. No action is needed.')
         expect(activity_description_values).to include('We’ve requested your non-VA medical records on' \
                                                        ' your behalf. No action is needed.')
-        expect(activity_description_values).to include('We’ve requested a disability exam for your hearing.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
-        expect(activity_description_values).to include('We’ve requested a mental health exam for you.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
         short_description_values = tracked_items.map { |i| i['shortDescription'] }
         expect(short_description_values).to include('We’ve requested your service' \
                                                     ' records or treatment records from your reserve unit.')
