@@ -473,7 +473,7 @@ class User < Common::RedisStore
   end
 
   def cerner_eligible?
-    loa3? && cerner_id.present?
+    loa3? && (cerner_id.present? || cerner_facility_ids.present?)
   end
 
   def can_create_mhv_account?
