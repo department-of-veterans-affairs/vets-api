@@ -110,5 +110,12 @@ RSpec.describe BenefitsDiscovery::Params do
       service_history_episodes = Array.wrap(build(:service_history))
       expect(described_class.service_history_params(service_history_episodes)).to eq(prepared_service_history_params)
     end
+
+    it 'logs error and skips record when the discharge code is not found' do
+      unfound_discharge_history = Array.wrap(build(:service_history, character_of_discharge_code: 'foo'))
+      expect {
+        described_class.service_history_params(unfound_discharge_history)
+      }.to raise_error(Common::Exceptions::UnprocessableEntity), {detail: 'No matching discharge code for: foo', source: described_class.name }
+    end
   end
 end
