@@ -60,11 +60,11 @@ module ClaimsApi
     def validate_service_periods_quantity!
       service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
       sp_size = service_periods.size
-      if sp_size < 1 || sp_size > 100
+      if sp_size > 100
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'serviceInformation.servicePeriods',
           "Number of service periods #{sp_size} " \
-          'must be between 1 and 100 inclusive'
+          'must be less than or equal to 100'
         )
       end
     end

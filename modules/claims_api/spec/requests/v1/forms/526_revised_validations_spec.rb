@@ -216,19 +216,6 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
-
-    context 'when fewer than 1 service_periods are provided' do
-      let(:form_attributes) do
-        {
-          'serviceInformation' => { 'servicePeriods' => [] }
-        }
-      end
-
-      it 'raises an InvalidFieldValue error' do
-        expect { subject.validate_service_periods_quantity! }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
-      end
-    end
   end
 
   describe '#validate_service_periods_chronology!' do
