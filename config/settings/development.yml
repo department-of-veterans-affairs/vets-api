@@ -1409,8 +1409,12 @@ vanotify:
     accredited_representative_portal:
       api_key: fake_secret
       email:
+        confirmation:
+          template_id: accredited_representative_portal_confirmation_email_template_id
         error:
           template_id: accredited_representative_portal_error_email_template_id
+        received:
+          template_id: accredited_representative_portal_received_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:
