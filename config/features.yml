@@ -648,6 +648,9 @@ features:
   dependents_separate_confirmation_email:
     actor_type: cookie_id
     description: Enables the dependents confirmation/received email to be differentiated by form
+  dependents_bypass_schema_validation:
+    actor_type: user
+    description: Bypasses vets_json_schema validation for dependency claims 
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
