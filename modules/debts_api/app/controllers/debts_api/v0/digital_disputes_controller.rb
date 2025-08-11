@@ -37,7 +37,7 @@ module DebtsApi
         }
 
         metadata = parse_metadata(submission_params[:metadata])
-binding.pry
+
         # base64 encoding so job can handle files
         base_64_files = submission_params[:files].map do |file|
           {
