@@ -5,12 +5,14 @@ module TravelPay
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
-    include ActiveModel::Serialization
 
     attribute :purchase_date, :datetime
     attribute :description, :string
     attribute :cost_requested, :float
     attribute :claim_id, :string
+
+    # Receipt attribute accessor
+    attr_accessor :receipt
 
     validates :purchase_date, presence: true
     validates :description, presence: true, length: { maximum: 255 }
@@ -41,18 +43,21 @@ module TravelPay
       receipt
     end
 
-    # Receipt attribute accessor
-    attr_accessor :receipt
+    # Returns whether the expense has an associated receipt
+    #
+    # @return [Boolean] true if receipt is present, false otherwise
+    def receipt?
+      receipt.present?
+    end
 
     # Returns a hash representation of the expense
-    # Useful for JSON serialization and API responses
     #
     # @return [Hash] hash representation of the expense
-    def as_json(_options = {})
+    def to_h
       result = attributes.dup
       result['claim_id'] = claim_id
-      result['has_receipt'] = receipt.present?
-      result['receipt'] = receipt
+      result['has_receipt'] = receipt?
+      result['receipt'] = receipt if receipt?
       result['expense_type'] = expense_type
       result
     end
