@@ -148,4 +148,129 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_service_periods_quantity!' do
+    context 'when <= 100 service periods are provided' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => Array.new(100) do |_i|
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => '2005-01-01'
+              }
+            end
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_service_periods_quantity! }.not_to raise_error
+      end
+    end
+
+    context 'when > 100 service periods are provided' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => Array.new(101) do |_i|
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => '2005-01-01'
+              }
+            end
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_service_periods_quantity! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_service_periods_chronology!' do
+    context 'when service period dates are in correct chronological order' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => '2005-01-01'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_service_periods_chronology! }.not_to raise_error
+      end
+    end
+
+    context 'when service period end date is missing' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => nil
+              }
+            ]
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_service_periods_chronology! }.not_to raise_error
+      end
+    end
+
+    context 'when service period end date is before begin date' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2005-01-01',
+                'activeDutyEndDate' => '2000-01-01'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_service_periods_chronology! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'with multiple service periods with mixed validity' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => '2005-01-01'
+              },
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => '2008-01-01'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error for the invalid period' do
+        expect { subject.validate_service_periods_chronology! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
 end
