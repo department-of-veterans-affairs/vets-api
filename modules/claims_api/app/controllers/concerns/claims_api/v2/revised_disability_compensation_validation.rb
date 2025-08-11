@@ -573,8 +573,7 @@ module ClaimsApi
         @errors << {
           source:,
           title:,
-          detail:,
-          status: '422'
+          detail:
         }
       end
     end

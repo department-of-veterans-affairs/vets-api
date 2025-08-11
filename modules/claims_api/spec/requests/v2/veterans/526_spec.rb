@@ -4062,6 +4062,18 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     context 'validate endpoint' do
       let(:veteran_id) { '1012832025V743496' }
       let(:validation_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
+      let(:brd_client) { instance_double(ClaimsApi::BRD) }
+      let(:separation_locations) do
+        [
+          { id: '98282', description: 'Some location' }
+        ]
+      end
+
+      before do
+        # Mock BRD service for FES validations
+        allow(ClaimsApi::BRD).to receive(:new).and_return(brd_client)
+        allow(brd_client).to receive(:intake_sites).and_return(separation_locations)
+      end
 
       it 'returns a successful response when valid' do
         mock_ccg(scopes) do |auth_header|
@@ -4307,6 +4319,18 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     let(:invalid_scopes) { %w[system/526-pdf.override] }
     let(:meta) do
       { transactionId: '00000000-0000-0000-000000000000' }
+    end
+    let(:brd_client) { instance_double(ClaimsApi::BRD) }
+    let(:separation_locations) do
+      [
+        { id: '98282', description: 'Some location' }
+      ]
+    end
+
+    before do
+      # Mock BRD service for FES validations
+      allow(ClaimsApi::BRD).to receive(:new).and_return(brd_client)
+      allow(brd_client).to receive(:intake_sites).and_return(separation_locations)
     end
 
     context 'submission to synchronous' do
