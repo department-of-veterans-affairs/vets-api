@@ -1390,8 +1390,12 @@ vanotify:
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
       email:
+        confirmation:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__confirmation__template_id'] %>
         error:
           template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
+        received:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__received__template_id'] %>
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:
@@ -1766,13 +1770,10 @@ veteran_readiness_and_employment:
     - VRE-CMS.VBAVACO@va.gov
   email:
     confirmation_lighthouse:
-      flipper_id: false
       template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
     confirmation_vbms:
-      flipper_id: false
       template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
     error:
-      flipper_id: false
       template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
