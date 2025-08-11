@@ -21,6 +21,7 @@ module Mobile
                status:
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create
         appt_params = {
           'appointment_date_time' => validated_params[:appointment_date_time],
@@ -53,6 +54,7 @@ module Mobile
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
