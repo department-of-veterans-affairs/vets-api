@@ -14,6 +14,10 @@ module ClaimsApi
       validate_form_526_submission_claim_date!
       # ensure any provided 'separationLocationCode' values are valid EVSS ReferenceData values
       validate_form_526_location_codes!
+
+      # ensure no more than 100 service periods are provided, and begin/end dates are in order
+      validate_service_periods_quantity!
+      validate_service_periods_chronology!
     end
 
     def retrieve_separation_locations
