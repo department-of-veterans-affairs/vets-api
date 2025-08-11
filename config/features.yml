@@ -796,6 +796,10 @@ features:
     actor_type: user
     description: Enables the Financial Management app to only use the VBS API
     enable_in_development: true
+  financial_management_digital_dispute_async:
+    actor_type: user
+    description: Enables the Financial Management app to only use the VBS API
+    enable_in_development: true
   find_a_representative_enabled:
     actor_type: cookie_id
     description: Generic toggle for gating Find a Rep

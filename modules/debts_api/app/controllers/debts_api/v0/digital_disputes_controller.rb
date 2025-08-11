@@ -9,7 +9,6 @@ module DebtsApi
 
       def create
         StatsD.increment("#{V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
-
         if Flipper.enabled?(:financial_management_digital_dispute_async)
           execute_async_job
           render json: { message: 'Digital dispute submission received successfully' }, status: :ok
@@ -38,7 +37,7 @@ module DebtsApi
         }
 
         metadata = parse_metadata(submission_params[:metadata])
-
+binding.pry
         # base64 encoding so job can handle files
         base_64_files = submission_params[:files].map do |file|
           {
