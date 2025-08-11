@@ -11,6 +11,9 @@ module IvcChampva
       @only_keys = options[:only_keys]
       @skip_keys = Set.new(options[:skip_keys] || [])
       @max_length = options[:max_length] || 50
+      # Only allow letters (a-z, A-Z), digits (0-9), spaces, hyphens, forward slashes, and whitespace characters.
+      # All other characters will be removed from the string. This is to ensure that only safe, printable characters
+      # are retained in the output, as required by business rules for field sanitization.
       @char_filter = options[:char_filter] || %r{[^a-zA-Z\-/\s\d]}
     end
 
