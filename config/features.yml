@@ -461,6 +461,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  cst_friendly_evidence_requests:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
@@ -1448,10 +1452,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_income_and_assets_overflow_pdf_redesign:
-    actor_type: user
-    description: >
-      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1919,6 +1919,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_use_new_vfs_notification_library:
+    actor_type: user
+    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
