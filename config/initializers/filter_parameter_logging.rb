@@ -56,6 +56,7 @@ ALLOWLIST = %w[
   tempfile
   time_to_transition
   to_date
+  to_state
   type
   useCache
   use_v2
