@@ -145,8 +145,6 @@ check_in:
     client_number: <%= ENV['check_in__travel_reimbursement_api_v2__client_number'] %>
     client_number_oh: <%= ENV['check_in__travel_reimbursement_api_v2__client_number_oh'] %>
     client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__client_secret'] %>
-    travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
-    travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
     e_subscription_key: <%= ENV['check_in__travel_reimbursement_api_v2__e_subscription_key'] %>
     redis_token_expiry: 3540
     s_subscription_key: <%= ENV['check_in__travel_reimbursement_api_v2__s_subscription_key'] %>
@@ -154,6 +152,8 @@ check_in:
     service_name: BTSSS-API
     subscription_key: <%= ENV['check_in__travel_reimbursement_api_v2__subscription_key'] %>
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
+    travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
+    travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
 chip:
