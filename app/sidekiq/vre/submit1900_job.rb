@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/shared_logging'
+require 'vre/vre_monitor'
 require 'vre/monitor'
 
 module VRE
