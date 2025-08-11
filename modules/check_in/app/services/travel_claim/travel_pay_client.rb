@@ -95,7 +95,7 @@ module TravelClaim
     end
 
     def mock_enabled?
-      settings.mock || Flipper.enabled?('check_in_experience_mock_enabled') || false
+      settings.mock || Flipper.enabled?('check_in_experience_mock_enabled')
     end
   end
 end
