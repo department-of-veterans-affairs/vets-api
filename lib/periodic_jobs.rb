@@ -250,7 +250,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 
-  # Expire stale POA request records every night at midnight
+  # Expire stale POA request records every night at 12:30 AM
   mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
 
   # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
