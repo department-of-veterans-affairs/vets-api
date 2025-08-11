@@ -44,10 +44,6 @@ class Rack::Attack
     req.ip if req.path == '/v0/vic/vic_submissions' && req.post?
   end
 
-  throttle('evss_claims_async', limit: 12, period: 60) do |req|
-    req.ip if req.path == '/v0/evss_claims_async'
-  end
-
   throttle('check_in/ip', limit: 10, period: 1.minute) do |req|
     req.remote_ip if req.path.starts_with?('/check_in') && !Settings.vsp_environment.match?(/local|development|staging/)
   end

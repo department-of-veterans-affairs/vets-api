@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module Preneeds
   # Objects used to model pertinent data about a submitted {Preneeds::BurialForm} form.
@@ -15,7 +15,9 @@ module Preneeds
   #   @return [String] submission's result - from EOAS
   # @!attribute submitted_at
   #   @return [Time] current time
-  class ReceiveApplication < Common::Base
+  class ReceiveApplication
+    include Vets::Model
+
     attribute :tracking_number, String
     attribute :return_code, Integer
     attribute :application_uuid, String

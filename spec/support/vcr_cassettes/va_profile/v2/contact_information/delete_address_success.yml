@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/addresses
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
     body:
       encoding: UTF-8
       string: '{"bio":{"addressId":138225,"addressLine1":"4041 Victoria Way","addressLine2":null,"addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Lexington","country":{"countryName":null,"countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":"21067","countyName":"Fayette County"},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"KY"},"intPostalCode":null,"zipCode5":"40515","zipCode4":"4655","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2020-02-13T20:47:45.000Z","effectiveStartDate":"2020-02-13T20:47:45.000Z","effectiveEndDate":"2020-02-13T20:47:45.000Z","badAddress":false}}'

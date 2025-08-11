@@ -98,7 +98,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
       end
@@ -162,7 +161,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
         evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_failed.id)
@@ -228,7 +226,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
         evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_failed.id)
@@ -241,10 +238,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
     let(:message1) { "#{evidence_submission_failed1.job_class} va notify failure email queued" }
     let(:message2) { "#{evidence_submission_failed2.job_class} va notify failure email queued" }
     let(:message3) { "#{evidence_submission_failed3.job_class} va notify failure email queued" }
-
-    let(:tags1) { ['service:claim-status', "function: #{message1}"] }
-    let(:tags2) { ['service:claim-status', "function: #{message2}"] }
-    let(:tags3) { ['service:claim-status', "function: #{message3}"] }
 
     let!(:evidence_submission_failed1) { create(:bd_lh_evidence_submission_failed_type1_error) }
     let!(:evidence_submission_failed2) { create(:bd_lh_evidence_submission_failed_type2_error) }
@@ -271,10 +264,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       expect(Rails.logger).to receive(:info).with(message1)
       expect(Rails.logger).to receive(:info).with(message2)
       expect(Rails.logger).to receive(:info).with(message3)
-
-      expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags1)
-      expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags2)
-      expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags3)
 
       subject.new.perform
       expect(EvidenceSubmission.va_notify_email_queued.length).to eq(3)

@@ -4,30 +4,17 @@ require 'rails_helper'
 require 'stringio'
 
 RSpec.describe 'Filter Parameter Logging', type: :request do
+  let(:logger) { SemanticLogger::Test::CaptureLogEvents.new }
+
   before do
-    @original_logger = Rails.logger
-    @log_output = StringIO.new
-
-    # Ensure we remove any existing appenders before adding a new one
-    SemanticLogger.appenders.each { |appender| SemanticLogger.remove_appender(appender) }
-
-    # Add StringIO as a new appender for SemanticLogger
-    @test_appender = SemanticLogger.add_appender(io: @log_output, formatter: :json)
-    SemanticLogger.default_level = :debug
-
-    # Ensure Rails.logger is also set to use SemanticLogger
-    Rails.logger = SemanticLogger['TestLogger']
-    allow(Rails).to receive(:logger).and_return(Rails.logger)
-
     Rails.application.routes.draw do
-      post '/test_params' => 'test_params#create'
+      post '/test_params', to: 'test_params#create'
     end
+
+    allow(TestParamsController).to receive(:logger).and_return(logger)
   end
 
   after do
-    SemanticLogger.default_level = :warn
-    SemanticLogger.remove_appender(@test_appender)
-    Rails.logger = @original_logger
     Rails.application.reload_routes!
   end
 
@@ -37,7 +24,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     )
 
     post '/test_params', params: { attachment: file }
-    logs = @log_output.string
+    logs = logger.events.to_json
 
     puts "DEBUG LOG OUTPUT TEST 1: #{logs}"
 
@@ -64,7 +51,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     }
 
     post '/test_params', params: { attachment: file_params }
-    logs = @log_output.string
+    logs = logger.events.to_json
 
     puts "DEBUG LOG OUTPUT TEST 2: #{logs}"
 
@@ -87,7 +74,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     }
 
     post '/test_params', params: sensitive_params
-    logs = @log_output.string
+    logs = logger.events.to_json
 
     puts "DEBUG LOG OUTPUT 3: #{logs}" # Debugging output
 
@@ -99,7 +86,6 @@ end
 
 class TestParamsController < ActionController::API
   def create
-    # Rails.logger.info("params BEFORE filtering: #{request.parameters.inspect}")
     render json: { status: 'ok' }, status: :ok
   end
 end

@@ -62,6 +62,12 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
       it 'logs the latest_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
+          expect(Rails.logger).to receive(:info) do |message, _details|
+            expect(message).to equal?(
+              'SavedClaim::DisabilityCompensation::Form526AllClaim Skipping tracking PDF overflow'
+            )
+          end
+
           expect(Rails.logger).to receive(:info).with(
             'BenefitsDocuments::Form526::UploadStatusUpdater',
             status:,
@@ -143,6 +149,12 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
       it 'logs the latest_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
+          expect(Rails.logger).to receive(:info) do |message, _details|
+            expect(message).to equal?(
+              'SavedClaim::DisabilityCompensation::Form526AllClaim Skipping tracking PDF overflow'
+            )
+          end
+
           expect(Rails.logger).to receive(:info).with(
             'BenefitsDocuments::Form526::UploadStatusUpdater',
             status: 'IN_PROGRESS',

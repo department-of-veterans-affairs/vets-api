@@ -87,17 +87,17 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
 
     describe '#format_info' do
       it 'formats info' do
-        formatted_info = adult_child_attending_school_v2.format_info
+        formatted_info = adult_child_attending_school.format_info
 
-        expect(formatted_info).to eq(formatted_info_response_v2)
+        expect(formatted_info).to eq(formatted_info_response)
       end
     end
 
     describe '#address' do
       it 'formats info' do
-        address = adult_child_attending_school_v2.address
+        address = adult_child_attending_school.address
 
-        expect(address).to eq(address_response_v2)
+        expect(address).to eq(address_response)
       end
     end
   end

@@ -926,7 +926,7 @@ FactoryBot.define do
           'view:completed_veteran_former_marriage' => false,
           'view:completed_spouse_former_marriage' => false,
           'current_marriage_information' => {
-            'type' => 'CIVIL',
+            'type_of_marriage' => 'CIVIL',
             'location' => {
               'city' => 'portland',
               'state' => 'ME'
@@ -1010,11 +1010,11 @@ FactoryBot.define do
             'marriage_end_description' => 'description of annulment',
             'does_child_live_with_you' => true,
             'has_child_ever_been_married' => true,
-            'relationship_to_child' => { 'biological' => true },
             'birth_location' => { 'location' => { 'state' => 'NH', 'city' => 'Concord', 'postal_code' => '03301' } },
             'ssn' => '987654321',
             'full_name' => { 'first' => 'first', 'middle' => 'middle', 'last' => 'child' },
-            'birth_date' => '2005-01-01'
+            'birth_date' => '2005-01-01',
+            'is_biological_child' => true
           }],
           'student_information' => [{
             'remarks' => 'test additional information',

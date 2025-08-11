@@ -2,7 +2,6 @@
 
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
-require 'virtual_regional_office/client'
 require 'contention_classification/client'
 
 # rubocop:disable Metrics/ModuleLength
@@ -68,7 +67,7 @@ module Form526ClaimFastTrackingConcern
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
     pending = open_claims.any? do |claim|
-      claim['base_end_product_code'] == '020' && claim['status'].upcase != 'COMPLETE'
+      claim.base_end_product_code == '020' && claim.status.upcase != 'COMPLETE'
     end
     save_metadata(offramp_reason: 'pending_ep') if pending
     pending
@@ -119,6 +118,7 @@ module Form526ClaimFastTrackingConcern
   def prepare_for_evss!
     begin
       update_contention_classification_all!
+      log_mst_metrics
     rescue => e
       Rails.logger.error("Contention Classification failed #{e.message}.")
       Rails.logger.error(e.backtrace.join('\n'))
@@ -147,7 +147,7 @@ module Form526ClaimFastTrackingConcern
     response.body
   end
 
-  def format_contention_for_vro(disability)
+  def format_contention_for_request(disability)
     contention = {
       contention_text: disability['name'],
       contention_type: disability['disabilityActionType']
@@ -166,12 +166,12 @@ module Form526ClaimFastTrackingConcern
     false
   end
 
-  # Submits contention information to the VRO contention classification service
+  # Submits contention information to the Contention Classification API service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
     return log_and_halt_if_no_disabilities if disabilities.blank?
 
-    contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
+    contentions_array = disabilities.map { |disability| format_contention_for_request(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
     log_claim_level_metrics(classifier_response)
@@ -272,7 +272,7 @@ module Form526ClaimFastTrackingConcern
         feature_toggle: nil
       )
       all_claims = api_provider.all_claims
-      all_claims['open_claims']
+      all_claims.open_claims
     end
   end
 
@@ -384,6 +384,37 @@ module Form526ClaimFastTrackingConcern
       StatsD.increment("#{DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX}.#{group_name.underscore}_document_type",
                        count,
                        tags: ["document_type:#{doc_type}", 'source:form526'])
+    end
+  end
+
+  def log_mst_metrics
+    return if form.dig('form0781', 'form0781v2').blank?
+
+    mst_checkbox_selected = form.dig('form0781', 'form0781v2', 'eventTypes', 'mst') == true
+
+    return unless mst_checkbox_selected
+
+    Rails.logger.info('Form526-0781 MST selected',
+                      id:,
+                      disabilities: extract_disability_summary)
+  rescue => e
+    # Log the exception but do not fail
+    log_exception_to_sentry(e)
+  end
+
+  def extract_disability_summary
+    return [] if disabilities.blank?
+
+    # If the disability does not have a classificationCode, then it was not able to get the classification from the
+    # contention classification service, which means it is a free text input which could contain PII, and should be
+    # marked as unclassifiable.
+    disabilities.map do |disability|
+      {
+        name: disability['classificationCode'].present? ? disability['name'] : 'unclassifiable',
+        disabilityActionType: disability['disabilityActionType'],
+        diagnosticCode: disability['diagnosticCode'],
+        classificationCode: disability['classificationCode']
+      }
     end
   end
 end

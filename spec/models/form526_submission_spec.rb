@@ -7,6 +7,7 @@ RSpec.describe Form526Submission do
   subject do
     Form526Submission.create(
       user_uuid: user.uuid,
+      user_account:,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
       form_json:,
@@ -15,8 +16,11 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user_account) { user.user_account }
+  let(:user) do
+    create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', icn:)
+  end
+  let(:icn) { 'some-icn' }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -657,6 +661,7 @@ RSpec.describe Form526Submission do
       headers = JSON.parse auth_headers.to_json
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -741,6 +746,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -767,6 +773,7 @@ RSpec.describe Form526Submission do
       subject do
         Form526Submission.new(
           user_uuid: user.uuid,
+          user_account:,
           saved_claim_id: saved_claim.id,
           form_json:,
           birls_ids_tried: birls_ids_tried.to_json
@@ -793,6 +800,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -835,6 +843,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -916,6 +925,57 @@ RSpec.describe Form526Submission do
   describe '#perform_ancillary_jobs_handler' do
     let(:status) { OpenStruct.new(parent_bid: SecureRandom.hex(8)) }
 
+    context 'with 1 duplicate uploads' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_duplicate_uploads.json')
+      end
+
+      it 'queues 3 jobs with 1 duplicate at the right delay' do
+        # 3 files with 1 duplicate
+        # Should queue 3 jobs
+        # Job1 at 60 seconds
+        # Job2 at 360 seconds
+        # Job3 at 180 seconds
+        Timecop.freeze(Time.zone.now) do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
+          expect do
+            subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+          end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+          expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
+            (h['at'] - Time.now.to_i).floor(0)
+          end).to eq([60, 360, 180])
+        end
+      end
+    end
+
+    context 'with many duplicate uploads' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_many_duplicate_uploads.json')
+      end
+
+      it 'queues jobs with many duplicates at the right delay' do
+        Timecop.freeze(Time.zone.now) do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
+          expect do
+            subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+          end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(7)
+          expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
+            (h['at'] - Time.now.to_i).floor(0)
+          end).to eq([
+                       60, # original file, 60s
+                       360, # dup, plus 300s
+                       660, # dup, plus 300s
+                       960, # dup, plus 300s
+                       1260, # dup, plus 300s
+                       1560, # dup, plus 300s
+                       420 # not a dup, (index+1 * 60)s
+                     ])
+        end
+      end
+    end
+
     context 'with an ancillary job' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
@@ -927,6 +987,19 @@ RSpec.describe Form526Submission do
         expect do
           subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+      end
+
+      it 'queues 3 jobs with no duplicates at the right delay' do
+        Timecop.freeze(Time.zone.now) do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
+          expect do
+            subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+          end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+          expect(EVSS::DisabilityCompensationForm::SubmitUploads.jobs.map do |h|
+            (h['at'] - Time.now.to_i).floor(0)
+          end).to eq([60, 120, 180])
+        end
       end
 
       it 'warns when there are multiple successful submit526 jobs' do
@@ -1339,12 +1412,11 @@ RSpec.describe Form526Submission do
   describe '#disabilities_not_service_connected?' do
     subject { form_526_submission.disabilities_not_service_connected? }
 
-    before { create(:idme_user_verification, idme_uuid: user.idme_uuid, user_account:) }
-
+    let(:icn) { '123498767V234859' }
     let(:form_526_submission) do
       Form526Submission.create(
         user_uuid: user.uuid,
-        user_account: user.user_account,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: File.read("spec/support/disability_compensation_form/submissions/#{form_json_filename}")
@@ -1563,72 +1635,159 @@ RSpec.describe Form526Submission do
   end
 
   describe 'ICN retrieval' do
-    context 'various ICN retrieval scenarios' do
-      let(:user) { create(:user, :loa3) }
-      let(:auth_headers) do
-        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-      end
-      let(:submission) do
-        create(:form526_submission,
-               user_uuid: user.uuid,
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id)
-      end
-      let!(:form526_submission) { create(:form526_submission) }
+    let(:user) { create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    end
+    let(:submission) do
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id)
+    end
+    let!(:form526_submission) { create(:form526_submission) }
+    let(:expected_log_payload) { { user_uuid: user.uuid, submission_id: submission.id } }
 
-      it 'submissions user account has an ICN, as expected' do
+    context 'when the submission includes a UserAccount with an ICN, as expected' do
+      it 'uses the submission\'s user account ICN' do
         submission.user_account = UserAccount.new(icn: '123498767V222222')
         account = submission.account
         expect(account.icn).to eq('123498767V222222')
       end
+    end
 
-      it 'submissions user account has no ICN, default to Account lookup' do
-        submission.user_account = UserAccount.new(icn: nil)
-        account = submission.account
-        expect(account.icn).to eq('123498767V234859')
+    context 'when the submission does not have a UserAccount with an ICN' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:edipi_profile_response) { mpi_profile_response }
+      let(:no_user_account_icn_message) { 'Form526Submission::account - no UserAccount ICN found' }
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(edipi_profile_response)
       end
 
-      it 'submission has NO user account, default to Account lookup' do
-        account = submission.account
-        expect(account.icn).to eq('123498767V234859')
-      end
-
-      it 'submissions user account has no ICN, lookup from past submissions' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V111111')
-        create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
+      it 'uses the auth_headers EDIPI to look up account information from MPI' do
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
+        expect(Rails.logger).to receive(:info).with(no_user_account_icn_message, expected_log_payload)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
         account = submission.account
-        expect(account.icn).to eq('123498767V111111')
+        expect(account.icn).to eq(mpi_profile.icn)
       end
 
-      it 'lookup ICN from user verifications, idme_uuid defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V333333')
-        UserVerification.create!(idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V333333')
+      context 'when the MPI lookup by EDIPI fails' do
+        let(:edipi_profile_response) { create(:find_profile_not_found_response) }
+        let(:attributes_profile_response) { mpi_profile_response }
+        let(:no_mpi_by_edipi_message) { 'Form526Submission::account - unable to look up MPI profile with EDIPI' }
+
+        before do
+          allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                     expected_log_payload).and_call_original
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+                                             .and_return(attributes_profile_response)
+        end
+
+        it 'uses the auth_headers user attributes to look up account information from MPI' do
+          submission.user_account = UserAccount.create!(icn: nil)
+          submission.save!
+          expect(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+            first_name: user.first_name,
+            last_name: user.last_name,
+            ssn: user.ssn,
+            birth_date: user.birth_date
+          )
+          account = submission.account
+          expect(account.icn).to eq(mpi_profile.icn)
+        end
+
+        context 'when the MPI lookup by attributes fails' do
+          let(:attributes_profile_response) { create(:find_profile_not_found_response) }
+          let(:no_icn_found_message) { 'Form526Submission::account - no ICN present' }
+
+          before do
+            allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                       expected_log_payload).and_call_original
+            allow(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload).and_call_original
+          end
+
+          it 'does not return a UserAccount with an ICN' do
+            submission.user_account = UserAccount.create!(icn: nil)
+            submission.save!
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+              first_name: user.first_name,
+              last_name: user.last_name,
+              ssn: user.ssn,
+              birth_date: user.birth_date
+            )
+            expect(Rails.logger).to receive(:info).with(no_icn_found_message, expected_log_payload)
+            account = submission.account
+            expect(account.icn).to be_nil
+          end
+        end
+      end
+    end
+  end
+
+  describe '#submit_uploads' do
+    let(:form526_submission) { Form526Submission.new(id: 123, form_json:) }
+    let(:uploads) do
+      [
+        { 'name' => 'file1.pdf', 'size' => 100 },
+        { 'name' => 'file2.pdf', 'size' => 200 },
+        { 'name' => 'file1.pdf', 'size' => 100 } # duplicate
+      ]
+    end
+    let(:form_json) do
+      {
+        Form526Submission::FORM_526_UPLOADS => uploads
+      }.to_json
+    end
+
+    before do
+      allow(form526_submission).to receive(:form).and_return(JSON.parse(form_json))
+      allow(StatsD).to receive(:gauge)
+      allow(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:perform_in)
+      allow(form526_submission).to receive(:calc_submit_delays).and_return(60, 120, 180)
+    end
+
+    context 'when uploads are present' do
+      it 'sends the count of uploads to StatsD' do
+        form526_submission.submit_uploads
+        expect(StatsD).to have_received(:gauge).with('form526.uploads.count', 3,
+                                                     tags: ["form_id:#{Form526Submission::FORM_526}"])
       end
 
-      it 'lookup ICN from user verifications, backing_idme_uuid defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V444444')
-        UserVerification.create!(dslogon_uuid: Faker::Internet.uuid, backing_idme_uuid: submission.user_uuid,
-                                 user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V444444')
+      it 'sends the count of duplicate uploads to StatsD' do
+        form526_submission.submit_uploads
+        expect(StatsD).to have_received(:gauge).with('form526.uploads.duplicates', 1,
+                                                     tags: ["form_id:#{Form526Submission::FORM_526}"])
       end
 
-      it 'lookup ICN from user verifications, alternate provider id defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V555555')
-        UserVerification.create!(dslogon_uuid: submission.user_uuid, backing_idme_uuid: Faker::Internet.uuid,
-                                 user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V555555')
+      it 'queues a job for each upload with the correct delay' do
+        form526_submission.submit_uploads
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(60, 123, uploads[0])
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(120, 123, uploads[1])
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(180, 123, uploads[2])
+      end
+
+      it 'sends the delay to StatsD for each upload' do
+        form526_submission.submit_uploads
+        expect(StatsD).to have_received(:gauge).with('form526.uploads.delay', 60, tags: anything)
+        expect(StatsD).to have_received(:gauge).with('form526.uploads.delay', 120, tags: anything)
+        expect(StatsD).to have_received(:gauge).with('form526.uploads.delay', 180, tags: anything)
+      end
+    end
+
+    context 'when uploads are blank' do
+      let(:uploads) { [] }
+
+      it 'sends the count of uploads to StatsD and returns early' do
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).not_to receive(:perform_in)
+        form526_submission.submit_uploads
+        expect(StatsD).to have_received(:gauge).with('form526.uploads.count', 0,
+                                                     tags: ["form_id:#{Form526Submission::FORM_526}"])
       end
     end
   end

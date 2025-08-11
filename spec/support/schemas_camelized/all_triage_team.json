@@ -5,9 +5,11 @@
     "triageTeamId",
     "name",
     "stationNumber",
-    "blockedStatus",
     "preferredTeam",
-    "relationshipType"
+    "relationType",
+    "locationName",
+    "suggestedNameDisplay",
+    "healthCareSystemName"
   ],
   "properties": {
     "triageTeamId": {
@@ -19,13 +21,19 @@
     "stationNumber": {
       "type": "string"
     },
-    "blockedStatus": {
-      "type": "boolean"
-    },
     "preferredTeam": {
       "type": "boolean"
     },
-    "relationshipType": {
+    "relationType": {
+      "type": "string"
+    },
+    "locationName": {
+      "type": "string"
+    },
+    "suggestedNameDisplay": {
+      "type": "string"
+    },
+    "healthCareSystemName": {
       "type": "string"
     }
   }

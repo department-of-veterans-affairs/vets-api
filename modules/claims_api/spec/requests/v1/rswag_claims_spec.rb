@@ -8,7 +8,7 @@ require_relative '../../support/swagger_shared_components/v1'
 
 Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
   path '/claims' do
-    get 'Find all benefits claims for a Veteran' do
+    get 'Find all benefits claims for a VA claimant' do
       tags 'Claims'
       operationId 'findClaims'
       security [
@@ -184,7 +184,7 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
       description claim_by_id_description
 
       before do
-        Flipper.disable :claims_load_testing
+        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       end
 
       describe 'Getting a 200 response' do

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/formatters/va2210215'
+
 module PdfFill
   module Forms
     class Va2210215 < FormBase
       include FormHelper
 
+      FORMATTER = PdfFill::Forms::Formatters::Va2210215
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -24,14 +27,14 @@ module PdfFill
             question_text: 'FACILITY CODE'
           },
           'termStartDate' => {
-            key: 'termStartDate',
+            key: 'startDate',
             limit: 10,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'TERM START DATE'
           },
           'dateOfCalculations' => {
-            key: 'institutionDateOfCalculations',
+            key: 'calculationDate',
             limit: 10,
             question_num: 4,
             question_suffix: 'A',
@@ -40,14 +43,14 @@ module PdfFill
         },
         'certifyingOfficial' => {
           'fullName' => {
-            key: 'fullName',
+            key: 'scoName',
             limit: 50,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'CERTIFYING OFFICIAL NAME'
           },
           'title' => {
-            key: 'title',
+            key: 'scoTitle',
             limit: 30,
             question_num: 6,
             question_suffix: 'A',
@@ -58,36 +61,50 @@ module PdfFill
           limit: 16,
           first_key: 'programName',
           'programName' => {
-            key: 'programName[%iterator%]',
+            key: 'programName%iterator%',
             limit: 50,
             question_num: 7,
             question_suffix: 'A',
             question_text: 'PROGRAM NAME'
           },
+          'studentsEnrolled' => {
+            key: 'totalEnrolled%iterator%',
+            limit: 10,
+            question_num: 7,
+            question_suffix: 'B',
+            question_text: 'TOTAL NUMBER OF STUDENTS ENROLLED'
+          },
+          'supportedStudents' => {
+            key: 'supportedEnrolled%iterator%',
+            limit: 10,
+            question_num: 7,
+            question_suffix: 'B',
+            question_text: 'SUPPORTED STUDENTS'
+          },
           'fte' => {
             'supported' => {
-              key: 'supportedStudents[%iterator%]',
+              key: 'numSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'SUPPORTED STUDENTS'
             },
             'nonSupported' => {
-              key: 'nonSupportedStudents[%iterator%]',
+              key: 'numNonSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'C',
               question_text: 'NON-SUPPORTED STUDENTS'
             },
             'totalFTE' => {
-              key: 'totalFTE[%iterator%]',
+              key: 'enrolledFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'D',
               question_text: 'TOTAL FTE'
             },
             'supportedPercentageFTE' => {
-              key: 'supportedPercentageFTE[%iterator%]',
+              key: 'supportedFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'E',
@@ -95,7 +112,7 @@ module PdfFill
             }
           },
           'programDateOfCalculation' => {
-            key: 'dateOfCalculation[%iterator%]',
+            key: 'calculationDate%iterator%',
             limit: 10,
             question_num: 7,
             question_suffix: 'F',
@@ -103,40 +120,33 @@ module PdfFill
           }
         },
         'statementOfTruthSignature' => {
-          key: 'statementOfTruthSignature',
+          key: 'signature',
           limit: 50,
           question_num: 8,
           question_suffix: 'A',
           question_text: 'STATEMENT OF TRUTH SIGNATURE'
         },
         'dateSigned' => {
-          key: 'dateSigned',
+          key: 'signedDate',
           limit: 10,
           question_num: 9,
           question_suffix: 'A',
           question_text: 'DATE SIGNED'
+        },
+        'checkbox' => {
+          key: 'checkbox',
+          limit: 10,
+          question_num: 10,
+          question_suffix: 'A',
+          question_text: 'EXTENSIONS ATTACHED CHECKBOX'
         }
       }.freeze
 
-      def merge_fields(_)
-        form_data = @form_data
+      def merge_fields(_options = {})
+        form_data = JSON.parse(JSON.generate(@form_data))
 
-        # Combine first and last name into fullName
-        if form_data['certifyingOfficial']
-          official = form_data['certifyingOfficial']
-          official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
-        end
-
-        # Process programs array - add programDateOfCalculation for each valid row
-        if form_data['programs'] && form_data['institutionDetails'] &&
-           form_data['institutionDetails']['dateOfCalculations']
-          calculation_date = form_data['institutionDetails']['dateOfCalculations']
-
-          form_data['programs'].each do |program|
-            # Add programDateOfCalculation to each valid program entry
-            program['programDateOfCalculation'] = calculation_date
-          end
-        end
+        FORMATTER.combine_official_name(form_data)
+        FORMATTER.process_programs(form_data)
 
         form_data
       end

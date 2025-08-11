@@ -397,7 +397,7 @@ module PdfFill
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE COUNTRY'
               }
             }, # end location
-            'type' => {
+            'type_of_marriage' => {
               'civil_ceremony' => {
                 key: 'form1[0].#subform[17].CivilCeremony[0]'
               },
@@ -506,7 +506,7 @@ module PdfFill
               'annulment' => { key: 'veteran_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
               'other' => { key: 'veteran_marriage_history.reason_marriage_ended.other[%iterator%]' }
             },
-            'reason_marriage_ended_other' => {
+            'other_reason_marriage_ended' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 14,
               question_suffix: 'K',
@@ -642,7 +642,7 @@ module PdfFill
               'annulment' => { key: 'spouse_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
               'other' => { key: 'spouse_marriage_history.reason_marriage_ended.other[%iterator%]' }
             },
-            'reason_marriage_ended_other' => {
+            'other_reason_marriage_ended' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 15,
               question_suffix: 'G',
@@ -1536,6 +1536,10 @@ module PdfFill
       private
 
       def merge_veteran_helpers
+        unless @form_data['veteran_information']
+          @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
+        end
+
         veteran_information = @form_data['veteran_information']
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
@@ -1683,7 +1687,7 @@ module PdfFill
       # rubocop:disable Metrics/MethodLength
       def expand_child_status(child)
         # expand child status
-        child_status = child['relationship_to_child']
+        child_status = child['relationship_to_child'] || {}
         date_entered_household = split_date(child['date_entered_household'])
 
         if child.key?('has_child_ever_been_married')
@@ -1814,7 +1818,7 @@ module PdfFill
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           if death['dependent_death_location']['location']['country'].present?
             death['dependent_death_location']['location']['country'] =
-              extract_country(death['dependent_death_location'])
+              extract_country(death['dependent_death_location']['location'])
           end
 
           # expand dependent type
@@ -1879,8 +1883,8 @@ module PdfFill
         @form_data['dependents_application']['current_marriage_information']['date'] =
           split_date(@form_data.dig('dependents_application', 'current_marriage_information', 'date'))
 
-        marriage_type = @form_data.dig('dependents_application', 'current_marriage_information', 'type')
-        @form_data['dependents_application']['current_marriage_information']['type'] = {
+        marriage_type = @form_data.dig('dependents_application', 'current_marriage_information', 'type_of_marriage')
+        @form_data['dependents_application']['current_marriage_information']['type_of_marriage'] = {
           'civil_ceremony' => select_radio_button(marriage_type == 'CIVIL'),
           'religious_ceremony' => select_radio_button(marriage_type == 'CEREMONIAL'),
           'common_law' => select_radio_button(marriage_type == 'COMMON-LAW'),

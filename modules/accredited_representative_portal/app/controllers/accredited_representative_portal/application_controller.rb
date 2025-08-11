@@ -23,11 +23,33 @@ module AccreditedRepresentativePortal
 
     validates_access_token_audience IdentitySettings.sign_in.arp_client_id
 
+    before_action :track_unique_session
     before_action :verify_pilot_enabled_for_user
     around_action :handle_exceptions
     after_action :verify_pundit_authorization
 
     private
+
+    def deny_access_unless_686c_enabled
+      routing_error unless Flipper.enabled?(:accredited_representative_portal_submissions, @current_user)
+    end
+
+    def routing_error
+      raise Common::Exceptions::RoutingError, params[:path]
+    end
+
+    def track_unique_session
+      if @current_user.present?
+        arp_session_key = :arp_session_started_for_user
+
+        if request.session[arp_session_key] != @current_user&.uuid
+          AccreditedRepresentativePortal::Monitoring.new.track_count('ar.unique_session.count')
+          request.session[arp_session_key] = @current_user&.uuid
+        end
+      end
+
+      true
+    end
 
     def verify_pundit_authorization
       action_name == 'index' ? verify_policy_scoped : verify_authorized

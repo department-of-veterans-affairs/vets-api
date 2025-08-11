@@ -10,6 +10,8 @@ module AccreditedRepresentativePortal
     attributes :claimant_id, :created_at, :expires_at
 
     attribute :power_of_attorney_form do |poa_request|
+      next unless poa_request.power_of_attorney_form
+
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
         PowerOfAttorneyRequest::ClaimantTypes::ALL.product(REDACTION_POLICY[:FIELDS]).each do |(claimant_type, key)|
           value = form.dig(claimant_type, key).to_s

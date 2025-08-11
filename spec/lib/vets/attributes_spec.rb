@@ -28,6 +28,8 @@ class DummyModel < DummyParentModel
   attribute :tags, String, array: true
   attribute :categories, FakeCategory, array: true
   attribute :created_at, DateTime, default: :current_time, filterable: %w[eq not_eq]
+  attribute :active, Bool
+  attribute :uuid, String, default: -> { SecureRandom.uuid }
 
   def current_time
     DateTime.new(2024, 9, 25, 10, 30, 0)
@@ -42,9 +44,11 @@ RSpec.describe Vets::Attributes do
       model.age = 30
       model.tags = %w[ruby rails]
       model.name = 'Steven'
+      model.active = false
       expect(model.age).to eq(30)
       expect(model.tags).to eq(%w[ruby rails])
       expect(model.name).to eq('Steven')
+      expect(model.active).to be_falsey
     end
 
     it 'defines the defaults' do
@@ -57,6 +61,14 @@ RSpec.describe Vets::Attributes do
       expected_time = DateTime.new(2024, 9, 25, 10, 30, 0)
       expect(model.created_at).to eq(expected_time)
     end
+
+    it 'evaluates a Proc or lambda default at runtime' do
+      one = DummyModel.new
+      two = DummyModel.new
+      expect(one.uuid).to be_a(String)
+      expect(two.uuid).to be_a(String)
+      expect(one.uuid).not_to eq(two.uuid)
+    end
   end
 
   describe '.attributes' do
@@ -66,9 +78,21 @@ RSpec.describe Vets::Attributes do
         age: { type: Integer, default: nil, array: false, filterable: %w[eq lteq gteq] },
         tags: { type: String, default: nil, array: true, filterable: false },
         categories: { type: FakeCategory, default: nil, array: true, filterable: false },
-        created_at: { type: DateTime, default: :current_time, array: false, filterable: %w[eq not_eq] }
+        created_at: { type: DateTime, default: :current_time, array: false, filterable: %w[eq not_eq] },
+        active: { type: Bool, default: nil, array: false, filterable: false }
       }
-      expect(DummyModel.attributes).to eq(expected_attributes)
+      expect(DummyModel.attributes.except(:uuid)).to eq(expected_attributes)
+      # Need to check procs & lambda separately
+      expect(DummyModel.attributes).to match(
+        a_hash_including(
+          uuid: a_hash_including(
+            type: String,
+            array: false,
+            filterable: false,
+            default: an_instance_of(Proc)
+          )
+        )
+      )
     end
   end
 

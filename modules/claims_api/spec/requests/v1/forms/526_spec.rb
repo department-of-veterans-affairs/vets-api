@@ -32,6 +32,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     stub_poa_verification
     Timecop.freeze(Time.zone.now)
     stub_claims_api_auth_token
+
+    # Force this flipper to return false for all tests in this file so we use the
+    # original DisabilityCompensationValidations:
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
   end
 
   after do
@@ -3391,7 +3395,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     end
     let(:path) { '/services/claims/v1/forms/526' }
 
-    it 'returns existing claim if duplicate submit occurs by using the md5 lookup' do
+    it 'returns existing claim if duplicate submit occurs by using the hashed lookup' do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/claims/claims') do
           VCR.use_cassette('claims_api/brd/countries') do

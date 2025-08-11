@@ -11,6 +11,7 @@ class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
   include SentryLogging
   include Form526ClaimFastTrackingConcern
+  include Form526MPIConcern
   include Scopes::Form526SubmissionState
 
   wrap_with_logging(:start_evss_submission_job,
@@ -23,9 +24,7 @@ class Form526Submission < ApplicationRecord
                     :submit_flashes,
                     :poll_form526_pdf,
                     :cleanup,
-                    additional_class_logs: {
-                      action: 'Begin as anciliary 526 submission'
-                    },
+                    additional_class_logs: { action: 'Begin as anciliary 526 submission' },
                     additional_instance_logs: {
                       saved_claim_id: %i[saved_claim id],
                       user_uuid: %i[user_uuid]
@@ -54,13 +53,11 @@ class Form526Submission < ApplicationRecord
   has_kms_key
   has_encrypted :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
 
-  belongs_to :saved_claim,
-             class_name: 'SavedClaim::DisabilityCompensation',
-             inverse_of: false
+  belongs_to :saved_claim, class_name: 'SavedClaim::DisabilityCompensation', inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
   has_many :form526_submission_remediations, dependent: :destroy
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil
 
   validates(:auth_headers_json, presence: true)
   enum :backup_submitted_claim_status, { accepted: 0, rejected: 1, paranoid_success: 2 }
@@ -78,6 +75,8 @@ class Form526Submission < ApplicationRecord
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
   ZSF_DD_TAG_SERVICE = 'disability-application'
+  UPLOAD_DELAY_BASE = 60.seconds
+  UNIQUENESS_INCREMENT = 5
 
   # the keys of the Toxic Exposure details for each section
   TOXIC_EXPOSURE_DETAILS_MAPPING = {
@@ -163,9 +162,7 @@ class Form526Submission < ApplicationRecord
 
   # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
   def get_first_name
-    user = User.find(user_uuid)
-    user&.first_name&.upcase.presence ||
-      auth_headers&.dig('va_eauth_firstName')&.upcase
+    user&.first_name&.upcase.presence || auth_headers&.dig('va_eauth_firstName')&.upcase
   end
 
   # Checks against the User record first, and then resorts to checking the auth_headers
@@ -174,15 +171,11 @@ class Form526Submission < ApplicationRecord
   # @return [Hash] of the user's full name (first, middle, last, suffix)
   #
   def full_name
-    name_hash = User.find(user_uuid)&.full_name_normalized
+    name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
-    {
-      first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
-      middle: nil,
-      last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil
-    }
+    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize, middle: nil,
+      last: auth_headers&.dig('va_eauth_lastName')&.capitalize, suffix: nil }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
@@ -468,22 +461,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def account
-    # first, check for an ICN on the UserAccount associated to the submission, return it if found
-    account = user_account
-    return account if account&.icn.present?
+    return user_account if user_account&.icn.present?
 
-    # next, check past submissions for different UserAccounts that might have ICNs
-    past_submissions = get_past_submissions
-    account = find_user_account_with_icn(past_submissions, 'past submissions')
-    return account if account.present? && account.icn.present?
-
-    # next, check for any historical UserAccounts for that user which might have an ICN
-    user_verifications = get_user_verifications
-    account = find_user_account_with_icn(user_verifications, 'user verifications')
-    return account if account.present? && account.icn.present?
-
-    # failing all the above, default to an Account lookup
-    Account.lookup_by_user_uuid(user_uuid)
+    Rails.logger.info('Form526Submission::account - no UserAccount ICN found', log_payload)
+    # query MPI by EDIPI first & attributes second for user ICN, return in OpenStruct
+    get_icn_from_mpi
   end
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
@@ -493,8 +475,7 @@ class Form526Submission < ApplicationRecord
   # @param invoker: string where the Received Email trigger is being called from
   def send_submitted_email(invoker)
     if Flipper.enabled?(:disability_526_send_form526_submitted_email)
-      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
+      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid}, submission: #{id} from #{invoker}")
       first_name = get_first_name
       params = personalization_parameters(first_name)
       Form526SubmittedEmailJob.perform_async(params)
@@ -506,8 +487,7 @@ class Form526Submission < ApplicationRecord
   # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status
   # @param invoker: string where the Received Email trigger is being called from
   def send_received_email(invoker)
-    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
+    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid}, submission: #{id} from #{invoker}")
     first_name = get_first_name
     params = personalization_parameters(first_name)
     Form526ConfirmationEmailJob.perform_async(params)
@@ -544,13 +524,7 @@ class Form526Submission < ApplicationRecord
     response_struct = Struct.new(:status, :body)
     mock_response = response_struct.new(status || 609, nil)
 
-    mock_response.body = {
-      'errors' => [
-        {
-          'title' => "Response Status Code '#{mock_response.status}' - #{error}"
-        }
-      ]
-    }
+    mock_response.body = { 'errors' => [{ 'title' => "Response Status Code '#{mock_response.status}' - #{error}" }] }
 
     @lighthouse_validation_response = mock_response
   end
@@ -584,13 +558,43 @@ class Form526Submission < ApplicationRecord
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
+  # This method calculates the delay for each upload based on its index in the uploads array.
+  # The delay is calculated to ensure that uploads are staggered and not sent all at once.
+  # Duplicate uploads (uploads with the same key) will have an additional delay.
+  #
+  # @param upload_index [Integer] the index of the upload in the uploads array
+  # @param key [String] a unique key for the upload, based on its name and size
+  # @param uniqueness_tracker [Hash] a hash to track the number of times each unique upload has been seen
+  # @return [Integer] the total delay in seconds for this upload
+  #
+  def calc_submit_delays(upload_index, key, uniqueness_tracker)
+    delay_per_upload = (upload_index * UPLOAD_DELAY_BASE) # staggered delay based on index
+    # If the upload is a duplicate, add an additional delay based on how many times it has been seen
+    dup_delay = [0, (UPLOAD_DELAY_BASE * (uniqueness_tracker[key] - 1 - upload_index))].max
+    # Final amount to delay
+    UPLOAD_DELAY_BASE + delay_per_upload + dup_delay
+  end
+
   def submit_uploads
-    # Put uploads on a one minute delay because of shared workload with EVSS
     uploads = form[FORM_526_UPLOADS]
-    delay = 60.seconds
-    uploads.each do |upload|
+    statsd_tags = ["form_id:#{FORM_526}"]
+
+    # Send the count of uploads to StatsD, happens before return to capture claims with no uploads
+    StatsD.gauge('form526.uploads.count', uploads.count, tags: statsd_tags)
+    return if uploads.blank?
+
+    # This happens only when there is 1+ uploads, otherwise will error out
+    uniq_keys = uploads.map { |upload| "#{upload['name']}_#{upload['size']}" }.uniq
+    StatsD.gauge('form526.uploads.duplicates', uploads.count - uniq_keys.count, tags: statsd_tags)
+
+    uniqueness_tracker = {}
+    uploads.each_with_index do |upload, upload_index|
+      key = "#{upload['name']}_#{upload['size']}"
+      uniqueness_tracker[key] ||= 1
+      delay = calc_submit_delays(upload_index, key, uniqueness_tracker)
+      StatsD.gauge('form526.uploads.delay', delay, tags: statsd_tags)
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
-      delay += 15.seconds
+      uniqueness_tracker[key] += UNIQUENESS_INCREMENT
     end
   end
 
@@ -612,7 +616,6 @@ class Form526Submission < ApplicationRecord
   end
 
   def submit_flashes
-    user = User.find(user_uuid)
     # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
     # If this method runs after the TTL, then the flashes will not be applied -- a possible bug.
     BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
@@ -630,27 +633,11 @@ class Form526Submission < ApplicationRecord
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 
-  def find_user_account_with_icn(records, record_type)
-    records.pluck(:user_account_id).uniq.each do |user_account_id|
-      user_account = UserAccount.find(user_account_id)
-      next if user_account&.icn.blank?
-
-      Rails.logger.info("ICN not found on submission #{id}, " \
-                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
-      return user_account
-    end
+  def log_payload
+    @log_payload ||= { user_uuid:, submission_id: id }
   end
 
-  def get_past_submissions
-    Form526Submission.where(user_uuid:).where.not(user_account_id:)
-  end
-
-  def get_user_verifications
-    UserVerification.where(idme_uuid: user_uuid)
-                    .or(UserVerification.where(backing_idme_uuid: user_uuid))
-                    .or(UserVerification.where(logingov_uuid: user_uuid))
-                    .or(UserVerification.where(mhv_uuid: user_uuid))
-                    .or(UserVerification.where(dslogon_uuid: user_uuid))
-                    .where.not(user_account_id:)
+  def user
+    @user ||= User.find(user_uuid)
   end
 end

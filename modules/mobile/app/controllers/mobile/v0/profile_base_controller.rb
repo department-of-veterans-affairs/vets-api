@@ -10,7 +10,7 @@ module Mobile
       include Vet360::Writeable
       include Mobile::Concerns::SSOLogging
 
-      before_action { authorize :vet360, :access? }
+      before_action { authorize :vet360, :profile_access? }
       after_action :invalidate_cache
 
       private

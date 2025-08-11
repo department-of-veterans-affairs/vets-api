@@ -2,8 +2,6 @@
 
 module AccreditedRepresentativePortal
   module V0
-    # Form21aController handles the submission of Form 21a to the accreditation service.
-    # It parses the request body, submits the form via AccreditationService, and processes the response.
     class Form21aController < ApplicationController
       skip_after_action :verify_pundit_authorization
 
@@ -18,17 +16,28 @@ module AccreditedRepresentativePortal
 
       FORM_ID = '21a'
 
-      # Parses the request body and validates the schema before submitting the form.
       # NOTE: The order of before_action calls is important here.
+      before_action :feature_enabled
       before_action :parse_request_body, :validate_form, only: [:submit]
 
-      # Parses the request body and submits the form.
-      # Renders the appropriate response based on the service's outcome.
       def submit
-        response = AccreditationService.submit_form21a(parsed_request_body, @current_user&.uuid)
+        form_hash = JSON.parse(@parsed_request_body)
 
-        InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy if response.success?
-        render_ogc_service_response(response)
+        begin
+          response = AccreditationService.submit_form21a([form_hash], @current_user&.uuid)
+          InProgressForm.form_for_user(FORM_ID, @current_user)&.destroy if response.success?
+          render_ogc_service_response(response)
+        rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
+          Rails.logger.error(
+            "Form21aController: Network error: #{e.class} #{e.message} for user_uuid=#{@current_user&.uuid}"
+          )
+          render json: { errors: 'Service temporarily unavailable' }, status: :service_unavailable
+        rescue => e
+          Rails.logger.error(
+            "Form21aController: Unexpected error: #{e.class} #{e.message} for user_uuid=#{@current_user&.uuid}"
+          )
+          render json: { errors: 'Internal server error' }, status: :internal_server_error
+        end
       end
 
       private
@@ -36,24 +45,32 @@ module AccreditedRepresentativePortal
       attr_reader :parsed_request_body
 
       def schema
-        # NOTE: This doesn't reject any extra attributes not found in the schema. If
-        # we want that the schema needs to have { "additionalProperties" => false }
-        # ALSO: the 21a schema isn't requiring properties such that '{}' is valid when it is
-        # submitted to this endpoint. That behavior is incorrect and it should be updated in
-        # the schema
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
+      end
+
+      # Checks if the feature flag accredited_representative_portal_form_21a is enabled or not
+      def feature_enabled
+        routing_error unless Flipper.enabled?(:accredited_representative_portal_form_21a)
       end
 
       # Parses the raw request body as JSON and assigns it to an instance variable.
       # Renders a bad request response if the JSON is invalid.
       def parse_request_body
-        @parsed_request_body = JSON.parse(request.raw_post)
+        raw = request.raw_post
+        body = JSON.parse(raw)
+        form_json = body.dig('form21aSubmission', 'form')
+        raise JSON::ParserError, 'Missing or invalid form21aSubmission.form' unless form_json
+
+        form_data = JSON.parse(form_json)
+        form_data['icnNo'] = @current_user.icn if @current_user&.icn.present?
+        form_data['uId']   = @current_user.uuid if @current_user&.uuid.present?
+        @parsed_request_body = form_data.to_json
       rescue JSON::ParserError
         handle_json_error
       end
 
       def validate_form
-        errors = JSON::Validator.fully_validate(schema, parsed_request_body)
+        errors = JSON::Validator.fully_validate(schema, @parsed_request_body)
         raise SchemaValidationError, errors if errors.any?
       rescue SchemaValidationError => e
         handle_json_error(e.errors.join(', ').squeeze(' '))
@@ -63,30 +80,34 @@ module AccreditedRepresentativePortal
         error_message = 'Form21aController: Invalid JSON in request body for user ' \
                         "with user_uuid=#{@current_user&.uuid}."
         error_message += " Errors: #{details}" if details
-
         Rails.logger.error(error_message)
-        render json: { errors: 'Invalid JSON' }, status: :bad_request
+
+        response_error = details || 'Invalid JSON'
+        render json: { errors: response_error }, status: :bad_request
       end
 
-      # Renders the response based on the service call's success or failure.
       def render_ogc_service_response(response)
         if response.success?
+          # Upon successful form submission, extract the applicationId from the response body.
+          # Use this applicationId to submit each attachment to GCLaws,
+          # ensuring correct association with the original application.
           Rails.logger.info(
             'Form21aController: Form 21a successfully submitted to OGC service ' \
             "by user with user_uuid=#{@current_user&.uuid} - Response: #{response.body}"
           )
           render json: response.body, status: response.status
-        elsif response.body.blank?
-          Rails.logger.info(
-            "Form21aController: Blank response from OGC service for user with user_uuid=#{@current_user&.uuid}"
+        elsif response.body.present?
+          Rails.logger.error(
+            "Form21aController: OGC service returned error response (status=#{response.status}) " \
+            "for user with user_uuid=#{@current_user&.uuid}: #{response.body}"
           )
-          render status: :no_content
+          render json: response.body, status: response.status
         else
           Rails.logger.error(
-            'Form21aController: Failed to parse response from external OGC service ' \
+            'Form21aController: Blank or unparsable response from external OGC service ' \
             "for user with user_uuid=#{@current_user&.uuid}"
           )
-          render json: { errors: 'Failed to parse response' }, status: :bad_gateway
+          render status: :no_content
         end
       end
     end

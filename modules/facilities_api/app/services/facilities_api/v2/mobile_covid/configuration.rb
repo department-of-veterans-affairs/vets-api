@@ -7,7 +7,7 @@ module FacilitiesApi
     module MobileCovid
       class Configuration < Common::Client::Configuration::REST
         def base_path
-          Settings.hqva_mobile.url
+          Settings.lighthouse.facilities.hqva_mobile.url
         end
 
         def service_name

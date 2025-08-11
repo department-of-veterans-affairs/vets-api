@@ -111,3 +111,60 @@ namespace :ivc_champva do
     puts "Created #{mapping_file}"
   end
 end
+
+namespace :ivc_champva do
+  # This task can be used when there's a new version of a form's PDF
+  task :generate_mapping, [:form_path] => :environment do |_, args|
+    file_path = args[:form_path]
+
+    reader = if File.exist?(PDFTK_HOMEBREW_PATH)
+               PdfForms.new(PDFTK_HOMEBREW_PATH)
+             else
+               PdfForms.new(PDFTK_LOCAL_PATH)
+             end
+
+    form_name = file_path.split('/').last.split('.').first
+    # rubocop:disable Layout/LineLength
+    update_test_msg = "\e[41;30mIMPORTANT: Don't forget to update the form OMB expiration unit test found in modules/ivc_champva/spec/models/#{form_name}_spec.rb\e[0m"
+    # rubocop:enable Layout/LineLength
+
+    meta_data = reader.get_field_names(file_path).map do |field|
+      { pdf_field: field, data_type: 'String', attribute: field.split('.').last.split('[').first }
+    end
+
+    # Read the existing mapping file and compare keynames. If we have the same
+    # quantity + names, then a new mapping file is not needed.
+    old_file = Rails.root.join(MAPPINGS_PATH, "#{form_name}.json.erb")
+    old_keys = JSON.parse(File.read(old_file)).keys
+    new_keys = meta_data.map { |el| el[:pdf_field] }
+
+    difference = (old_keys - new_keys) | (new_keys - old_keys)
+
+    if difference.empty?
+      puts "\e[42;30mNew mapping file would not result in any changes. Skipping.\e[0m"
+      puts update_test_msg
+      return
+    end
+
+    puts "\e[43;30mThe following keys are different between old/new mapping:\e[0m"
+    puts difference
+    puts "--\nCreating mapping file..."
+
+    # create the form mapping file
+    mapping_file = Rails.root.join(MAPPINGS_PATH, "#{form_name}_latest.json.erb")
+    File.open(mapping_file, 'w') do |f|
+      f.puts '{'
+      meta_data.each_with_index do |field, index|
+        puts field.inspect
+        f.print "  \"#{field[:pdf_field]}\": \"<%= data.dig('#{field[:attribute]}') %>"
+        f.puts "\"#{index + 1 == meta_data.size ? '' : ','}"
+      end
+      f.puts '}'
+    end
+
+    puts "\n"
+    puts "\e[42;30mCreated #{mapping_file}\e[0m"
+    puts update_test_msg
+    puts "\n"
+  end
+end

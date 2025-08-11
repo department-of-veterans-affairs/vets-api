@@ -19,7 +19,16 @@ module V0
 
       def bgs_service_response
         person = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
-        BGS::PaymentService.new(current_user).payment_history(person)
+        payment_history = BGS::PaymentService.new(current_user).payment_history(person)
+
+        if payment_history.nil?
+          Rails.logger.error('BGS::PaymentService returned nil', {
+                               person_status: person.status,
+                               user_uuid: current_user&.uuid
+                             })
+        end
+
+        payment_history
       end
     end
   end

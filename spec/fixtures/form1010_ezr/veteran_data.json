@@ -1,15 +1,19 @@
 {
   "providers": [
     {
-      "insuranceGroupCode": "G1234",
-      "insuranceName": "MyInsurance",
-      "insurancePolicyHolderName": "FirstName ZZTEST",
-      "insurancePolicyNumber": "P1234"
+      "insuranceGroupCode": "654D53",
+      "insuranceName": "Tricare",
+      "insurancePolicyHolderName": "Eric Bishop",
+      "insurancePolicyNumber": "464563645"
+    },
+    {
+      "insuranceName": "BCBS",
+      "insurancePolicyHolderName": "Eric",
+      "insurancePolicyNumber": "123"
     }
   ],
   "medicareClaimNumber": "873462432",
   "isEnrolledMedicarePartA": true,
-  "maritalStatus": "Never Married",
   "medicarePartAEffectiveDate": "1999-10-16",
   "isMedicaidEligible": false,
   "dependents": [
@@ -44,14 +48,88 @@
     }
   ],
   "spouseFullName": {
-    "first": "Sarah",
-    "middle": "Jasmine",
+    "first": "Chelsea",
+    "middle": "Marianne",
     "last": "Bishop"
   },
-  "dateOfMarriage": "1991-10-12",
+  "maritalStatus": "Never Married",
+  "dateOfMarriage": "1978-09-13",
   "cohabitedLastYear": true,
-  "spouseDateOfBirth": "1970-04-21",
-  "spouseSocialSecurityNumber": "666112121",
+  "spouseDateOfBirth": "1946-06-21",
+  "spouseSocialSecurityNumber": "666453123",
+  "nextOfKins": [
+    {
+      "fullName": {
+        "first": "FIRSTNOKA",
+        "middle": "MIDDLENOKA",
+        "last": "LASTNOKA",
+        "suffix": "Jr."
+      },
+      "relationship": "SON",
+      "contactType": "Primary Next of Kin",
+      "primaryPhone": "1239131234",
+      "address": {
+        "street": "476 Test Ave",
+        "city": "DULLES",
+        "country": "USA",
+        "state": "VA",
+        "postalCode": "20101-0101"
+      }
+    },
+    {
+      "fullName": {
+        "first": "FIRSTNOKB",
+        "middle": "MIDDLENOKB",
+        "last": "LASTNOKB"
+      },
+      "relationship": "DAUGHTER",
+      "contactType": "Other Next of Kin",
+      "primaryPhone": "1239183546",
+      "address": {
+        "street": "834 NE 36TH ST",
+        "city": "ONTARIO",
+        "country": "CAN",
+        "state": "ON",
+        "postalCode": "21534"
+      }
+    }
+  ],
+  "emergencyContacts": [
+    {
+      "fullName": {
+        "first": "FIRSTECA",
+        "middle": "MIDDLEECA",
+        "last": "LASTECA"
+      },
+      "relationship": "BROTHER",
+      "contactType": "Emergency Contact",
+      "primaryPhone": "7452743546",
+      "address": {
+        "street": "28 NW 78th St",
+        "city": "DULLES",
+        "country": "USA",
+        "state": "VA",
+        "postalCode": "20101-0101"
+      }
+    },
+    {
+      "fullName": {
+        "first": "FIRSTECB",
+        "middle": "MIDDLEECB",
+        "last": "LASTECB"
+      },
+      "relationship": "UNRELATED FRIEND",
+      "contactType": "Other emergency contact",
+      "primaryPhone": "9564738265",
+      "address": {
+        "street": "823 SE 2ND ST",
+        "city": "BLACKSBURG",
+        "country": "USA",
+        "state": "VA",
+        "postalCode": "24060"
+      }
+    }
+  ],
   "nonPrefill": {
     "previousFinancialInfo": {
       "veteranFinancialInfo": {

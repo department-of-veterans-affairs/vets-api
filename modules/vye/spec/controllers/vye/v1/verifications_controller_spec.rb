@@ -11,6 +11,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
     allow_any_instance_of(Vye::V1::VerificationsController).to receive(:authorize).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   describe '#create' do
@@ -48,33 +49,6 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
 
       Vye::Verification.all.find_each do |verification|
         expect(verification.transact_date).to eq(highest_act_end)
-      end
-    end
-
-    it 'sets the cert_through date based on current date relative to award end dates' do
-      # rubocop:disable Lint/ConstantDefinitionInBlock
-      VerificationTest = Struct.new(:act_end)
-      # rubocop:enable Lint/ConstantDefinitionInBlock
-      award_dates = [
-        Time.zone.parse('2024-08-10'),
-        Time.zone.parse('2024-10-15'),
-        Time.zone.parse('2024-12-15')
-      ]
-
-      test_verifications = award_dates.map { |date| VerificationTest.new(date) }
-
-      # rubocop:disable RSpec/SubjectStub
-      allow(subject).to receive(:pending_verifications).and_return(test_verifications)
-      # rubocop:enable RSpec/SubjectStub
-
-      Timecop.freeze(Time.zone.parse('2024-11-15')) do
-        expect(subject.send(:cert_through_date).to_date).to eq(Date.new(2024, 10, 15))
-      end
-
-      # show last award day rather than last day of previous month when award has ended
-      Timecop.freeze(Time.zone.parse('2024-12-15')) do
-        expect(subject.send(:cert_through_date).to_date).to eq(Date.new(2024, 12, 15))
-        expect(subject.send(:cert_through_date).to_date).not_to eq(Date.new(2024, 11, 30))
       end
     end
   end

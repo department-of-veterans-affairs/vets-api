@@ -12,7 +12,7 @@ RSpec.describe SignIn::SessionCreator do
 
     context 'when input object is a ValidatedCredential' do
       let(:validated_credential) { create(:validated_credential, client_config:, device_sso:) }
-      let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
+      let(:user_uuid) { validated_credential.user_verification.user_account.id }
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, refresh_token_duration:, access_token_attributes:, enforced_terms:) }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -300,6 +300,21 @@ RSpec.describe SignIn::SessionCreator do
 
       context 'when validated credential is not set up to enable device_sso' do
         let(:device_sso) { false }
+      end
+
+      context 'when the validated_credential has a web_sso_session' do
+        let(:web_sso_session) { create(:oauth_session) }
+        let(:validated_credential) do
+          create(:validated_credential, client_config:, device_sso:, web_sso_session_id: web_sso_session.id)
+        end
+
+        it 'creates a new session with refresh_creation as the web_sso_creation' do
+          expect(subject.session.refresh_creation).to eq(web_sso_session.refresh_creation)
+        end
+
+        it 'sets the web_sso_client to true in the session container' do
+          expect(subject.web_sso_client).to be(true)
+        end
       end
     end
   end

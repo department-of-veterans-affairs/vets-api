@@ -28,9 +28,9 @@ module TravelPay
     def add_mileage_expense(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       log_to_statsd('expense', 'add_mileage') do
-        connection(server_url: btsss_url).post('api/v1.2/expenses/mileage') do |req|
+        connection(server_url: btsss_url).post('api/v2/expenses/mileage') do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id

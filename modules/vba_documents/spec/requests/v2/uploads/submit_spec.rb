@@ -5,7 +5,8 @@ require './lib/central_mail/utilities'
 require_relative '../../../support/vba_document_fixtures'
 
 # rubocop:disable Style/OptionalBooleanParameter
-RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
+RSpec.describe 'VBADocument::V2::Uploads::Submit',
+               retry: 3, skip: 'v2 will never be launched in vets-api', type: :request do
   include VBADocuments::Fixtures
 
   load('./modules/vba_documents/config/routes.rb')

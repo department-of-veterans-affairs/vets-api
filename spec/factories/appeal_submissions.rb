@@ -2,10 +2,11 @@
 
 FactoryBot.define do
   factory :appeal_submission do
-    user_uuid do
-      user = create(:user, :loa3, ssn: '212222112')
-      user.uuid
+    transient do
+      user { create(:user, :loa3, ssn: '212222112') }
     end
+    user_uuid { user.uuid }
+    user_account { user.user_verification.user_account }
     submitted_appeal_uuid { SecureRandom.uuid }
     type_of_appeal { 'NOD' }
     board_review_option { 'evidence_submission' }

@@ -7,7 +7,7 @@ require 'formatters/date_formatter'
 module MPI
   module Messages
     class AddPersonProxyAddMessage
-      attr_reader :first_name, :last_name, :ssn, :birth_date, :icn, :edipi, :search_token
+      attr_reader :first_name, :last_name, :ssn, :birth_date, :icn, :edipi, :search_token, :as_agent
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(first_name:,
@@ -16,7 +16,8 @@ module MPI
                      birth_date:,
                      edipi:,
                      icn:,
-                     search_token:)
+                     search_token:,
+                     as_agent: false)
         @first_name = first_name
         @last_name = last_name
         @ssn = ssn
@@ -24,6 +25,7 @@ module MPI
         @birth_date = birth_date
         @edipi = edipi
         @search_token = search_token
+        @as_agent = as_agent
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -31,7 +33,8 @@ module MPI
         validate_required_fields
         MPI::Messages::RequestBuilder.new(extension: MPI::Constants::ADD_PERSON,
                                           body: build_body,
-                                          search_token:).perform
+                                          search_token:,
+                                          as_agent:).perform
       rescue => e
         Rails.logger.error "[AddPersonProxyAddMessage] Failed to build request: #{e.message}"
         raise e

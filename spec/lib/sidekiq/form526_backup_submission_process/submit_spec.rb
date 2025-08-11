@@ -5,6 +5,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'disability_compensation/factories/api_provider_factory'
+require 'evss/disability_compensation_form/form4142_processor'
 
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
@@ -14,9 +15,13 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
+
+    # By default, this flag is enabled in test environments, turning this off to avoid using the 2024 template
+    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, :legacy_icn) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -27,7 +32,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive(:enabled).and_return(false)
     end
 
-    let!(:submission) { create(:form526_submission, :with_everything) }
+    let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
 
     it 'creates a submission job' do
       expect { subject.perform_async(submission.id) }.to change(subject.jobs, :size).by(1)
@@ -42,7 +47,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     let(:timestamp) { Time.now.utc }
 
     context 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, user_account:) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -111,7 +116,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
       end
 
-      let!(:submission) { create(:form526_submission, :with_everything) }
+      let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
@@ -148,8 +153,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
                   # Form 4142 Backup Submission Process
                   expect(submission.form['form4142']).not_to be_nil
-                  form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
-                    form_data: submission.form['form4142'], submission_id: submission.id
+                  form4142_processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(
+                    submission, submission.id
                   )
                   request_body = form4142_processor.request_body
                   metadata_hash = JSON.parse(request_body['metadata'])
@@ -222,7 +227,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive_messages(submission_method: 'single', enabled: true)
     end
 
-    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads) }
+    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads, user_account:) }
     let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
     context 'converts non-pdf files to pdf' do

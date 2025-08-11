@@ -5,7 +5,7 @@ require 'rails_helper'
 describe MyHealth::V1::MessageDetailsSerializer, type: :serializer do
   subject { serialize(message, serializer_class: described_class) }
 
-  let(:message) { build(:message_thread_details, :with_attachments, has_attachments: true) }
+  let(:message) { build(:message_thread_details, :with_attachments_for_thread, has_attachments: true) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
@@ -51,12 +51,13 @@ describe MyHealth::V1::MessageDetailsSerializer, type: :serializer do
   end
 
   it 'includes attachments with objects' do
-    download = MyHealth::UrlHelper.new.v1_message_attachment_url(message.message_id, message.send('attachment1_id'))
+    first_attachment = message.attachments.first
+    download = MyHealth::UrlHelper.new.v1_message_attachment_url(message.message_id, first_attachment[:attachment_id])
     expected_attachment = {
-      id: message.send('attachment1_id'),
+      id: first_attachment[:attachment_id],
       message_id: message.message_id,
-      name: message.send('attachment1_name'),
-      attachment_size: message.send('attachment1_size'),
+      name: first_attachment[:attachment_name],
+      attachment_size: first_attachment[:attachment_size],
       download:
     }
     expect(attributes['attachments'].first).to eq expected_attachment.deep_stringify_keys

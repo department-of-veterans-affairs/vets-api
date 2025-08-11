@@ -238,6 +238,18 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
+  describe '#log_caregiver_request_duration' do
+    it 'records the duration of an event given its start time' do
+      start_time = Time.current
+      expected_duration = 3
+      expect(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time + expected_duration }
+      expected_context = { context: :process, event: :success, start_time: }
+
+      expect { subject.log_caregiver_request_duration(**expected_context) }
+        .to trigger_statsd_measure('api.form1010cg.process.success.duration', value: expected_duration)
+    end
+  end
+
   describe '#record' do
     describe 'acts as proxy' do
       context 'for :submission_attempt' do

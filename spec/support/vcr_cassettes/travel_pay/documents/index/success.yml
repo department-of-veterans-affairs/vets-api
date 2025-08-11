@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://btsss.gov/api/v2/claims/aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e/documents
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer string
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type: 
+      - 'application/json'
+    body:
+      encoding: ASCII-8BIT
+      string: >
+        {
+         "data": [
+            {
+              "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "filename": "string",
+              "mimetype": "string",
+              "createdon": "2025-05-07T14:53:19.707Z"
+            }
+          ]
+        }
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+recorded_with: VCR 6.1.0

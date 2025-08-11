@@ -27,11 +27,11 @@ require 'rails_helper'
 #   test_data_types: %w[simple]
 # }
 RSpec.shared_examples 'a form filler' do |options|
-  form_id, factory, test_data_types = options.values_at(:form_id, :factory, :test_data_types)
+  form_id, factory, test_data_types, run_at = options.values_at(:form_id, :factory, :test_data_types, :run_at)
   test_data_types ||= %w[simple kitchen_sink overflow]
 
   describe PdfFill::Filler, type: :model do
-    context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
+    context "form #{form_id}", run_at: run_at || '2017-07-25 00:00:00 -0400' do
       let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
       let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
 
@@ -51,8 +51,15 @@ RSpec.shared_examples 'a form filler' do |options|
               # refresh claim to reset instance methods like parsed_form
               SavedClaim.find(claim.id)
             else
-              create(factory, form: form_data.to_json)
+              claim = create(factory, form: form_data.to_json)
+              claim.update(form_id:) if claim.has_attribute?(:form_id)
+              claim
             end
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
           end
 
           it 'fills the form correctly' do
@@ -72,19 +79,20 @@ RSpec.shared_examples 'a form filler' do |options|
                           described_class.fill_form(saved_claim)
                         end
 
+            fixture_pdf_base = "#{output_pdf_fixture_dir}/#{type}"
+            extras_redesign = options[:fill_options] && options[:fill_options][:extras_redesign]
+
             if type == 'overflow'
               extras_path = the_extras_generator.generate
 
-              expect(
-                FileUtils.compare_file(extras_path, "#{output_pdf_fixture_dir}/overflow_extras.pdf")
-              ).to be(true)
+              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+              expect(extras_path).to match_file_exactly(fixture_pdf)
 
               File.delete(extras_path)
             end
 
-            expect(
-              pdfs_fields_match?(file_path, "#{output_pdf_fixture_dir}/#{type}.pdf")
-            ).to be(true)
+            fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
+            expect(file_path).to match_pdf_fields(fixture_pdf)
 
             File.delete(file_path)
           end

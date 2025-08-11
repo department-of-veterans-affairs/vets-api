@@ -36,7 +36,11 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            ClaimsApi::RevisedDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind_call(self)
+          else
+            validate_form_526_submission_values!
+          end
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
@@ -67,7 +71,8 @@ module ClaimsApi
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
           unless auto_claim.id
-            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim
+                                  .find_by('header_hash = ? OR md5 = ?', auto_claim.header_hash, auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
 
@@ -150,7 +155,13 @@ module ClaimsApi
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            ClaimsApi::RevisedDisabilityCompensationValidations.instance_method(:validate_form_526_submission_values!).bind_call(self)
+          else
+            validate_form_526_submission_values!
+          end
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
@@ -276,7 +287,11 @@ module ClaimsApi
         end
 
         def unprocessable_response(e)
-          log_message_to_sentry('Upload error in 526', :warning, body: e.message)
+          ClaimsApi::Logger.log '526',
+                                detail: 'Upload error in 526',
+                                level: :warn,
+                                error_message: e&.message,
+                                error_source: e&.key
 
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]

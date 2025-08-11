@@ -11,7 +11,7 @@ module BGS
       @proc_id = proc_id
       @views = payload['view:selectable686_options']
       @dependents_application = payload['dependents_application']
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = false
     end
 
     def create_all
@@ -38,7 +38,7 @@ module BGS
         bgs_service.create_person(person_params(child, participant, formatted_info))
         send_address(child, participant, child.address(@dependents_application))
 
-        step_child_parent(child_info) if child['family_relationship_type'] == 'Stepchild'
+        step_child_parent(child_info) if child.family_relationship_type == 'Stepchild'
 
         @children << child.serialize_dependent_result(
           participant,

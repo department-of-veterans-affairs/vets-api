@@ -40,6 +40,38 @@ RSpec.describe Sts::TermsOfUseController, type: :controller do
         end
 
         include_examples 'logs a success message'
+
+        context 'with metadata included' do
+          context 'when agreement is accepted' do
+            before { get :current_status, params: { metadata: 'true' } }
+
+            it 'returns the agreement status with metadata' do
+              expect(response).to be_successful
+              expect(response_body['agreement_status']).to eq(current_terms_of_use_agreement.response)
+              expect(response_body['metadata']).to include(
+                'va_terms_of_use_doc_title' => MHV::AccountCreation::Configuration::TOU_DOC_TITLE,
+                'va_terms_of_use_legal_version' => MHV::AccountCreation::Configuration::TOU_LEGAL_VERSION,
+                'va_terms_of_use_revision' => MHV::AccountCreation::Configuration::TOU_REVISION,
+                'va_terms_of_use_status' => MHV::AccountCreation::Configuration::TOU_STATUS,
+                'va_terms_of_use_datetime' => current_terms_of_use_agreement.created_at.as_json
+              )
+            end
+          end
+
+          context 'when agreement is declined' do
+            let!(:current_terms_of_use_agreement) do
+              create(:terms_of_use_agreement, user_account:, response: :declined)
+            end
+
+            before { get :current_status, params: { metadata: 'true' } }
+
+            it 'returns the agreement status without the metadata' do
+              expect(response).to be_successful
+              expect(response_body['agreement_status']).to eq(current_terms_of_use_agreement.response)
+              expect(response_body['metadata']).to be_nil
+            end
+          end
+        end
       end
 
       context 'without an existing terms of use agreement' do
@@ -51,6 +83,16 @@ RSpec.describe Sts::TermsOfUseController, type: :controller do
         end
 
         include_examples 'logs a success message'
+
+        context 'with metadata included' do
+          before { get :current_status, params: { metadata: 'true' } }
+
+          it 'returns a success response with nil metadata' do
+            expect(response).to be_successful
+            expect(response_body['agreement_status']).to be_nil
+            expect(response_body['metadata']).to be_nil
+          end
+        end
       end
 
       context 'when user account does not exist' do

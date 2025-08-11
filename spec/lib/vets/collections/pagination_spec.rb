@@ -14,9 +14,10 @@ RSpec.describe Vets::Collections::Pagination do
         expect(pagination.data).to eq((11..20).to_a)
       end
 
-      it 'returns an empty array for out-of-bounds page' do
-        pagination = described_class.new(page: 6, per_page: 10, total_entries: data.size, data:)
-        expect(pagination.data).to eq([])
+      it 'raises an error for out-of-bounds page' do
+        expect do
+          described_class.new(page: 6, per_page: 10, total_entries: data.size, data:)
+        end.to raise_error(Common::Exceptions::InvalidPaginationParams)
       end
 
       context 'when data is nil' do

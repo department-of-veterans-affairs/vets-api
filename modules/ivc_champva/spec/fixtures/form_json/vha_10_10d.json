@@ -53,7 +53,7 @@
       "applicant_dob": "1978-03-04",
       "applicant_medicare_status": { "eligibility": "enrolled" },
       "applicant_has_ohi": { "has_ohi": "no" },
-      "vet_relationship": "Relative - Other"
+      "vet_relationship": "spouse"
     },
     {
       "applicant_address": {
@@ -76,7 +76,7 @@
       "applicant_dob": "1985-03-10",
       "applicant_medicare_status": { "eligibility": "enrolled" },
       "applicant_has_ohi": { "has_ohi": "yes" },
-      "vet_relationship": "Relative - Other"
+      "vet_relationship": "spouse"
     },
     {
       "applicant_address": {
@@ -99,7 +99,7 @@
       "applicant_dob": "1985-03-10",
       "applicant_medicare_status": { "eligibility": "enrolled" },
       "applicant_has_ohi": { "has_ohi": "yes" },
-      "vet_relationship": "Relative - Other"
+      "vet_relationship": "spouse"
     },
     {
       "applicant_address": {
@@ -124,7 +124,7 @@
       "applicant_has_ohi": { "has_ohi": "yes" },
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
-      "vet_relationship": "Relative - Other"
+      "vet_relationship": "spouse"
     },
     {
       "applicant_address": {
@@ -149,7 +149,7 @@
       "applicant_has_ohi": { "has_ohi": "yes" },
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
-      "vet_relationship": "Relative - Other"
+      "vet_relationship": "spouse"
     }
   ],
   "supporting_docs": [

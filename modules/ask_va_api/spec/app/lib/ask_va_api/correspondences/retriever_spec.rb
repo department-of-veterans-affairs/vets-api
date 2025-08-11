@@ -4,11 +4,12 @@ require 'rails_helper'
 
 RSpec.describe AskVAApi::Correspondences::Retriever do
   subject(:retriever) do
-    described_class.new(inquiry_id:, user_mock_data:, entity_class: AskVAApi::Correspondences::Entity)
+    described_class.new(icn:, inquiry_id:, user_mock_data:, entity_class: AskVAApi::Correspondences::Entity)
   end
 
   let(:service) { instance_double(Crm::Service) }
   let(:inquiry_id) { 'A-1' }
+  let(:icn) { '123' }
   let(:error_message) { 'Some error occurred' }
   let(:user_mock_data) { false }
 

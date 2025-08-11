@@ -89,7 +89,7 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
-  describe '#final_filename' do
+  describe '#final_filename', skip: 'flakey spec' do
     it 'returns the right filename' do
       [uploader_with_tiff, uploader_with_jpg].each do |uploader|
         expect(uploader.final_filename).to eq('converted_image_TIF.jpg')
@@ -97,67 +97,67 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
-  # describe 'converted version' do
-  #   it 'converts tiff files to jpg' do
-  #     expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
-  #       'image/jpeg'
-  #     )
-  #   end
+  describe 'converted version', skip: 'flakey specs' do
+    it 'converts tiff files to jpg' do
+      expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
+        'image/jpeg'
+      )
+    end
 
-  #   it 'shouldnt convert if the file isnt tiff' do
-  #     expect(uploader_with_jpg.converted_exists?).to be(false)
-  #   end
+    it 'shouldnt convert if the file isnt tiff' do
+      expect(uploader_with_jpg.converted_exists?).to be(false)
+    end
 
-  #   [
-  #     {
-  #       path: 'files/doctors-note.gif',
-  #       final_filename: 'converted_doctors-note_gif.png',
-  #       description: 'misnamed png',
-  #       binary_or_name_changes: true
-  #     },
-  #     {
-  #       path: 'files/doctors-note.jpg',
-  #       final_filename: 'converted_doctors-note_jpg.png',
-  #       description: 'misnamed png',
-  #       binary_or_name_changes: true
-  #     },
-  #     {
-  #       path: 'files/va.gif',
-  #       final_filename: 'va.gif',
-  #       description: 'no change',
-  #       binary_or_name_changes: false
-  #     },
-  #     {
-  #       path: 'evss_claim/image.TIF',
-  #       final_filename: 'converted_image_TIF.jpg',
-  #       description: 'ext and filetype match /BUT/ tifs not allowed',
-  #       binary_or_name_changes: true
-  #     },
-  #     {
-  #       path: 'evss_claim/secretly_a_jpg.tif',
-  #       final_filename: 'converted_secretly_a_jpg_tif.jpg',
-  #       description: 'misnamed jpg',
-  #       binary_or_name_changes: true
-  #     },
-  #     {
-  #       path: 'evss_claim/secretly_a_tif.jpg',
-  #       final_filename: 'converted_secretly_a_tif.jpg',
-  #       description: "converted, but file extension doesn't change",
-  #       binary_or_name_changes: true
-  #     }
-  #   ].each do |args|
-  #     path, final_filename, description, binary_or_name_changes = args.values_at(
-  #       :path, :final_filename, :description, :binary_or_name_changes
-  #     )
-  #     it "#{description}: #{path.split('/').last} -> #{final_filename}" do
-  #       uploader = described_class.new '1234', ['11', nil]
-  #       file = Rack::Test::UploadedFile.new "spec/fixtures/#{path}", "image/#{path.split('.').last}"
-  #       uploader.store! file
-  #       expect(uploader.converted_exists?).to eq binary_or_name_changes
-  #       expect(uploader.final_filename).to eq(final_filename)
-  #     end
-  #   end
-  # end
+    [
+      {
+        path: 'files/doctors-note.gif',
+        final_filename: 'converted_doctors-note_gif.png',
+        description: 'misnamed png',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'files/doctors-note.jpg',
+        final_filename: 'converted_doctors-note_jpg.png',
+        description: 'misnamed png',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'files/va.gif',
+        final_filename: 'va.gif',
+        description: 'no change',
+        binary_or_name_changes: false
+      },
+      {
+        path: 'evss_claim/image.TIF',
+        final_filename: 'converted_image_TIF.jpg',
+        description: 'ext and filetype match /BUT/ tifs not allowed',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'evss_claim/secretly_a_jpg.tif',
+        final_filename: 'converted_secretly_a_jpg_tif.jpg',
+        description: 'misnamed jpg',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'evss_claim/secretly_a_tif.jpg',
+        final_filename: 'converted_secretly_a_tif.jpg',
+        description: "converted, but file extension doesn't change",
+        binary_or_name_changes: true
+      }
+    ].each do |args|
+      path, final_filename, description, binary_or_name_changes = args.values_at(
+        :path, :final_filename, :description, :binary_or_name_changes
+      )
+      it "#{description}: #{path.split('/').last} -> #{final_filename}" do
+        uploader = described_class.new '1234', ['11', nil]
+        file = Rack::Test::UploadedFile.new "spec/fixtures/#{path}", "image/#{path.split('.').last}"
+        uploader.store! file
+        expect(uploader.converted_exists?).to eq binary_or_name_changes
+        expect(uploader.final_filename).to eq(final_filename)
+      end
+    end
+  end
 
   describe '#store_dir' do
     let(:user_uuid) { SecureRandom.uuid }

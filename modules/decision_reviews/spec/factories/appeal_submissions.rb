@@ -2,17 +2,15 @@
 
 FactoryBot.define do
   factory :appeal_submission_module, class: 'AppealSubmission' do
-    user_uuid do
-      user = create(:user, :loa3, ssn: '212222112')
-      user.uuid
+    transient do
+      user { create(:user, :loa3, ssn: '212222112') }
     end
+    user_uuid { user.uuid }
+    user_account { user.user_account }
     submitted_appeal_uuid { SecureRandom.uuid }
     type_of_appeal { 'NOD' }
     board_review_option { 'evidence_submission' }
-    upload_metadata do
-      user = User.find(user_uuid)
-      DecisionReviews::V1::Service.file_upload_metadata(user)
-    end
+    upload_metadata { DecisionReviews::V1::Service.file_upload_metadata(user) }
   end
 
   trait :with_one_upload_module do

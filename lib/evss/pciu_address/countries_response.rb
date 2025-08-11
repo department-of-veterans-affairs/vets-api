@@ -14,7 +14,7 @@ module EVSS
     #   @return [Array[String]] An array of country names
     #
     class CountriesResponse < EVSS::Response
-      attribute :countries, Array[String]
+      attribute :countries, String, array: true, default: []
 
       def initialize(status, response = nil)
         countries = response&.body&.dig('cnp_countries') || response&.body&.dig('countries')

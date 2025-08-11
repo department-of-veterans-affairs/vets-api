@@ -15,7 +15,7 @@ module VBADocuments
 
     attribute :detail do |object|
       detail = object.detail.to_s
-      detail.length > MAX_DETAIL_DISPLAY_LENGTH ? "#{detail[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." : detail
+      detail.length > MAX_DETAIL_DISPLAY_LENGTH ? "#{detail[0..(MAX_DETAIL_DISPLAY_LENGTH - 1)]}..." : detail
     end
 
     attribute :final_status, &:in_final_status?

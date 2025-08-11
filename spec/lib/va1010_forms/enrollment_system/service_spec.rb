@@ -57,6 +57,42 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
       allow(Rails.logger).to receive(:error)
     end
 
+    context "when an 'Ox::ParseError' is raised" do
+      before do
+        allow_any_instance_of(Common::Client::Base).to receive(:perform)
+          .and_raise(
+            Ox::ParseError,
+            'invalid format, elements overlap at line 1, column 212 [parse.c:626]'
+          )
+        allow(PersonalInformationLog).to receive(:create!)
+      end
+
+      it "creates a 'PersonalInformationLog' with the submission body data", run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          expect do
+            described_class.new.submit(
+              form_with_ves_fields,
+              '10-10EZR'
+            )
+          end.to raise_error(
+            Ox::ParseError,
+            'invalid format, elements overlap at line 1, column 212 [parse.c:626]'
+          )
+
+          expect(Rails.logger).to have_received(:error).with(
+            '10-10EZR form submission failed: invalid format, elements overlap at line 1, column 212 [parse.c:626]'
+          )
+          expect(PersonalInformationLog).to have_received(:create!).with(
+            data: File.read('spec/fixtures/form1010_ezr/submission_body.xml'),
+            error_class: 'Form1010Ezr FailedWithParsingError'
+          )
+        end
+      end
+    end
+
     context 'when no error occurs' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
@@ -87,7 +123,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
 
         it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment_formatted_correctly',
             VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -114,7 +150,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
 
         it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment',
             VCR::MATCH_EVERYTHING.merge(erb: true)

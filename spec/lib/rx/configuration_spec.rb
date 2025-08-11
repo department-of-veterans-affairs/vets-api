@@ -13,36 +13,18 @@ RSpec.describe Rx::Configuration do
     end
   end
 
-  describe '#app_token_va_gov' do
-    it 'returns the VA.gov app token from settings' do
-      allow(Settings.mhv.rx).to receive(:app_token_va_gov).and_return('va_gov_token')
-      expect(configuration.app_token_va_gov).to eq('va_gov_token')
+  describe '#x_api_key' do
+    it 'returns the API GW key from settings' do
+      allow(Settings.mhv.rx).to receive(:x_api_key).and_return('test_api_key')
+      expect(configuration.x_api_key).to eq('test_api_key')
     end
   end
 
   describe '#base_path' do
-    context 'when use_new_api is true' do
-      it 'returns the new API base path' do
-        allow(Settings.mhv.rx).to receive_messages(
-          use_new_api: true,
-          base_path: 'mhv-api-patient/v1/',
-          gw_base_path: 'v1/'
-        )
-        allow(Settings.mhv.api_gateway.hosts).to receive(:pharmacy).and_return('https://new-api.example.com')
-        expect(configuration.base_path).to eq('https://new-api.example.com/v1/')
-      end
-    end
-
-    context 'when use_new_api is false' do
-      it 'returns the old API base path' do
-        allow(Settings.mhv.rx).to receive_messages(
-          use_new_api: false,
-          host: 'https://old-api.example.com',
-          base_path: 'mhv-api-patient/v1/',
-          gw_base_path: 'v1/'
-        )
-        expect(configuration.base_path).to eq('https://old-api.example.com/mhv-api-patient/v1/')
-      end
+    it 'returns the API gateway base path' do
+      allow(Settings.mhv.api_gateway.hosts).to receive(:pharmacy).and_return('https://api-gateway.example.com')
+      allow(Settings.mhv.rx).to receive(:gw_base_path).and_return('v1/')
+      expect(configuration.base_path).to eq('https://api-gateway.example.com/v1/')
     end
   end
 

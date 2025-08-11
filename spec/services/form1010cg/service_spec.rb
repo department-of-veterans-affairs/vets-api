@@ -55,18 +55,20 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'raises error if claim is invalid' do
+      expected_errors = %w[primaryCaregiver secondaryCaregiverOne veteran].map do |field|
+        have_attributes(
+          title: include(" object at root is missing required properties: #{field}"),
+          detail: include(" - object at root is missing required properties: #{field}"),
+          status: '422',
+          code: '100'
+        )
+      end
+
       expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
         expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(4)
-        expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[1].detail).to include("The property '#/' of type object did not match")
-        expect(e.errors[1].status).to eq('422')
-        expect(e.errors[1].code).to eq('100')
-        expect(e.errors[2].detail).to include("did not contain a required property of 'primaryCaregiver'")
-        expect(e.errors[2].status).to eq('422')
-        expect(e.errors[2].code).to eq('100')
+        expect(e.errors.size).to eq(3)
+
+        expect(e.errors).to match_array(expected_errors)
       end
     end
 
@@ -114,25 +116,9 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the Form1010cg::Attachment is found' do
-        let(:attachment) { build(:form1010cg_attachment, guid: poa_attachment_guid) }
-        let(:vcr_options) do
-          {
-            record: :none,
-            allow_unused_http_interactions: false,
-            match_requests_on: %i[method host body]
-          }
-        end
+        let(:attachment) { build(:form1010cg_attachment, :with_attachment, guid: poa_attachment_guid) }
 
         before do
-          VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note_jpg", vcr_options) do
-            attachment.set_file_data!(
-              Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.jpg'),
-                'image/jpg'
-              )
-            )
-          end
-
           attachment.save!
           expect_any_instance_of(attachment.class).to receive(:to_local_file).and_return(poa_attachment_path)
         end
@@ -440,7 +426,11 @@ RSpec.describe Form1010cg::Service do
   describe '#assert_veteran_status' do
     it "raises error if veteran's icn can not be found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
+      expect(Rails.logger).to receive(:error).with(
+        '[10-10CG] - Error fetching Veteran ICN',
+        { error: instance_of(described_class::InvalidVeteranStatus) }
+      )
+
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
@@ -524,13 +514,76 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'success' do
+      let(:mulesoft_response) do
+        {
+          'data' => {
+            'carmacase' => {
+              'createdAt' => '2025-06-25 10:34:09',
+              'id' => 'aB9SK0000001VTB0A2'
+            }
+          },
+          'record' => {
+            'hasErrors' => false,
+            'results' =>
+           [
+             {
+               'referenceId' => '1010CG',
+               'title' => '10-10CG_Jane Doe_Doe_06-25-2025',
+               'id' => '068SK000003EGmLYAW',
+               'errors' => []
+             }
+           ]
+          }
+        }
+      end
+
       before do
-        allow(mule_soft_client).to receive(:create_submission_v2)
+        allow(mule_soft_client).to receive(:create_submission_v2) { mulesoft_response }
       end
 
       it 'submits to mulesoft' do
-        subject
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :success, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
+        claim_guid = claim_with_mpi_veteran.guid
+        expect(Rails.logger).to receive(:info).with('[Form 10-10CG] MPI Profile found for Veteran', { claim_guid: })
+        expect(Rails.logger).to receive(:info).with(
+          '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver',
+          { claim_guid: }
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One',
+          { claim_guid: }
+        )
+        expect(Rails.logger).to receive(:info).with(
+          '[10-10CG] - CARMA submission complete',
+          {
+            form: '10-10CG',
+            claim_guid:,
+            claim_pdf_path_length: 68,
+            poa_attachment_path_length: nil,
+            carma_case: {
+              created_at: '2025-06-25 10:34:09',
+              id: 'aB9SK0000001VTB0A2',
+              attachments: [
+                {
+                  id: '068SK000003EGmLYAW',
+                  reference_id: '1010CG'
+                }
+              ]
+            }
+          }
+        )
+
+        response = subject
+
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+        expect(response).to be(mulesoft_response)
       end
 
       context 'with a poa attachment' do
@@ -560,11 +613,19 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'logs claim_guid for any exceptions and raises error' do
-        expect(service).to receive(:log_exception_to_sentry)
-          .with(exception, {
-                  form: '10-10CG',
-                  claim_guid: claim_with_mpi_veteran.guid
-                })
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error processing Caregiver submission',
+          { form: '10-10CG', exception:, claim_guid: claim_with_mpi_veteran.guid }
+        )
+
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :failure, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
 
         expect { subject }.to raise_error(exception)
       end

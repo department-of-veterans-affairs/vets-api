@@ -25,7 +25,7 @@ module Mobile
         )
       end
 
-      def validate
+      def validate # rubocop:disable Metrics/MethodLength
         validated_address_params = if Flipper.enabled?(:remove_pciu)
                                      VAProfile::Models::V3::ValidationAddress.new(address_params)
                                    else
@@ -34,19 +34,24 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
         response = validation_service.address_suggestions(validated_address_params).as_json
-        suggested_addresses = response.dig('response', 'addresses').map do |a|
+        address_list = response.dig('response', 'addresses').sort_by { _1.dig('address_meta_data', 'confidence_score') }
+        suggested_addresses = address_list.map do |a|
           address = a['address'].symbolize_keys
+          validation_key = response['response']['override_validation_key'] ||
+                           response['response']['validation_key']
           address.merge!(
             id: SecureRandom.uuid,
             address_pou: address_params[:address_pou],
-            validation_key: response['response']['validation_key'],
+            validation_key:,
             address_meta: a['address_meta_data'].symbolize_keys
           )
 
           Mobile::V0::SuggestedAddress.new(address)
         end
 
-        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
+        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses.sort_by { |addr|
+          addr.address_meta.confidence_score
+        })
       end
 
       private
@@ -61,12 +66,12 @@ module Mobile
           :city,
           :country_name,
           :country_code_iso3,
-          :county_code, :county_name,
+          :county_code,
+          :county_name,
           :id,
           :international_postal_code,
-          :province,
-          :state_code,
-          :validation_key,
+          :state_code, :province,
+          :override_validation_key, :validation_key,
           :zip_code,
           :zip_code_suffix
         )

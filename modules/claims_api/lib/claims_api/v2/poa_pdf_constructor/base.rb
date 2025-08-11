@@ -87,12 +87,13 @@ module ClaimsApi
           country_code = phone['countryCode']
           area_code = phone['areaCode']
           phone_number = phone['phoneNumber']
+          number = []
 
-          if country_code.blank?
-            "#{area_code} #{phone_number}"
-          else
-            "+#{country_code} #{area_code} #{phone_number}"
-          end
+          number << "+#{country_code}" if country_code.present?
+          number << area_code.to_s if area_code.present?
+          number << phone_number.to_s if phone_number.present?
+
+          number.join(' ')
         end
 
         private
@@ -125,7 +126,7 @@ module ClaimsApi
         def fill_pdf(data)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
 
-          temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_1.pdf")
+          temp_path = Rails.root.join('tmp', "poa_#{SecureRandom.uuid}_page_1.pdf")
           pdftk.fill_form(
             @page1_path,
             temp_path,
@@ -134,7 +135,7 @@ module ClaimsApi
           )
           @page1_path = temp_path
 
-          temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_2.pdf")
+          temp_path = Rails.root.join('tmp', "poa_#{SecureRandom.uuid}_page_2.pdf")
           pdftk.fill_form(
             @page2_path,
             temp_path,

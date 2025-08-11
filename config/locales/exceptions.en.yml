@@ -899,36 +899,6 @@ en:
         code: 'VAOS_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
-      HEALTH_QUEST_400:
-        <<: *external_defaults
-        title: Bad Request
-        code: 'HEALTH_QUEST_400'
-        detail: 'Appointment request id is invalid'
-        status: 400
-      HEALTH_QUEST_204:
-        <<: *external_defaults
-        title: Bad Request
-        code: 'HEALTH_QUEST_400'
-        detail: 'Appointment request id is invalid'
-        status: 400
-      HEALTH_QUEST_403:
-        <<: *external_defaults
-        title: Forbidden
-        code: 'HEALTH_QUEST_403'
-        detail: 'This user is forbidden from performing requests on the upstream server'
-        status: 403
-      HEALTH_QUEST_404:
-        <<: *external_defaults
-        title: Not Found
-        code: 'HEALTH_QUEST_404'
-        detail: 'The resource could not be found'
-        status: 404
-      HEALTH_QUEST_502:
-        <<: *external_defaults
-        title: Bad Gateway
-        code: 'HEALTH_QUEST_502'
-        detail: 'Received an an invalid response from the upstream server'
-        status: 502
       CHECK_IN_400:
         <<: *external_defaults
         title: Bad Request
@@ -2376,25 +2346,6 @@ en:
       detail: 'The upstream server returned an error code that is unmapped'
       code: 128
       status: 400
-    ppiu:
-      potential_fraud:
-        <<: *defaults
-        title: Potential Fraud
-        detail: 'Routing number related to potential fraud'
-        code: 135
-        status: 422
-      account_flagged:
-        <<: *defaults
-        title: Account Flagged
-        detail: 'The account has been flagged'
-        code: 136
-        status: 422
-      unprocessable_entity:
-        <<: *defaults
-        title: Unprocessable Entity
-        detail: 'One or more unprocessable user payment properties'
-        code: 126
-        status: 422
     intent_to_file:
       partner_service_error:
         <<: *defaults

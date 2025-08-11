@@ -38,6 +38,58 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
     end
   end
 
+  describe '#find_using_identifier_and_source' do
+    let(:auth_headers) do
+      { 'X-VA-SSN': '796-04-3735',
+        'X-VA-First-Name': 'WESLEY',
+        'X-VA-Last-Name': 'FORD',
+        'X-Consumer-Username': 'TestConsumer',
+        'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+        'X-VA-Gender': 'M' }
+    end
+
+    let(:attributes) do
+      {
+        status: ClaimsApi::PowerOfAttorney::PENDING,
+        auth_headers:,
+        form_data: {},
+        current_poa: '072',
+        cid: 'cid'
+      }
+    end
+
+    let(:source_data) do
+      {
+        'name' => 'source_name',
+        'email' => 'source_email'
+      }
+    end
+
+    it 'can find a sha256 hash' do
+      attributes.merge!({ source_data: })
+      power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
+      primary_identifier = { header_hash: power_of_attorney.header_hash }
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(primary_identifier, 'source_name')
+      expect(res.source_data).to eq(source_data)
+    end
+
+    it 'can find an md5 record when missing sha256' do
+      attributes.merge!({ source_data: })
+      power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
+      header_hash = power_of_attorney.header_hash
+
+      power_of_attorney.update_columns header_hash: nil # rubocop:disable Rails/SkipsModelValidations
+
+      header_hash_id = { header_hash: }
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_hash_id, 'source_name')
+      expect(res).to be_blank
+
+      md5_id = { md5: power_of_attorney.md5 }
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(md5_id, 'source_name')
+      expect(res.source_data).to eq(source_data)
+    end
+  end
+
   describe 'pending?' do
     context 'no pending records' do
       it 'is false' do

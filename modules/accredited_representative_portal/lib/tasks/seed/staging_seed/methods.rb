@@ -186,8 +186,6 @@ module AccreditedRepresentativePortal
         {
           name: build_name,
           address: build_address,
-          ssn: '123456789',
-          va_file_number: '123456789',
           date_of_birth: '1980-01-01',
           phone: '1234567890',
           email: 'test@example.com',
@@ -197,7 +195,6 @@ module AccreditedRepresentativePortal
 
       def build_authorizations
         {
-          record_disclosure: true,
           record_disclosure_limitations: [],
           address_change: false
         }
@@ -243,6 +240,8 @@ module AccreditedRepresentativePortal
       include OrganizationMethods
 
       def cleanup_existing_data
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.destroy_all
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all

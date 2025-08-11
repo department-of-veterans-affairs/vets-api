@@ -50,6 +50,7 @@
         "school_information": {
           "isSchoolAccredited": true,
           "student_is_enrolled_full_time": false,
+          "date_full_time_ended": "2024-05-05",
           "student_did_attend_school_last_term": false,
           "current_term_dates": {
             "official_school_start_date": "2024-09-25",
@@ -62,7 +63,8 @@
           },
           "name": "Quest for Knowledge Trade programs"
         },
-        "was_married": false,
+        "was_married": true,
+        "marriage_date": "2023-07-04",
         "view:program_examples": {},
         "address": {
           "view:military_base_description": {},
@@ -83,8 +85,8 @@
         "tuition_is_paid_by_gov_agency": true,
         "benefit_payment_date": "2001-06-19",
         "type_of_program_or_benefit": {
-          "ch35": false,
-          "fry": false,
+          "ch35": true,
+          "fry": true,
           "feca": false,
           "other": false
         }
@@ -100,19 +102,6 @@
         },
         "ssn": "111111111",
         "birth_date": "1991-04-19"
-      }
-    ],
-    "child_marriage": [
-      {
-        "dependent_income": false,
-        "date_married": "2020-01-01",
-        "full_name": {
-          "first": "Child",
-          "middle": "C",
-          "last": "Doe"
-        },
-        "ssn": "222222222",
-        "birth_date": "2001-03-12"
       }
     ]
   }

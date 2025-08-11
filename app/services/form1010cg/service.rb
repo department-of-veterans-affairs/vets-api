@@ -10,7 +10,6 @@ require 'mpi/service'
 module Form1010cg
   class Service
     extend Forwardable
-    include SentryLogging
 
     class InvalidVeteranStatus < StandardError
     end
@@ -55,6 +54,7 @@ module Form1010cg
     end
 
     def process_claim_v2!
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
       payload = CARMA::Models::Submission.from_claim(claim, build_metadata).to_request_payload
 
       claim_pdf_path, poa_attachment_path = self.class.collect_attachments(claim)
@@ -62,9 +62,17 @@ module Form1010cg
 
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
-      CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+      result = CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+      self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :success, start_time:)
+      log_submission_complete(claim.guid, claim_pdf_path, poa_attachment_path, result)
+
+      result
     rescue => e
-      log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
+      self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :failure, start_time:)
+      Rails.logger.error(
+        '[10-10CG] - Error processing Caregiver submission',
+        { form: '10-10CG', exception: e, claim_guid: claim.guid }
+      )
       raise e
     end
 
@@ -74,7 +82,8 @@ module Form1010cg
     def assert_veteran_status
       if icn_for('veteran') == NOT_FOUND
         error = InvalidVeteranStatus.new
-        log_exception_to_sentry(error)
+        Rails.logger.error('[10-10CG] - Error fetching Veteran ICN', { error: })
+
         raise error
       end
     end
@@ -130,7 +139,6 @@ module Form1010cg
       end
 
       if response.not_found?
-        Sentry.set_extras(mpi_transaction_id: response.error&.message)
         log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end
@@ -141,6 +149,31 @@ module Form1010cg
     end
 
     private
+
+    def log_submission_complete(guid, claim_pdf_path, poa_attachment_path, response_data)
+      attachment_data = (response_data.dig('record', 'results') || []).map do |attachment|
+        {
+          reference_id: attachment['referenceId'] || '',
+          id: attachment['id'] || ''
+        }
+      end
+
+      Rails.logger.info(
+        '[10-10CG] - CARMA submission complete',
+        {
+          form: '10-10CG',
+          claim_guid: guid,
+          claim_pdf_path_length: claim_pdf_path&.length,
+          poa_attachment_path_length: poa_attachment_path&.length,
+          carma_case: {
+            created_at: response_data.dig('data', 'carmacase', 'createdAt') || '',
+            id: response_data.dig('data', 'carmacase', 'id') || '',
+            attachments: attachment_data
+          }
+
+        }
+      )
+    end
 
     def generate_records(claim_pdf_path, poa_attachment_path)
       [

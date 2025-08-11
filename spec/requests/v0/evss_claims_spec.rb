@@ -38,7 +38,7 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
   context 'for a single claim' do
     let!(:claim) do
       create(:evss_claim, id: 1, evss_id: 600_118_851,
-                          user_uuid: user.uuid)
+                          user_uuid: evss_user.uuid)
     end
 
     it 'sets 5103 waiver when requesting a decision' do

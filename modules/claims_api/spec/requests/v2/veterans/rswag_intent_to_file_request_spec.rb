@@ -9,7 +9,7 @@ require_relative '../../../support/swagger_shared_components/v2'
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   path '/veterans/{veteranId}/intent-to-file/{type}' do
-    get "Returns Veteran's last active Intent to File submission for given benefit type." do
+    get "Returns claimant's last active Intent to File submission for given benefit type." do
       tags 'Intent to File'
       operationId 'active0966itf'
       security [
@@ -18,14 +18,14 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description "Returns Veteran's last active Intent to File submission for given benefit type of compensation, pension, or survivor." # rubocop:disable Layout/LineLength
+      description "Returns claimant's last active Intent to File submission for given benefit type of compensation, pension, or survivor." # rubocop:disable Layout/LineLength
 
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       parameter name: 'type',
                 in: :path,
                 required: true,
@@ -152,7 +152,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
       let(:Authorization) { 'Bearer token' }
@@ -176,23 +176,12 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
               }
             }
           end
-          let(:stub_response) do
-            {
-              intent_to_file_id: '1',
-              create_dt: Time.zone.now.to_date,
-              exprtn_dt: Time.zone.now.to_date + 1.year,
-              itf_status_type_cd: 'Active',
-              itf_type_cd: 'C'
-            }
-          end
 
           before do |example|
-            allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
-              stub_response
-            )
-
             mock_ccg(scopes) do
-              submit_request(example.metadata)
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
+                submit_request(example.metadata)
+              end
             end
           end
 
@@ -308,6 +297,82 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
           end
         end
       end
+
+      describe 'Getting Veteran Not Found from BGS' do
+        response '404', '0966 Response' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:scopes) { %w[system/claim.write] }
+          let(:data) do
+            {
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
+            }
+          end
+
+          before do |example|
+            mock_ccg(scopes) do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_404') do
+                submit_request(example.metadata)
+              end
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting 502 No BnftClaim found from BGS' do
+        response '502', '0966 Response' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:scopes) { %w[system/claim.write] }
+          let(:data) do
+            {
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
+            }
+          end
+
+          before do |example|
+            mock_ccg(scopes) do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_502') do
+                submit_request(example.metadata)
+              end
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 502 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
     end
   end
 
@@ -329,7 +394,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
       let(:Authorization) { 'Bearer token' }

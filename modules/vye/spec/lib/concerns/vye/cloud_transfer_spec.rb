@@ -19,4 +19,24 @@ RSpec.describe Vye::CloudTransfer do
       end
     end
   end
+
+  describe '::delete_file_from_bucket' do
+    let(:client) { instance_double(Aws::S3::Client) }
+
+    before do
+      allow(described_class).to receive(:s3_client).and_return(client)
+    end
+
+    it 'reraises certain errors' do
+      allow(client).to receive(:delete_object).and_raise(Aws::S3::Errors::NoSuchBucket.new(nil, nil))
+
+      expect { described_class.delete_file_from_bucket('bucket', 'key') }.to raise_error(Aws::S3::Errors::NoSuchBucket)
+    end
+
+    it 'does not reraise AccessDenied errors' do
+      allow(client).to receive(:delete_object).and_raise(Aws::S3::Errors::AccessDenied.new(nil, nil))
+
+      expect { described_class.delete_file_from_bucket('bucket', 'key') }.not_to raise_error
+    end
+  end
 end

@@ -14,7 +14,8 @@ module BGSDependents
       @dependents_application = dependents_application
       @is_v2 = v2?
       @student = student
-      self.attributes = @is_v2 ? student : dependents_application
+
+      assign_attributes(@is_v2 ? student : dependents_application)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -26,7 +27,7 @@ module BGSDependents
         real_estate_amt: student_networth_information&.dig('real_estate'),
         other_asset_amt: student_networth_information&.dig('other_assets'),
         rmks: @is_v2 ? student_information&.dig('remarks') : student_networth_information&.dig('remarks'),
-        marage_dt: format_date(@is_v2 ? student_information&.dig('marraige_date') : student_address_marriage_tuition&.dig('marriage_date')), # rubocop:disable Layout/LineLength
+        marage_dt: format_date(@is_v2 ? student_information&.dig('marriage_date') : student_address_marriage_tuition&.dig('marriage_date')), # rubocop:disable Layout/LineLength
         agency_paying_tuitn_nm: student_address_marriage_tuition&.dig('agency_name'),
         stock_bond_amt: student_networth_information&.dig('securities'),
         govt_paid_tuitn_ind: convert_boolean(@is_v2 ? student_information&.dig('tuition_is_paid_by_gov_agency') : student_address_marriage_tuition&.dig('tuition_is_paid_by_gov_agency')), # rubocop:disable Layout/LineLength
@@ -79,6 +80,14 @@ module BGSDependents
 
     def convert_boolean(bool)
       bool == true ? 'Y' : 'N'
+    end
+
+    def assign_attributes(data)
+      @student_address_marriage_tuition = data['student_address_marriage_tuition']
+      @student_earnings_from_school_year = data['student_earnings_from_school_year']
+      @student_networth_information = data['student_networth_information']
+      @student_expected_earnings_next_year = data['student_expected_earnings_next_year']
+      @student_information = data['student_information']
     end
   end
 end

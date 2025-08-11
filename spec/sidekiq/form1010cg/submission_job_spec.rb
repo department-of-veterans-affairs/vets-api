@@ -149,12 +149,11 @@ RSpec.describe Form1010cg::SubmissionJob do
           :process_claim_v2!
         ).and_raise(StandardError)
 
-        expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
-
-        # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-        expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error processing Caregiver claim submission in job',
+          { exception: StandardError, claim_id: claim.id }
+        ).twice
+        expect(job).not_to receive(:log_exception_to_sentry)
 
         2.times do
           expect do
@@ -165,10 +164,21 @@ RSpec.describe Form1010cg::SubmissionJob do
     end
 
     context 'when the service throws a record parse error' do
+      before do
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+      end
+
       context 'form has email' do
         let(:form) { form_with_email }
 
         it 'rescues the error, increments statsd, and attempts to send failure email' do
+          start_time = Time.current
+          expected_arguments = { context: :process_job, event: :failure, start_time: }
+          expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
+            .with(**expected_arguments)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+
           expect_any_instance_of(Form1010cg::Service).to receive(
             :process_claim_v2!
           ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
@@ -190,6 +200,12 @@ RSpec.describe Form1010cg::SubmissionJob do
 
       context 'form does not have email' do
         it 'rescues the error, increments statsd, and attempts to send failure email' do
+          start_time = Time.current
+          expected_arguments = { context: :process_job, event: :failure, start_time: }
+          expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
+            .with(**expected_arguments)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+
           expect_any_instance_of(Form1010cg::Service).to receive(
             :process_claim_v2!
           ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
@@ -205,18 +221,31 @@ RSpec.describe Form1010cg::SubmissionJob do
       end
     end
 
-    context 'when claim cant be destroyed' do
-      it 'logs the exception to sentry' do
+    context 'when claim can not be destroyed' do
+      it 'logs the exception using the Rails logger' do
         expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
         error = StandardError.new
         expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
 
-        expect(job).to receive(:log_exception_to_sentry).with(error, { claim_id: claim.id })
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error destroying Caregiver claim after processing submission in job',
+          { exception: error, claim_id: claim.id }
+        )
+        expect(job).not_to receive(:log_exception_to_sentry)
+
         job.perform(claim.id)
       end
     end
 
     it 'calls process_claim_v2!' do
+      start_time = Time.current
+      expected_arguments = { context: :process_job, event: :success, start_time: }
+      expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration).with(**expected_arguments)
+
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+
       expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
 
       job.perform(claim.id)

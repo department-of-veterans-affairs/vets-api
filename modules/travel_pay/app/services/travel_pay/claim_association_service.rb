@@ -2,9 +2,12 @@
 
 module TravelPay
   class ClaimAssociationService
-    def initialize(user)
+    def initialize(user, client)
       @user = user
+      @client = client
     end
+
+    DEFAULT_PAGE_SIZE = 50
 
     # We need to associate an existing claim to a VAOS appointment, matching on date-time
     #
@@ -33,9 +36,12 @@ module TravelPay
     def associate_appointments_to_claims(params = {})
       date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
       date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+      client_params = {
+        page_size: DEFAULT_PAGE_SIZE
+      }.merge!(date_range)
 
       auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token, date_range)
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
 
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
@@ -152,7 +158,13 @@ module TravelPay
     end
 
     def auth_manager
-      @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @user)
+      @client_number = if @client == 'mobile'
+                         Settings.travel_pay.mobile_client_number
+                       else
+                         # default to the VA.gov client number
+                         Settings.travel_pay.client_number
+                       end
+      @auth_manager ||= TravelPay::AuthManager.new(@client_number, @user)
     end
 
     def client

@@ -5,7 +5,7 @@ require 'mpi/messages/request_builder'
 
 describe MPI::Messages::RequestBuilder do
   describe '#perform' do
-    subject { described_class.new(extension:, body:, search_token:).perform }
+    subject { described_class.new(extension:, body:, search_token:, as_agent:).perform }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(random_number)
@@ -18,6 +18,7 @@ describe MPI::Messages::RequestBuilder do
     let(:extension) { 'some-extension' }
     let(:body) { 'some-body' }
     let(:search_token) { 'some-search-token' }
+    let(:as_agent) { false }
     let(:random_number) { 'some-random-number' }
     let(:processing_code) { 'some-processing-code' }
     let(:current_time) { Time.now.utc.strftime('%Y%m%d%H%M%S') }
@@ -27,9 +28,11 @@ describe MPI::Messages::RequestBuilder do
         'xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" ' \
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
     end
+
     let(:instruct_component) do
       '<?xml version="1.0" encoding="utf-8"?>'
     end
+
     let(:idm_component) do
       "<idm:#{extension} " \
         'xmlns:idm="http://vaww.oed.oit.va.gov" ' \
@@ -38,6 +41,7 @@ describe MPI::Messages::RequestBuilder do
         'xmlns="urn:hl7‐org:v3" ' \
         'ITSVersion="XML_1.0">'
     end
+
     let(:header_component) do
       "<id root=\"1.2.840.114350.1.13.0.1.7.1.1\" extension=\"200VGOV-#{random_number}\"/>
       <creationTime value=\"#{current_time}\"/>
@@ -47,6 +51,7 @@ describe MPI::Messages::RequestBuilder do
       <processingModeCode code=\"T\"/>
       <acceptAckCode code=\"AL\"/>"
     end
+
     let(:receiver_component) do
       "<receiver typeCode=\"RCV\">
         <device classCode=\"DEV\" determinerCode=\"INSTANCE\">
@@ -54,6 +59,7 @@ describe MPI::Messages::RequestBuilder do
         </device>
       </receiver>"
     end
+
     let(:sender_component) do
       "<sender typeCode=\"SND\">
         <device classCode=\"DEV\" determinerCode=\"INSTANCE\">
@@ -61,12 +67,28 @@ describe MPI::Messages::RequestBuilder do
         </device>
       </sender>"
     end
+
+    let(:sender_component_with_agent) do
+      "<sender typeCode=\"SND\">
+        <device classCode=\"DEV\" determinerCode=\"INSTANCE\">
+          <id root=\"2.16.840.1.113883.3.933\" extension=\"200VGOV\"/>
+          <asAgent classCode=\"AGNT\">
+            <representedOrganization classCode=\"ORG\" determinerCode=\"INSTANCE\">
+              <typeId extension=\"200DVPE\" root=\"2.16.840.1.113883.4.349\"/>
+            </representedOrganization>
+          </asAgent>
+        </device>
+      </sender>"
+    end
+
     let(:attention_line_component) do
       "<attentionLine>
         <keyWordText>Search.Token</keyWordText>
         <value xsi:type=\"ST\">#{search_token}</value>
       </attentionLine>"
     end
+
+    let(:as_agent_component) { nil }
 
     context 'when search token is set to an arbitrary value' do
       let(:search_token) { 'some-search-token' }
@@ -81,6 +103,14 @@ describe MPI::Messages::RequestBuilder do
 
       it 'does not build an attention line component' do
         expect(subject).not_to include(attention_line_component)
+      end
+    end
+
+    context 'when as_agent is set to true' do
+      let(:as_agent) { true }
+
+      it 'builds an as_agent component' do
+        expect(subject).to include(sender_component_with_agent)
       end
     end
 

@@ -26,16 +26,6 @@ module ClaimsApi
       end
 
       #
-      # Validate @current_user is an accredited representative
-      #
-      # @raise [Common::Exceptions::Forbidden] if @current_user is not a representative
-      def validate_user_is_accredited!
-        representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name)
-        raise ::Common::Exceptions::Forbidden if representative.blank?
-      end
-
-      #
       # Validate poa code provided matches one of the poa codes associated with the @current_user
       # @param poa_code [String] poa code to match to @current_user
       #
@@ -67,6 +57,7 @@ module ClaimsApi
       # @return [Boolean] True if valid poa code, False if not
       def valid_poa_code_for_current_user?(poa_code)
         return false if @current_user.first_name.nil? || @current_user.last_name.nil?
+        return false unless valid_poa_code?(poa_code)
 
         reps_by_first_and_last_name = ::Veteran::Service::Representative.all_for_user(
           first_name: @current_user.first_name,
@@ -77,7 +68,7 @@ module ClaimsApi
           find_by_suffix(poa_code) ||
           find_by_middle_initial(poa_code) ||
           find_by_poa_code(poa_code) ||
-          handle_not_found(reps_by_first_and_last_name)
+          handle_not_found(reps_by_first_and_last_name, poa_code)
       end
 
       #
@@ -92,7 +83,8 @@ module ClaimsApi
         valid_poa_code_for_current_user?(poa_code_to_verify)
       rescue ::Common::Exceptions::UnprocessableEntity
         raise
-      rescue
+      rescue => e
+        ClaimsApi::Logger.log 'poa_verification', level: :error, detail: e.message, error_class: e.class.name
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end
 
@@ -102,8 +94,14 @@ module ClaimsApi
 
       private
 
-      def exactly_one_rep_match?(reps, poa_code)
-        reps.first.poa_codes.include?(poa_code) if reps.count == 1
+      def exactly_one_rep_match?(reps, poa_code, rep_method: nil)
+        count = reps.count
+        # Optional debug logging to help diagnose what's happening in valid_poa_code_for_current_user?
+        if rep_method
+          ClaimsApi::Logger.log('poa_verification', rep_method:,
+                                                    details: "Found #{count} reps for POA code #{poa_code}")
+        end
+        reps.first.poa_codes.include?(poa_code) if count == 1
       end
 
       def find_by_suffix(poa_code)
@@ -132,12 +130,19 @@ module ClaimsApi
                                                                            last_name: @current_user.last_name,
                                                                            poa_code:)
 
-        exactly_one_rep_match?(reps_by_poa_code, poa_code)
+        # Log out count and poa code when we reach this point (since this is the final
+        # check before we fall into handle_not_found)
+        exactly_one_rep_match?(reps_by_poa_code, poa_code, rep_method: 'find_by_poa_code')
       end
 
-      def handle_not_found(reps)
-        raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
+      def handle_not_found(reps, poa_code)
+        ClaimsApi::Logger.log 'poa_verification',
+                              detail: "Found #{reps.size} reps for POA code #{poa_code}",
+                              level: :warn, poa_code:, rep_size: reps.size, rep_count: reps.count,
+                              current_users_uuid: @current_user.uuid
+        raise ::Common::Exceptions::UnprocessableEntity, detail: 'Ambiguous VSO Representative Results' if reps.size > 1
 
+        # Intentionally does not raise in other cases. Doing so would break some shared behavior.
         false
       end
     end

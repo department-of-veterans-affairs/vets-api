@@ -9,11 +9,22 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload).and_return(true)
   end
 
-  after(:all) do
-    FileUtils.rm_rf('tmp/*.csv')
+  after do
+    FileUtils.rm_rf(Dir.glob('tmp/**/*.csv'))
+  end
+
+  context 'with the feature flag disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload).and_return(false)
+    end
+
+    it 'just returns immediately' do
+      expect(SFTPWriter::Factory).not_to receive(:get_writer)
+      expect { described_class.new.perform }.not_to change { EducationBenefitsClaim.unprocessed.count }
+    end
   end
 
   context 'scheduling' do
@@ -77,10 +88,11 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
         ActionMailer::Base.deliveries.clear
       end
 
-      it 'processes records and sends email' do
+      it 'processes records and uploads to SFTP' do
         with_settings(Settings, hostname: 'staging-api.va.gov') do
+          expect(SFTPWriter::Factory).to receive(:get_writer).and_call_original
           expect { described_class.new.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(2).to(0)
-          expect(ActionMailer::Base.deliveries.count).to be > 0
+          expect(Dir['tmp/form_10282/*.csv'].count).to eq(1)
         end
       end
     end

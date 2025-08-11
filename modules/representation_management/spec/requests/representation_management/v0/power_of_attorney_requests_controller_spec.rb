@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :request do
   describe 'POST #create' do
     let(:user) { create(:user, :loa3) }
-    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:base_path) { '/representation_management/v0/power_of_attorney_requests' }
     let(:organization) { create(:organization, can_accept_digital_poa_requests: accepts_digital_requests) }
     let(:accepts_digital_requests) { true }
@@ -20,7 +19,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
             ssn: '123456789',
             va_file_number: '123456789',
             date_of_birth: '1980-12-31',
-            service_number: '123456789',
+            service_number: 'AA12345',
             service_branch: 'ARMY',
             phone: '5555555555',
             email: 'veteran@example.com',

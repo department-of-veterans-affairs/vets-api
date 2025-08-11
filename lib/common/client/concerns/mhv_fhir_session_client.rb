@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/mhv_jwt_session_client'
-require 'medical_records/patient_not_found'
 
 module Common
   module Client
@@ -54,11 +53,9 @@ module Common
           end
 
           begin
+            # If :patient_not_found is returned from the FHIR call, the patient_fhir_id is left nil
+            # and handled later.
             get_patient_fhir_id(session.token) if session.token && patient_fhir_id.nil?
-          rescue MedicalRecords::PatientNotFound
-            # Don't raise this exception, as it will bubble up to a shared class where we don't
-            # want to handle it. Instead we simply don't set the Patient FHIR ID and raise an
-            # exception later in medical_records/client.rb where it will be easier to handle.
           rescue => e
             exception ||= e
           end
@@ -93,8 +90,9 @@ module Common
         #
         def get_patient_fhir_id(jwt_token)
           decoded_token = decode_jwt_token(jwt_token)
-          session.patient_fhir_id = fetch_patient_by_subject_id(sessionless_fhir_client(jwt_token),
-                                                                decoded_token[0]['subjectId'])
+          patient = fetch_patient_by_subject_id(sessionless_fhir_client(jwt_token),
+                                                decoded_token[0]['subjectId'])
+          session.patient_fhir_id = patient if patient != :patient_not_found
         end
 
         ##
@@ -109,11 +107,15 @@ module Common
 
           # Get the patient's FHIR ID
           patient = get_patient_by_identifier(fhir_client, subject_id)
+
+          return :patient_not_found if patient == :patient_not_found
+
           if patient.nil? || patient.entry.empty? || !patient.entry[0].resource.respond_to?(:id)
             raise Common::Exceptions::Unauthorized,
                   detail: 'Patient record not found or does not contain a valid FHIR ID'
           end
-          session.patient_fhir_id = patient.entry[0].resource.id
+
+          patient.entry[0].resource.id
         end
 
         ##

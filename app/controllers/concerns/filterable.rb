@@ -29,6 +29,6 @@ module Filterable
   end
 
   def filter_params
-    params.require(:filter).permit(Prescription.filterable_attributes.merge(Message.filterable_attributes))
+    params.require(:filter).permit(Prescription.filterable_params.merge(Message.filterable_params))
   end
 end

@@ -195,4 +195,27 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       expect(e.errors[0][:detail]).to eq('The server received an invalid or null response from an upstream server.')
     end
   end
+
+  describe 'for the get_error_info method' do
+    context 'when the original_body hash does not contain a messages key' do
+      error_original_body = { status: 'error', code: 'SOME_ERROR_CODE' }
+      let(:backend_error) { Common::Exceptions::BackendServiceException.new({}, 400, error_original_body) }
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
+
+      it 'does not raise a KeyError when accessing missing messages key' do
+        # Test that get_error_info method doesn't throw KeyError
+        expect { backend_error_submit.send(:get_error_info) }.not_to raise_error
+        # Verify it returns an empty array when no messages exist
+        result = backend_error_submit.send(:get_error_info)
+        expect(result).to eq([])
+      end
+
+      it 'still raises the intended BackendServiceException from build_error' do
+        expected_exception = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
+        expect { backend_error_submit.build_error }.to raise_error(expected_exception) do |error|
+          expect(error.errors).to eq([])
+        end
+      end
+    end
+  end
 end

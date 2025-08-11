@@ -14,9 +14,8 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:request_id) { SecureRandom.uuid }
 
   # User test set-up
-  let(:user) { build(:user, loa, :with_terms_of_use_agreement, uuid:, idme_uuid: uuid) }
+  let(:user) { build(:user, loa, :with_terms_of_use_agreement) }
   let(:loa) { :loa3 }
-  let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
   let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
@@ -61,6 +60,41 @@ RSpec.describe V1::SessionsController, type: :controller do
   # Helper variable
   let(:once) { { times: 1, value: 1 } }
 
+  shared_examples 'a successful UserAudit log' do
+    let(:user_verification) { user.user_verification }
+    let(:event) { :sign_in }
+    let!(:user_action_event) { create(:user_action_event, identifier: event) }
+    let(:icn) { user.icn }
+    let(:remote_ip) { Faker::Internet.ip_v4_address }
+    let(:user_agent) { Faker::Internet.user_agent }
+    let(:expected_log_payload) do
+      {
+        event: :sign_in,
+        user_verification_id: user_verification.id,
+        status: :success
+      }
+    end
+    let(:expected_log_tags) { { remote_ip:, user_agent: } }
+    let(:expected_audit_log_message) do
+      expected_log_payload.merge(acting_ip_address: remote_ip, acting_user_agent: user_agent).as_json
+    end
+
+    before do
+      allow(SemanticLogger).to receive(:named_tags).and_return(expected_log_tags)
+      allow(UserAudit.logger).to receive(:success).and_call_original
+    end
+
+    it 'creates a user audit log' do
+      expect { call_endpoint }.to change(Audit::Log, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event:, user_verification:)
+    end
+
+    it 'creates a user action' do
+      expect { call_endpoint }.to change(UserAction, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event: :sign_in, user_verification:)
+    end
+  end
+
   def verify_session_cookie
     token = session[:token]
     expect(token).not_to be_nil
@@ -78,6 +112,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   before do
     request.host = request_host
+    request.remote_ip = Faker::Internet.ip_v4_address
+    request.user_agent = Faker::Internet.user_agent
+
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
@@ -158,6 +195,58 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                       'client_id:vamobile',
                                                       'operation:authorize'],
                                                **once)
+              end
+            end
+          end
+
+          context 'cerner eligiblility check' do
+            let(:params) { { type:, clientId: '123123' } }
+            let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
+            let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
+            let(:expected_log_payload) { { eligible:, cookie_action: } }
+
+            context 'when cerner eligible cookie is present' do
+              let(:cookie_action) { :found }
+
+              before do
+                cookies.signed[cerner_eligible_cookie] = eligible.to_s
+                allow(Rails.logger).to receive(:info)
+              end
+
+              context 'when cerner eligible cookie is true' do
+                let(:eligible) { true }
+
+                it 'logs the cerner eligibility' do
+                  call_endpoint
+
+                  expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+                end
+              end
+
+              context 'when cerner eligible cookie is false' do
+                let(:eligible) { false }
+
+                it 'logs the cerner eligibility' do
+                  call_endpoint
+
+                  expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+                end
+              end
+            end
+
+            context 'when cerner eligible cookie is not present' do
+              let(:cookie_action) { :not_found }
+              let(:eligible) { :unknown }
+
+              before do
+                cookies.delete(cerner_eligible_cookie)
+                allow(Rails.logger).to receive(:info)
+              end
+
+              it 'logs the cerner eligibility' do
+                call_endpoint
+
+                expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
               end
             end
           end
@@ -510,11 +599,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when logged in' do
-      let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      let(:loa1_user) { build(:user, :loa1) }
 
       before do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        session_object = Session.create(uuid:, token:)
+        session_object = Session.create(uuid: loa1_user.uuid, token:)
         session_object.to_hash.each { |k, v| session[k] = v }
         loa1 = User.create(loa1_user.attributes)
         UserIdentity.create(loa1_user.identity.attributes)
@@ -547,7 +636,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
-          expect(User.find(uuid)).not_to be_nil
+          expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
           call_endpoint
           expect(response.location).to eq(expected_redirect_url)
@@ -555,7 +644,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
-          expect(User.find(uuid)).to be_nil
+          expect(User.find(loa1_user.user_account.id)).to be_nil
         end
 
         context 'when agreements_declined is true' do
@@ -564,14 +653,14 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
             verify_session_cookie
-            expect(User.find(uuid)).not_to be_nil
+            expect(User.find(loa1_user.user_account.id)).not_to be_nil
 
             call_endpoint
             expect(response.location).to eq(expected_redirect_url)
 
             expect(Session.find(token)).to be_nil
             expect(session).to be_empty
-            expect(User.find(uuid)).to be_nil
+            expect(User.find(loa1_user.user_account.id)).to be_nil
           end
         end
       end
@@ -610,8 +699,6 @@ RSpec.describe V1::SessionsController, type: :controller do
       uri.query = expected_redirect_params
       uri.to_s
     end
-    let(:user_action_event_identifier) { 'sign_in' }
-    let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
 
     context 'when too much time passed to consume the SAML Assertion' do
       let(:error_code) { '005' }
@@ -633,7 +720,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa) }
         let(:application) { 'some-applicaton' }
 
         before do
@@ -680,32 +767,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'after redirecting the client' do
-        let(:user_action) { create(:user_action, user_action_event:) }
-        let(:expected_ip_address) { cookies.request.remote_ip }
-        let(:expected_user_agent) { cookies.request.user_agent }
-        let(:expected_audit_log) { 'User audit log created' }
-        let(:expected_audit_log_payload) do
-          { user_action_event: user_action_event.id,
-            user_action_event_details: user_action_event.details,
-            status: :success,
-            user_action: user_action.id }
-        end
-
-        before do
-          allow(UserAction).to receive(:create!).and_return(user_action)
-          allow(UserAuditLogger).to receive(:new).and_call_original
-          allow(Rails.logger).to receive(:info).and_call_original
-        end
-
-        it 'creates a user audit log' do
-          expect(UserAuditLogger).to receive(:new).with(user_action_event_identifier:,
-                                                        subject_user_verification: user.user_verification,
-                                                        status: :success,
-                                                        acting_ip_address: expected_ip_address,
-                                                        acting_user_agent: expected_user_agent)
-          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
-          call_endpoint
-        end
+        it_behaves_like 'a successful UserAudit log'
       end
     end
 
@@ -715,7 +777,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa) }
         let(:application) { 'some-applicaton' }
 
         before do
@@ -762,31 +824,67 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'after redirecting the client' do
-        let(:user_action) { create(:user_action, user_action_event:) }
-        let(:expected_ip_address) { cookies.request.remote_ip }
-        let(:expected_user_agent) { cookies.request.user_agent }
-        let(:expected_audit_log) { 'User audit log created' }
-        let(:expected_audit_log_payload) do
-          { user_action_event: user_action_event.id,
-            user_action_event_details: user_action_event.details,
-            status: :success,
-            user_action: user_action.id }
-        end
+        it_behaves_like 'a successful UserAudit log'
+      end
+
+      context 'when cerner eligibility is checked' do
+        let(:user) { build(:user, :loa3, cerner_id:, cerner_facility_ids:) }
+        let(:cerner_id) { 'some-cerner-id' }
+        let(:cerner_facility_ids) { ['some-facility-id'] }
+        let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
+        let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
+        let(:previous_value) { nil }
+        let(:expected_log_payload) { { eligible:, previous_value:, cookie_action: :set, icn: user.icn } }
 
         before do
-          allow(UserAction).to receive(:create!).and_return(user_action)
-          allow(UserAuditLogger).to receive(:new).and_call_original
-          allow(Rails.logger).to receive(:info).and_call_original
+          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
+          allow(Rails.logger).to receive(:info)
         end
 
-        it 'creates a user audit log' do
-          expect(UserAuditLogger).to receive(:new).with(user_action_event_identifier:,
-                                                        subject_user_verification: user.user_verification,
-                                                        status: :success,
-                                                        acting_ip_address: expected_ip_address,
-                                                        acting_user_agent: expected_user_agent)
-          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
-          call_endpoint
+        context 'when the cerner eligible cookie is not present' do
+          before do
+            allow(IdentitySettings.sign_in).to receive(:info_cookie_domain).and_return('some-domain')
+          end
+
+          context 'when the user is cerner eligible' do
+            let(:eligible) { true }
+
+            it 'sets the cookie and logs the cerner eligibility' do
+              call_endpoint
+
+              expect(response.headers['set-cookie']).to include('domain=some-domain')
+              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+
+          context 'when the user is not cerner eligible' do
+            let(:cerner_id) { nil }
+            let(:cerner_facility_ids) { [] }
+            let(:eligible) { false }
+
+            it 'sets the cookie and logs the cerner eligibility' do
+              call_endpoint
+
+              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+        end
+
+        context 'when the cerner eligible cookie is present' do
+          let(:eligible) { true }
+          let(:previous_value) { true }
+
+          before do
+            cookies.signed[cerner_eligible_cookie] = true
+          end
+
+          it 'logs the cerner eligibility with the previous value' do
+            call_endpoint
+
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          end
         end
       end
     end
@@ -878,11 +976,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when user already logged in' do
-      let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid) }
 
       before do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        session_object = Session.create(uuid:, token:)
+        session_object = Session.create(uuid: loa1_user.uuid, token:)
         session_object.to_hash.each { |k, v| session[k] = v }
         loa1 = User.create(loa1_user.attributes)
         UserIdentity.create(loa1_user.identity.attributes)
@@ -902,7 +1000,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             uuid: login_uuid,
             payload: { type: 'verify', application: 'vaweb', operation: 'authorize' }
           )
-          existing_user = User.find(uuid)
+          existing_user = User.find(loa1_user.uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: IAL::ONE, current: IAL::ONE)
@@ -924,7 +1022,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           expect(response.location).to start_with(expected_redirect_url)
 
-          new_user = User.find(uuid)
+          new_user = User.find(loa1_user.uuid)
           expect(new_user.ssn).to eq('796111863')
           expect(new_user.ssn_mpi).not_to eq('155256322')
           expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
@@ -950,7 +1048,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'UserIdentity & MPI ID validations' do
           let(:mpi_profile) { build(:mpi_profile) }
-          let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mpi_profile:) }
+          let(:user) { build(:user, :loa3, mpi_profile:) }
           let(:expected_error_data) do
             { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: user.icn }
           end
@@ -1013,13 +1111,13 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'changes the multifactor to true, time is the same', :aggregate_failures do
-          existing_user = User.find(uuid)
+          existing_user = User.find(loa1_user.uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
           call_endpoint
-          new_user = User.find(uuid)
+          new_user = User.find(loa1_user.uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           expect(new_user.multifactor).to be_truthy
           expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
@@ -1027,18 +1125,24 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'with mismatched UUIDs' do
           let(:params) { { RelayState: '{"type": "mfa"}' } }
-          let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid, mhv_icn: '11111111111')  }
-          let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mhv_icn: '11111111111')  }
+          let(:loa1_user) { build(:user, :loa1, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
+          let(:loa3_user) { build(:user, :loa3, uuid: user.uuid, idme_uuid: user.idme_uuid, mhv_icn: '11111111111') }
           let(:saml_user_attributes) do
-            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
+            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(mhv_icn: '11111111111'))
+          end
+
+          before do
+            allow_any_instance_of(UserAccount).to receive(:id).and_return('invalid')
+            allow(User).to receive(:find).with(user.uuid).and_return(loa1_user)
+            allow(User).to receive(:find).with('invalid').and_return(nil)
           end
 
           it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-            expect(Sentry).to receive(:set_extras).with(current_user_uuid: uuid, current_user_icn: '11111111111')
+            expect(Sentry).to receive(:set_extras).with(current_user_uuid: user.uuid, current_user_icn: '11111111111')
             expect(Sentry).to receive(:set_extras).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })
             expect(Sentry).to receive(:capture_message).with(
-              "Couldn't locate exiting user after MFA establishment",
+              "Couldn't locate existing user after MFA establishment",
               level: 'warning'
             )
             expect(Sentry).to receive(:set_extras).at_least(:once) # From PostURLService#initialize
@@ -1304,70 +1408,6 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
-      context 'when a required saml attribute is missing' do
-        let(:loa) { :loa1 }
-        let(:saml_user_attributes) do
-          user.attributes.merge(user.identity.attributes).merge(uuid: nil)
-        end
-        let(:error_code) { '004' }
-
-        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-
-        it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! on User/Session Validation',
-              :error,
-              extra_context: {
-                code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
-                tag: :validations_failed,
-                short_message: 'on User/Session Validation',
-                level: :error,
-                uuid: nil,
-                user: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                session: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                identity: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"],
-                  authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
-                  loa: { current: 1, highest: 1 }
-                },
-                mvi: 'breakers is open for MVI'
-              }
-            )
-          expect(call_endpoint).to redirect_to(expected_redirect)
-          expect(response).to have_http_status(:found)
-        end
-
-        it 'increments the failed and total statsd counters' do
-          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vaweb' })
-          callback_tags = ['status:failure',
-                           "context:#{LOA::IDME_LOA1_VETS}",
-                           'version:v1',
-                           'type:idme',
-                           'client_id:vaweb',
-                           'operation:authorize']
-          failed_tags = ['error:validations_failed', 'version:v1']
-
-          expect { call_endpoint }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-        end
-
-        it 'captures the invalid saml response in a PersonalInformationLog' do
-          call_endpoint
-          expect(PersonalInformationLog.count).to be_positive
-          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
-        end
-      end
-
       context 'when EDIPI user attribute validation fails' do
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
@@ -1418,30 +1458,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry)
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
-        end
-      end
-
-      context 'when creating a user account' do
-        context 'and the current user does not yet have an Account record' do
-          before do
-            Account.first.destroy
-            expect(Account.count).to eq 0
-          end
-
-          it 'creates an Account record for the user' do
-            call_endpoint
-
-            expect(Account.first.idme_uuid).to eq uuid
-          end
-        end
-
-        context 'and the current user already has an Account record' do
-          it 'does not create a new Account record for the user', :aggregate_failures do
-            call_endpoint
-
-            expect(Account.count).to eq 1
-            expect(Account.first.idme_uuid).to eq user.idme_uuid
-          end
         end
       end
     end

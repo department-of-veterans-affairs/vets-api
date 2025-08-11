@@ -23,7 +23,7 @@ describe TravelPay::ExpensesClient do
     # POST add_expense
     it 'returns an expenseId from the /expenses/mileage endpoint' do
       expense_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
-      @stubs.post('/api/v1.2/expenses/mileage') do
+      @stubs.post('/api/v2/expenses/mileage') do
         [
           200,
           {},

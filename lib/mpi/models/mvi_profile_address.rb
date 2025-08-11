@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
+require 'identity/model/inspect'
+
 module MPI
   module Models
     class MviProfileAddress
-      include Virtus.model
+      include ActiveModel::Model
+      include ActiveModel::Attributes
+      include Identity::Model::Inspect
 
-      attribute :street, String
-      attribute :street2, String
-      attribute :city, String
-      attribute :state, String
-      attribute :postal_code, String
-      attribute :country, String
+      attribute :street,      :string
+      attribute :street2,     :string
+      attribute :city,        :string
+      attribute :state,       :string
+      attribute :postal_code, :string
+      attribute :country,     :string
     end
   end
 end

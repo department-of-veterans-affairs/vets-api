@@ -412,12 +412,12 @@ module HCA
       }
     end
 
-    def convert_full_name_alt(full_name)
+    def convert_full_name_alt(full_name, all_caps: true)
       {
-        'givenName' => Validations.validate_name(data: full_name['first']),
-        'middleName' => Validations.validate_name(data: full_name['middle']),
-        'familyName' => Validations.validate_name(data: full_name['last']),
-        'suffix' => Validations.validate_name(data: full_name['suffix'])
+        'givenName' => Validations.validate_name(data: full_name['first'], all_caps:),
+        'middleName' => Validations.validate_name(data: full_name['middle'], all_caps:),
+        'familyName' => Validations.validate_name(data: full_name['last'], all_caps:),
+        'suffix' => Validations.validate_name(data: full_name['suffix'], all_caps:)
       }
     end
 
@@ -634,9 +634,8 @@ module HCA
         'contactType' => relationship_to_contact_type(contact['contactType']),
         'relationship' => contact['relationship'],
         'address' => format_address(contact['address']),
-        'primaryPhone' => contact['primaryPhone'],
-        'alternatePhone' => contact['alternatePhone']
-      }.merge(convert_full_name_alt(contact['fullName']))
+        'primaryPhone' => contact['primaryPhone']
+      }.merge(convert_full_name_alt(contact['fullName'], all_caps: false))
     end
 
     def veteran_to_association_collection(veteran)
@@ -651,7 +650,9 @@ module HCA
       spouse = spouse_to_association(veteran)
 
       # Next of kin and emergency contacts
-      contacts_list = veteran['veteranContacts'] || []
+      next_of_kins = veteran['nextOfKins'] || []
+      emergency_contacts = veteran['emergencyContacts'] || []
+      contacts_list = next_of_kins.concat(emergency_contacts)
       contacts = contacts_list.map do |contact|
         veteran_contacts_to_association(contact)
       end.compact
@@ -701,7 +702,7 @@ module HCA
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
-        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
+        'acaIndicator' => false
       }
 
       return_val.delete('ethnicity') if return_val['ethnicity'].nil?

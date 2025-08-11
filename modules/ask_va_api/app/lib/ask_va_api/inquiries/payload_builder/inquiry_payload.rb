@@ -7,15 +7,20 @@ module AskVAApi
         include SharedHelpers
 
         class InquiryPayloadError < StandardError; end
-        attr_reader :inquiry_params, :inquiry_details, :submitter_profile, :user, :veteran_profile
+        attr_reader :inquiry_params, :inquiry_details, :inquiry_details_obj, :submitter_profile, :user, :veteran_profile
 
+        # NOTE: These two constants share the same ID value ('722310000') intentionally.
+        # This is due to an API quirk where different fields (e.g., authentication status and inquiry source)
+        # are assigned overlapping ID ranges. Although the context differs, the ID is reused across fields
+        # by the external system.
         UNAUTHENTICATE_ID = '722310000'
         INQUIRY_SOURCE_AVA_ID = '722310000'
 
         def initialize(inquiry_params:, user: nil)
           @inquiry_params = inquiry_params
           validate_params!
-          @inquiry_details = InquiryDetails.new(inquiry_params).call
+          @inquiry_details_obj = InquiryDetails.new(inquiry_params)
+          @inquiry_details = @inquiry_details_obj.call
           @user = user
           @submitter_profile = SubmitterProfile.new(inquiry_params:, user:, inquiry_details:)
           @veteran_profile = VeteranProfile.new(inquiry_params:, user:, inquiry_details:)
@@ -26,14 +31,23 @@ module AskVAApi
           payload = {
             AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
-            CaregiverZipCode: nil,
-            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference] || 'Email'),
-            DependentDOB: family_member_field(:date_of_birth),
-            DependentFirstName: family_member_field(:first)
+            CaregiverZipCode: nil, ContactMethod: @translator.call(:response_type,
+                                                                   inquiry_params[:contact_preference] || 'Email'),
+            DependentDOB: family_member_field(:date_of_birth), DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
-          payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
+          context = {
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            user_loa: user&.loa&.fetch(:current, nil),
+            category: inquiry_details_obj.category, topic: inquiry_details_obj.topic,
+            user_is_authenticated: user.present?
+          }
+          Rails.logger.info('Education Inquiry Context', context)
+          if user.nil? && inquiry_details_obj.inquiry_education_related?
+            raise InquiryPayloadError, 'Unauthenticated Education inquiry submitted'
+          end
 
+          payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
           payload
         end
 
@@ -85,11 +99,18 @@ module AskVAApi
         end
 
         def list_of_attachments
-          return if inquiry_params[:files].first[:file_name].nil?
+          # To try and resolve Exception InquiriesCreatorError: undefined method `[]' for nil
+          return if inquiry_params[:files].blank?
+          return if inquiry_params[:files].first.nil? || inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
-            { FileName: file[:file_name], FileContent: file[:file_content] }
+            file_name = normalize_file_name(file[:file_name])
+            { FileName: file_name, FileContent: file[:file_content] }
           end
+        end
+
+        def normalize_file_name(file_name)
+          file_name.sub(/\.([^.]+)$/) { ".#{::Regexp.last_match(1).downcase}" }
         end
 
         def build_school_object
@@ -112,25 +133,25 @@ module AskVAApi
         end
 
         def counselor_info
-          inquiry_params[:their_vre_couselor] || inquiry_params[:your_vre_counselor]
+          inquiry_params[:their_vre_counselor] || inquiry_params[:your_vre_counselor]
         end
 
         def build_residency_state_data
+          residency_state = inquiry_params.dig(:state_or_residency, :residency_state).presence
+          family_location = inquiry_params[:family_members_location_of_residence].presence
+          your_location   = inquiry_params[:your_location_of_residence].presence
+
+          fallback_location = family_location || your_location
+
           {
-            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
-              inquiry_params[:family_members_location_of_residence] || inquiry_params[:your_location_of_residence],
-            StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
-              fetch_state_code(inquiry_params[:family_members_location_of_residence] ||
-              inquiry_params[:your_location_of_residence])
+            Name: fetch_state(residency_state) || fallback_location,
+            StateCode: residency_state || fetch_state_code(fallback_location)
           }
         end
 
         def build_state_data(obj, key)
-          state = if key.nil?
-                    inquiry_params[obj]
-                  else
-                    inquiry_params.dig(obj, key)
-                  end
+          raw_state = key.nil? ? inquiry_params[obj] : inquiry_params.dig(obj, key)
+          state = raw_state.presence
 
           {
             Name: fetch_state(state),

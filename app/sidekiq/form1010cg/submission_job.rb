@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# SubmissionJob
+#
+# This Sidekiq job processes and submits 10-10CG (Caregiver Assistance) claims to the CARMA backend.
+# It manages the full lifecycle of a claim submission, including error handling, logging, and notification.
+#
+# Why:
+# - Automates the asynchronous submission of caregiver claims, improving reliability and scalability.
+# - Ensures claims are processed even if the web request fails or times out.
+# - Provides robust error handling, retry logic, and user notification on failure.
+#
+# How:
+# - Loads the claim by ID and processes it using Form1010cg::Service.
+# - Destroys the claim after successful processing to prevent duplicate submissions.
+# - Handles and logs errors, including parsing errors from CARMA and general exceptions.
+# - Sends failure notification emails to users if submission fails after all retries.
+# - Tracks job metrics and durations for monitoring and analytics.
+
 require 'sidekiq/monitored_worker'
 
 module Form1010cg
@@ -52,6 +69,7 @@ module Form1010cg
     end
 
     def perform(claim_id)
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
       claim = SavedClaim::CaregiversAssistanceClaim.find(claim_id)
 
       Form1010cg::Service.new(claim).process_claim_v2!
@@ -59,14 +77,17 @@ module Form1010cg
       begin
         claim.destroy!
       rescue => e
-        log_exception_to_sentry(e, { claim_id: })
+        log_error(e, '[10-10CG] - Error destroying Caregiver claim after processing submission in job', claim_id)
       end
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :success, start_time:)
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
       self.class.send_failure_email(claim)
     rescue => e
-      log_exception_to_sentry(e, { claim_id: })
+      log_error(e, '[10-10CG] - Error processing Caregiver claim submission in job', claim_id)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
 
       raise
     end
@@ -95,6 +116,12 @@ module Form1010cg
 
         StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"])
       end
+    end
+
+    private
+
+    def log_error(exception, message, claim_id)
+      Rails.logger.error(message, { exception:, claim_id: })
     end
   end
 end

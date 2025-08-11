@@ -8,7 +8,7 @@ module Mobile
       def index
         resource = client.get_cemeteries
 
-        render json: Mobile::V0::CemeteriesSerializer.new(resource.attributes)
+        render json: Mobile::V0::CemeteriesSerializer.new(resource)
       end
 
       def client

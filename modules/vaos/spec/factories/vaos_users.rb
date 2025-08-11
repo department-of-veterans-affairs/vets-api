@@ -5,6 +5,7 @@ FactoryBot.modify do
     trait :vaos do
       authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
       uuid { '3071ca1783954ec19170f3c4bdfd0c95' }
+      idme_uuid { SecureRandom.uuid }
       last_signed_in { Time.now.utc }
       mhv_last_signed_in { Time.now.utc }
       email { 'judy.morrison@id.me' }
@@ -16,7 +17,7 @@ FactoryBot.modify do
       birth_date { '1953-04-01' }
       ssn { '796061976' }
       va_patient { true }
-      stub_mpi { false }
+      should_stub_mpi { false }
 
       loa do
         {
@@ -26,9 +27,9 @@ FactoryBot.modify do
       end
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
-      after(:build) do |_user, _t|
+      after(:build) do |user, _t|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             given_names: %w[Judy Snow],
             family_name: 'Morrison',
@@ -53,12 +54,15 @@ FactoryBot.modify do
             ssn: '796061976'
           )
         )
+        # build UserVerification & UserAccount records
+        create(:idme_user_verification, idme_uuid: user.idme_uuid)
       end
     end
 
     trait :jac do
       authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
       uuid { '3071ca1783954ec19170f3c4bdfd0c95' }
+      idme_uuid { SecureRandom.uuid }
       last_signed_in { Time.now.utc }
       mhv_last_signed_in { Time.now.utc }
       email { 'jacqueline.morgan@id.me' }
@@ -70,7 +74,7 @@ FactoryBot.modify do
       birth_date { '1962-02-07' }
       ssn { '796029146' }
       va_patient { true }
-      stub_mpi { false }
+      should_stub_mpi { false }
 
       loa do
         {
@@ -80,9 +84,9 @@ FactoryBot.modify do
       end
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
-      after(:build) do |_user, _t|
+      after(:build) do |user, _t|
         stub_mpi(
-          build(
+          FactoryBot.build(
             :mpi_profile,
             given_names: %w[Jacqueline Kain],
             family_name: 'Morgan',
@@ -107,6 +111,8 @@ FactoryBot.modify do
             ssn: '796061976'
           )
         )
+        # build UserVerification & UserAccount records
+        create(:idme_user_verification, idme_uuid: user.idme_uuid)
       end
     end
   end

@@ -8,7 +8,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     skip_before_action :authenticate, only: %w[index_optional_auth access_token_auth access_token_optional_auth]
     before_action :load_user, only: %(index_optional_auth)
     before_action lambda {
-                    access_token_authenticate(skip_error_handling: params[:skip_error_handling] == 'true')
+                    access_token_authenticate(skip_render_error: params[:skip_render_error] == 'true')
                   }, only: %(access_token_auth)
 
     attr_reader :payload
@@ -465,9 +465,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
   end
 
   describe '#access_token_authenticate' do
-    subject { get :access_token_auth, params: { skip_error_handling: } }
+    subject { get :access_token_auth, params: { skip_render_error: } }
 
-    let(:skip_error_handling) { false }
+    let(:skip_render_error) { false }
 
     shared_context 'error response' do
       let(:expected_error) { 'Access token JWT is malformed' }
@@ -482,7 +482,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'when skip_error_handling is true' do
-        let(:skip_error_handling) { true }
+        let(:skip_render_error) { true }
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -509,7 +509,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'when skip_error_handling is true' do
-        let(:skip_error_handling) { true }
+        let(:skip_render_error) { true }
 
         it 'does not log an error to sentry' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry)

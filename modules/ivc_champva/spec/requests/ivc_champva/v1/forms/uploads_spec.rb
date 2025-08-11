@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'ves_api/client'
+require 'common/convert_to_pdf'
 
 RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
@@ -30,162 +31,203 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
-    allow(ves_request).to receive(:transaction_uuid).and_return('78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    allow(ves_request).to receive_messages(transaction_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b',
+                                           application_uuid: 'test-uuid')
+    allow(ves_request).to receive(:transaction_uuid=)
+    allow(ves_request).to receive(:to_json).and_return('{}')
   end
 
   after do
     Aws.config = @original_aws_config
   end
 
-  describe '#submit with flipper champva_send_to_ves enabled' do
-    before do
-      allow(Flipper).to receive(:enabled?)
-        .with(:champva_send_to_ves, @current_user)
-        .and_return(true)
-    end
+  describe 'run this section with both values of champva_retry_logic_refactor expecting identical behavior' do
+    retry_logic_refactor_values = [false, true]
+    retry_logic_refactor_values.each do |champva_retry_logic_refactor_state|
+      describe '#submit with flipper champva_send_to_ves enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_send_to_ves, @current_user)
+            .and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_retry_logic_refactor, @current_user)
+            .and_return(champva_retry_logic_refactor_state)
+        end
 
-    forms.each do |form|
-      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
-      data = JSON.parse(fixture_path.read)
+        forms.each do |form|
+          fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
+          data = JSON.parse(fixture_path.read)
 
-      it 'uploads a PDF file to S3' do
-        mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
-        allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-          .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
-        allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-          double('response',
-                 context: double('context', http_response: double('http_response', status_code: 200)))
-        )
+          it 'uploads a PDF file to S3' do
+            mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+            allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+              .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+            allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+            allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+              double('response',
+                     context: double('context', http_response: double('http_response', status_code: 200)))
+            )
 
-        post '/ivc_champva/v1/forms', params: data
-
-        record = IvcChampvaForm.first
-
-        expect(record.first_name).to eq('Veteran')
-        expect(record.last_name).to eq('Surname')
-        expect(record.form_uuid).to be_present
-
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
-
-        # Actual supporting_docs should exist as records in the DB. This test
-        # ensures that if they aren't present we won't have a silent failure
-        data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
-        post '/ivc_champva/v1/forms', params: data_with_docs
-
-        expect(response).to have_http_status(:internal_server_error)
-      end
-
-      context 'when environment is production' do
-        it 'does not do any VES processing' do
-          with_settings(Settings, vsp_environment: 'production') do
             post '/ivc_champva/v1/forms', params: data
-            expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
-            expect(ves_client).not_to have_received(:submit_1010d)
+
+            record = IvcChampvaForm.first
+
+            expect(record.first_name).to eq('Veteran')
+            expect(record.last_name).to eq('Surname')
+            expect(record.form_uuid).to be_present
+
+            expect(response).to have_http_status(:ok)
           end
-        end
-      end
 
-      context 'when environment is not production' do
-        it 'does VES processing only for form 10-10D' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            controller = IvcChampva::V1::UploadsController.new
-            allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
-                                                  params: ActionController::Parameters.new(data))
-            allow(controller).to receive(:render)
+          it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+            allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
-            controller.send(:submit)
+            # Actual supporting_docs should exist as records in the DB. This test
+            # ensures that if they aren't present we won't have a silent failure
+            data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+            post '/ivc_champva/v1/forms', params: data_with_docs
 
-            if data['form_number'] == '10-10D'
-              expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
-              # make sure submit_1010d is called with the request object from the formatter
-              expect(ves_client).to have_received(:submit_1010d).with(anything, anything, ves_request)
-            else
-              expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
-              expect(ves_client).not_to have_received(:submit_1010d)
+            expect(response).to have_http_status(:internal_server_error)
+          end
+
+          context 'when environment is production' do
+            it 'does not do any VES processing' do
+              with_settings(Settings, vsp_environment: 'production') do
+                post '/ivc_champva/v1/forms', params: data
+                expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+                expect(ves_client).not_to have_received(:submit_1010d)
+              end
             end
           end
-        end
 
-        it 'returns an error and does proceed when format_for_request throws an error' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            if data['form_number'] == '10-10D'
-              allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_raise(StandardError.new('oh no'))
-              controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive(:call_handle_file_uploads)
-              allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
-              allow(controller).to receive(:render)
+          context 'when environment is not production' do
+            it 'does VES processing only for form 10-10D' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                controller = IvcChampva::V1::UploadsController.new
+                allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
+                                                      call_upload_form: [[200], nil],
+                                                      get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                      params: ActionController::Parameters.new(data))
+                allow(controller).to receive(:render)
 
-              controller.send(:submit)
+                controller.send(:submit)
 
-              expect(controller).not_to have_received(:call_handle_file_uploads)
-              expect(ves_client).not_to have_received(:submit_1010d)
-              expect(controller).to have_received(:render)
-                .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
+                if data['form_number'] == '10-10D'
+                  expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
+                  # make sure submit_1010d is called with the request object from the formatter
+                  expect(ves_client).to have_received(:submit_1010d).with(anything, anything, ves_request)
+                else
+                  expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                end
+              end
+            end
+
+            it 'returns an error and does proceed when format_for_request throws an error' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+                    .and_raise(StandardError.new('oh no'))
+                  controller = IvcChampva::V1::UploadsController.new
+                  allow(controller).to receive(:call_handle_file_uploads)
+                  allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+                  allow(controller).to receive(:render)
+
+                  controller.send(:submit)
+
+                  expect(controller).not_to have_received(:call_handle_file_uploads)
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                  expect(controller).to have_received(:render)
+                    .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
+                end
+              end
+            end
+
+            it 'returns an error and does not proceed when format_for_request returns nil' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
+                  controller = IvcChampva::V1::UploadsController.new
+                  allow(controller).to receive(:call_handle_file_uploads)
+                  allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+                  allow(controller).to receive(:render)
+
+                  controller.send(:submit)
+
+                  expect(controller).not_to have_received(:call_handle_file_uploads)
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                  expect(controller).to have_received(:render)
+                    .with({
+                            json: { error_message: 'Error: Failed to format data for VES submission' },
+                            status: :internal_server_error
+                          })
+                end
+              end
+            end
+
+            it 'returns an error and does not proceed when handle_file_uploads fails' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  controller = IvcChampva::V1::UploadsController.new
+                  allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
+                                                        get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                        params: ActionController::Parameters.new(data))
+                  allow(controller).to receive(:render)
+
+                  controller.send(:submit)
+
+                  expect(ves_client).not_to have_received(:submit_1010d)
+                  expect(controller).to have_received(:render)
+                    .with({ json: { error_message: 'oh no' }, status: 400 })
+                end
+              end
+            end
+
+            it 'returns ok when submitting to VES results in an error' do
+              with_settings(Settings, vsp_environment: 'staging') do
+                if data['form_number'] == '10-10D'
+                  # These must be mocked in order for submit to be able to complete successfully: find_by, put_object
+                  allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+                    .and_return(double('Record1', created_at: 1.day.ago,
+                                                  id: 'some_uuid', file: double(id: 'file0')))
+                  allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+                    double('response',
+                           context: double('context', http_response: double('http_response', status_code: 200)))
+                  )
+                  # Mock VES returning an error
+                  allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+
+                  post '/ivc_champva/v1/forms', params: data
+
+                  expect(response).to have_http_status(:ok)
+                end
+              end
             end
           end
-        end
 
-        it 'returns an error and does not proceed when format_for_request returns nil' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            if data['form_number'] == '10-10D'
-              allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
-              controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive(:call_handle_file_uploads)
-              allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
-              allow(controller).to receive(:render)
-
-              controller.send(:submit)
-
-              expect(controller).not_to have_received(:call_handle_file_uploads)
-              expect(ves_client).not_to have_received(:submit_1010d)
-              expect(controller).to have_received(:render)
-                .with({
-                        json: { error_message: 'Error: Failed to format data for VES submission' },
-                        status: :internal_server_error
-                      })
+          context 'with retry feature enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(false)
             end
           end
-        end
 
-        it 'returns an error and does not proceed when handle_file_uploads fails' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            if data['form_number'] == '10-10D'
-              controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive_messages(call_handle_file_uploads: [[400], 'oh no'],
-                                                    params: ActionController::Parameters.new(data))
-              allow(controller).to receive(:render)
+          it 'retries VES submission if it fails' do
+            with_settings(Settings, vsp_environment: 'staging') do
+              if data['form_number'] == '10-10D'
+                allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
 
-              controller.send(:submit)
+                controller = IvcChampva::V1::UploadsController.new
 
-              expect(ves_client).not_to have_received(:submit_1010d)
-              expect(controller).to have_received(:render)
-                .with({ json: { error_message: 'oh no' }, status: 400 })
-            end
-          end
-        end
+                allow(ves_client).to receive(:submit_1010d)
+                  .with(anything, anything, anything)
+                  .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
 
-        it 'returns ok when submitting to VES results in an error' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            if data['form_number'] == '10-10D'
-              # These must be mocked in order for submit to be able to complete successfully: find_by, put_object
-              allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-                .and_return(double('Record1', created_at: 1.day.ago,
-                                              id: 'some_uuid', file: double(id: 'file0')))
-              allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-                double('response',
-                       context: double('context', http_response: double('http_response', status_code: 200)))
-              )
-              # Mock VES returning an error
-              allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+                allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
 
-              post '/ivc_champva/v1/forms', params: data
+                controller.send(:submit_ves_request, ves_request, {})
 
-              expect(response).to have_http_status(:ok)
+                expect(ves_client).to have_received(:submit_1010d).twice
+              end
             end
           end
         end
@@ -216,8 +258,61 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  # Copied this test from the #submit endpoint tests above and adjusted to use
+  # the new endpoint. We'll need more tests in future, but wanted to have at
+  # least one verifying it wasn't throwing rampant errors
+  describe '#submit_champva_app_merged' do
+    fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                   'vha_10_10d_extended.json')
+    data = JSON.parse(fixture_path.read)
+
+    it 'uploads a PDF file to S3' do
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      record = IvcChampvaForm.first
+
+      expect(record.first_name).to eq('Veteran')
+      expect(record.last_name).to eq('Surname')
+      expect(record.form_uuid).to be_present
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    # Also taken from the main #submit endpoint tests as they function the same at this level
+    it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+
+      # Actual supporting_docs should exist as records in the DB. This test
+      # ensures that if they aren't present we won't have a silent failure
+      data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data_with_docs
+
+      expect(response).to have_http_status(:internal_server_error)
+    end
+  end
+
+  describe 'stored ves data is encrypted' do
+    it 'ves_request_data is encrypted' do
+      # This is the only part of the test we actually need
+      expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
+    end
+  end
+
   describe '#submit_supporting_documents' do
     let(:file) { fixture_file_upload('doctors-note.gif') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
 
     context 'successful transaction' do
       it 'renders the attachment as json' do
@@ -241,6 +336,158 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       end
     end
 
+    context 'LLM response integration' do
+      let(:clamscan) { double(safe?: true) }
+
+      before do
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      end
+
+      context 'when LLM conditions are met' do
+        before do
+          # Mock Flipper for both @current_user (which might be set) and nil (which is typical in these tests)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, nil).and_return(true)
+        end
+
+        it 'includes llm_response in the JSON for 10-7959A form' do
+          # Set up AWS mocking for individual test runs (prevents real AWS calls)
+          original_aws_config = Aws.config.dup
+          Aws.config.update(stub_responses: true)
+
+          # Ensure virus scan mock is set up for individual test runs
+          clamscan = double(safe?: true)
+          allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+          # Mock background job launching to prevent OCR job from hanging on file I/O
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Create a mock response that matches the structure returned by MockClient
+          # rubocop:disable Layout/LineLength
+          mock_response = {
+            body: {
+              answer: '```json
+                      {
+                        "doc_type": "EOB",
+                        "doc_type_matches": true,
+                        "valid": false,
+                        "confidence": 0.9,
+                        "missing_fields": [
+                          "Provider NPI (10-digit)",
+                          "Services Paid For (CPT/HCPCS code or description)"
+                        ],
+                        "present_fields": {
+                          "Date of Service": "01/29/13",
+                          "Provider Name": "Smith, Robert",
+                          "Amount Paid by Insurance": "0.00"
+                        },
+                        "notes": "The document is classified as an EOB. Missing required fields for Provider NPI and Services Paid For."
+                      }
+                      ```'
+            }.to_json
+          }
+          # rubocop:enable Layout/LineLength
+
+          # Parse the response the same way call_llm_service does
+          parsed_response = JSON.parse(mock_response[:body])
+          answer_content = parsed_response['answer']
+          cleaned_content = answer_content.strip.gsub(/^```json\s*/, '').gsub(/\s*```$/, '')
+          mock_client_response = JSON.parse(cleaned_content)
+
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:call_llm_service)
+            .and_return(mock_client_response)
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data that matches MockClient structure
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to eq(mock_client_response)
+        ensure
+          # Restore original AWS config
+          Aws.config = original_aws_config if defined?(original_aws_config)
+        end
+
+        it 'does not include llm_response for non-7959A forms even when flipper is enabled' do
+          data = { form_id: '10-10D', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should NOT have LLM response data
+          expect(resp).not_to have_key('llm_response')
+        end
+
+        it 'successfully processes LLM validation end-to-end' do
+          # Mock background job launching to prevent OCR job from hanging
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
+          dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
+          allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(dummy_pdf_path)
+
+          # Mock file existence check for LlmService.validate_file_exists
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(dummy_pdf_path).and_return(true)
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data from MockClient
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to include(
+            'doc_type' => 'EOB',
+            'doc_type_matches' => true,
+            'valid' => false,
+            'confidence' => 0.9
+          )
+        end
+      end
+
+      context 'when LLM conditions are not met' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(false)
+        end
+
+        it 'does not include llm_response when flipper is disabled' do
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should NOT have LLM response data
+          expect(resp).not_to have_key('llm_response')
+        end
+      end
+    end
+
     context 'with an invalid form_id' do
       it 'returns an error' do
         post '/ivc_champva/v1/forms/submit_supporting_documents', params: { form_id: 'invalid', file: }
@@ -260,6 +507,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#unlock_file' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+    end
 
     context 'with locked PDF and no provided password' do
       let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
@@ -552,6 +803,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
       end
     end
+
+    context 'when status codes are nil' do
+      it 'handles nil values and returns a 500 error' do
+        expect(controller.send(:build_json, nil, nil)).to eq({ json:
+        { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
+      end
+    end
   end
 
   describe '#handle_file_uploads' do
@@ -572,8 +830,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
           end
           let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
-          let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
-          let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
+          let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
@@ -614,9 +872,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
-              # TODO: should this be nil, or 400/'Upload failed'?
-              expect(statuses).to be_nil
-              expect(error_message).to be_nil
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
             end
           end
 
@@ -700,8 +957,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
           end
           let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
-          let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
-          let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
+          let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
@@ -742,9 +999,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
-              # TODO: should this be nil, or 400/'Upload failed'?
-              expect(statuses).to be_nil
-              expect(error_message).to be_nil
+              expect(statuses).to eq([500])
+              expect(error_message).to eq(['Server error occurred'])
             end
           end
 
@@ -849,6 +1105,366 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     it 'returns false when max attempts exceeded' do
       error_message = 'failed to generate file'
       expect(controller.send(:should_retry?, error_message.downcase, 4, 3)).to be false
+    end
+  end
+
+  describe '#handle_file_uploads_with_refactored_retry' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+    let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+    let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+
+    before do
+      allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
+      allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when the retry method fails outside the retry block' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_raise(StandardError.new('Catastrophic failure'))
+      end
+
+      it 'raises the error' do
+        expect do
+          controller.send(:handle_file_uploads_with_refactored_retry, form_id, parsed_form_data)
+        end.to raise_error(StandardError, 'Catastrophic failure')
+      end
+    end
+
+    context 'when the retry method executes successfully' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_yield
+        allow(file_uploader).to receive(:handle_uploads).and_return([[200, nil]])
+      end
+
+      it 'returns the values from handle_uploads' do
+        statuses, error_messages = controller.send(:handle_file_uploads_with_refactored_retry, form_id,
+                                                   parsed_form_data)
+        expect(statuses).to eq([200])
+        expect(error_messages).to eq([nil])
+      end
+    end
+  end
+
+  describe '#upload_form_with_refactored_retry' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+    let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+    let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
+
+    before do
+      allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when the retry method fails outside the retry block' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_raise(StandardError.new('Catastrophic failure'))
+      end
+
+      it 'raises the error' do
+        expect do
+          controller.send(:upload_form_with_refactored_retry, form_id, file_paths, metadata)
+        end.to raise_error(StandardError, 'Catastrophic failure')
+      end
+    end
+
+    context 'when the retry method executes successfully' do
+      before do
+        allow(IvcChampva::Retry).to receive(:do).and_yield
+        allow(file_uploader).to receive(:handle_uploads).and_return([[200, nil]])
+      end
+
+      it 'returns the values from handle_uploads' do
+        statuses, error_messages = controller.send(:upload_form_with_refactored_retry, form_id, file_paths, metadata)
+        expect(statuses).to eq([200])
+        expect(error_messages).to eq([nil])
+      end
+    end
+  end
+
+  describe '#add_blank_doc_and_stamp integration' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) { { 'form_number' => '10-7959A', 'supporting_docs' => [] } }
+
+    # Basic test form class with stamp_metadata method to verify
+    # it properly gates the functionality
+    let(:form) do
+      instance_double(IvcChampva::VHA107959a,
+                      form_id: '10-7959A',
+                      methods: [:stamp_metadata],
+                      stamp_metadata: { metadata: { 'test_key' => 'test_value' }, attachment_id: 'Test Attachment' })
+    end
+
+    it 'creates and adds a supporting document' do
+      # Mock out the PDF operations to avoid actually creating files
+      expect(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
+      expect(controller).to receive(:create_custom_attachment).and_return({ 'attachment_id' => 'doc1' })
+
+      # Check that a supporting doc gets added to the form_data
+      expect do
+        controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)
+      end.to change { parsed_form_data['supporting_docs'].length }.from(0).to(1)
+
+      expect(parsed_form_data['supporting_docs']).to include({ 'attachment_id' => 'doc1' })
+    end
+  end
+
+  describe '#add_blank_doc_and_stamp without stamp_metadata method' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form) { instance_double(IvcChampva::VHA1010d) }
+    let(:parsed_form_data) { { 'form_number' => '10-10D' } }
+
+    before do
+      allow(form).to receive(:methods).and_return([])
+    end
+
+    it 'does nothing when form has no stamp_metadata method' do
+      expect(IvcChampva::PdfStamper).not_to receive(:stamp_metadata_items)
+
+      controller.send(:add_blank_doc_and_stamp, form, parsed_form_data)
+    end
+  end
+
+  describe '#validate_mpi_profiles' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_mpi_service) { instance_double(IvcChampva::MPIService) }
+
+    before do
+      allow(IvcChampva::MPIService).to receive(:new).and_return(mock_mpi_service)
+      allow(mock_mpi_service).to receive(:validate_profiles)
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+    end
+
+    context 'when flipper is enabled and form_id is vha_10_10d' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(true)
+      end
+
+      it 'calls MpiService.validate_profiles' do
+        controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
+
+        expect(IvcChampva::MPIService).to have_received(:new).with(no_args)
+        expect(mock_mpi_service).to have_received(:validate_profiles).with(parsed_form_data)
+      end
+    end
+
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(false)
+      end
+
+      it 'does not call MpiService.validate_profiles' do
+        controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
+
+        expect(IvcChampva::MPIService).not_to have_received(:new)
+        expect(mock_mpi_service).not_to have_received(:validate_profiles)
+      end
+    end
+
+    context 'when form_id is not vha_10_10d' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(true)
+      end
+
+      it 'does not call MpiService.validate_profiles' do
+        controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_7959c')
+
+        expect(IvcChampva::MPIService).not_to have_received(:new)
+        expect(mock_mpi_service).not_to have_received(:validate_profiles)
+      end
+    end
+
+    context 'when MpiService raises an error' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_mpi_validation, nil)
+          .and_return(true)
+        allow(mock_mpi_service).to receive(:validate_profiles)
+          .and_raise(StandardError.new('MPI service error'))
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs the error and does not raise' do
+        expect do
+          controller.send(:validate_mpi_profiles, parsed_form_data, 'vha_10_10d')
+        end.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with('Error validating MPI profiles: MPI service error')
+      end
+    end
+  end
+
+  describe '#launch_background_job' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:file_path) { '/tmp/some_file.pdf' }
+    let(:attachment_guid) { '12345' }
+    let(:mock_file) do
+      double('UploadedFile',
+             original_filename: 'some_file.pdf',
+             read: 'content',
+             path: file_path,
+             content_type: 'application/pdf').tap do |file|
+        allow(file).to receive(:respond_to?).with(:original_filename).and_return(true)
+        allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
+      end
+    end
+    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
+    let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
+
+    context 'when form_id is 10-7959A' do
+      let(:form_id) { '10-7959A' }
+
+      context 'when OCR feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
+        end
+
+        it 'queues TesseractOcrLoggerJob with correct arguments' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).to receive(:perform_async).with(
+            form_id,
+            attachment_guid,
+            attachment,
+            'EOB'
+          )
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'queues LlmLoggerJob with correct arguments' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).to receive(:perform_async).with(
+            form_id,
+            attachment_guid,
+            match(%r{^/.*\.pdf$}), # PDF path after conversion
+            'EOB'
+          )
+          # Mock the tempfile_from_attachment method to return a temp file
+          allow(controller).to receive(:tempfile_from_attachment).and_return(double(path: '/tmp/test_file.pdf'))
+          # Mock the Common::ConvertToPdf class to avoid loading issues
+          converter_double = double('ConvertToPdf')
+          allow(converter_double).to receive(:run).and_return('/tmp/converted.pdf')
+          stub_const('Common::ConvertToPdf', double('Class'))
+          allow(Common::ConvertToPdf).to receive(:new).and_return(converter_double)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+      end
+
+      context 'when OCR feature is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(false)
+        end
+
+        it 'does not queue TesseractOcrLoggerJob' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'does not queue LlmLoggerJob' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+      end
+    end
+
+    context 'when form_id is not 10-7959A' do
+      let(:form_id) { '10-10d' }
+
+      context 'when OCR feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
+        end
+
+        it 'does not queue TesseractOcrLoggerJob' do
+          job = class_double(IvcChampva::TesseractOcrLoggerJob).as_stubbed_const
+          expect(job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+
+        it 'does not queue LlmLoggerJob' do
+          llm_job = class_double(IvcChampva::LlmLoggerJob).as_stubbed_const
+          expect(llm_job).not_to receive(:perform_async)
+
+          controller.send(:launch_background_job, attachment, form_id, 'EOB')
+        end
+      end
+    end
+  end
+
+  describe '#tempfile_from_attachment' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { '10-7959A' }
+    let(:file_content) { 'test file content' }
+
+    context 'when attachment.file responds to original_filename' do
+      let(:mock_file) do
+        double('UploadedFile',
+               original_filename: 'some_file.gif',
+               read: file_content)
+      end
+
+      let(:attachment) do
+        instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+      end
+
+      it 'creates a tempfile with the original filename and random code' do
+        tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
+
+        expect(tmpfile).to be_a(Tempfile)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.gif$/)
+        tmpfile.rewind
+        expect(tmpfile.read).to eq(file_content)
+        tmpfile.close
+        tmpfile.unlink
+      end
+    end
+
+    context 'when attachment.file does not respond to original_filename' do
+      let(:mock_file) do
+        double('File',
+               path: '/tmp/some_other_file.png',
+               read: file_content)
+      end
+
+      let(:attachment) do
+        instance_double(PersistentAttachments::MilitaryRecords, file: mock_file)
+      end
+
+      it 'creates a tempfile with the basename and random code' do
+        tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
+
+        expect(tmpfile).to be_a(Tempfile)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.png$/)
+        tmpfile.rewind
+        expect(tmpfile.read).to eq(file_content)
+        tmpfile.close
+        tmpfile.unlink
+      end
     end
   end
 end

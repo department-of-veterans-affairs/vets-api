@@ -18,11 +18,12 @@ module V0
     def create
       uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
-      @attachment = klass&.new(form_id:)
+      @attachment = klass&.new(form_id:, doctype:)
       # add the file after so that we have a form_id and guid for the uploader to use
       @attachment.file = unlock_file(params['file'], params['password'])
 
-      if %w[21P-527EZ 21P-530EZ 21P-530V2].include?(form_id) &&
+      if @attachment.respond_to?(:requires_stamped_pdf_validation?) &&
+         @attachment.requires_stamped_pdf_validation? &&
          Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid?
 
         raise Common::Exceptions::ValidationErrors, @attachment
@@ -47,18 +48,22 @@ module V0
 
     def klass
       case form_id
-      when '21P-527EZ', '21P-530EZ', '21P-530V2'
-        PersistentAttachments::PensionBurial
       when '21-686C', '686C-674', '686C-674-V2'
         PersistentAttachments::DependencyClaim
       when '26-1880'
         LGY::TagSentry.tag_sentry
         PersistentAttachments::LgyClaim
+      else
+        PersistentAttachments::ClaimEvidence
       end
     end
 
     def form_id
       params[:form_id].upcase
+    end
+
+    def doctype
+      params[:doctype] || 10 # Unknown
     end
 
     def unlock_file(file, file_password)

@@ -73,7 +73,7 @@ module SignIn
     end
 
     def validate_device_sso!
-      unless current_client_config.device_sso_enabled?
+      unless current_client_config.api_sso_enabled?
         raise Errors::InvalidSSORequestError.new message: 'token exchange requested from invalid client'
       end
     end

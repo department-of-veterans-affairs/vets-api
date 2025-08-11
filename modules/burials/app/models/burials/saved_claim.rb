@@ -17,6 +17,9 @@ module Burials
 
     ##
     # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+    # ***********************************************************************************
+    # Note: This CAN NOT be removed as long as there are existing records of this type. *
+    # ***********************************************************************************
     #
     def kms_encryption_context
       {
@@ -55,6 +58,18 @@ module Burials
     end
 
     ##
+    # Provides a mapping from claim attachment keys (as used in claim models)
+    # to in-progress form keys (as used in InProgressForm#form_data) for Burials
+    def attachment_key_map
+      {
+        transportationReceipts: :transportation_receipts,
+        deathCertificate: :death_certificate,
+        militarySeparationDocuments: :military_separation_documents,
+        additionalEvidence: :additional_evidence
+      }.freeze
+    end
+
+    ##
     # Parse claimant's email address from the parsed_form.
     #
     # @return [String, nil]
@@ -82,6 +97,11 @@ module Burials
       'NCA'
     end
 
+    # the VBMS document type for _this_ claim type
+    def document_type
+      133
+    end
+
     ##
     # Utility function to retrieve veteran first name from form
     #
@@ -102,7 +122,7 @@ module Burials
     # Utility function to retrieve claimant first name from form
     #
     # @return [String]
-    def claimaint_first_name
+    def claimant_first_name
       parsed_form.dig('claimantFullName', 'first')
     end
 
@@ -116,6 +136,13 @@ module Burials
       claimed << 'Plot Allowance' if parsed_form['plotAllowance']
       claimed << 'Transportation' if parsed_form['transportation']
       claimed
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(email_type)
+      Burials::NotificationEmail.new(id).deliver(email_type)
     end
   end
 end

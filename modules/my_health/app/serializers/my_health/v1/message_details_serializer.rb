@@ -16,22 +16,15 @@ module MyHealth
       attribute :draft_date
       attribute :to_date
       attribute :has_attachments
-
       attribute :attachments do |object|
-        (1..4).each_with_object([]) do |i, array|
-          unless object.send("attachment#{i}_id").nil?
-            attachment = {
-              id: object.send("attachment#{i}_id"),
-              message_id: object.message_id,
-              name: object.send("attachment#{i}_name"),
-              attachment_size: object.send("attachment#{i}_size"),
-              download:
-                MyHealth::UrlHelper.new.v1_message_attachment_url(
-                  object.message_id, object.send("attachment#{i}_id")
-                )
-            }
-            array << attachment
-          end
+        Array(object.attachments).map do |att|
+          {
+            id: att[:attachment_id],
+            message_id: object.message_id,
+            name: att[:attachment_name],
+            attachment_size: att[:attachment_size],
+            download: MyHealth::UrlHelper.new.v1_message_attachment_url(object.message_id, att[:attachment_id])
+          }
         end
       end
 

@@ -6,6 +6,7 @@ FactoryBot.define do
       user { create(:disabilities_compensation_user) }
       submissions_path { Rails.root.join(*'/spec/support/disability_compensation_form/submissions'.split('/')).to_s }
     end
+    user_account { user.user_account }
     user_uuid { user.uuid }
     saved_claim { create(:va526ez) }
     submitted_claim_id { nil }

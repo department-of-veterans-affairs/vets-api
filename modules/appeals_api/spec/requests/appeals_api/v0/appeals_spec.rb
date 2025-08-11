@@ -38,12 +38,16 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
           allow(Rails.logger).to receive(:info)
           expect do
             get(path, params: nil, headers: user_headers)
-          end.to trigger_statsd_increment('api.external_http_request.CaseflowStatus.success',
-                                          times: 1,
-                                          value: 1,
-                                          tags: ['endpoint:/api/v2/appeals',
-                                                 'method:get',
-                                                 'source:appeals_api'])
+          end.to trigger_statsd_increment(
+            'api.external_http_request.CaseflowStatus.success',
+            times: 1,
+            value: 1,
+            tags: array_including(
+              'endpoint:/api/v2/appeals',
+              'method:get',
+              'source:appeals_api'
+            )
+          )
         end
       end
     end

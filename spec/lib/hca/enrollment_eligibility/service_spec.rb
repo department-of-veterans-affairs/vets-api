@@ -4,6 +4,21 @@ require 'rails_helper'
 require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
+  let(:user) do
+    create(
+      :evss_user,
+      :loa3,
+      icn: '1012829228V424035',
+      birth_date: '1963-07-05',
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      suffix: 'Jr.',
+      ssn: '111111234',
+      gender: 'F'
+    )
+  end
+
   describe '#get_ezr_data' do
     let(:veteran_data) do
       data = JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_data.json'))
@@ -13,41 +28,69 @@ describe HCA::EnrollmentEligibility::Service do
       data.merge('previousFinancialInfo' => financial_info)
     end
 
-    context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
+    def expect_veteran_data_to_match(veteran_data)
+      VCR.use_cassette(
+        'form1010_ezr/lookup_user_with_ezr_prefill_data',
+        match_requests_on: %i[method uri body], erb: true
+      ) do
+        expect(
+          described_class.new.get_ezr_data(
+            user
+          ).to_h.deep_stringify_keys
+        ).to eq(veteran_data)
+      end
+    end
+
+    context "when 'ezr_emergency_contacts_enabled' flipper is disabled" do
       before do
-        allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(false)
       end
 
-      it 'gets Veteran data relevant to the 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
-        VCR.use_cassette(
-          'form1010_ezr/lookup_user_with_ezr_prefill_data',
-          match_requests_on: %i[method uri body], erb: true
-        ) do
-          expect(
-            described_class.new.get_ezr_data(
-              '1012829228V424035'
-            ).to_h.deep_stringify_keys
-          ).to eq(veteran_data)
+      context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+        end
+
+        it 'gets Veteran data without contacts and with providers and dependents' do
+          expect_veteran_data_to_match(veteran_data.except('nextOfKins', 'emergencyContacts'))
+        end
+      end
+
+      context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is disabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
+        end
+
+        it 'gets Veteran data without contacts, providers, or dependents' do
+          expect_veteran_data_to_match(
+            veteran_data.except('providers', 'dependents', 'nextOfKins', 'emergencyContacts')
+          )
         end
       end
     end
 
-    context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is disabled" do
+    context "when 'ezr_emergency_contacts_enabled' flipper is enabled" do
       before do
-        allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:ezr_emergency_contacts_enabled, instance_of(User)).and_return(true)
       end
 
-      it 'gets Veteran data relevant to the 1010ezr, except for insurance providers and dependents',
-         run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
-        VCR.use_cassette(
-          'form1010_ezr/lookup_user_with_ezr_prefill_data',
-          match_requests_on: %i[method uri body], erb: true
-        ) do
-          expect(
-            described_class.new.get_ezr_data(
-              '1012829228V424035'
-            ).to_h.deep_stringify_keys
-          ).to eq(veteran_data.except!('providers', 'dependents'))
+      context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+        end
+
+        it 'gets Veteran data with contacts, providers and dependents' do
+          expect_veteran_data_to_match(veteran_data)
+        end
+      end
+
+      context "and 'ezr_form_prefill_with_providers_and_dependents' flipper is disabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
+        end
+
+        it 'gets Veteran data with contacts, but without providers and dependents' do
+          expect_veteran_data_to_match(veteran_data.except('providers', 'dependents'))
         end
       end
     end
@@ -56,16 +99,21 @@ describe HCA::EnrollmentEligibility::Service do
   describe '#parse_es_date' do
     context 'with an invalid date' do
       it 'returns nil and logs the date' do
+        date_str = 'f'
         service = described_class.new
-        expect(service).to receive(:log_exception_to_sentry).with(instance_of(Date::Error))
+
+        expect(Rails.logger).to receive(:error).with(
+          '[HCA] - DateError',
+          { exception: instance_of(Date::Error) }
+        )
 
         expect(
-          service.send(:parse_es_date, 'f')
+          service.send(:parse_es_date, date_str)
         ).to be_nil
 
         expect(
           PersonalInformationLog.where(error_class: 'Form1010Ezr DateError').last.data
-        ).to eq('f')
+        ).to eq(date_str)
       end
     end
   end

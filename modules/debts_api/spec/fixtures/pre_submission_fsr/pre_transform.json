@@ -339,12 +339,7 @@
     }
   },
   "expenses": {
-    "expense_records": [
-      {
-        "name": "Mortgage payment",
-        "amount": "33"
-      }
-    ],
+    "monthly_housing_expenses": "33",
     "credit_card_bills": [
       {
         "purpose": "Credit card payment",

@@ -31,7 +31,6 @@ module AccreditedRepresentativePortal
 
         def authorizations
           {
-            'recordDisclosure' => @data[:record_consent],
             'recordDisclosureLimitations' => @data[:consent_limits] || [],
             'addressChange' => @data[:consent_address_change]
           }
@@ -49,7 +48,7 @@ module AccreditedRepresentativePortal
             'address' => dependent_address,
             'dateOfBirth' => @data[:claimant_date_of_birth],
             'relationship' => @data[:claimant_relationship],
-            'phone' => @data[:claimant_phone],
+            'phone' => sanitize_phone_number(@data[:claimant_phone]),
             'email' => @data[:claimant_email]
           }
         end
@@ -79,7 +78,7 @@ module AccreditedRepresentativePortal
             'dateOfBirth' => @data[:veteran_date_of_birth],
             'serviceNumber' => @data[:veteran_service_number],
             'serviceBranch' => @service_branch,
-            'phone' => @data[:veteran_phone],
+            'phone' => sanitize_phone_number(@data[:veteran_phone]),
             'email' => @data[:veteran_email]
           }
         end
@@ -98,6 +97,13 @@ module AccreditedRepresentativePortal
 
         def schemer
           JSONSchemer.schema(PowerOfAttorneyForm::SCHEMA)
+        end
+
+        # removes all non-digit characters from the phone number
+        def sanitize_phone_number(phone_number)
+          return nil if phone_number.blank?
+
+          phone_number.gsub(/\D/, '').presence
         end
 
         def errors

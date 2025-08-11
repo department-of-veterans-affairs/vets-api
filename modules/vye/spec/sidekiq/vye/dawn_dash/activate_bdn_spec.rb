@@ -27,4 +27,22 @@ describe Vye::SundownSweep::DeleteProcessedS3Files, type: :worker do
       described_class.drain
     end
   end
+
+  context 'when it is a holiday' do
+    before do
+      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it 'does not process S3 files' do
+      expect(Vye::CloudTransfer).not_to receive(:remove_aws_files_from_s3_buckets)
+
+      expect do
+        described_class.new.perform
+      end.not_to(change { Sidekiq::Worker.jobs.size })
+    end
+  end
 end

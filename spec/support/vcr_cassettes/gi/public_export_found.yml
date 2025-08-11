@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/public_exports/latest"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - 2023-12-30 18:40:40 UTC
+      Content-Disposition:
+      - 'attachment; filename="export.gz"; filename*=UTF-8''export.gz'
+      Content-Length:
+      - '35'
+      Content-Transfer-Encoding:
+      - 'binary'
+      Content-Type:
+      - 'application/x-gzip'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        \u001F\x8B\b\b\xAD\x8CHh\u0000\u0003temp.txt\u0000\xCBH\xCD\xC9\xC9\xE7\u0002\u0000 0:6\u0006\u0000\u0000\u0000
+  recorded_at: Mon, 30 Dec 2024 18:40:40 GMT
+recorded_with: VCR 6.3.1

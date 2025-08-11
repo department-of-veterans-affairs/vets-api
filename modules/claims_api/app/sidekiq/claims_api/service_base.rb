@@ -3,13 +3,13 @@
 require 'sidekiq'
 require 'claims_api/claim_logger'
 require 'sidekiq/monitored_worker'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module ClaimsApi
   class ServiceBase
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
-    include SentryLogging
+    include Vets::SharedLogging
 
     RETRY_STATUS_CODES = %w[500 502 503 504].freeze
     NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
@@ -244,6 +244,10 @@ module ClaimsApi
 
     def evss_mapper_service(auto_claim)
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
+    end
+
+    def fes_mapper_service(auto_claim)
+      ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim)
     end
 
     def veteran_file_number(auto_claim)

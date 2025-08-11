@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'bgs_service/local_bgs'
 
 Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
+  let(:dependent_participant_id) { '600052700' }
   describe '#assign_poa_to_dependent!' do
-    let(:dependent_participant_id) { '600052700' }
     let(:service) do
       described_class.new(poa_code: '002', veteran_participant_id: '600052699', dependent_participant_id:,
                           veteran_file_number: '796163671', claimant_ssn: '796163672')
@@ -38,6 +38,74 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
           ptcpnt_vet_id: '600052699'
         }] }
       }
+    end
+    let(:mock_find_benefit_claims_status_by_clmant_id) do
+      { 'xmlns:ns0': 'http://benefitclaim.services.vetsnet.vba.va.gov/',
+        bnft_claim_dto: [{ bnft_claim_id: '256009',
+                           bnft_claim_type_cd: '130SSRDE',
+                           bnft_claim_type_label: 'Dependency',
+                           bnft_claim_type_nm: 'Self Service - Removal of Dependent Exception',
+                           bnft_claim_user_display: 'YES',
+                           claim_jrsdtn_lctn_id: '331',
+                           claim_rcvd_dt: '2024-12-05T00:00:00-06:00',
+                           cp_claim_end_prdct_type_cd: '130',
+                           jrn_dt: '2025-03-07T05:37:32-06:00',
+                           jrn_lctn_id: '283',
+                           jrn_obj_id: 'VBMS',
+                           jrn_status_type_cd: 'U',
+                           jrn_user_id: 'NWQSYSACCT',
+                           payee_type_cd: '00',
+                           payee_type_nm: 'Veteran',
+                           pgm_type_cd: 'CPL',
+                           pgm_type_nm: 'Compensation-Pension Live',
+                           ptcpnt_clmant_id: '600036156',
+                           ptcpnt_clmant_nm: 'BROOKS JERRY',
+                           ptcpnt_dposit_acnt_id: '80053',
+                           ptcpnt_mail_addrs_id: '16671259',
+                           ptcpnt_vet_id: '600036156',
+                           scrty_level_type_cd: '5',
+                           station_of_jurisdiction: '377',
+                           status_type_cd: 'PEND',
+                           status_type_nm: 'Pending',
+                           svc_type_cd: 'CP',
+                           temp_jrsdtn_lctn_id: '359',
+                           temporary_station_of_jurisdiction: '330',
+                           termnl_digit_nbr: '37' },
+                         { bnft_claim_id: '600548102',
+                           bnft_claim_type_cd: '400PREDSCHRG',
+                           bnft_claim_type_label: 'Compensation',
+                           bnft_claim_type_nm: 'eBenefits 526EZ-Pre Discharge (400)',
+                           bnft_claim_user_display: 'YES',
+                           claim_jrsdtn_lctn_id: '123725',
+                           claim_rcvd_dt: '2024-10-31T00:00:00-05:00',
+                           claim_suspns_dt: '2024-08-29T15:00:38-05:00',
+                           cp_claim_end_prdct_type_cd: '404',
+                           intake_jrsdtn_lctn_id: '123686',
+                           jrn_dt: '2024-08-29T15:00:38-05:00',
+                           jrn_lctn_id: '281',
+                           jrn_obj_id: 'cd_clm_pkg.do_update',
+                           jrn_status_type_cd: 'U',
+                           jrn_user_id: 'vaebenefits',
+                           payee_type_cd: '00',
+                           payee_type_nm: 'Veteran',
+                           pgm_type_cd: 'CPL',
+                           pgm_type_nm: 'Compensation-Pension Live',
+                           ptcpnt_clmant_id: '600036156',
+                           ptcpnt_clmant_nm: 'BROOKS JERRY',
+                           ptcpnt_dposit_acnt_id: '80053',
+                           ptcpnt_mail_addrs_id: '16564285',
+                           ptcpnt_vet_id: '600036156',
+                           ptcpnt_vsr_id: '600093804',
+                           scrty_level_type_cd: '5',
+                           station_of_jurisdiction: '499',
+                           status_type_cd: 'CAN',
+                           status_type_nm: 'Cancelled',
+                           submtr_applcn_type_cd: 'VBMS',
+                           submtr_role_type_cd: 'VBA',
+                           svc_type_cd: 'CP',
+                           temp_jrsdtn_lctn_id: '337',
+                           temporary_station_of_jurisdiction: '306',
+                           termnl_digit_nbr: '37' }] }
     end
     let(:mock_find_bnft_claim) do
       {
@@ -129,11 +197,32 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
           end
         end
       end
+
+      it 'calls find_bnft_claim_by_clmant_id when find_benefit_claims_status_by_ptcpnt_id fails' do
+        VCR.use_cassette('claims_api/bgs/person_web_service/manage_ptcpnt_rlnshp_poa_with_open_claims') do
+          VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
+            allow(service).to receive(:assign_poa_to_dependent_via_update_benefit_claim?).and_call_original
+            allow_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService).to receive(
+              :find_benefit_claims_status_by_ptcpnt_id
+            ).with(dependent_participant_id).and_return({})
+            allow_any_instance_of(ClaimsApi::BenefitClaimWebService).to receive(
+              :find_bnft_claim_by_clmant_id
+            ).with(dependent_participant_id:).and_return(mock_find_benefit_claims_status_by_clmant_id)
+            allow_any_instance_of(ClaimsApi::BenefitClaimWebService).to receive(:find_bnft_claim)
+              .with(claim_id: '256009').and_return(mock_find_bnft_claim)
+            allow_any_instance_of(ClaimsApi::BenefitClaimService).to receive(:update_benefit_claim)
+              .and_return(mock_update_benefit_claim)
+
+            result = service.assign_poa_to_dependent!
+            expect(result).to be_nil
+          end
+        end
+      end
     end
 
-    describe '#bgs_claim_status_service' do
+    describe '#e_benefits_bnft_claim_status_web_service' do
       it 'requires the service statement' do
-        res = service.send(:bgs_claim_status_service)
+        res = service.send(:e_benefits_bnft_claim_status_web_service)
         expect(res).to be_a(ClaimsApi::EbenefitsBnftClaimStatusWebService)
       end
     end
@@ -156,6 +245,46 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
       it 'requires the service statement' do
         res = service.send(:person_web_service)
         expect(res).to be_a(ClaimsApi::PersonWebService)
+      end
+    end
+
+    describe '#first_open_claim_details' do
+      it 'collects open claims' do
+        VCR.use_cassette(
+          'claims_api/bgs/e_benefits_bnft_claim_status_web_service/find_benefit_claims_status_by_ptcpnt_id'
+        ) do
+          res = service.send(:first_open_claim_details)
+          expect(res).to be_a(Hash)
+          expect(res[:bnft_claim_id]).to eq('256009')
+          expect(res[:bnft_claim_type_cd]).to eq('690AUTRWPMC')
+        end
+      end
+
+      context 'dependent_claims does not return claims' do
+        it 'finds an open claim anyway' do
+          VCR.use_cassette('claims_api/bgs/benefit_claim_web_service/find_bnft_claim_by_clmant_id') do
+            allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+              :dependent_claims
+            ).and_return([])
+            res = service.send(:first_open_claim_details)
+
+            expect(res[:bnft_claim_id]).to eq('600537706')
+            expect(res[:bnft_claim_type_cd]).to eq('400SUPP')
+          end
+        end
+      end
+
+      context 'dependent_claims and find_bnft_claim_by_clmant_id do not find claims' do
+        it 'does not find any open claims, and returns nil' do
+          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+            :dependent_claims
+          ).and_return([])
+          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+            :first_open_claim_details
+          ).and_return(nil)
+        rescue => e
+          expect(e).to be_a(Common::Exceptions::ServiceError)
+        end
       end
     end
   end

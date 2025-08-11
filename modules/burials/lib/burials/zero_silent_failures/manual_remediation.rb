@@ -52,7 +52,7 @@ module Burials
             timestamp:,
             page_number: 5,
             size: 9,
-            template: "lib/pdf_fill/forms/pdfs/#{claim.form_id}.pdf",
+            template: Burials::PDF_PATH,
             multistamp: true
           }
         ]
@@ -68,8 +68,8 @@ module Burials
       def generate_metadata
         base = super
 
-        submission = FormSubmission.where(saved_claim_id: claim.id)&.order(id: :asc)&.last
-        attempt = submission&.form_submission_attempts&.order(id: :asc)&.last
+        submission = Lighthouse::Submission.where(saved_claim_id: claim.id)&.order(id: :asc)&.last
+        attempt = submission&.submission_attempts&.order(id: :asc)&.last
         burials = {
           lighthouseBenefitIntakeSubmissionUUID: attempt&.benefits_intake_uuid,
           lighthouseBenefitIntakeSubmissionDate: attempt&.created_at
