@@ -415,11 +415,12 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'logs provider not found error when provider is nil' do
         allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
         expect(Rails.logger).to receive(:error).with(
-          'Community Care Appointments: Provider not found while creating draft appointment.',
+          'Community Care Appointments: Provider not found while creating draft appointment',
           hash_including(
+            error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
             provider_specialty: 'Cardiology',
-            tag: 'Community Care Appointments'
+            user_uuid: current_user.uuid
           )
         )
         expect(subject.error).to be_present
@@ -491,7 +492,12 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           invalid_date_referral.referral_date = 'invalid-date'
 
           expect(Rails.logger).to receive(:error).with(
-            'Community Care Appointments: Error fetching provider slots - Date::Error: invalid date'
+            'Community Care Appointments: Error fetching provider slots',
+            hash_including(
+              error_class: 'Date::Error',
+              error_message: 'invalid date',
+              user_uuid: current_user.uuid
+            )
           )
           result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
           expect(result).to be_nil
