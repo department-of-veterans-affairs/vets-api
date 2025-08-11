@@ -458,6 +458,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  cst_friendly_evidence_requests:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
@@ -1445,10 +1449,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_income_and_assets_overflow_pdf_redesign:
-    actor_type: user
-    description: >
-      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1790,10 +1790,6 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
-  va1010_forms_enrollment_system_service_enabled:
-    actor_type: user
-    description: Enables the VA1010Forms enrollment system service
-    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -1916,6 +1912,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_use_new_vfs_notification_library:
+    actor_type: user
+    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2182,6 +2181,21 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
+  travel_pay_claims_management_decision_reason:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the front-end display of decision reason parsed from the decision letter document on the claim details page.
+      Enabled - The Travel Pay FE will show a decision reason section on the claims details page if it receives decision reason text from the API.
+      Disabled - The Travel Pay FE will hide the decision reason section on the claims details page.
+  travel_pay_claims_management_decision_reason_api:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the decision reason API functionality, including finding decision letter documents and extracting decision reasons from them.
+      The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
+      Enabled - Decision letter documents are parsed and the decision reason is extracted.
+      Disabled - Decision letter documents are not parsed for the decision reason.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
