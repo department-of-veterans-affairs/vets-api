@@ -203,6 +203,11 @@ module Form1010Ezr
     end
 
     def handle_associations(parsed_form)
+      PersonalInformationLog.create!(
+        data: parsed_form,
+        error_class: 'Form1010Ezr handle associations'
+      )
+
       form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
 
       Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user).reconcile_and_update_associations(
