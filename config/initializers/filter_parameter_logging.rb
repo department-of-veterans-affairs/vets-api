@@ -43,6 +43,7 @@ ALLOWLIST = %w[
   qqtotalfilesize
   queue_time
   reply_id
+  result
   saved_claim_id
   service
   showCompleted
