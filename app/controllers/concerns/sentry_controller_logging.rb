@@ -24,8 +24,8 @@ module SentryControllerLogging
 
   def tags_context
     { controller_name: }.tap do |tags|
-      # identity_sign_in for User, sign_in for RepresentativeUser
-      sign_in = current_user&.identity_sign_in || current_user&.sign_in
+      # identity_sign_in for User, sign_in for AccreditedRepresentativePortal::RepresentativeUser
+      sign_in = current_user.is_a?(User) ? current_user.identity_sign_in : current_user&.sign_in
 
       if sign_in.present?
         tags[:sign_in_method] = sign_in[:service_name]
