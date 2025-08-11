@@ -163,6 +163,10 @@ module BGS
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),
         KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
       )
+    rescue => e
+      Rails.logger.error("BGS::DependentService failed to submit to central service: #{e.message}")
+      # raising the error here causes the user to get a 500 error response
+      raise e
     end
 
     def external_key
