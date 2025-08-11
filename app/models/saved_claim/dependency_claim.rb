@@ -187,6 +187,8 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def form_matches_schema
+    return if Flipper.enabled?(:dependents_bypass_schema_validation)
+
     return unless form_is_string
 
     JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
