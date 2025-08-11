@@ -35,4 +35,38 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       )
     end
   end
+
+  describe('#track_saved_claim_save_error') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+    let(:in_progress_form) { create(:in_progress_form) }
+
+    let(:error_details) { { base: [{ error: :invalid }] } }
+    let(:error_messages) { ['Base is invalid', 'Other Error Message'] }
+
+    let(:mock_errors) do
+      instance_double(
+        ActiveModel::Errors,
+        details: error_details,
+        full_messages: error_messages
+      )
+    end
+
+    it 'logs the error metadata' do
+      expect(monitor).to receive(:submit_event).with(
+        :error,
+        "#{described_class} Form526 SavedClaim save error",
+        described_class::CLAIM_STATS_KEY,
+        in_progress_form_id: in_progress_form.id,
+        user_uuid: user.uuid,
+        error_details: error_details.to_s,
+        error_messages: error_messages.to_s
+      )
+
+      monitor.track_saved_claim_save_error(
+        mock_errors,
+        in_progress_form.id,
+        user.uuid
+      )
+    end
+  end
 end
