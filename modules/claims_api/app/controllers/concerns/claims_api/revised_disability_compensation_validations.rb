@@ -98,8 +98,8 @@ module ClaimsApi
       unless end_date_180_days_in_future.nil?
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'serviceInformation/servicePeriods/activeDutyEndDate',
-          "Provided service period duty end date is more than 180 days in the future: \
-          #{end_date_180_days_in_future['activeDutyEndDate']}"
+          'Provided service period duty end date is more than 180 days in the future: ' \
+          "#{end_date_180_days_in_future['activeDutyEndDate']}"
         )
       end
     end
