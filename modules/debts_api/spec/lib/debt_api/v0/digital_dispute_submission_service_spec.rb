@@ -67,6 +67,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
     end
 
     context 'with invalid input' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:financial_management_digital_dispute_async).and_return(false)
+      end
       it 'returns failure when no files provided' do
         service = described_class.new(user, nil)
         result = service.call
@@ -122,6 +125,10 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
     end
 
     context 'when unexpected error occurs' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:financial_management_digital_dispute_async).and_return(false)
+      end
+
       it 'returns generic failure result' do
         allow_any_instance_of(described_class)
           .to receive(:validate_files_present)
