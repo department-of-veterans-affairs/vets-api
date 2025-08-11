@@ -10,22 +10,17 @@ module DebtsApi
       user_data = job['args'][0]
       metadata = job['args'][2]
 
-      debt_ids =
-        if metadata.is_a?(Hash)
-          metadata[:disputes] || metadata['disputes']
-        else
-          nil
-        end
+      debt_ids = metadata['disputes']
 
       if user_data && debt_ids.present?
         submission = DebtsApi::V0::DigitalDisputeSubmission
-                       .where(user_uuid: user_data['uuid'], debt_identifiers: debt_ids)
-                       .order(created_at: :desc)
-                       .first
+                     .where(user_uuid: user_data['uuid'], debt_identifiers: debt_ids)
+                     .order(created_at: :desc)
+                     .first
         submission&.register_failure("Retries exhausted: #{ex.class}: #{ex.message}")
       end
 
-      Rails.logger.error("DigitalDisputeJob retries exhausted: #{ex.class}: #{ex.message} | args=#{job['args'].inspect}")
+      Rails.logger.error("DigitalDisputeJob exhausted: #{ex.class}: #{ex.message} | args=#{job['args'].inspect}")
     end
 
     def perform(user_data, files, metadata)

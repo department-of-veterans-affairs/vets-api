@@ -70,6 +70,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       before do
         allow(Flipper).to receive(:enabled?).with(:financial_management_digital_dispute_async).and_return(false)
       end
+
       it 'returns failure when no files provided' do
         service = described_class.new(user, nil)
         result = service.call
