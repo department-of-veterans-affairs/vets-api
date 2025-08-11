@@ -21,7 +21,7 @@ RSpec.describe 'TravelPay::BaseExpense Factory', type: :model do
     it 'creates an expense with receipt trait' do
       expense = build(:travel_pay_base_expense, :with_receipt)
       expect(expense.receipt).to be_present
-      expect(expense.as_json['has_receipt']).to be true
+      expect(expense.to_h['has_receipt']).to be true
     end
 
     it 'creates a high cost expense with trait' do

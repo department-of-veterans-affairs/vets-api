@@ -23,10 +23,6 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     it 'includes ActiveModel::Validations' do
       expect(described_class.ancestors).to include(ActiveModel::Validations)
     end
-
-    it 'includes ActiveModel::Serialization' do
-      expect(described_class.ancestors).to include(ActiveModel::Serialization)
-    end
   end
 
   describe 'attributes' do
@@ -187,27 +183,60 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
         expect(subject.receipt).to eq(mock_receipt)
       end
     end
+
+    describe '#receipt?' do
+      it 'returns false when no receipt is set' do
+        expect(subject.receipt?).to be false
+      end
+
+      it 'returns true when receipt is present' do
+        subject.receipt = mock_receipt
+        expect(subject.receipt?).to be true
+      end
+
+      it 'returns false when receipt is nil' do
+        subject.receipt = nil
+        expect(subject.receipt?).to be false
+      end
+
+      it 'returns false when receipt is empty string' do
+        subject.receipt = ''
+        expect(subject.receipt?).to be false
+      end
+    end
   end
 
-  describe '#as_json' do
+  describe '#to_h' do
     subject { described_class.new(valid_attributes.merge(claim_id: 'claim-123')) }
 
     it 'returns a hash representation including core attributes' do
-      json = subject.as_json
+      json = subject.to_h
       expect(json['description']).to eq('General expense')
       expect(json['cost_requested']).to eq(100.00)
       expect(json['claim_id']).to eq('claim-123')
     end
 
     it 'includes has_receipt flag when receipt is nil' do
-      json = subject.as_json
+      json = subject.to_h
       expect(json['has_receipt']).to be false
+    end
+
+    it 'does not include receipt key when receipt is nil' do
+      json = subject.to_h
+      expect(json).not_to have_key('receipt')
     end
 
     it 'includes has_receipt flag when receipt is present' do
       subject.receipt = double('Receipt')
-      json = subject.as_json
+      json = subject.to_h
       expect(json['has_receipt']).to be true
+    end
+
+    it 'includes receipt when receipt is present' do
+      mock_receipt = double('Receipt')
+      subject.receipt = mock_receipt
+      json = subject.to_h
+      expect(json['receipt']).to eq(mock_receipt)
     end
   end
 
@@ -288,7 +317,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
 
     it 'maintains ActiveModel functionality in subclasses' do
       custom_expense = custom_expense_class.new(valid_attributes)
-      json = custom_expense.as_json
+      json = custom_expense.to_h
       expect(json['expense_type']).to eq('custom')
       expect(json['description']).to eq('General expense')
       expect(json['cost_requested']).to eq(100.00)
@@ -343,7 +372,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       it 'creates a valid expense with receipt' do
         expect(expense).to be_valid
         expect(expense.receipt).to eq(mock_receipt)
-        expect(expense.as_json['has_receipt']).to be true
+        expect(expense.to_h['has_receipt']).to be true
       end
     end
   end
