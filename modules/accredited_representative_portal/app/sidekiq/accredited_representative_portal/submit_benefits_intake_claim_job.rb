@@ -58,7 +58,7 @@ module AccreditedRepresentativePortal
     end
 
     def stamping_form_class
-      "SimpleFormsApi::VBA#{@claim.class::PROPER_FORM_ID.upcase.gsub(/-/, '')}".constantize
+      @claims.class::STAMPING_FORM_CLASS
     end
 
     ##
