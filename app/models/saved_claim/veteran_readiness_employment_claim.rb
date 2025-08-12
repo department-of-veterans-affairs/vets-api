@@ -323,8 +323,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files.find_each { |f| f.update(saved_claim_id: id) }
 
     Rails.logger.info('VRE claim submitting to Benefits Intake API')
-    # On success, this class will call claim.send_confirmation_email() 
-    # if a function of that name exists.  If you need to implement 
+    # On success, this class will call claim.send_confirmation_email()
+    # if a function of that name exists.  If you need to implement
     # function `send_confirmation_email()`, ensure it accepts 0 arguments
     Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
