@@ -482,6 +482,22 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             expect(JSON.parse(response.body)).to eq(body)
           end
         end
+
+        it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+            expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+              .with('1010ez')
+              .and_raise(StandardError, 'Database connection failed')
+
+            # Expect the warning to be logged
+            expect(Rails.logger).to receive(:warn)
+              .with('[10-10EZ] - Failed to clear saved form: Database connection failed')
+
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
       end
 
       context 'with an invalid discharge date' do

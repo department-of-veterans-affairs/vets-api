@@ -49,5 +49,34 @@ module ClaimsApi
                                                           exception_msg)
       end
     end
+
+    def validate_service_periods_quantity!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+      sp_size = service_periods.size
+      if sp_size > 100
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation.servicePeriods',
+          "Number of service periods #{sp_size} " \
+          'must be less than or equal to 100'
+        )
+      end
+    end
+
+    def validate_service_periods_chronology!
+      form_attributes.dig('serviceInformation', 'servicePeriods').each do |service_period|
+        begin_date = service_period['activeDutyBeginDate']
+        end_date = service_period['activeDutyEndDate']
+        next if end_date.blank?
+
+        if Date.parse(end_date) < Date.parse(begin_date)
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'serviceInformation.servicePeriods',
+            'Invalid service period duty dates - ' \
+            'Provided service period duty dates are out of order: ' \
+            "begin=#{begin_date} end=#{end_date}"
+          )
+        end
+      end
+    end
   end
 end
