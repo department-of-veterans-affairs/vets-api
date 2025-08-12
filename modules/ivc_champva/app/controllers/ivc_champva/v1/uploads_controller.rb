@@ -690,8 +690,7 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = Array.new(applicant_rounded_number) { form_id }
-        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = [form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
@@ -712,8 +711,65 @@ module IvcChampva
         # reduce down to just the attachment id strings:
         attachment_ids = cached_uploads.sort_by { |h| h[:created_at] }.pluck(:attachment_id)&.compact.presence
 
-        # Return either the attachment IDs or `claim_id`s (in the case of form 10-7959a):
-        attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+        # Return either the attachment IDs or `claim_id`s (fallback for form 10-7959a):
+        attachment_ids || parsed_form_data['supporting_docs']&.pluck('attachment_id')&.compact.presence ||
+          parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+      end
+
+      ##
+      # Builds the attachment_ids array for the given form submission.
+      # For form 10-7959a resubmissions/reopens, applies special logic based on dropdown selection.
+      # For all other cases, uses the standard logic.
+      #
+      # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids for all documents
+      def build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        if form_id == 'vha_10_7959a'
+          resubmission_attachment_id = get_resubmission_attachment_id(parsed_form_data)
+          if resubmission_attachment_id
+            # Set the same attachment_id for main form and all supporting documents
+            main_form_count = applicant_rounded_number
+            supporting_docs_count = parsed_form_data['supporting_docs']&.count || 0
+            total_count = main_form_count + supporting_docs_count
+            Array.new(total_count, resubmission_attachment_id)
+          else
+            # Use default logic for non-resubmission cases
+            build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+          end
+        else
+          build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        end
+      end
+
+      ##
+      # Builds the default attachment_ids array using the standard logic.
+      #
+      # @param [String] form_id The mapped form ID
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids
+      def build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = Array.new(applicant_rounded_number) { form_id }
+        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+      end
+
+      ##
+      # Determines the attachment_id for form 10-7959a resubmissions/reopens
+      # based on the dropdown selection for identifying number type.
+      #
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @return [String, nil] attachment_id to use for all documents, or nil if not applicable
+      def get_resubmission_attachment_id(parsed_form_data)
+        return nil if parsed_form_data['pdi_or_claim_number'].blank?
+
+        case parsed_form_data['pdi_or_claim_number']
+        when 'Claim control number'
+          'CVA Reopen'
+        when 'PDI number'
+          'CVA Bene Response'
+        end
       end
 
       ##
