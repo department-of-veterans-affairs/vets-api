@@ -38,7 +38,7 @@ module ClaimsApi
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-            poa_list, view: :index_or_show, root: :data
+            poa_list, view: :shared_response, root: :data
           ), status: :ok
         end
 
@@ -59,7 +59,7 @@ module ClaimsApi
           res = service.get_poa_request
           res['id'] = poa_request.id
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
                                                                                               root: :data),
                  status: :ok
         end
@@ -99,11 +99,11 @@ module ClaimsApi
           # Two different responses needed, if declined no location URL is required
           if decision_response.nil?
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                           view: :index_or_show,
+                                                                                           view: :shared_response,
                                                                                            root: :data), status: :ok
           else
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-              get_poa_response, view: :index_or_show, root: :data
+              get_poa_response, view: :shared_response, root: :data
             ), status: :ok, location: url_for(
               controller: 'power_of_attorney/base', action: 'status', id: decision_response.id, veteranId: vet_icn
             )
