@@ -51,6 +51,7 @@ module DebtsApi
         {
           fileNumber: @file_number,
           disputePDFs: files.map do |file|
+            file.tempfile.rewind
             {
               fileName: sanitize_filename(file.original_filename),
               fileContents: Base64.strict_encode64(file.read)
@@ -68,20 +69,6 @@ module DebtsApi
           raise NoFilesProvidedError,
                 'at least one file is required'
         end
-      end
-
-      def validate_files
-        errors = []
-
-        files.each_with_index do |file, index|
-          file_index = index + 1
-
-          errors << "File #{file_index} must be a PDF" unless file.content_type == ACCEPTED_CONTENT_TYPE
-
-          errors << "File #{file_index} is too large (maximum is 1MB)" if file.size > MAX_FILE_SIZE
-        end
-
-        raise InvalidFileTypeError, errors.join(', ') if errors.any?
       end
 
       def sanitize_filename(filename)
