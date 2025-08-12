@@ -23,6 +23,9 @@ module ClaimsApi
 
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
+
+      # ensure 'currentMailingAddress' attributes are valid
+      validate_form_526_current_mailing_address!
     end
 
     def retrieve_separation_locations
@@ -122,6 +125,22 @@ module ClaimsApi
                 Date.parse(title10_activation_date) <= Time.zone.now
 
       raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+    end
+
+    def valid_countries
+      @valid_countries ||= ClaimsApi::BRD.new.countries
+    end
+
+    def validate_form_526_current_mailing_address!
+      validate_form_526_current_mailing_address_country!
+    end
+
+    def validate_form_526_current_mailing_address_country!
+      current_mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+
+      return if valid_countries.include?(current_mailing_address['country'])
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('country', current_mailing_address['country'])
     end
   end
 end

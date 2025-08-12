@@ -422,4 +422,64 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_form_526_current_mailing_address_country!' do
+    let(:valid_countries) { ['Bolivia', 'China', 'Serbia/Montenegro'] }
+
+    before do
+      # Stubbing this because it's a method on the subject that fetches data from BRD
+      # rubocop:disable RSpec/SubjectStub
+      allow(subject).to receive(:valid_countries).and_return(valid_countries)
+      # rubocop:enable RSpec/SubjectStub
+    end
+
+    context 'when country is valid' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'currentMailingAddress' => {
+              'country' => 'Bolivia'
+            }
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_current_mailing_address_country! }.not_to raise_error
+      end
+    end
+
+    context 'when country is invalid' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'currentMailingAddress' => {
+              'country' => '123'
+            }
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_current_mailing_address_country! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when country is missing' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'currentMailingAddress' => {}
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_current_mailing_address_country! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+  end
 end
