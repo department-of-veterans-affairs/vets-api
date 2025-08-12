@@ -22,9 +22,6 @@ module DebtsApi
       end
 
       def call
-        validate_files_present
-        validate_files
-
         submission = create_submission_record
         return duplicate_submission_result(submission) if check_duplicate?(submission)
 
@@ -33,6 +30,8 @@ module DebtsApi
         in_progress_form&.destroy
 
         success_result(submission)
+      rescue ActiveRecord::RecordInvalid => e
+        failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
         failure_result(e)
@@ -110,6 +109,8 @@ module DebtsApi
           submission.store_public_metadata
         end
 
+        submission.files.attach(files) if files.present?
+
         submission.save!
         submission
       end
@@ -160,6 +161,12 @@ module DebtsApi
             success: false,
             error_type: 'invalid_file',
             errors: { files: error.message.split(', ') }
+          }
+        when ActiveRecord::RecordInvalid
+          {
+            success: false,
+            error_type: 'validation_error',
+            errors: { base: error.record.errors.full_messages }
           }
         else
           {
