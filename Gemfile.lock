@@ -651,7 +651,7 @@ GEM
     jsonapi-parser (0.1.1)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
-    jwe (1.1.0)
+    jwe (1.1.1)
       base64
     jwt (2.10.2)
       base64
@@ -795,7 +795,7 @@ GEM
     ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
-    parallel_tests (5.3.1)
+    parallel_tests (5.4.0)
       parallel
     parser (3.3.9.0)
       ast (~> 2.4.1)
@@ -815,7 +815,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.6.0)
+    pg (1.6.1)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
