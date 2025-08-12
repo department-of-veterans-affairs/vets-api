@@ -83,11 +83,8 @@ module AccreditedRepresentativePortal
       private
 
       def form_id
-        if params[:form_id].present?
-          params[:form_id].gsub(/-UPLOAD/, '')
-        else
-          submit_params[:formData][:formNumber]
-        end
+        fid = params[:form_id].presence || submit_params.dig(:formData, :formNumber)
+        fid&.to_s&.gsub(/-UPLOAD\z/, '')
       end
 
       def send_confirmation_email(saved_claim)
@@ -121,6 +118,15 @@ module AccreditedRepresentativePortal
       end
 
       def authorize_attachment_upload
+        # Require form_id for upload endpoints
+        fid = form_id
+        raise Common::Exceptions::ParameterMissing, 'form_id' if fid.blank?
+
+        # Optionally validate it maps to a known class
+        unless SavedClaim::BenefitsIntake.form_class_from_proper_form_id(fid)
+          raise Common::Exceptions::UnprocessableEntity, detail: "Unknown form_id #{fid.inspect}"
+        end
+
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
       end
 
@@ -142,25 +148,44 @@ module AccreditedRepresentativePortal
         ar_monitoring.trace('ar.claims.form_upload.handle_attachment_upload') do |span|
           service = SavedClaimService::Attach
 
+          # --- Validate inputs early ---
+          uploaded_file = params[:file]
+          span.set_tag('validation.file_present', uploaded_file.present?)
+          raise Common::Exceptions::ParameterMissing, 'file' if uploaded_file.blank?
+
+          fid = form_id
+          span.set_tag('incoming.form_id_param', params[:form_id])
+          span.set_tag('resolved.form_id', fid)
+
+          klass = form_class
+          unless klass
+            span.set_tag('error.specific_reason', 'unknown_form_id')
+            span.set_tag('validation.form_class_present', klass.present?)
+            raise Common::Exceptions::UnprocessableEntity, detail: "Unknown form_id #{fid.inspect}"
+          end
+
+          # --- Perform attach ---
           attachment = service.perform(
             model_klass,
-            file: params[:file],
-            form_id: form_class::PROPER_FORM_ID
+            file: uploaded_file,
+            form_id: klass::PROPER_FORM_ID
           )
 
-          # Trace tags
+          # --- Trace metadata ---
           span.set_tag('form_upload.form_id', attachment.form_id)
           span.set_tag('form_upload.attachment_type', model_klass.name)
-          if params[:file].respond_to?(:original_filename)
-            span.set_tag('form_upload.file_name', params[:file].original_filename)
+          if uploaded_file.respond_to?(:original_filename)
+            span.set_tag('form_upload.file_name', uploaded_file.original_filename)
           end
-          span.set_tag('form_upload.file_size', params[:file].size) if params[:file].respond_to?(:size)
+          span.set_tag('form_upload.file_size', uploaded_file.size) if uploaded_file.respond_to?(:size)
 
-          json = serializer_klass.new(attachment).as_json.deep_transform_keys! do |key|
-            key.camelize(:lower)
-          end
+          # --- Serialize & respond ---
+          json = serializer_klass
+                 .new(attachment)
+                 .as_json
+                 .deep_transform_keys { |k| k.to_s.camelize(:lower) }
 
-          render json:
+          render json:, status: :ok
         rescue service::RecordInvalidError => e
           span.set_tag('error.specific_reason', 'record_invalid')
           raise Common::Exceptions::ValidationErrors, e.record

@@ -245,6 +245,111 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                       }]
                                     })
     end
+
+    context 'when form_id is missing' do
+      it 'returns 400 and does not create a record' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        file = fixture_file_upload('doctors-note.gif')
+
+        params = { file: } # <- missing form_id
+
+        expect do
+          post '/accredited_representative_portal/v0/representative_form_upload', params:
+        end.not_to change(PersistentAttachments::VAForm, :count)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response).to eq({
+                                        'errors' => [{
+                                          'title' => 'Missing parameter',
+                                          'detail' => 'The required parameter "representative_form_upload", is missing',
+                                          'code' => '108',
+                                          'status' => '400'
+                                        }]
+                                      })
+      end
+    end
+
+    context 'when file is missing' do
+      it 'returns 400 and does not create a record' do
+        params = { form_id: form_number } # <- missing file
+
+        expect do
+          post '/accredited_representative_portal/v0/representative_form_upload', params:
+        end.not_to change(PersistentAttachments::VAForm, :count)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response).to eq({
+                                        'errors' => [{
+                                          'title' => 'Missing parameter',
+                                          'detail' => 'The required parameter "file", is missing',
+                                          'code' => '108',
+                                          'status' => '400'
+                                        }]
+                                      })
+      end
+    end
+
+    context 'when form_id is unknown/unmapped' do
+      it 'returns 422, does not call Attach, and does not create a record' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        file = fixture_file_upload('doctors-note.gif')
+
+        params = { form_id: '99-9999', file: }
+
+        expect(AccreditedRepresentativePortal::SavedClaimService::Attach).not_to receive(:perform)
+
+        expect do
+          post '/accredited_representative_portal/v0/representative_form_upload', params:
+        end.not_to change(PersistentAttachments::VAForm, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response).to eq({
+                                        'errors' => [{
+                                          'title' => 'Unprocessable Entity',
+                                          'detail' => 'Unknown form_id "99-9999"',
+                                          'code' => '422',
+                                          'status' => '422'
+                                        }]
+                                      })
+      end
+    end
+
+    context 'normalization: "-UPLOAD" suffix' do
+      it 'accepts form_id with -UPLOAD suffix' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+
+        file = fixture_file_upload('doctors-note.gif')
+        params = { form_id: "#{form_number}-UPLOAD", file: }
+
+        expect do
+          post '/accredited_representative_portal/v0/representative_form_upload', params:
+        end.to change(PersistentAttachments::VAForm, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'normalization: uppercase form id (adjust if mapping is case-sensitive)' do
+      it 'accepts uppercase form id variant' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+
+        file = fixture_file_upload('doctors-note.gif')
+        params = { form_id: '21-686C', file: }
+
+        # If your mapping is case-sensitive, change this example to expect 422 instead.
+        expect do
+          post '/accredited_representative_portal/v0/representative_form_upload', params:
+        end.to change(PersistentAttachments::VAForm, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
   end
 
   describe '#upload_supporting_documents' do
@@ -300,6 +405,111 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                         'status' => '422'
                                       }]
                                     })
+    end
+
+    context 'when form_id is missing' do
+      it 'returns 400 and does not create a record' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        file = fixture_file_upload('doctors-note.gif')
+
+        params = { file: } # <- missing form_id
+
+        expect do
+          post '/accredited_representative_portal/v0/upload_supporting_documents', params:
+        end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response).to eq({
+                                        'errors' => [{
+                                          'title' => 'Missing parameter',
+                                          'detail' => 'The required parameter "representative_form_upload", is missing',
+                                          'code' => '108',
+                                          'status' => '400'
+                                        }]
+                                      })
+      end
+    end
+
+    context 'when file is missing' do
+      it 'returns 400 and does not create a record' do
+        params = { form_id: form_number } # <- missing file
+
+        expect do
+          post '/accredited_representative_portal/v0/upload_supporting_documents', params:
+        end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response).to eq({
+                                        'errors' => [{
+                                          'title' => 'Missing parameter',
+                                          'detail' => 'The required parameter "file", is missing',
+                                          'code' => '108',
+                                          'status' => '400'
+                                        }]
+                                      })
+      end
+    end
+
+    context 'when form_id is unknown/unmapped' do
+      it 'returns 422, does not call Attach, and does not create a record' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        file = fixture_file_upload('doctors-note.gif')
+
+        params = { form_id: '99-9999', file: }
+
+        expect(AccreditedRepresentativePortal::SavedClaimService::Attach).not_to receive(:perform)
+
+        expect do
+          post '/accredited_representative_portal/v0/upload_supporting_documents', params:
+        end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response).to eq({
+                                        'errors' => [{
+                                          'title' => 'Unprocessable Entity',
+                                          'detail' => 'Unknown form_id "99-9999"',
+                                          'code' => '422',
+                                          'status' => '422'
+                                        }]
+                                      })
+      end
+    end
+
+    context 'normalization: "-UPLOAD" suffix' do
+      it 'accepts form_id with -UPLOAD suffix' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+
+        file = fixture_file_upload('doctors-note.gif')
+        params = { form_id: "#{form_number}-UPLOAD", file: }
+
+        expect do
+          post '/accredited_representative_portal/v0/upload_supporting_documents', params:
+        end.to change(PersistentAttachments::VAFormDocumentation, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'normalization: uppercase form id (adjust if mapping is case-sensitive)' do
+      it 'accepts uppercase form id variant' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+
+        file = fixture_file_upload('doctors-note.gif')
+        params = { form_id: '21-686C', file: }
+
+        # If your mapping is case-sensitive, change this example to expect 422 instead.
+        expect do
+          post '/accredited_representative_portal/v0/upload_supporting_documents', params:
+        end.to change(PersistentAttachments::VAFormDocumentation, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
     end
   end
 end
