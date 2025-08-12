@@ -200,7 +200,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context 'Legacy notification strategy' do
         before do
           allow(Flipper).to receive(:enabled?)
-            .with(:vre_use_new_vfs_notification_library, user)
+            .with(:vre_use_new_vfs_notification_library)
             .and_return(false)
         end
 
