@@ -10,7 +10,7 @@ module PdfFill
             limit: 40,
             question_num: 1.1,
             question_suffix: 'A',
-            question_text: "VETERAN&apos;S NAME (Last, First, Middle Name)"
+            question_text: 'VETERAN&apos;S NAME (Last, First, Middle Name)'
           },
           'veteranSocialSecurityNumber' => {
             key: ['F[0].P3[0].VeteranSSN[0]', 'F[0].P4[0].VeteranSSN[0]', 'F[0].P5[0].VeteranSSN[0]']
