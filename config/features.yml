@@ -119,10 +119,6 @@ features:
     actor_type: user
     description: Enables the After Visit Summary API.
     enable_in_development: true
-  bcas_letters_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view/download benefit letters.
-    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
