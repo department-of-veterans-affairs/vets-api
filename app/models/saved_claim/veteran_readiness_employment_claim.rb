@@ -212,7 +212,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse, CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
+    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
+                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -294,8 +295,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
-  # Lighthouse::SubmitBenefitsClaim will call the function `send_confirmation_email` (if it exists).  
-  # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments. 
+  # Lighthouse::SubmitBenefitsClaim will call the function `send_confirmation_email` (if it exists).
+  # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
   def send_vbms_lighthouse_confirmation_email(user, service, _email_type, email_template)
     if user.va_profile_email.blank?
       Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
