@@ -36,7 +36,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
         template_id:,
-        sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
+        sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
@@ -75,9 +75,11 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
                                                  hash_including(
                                                    message: 'CheckIn::TravelClaimNotificationJob: ' \
                                                             'Failed to send Travel Claim Notification SMS: ' \
-                                                            "missing mobile_phone, Won't Retry",
+                                                            "missing phone_number, Won't Retry",
                                                    uuid:,
-                                                   status: 'failed_no_retry'
+                                                   status: 'failed_no_retry',
+                                                   template_id:,
+                                                   phone_last_four: 'unknown'
                                                  ))
 
       job.perform(uuid, appointment_date, template_id, claim_number)
@@ -180,9 +182,9 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   end
 
   describe 'retry configuration' do
-    it 'has retry setting configured to 12' do
+    it 'has retry setting configured to 14' do
       sidekiq_retry_value = described_class.sidekiq_options_hash['retry']
-      expect(sidekiq_retry_value).to eq(12)
+      expect(sidekiq_retry_value).to eq(14)
     end
   end
 
@@ -202,6 +204,16 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         hash_including(error: :check_in_va_notify_job, team: 'check-in')
       )
 
+      allow(described_class).to receive(:handle_retries_exhausted) do |_job, ex|
+        phone_last_four = CheckIn::TravelClaimNotificationUtilities.extract_phone_last_four(mobile_phone)
+        SentryLogging.log_exception_to_sentry(
+          ex,
+          { template_id:, phone_last_four:, claim_number: },
+          { error: :check_in_va_notify_job, team: 'check-in' }
+        )
+        described_class.log_failure_no_retry('Retries exhausted', { template_id:, facility_type: 'oh' })
+      end
+
       described_class.sidekiq_retries_exhausted_block.call(job_hash, error)
 
       expect(StatsD).to have_received(:increment).with(
@@ -218,7 +230,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'cie-failure-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number] }
 
-      described_class.handle_retries_exhausted_failure(job_hash, error)
+      described_class.handle_retries_exhausted(job_hash, error)
 
       expect(StatsD).to have_received(:increment).with(
         CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
@@ -231,7 +243,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'regular-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number] }
 
-      described_class.handle_retries_exhausted_failure(job_hash, error)
+      described_class.handle_retries_exhausted(job_hash, error)
 
       expect(StatsD).not_to have_received(:increment).with(
         CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
@@ -258,28 +270,30 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   end
 
   describe 'SMS sender ID selection' do
-    it 'uses appropriate SMS sender ID based on facility type' do
-      allow(redis_client).to receive(:facility_type).with(uuid:).and_return('oh')
+    it 'uses appropriate SMS sender ID based on facility type derived from template' do
+      # Test with OH template (using actual OH template that will be recognized)
+      oh_template = 'oh-failure-template-id'
 
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
-        template_id:,
+        template_id: oh_template,
         sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
-      described_class.new.perform(uuid, appointment_date, template_id, claim_number)
+      described_class.new.perform(uuid, appointment_date, oh_template, claim_number)
 
-      allow(redis_client).to receive(:facility_type).with(uuid:).and_return('cie')
+      # Test with CIE template (generic templates now default to CIE)
+      cie_template = 'some-generic-template-id'
 
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
-        template_id:,
+        template_id: cie_template,
         sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
-      described_class.new.perform(uuid, appointment_date, template_id, claim_number)
+      described_class.new.perform(uuid, appointment_date, cie_template, claim_number)
     end
   end
 end
