@@ -131,7 +131,7 @@ RSpec.describe SSOe::Service, type: :service do
         VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
       end
 
-      it 'logs the error and returns nil' do
+      it 'logs the error and returns the error response' do
         expect(Rails.logger).to receive(:error).with(/Connection error/)
 
         response = service.get_traits(
@@ -141,7 +141,13 @@ RSpec.describe SSOe::Service, type: :service do
           address:
         )
 
-        expect(response).to be_nil
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 502,
+                                   message: 'Bad Gateway: Failed to connect'
+                                 }
+                               })
       end
     end
 
@@ -155,7 +161,7 @@ RSpec.describe SSOe::Service, type: :service do
         VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
       end
 
-      it 'logs the error and returns nil' do
+      it 'logs the error and returns the error response' do
         expect(Rails.logger).to receive(:error).with(/Connection error: Common::Client::Errors::ClientError/)
 
         response = service.get_traits(
@@ -165,7 +171,13 @@ RSpec.describe SSOe::Service, type: :service do
           address:
         )
 
-        expect(response).to be_nil
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 502,
+                                   message: 'Bad Gateway: Failed to connect'
+                                 }
+                               })
       end
     end
 
@@ -189,8 +201,8 @@ RSpec.describe SSOe::Service, type: :service do
         expect(response).to eq({
                                  success: false,
                                  error: {
-                                   code: 'UnknownError',
-                                   message: 'Unable to parse SOAP response'
+                                   code: 500,
+                                   message: 'UnknownError: Unable to parse SOAP response'
                                  }
                                })
       end

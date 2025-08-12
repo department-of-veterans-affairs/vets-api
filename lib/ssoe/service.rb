@@ -11,7 +11,20 @@ module SSOe
     configuration SSOe::Configuration
 
     STATSD_KEY_PREFIX = 'api.ssoe'
-
+    UNKNOWN_ERROR = {
+      success: false,
+      error: {
+        code: 500,
+        message: 'UnknownError: Unable to parse SOAP response'
+      }
+    }.freeze
+    CONNECTION_ERROR = {
+      success: false,
+      error: {
+        code: 502,
+        message: 'Bad Gateway: Failed to connect'
+      }
+    }.freeze
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
       Common::Client::Errors::ClientError,
@@ -29,8 +42,12 @@ module SSOe
         )
         parse_response(raw_response.body)
       end
-    rescue *CONNECTION_ERRORS, StandardError => e
-      handle_error(e)
+    rescue *CONNECTION_ERRORS => e
+      Rails.logger.error("[SSOe::Service::get_traits] Connection error: #{e.class} - #{e.message}")
+      CONNECTION_ERROR
+    rescue => e
+      Rails.logger.error("[SSOe::Service::get_traits] Unexpected error: #{e.class} - #{e.message}")
+      UNKNOWN_ERROR
     end
 
     private
@@ -71,24 +88,6 @@ module SSOe
       end
 
       raise StandardError, 'Unable to parse SOAP response'
-    end
-
-    def handle_error(exception)
-      log_context = '[SSOe::Service::get_traits]'
-
-      if CONNECTION_ERRORS.any? { |err| exception.is_a?(err) }
-        Rails.logger.error("#{log_context} Connection error: #{exception.class} - #{exception.message}")
-        return nil
-      end
-
-      Rails.logger.error("#{log_context} Unexpected error: #{exception.class} - #{exception.message}")
-      {
-        success: false,
-        error: {
-          code: 'UnknownError',
-          message: 'Unable to parse SOAP response'
-        }
-      }
     end
   end
 end
