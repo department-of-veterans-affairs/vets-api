@@ -15,7 +15,7 @@ module TravelPay
     def download_document(claim_id, doc_id)
       unless claim_id.present? && doc_id.present?
         raise ArgumentError,
-              message: "Missing claim ID or document ID, given: #{params}"
+              message: "Missing claim ID or document ID, given: claim_id=#{claim_id}, doc_id=#{doc_id}"
       end
 
       params = { claim_id:, doc_id: }
