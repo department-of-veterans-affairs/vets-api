@@ -22,10 +22,9 @@ module MebApi
           end
         end
 
-        # Change this once we know where we need to call
-        # Using this for testing purpose.
+        # Changed from 'DGI/Letters' to avoid naming conflict with Letters service
         def service_name
-          'DGI/Letters'
+          'DGI/ToeLetters'
         end
 
         def mock_enabled?

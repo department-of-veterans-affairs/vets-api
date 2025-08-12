@@ -60,19 +60,12 @@ module IvcChampva
     end
 
     def parse_response(response)
-      return {} unless response.body.is_a?(String)
+      return {} unless response.body.is_a?(Hash)
 
-      begin
-        outer_response = JSON.parse(response.body)
-        answer_content = outer_response['answer']
+      answer = response.body['answer']
+      return {} unless answer.is_a?(String)
 
-        return {} unless answer_content.is_a?(String)
-
-        parse_llm_response(answer_content)
-      rescue JSON::ParserError => e
-        Rails.logger.error("IvcChampva::LlmService parse_response failed with error: #{e.message}")
-        {}
-      end
+      parse_llm_response(answer)
     end
 
     def parse_llm_response(answer_content)

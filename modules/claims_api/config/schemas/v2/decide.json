@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Power Of Attorney Request Decide",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision",
+    "representativeId"
+  ],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "description": "The decision of the request.",
+      "enum": [
+        "ACCEPTED",
+        "DECLINED"
+      ]
+    },
+    "declinedReason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The reason for declining the request.",
+      "nullable": true
+    },
+    "representativeId": {
+      "type": "string",
+      "example": "142645388769",
+      "description": "The unique identifier of the requestʼs representative."
+    }
+  }
+}

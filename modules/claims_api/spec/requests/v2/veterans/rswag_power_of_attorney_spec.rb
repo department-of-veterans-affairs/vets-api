@@ -720,7 +720,11 @@ describe 'PowerOfAttorney',
           let(:data) do
             {
               'data' => {
-                'attributes' => {}
+                'attributes' => {
+                  'decision' => 'DECLINED',
+                  'declinedReason' => 'RSWAG POA test reason',
+                  'representativeId' => '918273645463'
+                }
               }
             }
           end

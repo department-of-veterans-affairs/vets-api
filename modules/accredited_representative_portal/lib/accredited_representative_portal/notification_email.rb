@@ -15,10 +15,8 @@ module AccreditedRepresentativePortal
       ::SavedClaim
     end
 
-    def claimant_first_name
-      parsed = claim.parsed_form
-      name = parsed['dependent']&.dig('name', 'first') || parsed['veteran']&.dig('name', 'first')
-      name&.upcase
+    def form_id
+      claim.class::PROPER_FORM_ID
     end
 
     def saved_claim_claimant_representative
@@ -37,6 +35,7 @@ module AccreditedRepresentativePortal
       default = super
 
       {
+        'form_id' => form_id,
         'confirmation_number' => claim.confirmation_number,
         'first_name' => representative&.first_name || 'Representative',
         'submission_date' => claim.created_at.strftime('%B %-d, %Y')
