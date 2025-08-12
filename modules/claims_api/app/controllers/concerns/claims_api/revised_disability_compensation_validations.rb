@@ -14,6 +14,12 @@ module ClaimsApi
       validate_form_526_submission_claim_date!
       # ensure any provided 'separationLocationCode' values are valid EVSS ReferenceData values
       validate_form_526_location_codes!
+
+      # ensure no more than 100 service periods are provided, and begin/end dates are in order
+      validate_service_periods_quantity!
+      validate_service_periods_chronology!
+
+      validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
     end
 
     def retrieve_separation_locations
@@ -76,6 +82,25 @@ module ClaimsApi
             "begin=#{begin_date} end=#{end_date}"
           )
         end
+      end
+    end
+
+    def validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      end_date_180_days_in_future = service_periods.find do |sp|
+        active_duty_end_date = sp['activeDutyEndDate']
+        next if active_duty_end_date.blank?
+
+        Date.parse(active_duty_end_date) > 180.days.from_now.to_date
+      end
+
+      unless end_date_180_days_in_future.nil?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation/servicePeriods/activeDutyEndDate',
+          'Provided service period duty end date is more than 180 days in the future: ' \
+          "#{end_date_180_days_in_future['activeDutyEndDate']}"
+        )
       end
     end
   end
