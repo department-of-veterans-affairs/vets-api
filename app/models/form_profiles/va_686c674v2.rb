@@ -92,7 +92,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     rescue => e
       payload = {
         user_account_uuid: user&.user_account_uuid,
-        error: e,
+        error: e.message,
         form_id:
       }
       Rails.logger.warn('Failed to retrieve awards pension data', payload)

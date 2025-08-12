@@ -1646,9 +1646,10 @@ RSpec.describe FormProfile, type: :model do
               end
 
               it 'prefills when bid awards service returns an error' do
+                error = StandardError.new('awards pension error')
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(StandardError)
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(error)
 
                   prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
@@ -1657,7 +1658,7 @@ RSpec.describe FormProfile, type: :model do
                     .with(
                       'Failed to retrieve awards pension data', {
                         user_account_uuid: user&.user_account_uuid,
-                        error: StandardError,
+                        error: error.message,
                         form_id: '686C-674-V2'
                       }
                     )
