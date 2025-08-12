@@ -160,7 +160,7 @@ module V0
     def log_failure(claim)
       if Flipper.enabled?(:disability_526_track_saved_claim_error) && claim&.errors
         monitor = DisabilityCompensation::Loggers::Monitor.new
-        in_progress_form = @current_user ? InProgressForm.form_for_user(claim.form_id, @current_user) : nil
+        in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) if @current_user
 
         monitor.track_saved_claim_save_error(
           claim&.errors,

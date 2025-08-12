@@ -336,10 +336,11 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
     let(:claim_with_save_error) do
       claim = SavedClaim::DisabilityCompensation::Form526AllClaim.new
       errors = ActiveModel::Errors.new(claim)
-      errors.add(:base, 'mock validation error')
+      errors.add(:form, 'Mock form validation error')
       allow(claim).to receive_messages(errors:, save: false)
       claim
     end
+    let!(:in_progress_form) { create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid) }
 
     context 'when the disability_526_track_saved_claim_error Flipper is enabled' do
       before do
@@ -356,6 +357,11 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
         it 'logs save errors for the claim and still returns a 422' do
           expect_any_instance_of(DisabilityCompensation::Loggers::Monitor).to receive(:track_saved_claim_save_error)
+            .with(
+              claim_with_save_error.errors,
+              in_progress_form.id,
+              user.uuid
+            )
 
           post('/v0/disability_compensation_form/submit_all_claim', params: form_params, headers:)
 
