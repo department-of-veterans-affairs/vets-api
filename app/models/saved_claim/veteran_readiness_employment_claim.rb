@@ -301,7 +301,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       return
     end
 
-    unless Flipper.enabled?(:vre_use_new_vfs_notification_library, user)
+    unless Flipper.enabled?(:vre_use_new_vfs_notification_library)
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
         email_template,
