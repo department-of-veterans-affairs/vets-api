@@ -1790,13 +1790,10 @@ veteran_readiness_and_employment:
       - VRE-CMS.VBAVACO@va.gov
   email:
     confirmation_lighthouse:
-      flipper_id: false
       template_id: 'confirmation_lighthouse'
     confirmation_vbms:
-      flipper_id: false
       template_id: 'confirmation_vbms'
     error:
-      flipper_id: false
       template_id: 'error'
 vetext:
   mock: ~
