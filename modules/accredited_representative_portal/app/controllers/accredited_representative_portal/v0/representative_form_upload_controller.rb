@@ -30,13 +30,14 @@ module AccreditedRepresentativePortal
           span.set_tag('form_id', current_form_number)
           Datadog::Tracing.active_trace&.set_tag('form_id', current_form_number)
 
+          Rails.logger.info("accredited_representative_upload attachment_guids: #{attachment_guids}, ")
           saved_claim = service.perform(
             type: form_class,
             metadata:,
             attachment_guids:,
             claimant_representative:
           )
-
+         
           confirmation_number = saved_claim
                                 .latest_submission_attempt
                                 .benefits_intake_uuid
@@ -44,6 +45,7 @@ module AccreditedRepresentativePortal
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
 
+          Rails.logger.info("accredited_representative_upload saved_claim_id: #{saved_claim.id}")
           send_confirmation_email(saved_claim)
           render json: {
             confirmationNumber: confirmation_number,
@@ -92,6 +94,7 @@ module AccreditedRepresentativePortal
 
       def send_confirmation_email(saved_claim)
         AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
+        Rails.logger.info("accredited_representative_upload SENT EMAIL - #{saved_claim.id}")
       rescue => e
         monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, user_account_id, 'confirmation', e)
       end

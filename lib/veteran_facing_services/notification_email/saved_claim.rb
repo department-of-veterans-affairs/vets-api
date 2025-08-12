@@ -47,6 +47,7 @@ module VeteranFacingServices
         @email_template_id = valid_attempt?
         return unless email_template_id
 
+        Rails.logger.info("accredited_representative_upload deliver email_type: #{email_type}, at: #{at}, email_template_id: #{email_template_id}")
         at ? enqueue_email(email_template_id, at) : send_email(email_template_id)
 
         db_record = claim.insert_notification(email_template_id)
