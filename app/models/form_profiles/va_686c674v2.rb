@@ -89,7 +89,13 @@ class FormProfiles::VA686c674v2 < FormProfile
     @awards_pension ||= begin
       response = pension_award_service.get_awards_pension
       response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
-    rescue
+    rescue => e
+      payload = {
+        user_account_uuid: user&.user_account_uuid,
+        error: e,
+        form_id:
+      }
+      Rails.logger.warn('Failed to retrieve awards pension data', payload)
       {}
     end
   end

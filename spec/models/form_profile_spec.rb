@@ -1629,6 +1629,10 @@ RSpec.describe FormProfile, type: :model do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
 
+              before do
+                allow(Rails.logger).to receive(:warn)
+              end
+
               it 'prefills when user is in receipt of pension' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
@@ -1647,6 +1651,16 @@ RSpec.describe FormProfile, type: :model do
                   allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(StandardError)
 
                   prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+
+                  expect(Rails.logger)
+                    .to have_received(:warn)
+                    .with(
+                      'Failed to retrieve awards pension data', {
+                        user_account_uuid: user&.user_account_uuid,
+                        error: StandardError,
+                        form_id: '686C-674-V2'
+                      }
+                    )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
                   expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
