@@ -345,10 +345,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       context 'when LLM conditions are met' do
         before do
+          # Mock Flipper for both @current_user (which might be set) and nil (which is typical in these tests)
           allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, @current_user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_llm_validation, nil).and_return(true)
         end
 
-        it 'includes llm_response in the JSON for vha_10_7959a form' do
+        it 'includes llm_response in the JSON for 10-7959A form' do
           # Set up AWS mocking for individual test runs (prevents real AWS calls)
           original_aws_config = Aws.config.dup
           Aws.config.update(stub_responses: true)
@@ -428,6 +430,39 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
           # Should NOT have LLM response data
           expect(resp).not_to have_key('llm_response')
+        end
+
+        it 'successfully processes LLM validation end-to-end' do
+          # Mock background job launching to prevent OCR job from hanging
+          allow_any_instance_of(IvcChampva::V1::UploadsController)
+            .to receive(:launch_background_job)
+
+          # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
+          dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
+          allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(dummy_pdf_path)
+
+          # Mock file existence check for LlmService.validate_file_exists
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(dummy_pdf_path).and_return(true)
+
+          data = { form_id: '10-7959A', file:, attachment_id: 'test_document' }
+
+          post '/ivc_champva/v1/forms/submit_supporting_documents', params: data
+
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+
+          # Should have the standard attachment data
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+
+          # Should have LLM response data from MockClient
+          expect(resp).to have_key('llm_response')
+          expect(resp['llm_response']).to include(
+            'doc_type' => 'EOB',
+            'doc_type_matches' => true,
+            'valid' => false,
+            'confidence' => 0.9
+          )
         end
       end
 
@@ -1280,13 +1315,20 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:file_path) { '/tmp/some_file.pdf' }
     let(:attachment_guid) { '12345' }
     let(:mock_file) do
-      double('File', respond_to?: true, original_filename: 'some_file.pdf', read: 'content', path: file_path)
+      double('UploadedFile',
+             original_filename: 'some_file.pdf',
+             read: 'content',
+             path: file_path,
+             content_type: 'application/pdf').tap do |file|
+        allow(file).to receive(:respond_to?).with(:original_filename).and_return(true)
+        allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
+      end
     end
     let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
 
-    context 'when form_id is vha_10_7959a' do
-      let(:form_id) { 'vha_10_7959a' }
+    context 'when form_id is 10-7959A' do
+      let(:form_id) { '10-7959A' }
 
       context 'when OCR feature is enabled' do
         before do
@@ -1299,7 +1341,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           expect(job).to receive(:perform_async).with(
             form_id,
             attachment_guid,
-            match(%r{^/.*vha_10_7959a_attachment_.*\.pdf$}), # Matches the expected tempfile path pattern
+            attachment,
             'EOB'
           )
 
@@ -1348,8 +1390,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       end
     end
 
-    context 'when form_id is not vha_10_7959a' do
-      let(:form_id) { 'vha_10_10d' }
+    context 'when form_id is not 10-7959A' do
+      let(:form_id) { '10-10d' }
 
       context 'when OCR feature is enabled' do
         before do
@@ -1376,7 +1418,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
   describe '#tempfile_from_attachment' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
-    let(:form_id) { 'vha_10_7959a' }
+    let(:form_id) { '10-7959A' }
     let(:file_content) { 'test file content' }
 
     context 'when attachment.file responds to original_filename' do
@@ -1394,7 +1436,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.gif$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.gif$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
@@ -1417,7 +1459,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.png$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.png$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
