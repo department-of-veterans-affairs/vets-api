@@ -3,34 +3,33 @@ module TravelClaim
   class AuthManager < BaseClient
     attr_reader :redis_client, :check_in_session
 
-    CACHE_NAMESPACE = 'check-in-travel-pay-cache'
-    CACHE_KEY_PREFIX = 'travel_pay_v4_token'
-
-    def initialize(check_in_session:)
+    def initialize(check_in_session: nil)
       super()
       @check_in_session = check_in_session
       @redis_client = ::TravelClaim::RedisClient.build
     end
 
-    # Returns a BTSSS system access token (v4) for the user associated with the check-in session
-    # Caches token per ICN until expiry
-    def authorize
-      icn = redis_client.icn(uuid: check_in_session.uuid)
-      raise ArgumentError, 'ICN not available for session' if icn.blank?
-
-      cached = read_token(icn)
-      return cached if cached.present?
+    # Returns a BTSSS system access token (v4)
+    # If icn is nil, attempts to resolve from Redis using check_in_session
+    def authorize(icn: nil)
+      resolved_icn = resolve_icn(icn)
+      raise ArgumentError, 'ICN not available' if resolved_icn.blank?
 
       veis_resp = veis_token
       veis_access_token = Oj.safe_load(veis_resp.body).fetch('access_token')
 
-      v4_resp = system_access_token_v4(veis_access_token:, icn:)
-      access_token = Oj.safe_load(v4_resp.body).dig('data', 'accessToken')
-      save_token(icn, access_token)
-      access_token
+      v4_resp = system_access_token_v4(veis_access_token:, icn: resolved_icn)
+      Oj.safe_load(v4_resp.body).dig('data', 'accessToken')
     end
 
     private
+
+    def resolve_icn(passed_icn)
+      return passed_icn if passed_icn.present?
+      return nil if check_in_session.nil?
+
+      redis_client.icn(uuid: check_in_session.uuid)
+    end
 
     def veis_token
       connection(server_url: settings.auth_url).post("/#{settings.tenant_id}/oauth2/v2.0/token") do |req|
@@ -52,19 +51,6 @@ module TravelClaim
         req.headers['Authorization'] = "Bearer #{veis_access_token}"
         req.body = { secret: settings.travel_pay_client_secret, icn: }.to_json
       end
-    end
-
-    def read_token(icn)
-      Rails.cache.read(cache_key(icn), namespace: CACHE_NAMESPACE)
-    end
-
-    def save_token(icn, token)
-      ttl = settings.redis_token_expiry
-      Rails.cache.write(cache_key(icn), token, namespace: CACHE_NAMESPACE, expires_in: ttl)
-    end
-
-    def cache_key(icn)
-      "#{CACHE_KEY_PREFIX}:#{icn}"
     end
 
     def settings
