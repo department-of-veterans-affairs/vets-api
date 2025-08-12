@@ -39,6 +39,8 @@ module TravelClaim
         req.body = URI.encode_www_form(auth_params)
       end
     rescue => e
+      Rails.logger.error(message: 'TravelPayClient token error', uuid: check_in&.uuid,
+                         external_service: service_name, error: e.original_body)
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in&.uuid },
                             { external_service: service_name, team: 'check-in' })
@@ -60,6 +62,8 @@ module TravelClaim
         req.body = { secret: travel_pay_client_secret }.to_json
       end
     rescue => e
+      Rails.logger.error(message: 'TravelPayClient system_access_token error', uuid: check_in&.uuid,
+                         external_service: service_name, error: e.original_body)
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in&.uuid },
                             { external_service: service_name, team: 'check-in' })

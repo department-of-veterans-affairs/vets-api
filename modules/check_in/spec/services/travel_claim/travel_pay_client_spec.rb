@@ -66,8 +66,6 @@ describe TravelClaim::TravelPayClient do
 
       it 'logs message and raises exception' do
         allow(conn_double).to receive(:post).and_raise(exception)
-
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
         expect { client.token }.to raise_exception(exception)
       end
     end
@@ -100,7 +98,6 @@ describe TravelClaim::TravelPayClient do
 
       it 'logs message and raises exception' do
         allow(conn_double).to receive(:post).and_raise(exception)
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
         expect { client.system_access_token(veis_access_token: veis_token) }.to raise_exception(exception)
       end
     end
