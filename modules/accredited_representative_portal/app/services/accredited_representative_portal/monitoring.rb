@@ -18,6 +18,21 @@ module AccreditedRepresentativePortal
       StatsD.distribution(metric, duration_time_ms, tags: merge_tags(tags))
     end
 
+    def trace(span_name, tags: {})
+      Datadog::Tracing.trace(span_name, service: @service) do |span|
+        tags.each { |k, v| span.set_tag(k, v) }
+
+        begin
+          yield(span)
+        rescue => e
+          span.set_tag('error', true)
+          span.set_tag('error.type', e.class.name)
+          span.set_tag('error.message', e.message)
+          raise
+        end
+      end
+    end
+
     private
 
     def merge_tags(tags)

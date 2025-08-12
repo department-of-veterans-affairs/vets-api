@@ -14,6 +14,12 @@ module ClaimsApi
       validate_form_526_submission_claim_date!
       # ensure any provided 'separationLocationCode' values are valid EVSS ReferenceData values
       validate_form_526_location_codes!
+
+      # ensure no more than 100 service periods are provided, and begin/end dates are in order
+      validate_service_periods_quantity!
+      validate_service_periods_chronology!
+
+      validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
     end
 
     def retrieve_separation_locations
@@ -47,6 +53,54 @@ module ClaimsApi
         exception_msg = "Provided separation location code is not valid: #{service_period['separationLocationCode']}"
         raise ::Common::Exceptions::InvalidFieldValue.new('Invalid separation location code',
                                                           exception_msg)
+      end
+    end
+
+    def validate_service_periods_quantity!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+      sp_size = service_periods.size
+      if sp_size > 100
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation.servicePeriods',
+          "Number of service periods #{sp_size} " \
+          'must be less than or equal to 100'
+        )
+      end
+    end
+
+    def validate_service_periods_chronology!
+      form_attributes.dig('serviceInformation', 'servicePeriods').each do |service_period|
+        begin_date = service_period['activeDutyBeginDate']
+        end_date = service_period['activeDutyEndDate']
+        next if end_date.blank?
+
+        if Date.parse(end_date) < Date.parse(begin_date)
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'serviceInformation.servicePeriods',
+            'Invalid service period duty dates - ' \
+            'Provided service period duty dates are out of order: ' \
+            "begin=#{begin_date} end=#{end_date}"
+          )
+        end
+      end
+    end
+
+    def validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      end_date_180_days_in_future = service_periods.find do |sp|
+        active_duty_end_date = sp['activeDutyEndDate']
+        next if active_duty_end_date.blank?
+
+        Date.parse(active_duty_end_date) > 180.days.from_now.to_date
+      end
+
+      unless end_date_180_days_in_future.nil?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation/servicePeriods/activeDutyEndDate',
+          'Provided service period duty end date is more than 180 days in the future: ' \
+          "#{end_date_180_days_in_future['activeDutyEndDate']}"
+        )
       end
     end
   end
