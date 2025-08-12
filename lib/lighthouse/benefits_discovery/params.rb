@@ -44,6 +44,7 @@ module BenefitsDiscovery
 
     def disability_rating
       service = VeteranVerification::Service.new
+      # should this pass in keys? who determines these things?
       response = service.get_rated_disabilities(@user.icn)
       response.dig('data', 'attributes', 'combined_disability_rating')
     end
@@ -61,17 +62,21 @@ module BenefitsDiscovery
       def service_history_params(episodes)
         episodes.filter_map do |sh|
           code = sh.character_of_discharge_code
-          discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
-          if discharge_type.nil?
-            raise Common::Exceptions::UnprocessableEntity.new(
-              detail: "No matching discharge code for: #{code}",
-              source: self.class.name
-            )
+          if code.present?
+            discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
+            # we want to know if the code is not found in the DISCHARGE_TYPES
+            if discharge_type.nil?
+              raise Common::Exceptions::UnprocessableEntity.new(
+                detail: "No matching discharge code for: #{code}",
+                source: self.class.name
+              )
+            end
           end
+          discharge_status = discharge_type.present? ? "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE" : nil
           {
             startDate: sh.begin_date,
             endDate: sh.end_date,
-            dischargeStatus: "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE",
+            dischargeStatus: discharge_status,
             branchOfService: sh.branch_of_service&.upcase
           }
         end
