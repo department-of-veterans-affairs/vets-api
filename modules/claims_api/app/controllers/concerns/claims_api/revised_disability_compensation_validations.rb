@@ -5,7 +5,7 @@ require 'brd/brd'
 require 'bgs_service/standard_data_service'
 
 module ClaimsApi
-  module RevisedDisabilityCompensationValidations
+  module RevisedDisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -20,6 +20,9 @@ module ClaimsApi
       validate_service_periods_chronology!
 
       validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+
+      # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
+      validate_form_526_title10_activation_date!
     end
 
     def retrieve_separation_locations
@@ -102,6 +105,23 @@ module ClaimsApi
           "#{end_date_180_days_in_future['activeDutyEndDate']}"
         )
       end
+    end
+
+    def validate_form_526_title10_activation_date!
+      title10_activation_date = form_attributes.dig('serviceInformation',
+                                                    'reservesNationalGuardService',
+                                                    'title10Activation',
+                                                    'title10ActivationDate')
+      return if title10_activation_date.blank?
+
+      begin_dates = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
+        Date.parse(service_period['activeDutyBeginDate'])
+      end
+
+      return if Date.parse(title10_activation_date) > begin_dates.min &&
+                Date.parse(title10_activation_date) <= Time.zone.now
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
     end
   end
 end

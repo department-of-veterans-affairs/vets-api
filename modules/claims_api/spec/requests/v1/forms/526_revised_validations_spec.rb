@@ -376,4 +376,50 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_form_526_title10_activation_date!' do
+    let(:service_periods) do
+      [
+        { 'activeDutyBeginDate' => '2000-01-01', 'activeDutyEndDate' => '2005-01-01' },
+        { 'activeDutyBeginDate' => '2010-01-01', 'activeDutyEndDate' => '2015-01-01' }
+      ]
+    end
+
+    let(:form_attributes) do
+      {
+        'serviceInformation' => {
+          'servicePeriods' => service_periods,
+          'reservesNationalGuardService' => {
+            'title10Activation' => { 'title10ActivationDate' => title10_activation_date }
+          }
+        }
+      }
+    end
+
+    context 'when title10ActivationDate is after the earliest begin date and not in the future' do
+      let(:title10_activation_date) { '2001-01-01' }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_activation_date! }.not_to raise_error
+      end
+    end
+
+    context 'when title10ActivationDate is before the earliest begin date' do
+      let(:title10_activation_date) { '1999-12-31' }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_title10_activation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when title10ActivationDate is in the future' do
+      let(:title10_activation_date) { 1.day.from_now.to_date.iso8601 }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_title10_activation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
 end
