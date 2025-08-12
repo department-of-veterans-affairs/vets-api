@@ -278,6 +278,9 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_foreign_address_fix:
+    actor_type: user
+    description: Enables the fix for foreign address fields on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1789,10 +1792,6 @@ features:
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
-    enable_in_development: true
-  va1010_forms_enrollment_system_service_enabled:
-    actor_type: user
-    description: Enables the VA1010Forms enrollment system service
     enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
