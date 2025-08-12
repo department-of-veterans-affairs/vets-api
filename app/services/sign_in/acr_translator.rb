@@ -11,7 +11,7 @@ module SignIn
     end
 
     def perform
-      translate_acr
+      { acr: translate_acr, acr_comparison: translate_acr_comparison }.compact
     end
 
     private
@@ -29,6 +29,10 @@ module SignIn
       else
         raise Errors::InvalidTypeError.new message: 'Invalid Type value'
       end
+    end
+
+    def translate_acr_comparison
+      type == Constants::Auth::IDME && acr == 'min' ? Constants::Auth::IDME_COMPARISON_MINIMUM : nil
     end
 
     def translate_idme_values
@@ -69,7 +73,7 @@ module SignIn
       when 'ial2'
         Constants::Auth::LOGIN_GOV_IAL2
       when 'min'
-        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL1
+        Constants::Auth::LOGIN_GOV_IAL0
       else
         raise Errors::InvalidAcrError.new message: 'Invalid ACR for logingov'
       end
