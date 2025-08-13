@@ -4,9 +4,9 @@ module TravelClaim
   class TokenClient < BaseClient
     GRANT_TYPE = 'client_credentials'
 
-    def initialize(client_number)
+    def initialize(client_number = nil)
       super()
-      @client_number = client_number
+      @client_number = client_number || settings.travel_pay_client_id
     end
 
     def veis_token
