@@ -108,8 +108,7 @@ RSpec.describe ConfigHelper do
     context 'integration test with both features enabled' do
       before do
         allow(Rails.env).to receive(:development?).and_return(true)
-        allow(FeatureFlipper).to receive(:staging_email?).and_return(false)
-        allow(FeatureFlipper).to receive(:send_email?).and_return(true)
+        allow(FeatureFlipper).to receive_messages(staging_email?: false, send_email?: true)
         allow(Settings).to receive(:govdelivery).and_return(
           double(token: 'integration_token', server: 'staging.govdelivery.com')
         )
@@ -120,9 +119,9 @@ RSpec.describe ConfigHelper do
         expect(action_mailer).to receive(:show_previews=).with(true)
         expect(action_mailer).to receive(:delivery_method=).with(:govdelivery_tms)
         expect(action_mailer).to receive(:govdelivery_tms_settings=).with({
-          auth_token: 'integration_token',
-          api_root: 'https://staging.govdelivery.com'
-        })
+                                                                            auth_token: 'integration_token',
+                                                                            api_root: 'https://staging.govdelivery.com'
+                                                                          })
 
         described_class.setup_action_mailer(config)
       end

@@ -106,11 +106,11 @@ RSpec.describe Common::FileHelpers do
   describe '.generate_clamav_temp_file' do
     after do
       # Cleanup generated files
-      FileUtils.rm_rf('clamav_tmp') if Dir.exist?('clamav_tmp')
+      FileUtils.rm_rf('clamav_tmp')
     end
 
     it 'creates clamav_tmp directory if it does not exist' do
-      FileUtils.rm_rf('clamav_tmp') if Dir.exist?('clamav_tmp')
+      FileUtils.rm_rf('clamav_tmp')
       expect(Dir.exist?('clamav_tmp')).to be false
 
       described_class.generate_clamav_temp_file('test content')
@@ -155,7 +155,7 @@ RSpec.describe Common::FileHelpers do
     it 'returns the file path' do
       file_path = described_class.generate_clamav_temp_file('test')
       expect(file_path).to be_a(String)
-      expect(file_path).to match(/^clamav_tmp\/[a-f0-9]+$/)
+      expect(file_path).to match(%r{^clamav_tmp/[a-f0-9]+$})
     end
   end
 end
