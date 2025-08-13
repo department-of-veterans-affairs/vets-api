@@ -70,9 +70,7 @@ module DebtsApi
         return unless files.attached?
 
         files.each_with_index do |file, index|
-          unless file.content_type == ACCEPTED_CONTENT_TYPE
-            errors.add(:files, "File #{index + 1} must be a PDF")
-          end
+          errors.add(:files, "File #{index + 1} must be a PDF") unless file.content_type == ACCEPTED_CONTENT_TYPE
         end
       end
 
@@ -80,9 +78,7 @@ module DebtsApi
         return unless files.attached?
 
         files.each_with_index do |file, index|
-          if file.byte_size > MAX_FILE_SIZE
-            errors.add(:files, "File #{index + 1} is too large (maximum is 1MB)")
-          end
+          errors.add(:files, "File #{index + 1} is too large (maximum is 1MB)") if file.byte_size > MAX_FILE_SIZE
         end
       end
 

@@ -136,32 +136,22 @@ module DebtsApi
       end
 
       def failure_result(error)
-        case error
-        when NoFilesProvidedError
-          {
-            success: false,
-            error_type: 'no_files',
-            errors: { files: [error.message] }
-          }
-        when InvalidFileTypeError
-          {
-            success: false,
-            error_type: 'invalid_file',
-            errors: { files: error.message.split(', ') }
-          }
-        when ActiveRecord::RecordInvalid
-          {
-            success: false,
-            error_type: 'validation_error',
-            errors: { base: error.record.errors.full_messages }
-          }
-        else
-          {
-            success: false,
-            error_type: 'processing_error',
-            errors: { base: ['An error occurred processing your submission'] }
-          }
-        end
+        base_hash = { success: false }
+
+        details = case error
+                  when NoFilesProvidedError
+                    { error_type: 'no_files', errors: { files: [error.message] } }
+                  when InvalidFileTypeError
+                    { error_type: 'invalid_file', errors: { files: error.message.split(', ') } }
+                  when ActiveRecord::RecordInvalid
+                    { error_type: 'validation_error', errors: { base: error.record.errors.full_messages } }
+                  else
+                    {
+                      error_type: 'processing_error', errors: { base: ['An error occurred processing your submission'] }
+                    }
+                  end
+
+        base_hash.merge!(details)
       end
     end
   end
