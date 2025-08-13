@@ -6,9 +6,7 @@ require 'lighthouse/veteran_verification/service'
 require 'lighthouse/service_exception'
 
 RSpec.describe VeteranVerification::Service do
-  before(:all) do
-    @service = VeteranVerification::Service.new
-  end
+  let(:service) { VeteranVerification::Service.new }
 
   describe 'making requests' do
     context 'valid requests' do
@@ -21,7 +19,7 @@ RSpec.describe VeteranVerification::Service do
 
         it 'retrieves rated disabilities from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response', VCR::MATCH_EVERYTHING) do
-            response = @service.get_rated_disabilities(icn, '', '')
+            response = service.get_rated_disabilities(icn, '', '')
             expect(response['data']['id']).to eq('12303')
           end
         end
@@ -37,7 +35,7 @@ RSpec.describe VeteranVerification::Service do
 
           def test_error(cassette_path)
             VCR.use_cassette(cassette_path) do
-              @service.get_rated_disabilities(icn, '', '')
+              service.get_rated_disabilities(icn, '', '')
             end
           end
         end
@@ -63,7 +61,7 @@ RSpec.describe VeteranVerification::Service do
               expect(Rails.logger).to receive(:info).with('Vet Verification Status Success: confirmed',
                                                           { confirmed: true })
 
-              response = @service.get_vet_verification_status(user.icn, '', '')
+              response = service.get_vet_verification_status(user.icn, '', '')
 
               expect(response['data']['id']).to eq('1012667145V762142')
               expect(response['data']['type']).to eq('veteran_status_confirmations')
@@ -85,7 +83,7 @@ RSpec.describe VeteranVerification::Service do
                 { not_confirmed: true, not_confirmed_reason: 'ERROR' }
               )
 
-              response = @service.get_vet_verification_status(user.icn, '', '')
+              response = service.get_vet_verification_status(user.icn, '', '')
 
               expect(response['data']['id']).to eq('1012666182V20')
               expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
@@ -108,7 +106,7 @@ RSpec.describe VeteranVerification::Service do
                 { not_confirmed: true, not_confirmed_reason: 'NOT_TITLE_38' }
               )
 
-              response = @service.get_vet_verification_status(user.icn, '', '')
+              response = service.get_vet_verification_status(user.icn, '', '')
 
               expect(response['data']['id']).to eq('1012666182V203559')
               expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
@@ -131,7 +129,7 @@ RSpec.describe VeteranVerification::Service do
                 { not_confirmed: true, not_confirmed_reason: 'PERSON_NOT_FOUND' }
               )
 
-              response = @service.get_vet_verification_status(user.icn, '', '')
+              response = service.get_vet_verification_status(user.icn, '', '')
 
               expect(response['data']['id']).to be_nil
               expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
@@ -149,7 +147,7 @@ RSpec.describe VeteranVerification::Service do
           it 'retrieves more research required status from the Lighthouse API' do
             VCR.use_cassette('lighthouse/veteran_verification/status/200_more_research_required_response',
                              VCR::MATCH_EVERYTHING) do
-              response = @service.get_vet_verification_status(user.icn, '', '')
+              response = service.get_vet_verification_status(user.icn, '', '')
 
               expect(response['data']['id']).to eq('1012667145V762149')
               expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
@@ -181,7 +179,7 @@ RSpec.describe VeteranVerification::Service do
 
             def test_error(cassette_path)
               VCR.use_cassette(cassette_path) do
-                @service.get_vet_verification_status(user.icn, '', '')
+                service.get_vet_verification_status(user.icn, '', '')
               end
             end
           end
