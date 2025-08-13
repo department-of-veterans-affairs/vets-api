@@ -4,10 +4,10 @@ module MyHealth
   module V1
     class AllTriageTeamsController < SMController
       def index
-        resource = client.get_all_triage_teams(1, use_cache?)
+                resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         if resource.blank?
           raise Common::Exceptions::RecordNotFound,
-                "Triage teams for user ID #{1} not found"
+                "Triage teams for user ID #{@current_user.uuid} not found"
         end
 
         resource = resource.sort(params.permit(:sort)[:sort])
