@@ -127,10 +127,6 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
-  benefits_documents_validate_claimant:
-    actor_type: user
-    description: When enabled, validate that the given claimant can upload docs for the claim
-    enable_in_development: false
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
@@ -146,12 +142,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_request_duration_monitoring:
-    actor_type: user
-    description: Enables logging of 10-10CG request durations to StatsD
-  caregiver_use_rails_logging_over_sentry:
-    actor_type: user
-    description: Use Rails for logging instead of Sentry
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -174,9 +164,6 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_enrollment_status_filter_get:
-    actor_type: user
-    description: Filters out query params from GET requests for the enrollment_status endpoint.
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -291,6 +278,9 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_foreign_address_fix:
+    actor_type: user
+    description: Enables the fix for foreign address fields on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -339,6 +329,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_vaec_cie_endpoints:
+    actor_type: user
+    description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
+    enable_in_development: false
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
@@ -760,10 +754,10 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
-  event_bus_gateway_emails_enabled:
+  digital_dispute_duplicate_prevention:
     actor_type: user
-    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
-    enable_in_development: true
+    description: Enables duplicate prevention for digital dispute submissions
+    enable_in_development: false
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1458,10 +1452,16 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_income_and_assets_overflow_pdf_redesign:
+  ep120_decision_letter_notifications:
     actor_type: user
     description: >
-      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
+      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
+    enable_in_development: true
+  ep180_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
+    enable_in_development: true
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1803,10 +1803,6 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
-  va1010_forms_enrollment_system_service_enabled:
-    actor_type: user
-    description: Enables the VA1010Forms enrollment system service
-    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -1920,15 +1916,15 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_use_new_vfs_notification_library:
+    actor_type: user
+    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2195,6 +2191,21 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
+  travel_pay_claims_management_decision_reason:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the front-end display of decision reason parsed from the decision letter document on the claim details page.
+      Enabled - The Travel Pay FE will show a decision reason section on the claims details page if it receives decision reason text from the API.
+      Disabled - The Travel Pay FE will hide the decision reason section on the claims details page.
+  travel_pay_claims_management_decision_reason_api:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the decision reason API functionality, including finding decision letter documents and extracting decision reasons from them.
+      The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
+      Enabled - Decision letter documents are parsed and the decision reason is extracted.
+      Disabled - Decision letter documents are not parsed for the decision reason.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
