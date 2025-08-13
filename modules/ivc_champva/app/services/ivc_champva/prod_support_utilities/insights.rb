@@ -105,7 +105,7 @@ module IvcChampva
         timing_data.sort_by { |data| data[:num_submissions] }.reverse
       end
 
-      # rubocop:disable Rails/LineLength
+      # rubocop:disable Layout/LineLength
       def display_averages_from_data(average_time_data)
         average_time_data.each do |data|
           puts "Avg time between resubmits for users with #{data[:num_submissions]} submissions: #{data[:avg_time_formatted]}"
@@ -113,7 +113,7 @@ module IvcChampva
 
         nil
       end
-      # rubocop:enable Rails/LineLength
+      # rubocop:enable Layout/LineLength
 
       def average_time_between_resubmissions(submissions, start_date, end_date, num_of_resubmits, form_number)
         all_time_differences = []
