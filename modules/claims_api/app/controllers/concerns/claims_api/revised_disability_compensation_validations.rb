@@ -105,6 +105,29 @@ module ClaimsApi
       end
     end
 
+    def end_date_beyond_180_days?(service_periods)
+      service_periods.any? do |sp|
+        end_date = sp['activeDutyEndDate']
+        next false if end_date.blank?
+
+        Date.parse(end_date) > 180.days.from_now.end_of_day
+      end
+    end
+
+    def eligible_for_future_end_date?(service_periods)
+      reserves_national_guard_service = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
+      reserves_national_guard_service.present? && past_service_period?(service_periods)
+    end
+
+    def past_service_period?(service_periods)
+      service_periods.any? do |sp|
+        end_date = sp['activeDutyEndDate']
+        next false if end_date.blank?
+
+        Date.parse(end_date) <= Time.zone.today.end_of_day
+      end
+    end
+
     def validate_form_526_title10_activation_date!
       title10_activation_date = form_attributes.dig('serviceInformation',
                                                     'reservesNationalGuardService',
