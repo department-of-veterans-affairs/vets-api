@@ -35,12 +35,15 @@ jobs:
 
       - name: Get pull_request data
         id: get_pr_data
+        env:
+          SAFE_HEAD_REF: ${{ github.head_ref }}
+          SAFE_WORKFLOW_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
           if ${{ github.event_name == 'pull_request' }}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
             echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-            echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+            echo "pr_branch=$SAFE_HEAD_REF" >> $GITHUB_OUTPUT
 
             if ${{ github.event.pull_request.draft }}; then
               echo "pr_requested_teams=[]" >> $GITHUB_OUTPUT
@@ -48,6 +51,7 @@ jobs:
               echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.slug) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             fi
           elif ${{ github.event_name == 'workflow_run' }}; then
+            echo "pr_branch=$SAFE_WORKFLOW_HEAD_BRANCH" >> $GITHUB_OUTPUT
             if ${{ github.event.workflow_run.event == 'push' }}; then
               HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
               echo "Workflow was triggered by push to $HEAD_BRANCH. Labeling not required."
@@ -56,7 +60,6 @@ jobs:
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
 
               echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-              echo "pr_branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
 
               # Fetch PR details from GitHub API
               PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
