@@ -639,18 +639,6 @@ features:
   dependents_claims_evidence_api_upload:
     actor_type: user
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
-  dependents_trigger_action_needed_email:
-    actor_type: user
-    description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
-  dependents_failure_callback_email:
-    actor_type: user
-    description: Enables the dependents action needed email callback to be used when an action needed email is triggered
-  dependents_submitted_email:
-    actor_type: cookie_id
-    description: Enables the dependents submitted email
-  dependents_separate_confirmation_email:
-    actor_type: cookie_id
-    description: Enables the dependents confirmation/received email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
