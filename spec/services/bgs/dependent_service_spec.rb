@@ -387,7 +387,8 @@ RSpec.describe BGS::DependentService do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
       expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                                                     "#{stats_key}.submit_pdf.begin")
-      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return uploader
+      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier, content_source: 'BGS::DependentService')
+                                                          .and_return(uploader)
 
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674',
                                                                    doctype: claim.document_type)

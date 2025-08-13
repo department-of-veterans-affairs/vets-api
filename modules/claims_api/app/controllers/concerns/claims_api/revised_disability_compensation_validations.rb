@@ -5,7 +5,7 @@ require 'brd/brd'
 require 'bgs_service/standard_data_service'
 
 module ClaimsApi
-  module RevisedDisabilityCompensationValidations
+  module RevisedDisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -14,6 +14,18 @@ module ClaimsApi
       validate_form_526_submission_claim_date!
       # ensure any provided 'separationLocationCode' values are valid EVSS ReferenceData values
       validate_form_526_location_codes!
+
+      # ensure no more than 100 service periods are provided, and begin/end dates are in order
+      validate_service_periods_quantity!
+      validate_service_periods_chronology!
+
+      validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+
+      # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
+      validate_form_526_title10_activation_date!
+
+      # ensure 'currentMailingAddress' attributes are valid
+      validate_form_526_current_mailing_address!
     end
 
     def retrieve_separation_locations
@@ -77,6 +89,58 @@ module ClaimsApi
           )
         end
       end
+    end
+
+    def validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      end_date_180_days_in_future = service_periods.find do |sp|
+        active_duty_end_date = sp['activeDutyEndDate']
+        next if active_duty_end_date.blank?
+
+        Date.parse(active_duty_end_date) > 180.days.from_now.to_date
+      end
+
+      unless end_date_180_days_in_future.nil?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation/servicePeriods/activeDutyEndDate',
+          'Provided service period duty end date is more than 180 days in the future: ' \
+          "#{end_date_180_days_in_future['activeDutyEndDate']}"
+        )
+      end
+    end
+
+    def validate_form_526_title10_activation_date!
+      title10_activation_date = form_attributes.dig('serviceInformation',
+                                                    'reservesNationalGuardService',
+                                                    'title10Activation',
+                                                    'title10ActivationDate')
+      return if title10_activation_date.blank?
+
+      begin_dates = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
+        Date.parse(service_period['activeDutyBeginDate'])
+      end
+
+      return if Date.parse(title10_activation_date) > begin_dates.min &&
+                Date.parse(title10_activation_date) <= Time.zone.now
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+    end
+
+    def valid_countries
+      @valid_countries ||= ClaimsApi::BRD.new.countries
+    end
+
+    def validate_form_526_current_mailing_address!
+      validate_form_526_current_mailing_address_country!
+    end
+
+    def validate_form_526_current_mailing_address_country!
+      current_mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+
+      return if valid_countries.include?(current_mailing_address['country'])
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('country', current_mailing_address['country'])
     end
   end
 end
