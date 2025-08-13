@@ -1766,7 +1766,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_31_004219) do
     t.uuid "template_id"
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
-    t.text "service_api_key_path"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["needs_kms_rotation"], name: "index_va_notify_notifications_on_needs_kms_rotation"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
