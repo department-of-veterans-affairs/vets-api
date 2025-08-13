@@ -4,26 +4,60 @@ module TravelClaim
   class AuthManager < BaseClient
     attr_reader :redis_client, :check_in_session
 
+    CACHE_NAMESPACE = 'check-in-travel-pay-cache'
+    CACHE_KEY_PREFIX = 'travel_pay_v4_token'
+
     def initialize(check_in_session: nil)
       super()
       @check_in_session = check_in_session
       @redis_client = ::TravelClaim::RedisClient.build
+      @token_client = TokenClient.new
     end
 
     # Returns a BTSSS system access token (v4)
     # If icn is nil, attempts to resolve from Redis using check_in_session
+    # Caches token per ICN (non-PHI keys)
     def authorize(icn: nil)
       resolved_icn = resolve_icn(icn)
       raise ArgumentError, 'ICN not available' if resolved_icn.blank?
 
-      veis_resp = veis_token
-      veis_access_token = Oj.safe_load(veis_resp.body).fetch('access_token')
+      key = secure_cache_key(resolved_icn)
+      cached = redis_client.v4_token(cache_key: key)
+      return cached if cached.present?
 
-      v4_resp = system_access_token_v4(veis_access_token:, icn: resolved_icn)
-      Oj.safe_load(v4_resp.body).dig('data', 'accessToken')
+      veis_access_token = veis_access_token!
+      v4_resp = @token_client.system_access_token_v4(veis_access_token:, icn: resolved_icn)
+      access_token = Oj.safe_load(v4_resp.body).dig('data', 'accessToken')
+
+      redis_client.save_v4_token(cache_key: key, token: access_token)
+      access_token
+    end
+
+    # Mirrors travel_pay behavior: requests fresh VEIS and BTSSS(v4) tokens, persists them, and returns both.
+    def request_new_tokens(icn: nil)
+      resolved_icn = resolve_icn(icn)
+      raise ArgumentError, 'ICN not available' if resolved_icn.blank?
+
+      veis_access_token = veis_access_token!
+      # Persist VEIS token for legacy consumers using the existing Redis client contract
+      redis_client.save_token(token: veis_access_token)
+
+      v4_resp = @token_client.system_access_token_v4(veis_access_token:, icn: resolved_icn)
+      access_token = Oj.safe_load(v4_resp.body).dig('data', 'accessToken')
+
+      # Persist v4 system token under a secure, non-PHI cache key
+      key = secure_cache_key(resolved_icn)
+      redis_client.save_v4_token(cache_key: key, token: access_token)
+
+      { veis_token: veis_access_token, btsss_token: access_token }
     end
 
     private
+
+    def veis_access_token!
+      resp = @token_client.veis_token
+      Oj.safe_load(resp.body).fetch('access_token')
+    end
 
     def resolve_icn(passed_icn)
       return passed_icn if passed_icn.present?
@@ -32,26 +66,19 @@ module TravelClaim
       redis_client.icn(uuid: check_in_session.uuid)
     end
 
-    def veis_token
-      connection(server_url: settings.auth_url).post("/#{settings.tenant_id}/oauth2/v2.0/token") do |req|
-        req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-        req.body = URI.encode_www_form({
-                                         client_id: settings.travel_pay_client_id,
-                                         client_secret: settings.travel_pay_client_secret,
-                                         scope: settings.scope,
-                                         grant_type: 'client_credentials'
-                                       })
+    # Build a non-PHI cache key. Prefer session UUID when available; otherwise HMAC the ICN.
+    def secure_cache_key(icn)
+      if check_in_session&.uuid.present?
+        "#{CACHE_KEY_PREFIX}:session:#{check_in_session.uuid}"
+      else
+        secret = settings.respond_to?(:cache_key_secret) && settings.cache_key_secret.present? ? settings.cache_key_secret.to_s : (Rails.application.credentials.respond_to?(:secret_key_base) ? Rails.application.credentials.secret_key_base.to_s : 'checkin-travel-pay')
+        digest = OpenSSL::HMAC.hexdigest('SHA256', secret, icn.to_s)
+        "#{CACHE_KEY_PREFIX}:icn_hmac:#{digest}"
       end
     end
 
-    def system_access_token_v4(veis_access_token:, icn:)
-      connection(server_url: settings.claims_url_v2).post('/api/v4/auth/system-access-token') do |req|
-        req.headers['Content-Type'] = 'application/json'
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-        req.headers.merge!(claim_headers)
-        req.headers['Authorization'] = "Bearer #{veis_access_token}"
-        req.body = { secret: settings.travel_pay_client_secret, icn: }.to_json
-      end
+    def settings
+      @settings ||= Settings.check_in.travel_reimbursement_api_v2
     end
   end
 end
