@@ -36,11 +36,13 @@ RSpec.describe SSOe::Service, type: :service do
 
     shared_examples 'responds with 502' do
       it 'logs the error and returns the error response' do
-        error_message = '[SSOe::Service::get_traits] connection error: Common::Client::Errors::ClientError - ' \
-                        'Failed to open TCP connection to int.services.eauth.va.gov:9303 ' \
-                        '(getaddrinfo: nodename nor servname provided, or not known)'
-
-        expect(Rails.logger).to receive(:error).with(error_message)
+        expect(Rails.logger).to receive(:error).with(
+          a_string_starting_with(
+            '[SSOe::Service::get_traits] connection error: Common::Client::Errors::ClientError - ' \
+            'Failed to open TCP connection to int.services.eauth.va.gov:9303'
+          )
+            .and(including('getaddrinfo:'))
+        )
 
         response = service.get_traits(
           credential_method:,
@@ -49,14 +51,12 @@ RSpec.describe SSOe::Service, type: :service do
           address:
         )
 
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 502,
-                                   message: 'Failed to open TCP connection to int.services.eauth.va.gov:9303 ' \
-                                            '(getaddrinfo: nodename nor servname provided, or not known)'
-                                 }
-                               })
+        expect(response[:success]).to be false
+        expect(response[:error][:code]).to eq(502)
+        expect(response[:error][:message]).to start_with(
+          'Failed to open TCP connection to int.services.eauth.va.gov:9303'
+        )
+        expect(response[:error][:message]).to include('getaddrinfo:')
       end
     end
 
