@@ -1342,11 +1342,13 @@ spec/lib/common/client/middleware @department-of-veterans-affairs/backend-review
 spec/lib/common/client/session_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/convert_to_pdf_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/exceptions/detailed_schema_errors_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/common/file_helpers_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/models/base_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/models/collection_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/models/concerns/cache_aside_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/models/redis_store_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/common/pdf_helpers_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
+spec/lib/config_helper_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/contention_classification @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-contention-classification-engineers @department-of-veterans-affairs/benefits-admin
 spec/lib/debt_management_center @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/lib/decision_review @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
@@ -1425,6 +1427,7 @@ spec/lib/pcpg @department-of-veterans-affairs/benefits-non-disability @departmen
 spec/lib/pdf_fill @department-of-veterans-affairs/backend-review-group
 spec/lib/pdf_info/metadata_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/pdf_utilities @department-of-veterans-affairs/backend-review-group
+spec/lib/pdf_utilities/pdf_validator_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/pension21p527ez/pension_military_information_spec.rb @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 spec/lib/periodic_jobs_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/lib/persistent_attachments/sanitizer_spec.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/pensions @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
@@ -1562,6 +1565,7 @@ spec/models/personal_information_log_spec.rb @department-of-veterans-affairs/bac
 spec/models/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 spec/models/prescription_details_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/models/prescription_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
+spec/models/prescription_preference_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/models/rate_limited_search_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/models/redis_caching_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/models/saml_request_tracker_spec.rb @department-of-veterans-affairs/octo-identity
