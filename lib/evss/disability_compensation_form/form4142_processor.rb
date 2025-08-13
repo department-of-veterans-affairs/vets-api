@@ -21,7 +21,7 @@ module EVSS
       protected
 
       def transform_provider_facilities(incoming_data)
-        provider_facilities = incoming_data['providerFacility']
+        provider_facilities = incoming_data['form4142']['providerFacility']
         return incoming_data if provider_facilities.blank?
 
         incoming_data['providerFacility'] = provider_facilities.map do |facility|
