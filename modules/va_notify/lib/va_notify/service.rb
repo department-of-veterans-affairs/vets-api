@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require "notifications/client"
-require "common/client/base"
-require "common/client/concerns/monitoring"
-require_relative "configuration"
-require_relative "error"
+require 'notifications/client'
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require_relative 'configuration'
+require_relative 'error'
 
 module VaNotify
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
-    STATSD_KEY_PREFIX = "api.vanotify"
+    STATSD_KEY_PREFIX = 'api.vanotify'
 
     configuration VaNotify::Configuration
 
@@ -110,7 +110,7 @@ module VaNotify
 
     def create_notification(response)
       if response.nil?
-        Rails.logger.error("VANotify - no response")
+        Rails.logger.error('VANotify - no response')
         return
       end
 
@@ -121,8 +121,8 @@ module VaNotify
       notification = VANotify::Notification.new(
         notification_id: response.id,
         source_location: find_caller_locations,
-        callback_klass: callback_options[:callback_klass] || callback_options["callback_klass"],
-        callback_metadata: callback_options[:callback_metadata] || callback_options["callback_metadata"],
+        callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
+        callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
         template_id:,
         service_api_key_path:
       )
@@ -139,7 +139,7 @@ module VaNotify
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
-        "VANotify notification record failed to save",
+        'VANotify notification record failed to save',
         {
           error_messages: notification.errors,
           template_id:
@@ -161,11 +161,11 @@ module VaNotify
 
     def find_caller_locations
       ignored_files = [
-        "modules/va_notify/lib/va_notify/service.rb",
-        "va_notify/app/sidekiq/va_notify/email_job.rb",
-        "va_notify/app/sidekiq/va_notify/user_account_job.rb",
-        "lib/sidekiq/processor.rb",
-        "lib/sidekiq/middleware/chain.rb"
+        'modules/va_notify/lib/va_notify/service.rb',
+        'va_notify/app/sidekiq/va_notify/email_job.rb',
+        'va_notify/app/sidekiq/va_notify/user_account_job.rb',
+        'lib/sidekiq/processor.rb',
+        'lib/sidekiq/middleware/chain.rb'
       ]
 
       caller_locations.each do |location|
@@ -176,7 +176,7 @@ module VaNotify
     end
 
     def retrieve_service_api_key_path
-      service_config = Settings.vanotify.services.find do |service, options|
+      service_config = Settings.vanotify.services.find do |_service, options|
         options.api_key == @notify_client.api_key
       end
 

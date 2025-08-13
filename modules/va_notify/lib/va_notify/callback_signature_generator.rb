@@ -7,7 +7,7 @@ module VANotify
 
       encoded = urlencode_like_python(parsed_payload)
 
-      OpenSSL::HMAC.hexdigest("SHA256", api_key, encoded)
+      OpenSSL::HMAC.hexdigest('SHA256', api_key, encoded)
     end
 
     def self.urlencode_like_python(hash)
@@ -20,9 +20,9 @@ module VANotify
 
     def self.python_normalization(value)
       case value
-      when true then "True"
-      when false then "False"
-      when nil then "None"
+      when true then 'True'
+      when false then 'False'
+      when nil then 'None'
       else
         value.to_s
       end
