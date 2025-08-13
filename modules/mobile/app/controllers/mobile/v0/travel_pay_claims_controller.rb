@@ -76,7 +76,7 @@ module Mobile
           end_date: params['end_date']
         }
 
-        if params['page_number'].present? && !params['page_number'].empty?
+        if params['page_number'].present?
           get_all_params[:page_number] = params['page_number']
         end
 
