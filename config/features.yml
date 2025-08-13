@@ -278,6 +278,9 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_foreign_address_fix:
+    actor_type: user
+    description: Enables the fix for foreign address fields on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1449,6 +1452,16 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+  ep120_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
+    enable_in_development: true
+  ep180_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
+    enable_in_development: true
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1790,10 +1803,6 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
-  va1010_forms_enrollment_system_service_enabled:
-    actor_type: user
-    description: Enables the VA1010Forms enrollment system service
-    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -1848,8 +1857,11 @@ features:
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
+  va_dependents_net_worth_and_pension:
+    actor_type: user
+    description: Allows us to toggle the net worth and pension questions on the 686C-674
   va_dependents_new_fields_for_pdf:
-    actor_typer: user
+    actor_type: user
     description: Allows us to toggle the new fields on the front end for 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
@@ -1907,9 +1919,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
@@ -2359,3 +2368,6 @@ features:
   calculator_constants_versioning:
     actor_type: 
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
+  gi_feedback_tool_vet_tec_education_benefit:
+    actor_type: user
+    description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool

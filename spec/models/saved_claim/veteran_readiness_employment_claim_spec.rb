@@ -138,7 +138,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             end
 
             it 'sends confirmation email' do
-              expect(claim).to receive(:send_confirmation_email)
+              expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
                 .with(user_object, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
 
               claim.send_to_vre(user_object)
@@ -164,7 +164,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           it 'PDF is sent to Central Mail and not VBMS' do
             expect(claim).to receive(:process_attachments!)
             expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-            expect(claim).to receive(:send_confirmation_email)
+            expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
             expect(claim).not_to receive(:upload_to_vbms)
             expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
               user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -185,7 +185,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
     end
 
-    describe '#send_confirmation_email' do
+    describe '#send_vbms_lighthouse_confirmation_email' do
       let(:user) do
         OpenStruct.new(
           edipi: '1007697216',
@@ -200,7 +200,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context 'Legacy notification strategy' do
         before do
           allow(Flipper).to receive(:enabled?)
-            .with(:vre_use_new_vfs_notification_library, user)
+            .with(:vre_use_new_vfs_notification_library)
             .and_return(false)
         end
 
@@ -214,7 +214,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             }
           )
 
-          claim.send_confirmation_email(user, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+          claim.send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
         end
       end
     end
