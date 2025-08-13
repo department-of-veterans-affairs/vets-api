@@ -7,15 +7,18 @@ module DebtsApi
   class V0::Form5655::SendConfirmationEmailJob
     include Sidekiq::Job
 
+    FSR_STATS_KEY = 'api.form5655.send_confirmation_email'
+    DIGITAL_DISPUTE_STATS_KEY = 'api.digital_dispute.send_confirmation_email'
+
     sidekiq_options retry: 5
 
     sidekiq_retries_exhausted do |job, ex|
       args = job['args'][0]
       submission_type = args['submission_type'] || 'fsr'
       stats_key = if submission_type == 'fsr'
-                    'api.form5655.send_confirmation_email'
+                    FSR_STATS_KEY
                   else
-                    'api.digital_dispute.send_confirmation_email'
+                    DIGITAL_DISPUTE_STATS_KEY
                   end
 
       StatsD.increment("#{stats_key}.retries_exhausted")
