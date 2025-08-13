@@ -13,7 +13,6 @@ module IvcChampva
     # @param form_id [String] The ID of the current form, e.g., 'vha_10_10d'
     # @param uuid [String, nil] The UUID associated with the attachment
     # @param attachment_record_id [Integer] The ID of the attachment record to be processed
-    # @param attachment_record_id [Integer] The ID of the attachment record to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
     def perform(form_id, uuid, attachment_record_id, attachment_id) # rubocop:disable Metrics/MethodLength
