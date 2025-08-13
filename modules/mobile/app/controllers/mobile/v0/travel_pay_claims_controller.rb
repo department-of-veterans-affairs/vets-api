@@ -76,9 +76,7 @@ module Mobile
           end_date: params['end_date']
         }
 
-        if params['page_number'].present?
-          get_all_params[:page_number] = params['page_number']
-        end
+        get_all_params[:page_number] = params['page_number'] if params['page_number'].present?
 
         @index_params ||= Mobile::V0::Contracts::TravelPayClaims.new.call(get_all_params)
       end
