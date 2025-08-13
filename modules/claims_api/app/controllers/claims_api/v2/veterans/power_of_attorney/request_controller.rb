@@ -58,6 +58,10 @@ module ClaimsApi
 
           res = service.get_poa_request
           res['id'] = poa_request.id
+          if poa_request.claimant_icn.present?
+            res['claimant_icn'] = poa_request.claimant_icn
+            res = add_dependent_data_to_poa_response(res)
+          end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
                                                                                               root: :data),
@@ -164,6 +168,26 @@ module ClaimsApi
         end
 
         private
+
+        def add_dependent_data_to_poa_response(poa_list)
+          items = poa_list.is_a?(Array) ? poa_list : [poa_list]
+
+          items.each do |item|
+            next unless item['claimant_icn']
+
+            first_name, last_name = get_dependent_name(item['claimant_icn'])
+            item['claimantFirstName'] = first_name
+            item['claimantLastName'] = last_name
+          end
+
+          poa_list.is_a?(Array) ? items : items.first
+        end
+
+        def get_dependent_name(icn)
+          dependent = build_veteran_or_dependent_data(icn)
+
+          [dependent.first_name, dependent.last_name]
+        end
 
         def validate_decide_representative_params!(poa_code, representative_id)
           representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',

@@ -17,6 +17,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   let(:claimant_expected) do
     { 'firstName' => '[Claimant First Name]', 'lastName' => '[Claimant Last Name]' }
   end
+  let(:dependent) do
+    OpenStruct.new(
+      first_name: 'Wally',
+      last_name: 'Morell',
+      middle_name: nil
+    )
+  end
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
@@ -270,6 +277,33 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           expect(veteran).to eq(veteran_expected)
           expect(claimant).to eq(claimant_expected)
           expect(address).to eq(address_expected)
+        end
+      end
+    end
+
+    context 'when the request is filed by a dependent' do
+      let(:dependent_icn) { '1013093331V548481' }
+      let(:poa_res_only_dependent_info) do
+        {
+          'VSOUserEmail' => nil, 'VSOUserFirstName' => 'VDC USER', 'VSOUserLastName' => nil,
+          'changeAddressAuth' => 'Y', 'claimantCity' => 'Los Angeles', 'claimantCountry' => 'Vietnam',
+          'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil, 'claimantState' => 'CA',
+          'claimantZip' => '92264', 'dateRequestActioned' => '2025-08-13T15:21:51-05:00',
+          'dateRequestReceived' => '2025-08-13T15:21:51-05:00', 'declinedReason' => nil, 'healthInfoAuth' => 'Y',
+          'poaCode' => '067', 'procID' => '3865154', 'secondaryStatus' => 'New', 'vetFirstName' => 'Margie',
+          'vetLastName' => 'Curtis', 'vetMiddleName' => nil, 'vetPtcpntID' => '600052700',
+          'id' => '2a23a3b5-7b4b-4a0b-bcba-f2d0fa8e51e3', 'claimant_icn' => dependent_icn
+        }
+      end
+
+      describe '#add_dependent_data_to_poa_response' do
+        it 'handles an object while adding the first_name and last_name of the claimant to the record' do
+          allow(subject).to receive(:build_veteran_or_dependent_data).with(anything).and_return(dependent)
+
+          poa_res_with_dependent = subject.send(:add_dependent_data_to_poa_response, poa_res_only_dependent_info)
+
+          expect(poa_res_with_dependent['claimantFirstName']).to eq(dependent.first_name)
+          expect(poa_res_with_dependent['claimantLastName']).to eq(dependent.last_name)
         end
       end
     end
