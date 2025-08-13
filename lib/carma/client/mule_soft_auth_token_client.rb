@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'carma/client/mule_soft_auth_token_configuration_v2'
+require 'carma/client/mule_soft_auth_token_configuration'
 
 module CARMA
   module Client
@@ -11,7 +11,7 @@ module CARMA
       GRANT_TYPE = 'client_credentials'
       SCOPE = 'DTCWriteResource'
 
-      configuration MuleSoftAuthTokenConfigurationV2
+      configuration MuleSoftAuthTokenConfiguration
 
       class GetAuthTokenError < StandardError; end
 

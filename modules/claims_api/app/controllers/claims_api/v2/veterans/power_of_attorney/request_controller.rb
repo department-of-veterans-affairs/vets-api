@@ -38,7 +38,7 @@ module ClaimsApi
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-            poa_list, view: :index_or_show, root: :data
+            poa_list, view: :shared_response, root: :data
           ), status: :ok
         end
 
@@ -59,50 +59,53 @@ module ClaimsApi
           res = service.get_poa_request
           res['id'] = poa_request.id
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
                                                                                               root: :data),
                  status: :ok
         end
 
         # rubocop:disable Metrics/MethodLength
         def decide
+          validate_json_schema('DECIDE')
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
-
           request = find_poa_request!(lighthouse_id)
-
           proc_id = request.proc_id
 
-          validate_decide_params!(proc_id:, decision:)
+          validate_decide_representative_params!(request.poa_code, representative_id)
 
           vet_icn = request.veteran_icn
           claimant_icn = request.claimant_icn
-
           veteran_data = build_veteran_or_dependent_data(vet_icn)
           claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
 
-          # Will either get null when a decision is declined or
-          # a poa.id for record saved in our DB when decision is accepted
-          decision_response = process_poa_decision(decision:, proc_id:, representative_id:, poa_code: request.poa_code,
-                                                   metadata: request.metadata, veteran: veteran_data,
-                                                   claimant: claimant_data)
-          # updates the request with the decision in BGS (BEP)
-          manage_representative_update_poa_request(proc_id:, secondary_status: decision,
-                                                   declined_reason: form_attributes['declinedReason'],
-                                                   service: manage_representative_service)
+          # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            # Will either get null when a decision is declined or
+            # a poa.id for record saved in our DB when decision is accepted
+            decision_response = process_poa_decision(
+              decision:, proc_id:, representative_id:, poa_code: request.poa_code, metadata: request.metadata,
+              veteran: veteran_data, claimant: claimant_data
+            )
+            # updates the request with the decision in BGS (BEP)
+            manage_representative_update_poa_request(
+              proc_id:, secondary_status: decision, declined_reason: form_attributes['declinedReason'],
+              service: manage_representative_service
+            )
+          end
 
           get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
           # Two different responses needed, if declined no location URL is required
           if decision_response.nil?
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                           view: :index_or_show,
+                                                                                           view: :shared_response,
                                                                                            root: :data), status: :ok
           else
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-              get_poa_response, view: :index_or_show, root: :data
+              get_poa_response, view: :shared_response, root: :data
             ), status: :ok, location: url_for(
-              controller: 'power_of_attorney/base', action: 'show', id: decision_response.id, veteranId: vet_icn
+              controller: 'power_of_attorney/base', action: 'status', id: decision_response.id, veteranId: vet_icn
             )
           end
         end
@@ -142,6 +145,10 @@ module ClaimsApi
                                                                     metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
+          # The only way to get an ID value returned in Sandbox since we do not save the requests
+          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            form_attributes['id'] = 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb'
+          end
 
           response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
                                                                                             view: :create,
@@ -158,12 +165,23 @@ module ClaimsApi
 
         private
 
-        # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+        def validate_decide_representative_params!(poa_code, representative_id)
+          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
+                                                                      poa_code, representative_id)
+          unless representative
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "The accredited representative with registration number #{representative_id} does not match " \
+                      "poa code: #{poa_code}."
+            )
+          end
+        end
+
+        # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           result = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
             decision:, proc_id:, registration_number: representative_id, poa_code:, metadata:, veteran:, claimant:
           ).call
-          return nil if result.nil?
+          return nil if result.blank?
 
           @json_body, type = result
           validate_mapped_data!(veteran.participant_id, type, poa_code)
@@ -173,19 +191,19 @@ module ClaimsApi
           attrs = decide_request_attributes(poa_code:, decide_form_attributes: form_attributes)
           # save record
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attrs)
-          if power_of_attorney.present?
-            claims_v2_logging('process_poa_decision',
-                              message: 'Record saved, sending to POA Form Builder Job')
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
-                                                           'post', representative_id)
-            power_of_attorney # return to the decide method for the response
-          end
+
+          claims_v2_logging('process_poa_decision',
+                            message: 'Record saved, sending to POA Form Builder Job')
+          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, type,
+                                                         'post', representative_id)
+
+          power_of_attorney # return to the decide method for the response
         rescue => e
           claims_v2_logging('process_poa_decision',
                             message: "Failed to save power of attorney record. Error: #{e}")
           raise e
         end
-        # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+        # rubocop:enable Metrics/ParameterLists
 
         def validate_mapped_data!(veteran_participant_id, type, poa_code)
           claims_v2_logging('process_poa_decision',
@@ -278,20 +296,6 @@ module ClaimsApi
           if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s.upcase].blank?
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'The country provided is not valid.'
-            )
-          end
-        end
-
-        def validate_decide_params!(proc_id:, decision:)
-          if proc_id.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('procId',
-                                                             detail: 'procId is required')
-          end
-
-          unless decision.present? && %w[accepted declined].include?(decision)
-            raise ::Common::Exceptions::ParameterMissing.new(
-              'decision',
-              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
         end

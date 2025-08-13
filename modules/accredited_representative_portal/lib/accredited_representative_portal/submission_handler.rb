@@ -29,5 +29,10 @@ module AccreditedRepresentativePortal
       @avoided = notification_email.deliver(:error)
       super
     end
+
+    def on_success
+      notification_email.deliver(:received)
+      super
+    end
   end
 end

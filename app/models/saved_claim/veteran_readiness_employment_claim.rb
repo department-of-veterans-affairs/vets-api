@@ -12,6 +12,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
+  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email
+  CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE =
+    Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email
+
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
     '304' => 'VRE.VBAPRO@va.gov',
@@ -174,7 +178,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       end
     end
 
-    send_vbms_confirmation_email(user)
+    send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, CONFIRMATION_EMAIL_TEMPLATE_VBMS)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -208,7 +212,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-    send_lighthouse_confirmation_email(user)
+    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
+                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -290,39 +295,26 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
-  def send_vbms_confirmation_email(user)
+  # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
+  # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
+  def send_vbms_lighthouse_confirmation_email(user, service, _email_type, email_template)
     if user.va_profile_email.blank?
-      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user&.uuid })
-      return
-    end
-
-    VANotify::EmailJob.perform_async(
-      user.va_profile_email,
-      Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
-      {
-        'first_name' => user&.first_name&.upcase.presence,
-        'date' => Time.zone.today.strftime('%B %d, %Y')
-      }
-    )
-    Rails.logger.info('VRE Submit1900Job VBMS confirmation email sent.')
-  end
-
-  def send_lighthouse_confirmation_email(user)
-    if user.va_profile_email.blank?
-      Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
+      Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
                         { user_uuid: user&.uuid })
       return
     end
 
-    VANotify::EmailJob.perform_async(
-      user.va_profile_email,
-      Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
-      {
-        'first_name' => user&.first_name&.upcase.presence,
-        'date' => Time.zone.today.strftime('%B %d, %Y')
-      }
-    )
-    Rails.logger.info('VRE Submit1900Job successful, lighthouse confirmation email sent to user.')
+    unless Flipper.enabled?(:vre_use_new_vfs_notification_library)
+      VANotify::EmailJob.perform_async(
+        user.va_profile_email,
+        email_template,
+        {
+          'first_name' => user&.first_name&.upcase.presence,
+          'date' => Time.zone.today.strftime('%B %d, %Y')
+        }
+      )
+    end
+    Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
   end
 
   def process_attachments!
@@ -331,6 +323,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files.find_each { |f| f.update(saved_claim_id: id) }
 
     Rails.logger.info('VRE claim submitting to Benefits Intake API')
+    # On success, this class will call claim.send_confirmation_email()
+    # if a function of that name exists.  If you need to implement
+    # function `send_confirmation_email()`, ensure it accepts 0 arguments
     Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
@@ -364,6 +359,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def check_office_location
     service = bgs_client
     vet_info = parsed_form['veteranAddress']
+
+    Rails.logger.warn('VRE claim: Veteran address is missing, cannot determine regional office.') if vet_info.blank?
 
     regional_office_response = service.routing.get_regional_office_by_zip_code(
       vet_info['postalCode'], vet_info['country'], vet_info['state'], 'VRE', parsed_form['veteranInformation']['ssn']

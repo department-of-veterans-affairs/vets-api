@@ -2,16 +2,15 @@
 
 require 'claims_evidence_api/json_schema'
 require 'claims_evidence_api/validation/field'
-require 'claims_evidence_api/x_folder_uri'
+require 'claims_evidence_api/folder_identifier'
 
 module ClaimsEvidenceApi
-  # Validations to be used with ClaimsEvidence API requests
   module Validation
     module_function
 
-    # @see ClaimsEvidenceApi::XFolderUri#validate
+    # @see ClaimsEvidenceApi::FolderIdentifier#validate
     def validate_folder_identifier(folder_identifier)
-      ClaimsEvidenceApi::XFolderUri.validate(folder_identifier)
+      ClaimsEvidenceApi::FolderIdentifier.validate(folder_identifier)
     end
 
     # @see ClaimsEvidenceApi::Validation::BaseField

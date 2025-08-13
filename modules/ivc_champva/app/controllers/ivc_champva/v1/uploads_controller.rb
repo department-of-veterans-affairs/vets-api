@@ -93,8 +93,7 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
-           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
           ves_request = prepare_ves_request(parsed_form_data)
 
@@ -248,9 +247,8 @@ module IvcChampva
             # Prepare the base response
             response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
 
-            # Add LLM analysis if enabled (convert form_id to mapped format)
-            mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
-            llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
+            # Add LLM analysis if enabled
+            llm_result = call_llm_service(attachment, params[:form_id], params['attachment_id'])
             response_data[:llm_response] = llm_result if llm_result.present?
 
             render json: response_data
@@ -280,13 +278,10 @@ module IvcChampva
       end
 
       def launch_ocr_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == 'vha_10_7959a'
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
           begin
-            # create a temp file from the persistent attachment object
-            tmpfile = tempfile_from_attachment(attachment, form_id)
-
             # queue Tesseract OCR job for tmpfile
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment, attachment_id)
             Rails.logger.info(
               "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -297,7 +292,7 @@ module IvcChampva
       end
 
       def launch_llm_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == 'vha_10_7959a'
+        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # create a temp file from the persistent attachment object
             tmpfile = tempfile_from_attachment(attachment, form_id)
@@ -317,22 +312,25 @@ module IvcChampva
       ##
       # Calls the LLM service synchronously for immediate response
       # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file
-      # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
+      # @param [String] form_id The mapped form ID (e.g., '10-7959A')
       # @param [String] attachment_id The document type/attachment ID
       # @return [Hash, nil] LLM analysis result or nil if conditions not met
       def call_llm_service(attachment, form_id, attachment_id)
         return nil unless Flipper.enabled?(:champva_claims_llm_validation, @current_user)
-        return nil unless form_id == 'vha_10_7959a'
+        return nil unless form_id == '10-7959A'
 
         begin
           # create a temp file from the persistent attachment object
           tmpfile = tempfile_from_attachment(attachment, form_id)
           pdf_path = Common::ConvertToPdf.new(tmpfile).run
 
+          # Convert form_id to mapped format for LLM service
+          mapped_form_id = FORM_NUMBER_MAP[form_id]
+
           # Call LLM service synchronously
           llm_service = IvcChampva::LlmService.new
           llm_service.process_document(
-            form_id:,
+            form_id: mapped_form_id,
             file_path: pdf_path,
             uuid: attachment.guid,
             attachment_id:
@@ -358,10 +356,33 @@ module IvcChampva
         tmpfile.binmode
         tmpfile.write(attachment.file.read)
         tmpfile.flush
+
+        content_type = if attachment.file.respond_to?(:content_type)
+                         attachment.file.content_type
+                       else
+                         content_type_from_extension(ext)
+                       end
+
+        # Define content_type method on the tmpfile singleton
+        tmpfile.define_singleton_method(:content_type) { content_type }
+
         tmpfile
       end
 
       private
+
+      def content_type_from_extension(ext)
+        case ext.downcase
+        when '.pdf'
+          'application/pdf'
+        when '.jpg', '.jpeg'
+          'image/jpeg'
+        when '.png'
+          'image/png'
+        else
+          'application/octet-stream'
+        end
+      end
 
       def applicants_with_ohi(applicants)
         applicants.select do |item|
