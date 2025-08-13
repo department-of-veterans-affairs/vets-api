@@ -43,11 +43,7 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
-      else
-        "#{Settings.mhv.medical_records.host}/fhir/"
-      end
+      "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
     end
 
     ##
@@ -94,24 +90,43 @@ module MedicalRecords
       resource
     end
 
-    def list_allergies
+    def list_allergies(user_uuid, use_cache: true)
       return :patient_not_found unless patient_found?
 
-      bundle = fhir_search(FHIR::AllergyIntolerance,
-                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
-                                                   'verification-status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :recordedDate, :desc)
+      # Only use cache if the feature flag is enabled
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_backend_pagination_allergy)
+
+      cache_key = "#{user_uuid}-allergies"
+      get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::Allergy) do
+        bundle = fhir_search(FHIR::AllergyIntolerance,
+                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
+                                                     'verification-status:not': 'entered-in-error' } })
+
+        if Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
+          allergies = bundle.entry.map { |e| MHV::MR::Allergy.from_fhir(e.resource) }.compact
+          data = Vets::Collection.new(allergies, MHV::MR::Allergy)
+          MHV::MR::Allergy.set_cached(cache_key, data.records)
+          data
+        else
+          sort_bundle(bundle, :recordedDate, :desc)
+        end
+      end
     end
 
     def get_allergy(allergy_id)
-      fhir_read(FHIR::AllergyIntolerance, allergy_id)
+      result = fhir_read(FHIR::AllergyIntolerance, allergy_id)
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
+        MHV::MR::Allergy.from_fhir(result)
+      else
+        result
+      end
     end
 
     def list_vaccines(user_uuid, use_cache: true)
       return :patient_not_found unless patient_found?
 
       # Only use cache if the feature flag is enabled
-      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_backend_pagination_vaccine)
 
       cache_key = "#{user_uuid}-vaccines"
       get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::Vaccine) do
@@ -152,7 +167,7 @@ module MedicalRecords
       return :patient_not_found unless patient_found?
 
       # Only use cache if the feature flag is enabled
-      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_backend_pagination_health_condition)
 
       cache_key = "#{user_uuid}-conditions"
       get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::HealthCondition) do
@@ -307,9 +322,7 @@ module MedicalRecords
 
     def default_headers
       headers = { 'Cache-Control' => 'no-cache' }
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        headers['x-api-key'] = Settings.mhv.medical_records.x_api_key
-      end
+      headers['x-api-key'] = Settings.mhv.medical_records.x_api_key
       headers
     end
 

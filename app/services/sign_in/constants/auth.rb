@@ -29,7 +29,10 @@ module SignIn
       OPERATION_TYPES = [SIGN_UP = 'sign_up',
                          AUTHORIZE = 'authorize',
                          INTERSTITIAL_VERIFY = 'interstitial_verify',
-                         INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
+                         INTERSTITIAL_SIGNUP = 'interstitial_signup',
+                         VERIFY_CTA_AUTHENTICATED = 'verify_cta_authenticated',
+                         VERIFY_PAGE_AUTHENTICATED = 'verify_page_authenticated',
+                         VERIFY_PAGE_UNAUTHENTICATED = 'verify_page_unauthenticated'].freeze
       GRANT_TYPES = [AUTH_CODE_GRANT = 'authorization_code',
                      JWT_BEARER_GRANT = Urn::JWT_BEARER_GRANT_TYPE,
                      TOKEN_EXCHANGE_GRANT = Urn::TOKEN_EXCHANGE_GRANT_TYPE].freeze

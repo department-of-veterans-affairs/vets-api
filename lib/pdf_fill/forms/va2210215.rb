@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/formatters/va2210215'
+
 module PdfFill
   module Forms
     class Va2210215 < FormBase
       include FormHelper
 
+      FORMATTER = PdfFill::Forms::Formatters::Va2210215
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -98,16 +101,14 @@ module PdfFill
               limit: 10,
               question_num: 7,
               question_suffix: 'D',
-              question_text: 'TOTAL FTE',
-              transform: ->(value) { "#{value}%" }
+              question_text: 'TOTAL FTE'
             },
             'supportedPercentageFTE' => {
               key: 'supportedFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'E',
-              question_text: 'SUPPORTED PERCENTAGE FTE',
-              transform: ->(value) { "#{value}%" }
+              question_text: 'SUPPORTED PERCENTAGE FTE'
             }
           },
           'programDateOfCalculation' => {
@@ -131,32 +132,21 @@ module PdfFill
           question_num: 9,
           question_suffix: 'A',
           question_text: 'DATE SIGNED'
+        },
+        'checkbox' => {
+          key: 'checkbox',
+          limit: 10,
+          question_num: 10,
+          question_suffix: 'A',
+          question_text: 'EXTENSIONS ATTACHED CHECKBOX'
         }
       }.freeze
 
-      def merge_fields(_)
-        form_data = @form_data
+      def merge_fields(_options = {})
+        form_data = JSON.parse(JSON.generate(@form_data))
 
-        # Combine first and last name into fullName
-        if form_data['certifyingOfficial']
-          official = form_data['certifyingOfficial']
-          official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
-        end
-
-        # Process programs array - add programDateOfCalculation for each valid row
-        if form_data['programs'] && form_data['institutionDetails'] &&
-           form_data['institutionDetails']['dateOfCalculations']
-          calculation_date = form_data['institutionDetails']['dateOfCalculations']
-
-          form_data['programs'].each do |program|
-            # Add programDateOfCalculation to each valid program entry
-            program['programDateOfCalculation'] = calculation_date
-
-            if program['fte'] && program['fte']['supportedPercentageFTE'].present?
-              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
-            end
-          end
-        end
+        FORMATTER.combine_official_name(form_data)
+        FORMATTER.process_programs(form_data)
 
         form_data
       end

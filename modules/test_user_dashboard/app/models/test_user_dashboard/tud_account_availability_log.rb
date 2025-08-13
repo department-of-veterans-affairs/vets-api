@@ -2,6 +2,6 @@
 
 module TestUserDashboard
   class TudAccountAvailabilityLog < ApplicationRecord
-    validates :account_uuid, :checkout_time, presence: true
+    validates :user_account_id, :checkout_time, presence: true
   end
 end

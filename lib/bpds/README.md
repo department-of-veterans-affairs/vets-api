@@ -26,13 +26,13 @@ Context:
 
 #### Associating a submission with a unique identifier
 
-About 30% of the users on the pension form are not authenticated.  To ensure that we have a unique identifier for the POI system to automate the submissions, our team will need to use a [BEP SOAP service](documentation/VeteranWebService - findVeteranByFileNumber.pdf).  The service has a method called `findVeteranByFileNumber()`. which accepts fileNumber as a parameter.  For the majority of veterans, their file number is their SSN.
+06/10/2025
 
-Our assumptions is that first we would use the SSN provided in form, as that is a required field.  If there are no results returned, we would then use the file number.  One of the things returned by `findVeteranByFileNumber()` is the participantId (PID). 
+About 30% of the users on the pension form are not authenticated.  To ensure that we have a unique identifier for the POI system to automate the submissions, we have determined that we will retrieve either the user's participantId (PID) or file number so it can be included in the submission to BPDS.
 
-Further conversations are needed to determine if POI needs an ICN or a PID
+We will use either MPI service or BGS service to retrieve the user's unique identifier.  See [0009-adding-user-identifier-to-bpds-request.md](documentation/adr/0009-adding-user-identifier-to-bpds-request.md) for more details on the logic.
 
-The ICN or PID is then included in the payload that is posted to BPDS.  If no ICN or PID can be found, these submissions will not go to BDPS.
+The PID or file number is then included in the payload that is posted to BPDS.  If no PID or file number is found, these submissions will not be sent to BDPS.
 
 #### Claim ID's and tracking status of submissions
 

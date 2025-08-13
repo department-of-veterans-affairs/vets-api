@@ -5,8 +5,10 @@ module MyHealth
     class VaccinesController < MRController
       def index
         if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
-          with_patient_resource(client.list_vaccines(@current_user.uuid)) do |resource|
-            resource = resource.sort('-date_received')
+          use_cache = params.key?(:use_cache) ? ActiveModel::Type::Boolean.new.cast(params[:use_cache]) : true
+
+          with_patient_resource(client.list_vaccines(@current_user.uuid, use_cache:)) do |resource|
+            resource = resource.sort
             if pagination_params[:per_page]
               resource = resource.paginate(**pagination_params)
               links = pagination_links(resource) if pagination_params[:per_page]
@@ -25,8 +27,7 @@ module MyHealth
           with_patient_resource(client.get_vaccine(vaccine_id)) do |resource|
             raise Common::Exceptions::RecordNotFound, vaccine_id if resource.blank?
 
-            options = { meta: resource.metadata }
-            render json: VaccineSerializer.new(resource, options)
+            render json: VaccineSerializer.new(resource)
           end
         else
           render_resource client.get_vaccine(vaccine_id)

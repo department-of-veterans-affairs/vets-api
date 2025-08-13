@@ -7,8 +7,8 @@ RSpec.describe MHV::UserAccount::Creator do
   subject { described_class.new(user_verification:, break_cache:, from_cache_only:) }
 
   let(:user_account) { create(:user_account, icn:) }
-  let(:user_verification) { create(:user_verification, user_account:, user_credential_email:) }
-  let(:user_credential_email) { create(:user_credential_email, credential_email: email) }
+  let(:user_verification) { create(:user_verification, user_account:) }
+  let(:user_credential_email) { user_verification.user_credential_email }
   let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
   let(:icn) { '10101V964144' }
   let(:email) { 'some-email@email.com' }
@@ -27,6 +27,7 @@ RSpec.describe MHV::UserAccount::Creator do
   end
 
   before do
+    user_credential_email.update!(credential_email: email)
     allow(Rails.logger).to receive(:error)
 
     allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)

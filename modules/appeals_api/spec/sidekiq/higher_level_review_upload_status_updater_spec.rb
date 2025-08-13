@@ -38,7 +38,7 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
       expect(upload.status).to eq('processing')
     end
 
-    it 'notifies sentry & slack of individual bad records without affecting good records' do
+    it 'notifies slack of individual bad records without affecting good records' do
       bad_upload = create(:higher_level_review_v2, status: 'submitting')
       # Intentionally break decrypting
       bad_upload.update_column :form_data_ciphertext, ':(' # rubocop:disable Rails/SkipsModelValidations
@@ -51,7 +51,6 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
       in_process_element[1]['uuid'] = upload.id
       expect(faraday_response).to receive(:body).at_least(:once).and_return(in_process_element.to_json)
 
-      expect_any_instance_of(AppealsApi::CentralMailUpdater).to receive(:log_exception_to_sentry).once
       expect_any_instance_of(AppealsApi::Slack::Messager).to receive(:notify!).once
 
       AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([bad_upload, upload])

@@ -158,12 +158,11 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '
-        { "data": [
+        { "data": 
           {
             "expenseId": "12345abcd-5717-4562-b3fc-2c963f66afa6"
           }
-        ]
-      }'
+        }'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: patch

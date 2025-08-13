@@ -194,11 +194,7 @@ module Rx
 
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_session')
-      env = if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
-              perform(:get, 'usermgmt/auth/session', nil, auth_headers)
-            else
-              perform(:get, 'session', nil, auth_headers)
-            end
+      env = perform(:get, 'usermgmt/auth/session', nil, auth_headers)
       Sentry.get_current_scope.tags.delete(:error)
       env
     end
@@ -217,24 +213,16 @@ module Rx
 
     def get_headers(headers)
       headers = headers.dup
-      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
+      headers.merge('x-api-key' => config.x_api_key)
     end
 
     def get_path(endpoint)
-      base_path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'pharmacy/ess' : 'prescription'
+      base_path = 'pharmacy/ess'
       "#{base_path}/#{endpoint}"
     end
 
     def get_preferences_path(endpoint)
-      base_path = if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
-                    'usermgmt/notification'
-                  else
-                    'preferences'
-                  end
+      base_path = 'usermgmt/notification'
       "#{base_path}/#{endpoint}"
     end
 

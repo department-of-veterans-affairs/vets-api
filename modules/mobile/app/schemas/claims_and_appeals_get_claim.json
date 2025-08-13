@@ -1,0 +1,162 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": ["string", "null"],
+          "maxLength": 64
+        },
+        "type": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "claimTypeCode",
+            "claimType",
+            "contentions",
+            "claimDate",
+            "claimPhaseDates",
+            "closeDate",
+            "decisionLetterSent",
+            "developmentLetterSent",
+            "documentsNeeded",
+            "endProductCode",
+            "evidenceWaiverSubmitted5103",
+            "errors",
+            "jurisdiction",
+            "lighthouseId",
+            "minEstClaimDate",
+            "maxEstClaimDate",
+            "status",
+            "submitterApplicationCode",
+            "submitterRoleCode",
+            "supportingDocuments",
+            "tempJurisdiction",
+            "trackedItems"
+          ],
+          "properties": {
+            "claimTypeCode": { "type": "string" },
+            "claimType": { "type": "string" },
+            "contentions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            },
+            "claimDate": { "type": ["string", "null"] },
+            "claimPhaseDates": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "currentPhaseBack": { "type": "boolean" },
+                "latestPhaseType": { 
+                  "type": ["string", "null"],
+                  "enum": ["CLAIM_RECEIVED", "UNDER_REVIEW", "GATHERING_OF_EVIDENCE", "REVIEW_OF_EVIDENCE", "PREPARATION_FOR_DECISION", "PENDING_DECISION_APPROVAL", "PREPARATION_FOR_NOTIFICATION", "COMPLETE"]
+                },
+                "phaseChangeDate": { "type": ["string", "null"] },
+                "previousPhases": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "phase1CompleteDate": { "type": "string" },
+                    "phase2CompleteDate": { "type": "string" },
+                    "phase3CompleteDate": { "type": "string" },
+                    "phase4CompleteDate": { "type": "string" },
+                    "phase5CompleteDate": { "type": "string" },
+                    "phase6CompleteDate": { "type": "string" },
+                    "phase7CompleteDate": { "type": "string" },
+                    "phase8CompleteDate": { "type": "string" }
+                  }
+                }
+              }
+            },
+            "closeDate": { "type": ["string", "null"] },
+            "decisionLetterSent": { "type": "boolean" },
+            "developmentLetterSent": { "type": "boolean" },
+            "documentsNeeded": { "type": "boolean" },
+            "endProductCode": { "type": "string" },
+            "evidenceWaiverSubmitted5103": { "type": ["boolean", "null"] },
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "detail": { "type": "string" },
+                  "source": { "type": "string" }
+                }
+              }
+            },
+            "jurisdiction": { "type": "string" },
+            "lighthouseId": { "type": ["string", "null"] },
+            "minEstClaimDate": { "type": ["string", "null"] },
+            "maxEstClaimDate": { "type": ["string", "null"] },
+            "status": {
+              "type": "string",
+              "enum": ["PENDING", "CLAIM_RECEIVED", "INITIAL_REVIEW", "EVIDENCE_GATHERING_REVIEW_DECISION", "PREPARATION_FOR_NOTIFICATION", "COMPLETE", "ERRORED", "CANCELED"]
+            },
+            "submitterApplicationCode": { "type": ["string", "null"] },
+            "submitterRoleCode": { "type": "string" },
+            "supportingDocuments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "documentId": { "type": "string" },
+                  "documentTypeLabel": { "type": ["string", "null"] },
+                  "originalFileName": { "type": ["string", "null"] },
+                  "trackedItemId": { "type": ["integer", "null"] },
+                  "uploadDate": { "type": ["string", "null"] }
+                }
+              }
+            },
+            "tempJurisdiction": { "type": ["string", "null"] },
+            "trackedItems": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "closedDate": { "type": ["string", "null"] },
+                  "description": { "type": ["string", "null"] },
+                  "requestedDate": { "type": ["string", "null"] },
+                  "id": { "type": "integer" },
+                  "displayName": { "type": ["string", "null"] },
+                  "receivedDate": { "type": ["string", "null"] },
+                  "overdue": { "type": ["boolean", "null"] },
+                  "status": {
+                    "type": ["string", "null"],
+                    "enum": ["ACCEPTED", "INITIAL_REVIEW_COMPLETE", "NEEDED_FROM_YOU", "NEEDED_FROM_OTHERS", "NO_LONGER_REQUIRED", "SUBMITTED_AWAITING_REVIEW"]
+                  },
+                  "suspenseDate": { "type": ["string", "null"] },
+                  "uploaded": { "type": "boolean" },
+                  "uploadsAllowed": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

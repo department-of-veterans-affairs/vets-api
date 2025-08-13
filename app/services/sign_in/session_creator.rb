@@ -122,7 +122,7 @@ module SignIn
     end
 
     def user_uuid
-      @user_uuid ||= user_verification.backing_credential_identifier
+      @user_uuid ||= user_verification.user_account.id
     end
 
     def handle

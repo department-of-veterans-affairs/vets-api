@@ -56,6 +56,18 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
           'letters' =>
             [
               {
+                'name' => 'Benefit Summary and Service Verification Letter',
+                'letterType' => 'benefit_summary'
+              },
+              {
+                'name' => 'Benefit Verification Letter',
+                'letterType' => 'benefit_verification'
+              },
+              {
+                'name' => 'Civil Service Preference Letter',
+                'letterType' => 'civil_service'
+              },
+              {
                 'name' => 'Commissary Letter',
                 'letterType' => 'commissary'
               },
@@ -74,18 +86,6 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
               {
                 'name' => 'Service Verification Letter',
                 'letterType' => 'service_verification'
-              },
-              {
-                'name' => 'Civil Service Preference Letter',
-                'letterType' => 'civil_service'
-              },
-              {
-                'name' => 'Benefit Summary and Service Verification Letter',
-                'letterType' => 'benefit_summary'
-              },
-              {
-                'name' => 'Benefit Verification Letter',
-                'letterType' => 'benefit_verification'
               }
             ]
         }
@@ -102,13 +102,25 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
           'letters' =>
             [
               {
+                'name' => 'Benefit Summary and Service Verification Letter',
+                'letterType' => 'benefit_summary'
+              },
+              {
+                'name' => 'Benefit Verification Letter',
+                'letterType' => 'benefit_verification'
+              },
+              {
+                'name' => 'Civil Service Preference Letter',
+                'letterType' => 'civil_service'
+              },
+              {
                 'name' => 'Commissary Letter',
                 'letterType' => 'commissary'
               },
               {
                 'name' => 'Proof of Service Letter',
                 'letterType' => 'proof_of_service'
-              },
+              }
               # {
               #   'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
               #   'letterType' => 'medicare_partd'
@@ -117,18 +129,6 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
               #   'name' => 'Proof of Minimum Essential Coverage Letter',
               #   'letterType' => 'minimum_essential_coverage'
               # },
-              {
-                'name' => 'Civil Service Preference Letter',
-                'letterType' => 'civil_service'
-              },
-              {
-                'name' => 'Benefit Summary and Service Verification Letter',
-                'letterType' => 'benefit_summary'
-              },
-              {
-                'name' => 'Benefit Verification Letter',
-                'letterType' => 'benefit_verification'
-              }
             ]
         }
       }
@@ -163,7 +163,6 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   before do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(Lighthouse::LettersGenerator::Configuration).to receive(:get_access_token).and_return(token)
-    Flipper.enable_actor(:mobile_lighthouse_letters, user)
   end
 
   describe 'GET /mobile/v0/letters' do

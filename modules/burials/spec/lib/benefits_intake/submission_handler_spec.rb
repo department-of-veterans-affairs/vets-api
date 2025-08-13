@@ -18,6 +18,31 @@ Rspec.describe Burials::BenefitsIntake::SubmissionHandler do
     allow(Burials::NotificationEmail).to receive(:new).with(claim.id).and_return notification
   end
 
+  describe '.pending_attempts' do
+    let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
+    let(:submission) { double('Lighthouse::Submission', form_id: '21P-530EZ') }
+
+    before do
+      allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
+                                                             .and_return(Lighthouse::SubmissionAttempt)
+      allow(Lighthouse::SubmissionAttempt).to receive(:where).with(status: 'pending',
+                                                                   'lighthouse_submissions.form_id' => '21P-530EZ')
+                                                             .and_return([submission_attempt])
+    end
+
+    it 'returns pending submission attempts with the correct form_id' do
+      result = handler.pending_attempts
+      expect(result).to eq([submission_attempt])
+    end
+
+    it 'queries with the correct status and form_id' do
+      expect(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
+      expect(Lighthouse::SubmissionAttempt).to receive(:where).with(status: 'pending',
+                                                                    'lighthouse_submissions.form_id' => '21P-530EZ')
+      handler.pending_attempts
+    end
+  end
+
   describe '#on_failure' do
     it 'logs silent failure avoided' do
       expect(notification).to receive(:deliver).with(:error).and_return true

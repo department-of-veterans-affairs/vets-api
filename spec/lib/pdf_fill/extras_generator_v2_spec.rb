@@ -6,7 +6,18 @@ require 'pdf_fill/extras_generator_v2'
 describe PdfFill::ExtrasGeneratorV2 do
   subject { described_class.new(sections:) }
 
-  let(:sections) { nil }
+  let(:sections) do
+    [
+      {
+        label: 'Section I',
+        question_nums: %w[1 2 3 4 5 6 7]
+      },
+      {
+        label: 'Section II',
+        question_nums: %w[8 9]
+      }
+    ]
+  end
 
   describe PdfFill::ExtrasGeneratorV2::Question do
     subject do
@@ -18,14 +29,15 @@ describe PdfFill::ExtrasGeneratorV2 do
     describe '#numbered_label_markup' do
       context 'when show_suffix is true' do
         it 'appends suffix to question number when there is a single subquestion' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
-          question.add_text('Value', { question_suffix: 'A' })
-
+          config = { question_number: '5a', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5a' }, config)
+          question.add_text('Value', {})
           expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
         end
 
         it 'does not append suffix when there are multiple subquestions' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = { question_number: '5', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value1', { question_suffix: 'A' })
           question.add_text('Value2', { question_suffix: 'B' })
 
@@ -33,7 +45,8 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
 
         it 'handles nil suffix gracefully' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          config = { question_number: '5', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5' }, config)
           question.add_text('Value', {})
 
           expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
@@ -42,7 +55,8 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       context 'when show_suffix is false' do
         it 'does not append suffix to question number' do
-          question = described_class.new('Test Question', { question_num: 5, show_suffix: false })
+          config = { question_number: '5', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5', show_suffix: false }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
           expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
@@ -50,11 +64,45 @@ describe PdfFill::ExtrasGeneratorV2 do
       end
 
       context 'when number is not an integer' do
-        it 'does not include a prefix' do
-          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true })
+        it 'includes the prefix for non-integer question numbers' do
+          config = { question_number: '5.2', question_text: 'Test Question' }
+          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true }, config)
           question.add_text('Value', { question_suffix: 'A' })
 
-          expect(question.numbered_label_markup).to eq('<h3>Test Question</h3>')
+          expect(question.numbered_label_markup).to eq('<h3>5.2. Test Question</h3>')
+        end
+      end
+
+      context 'when question_number and question_num are both string "10c"' do
+        it 'renders 10c. for string match' do
+          config = { question_number: '10c', question_text: 'Additional Behavioral Change(s)' }
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>10c. Additional Behavioral Change(s)</h3>')
+        end
+      end
+
+      it 'falls back to just question_number when display_suffix is missing' do
+        config = { question_number: '11.5', question_text: 'Police report location(s)' }
+        question = described_class.new('Police report location(s)', { question_num: '11.5' }, config)
+        question.add_text('Value', {})
+        expect(question.numbered_label_markup).to eq('<h3>11.5. Police report location(s)</h3>')
+      end
+
+      it 'falls back to just number if no config match' do
+        config = { question_number: '99', question_text: 'Non-matching' }
+        question = described_class.new('Test Question', { question_num: '100' }, config)
+        question.add_text('Value', {})
+        expect(question.numbered_label_markup).to eq('<h3>100. Test Question</h3>')
+      end
+
+      context 'when hide_question_num is true in config' do
+        it 'does not display the question number in the label' do
+          config = { question_number: '10c', question_text: 'Additional Behavioral Change(s)',
+                     hide_question_num: true }
+          question = described_class.new('Additional Behavioral Change(s)', { question_num: '10c' }, config)
+          question.add_text('Value', {})
+          expect(question.numbered_label_markup).to eq('<h3>Additional Behavioral Change(s)</h3>')
         end
       end
     end
@@ -246,19 +294,6 @@ describe PdfFill::ExtrasGeneratorV2 do
   end
 
   describe '#populate_section_indices!' do
-    let(:sections) do
-      [
-        {
-          label: 'Section I',
-          question_nums: (1..7).to_a
-        },
-        {
-          label: 'Section II',
-          question_nums: [8, 9]
-        }
-      ]
-    end
-
     it 'populates section indices correctly' do
       questions = [1, 9, 42, 7].index_with do |question_num|
         described_class::Question.new(nil, { question_num: })
@@ -867,6 +902,67 @@ describe PdfFill::ExtrasGeneratorV2 do
           expect(heights[:items]).to be_an(Array)
           expect(heights[:items].length).to eq(0)
         end
+      end
+    end
+  end
+
+  describe '#apply_humanization' do
+    [
+      {
+        input: 'VETERAN',
+        format_options: { humanize: true },
+        expected: 'Veteran',
+        description: 'uses default humanization when humanize is true'
+      },
+      {
+        input: 'VETERAN',
+        format_options: { humanize: { 'VETERAN' => 'Service Member' } },
+        expected: 'Service Member',
+        description: 'uses custom mapping when provided'
+      },
+      {
+        input: 'CUSTODIAN',
+        format_options: { humanize: { 'VETERAN' => 'Service Member' } },
+        expected: 'Custodian',
+        description: 'falls back to default humanization for unmapped values'
+      },
+      {
+        input: 'VETERAN',
+        format_options: { humanize: false },
+        expected: 'VETERAN',
+        description: 'returns original value when humanize is false'
+      },
+      {
+        input: 'VETERAN',
+        format_options: {},
+        expected: 'VETERAN',
+        description: 'returns original value when humanize is not configured'
+      }
+    ].each do |test_case|
+      it "#{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
+        expect(subject.send(:apply_humanization, test_case[:input],
+                            test_case[:format_options])).to eq(test_case[:expected])
+      end
+    end
+  end
+
+  describe '#humanize_value' do
+    [
+      { input: 'VETERAN', expected: 'Veteran', description: 'ALL_CAPS single word' },
+      { input: 'CIVIL_SERVICE', expected: 'Civil Service', description: 'ALL_CAPS with underscore' },
+      { input: 'SOCIAL_SECURITY', expected: 'Social Security', description: 'ALL_CAPS with underscore' },
+      { input: 'RENTAL_PROPERTY', expected: 'Rental Property', description: 'ALL_CAPS compound word' },
+      { input: 'veteran_spouse', expected: 'Veteran Spouse', description: 'snake_case compound' },
+      { input: 'income_type', expected: 'Income Type', description: 'snake_case simple' },
+      { input: 'veteranSpouse', expected: 'Veteran Spouse', description: 'mixed case compound (camelCase)' },
+      { input: 'SocialSecurity', expected: 'Social Security', description: 'mixed case compound (PascalCase)' },
+      { input: 'Already Humanized', expected: 'Already Humanized', description: 'already spaced string' },
+      { input: 'Normal text', expected: 'Normal Text', description: 'lowercase spaced string' },
+      { input: '', expected: '', description: 'empty string' },
+      { input: nil, expected: '', description: 'nil value' }
+    ].each do |test_case|
+      it "converts #{test_case[:description]}: '#{test_case[:input]}' -> '#{test_case[:expected]}'" do
+        expect(subject.send(:humanize_value, test_case[:input])).to eq(test_case[:expected])
       end
     end
   end

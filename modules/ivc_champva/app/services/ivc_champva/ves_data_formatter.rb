@@ -104,13 +104,26 @@ module IvcChampva
     def self.map_address(address_data)
       return nil unless address_data.is_a?(Hash)
 
+      country = address_data['country']&.upcase || 'USA'
+
       address = {
         street_address: address_data['street_combined'] || address_data['street'] ||
-                        address_data['street_address'],
-        city: address_data['city'],
-        state: address_data['state'],
-        zip_code: address_data['postal_code']
+                        address_data['street_address']
       }
+
+      # Always required
+      address[:city] = address_data['city']
+
+      if country == 'USA'
+        # For USA addresses, use state and zip_code (current behavior)
+        address[:state] = address_data['state']
+        address[:zip_code] = address_data['postal_code']
+      else
+        # For international addresses, use country, province, and postal_code
+        address[:country] = country
+        address[:province] = address_data['state'] # Map state data to province
+        address[:postal_code] = address_data['postal_code']
+      end
 
       return nil if address.values.all?(&:nil?)
 
@@ -302,9 +315,18 @@ module IvcChampva
       raise ArgumentError, "#{name} address is missing" if address.nil?
 
       validate_nonempty_presence_and_stringiness(address[:city], "#{name} city")
-      validate_nonempty_presence_and_stringiness(address[:state], "#{name} state")
-      validate_nonempty_presence_and_stringiness(address[:zip_code], "#{name} zip code")
       validate_nonempty_presence_and_stringiness(address[:street_address], "#{name} street address")
+
+      # Check if this is an international address
+      if address[:country] && address[:country].upcase != 'USA'
+        # International address validation
+        validate_nonempty_presence_and_stringiness(address[:country], "#{name} country")
+        # province and postal_code are optional for international addresses
+      else
+        # USA address validation (existing behavior)
+        validate_nonempty_presence_and_stringiness(address[:state], "#{name} state")
+        validate_nonempty_presence_and_stringiness(address[:zip_code], "#{name} zip code")
+      end
     end
 
     def self.validate_date(date, name)

@@ -54,7 +54,9 @@ module VBMS
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"
 
-          claim.upload_to_vbms(path: file_path, doc_type: get_doc_type(attachment.guid, claim.parsed_form))
+          doc_type = attachment.doctype || get_doc_type(attachment.guid, claim.parsed_form)
+
+          claim.upload_to_vbms(path: file_path, doc_type:)
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
         attachment.update(completed_at: Time.zone.now)
@@ -62,9 +64,8 @@ module VBMS
     end
 
     def generate_pdf(submittable_686_form, submittable_674_form)
-      use_v2 = Flipper.enabled?(:va_dependents_v2)
-      pdf686 = use_v2 ? '686C-674-V2' : '686C-674'
-      pdf674 = use_v2 ? '21-674-V2' : '21-674'
+      pdf686 = '686C-674'
+      pdf674 = '21-674'
       claim.upload_pdf(pdf686) if submittable_686_form
       claim.upload_pdf(pdf674, doc_type: '142') if submittable_674_form
     end

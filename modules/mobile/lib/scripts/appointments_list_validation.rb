@@ -34,7 +34,7 @@ class AppointmentsListValidation
       web_only: in_web_only,
       mobile_only: in_mobile_only
     }
-    pp results
+    Rails.logger.debug results
   end
 
   private
@@ -70,7 +70,7 @@ class AppointmentsListValidation
   def read_text_files
     files = Dir["#{@path_to_html}/*.txt"]
     files.map do |file|
-      puts "READING FILE: #{file}"
+      Rails.logger.debug { "READING FILE: #{file}" }
       File.read(file)
     end
   end

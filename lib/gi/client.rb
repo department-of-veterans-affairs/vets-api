@@ -62,6 +62,11 @@ module GI
       gids_response(response)
     end
 
+    def get_public_export_v1(params = {})
+      id = params[:id]
+      perform(:get, "v1/public_exports/#{id}", {})
+    end
+
     def get_institution_details_v1(params = {})
       facility_code = params[:id]
       response = perform(:get, "v1/institutions/#{facility_code}", params.except(:id))

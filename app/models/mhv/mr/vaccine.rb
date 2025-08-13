@@ -15,6 +15,8 @@ module MHV
       attribute :reactions,     String
       attribute :notes,         String, array: true
 
+      default_sort_by date_received: :desc
+
       ##
       # Map from a FHIR::Immunization resource
       #

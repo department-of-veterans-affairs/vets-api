@@ -6,6 +6,8 @@ require 'forms/submission_statuses/gateway'
 RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
                                                team_owner: :vfs_authenticated_experience_backend, type: :request do
   let(:user) { build(:user, :loa1) }
+  let(:account_id) { user.user_account_uuid }
+  let(:display_all_forms_toggle) { :my_va_display_all_lighthouse_benefits_intake_forms }
 
   before do
     sign_in_as(user)
@@ -13,9 +15,10 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
 
   context 'when user has submissions' do
     before do
-      create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
-      create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
-      create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
+      create(:form_submission, :with_form214142, user_account_id: account_id)
+      create(:form_submission, :with_form210845, user_account_id: account_id)
+      create(:form_submission, :with_form_blocked, user_account_id: account_id)
+      allow(Flipper[display_all_forms_toggle]).to receive(:enabled?).and_return(false)
     end
 
     it 'returns submission statuses' do
@@ -139,6 +142,30 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
         expect(error['status']).to eq(504)
         expect(error['title']).to eq('Form Submission Status: Gateway Timeout')
       end
+    end
+  end
+
+  context 'with my_va_display_all_lighthouse_benefits_intake_forms toggle enabled' do
+    # Making sure it passed the Forms::SubmissionStatuses::Report#subsmission_recent? check
+    let(:two_days_ago) { 2.days.ago }
+
+    before do
+      create(:form_submission, :with_form214142, user_account_id: account_id, created_at: two_days_ago)
+      create(:form_submission, :with_form210845, user_account_id: account_id, created_at: two_days_ago)
+      create(:form_submission, :with_form_blocked, user_account_id: account_id, created_at: two_days_ago)
+    end
+
+    it 'returns all submission statuses including blocked forms' do
+      allow(Flipper[display_all_forms_toggle]).to receive(:enabled?).and_return(true)
+
+      VCR.use_cassette('forms/submission_statuses/200_valid_with_blocked_forms') do
+        get '/v0/my_va/submission_statuses'
+      end
+
+      expect(response).to have_http_status(:ok)
+
+      results = JSON.parse(response.body)['data']
+      expect(results.size).to eq(3)
     end
   end
 

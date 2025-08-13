@@ -219,6 +219,11 @@ properties:
         type: string
         nullable: true
         example: "COMPENSATION & PENSION"
+      travelPayEligible:
+        type: boolean
+        nullable: true
+        description: Whether or not the appointment is eligible to file for travel pay reimbursement.
+        example: true
       travelPayClaim:
         type: object
         nullable: true
@@ -304,3 +309,7 @@ properties:
                 type: string
                 nullable: false
                 example: '2023-02-26T22:22:52.549Z' 
+      showScheduleLink:
+        type: boolean
+        nullable: true
+        example: true

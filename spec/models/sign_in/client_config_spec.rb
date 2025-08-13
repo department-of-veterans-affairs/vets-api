@@ -39,12 +39,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
   let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
 
-  describe 'concerns' do
-    subject { client_config }
-
-    it_behaves_like 'implements certifiable concern'
-  end
-
   describe 'associations' do
     it { is_expected.to have_many(:config_certificates).dependent(:destroy) }
     it { is_expected.to have_many(:certs).through(:config_certificates).class_name('SignIn::Certificate') }

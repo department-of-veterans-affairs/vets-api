@@ -68,13 +68,13 @@ module SAML
     end
 
     def invalid_saml_response
-      build_invalid_saml_response(in_response_to: uuid,
+      build_invalid_saml_response(in_response_to: user.uuid,
                                   decrypted_document: document_partial)
     end
 
     def saml_response_click_deny
       build_invalid_saml_response(
-        in_response_to: uuid,
+        in_response_to: user.uuid,
         decrypted_document: document_partial,
         errors: ['The status code of the Response was not Success, was Responder => AuthnFailed ' \
                  '-> Subject did not consent to attribute release',
@@ -90,7 +90,7 @@ module SAML
     def saml_response_too_late
       build_invalid_saml_response(
         status_message: nil,
-        in_response_to: uuid,
+        in_response_to: user.uuid,
         decrypted_document: document_partial,
         errors: [
           'Current time is on or after NotOnOrAfter condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)',
@@ -102,7 +102,7 @@ module SAML
     def saml_response_too_early
       build_invalid_saml_response(
         status_message: nil,
-        in_response_to: uuid,
+        in_response_to: user.uuid,
         decrypted_document: document_partial,
         errors: [
           'Current time is earlier than NotBefore condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'
@@ -113,7 +113,7 @@ module SAML
     def saml_response_unknown_error
       build_invalid_saml_response(
         status_message: 'Default generic identity provider error',
-        in_response_to: uuid,
+        in_response_to: user.uuid,
         decrypted_document: document_partial,
         errors: [
           'The status code of the Response was not Success, was Requester => NoAuthnContext -> AuthnRequest without ' \
@@ -125,7 +125,7 @@ module SAML
     def saml_response_multi_error(in_response_to = nil)
       build_invalid_saml_response(
         status_message: 'Subject did not consent to attribute release',
-        in_response_to: in_response_to || uuid,
+        in_response_to: in_response_to || user.uuid,
         decrypted_document: document_partial,
         errors: ['Subject did not consent to attribute release', 'Other random error']
       )
@@ -134,7 +134,7 @@ module SAML
     def saml_response_detail_error(status_detail_xml)
       build_invalid_saml_response(
         status_message: 'Status Detail Error Message',
-        in_response_to: uuid,
+        in_response_to: user.uuid,
         decrypted_document: document_status_detail(status_detail_xml),
         errors: %w[Test1 Test2 Test3]
       )

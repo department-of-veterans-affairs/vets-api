@@ -55,6 +55,7 @@ module DebtsApi
     end
 
     def submit_to_vba
+      StatsD.increment("#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.initiated")
       DebtsApi::V0::Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
     end
 
@@ -68,7 +69,9 @@ module DebtsApi
       batch.jobs do
         DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.perform_async(id, user_cache_id)
         # Delay sharepoint submission to allow VBA to process the form
-        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
+        unless Flipper.enabled?(:financial_management_vbs_only)
+          DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
+        end
       end
     end
 

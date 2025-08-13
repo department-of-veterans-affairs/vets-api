@@ -5,7 +5,7 @@ require 'rails_helper'
 describe SavedClaimSerializer, type: :serializer do
   subject { serialize(saved_claim, serializer_class: described_class) }
 
-  let(:saved_claim) { build_stubbed(:burial_claim) }
+  let(:saved_claim) { build_stubbed(:fake_saved_claim) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

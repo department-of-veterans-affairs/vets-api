@@ -9,9 +9,7 @@ RSpec.describe Login::AfterLoginActions do
     let(:skip_mhv_account_creation) { false }
 
     context 'creating credential email' do
-      let(:user) { create(:user, email:, idme_uuid:) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
-      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:user) { create(:user, email:) }
       let(:email) { 'some-email' }
 
       it 'creates a user credential email with expected attributes' do
@@ -22,9 +20,7 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'creating user acceptable verified credential' do
-      let(:user) { create(:user, idme_uuid:) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
-      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:user) { create(:user) }
       let(:expected_avc_at) { '2021-1-1' }
 
       before { Timecop.freeze(expected_avc_at) }
@@ -67,91 +63,6 @@ RSpec.describe Login::AfterLoginActions do
       it 'calls TUD account checkout' do
         expect_any_instance_of(TestUserDashboard::UpdateUser).to receive(:call)
         after_login_actions.perform
-      end
-    end
-
-    context 'saving account_login_stats' do
-      let(:user) { create(:user) }
-      let(:login_type) { SAML::User::MHV_ORIGINAL_CSID }
-      let(:login_type_stat) { SAML::User::MHV_MAPPED_CSID }
-
-      before { allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type) }
-
-      context 'with non-existent login stats record' do
-        it 'creates an account_login_stats record' do
-          expect { after_login_actions.perform }.to \
-            change(AccountLoginStat, :count).by(1)
-        end
-
-        it 'updates the correct login stats column' do
-          after_login_actions.perform
-          expect(AccountLoginStat.last.send("#{login_type_stat}_at")).not_to be_nil
-        end
-
-        it 'updates the current_verification column' do
-          after_login_actions.perform
-          expect(AccountLoginStat.last.current_verification).to eq('loa1')
-        end
-
-        it 'does not create a record if login_type is not valid' do
-          login_type = 'something_invalid'
-          allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
-
-          expect { after_login_actions.perform }.not_to \
-            change(AccountLoginStat, :count)
-        end
-      end
-
-      context 'with existing login stats record' do
-        let(:account) { create(:account) }
-
-        before do
-          allow_any_instance_of(User).to receive(:account) { account }
-          AccountLoginStat.create(account_id: account.id, myhealthevet_at: 1.minute.ago)
-        end
-
-        it 'does not create another record' do
-          expect { after_login_actions.perform }.not_to \
-            change(AccountLoginStat, :count)
-        end
-
-        it 'overwrites existing value if login type was seen previously' do
-          stat = AccountLoginStat.last
-
-          expect do
-            after_login_actions.perform
-            stat.reload
-          end.to change(stat, :myhealthevet_at)
-        end
-
-        it 'sets new value in blank login column' do
-          login_type = SAML::User::IDME_CSID
-          allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
-          stat = AccountLoginStat.last
-
-          expect do
-            after_login_actions.perform
-            stat.reload
-          end.not_to change(stat, :myhealthevet_at)
-
-          expect(stat.idme_at).not_to be_blank
-        end
-
-        it 'triggers sentry error if update fails' do
-          allow_any_instance_of(AccountLoginStat).to receive(:update!).and_raise('Failure!')
-          expect_any_instance_of(described_class).to receive(:log_error)
-          after_login_actions.perform
-        end
-      end
-
-      context 'with a non-existant account' do
-        before { allow_any_instance_of(User).to receive(:account).and_return(nil) }
-
-        it 'triggers sentry error message' do
-          expect_any_instance_of(described_class).to receive(:no_account_log_message)
-          expect { after_login_actions.perform }.not_to \
-            change(AccountLoginStat, :count)
-        end
       end
     end
 
@@ -214,9 +125,7 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'when creating an MHV account' do
-      let(:user) { create(:user, idme_uuid:) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
-      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:user) { create(:user) }
 
       before do
         allow(user).to receive(:create_mhv_account_async)

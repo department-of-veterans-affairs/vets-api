@@ -65,6 +65,7 @@ module PdfFill
           bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf')
         }
       )
+
       pdf.font('Roboto')
     end
 

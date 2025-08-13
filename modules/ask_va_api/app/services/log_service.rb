@@ -33,8 +33,8 @@ class LogService
 
   def trace_and_annotate_action(action, tags)
     @tracer.trace(action) do |span|
-      yield(span) if block_given?
       set_tags_and_metrics(span, action, tags)
+      yield(span) if block_given?
     end
   end
 

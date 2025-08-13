@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents_verification/notification_email'
 require 'logging/base_monitor'
 
 module DependentsVerification
@@ -16,6 +17,8 @@ module DependentsVerification
   class Monitor < ::Logging::BaseMonitor
     # statsd key for api
     CLAIM_STATS_KEY = 'api.dependents_verification'
+    # statsd key for sidekiq
+    SUBMISSION_STATS_KEY = 'app.dependents_verification.submit_benefits_intake_claim'
 
     attr_reader :tags
 
@@ -23,6 +26,27 @@ module DependentsVerification
       super('dependents-verification')
 
       @tags = ["form_id:#{form_id}"]
+    end
+
+    ##
+    # Tracks a failure in prefill
+    #
+    # @param category [String] The category of the prefill that failed
+    # @param error [StandardError] The error that occurred during prefill
+    # @return [void]
+    def track_prefill_error(category, error)
+      submit_event('info', "Form21-0538 #{category} prefill failed. #{error.message}",
+                   "#{claim_stats_key}.prefill_error", { form_id:, tags: })
+    end
+
+    ##
+    # Tracks missing dependent information from dependents service
+    #
+    # @param error [StandardError] The error that occurred during prefill
+    # @return [void]
+    def track_missing_dependent_info
+      submit_event('info', 'Form21-0538 missing dependent information.',
+                   "#{claim_stats_key}.missing_dependent_info", { form_id:, tags: })
     end
 
     private
@@ -42,6 +66,13 @@ module DependentsVerification
     end
 
     ##
+    # Stats key for Sidekiq DD logging
+    # @return [String]
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
+    end
+
+    ##
     # Class name for log messages
     # @return [String]
     def name
@@ -53,6 +84,13 @@ module DependentsVerification
     # @return [String]
     def form_id
       DependentsVerification::FORM_ID
+    end
+
+    ##
+    # Class name for notification email
+    # @return [Class]
+    def send_email(claim_id, email_type)
+      DependentsVerification::NotificationEmail.new(claim_id).deliver(email_type)
     end
   end
 end

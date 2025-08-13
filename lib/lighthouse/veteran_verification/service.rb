@@ -36,7 +36,8 @@ module VeteranVerification
     ##
     # Request a veteran's Title 38 status
     #   see https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/docs
-    def get_vet_verification_status(icn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    def get_vet_verification_status(icn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
+                                    options = {})
       endpoint = 'status'
       response = config.get(
         "#{endpoint}/#{icn}",
@@ -121,27 +122,15 @@ module VeteranVerification
     end
 
     def error_message
-      if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-        VeteranVerification::Constants::ERROR_MESSAGE_UPDATED
-      else
-        VeteranVerification::Constants::ERROR_MESSAGE
-      end
+      VeteranVerification::Constants::ERROR_MESSAGE
     end
 
     def not_eligible_message
-      if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
-      else
-        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-      end
+      VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
     end
 
     def not_found_message
-      if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-        VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED
-      else
-        VeteranVerification::Constants::NOT_FOUND_MESSAGE
-      end
+      VeteranVerification::Constants::NOT_FOUND_MESSAGE
     end
   end
 end

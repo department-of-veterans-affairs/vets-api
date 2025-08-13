@@ -123,7 +123,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
 
         it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment_formatted_correctly',
             VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -150,7 +150,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
 
         it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-           'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+           'order (if applicable)', run_at: 'Mon, 16 Jun 2025 17:21:51 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment',
             VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -221,6 +221,32 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
           )
 
         expect(pretty_printed[1..]).to eq(xml)
+      end
+    end
+  end
+
+  describe '#self.soap' do
+    subject { described_class.soap }
+
+    it 'returns soap client' do
+      expect(subject).to be_a(Savon::Client)
+    end
+
+    context 'configuration values' do
+      subject { super().globals }
+
+      let(:wsdl_path) { 'my/path/from/wsdl' }
+
+      before do
+        stub_const('HCA::Configuration::WSDL', :wsdl_path)
+      end
+
+      it 'has correct config' do
+        expect(subject[:wsdl]).to eq :wsdl_path
+        expect(subject[:env_namespace]).to eq :soap
+        expect(subject[:element_form_default]).to eq :qualified
+        expect(subject[:namespaces]).to eq({ 'xmlns:tns': 'http://va.gov/service/esr/voa/v1' })
+        expect(subject[:namespace]).to eq 'http://va.gov/schema/esr/voa/v1'
       end
     end
   end

@@ -25,6 +25,7 @@ path 'modules' do
   gem 'income_limits'
   gem 'ivc_champva'
   gem 'meb_api'
+  gem 'medical_expense_reports'
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
@@ -128,7 +129,7 @@ gem 'pg'
 gem 'pg_query'
 gem 'pg_search'
 gem 'pkce_challenge'
-gem 'prawn'
+gem 'prawn', '~> 2.4.0' # Pinned to version 2.4.0 to avoid embedded font issues (https://github.com/prawnpdf/ttfunk/issues/102)
 gem 'prawn-markup'
 gem 'prawn-table'
 gem 'puma'
@@ -161,6 +162,7 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
+gem 'ttfunk', '~> 1.7.0'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]

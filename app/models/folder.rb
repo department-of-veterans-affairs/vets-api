@@ -14,7 +14,7 @@ class Folder
   attribute :count, Integer
   attribute :unread_count, Integer
   attribute :system_folder, Bool, default: false
-  attribute :metadata, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
+  attribute :metadata, Hash, default: -> { {} }
 
   validates :name, presence: true, folder_name_convention: true, length: { maximum: 50 }
 

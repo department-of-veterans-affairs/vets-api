@@ -1,7 +1,6 @@
 {
   "representative_form_upload": {
     "formName": "Declaration of Status of Dependents",
-    "confirmationCode": "123456",
     "formData": {
       "veteranSsn": "796126859",
       "postalCode": "12345",

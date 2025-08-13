@@ -24,12 +24,6 @@ RSpec.describe SignIn::ServiceAccountConfig, type: :model do
     it { is_expected.to have_many(:certs).through(:config_certificates).class_name('SignIn::Certificate') }
   end
 
-  describe 'concerns' do
-    subject { service_account_config }
-
-    it_behaves_like 'implements certifiable concern'
-  end
-
   describe 'validations' do
     let(:expected_error) { ActiveRecord::RecordInvalid }
 

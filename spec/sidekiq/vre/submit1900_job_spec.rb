@@ -20,7 +20,6 @@ describe VRE::Submit1900Job do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
-  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
@@ -28,71 +27,88 @@ describe VRE::Submit1900Job do
       'queue' => 'default' }
   end
 
-  describe '#perform' do
-    subject { described_class.new.perform(claim.id, encrypted_user) }
+  %w[v1 v2].each do |form_type|
+    context "with #{form_type}" do
+      describe '#perform' do
+        subject { described_class.new.perform(claim.id, encrypted_user) }
 
-    before do
-      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-    end
+        let(:claim) { create_claim(form_type) }
 
-    after do
-      subject
-    end
+        before do
+          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+        end
 
-    it 'calls claim.add_claimant_info' do
-      allow(claim).to receive(:send_to_lighthouse!)
-      allow(claim).to receive(:send_to_res)
+        after do
+          subject
+        end
 
-      expect(claim).to receive(:add_claimant_info).with(user)
-    end
+        it 'calls claim.add_claimant_info' do
+          allow(claim).to receive(:send_to_lighthouse!)
+          allow(claim).to receive(:send_to_res)
 
-    it 'calls claim.send_to_vre' do
-      expect(claim).to receive(:send_to_vre).with(user)
-    end
-  end
+          expect(claim).to receive(:add_claimant_info).with(user)
+        end
 
-  describe 'raises an exception with email flipper on' do
-    before do
-      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-      allow(VRE::Monitor).to receive(:new).and_return(monitor)
-      allow(monitor).to receive :track_submission_exhaustion
-      Flipper.enable(:vre_trigger_action_needed_email)
-    end
+        it 'calls claim.send_to_vre' do
+          expect(claim).to receive(:send_to_vre).with(user)
+        end
+      end
 
-    it 'when queue is exhausted' do
-      VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-        exhaustion_msg['args'] = [claim.id, encrypted_user]
-        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          'test@gmail.xom',
-          'form1900_action_needed_email_template_id',
-          {
-            'first_name' => 'Homer',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => claim.confirmation_number
-          }
-        )
+      describe 'raises an exception with email flipper on' do
+        let(:claim) { create_claim(form_type) }
+
+        before do
+          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+          allow(VRE::Monitor).to receive(:new).and_return(monitor)
+          allow(monitor).to receive :track_submission_exhaustion
+          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
+        end
+
+        it 'when queue is exhausted' do
+          VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+            exhaustion_msg['args'] = [claim.id, encrypted_user]
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              form_type == 'v1' ? 'test@gmail.xom' : 'email@test.com',
+              'form1900_action_needed_email_template_id',
+              {
+                'first_name' => form_type == 'v1' ? 'Homer' : 'First',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => claim.confirmation_number
+              }
+            )
+          end
+        end
+      end
+
+      describe 'raises an exception with no email' do
+        let(:claim) { create_claim(form_type) }
+
+        before do
+          allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+          allow(VRE::Monitor).to receive(:new).and_return(monitor)
+          allow(monitor).to receive :track_submission_exhaustion
+          user_struct.va_profile_email = nil
+          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
+        end
+
+        it 'when queue is exhausted with no email' do
+          VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+            expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+            exhaustion_msg['args'] = [claim.id, encrypted_user]
+            claim.parsed_form.delete('email')
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+          end
+        end
       end
     end
   end
 
-  describe 'raises an exception with no email' do
-    before do
-      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-      allow(VRE::Monitor).to receive(:new).and_return(monitor)
-      allow(monitor).to receive :track_submission_exhaustion
-      user_struct.va_profile_email = nil
-      Flipper.enable(:vre_trigger_action_needed_email)
-    end
-
-    it 'when queue is exhausted with no email' do
-      VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-        exhaustion_msg['args'] = [claim.id, encrypted_user]
-        claim.parsed_form.delete('email')
-        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-      end
+  def create_claim(form_type)
+    if form_type == 'v1'
+      create(:veteran_readiness_employment_claim)
+    else
+      create(:new_veteran_readiness_employment_claim)
     end
   end
 end

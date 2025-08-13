@@ -35,15 +35,6 @@ module Logging
       raise NotImplementedError, 'Subclasses must implement form_id'
     end
 
-    # Default implementation for sending emails
-    # Subclasses can override this method to provide custom email functionality
-    #
-    # @param claim_id [Integer] The ID of the claim
-    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
-    def send_email(claim_id, email_type)
-      # Default implementation does nothing
-    end
-
     ##
     # Submits an event for tracking with standardized payload structure
     #

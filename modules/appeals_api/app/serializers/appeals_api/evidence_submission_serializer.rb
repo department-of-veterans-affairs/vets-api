@@ -24,7 +24,7 @@ module AppealsApi
     attribute :detail do |object|
       if object.detail
         value = object.detail.to_s
-        value = "#{value[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." if value.length > MAX_DETAIL_DISPLAY_LENGTH
+        value = "#{value[0..(MAX_DETAIL_DISPLAY_LENGTH - 1)]}..." if value.length > MAX_DETAIL_DISPLAY_LENGTH
         value
       end
     end

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe KmsKeyRotation::BatchInitiatorJob, type: :job do
   let(:job) { described_class.new }
-  let!(:burial_claim_records) { create_list(:burial_claim, 6, needs_kms_rotation: true) }
+  let!(:claim_records) { create_list(:fake_saved_claim, 6, needs_kms_rotation: true) }
   let!(:form_1095_b_records) { create(:form1095_b, needs_kms_rotation: true) }
   let!(:supplemental_claim_records) { create_list(:supplemental_claim, 5, needs_kms_rotation: true) }
 

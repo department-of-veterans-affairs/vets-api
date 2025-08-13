@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
+require_relative 'reference_range_formatter'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -27,7 +28,12 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = parse_labs(combined_records)
-        filter_records(parsed_records)
+        filtered_records = filter_records(parsed_records)
+
+        # Log test code distribution after filtering is applied
+        log_test_code_distribution(parsed_records)
+
+        filtered_records
       end
     end
 
@@ -49,13 +55,47 @@ module UnifiedHealthData
     end
 
     def filter_records(records)
-      records.select do |record|
-        case record.attributes.test_code
-        when 'CH'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-        when 'SP'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-        end
+      return all_records_response(records) unless filtering_enabled?
+
+      apply_test_code_filtering(records)
+    end
+
+    def filtering_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+    end
+
+    def all_records_response(records)
+      Rails.logger.info(
+        message: 'UHD filtering disabled - returning all records',
+        total_records: records.size,
+        service: 'unified_health_data'
+      )
+      records
+    end
+
+    def apply_test_code_filtering(records)
+      filtered = records.select { |record| test_code_enabled?(record.attributes.test_code) }
+
+      Rails.logger.info(
+        message: 'UHD filtering enabled - applied test code filtering',
+        total_records: records.size,
+        filtered_records: filtered.size,
+        service: 'unified_health_data'
+      )
+
+      filtered
+    end
+
+    def test_code_enabled?(test_code)
+      case test_code
+      when 'CH'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
+      when 'SP'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+      when 'MB'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+      else
+        false # Reject any other test codes for now, but we'll log them for analysis
       end
     end
 
@@ -110,7 +150,7 @@ module UnifiedHealthData
       ordered_by = fetch_ordered_by(record)
 
       UnifiedHealthData::Attributes.new(
-        display: record['resource']['code'] ? record['resource']['code']['text'] : '',
+        display: fetch_display(record),
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
         sample_tested:,
@@ -197,13 +237,7 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: if obs['referenceRange']
-                             obs['referenceRange'].map do |range|
-                               range['text']
-                             end.join(', ').strip
-                           else
-                             ''
-                           end,
+          reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
@@ -214,7 +248,7 @@ module UnifiedHealthData
 
     def fetch_observation_value(obs)
       type, text = if obs['valueQuantity']
-                     ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
+                     ['quantity', format_quantity_value(obs['valueQuantity'])]
                    elsif obs['valueCodeableConcept']
                      ['codeable-concept', obs['valueCodeableConcept']['text']]
                    elsif obs['valueString']
@@ -232,6 +266,19 @@ module UnifiedHealthData
       { text:, type: }
     end
 
+    def format_quantity_value(value_quantity)
+      value = value_quantity['value']
+      unit = value_quantity['unit']
+      comparator = value_quantity['comparator']
+
+      result_text = ''
+      result_text += comparator.to_s if comparator.present?
+      result_text += value.to_s
+      result_text += " #{unit}" if unit.present?
+
+      result_text
+    end
+
     def fetch_ordered_by(record)
       if record['resource']['contained']
         practitioner_object = record['resource']['contained'].find do |resource|
@@ -246,6 +293,91 @@ module UnifiedHealthData
 
     def extract_reference_id(reference)
       reference.split('/').last
+    end
+
+    def fetch_display(record)
+      contained = record['resource']['contained']
+      if contained&.any? { |r| r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present? }
+        service_request = contained.find do |r|
+          r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present?
+        end
+        service_request['code']['text']
+      else
+        record['resource']['code'] ? record['resource']['code']['text'] : ''
+      end
+    end
+
+    # Logs the distribution of test codes and names found in the records for analytics purposes
+    # This helps identify which test codes are common and might be worth filtering in
+    def log_test_code_distribution(records)
+      test_code_counts, test_name_counts = count_test_codes_and_names(records)
+
+      return if test_code_counts.empty? && test_name_counts.empty?
+
+      log_distribution_info(test_code_counts, test_name_counts, records.size)
+    end
+
+    def count_test_codes_and_names(records)
+      test_code_counts = Hash.new(0)
+      test_name_counts = Hash.new(0)
+
+      records.each do |record|
+        test_code = record.attributes.test_code
+        test_name = record.attributes.display
+
+        test_code_counts[test_code] += 1 if test_code.present?
+        test_name_counts[test_name] += 1 if test_name.present?
+
+        # Log to PersonalInformationLog when test name is 3 characters or less instead of human-friendly name
+        log_short_test_name_issue(record) if test_name.present? && test_name.length <= 3
+      end
+
+      [test_code_counts, test_name_counts]
+    end
+
+    def log_distribution_info(test_code_counts, test_name_counts, total_records)
+      sorted_code_counts = test_code_counts.sort_by { |_, count| -count }
+      sorted_name_counts = test_name_counts.sort_by { |_, count| -count }
+
+      code_count_pairs = sorted_code_counts.map { |code, count| "#{code}:#{count}" }
+      name_count_pairs = sorted_name_counts.map { |name, count| "#{name}:#{count}" }
+
+      Rails.logger.info(
+        {
+          message: 'UHD test code and name distribution',
+          test_code_distribution: code_count_pairs.join(','),
+          test_name_distribution: name_count_pairs.join(','),
+          total_codes: sorted_code_counts.size,
+          total_names: sorted_name_counts.size,
+          total_records:,
+          service: 'unified_health_data'
+        }
+      )
+    end
+
+    # Logs cases where test name is 3 characters or less instead of a human-friendly name to PersonalInformationLog
+    # for secure tracking of patient records with this issue
+    def log_short_test_name_issue(record)
+      data = {
+        icn: @user.icn,
+        test_code: record.attributes.test_code,
+        test_name: record.attributes.display,
+        record_id: record.id,
+        resource_type: record.type,
+        date_completed: record.attributes.date_completed,
+        service: 'unified_health_data'
+      }
+
+      PersonalInformationLog.create!(
+        error_class: 'UHD Short Test Name Issue',
+        data:
+      )
+    rescue => e
+      # Log any errors in creating the PersonalInformationLog without exposing PII
+      Rails.logger.error(
+        "Error creating PersonalInformationLog for short test name issue: #{e.class.name}",
+        { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
+      )
     end
   end
 end

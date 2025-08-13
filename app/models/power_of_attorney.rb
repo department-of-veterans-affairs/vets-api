@@ -11,4 +11,5 @@ class PowerOfAttorney
   attribute :name, String
   attribute :organization, String
   attribute :begin_date, String
+  attribute :end_date, String
 end

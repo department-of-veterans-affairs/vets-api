@@ -46,11 +46,11 @@ module BBInternal
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        self.class.custom_base_path || "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/"
-      else
-        "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
-      end
+      self.class.custom_base_path || "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/"
+    end
+
+    def base_path_non_gateway
+      "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
     end
 
     ##
@@ -70,9 +70,7 @@ module BBInternal
       # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
       # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-      conn.response :raise_custom_error, error_prefix: service_name
       conn.response :mhv_errors
-      conn.response :mhv_xml_html_errors
       conn.response :json_parser
     end
 
@@ -82,6 +80,23 @@ module BBInternal
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         COMMON_STACK.call(conn, service_name)
+        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :mhv_xml_html_errors
+        conn.adapter Faraday.default_adapter
+      end
+    end
+
+    ##
+    # Temporary connection that does not use the API Gateway base path. This will be removed once
+    # CCD has been modified to use an S3 bucket.
+    #
+    # @return [Faraday::Connection] a Faraday connection instance
+    #
+    def connection_non_gateway
+      Faraday.new(base_path_non_gateway, headers: base_request_headers, request: request_options) do |conn|
+        COMMON_STACK.call(conn, service_name)
+        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :mhv_xml_html_errors
         conn.adapter Faraday.default_adapter
       end
     end

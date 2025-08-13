@@ -61,8 +61,8 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 21-0538 26-1880 5655
-       22-10216 22-10215].each do |form_id|
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
+       22-10216 22-10215 22-10215a].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
         form_types << ['overflow', true] if form_id == '21-0781V2'
@@ -152,7 +152,35 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  describe '#should_stamp_form?' do
+    subject { described_class.should_stamp_form?(form_id, fill_options, submit_date) }
+
+    let(:form_id) { '21-0781V2' }
+    let(:fill_options) { { extras_redesign: true } }
+    let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
+
+    context 'when not given the extras_redesign fill option' do
+      let(:fill_options) { {} }
+
+      it { is_expected.to be(false) }
+
+      context 'when filling out a non-redesigned dependent form' do
+        let(:form_id) { '686C-674' }
+
+        it { is_expected.to be(true) }
+      end
+    end
+
+    context 'when given the omit_esign_stamp fill option' do
+      let(:fill_options) { { omit_esign_stamp: true, extras_redesign: true } }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#stamp_form' do
+    subject { described_class.stamp_form(file_path, submit_date) }
+
     let(:file_path) { 'tmp/test.pdf' }
     let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
     let(:datestamp_pdf) { instance_double(PDFUtilities::DatestampPdf) }
@@ -188,8 +216,7 @@ describe PdfFill::Filler, type: :model do
 
       expect(File).to receive(:delete).with(stamped_path)
 
-      result = described_class.stamp_form(file_path, submit_date)
-      expect(result).to eq(final_path)
+      expect(subject).to eq(final_path)
     end
 
     context 'when an error occurs' do
@@ -199,12 +226,10 @@ describe PdfFill::Filler, type: :model do
       end
 
       it 'logs the error and returns the original file path' do
-        result = described_class.stamp_form(file_path, submit_date)
-
+        expect(subject).to eq(file_path)
         expect(Rails.logger).to have_received(:error).with(
           "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
         )
-        expect(result).to eq(file_path)
       end
     end
   end

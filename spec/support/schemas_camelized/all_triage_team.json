@@ -5,6 +5,7 @@
     "triageTeamId",
     "name",
     "stationNumber",
+    "preferredTeam",
     "relationType",
     "locationName",
     "suggestedNameDisplay",
@@ -19,6 +20,9 @@
     },
     "stationNumber": {
       "type": "string"
+    },
+    "preferredTeam": {
+      "type": "boolean"
     },
     "relationType": {
       "type": "string"

@@ -35,6 +35,31 @@ module MyHealth
       grouped_list.find { |rx| rx.prescription_id == id }
     end
 
+    def count_grouped_prescriptions(prescriptions)
+      return 0 if prescriptions.nil?
+
+      prescriptions = prescriptions.dup
+      count = 0
+
+      prescriptions.sort_by!(&:prescription_number)
+
+      while prescriptions.any?
+        prescription = prescriptions[0]
+        related = select_related_rxs(prescriptions, prescription)
+
+        if related.length <= 1
+          count += 1
+          prescriptions.delete(prescription)
+          next
+        end
+
+        count += 1
+        related.each { |rx| prescriptions.delete(rx) }
+      end
+
+      count
+    end
+
     private
 
     def add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)

@@ -86,6 +86,7 @@ module V1
       Swagger::V1::Schemas::Appeals::DecisionReviewEvidence,
       Swagger::V1::Requests::Post911GIBillStatuses,
       Swagger::V1::Requests::IvcChampvaForms,
+      Swagger::V1::Requests::Gibct::VersionPublicExports,
       self
     ].freeze
 

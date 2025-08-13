@@ -46,7 +46,7 @@ module BenefitsClaims
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
       override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
-      apply_friendlier_language(claim['data']) if Flipper.enabled?(:cst_friendly_evidence_requests)
+      apply_friendlier_language(claim['data'])
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -297,14 +297,11 @@ module BenefitsClaims
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
+      names_to_override = ['PMR Pending', 'Proof of service (DD214, etc.)', 'NG1 - National Guard Records Request']
+      tracked_items.select { |i| names_to_override.include?(i['displayName']) }.each do |i|
         i['status'] = 'NEEDED_FROM_OTHERS'
-        i['displayName'] = 'Private Medical Record'
       end
 
-      tracked_items.select { |i| i['displayName'] == 'Proof of service (DD214, etc.)' }.each do |i|
-        i['status'] = 'NEEDED_FROM_OTHERS'
-      end
       tracked_items
     end
 

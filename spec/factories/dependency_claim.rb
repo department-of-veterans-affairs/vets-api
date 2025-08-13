@@ -143,6 +143,7 @@ FactoryBot.define do
       }.to_json
     }
   end
+
   factory :dependency_claim_674_only, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674' }
 
@@ -454,7 +455,8 @@ FactoryBot.define do
               does_child_live_with_you: true,
               has_child_ever_been_married: false,
               is_biological_child_of_spouse: true,
-              relationship_to_child: { biological: false, stepchild: true },
+              relationship_to_child: { stepchild: true },
+              is_biological_child: false,
               does_child_have_permanent_disability: true,
               birth_location: {
                 location: {
@@ -513,7 +515,8 @@ FactoryBot.define do
               marriage_end_description: 'description of annulment',
               does_child_live_with_you: true,
               has_child_ever_been_married: false,
-              relationship_to_child: { biological: false, adopted: true },
+              relationship_to_child: { adopted: true },
+              is_biological_child: false,
               birth_location: { location: { state: 'NH', city: 'durham', postal_code: '03301' } },
               ssn: '987654321',
               full_name: { first: 'test', middle: 'middle', last: 'childfive' },

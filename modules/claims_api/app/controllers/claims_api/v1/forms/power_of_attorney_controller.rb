@@ -116,10 +116,14 @@ module ClaimsApi
         #
         # @return [JSON] Last POA change request through Claims API
         def active # rubocop:disable Metrics/MethodLength
-          validate_user_is_accredited! if header_request? && !token.client_credentials_token?
+          if header_request? && !token.client_credentials_token? && !verify_power_of_attorney!
+            claims_v1_logging 'poa_v1_active',
+                              level: :warn,
+                              message: "POA not found, poa: #{@power_of_attorney&.id}"
+          end
 
           unless power_of_attorney_verifier.current_poa_code
-            claims_v1_logging('poa_active', message: "POA not found, poa: #{@power_of_attorney&.id}")
+            claims_v1_logging('poa_v1_active', message: "POA not found, poa: #{@power_of_attorney&.id}")
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found')
           end
 

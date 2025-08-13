@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, :legacy_icn) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 

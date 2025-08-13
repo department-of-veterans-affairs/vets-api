@@ -169,6 +169,153 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
+
+      it 'increments the view metric' do
+        expect(StatsD).to receive(:increment)
+          .with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC,
+                tags: [
+                  'service:community_care_appointments',
+                  'referring_facility_code:552',
+                  'referral_provider_npi:1234567890',
+                  'station_id:528A6'
+                ])
+          .once
+
+        allow(StatsD).to receive(:increment)
+
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
+      end
+
+      context 'when provider IDs are missing' do
+        shared_examples 'logs missing provider ID error' do |facility_code, npi, expected_missing_fields|
+          let(:test_station_id) { '646' }
+
+          before do
+            test_referral = build(:ccra_referral_detail, referral_number:,
+                                                         referring_facility_code: facility_code,
+                                                         provider_npi: npi,
+                                                         station_id: test_station_id)
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(test_referral)
+          end
+
+          it 'logs the appropriate error message with station_id' do
+            expect(Rails.logger).to receive(:error)
+              .with('Community Care Appointments: Referral detail view: Missing provider data', {
+                      missing_data: expected_missing_fields,
+                      station_id: test_station_id,
+                      user_uuid: user.uuid
+                    })
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+
+        context 'when both IDs are missing' do
+          include_examples 'logs missing provider ID error', nil, '', [
+            VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD,
+            VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD
+          ]
+        end
+
+        context 'when referring provider ID is missing' do
+          include_examples 'logs missing provider ID error', '', '1234567890', [
+            VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD
+          ]
+        end
+
+        context 'when referral provider ID is missing' do
+          include_examples 'logs missing provider ID error', '552', nil, [
+            VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD
+          ]
+        end
+
+        context 'when station_id is blank' do
+          before do
+            test_referral = build(:ccra_referral_detail, referral_number:,
+                                                         referring_facility_code: nil,
+                                                         provider_npi: '1234567890',
+                                                         station_id: '')
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(test_referral)
+          end
+
+          it 'logs with sanitized station_id as no_value' do
+            expect(Rails.logger).to receive(:error)
+              .with('Community Care Appointments: Referral detail view: Missing provider data', {
+                      missing_data: [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD],
+                      station_id: 'no_value',
+                      user_uuid: user.uuid
+                    })
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+
+        context 'when both provider IDs are present' do
+          it 'does not log any error' do
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(referral)
+            expect(Rails.logger).not_to receive(:error)
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+      end
+
+      context 'when fetching the same referral multiple times' do
+        let(:initial_time) { Time.current.to_f }
+        let(:client) { Ccra::RedisClient.new }
+        let(:referral) { build(:ccra_referral_detail, referral_number:) }
+
+        before do
+          allow(service_double).to receive(:get_referral)
+            .with(referral_number, icn)
+            .and_return(referral)
+
+          # Set up initial booking start time in cache
+          client.save_booking_start_time(
+            referral_number:,
+            booking_start_time: initial_time
+          )
+        end
+
+        it 'preserves the original booking start time in the cache' do
+          # First request
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          cached_time = client.fetch_booking_start_time(referral_number:)
+          expect(cached_time).to eq(initial_time)
+
+          # Second request
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+          cached_time = client.fetch_booking_start_time(referral_number:)
+          expect(cached_time).to eq(initial_time)
+        end
+      end
+
+      context 'when fetching a referral for the first time' do
+        let(:client) { Ccra::RedisClient.new }
+        let(:referral) { build(:ccra_referral_detail, referral_number:) }
+
+        before do
+          Timecop.freeze
+          allow(service_double).to receive(:get_referral) do |_id, _user_icn|
+            # Simulate the service's behavior of setting the booking start time
+            client.save_booking_start_time(
+              referral_number:,
+              booking_start_time: Time.current.to_f
+            )
+            referral
+          end
+        end
+
+        after { Timecop.return }
+
+        it 'sets the booking start time in the cache' do
+          expect do
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end.to change {
+            client.fetch_booking_start_time(referral_number:)
+          }.from(nil).to(Time.current.to_f)
+        end
+      end
     end
 
     context 'when using invalid referral id' do

@@ -13,25 +13,27 @@ module PdfFill
     BODY_FOOTER_GAP = 27
 
     class Question
-      attr_accessor :section_index, :overflow
+      attr_accessor :section_index, :overflow, :config, :index
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, config = nil, index = nil)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
         @show_suffix = metadata[:show_suffix] || false
+        @config = config
+        @index = index
       end
 
       def numbered_label_markup
-        suffix = if @show_suffix && @subquestions.size == 1
-                   @subquestions.first[:metadata][:question_suffix]&.downcase
-                 else
-                   ''
-                 end
-        prefix = @number.to_i == @number ? "#{@number.to_i}#{suffix}. " : ''
-        "<h3>#{prefix}#{@text}</h3>"
+        hide_number = config&.dig(:hide_question_num) || false
+        return "<h3>#{@text}</h3>" if hide_number || @number.blank?
+
+        show_suffix = @subquestions.first&.dig(:metadata, :show_suffix)
+        suffix = @subquestions.first&.dig(:metadata, :question_suffix)
+        suffix_part = show_suffix && suffix.present? ? suffix.to_s.downcase : ''
+        "<h3>#{@number}#{suffix_part}. #{@text}</h3>"
       end
 
       def add_text(value, metadata)
@@ -196,7 +198,7 @@ module PdfFill
     class CheckedDescriptionQuestion < Question
       attr_reader :description, :additional_info
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, config = nil, index = nil)
         super
         @description = nil
         @additional_info = nil
@@ -258,7 +260,7 @@ module PdfFill
     class ListQuestion < Question
       attr_reader :items, :item_label
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, config = nil, index = nil)
         super
         @item_label = metadata[:item_label]
         @items = []
@@ -272,9 +274,9 @@ module PdfFill
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
           @items[i] = if metadata[:question_type] == 'checked_description'
-                        CheckedDescriptionQuestion.new(nil, metadata)
+                        CheckedDescriptionQuestion.new(nil, metadata, config, index)
                       else
-                        Question.new(nil, metadata)
+                        Question.new(nil, metadata, config, index)
                       end
         end
 
@@ -368,33 +370,59 @@ module PdfFill
     def add_text(value, metadata)
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
-      question_num = metadata[:question_num]
-      if @questions[question_num].blank?
-        question_text = @question_key[question_num]
 
-        @questions[question_num] =
-          if metadata[:i].blank?
-            case metadata[:question_type]
-            when 'free_text'
-              FreeTextQuestion.new(question_text, metadata)
-            when 'checked_description'
-              CheckedDescriptionQuestion.new(question_text, metadata)
-            else
-              Question.new(question_text, metadata)
-            end
-          else
-            ListQuestion.new(question_text, metadata)
-          end
+      question_index = find_question_index(metadata)
+      return unless question_index
+
+      config = @question_key[question_index]
+      question_num = config[:question_number]
+
+      if @questions[question_num].blank?
+        @questions[question_num] = get_question(config[:question_text], metadata, config, question_index)
       end
 
-      @questions[question_num].add_text(value, metadata)
+      value = apply_humanization(value, metadata[:format_options])
+      @questions[question_num]&.add_text(value, metadata)
+    end
+
+    def get_question(question_text, metadata, config = nil, index = nil)
+      if metadata[:i].blank?
+        case metadata[:question_type]
+        when 'free_text'
+          FreeTextQuestion.new(question_text, metadata, config, index)
+        when 'checked_description'
+          CheckedDescriptionQuestion.new(question_text, metadata, config, index)
+        else
+          Question.new(question_text, metadata, config, index)
+        end
+      else
+        ListQuestion.new(question_text, metadata, config, index)
+      end
+    end
+
+    def find_question_index(metadata)
+      question_num = metadata[:question_num].to_s.downcase
+      suffix = metadata[:question_suffix].to_s.downcase
+      full_question_key = "#{question_num}#{suffix}".downcase
+
+      # First try to find exact match with suffix
+      exact_match = @question_key.each_with_index.find do |q, _index|
+        q[:question_number].to_s.downcase == full_question_key
+      end
+
+      return exact_match.last if exact_match
+
+      # Fall back to match without suffix
+      @question_key.each_with_index.find do |q, _index|
+        q[:question_number].to_s.downcase == question_num
+      end&.last
     end
 
     def populate_section_indices!
       return if @sections.blank?
 
       @questions.each do |num, question|
-        question.section_index = @sections.index { |sec| sec[:question_nums].include?(num) }
+        question.section_index = @sections.index { |sec| sec[:question_nums].include?(num.to_s) }
       end
     end
 
@@ -404,7 +432,9 @@ module PdfFill
 
     def sort_generate_blocks
       populate_section_indices!
-      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter(&:overflow)
+      @questions.values
+                .select(&:overflow)
+                .sort_by(&:index)
     end
 
     def measure_section_header_height(temp_pdf, section_index)
@@ -633,6 +663,45 @@ module PdfFill
         },
         list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 }
       }
+    end
+
+    private
+
+    def apply_humanization(value, format_options)
+      humanize_config = format_options[:humanize]
+
+      return value unless humanize_config
+
+      case humanize_config
+      when true
+        # Use Rails' built-in humanize method
+        humanize_value(value)
+      when Hash
+        # Use custom mapping with Rails humanize as fallback
+        humanize_config[value.to_s] || humanize_value(value)
+      else
+        value
+      end
+    end
+
+    def humanize_value(value)
+      return value unless value.respond_to?(:to_s)
+
+      # Convert to snake_case manually to avoid inflection rules affecting `underscore` method
+      # This handles SOCIAL_SECURITY -> "Social Security", CIVIL_SERVICE -> "Civil Service", etc.
+      value.to_s
+           # Convert consecutive uppercase letters followed by lowercase (e.g., "ABCDExample" -> "ABCD_Example")
+           .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+           # Convert camelCase to snake_case (e.g., "firstName" -> "first_name")
+           .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+           # Replace hyphens with underscores
+           .tr('-', '_')
+           # Convert all characters to lowercase
+           .downcase
+           # Convert snake_case to space-separated words and capitalize first letter
+           .humanize
+           # Capitalize first letter of each word
+           .titleize
     end
   end
 end

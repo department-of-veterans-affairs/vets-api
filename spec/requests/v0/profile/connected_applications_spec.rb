@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'V0::Profile::ConnectedApplications', type: :request do
-  let(:user) { build(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
+  let(:user) { build(:user, :loa3, :legacy_icn) }
 
   before { sign_in_as(user) }
 

@@ -1,0 +1,112 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 24 Jul 2025 15:30:34 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '25'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-847376133"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"associations":[]},"messages":[]}'
+  recorded_at: Thu, 24 Jul 2025 15:30:34 GMT
+- request:
+    method: put
+    uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
+    body:
+      encoding: UTF-8
+      string: '{"associations":[{"address":{"city":"Ontario","country":"CAN","line1":"834
+        NE 36th St","provinceCode":"ON","postalCode":"21534"},"name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"primaryPhone":"1239183546","relationType":"DAUGHTER","role":"OTHER_NEXT_OF_KIN","lastUpdateDate":"2025-07-24T15:31:09Z"},{"address":{"city":"Blacksburg","country":"USA","line1":"823
+        SE 2nd St","state":"VA","zipCode":"24060"},"name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"primaryPhone":"9564738265","relationType":"UNRELATED_FRIEND","role":"OTHER_EMERGENCY_CONTACT","lastUpdateDate":"2025-07-24T15:31:13Z"},{"address":{"city":"Dulles","country":"USA","line1":"476
+        Test Ave","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"primaryPhone":"1239131234","relationType":"SON","role":"PRIMARY_NEXT_OF_KIN","lastUpdateDate":"2025-07-24T15:31:00Z"},{"address":{"city":"Dulles","country":"USA","line1":"28
+        NW 78th St","state":"VA","zipCode":"20101","zipPlus4":"0101"},"name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"primaryPhone":"7452743546","relationType":"BROTHER","role":"EMERGENCY_CONTACT","lastUpdateDate":"2025-07-24T15:31:11Z"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 24 Jul 2025 15:31:15 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '117'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-1528152075"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"associations":[{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"status":"INSERTED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"status":"INSERTED"},{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"status":"INSERTED"},{"role":"EMERGENCY_CONTACT","name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"status":"INSERTED"}]},"messages":[{"description":"The
+        request was successfully processed.","code":"completed_success"}]}'
+  recorded_at: Thu, 24 Jul 2025 15:31:15 GMT
+recorded_with: VCR 6.3.1

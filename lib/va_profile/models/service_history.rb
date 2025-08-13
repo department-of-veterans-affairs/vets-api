@@ -83,7 +83,7 @@ module VAProfile
 
       def self.determine_eligibility(episodes)
         if episodes.empty?
-          return { confirmed: false, message: not_found_message,
+          return { confirmed: false, message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS }
         end
@@ -94,31 +94,15 @@ module VAProfile
 
         # Not honorable discharge
         if codes.intersect?(%w[D E F K]) || codes.empty?
-          return { confirmed: false, message: not_eligible_message,
+          return { confirmed: false, message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS }
         end
 
         # No service history OR unknown (Z) discharge
-        { confirmed: false, message: not_found_message,
+        { confirmed: false, message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
           title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
           status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS }
-      end
-
-      def self.not_found_message
-        if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-          VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED
-        else
-          VeteranVerification::Constants::NOT_FOUND_MESSAGE
-        end
-      end
-
-      def self.not_eligible_message
-        if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
-        else
-          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-        end
       end
     end
   end

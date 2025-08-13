@@ -111,22 +111,36 @@ module IvcChampva
     end
 
     class Address
-      attr_accessor :street_address, :city, :state, :zip_code
+      attr_accessor :street_address, :city, :state, :zip_code, :country, :province, :postal_code
 
       def initialize(params = {})
-        @street_address = params[:street_address] || params[:streetAddress] || DEFAULT_ADDRESS[:street_address]
-        @city = params[:city] || DEFAULT_ADDRESS[:city]
-        @state = params[:state] || DEFAULT_ADDRESS[:state]
-        @zip_code = params[:zip_code] || params[:zipCode] || DEFAULT_ADDRESS[:zip_code]
+        @street_address = params[:street_address] || params[:streetAddress]
+        @city = params[:city]
+        @state = params[:state]
+        @zip_code = params[:zip_code] || params[:zipCode]
+        @country = params[:country]
+        @province = params[:province]
+        @postal_code = params[:postal_code] || params[:postalCode]
       end
 
       def to_hash
-        {
+        hash = {
           streetAddress: @street_address,
-          city: @city,
-          state: @state,
-          zipCode: @zip_code
+          city: @city
         }
+
+        # For USA addresses, include state and zipCode
+        if @country.nil? || @country.upcase == 'USA'
+          hash[:state] = @state
+          hash[:zipCode] = @zip_code
+        else
+          # For international addresses, include country, province, and postalCode
+          hash[:country] = @country
+          hash[:province] = @province if @province
+          hash[:postalCode] = @postal_code if @postal_code
+        end
+
+        hash
       end
     end
 

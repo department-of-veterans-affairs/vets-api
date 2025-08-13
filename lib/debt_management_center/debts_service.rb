@@ -81,17 +81,10 @@ module DebtManagementCenter
 
     def filter_debts(debts)
       debts.select do |debt|
-        # Always filter by payee number
-        base_filter = debt['payeeNumber'] == '00'
-
-        # Filter by approved deduction code and current AR
-        if Flipper.enabled?(:debt_deduction_code_filtering, @user)
-          base_filter &&
-            Constants::APPROVED_DEDUCTION_CODES.key?(debt['deductionCode']) &&
-            (debt.key?('currentAR') ? debt['currentAR'].to_f.positive? : false)
-        else
-          base_filter
-        end
+        # Filter by payee number, approved deduction code, and current AR
+        debt['payeeNumber'] == '00' &&
+          Constants::APPROVED_DEDUCTION_CODES.key?(debt['deductionCode']) &&
+          (debt.key?('currentAR') ? debt['currentAR'].to_f.positive? : false)
       end
     end
 
