@@ -80,7 +80,7 @@ RSpec.describe PDFUtilities::PDFValidator do
     end
 
     after do
-      File.delete(file_path) if File.exist?(file_path)
+      FileUtils.rm_f(file_path)
     end
 
     describe '#initialize' do
@@ -97,7 +97,7 @@ RSpec.describe PDFUtilities::PDFValidator do
         custom_options = { size_limit_in_bytes: 50.megabytes, check_encryption: false }
         validator = described_class.new(file_path, custom_options)
         options = validator.instance_variable_get(:@options)
-        
+
         expect(options[:size_limit_in_bytes]).to eq(50.megabytes)
         expect(options[:check_encryption]).to be false
         expect(options[:check_page_dimensions]).to be true # default preserved
@@ -109,9 +109,7 @@ RSpec.describe PDFUtilities::PDFValidator do
 
       before do
         allow(PdfInfo::Metadata).to receive(:read).with(file_path).and_return(mock_metadata)
-        allow(mock_metadata).to receive(:encrypted?).and_return(false)
-        allow(mock_metadata).to receive(:present?).and_return(true)
-        allow(mock_metadata).to receive(:oversized_pages_inches).and_return([])
+        allow(mock_metadata).to receive_messages(encrypted?: false, present?: true, oversized_pages_inches: [])
       end
 
       it 'returns a ValidationResult' do
@@ -132,9 +130,9 @@ RSpec.describe PDFUtilities::PDFValidator do
         end
 
         it 'fails validation for files over size limit' do
-          large_content = 'x' * (101.megabytes)
+          large_content = 'x' * 101.megabytes
           File.write(file_path, large_content)
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include(
@@ -145,7 +143,7 @@ RSpec.describe PDFUtilities::PDFValidator do
         it 'uses custom size limit when provided' do
           small_limit = 10 # 10 bytes
           validator = described_class.new(file_path, size_limit_in_bytes: small_limit)
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include(
@@ -164,7 +162,7 @@ RSpec.describe PDFUtilities::PDFValidator do
           allow(PdfInfo::Metadata).to receive(:read).and_raise(
             PdfInfo::MetadataReadError.new('Incorrect password')
           )
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include('Document is locked with a user password')
@@ -174,7 +172,7 @@ RSpec.describe PDFUtilities::PDFValidator do
           allow(PdfInfo::Metadata).to receive(:read).and_raise(
             PdfInfo::MetadataReadError.new('Invalid PDF format')
           )
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include('Document is not a valid PDF')
@@ -184,14 +182,14 @@ RSpec.describe PDFUtilities::PDFValidator do
       context 'encryption validation' do
         it 'passes validation for non-encrypted PDFs' do
           allow(mock_metadata).to receive(:encrypted?).and_return(false)
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be true
         end
 
         it 'fails validation for encrypted PDFs' do
           allow(mock_metadata).to receive(:encrypted?).and_return(true)
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include('Document is encrypted with an owner password')
@@ -200,7 +198,7 @@ RSpec.describe PDFUtilities::PDFValidator do
         it 'skips encryption check when disabled' do
           allow(mock_metadata).to receive(:encrypted?).and_return(true)
           validator = described_class.new(file_path, check_encryption: false)
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be true
         end
@@ -210,7 +208,7 @@ RSpec.describe PDFUtilities::PDFValidator do
             PdfInfo::MetadataReadError.new('Invalid PDF')
           )
           validator = described_class.new(file_path, check_encryption: true)
-          
+
           result = validator.validate
           expect(result.errors).to include('Document is not a valid PDF')
           expect(result.errors).not_to include('Document is encrypted with an owner password')
@@ -220,14 +218,14 @@ RSpec.describe PDFUtilities::PDFValidator do
       context 'page size validation' do
         it 'passes validation for pages within size limits' do
           allow(mock_metadata).to receive(:oversized_pages_inches).with(21, 21).and_return([])
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be true
         end
 
         it 'fails validation for oversized pages' do
           allow(mock_metadata).to receive(:oversized_pages_inches).with(21, 21).and_return([1, 3])
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include('Document exceeds the page size limit of 21 in. x 21 in.')
@@ -236,13 +234,12 @@ RSpec.describe PDFUtilities::PDFValidator do
         it 'uses custom page size limits' do
           custom_width = 8.5
           custom_height = 11
-          validator = described_class.new(file_path, 
-            width_limit_in_inches: custom_width,
-            height_limit_in_inches: custom_height
-          )
-          
+          validator = described_class.new(file_path,
+                                          width_limit_in_inches: custom_width,
+                                          height_limit_in_inches: custom_height)
+
           allow(mock_metadata).to receive(:oversized_pages_inches).with(custom_width, custom_height).and_return([1])
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors).to include('Document exceeds the page size limit of 8.5 in. x 11 in.')
@@ -251,7 +248,7 @@ RSpec.describe PDFUtilities::PDFValidator do
         it 'skips page size check when disabled' do
           allow(mock_metadata).to receive(:oversized_pages_inches).and_return([1, 2, 3])
           validator = described_class.new(file_path, check_page_dimensions: false)
-          
+
           result = validator.validate
           expect(result.valid_pdf?).to be true
         end
@@ -261,7 +258,7 @@ RSpec.describe PDFUtilities::PDFValidator do
             PdfInfo::MetadataReadError.new('Invalid PDF')
           )
           validator = described_class.new(file_path, check_page_dimensions: true)
-          
+
           result = validator.validate
           expect(result.errors).to include('Document is not a valid PDF')
           expect(result.errors).not_to include(/page size limit/)
@@ -270,12 +267,11 @@ RSpec.describe PDFUtilities::PDFValidator do
 
       context 'comprehensive validation scenarios' do
         it 'accumulates multiple errors' do
-          large_content = 'x' * (101.megabytes)
+          large_content = 'x' * 101.megabytes
           File.write(file_path, large_content)
-          
-          allow(mock_metadata).to receive(:encrypted?).and_return(true)
-          allow(mock_metadata).to receive(:oversized_pages_inches).and_return([1, 2])
-          
+
+          allow(mock_metadata).to receive_messages(encrypted?: true, oversized_pages_inches: [1, 2])
+
           result = validator.validate
           expect(result.valid_pdf?).to be false
           expect(result.errors.length).to eq(3)

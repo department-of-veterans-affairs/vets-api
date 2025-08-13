@@ -110,11 +110,11 @@ RSpec.describe PrescriptionPreference, type: :model do
       end
 
       it 'handles string values that coerce to boolean' do
-        # Note: The Bool type in this system may coerce strings to boolean
+        # NOTE: The Bool type in this system may coerce strings to boolean
         # This test documents the actual behavior
         preference.rx_flag = 'true'
         expect(preference.rx_flag).to be_truthy
-        
+
         preference.rx_flag = 'false'
         expect(preference.rx_flag).to be_falsey
       end
@@ -184,21 +184,21 @@ RSpec.describe PrescriptionPreference, type: :model do
     it 'returns consistent ID for same attributes' do
       preference1 = described_class.new(email_address: 'test@example.com', rx_flag: true)
       preference2 = described_class.new(email_address: 'test@example.com', rx_flag: true)
-      
+
       expect(preference1.id).to eq(preference2.id)
     end
 
     it 'returns different IDs for different attributes' do
       preference1 = described_class.new(email_address: 'test1@example.com', rx_flag: true)
       preference2 = described_class.new(email_address: 'test2@example.com', rx_flag: true)
-      
+
       expect(preference1.id).not_to eq(preference2.id)
     end
 
     it 'returns different IDs when rx_flag differs' do
       preference1 = described_class.new(email_address: 'test@example.com', rx_flag: true)
       preference2 = described_class.new(email_address: 'test@example.com', rx_flag: false)
-      
+
       expect(preference1.id).not_to eq(preference2.id)
     end
 
@@ -216,12 +216,12 @@ RSpec.describe PrescriptionPreference, type: :model do
         email_address: 'veteran@va.gov',
         rx_flag: true
       )
-      
+
       expect(valid_preference).to be_valid
       expect(valid_preference.mhv_params).to eq({
-        email_address: 'veteran@va.gov',
-        rx_flag: true
-      })
+                                                  email_address: 'veteran@va.gov',
+                                                  rx_flag: true
+                                                })
       expect(valid_preference.id).to be_a(String)
     end
 
@@ -230,7 +230,7 @@ RSpec.describe PrescriptionPreference, type: :model do
         email_address: 'test+prescriptions@subdomain.example.com',
         rx_flag: false
       )
-      
+
       expect(edge_case_preference).to be_valid
       expect(edge_case_preference.mhv_params[:email_address]).to eq('test+prescriptions@subdomain.example.com')
     end
