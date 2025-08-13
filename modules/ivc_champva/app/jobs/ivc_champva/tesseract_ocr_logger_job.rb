@@ -22,7 +22,6 @@ module IvcChampva
       Rails.logger.info(
         "IvcChampva::TesseractOcrLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}," \
         " attachment_record_id: #{attachment_record_id}, attachment_id: #{attachment_id}"
-        " attachment_record_id: #{attachment_record_id}, attachment_id: #{attachment_id}"
       )
 
       # Find the attachment record
