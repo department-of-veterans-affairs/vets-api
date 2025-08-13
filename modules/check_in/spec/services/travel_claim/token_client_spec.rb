@@ -10,7 +10,7 @@ RSpec.describe TravelClaim::TokenClient do
       auth_url: 'https://auth.example.test',
       tenant_id: 'tenant-123',
       travel_pay_client_id: 'client-id',
-      travel_pay_client_secret: 'client-secret',
+      travel_pay_client_secret: 'super-secret-123',
       scope: 'scope.read',
       claims_url_v2: 'https://claims.example.test',
       service_name: 'check-in-travel-pay',
@@ -71,6 +71,27 @@ RSpec.describe TravelClaim::TokenClient do
         parsed = JSON.parse(req.body)
         expect(parsed).to include('secret' => settings_double.travel_pay_client_secret, 'icn' => '123V456')
       }
+    end
+
+    it 'does not log secrets on error paths' do
+      url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
+      stub_request(:post, url).to_return(status: 500, body: { detail: 'boom' }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+      original_logger = Rails.logger
+      io = StringIO.new
+      Rails.logger = ActiveSupport::Logger.new(io)
+
+      begin
+        expect do
+          client.system_access_token_v4(veis_access_token: 'veis', icn: '123V456')
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+
+        logs = io.string
+        # Ensure the client secret marker is not leaked in logs
+        expect(logs).not_to include(settings_double.travel_pay_client_secret)
+      ensure
+        Rails.logger = original_logger
+      end
     end
   end
 end
