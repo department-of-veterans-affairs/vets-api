@@ -95,3 +95,14 @@ mhv_ac.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certs: [sts_client_cert]
 )
+
+# Create Service Account Config for Event Bus Gateway
+eventbus = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'eventbus')
+eventbus.update!(
+  description: 'Event Bus Gateway - localhost',
+  scopes: ['http://localhost:3000/v0/event_bus_gateway/send_email'],
+  access_token_audience: 'http://localhost:3000',
+  access_token_user_attributes: ['participant_id'],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certs: [sts_client_cert]
+)
