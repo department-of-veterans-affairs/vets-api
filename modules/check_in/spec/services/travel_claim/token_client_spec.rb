@@ -20,10 +20,10 @@ RSpec.describe TravelClaim::TokenClient do
       s_subscription_key: 's-sub'
     )
   end
+  let(:check_in_settings) { OpenStruct.new(travel_reimbursement_api_v2: settings_double) }
 
   before do
-    allow(Settings).to receive_message_chain(:check_in, :travel_reimbursement_api_v2).and_return(settings_double)
-    allow(Settings).to receive(:vsp_environment).and_return('dev')
+    allow(Settings).to receive_messages(check_in: check_in_settings, vsp_environment: 'dev')
   end
 
   describe '#veis_token' do
