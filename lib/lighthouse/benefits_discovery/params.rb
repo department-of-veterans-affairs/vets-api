@@ -43,6 +43,9 @@ module BenefitsDiscovery
     end
 
     def disability_rating
+      # guard should be in controller once this is being used from a controller
+      return nil unless @user.authorize(:lighthouse, :access?)
+
       service = VeteranVerification::Service.new
       # should this pass in keys? who determines these things?
       response = service.get_rated_disabilities(@user.icn)
@@ -50,11 +53,12 @@ module BenefitsDiscovery
     end
 
     def service_history_episodes
-      @service_history ||= begin
-        service = VAProfile::MilitaryPersonnel::Service.new(@user)
-        response = service.get_service_history
-        response.episodes
-      end
+      # guard should be in controller once this is being used from a controller
+      return [] unless @user.authorize(:vet360, :military_access?)
+
+      service = VAProfile::MilitaryPersonnel::Service.new(@user)
+      response = service.get_service_history
+      response.episodes
     end
 
     # this is also temporary code used for discovery purposes

@@ -71,6 +71,42 @@ RSpec.describe BenefitsDiscovery::Params do
         end
       end
     end
+
+    context 'when user does not have vet360 access' do
+      let(:user) { create(:user, :loa3, :accountable, :legacy_icn, participant_id: nil) }
+
+      it 'does not fetch disability rating' do
+        expected_response = {
+          dateOfBirth: '1809-02-12',
+          serviceHistory: [{
+            startDate: '2002-02-02',
+            endDate: '2008-12-01',
+            dischargeStatus: 'GENERAL_DISCHARGE',
+            branchOfService: 'ARMY'
+          }]
+        }
+        expect(VeteranVerification::Service).not_to receive(:new)
+
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+          expect(subject.prepared_params).to eq(expected_response)
+        end
+      end
+    end
+
+    context 'when user does not have lighthouse access' do
+      let(:user) { create(:user, :loa3, :accountable, :legacy_icn, edipi: nil) }
+
+      it 'does not fetch service history' do
+        expect(VAProfile::MilitaryPersonnel::Service).not_to receive(:new)
+
+        VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+          expect(subject.prepared_params).to eq({
+                                                  dateOfBirth: '1809-02-12',
+                                                  disabilityRating: 100
+                                                })
+        end
+      end
+    end
   end
 
   describe '#build_from_service_history' do
@@ -113,9 +149,9 @@ RSpec.describe BenefitsDiscovery::Params do
 
     it 'logs error and skips record when the discharge code is not found' do
       unfound_discharge_history = Array.wrap(build(:service_history, character_of_discharge_code: 'foo'))
-      expect {
+      expect do
         described_class.service_history_params(unfound_discharge_history)
-      }.to raise_error(Common::Exceptions::UnprocessableEntity), {detail: 'No matching discharge code for: foo', source: described_class.name }
+      end.to raise_error(Common::Exceptions::UnprocessableEntity), { detail: 'No matching discharge code for: foo', source: described_class.name }
     end
   end
 end
