@@ -1633,19 +1633,42 @@ RSpec.describe FormProfile, type: :model do
                 allow(Rails.logger).to receive(:warn)
               end
 
-              it 'prefills when user is in receipt of pension' do
+              it 'prefills net worth limit' do
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                                 allow_playback_repeats: true) do
+                  VCR.use_cassette('bid/awards/get_awards_pension') do
+                    prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
+                  end
+                end
+              end
+
+              it 'prefills 1 when user is in receipt of pension' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
                   VCR.use_cassette('bid/awards/get_awards_pension') do
                     prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
                     expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
-                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
                   end
                 end
               end
 
-              it 'prefills when bid awards service returns an error' do
+              it 'prefills 0 when user is not in receipt of pension' do
+                prefill_no_receipt_of_pension = {
+                  is_in_receipt_of_pension: false
+                }
+                form_profile_instance = described_class.for(form_id: '686C-674-V2', user:)
+                allow(form_profile_instance).to receive(:awards_pension).and_return(prefill_no_receipt_of_pension)
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                                 allow_playback_repeats: true) do
+                  prefilled_data = form_profile_instance.prefill[:form_data]
+
+                  expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(0)
+                end
+              end
+
+              it 'prefills -1 and default net worth limit when bid awards service returns an error' do
                 error = StandardError.new('awards pension error')
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
