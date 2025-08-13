@@ -175,7 +175,7 @@ module BGS
 
     def submit_to_central_service(claim:, encrypted_vet_info:)
       vet_info = JSON.parse(claim.form)['dependents_application']
-    
+
       user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
         claim.id,
