@@ -17,6 +17,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
   let(:folder_identifier) { 'VETERAN:SSN:123456789' }
   let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source:) }
+
   # stamping is stubbed, but will raise an error if the provided stamp_set is invalid
   let(:claim_stamp_set) { [anything] }
   let(:attachment_stamp_set) { [anything] }
