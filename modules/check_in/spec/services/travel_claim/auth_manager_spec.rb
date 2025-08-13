@@ -180,7 +180,7 @@ RSpec.describe TravelClaim::AuthManager do
     it 'uses hardcoded fallback when neither settings nor credentials provide a secret' do
       service = described_class.new
       sd = OpenStruct.new(cache_key_secret: nil)
-      fake_creds = Object.new
+      fake_creds = double('creds', secret_key_base: nil)
       fake_app = double('app', credentials: fake_creds)
       allow(Rails).to receive(:application).and_return(fake_app)
       allow(service).to receive(:settings).and_return(sd)

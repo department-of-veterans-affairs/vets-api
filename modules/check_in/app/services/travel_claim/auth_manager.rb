@@ -81,9 +81,7 @@ module TravelClaim
       explicit = settings.respond_to?(:cache_key_secret) ? settings.cache_key_secret : nil
       candidates = [
         explicit.to_s.presence,
-        (if Rails.application.credentials.respond_to?(:secret_key_base)
-           Rails.application.credentials.secret_key_base.to_s
-         end),
+        Rails.application.credentials.secret_key_base.to_s,
         'checkin-travel-pay'
       ]
       candidates.find(&:present?)
