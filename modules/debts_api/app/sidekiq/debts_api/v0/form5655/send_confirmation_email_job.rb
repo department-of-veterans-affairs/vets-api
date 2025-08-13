@@ -72,7 +72,9 @@ module DebtsApi
     def find_submissions(user_uuid, submission_type)
       case submission_type
       when 'digital_dispute'
-        DebtsApi::V0::DigitalDisputeSubmission.where(user_uuid:, state: 1).first
+        # Fix: Add explicit ordering to get most recent submission
+        DebtsApi::V0::DigitalDisputeSubmission.where(user_uuid:, state: 1)
+                                              .order(created_at: :desc).first
       else
         DebtsApi::V0::Form5655Submission.where(user_uuid:, state: 1)
       end
