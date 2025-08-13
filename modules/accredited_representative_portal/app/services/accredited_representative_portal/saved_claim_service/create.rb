@@ -45,7 +45,7 @@ module AccreditedRepresentativePortal
         # Expose a discrete set of known exceptions. Expose any remaining with a
         # catch-all unknown exception.
         #
-        rescue RecordInvalidError, WrongAttachmentsError
+        rescue RecordInvalidError, WrongAttachmentsError, BenefitsIntakeService::Service::InvalidDocumentError
           raise
         rescue
           raise UnknownError
