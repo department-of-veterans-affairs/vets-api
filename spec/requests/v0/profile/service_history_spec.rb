@@ -160,11 +160,12 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
           it 'logs eligible benefits' do
             expect(Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob).to receive(:perform_async).with(
               user.uuid,
-              {
-                dischargeStatus: ['GENERAL_DISCHARGE'],
-                branchOfService: ['ARMY'],
-                serviceDates: [{ beginDate: '2002-02-02', endDate: '2008-12-01' }]
-              }
+              [{
+                startDate: '2002-02-02',
+                endDate: '2008-12-01',
+                dischargeStatus: 'GENERAL_DISCHARGE',
+                branchOfService: 'ARMY'
+              }]
             )
             VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
               get '/v0/profile/service_history'

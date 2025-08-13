@@ -5,8 +5,12 @@ module SignIn
     attribute :access_token_duration, :interval
     attribute :refresh_token_duration, :interval
 
-    has_many :config_certificates, as: :config, dependent: :destroy
-    has_many :certs, through: :config_certificates, class_name: 'SignIn::Certificate'
+    has_many :config_certificates, as: :config, dependent: :destroy, inverse_of: :config
+    has_many :certs, through: :config_certificates, class_name: 'SignIn::Certificate', inverse_of: :client_configs
+
+    accepts_nested_attributes_for :certs,
+                                  allow_destroy: true,
+                                  reject_if: ->(attrs) { attrs['pem'].blank? && attrs['id'].blank? }
 
     validates :anti_csrf, inclusion: [true, false]
     validates :redirect_uri, presence: true
@@ -64,6 +68,28 @@ module SignIn
 
     def web_sso_enabled?
       cookie_auth? && shared_sessions
+    end
+
+    def certs_attributes=(certs_attributes)
+      certs_attributes.each do |cert_attributes|
+        id = cert_attributes[:id].to_s
+        pem = cert_attributes[:pem].to_s
+        destroy = ActiveModel::Type::Boolean.new.cast(cert_attributes[:_destroy])
+
+        if destroy && id.present?
+          cert = certs.find(id)
+          certs.destroy(cert)
+        else
+          cert = SignIn::Certificate.find_or_create_by(pem:)
+          certs << cert unless certs.include?(cert)
+        end
+      end
+    end
+
+    def as_json(options = {})
+      super(options).tap do |hash|
+        hash['certs'] = certs.map(&:as_json)
+      end
     end
 
     private
