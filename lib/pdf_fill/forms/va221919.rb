@@ -18,20 +18,13 @@ module PdfFill
             question_text: 'INSTITUTION NAME'
           },
           'institutionAddress' => {
-            'street' => {
+            'formatted' => {
               key: 'institutionAddress',
-              limit: 100,
+              limit: 200,
               question_num: 2,
               question_suffix: 'A',
               question_text: 'INSTITUTION ADDRESS'
             }
-          },
-          'facilityCode' => {
-            key: 'facilityCode',
-            limit: 8,
-            question_num: 3,
-            question_suffix: 'A',
-            question_text: 'FACILITY CODE'
           }
         },
 
@@ -39,32 +32,17 @@ module PdfFill
         'proprietaryProfitConflicts' => {
           '[0]' => {
             'affiliatedIndividuals' => {
-              'first' => {
+              'fullName' => {
                 key: 'employeeName0',
-                limit: 30,
+                limit: 60,
                 question_num: 4,
                 question_suffix: 'A',
-                question_text: 'EMPLOYEE NAME (FIRST)'
-              },
-              'last' => {
-                key: 'employeeName0',
-                limit: 30,
-                question_num: 4,
-                question_suffix: 'B',
-                question_text: 'EMPLOYEE NAME (LAST)',
-                combine_with: ['proprietaryProfitConflicts', '[0]', 'affiliatedIndividuals', 'first']
-              },
-              'title' => {
-                key: 'employeeTitle0',
-                limit: 50,
-                question_num: 5,
-                question_suffix: 'A',
-                question_text: 'EMPLOYEE TITLE'
+                question_text: 'EMPLOYEE NAME'
               },
               'individualAssociationType' => {
                 key: 'association0',
                 limit: 20,
-                question_num: 6,
+                question_num: 5,
                 question_suffix: 'A',
                 question_text: 'ASSOCIATION TYPE'
               }
@@ -72,32 +50,17 @@ module PdfFill
           },
           '[1]' => {
             'affiliatedIndividuals' => {
-              'first' => {
+              'fullName' => {
                 key: 'employeeName1',
-                limit: 30,
-                question_num: 7,
+                limit: 60,
+                question_num: 6,
                 question_suffix: 'A',
-                question_text: 'EMPLOYEE NAME (FIRST)'
-              },
-              'last' => {
-                key: 'employeeName1',
-                limit: 30,
-                question_num: 7,
-                question_suffix: 'B',
-                question_text: 'EMPLOYEE NAME (LAST)',
-                combine_with: ['proprietaryProfitConflicts', '[1]', 'affiliatedIndividuals', 'first']
-              },
-              'title' => {
-                key: 'employeeTitle1',
-                limit: 50,
-                question_num: 8,
-                question_suffix: 'A',
-                question_text: 'EMPLOYEE TITLE'
+                question_text: 'EMPLOYEE NAME'
               },
               'individualAssociationType' => {
                 key: 'association1',
                 limit: 20,
-                question_num: 9,
+                question_num: 7,
                 question_suffix: 'A',
                 question_text: 'ASSOCIATION TYPE'
               }
