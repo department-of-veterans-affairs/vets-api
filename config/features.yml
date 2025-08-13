@@ -535,6 +535,9 @@ features:
   debts_sharepoint_error_logging:
     actor_type: user
     description: Logs Sharepoint error data
+  decision_review_use_new_appealable_issues_service:
+    actor_type: user
+    description: Use the new LH Appealable Issues API for fetching appealable/contestable issues
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
