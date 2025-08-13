@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe TravelClaim::TokenClient do
-  let(:client) { described_class.new }
+  let(:client_number) { 'cn-123' }
+  let(:client) { described_class.new(client_number) }
   let(:settings_double) do
     OpenStruct.new(
       auth_url: 'https://auth.example.test',
@@ -27,7 +28,7 @@ RSpec.describe TravelClaim::TokenClient do
   end
 
   describe '#veis_token' do
-    it 'POSTs to the VEIS token endpoint with form-encoded body' do
+    it 'POSTs to the VEIS token endpoint with form-encoded body (no client number)' do
       url = "#{settings_double.auth_url}/#{settings_double.tenant_id}/oauth2/v2.0/token"
       stub = stub_request(:post, url)
              .to_return(
@@ -64,7 +65,7 @@ RSpec.describe TravelClaim::TokenClient do
   end
 
   describe '#system_access_token_v4' do
-    it 'POSTs to the v4 system access token endpoint with required headers and body' do
+    it 'POSTs to the v4 system access token endpoint with required headers including client number' do
       url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
       stub = stub_request(:post, url)
              .to_return(
@@ -78,19 +79,20 @@ RSpec.describe TravelClaim::TokenClient do
       expect(stub).to have_been_requested
 
       expect(WebMock).to(have_requested(:post, url).with do |req|
-        # Headers
         expect(req.headers['Authorization']).to eq('Bearer veis')
         expect(req.headers['Content-Type']).to eq('application/json')
         expect(req.headers['Ocp-Apim-Subscription-Key']).to eq(settings_double.subscription_key)
+        client_key = req.headers.keys.find { |k| k.to_s.casecmp('BTSSS-API-Client-Number').zero? }
+        expect(client_key).not_to be_nil
+        expect(req.headers[client_key]).to eq(client_number)
         expect(req.headers.keys.any? { |k| k.to_s.casecmp('X-Correlation-ID').zero? }).to be(true)
 
-        # Body
         parsed = JSON.parse(req.body)
         expect(parsed).to include('secret' => settings_double.travel_pay_client_secret, 'icn' => '123V456')
       end)
     end
 
-    it 'uses E/S subscription keys in production' do
+    it 'uses E/S subscription keys and client number in production' do
       allow(Settings).to receive(:vsp_environment).and_return('production')
       url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
       stub_request(:post, url).to_return(status: 200, body: { data: { accessToken: 'v4' } }.to_json,
@@ -99,6 +101,9 @@ RSpec.describe TravelClaim::TokenClient do
       expect(WebMock).to(have_requested(:post, url).with do |req|
         expect(req.headers['Ocp-Apim-Subscription-Key-E']).to eq('e-sub')
         expect(req.headers['Ocp-Apim-Subscription-Key-S']).to eq('s-sub')
+        client_key = req.headers.keys.find { |k| k.to_s.casecmp('BTSSS-API-Client-Number').zero? }
+        expect(client_key).not_to be_nil
+        expect(req.headers[client_key]).to eq(client_number)
       end)
     end
 

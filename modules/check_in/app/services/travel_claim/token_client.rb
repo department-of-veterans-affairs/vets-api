@@ -4,15 +4,20 @@ module TravelClaim
   class TokenClient < BaseClient
     GRANT_TYPE = 'client_credentials'
 
+    def initialize(client_number)
+      super()
+      @client_number = client_number
+    end
+
     def veis_token
       connection(server_url: settings.auth_url).post("/#{settings.tenant_id}/oauth2/v2.0/token") do |req|
         req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form({
-                                         client_id: settings.travel_pay_client_id,
-                                         client_secret: settings.travel_pay_client_secret,
-                                         scope: settings.scope,
-                                         grant_type: GRANT_TYPE
-                                       })
+                                          client_id: settings.travel_pay_client_id,
+                                          client_secret: settings.travel_pay_client_secret,
+                                          scope: settings.scope,
+                                          grant_type: GRANT_TYPE
+                                        })
       end
     end
 
@@ -21,6 +26,7 @@ module TravelClaim
         req.headers['Content-Type'] = 'application/json'
         req.headers['X-Correlation-ID'] = SecureRandom.uuid
         req.headers.merge!(claim_headers)
+        req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
         req.headers['Authorization'] = "Bearer #{veis_access_token}"
         req.body = { secret: settings.travel_pay_client_secret, icn: }.to_json
       end
