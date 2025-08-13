@@ -81,7 +81,7 @@ RSpec.describe VANotify::EmailJob, type: :worker do
       end
     end
 
-    # when the it fails but not with a 400 error
+    # when it fails but not with a 400 error
     context 'when vanotify returns a non-400 error' do
       it 'raises the error and does not log to sentry' do
         # Match the cassette's data exactly

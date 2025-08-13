@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-# Is this one still being used or is it obsolete/deprecated?
+###########################################################################################
+# This class is deprecated in favor of modules/va_notify/app/sidekiq/va_notify/email_job.rb
+# Use that one instead.
+###########################################################################################
+# TODO: Remove this class
 class VANotifyEmailJob
   include Sidekiq::Job
   include SentryLogging

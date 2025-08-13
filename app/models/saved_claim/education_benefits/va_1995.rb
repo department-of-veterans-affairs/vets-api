@@ -3,8 +3,6 @@
 class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
   add_form_and_validation('22-1995')
 
-  ZSF_DD_TAG_FUNCTION  = 'form_1995_failure_confirmation_email_sending'
-
   # Pulled from https://github.com/department-of-veterans-affairs/vets-website/src/applications/edu-benefits/utils/helpers.jsx#L100
   # & https://github.com/department-of-veterans-affairs/vets-website/blob/main/src/applications/edu-benefits/utils/labels.jsx
   BENEFIT_TITLE_FOR_1995 = {
@@ -16,46 +14,31 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
     'transferOfEntitlement' => 'Transfer of Entitlement Program (TOE)'
   }.freeze
 
-  def after_submit(_user)
+  def after_submit(user)
+    Rails.logger.info "=== Form 1995 after_submit called ==="
     return unless Flipper.enabled?(:form1995_confirmation_email)
+    Rails.logger.info "=== Feature flag enabled ==="
 
     parsed_form_data = JSON.parse(form)
-    email = parsed_form_data['email']
+    email = user&.email || parsed_form_data['email']
+    Rails.logger.info "=== Email found: #{email} ==="
     return if email.blank?
 
+    Rails.logger.info "=== About to send confirmation email ==="
     send_confirmation_email(parsed_form_data, email)
   end
 
   private
 
-  # rubocop:disable Metrics/MethodLength
   def send_confirmation_email(parsed_form_data, email)
     benefit_claimed = BENEFIT_TITLE_FOR_1995[parsed_form_data['benefit']] || ''
+    form_specific_params = { 'benefit' => benefit_claimed }
 
-    callback_options = {
-      callback_metadata: {
-        notification_type: 'error',
-        form_number: '22-1995',
-        statsd_tags: { service: 'submit-1995-form', function: 'DefaultFunction' }
-      }
-    }
-
-    VANotify::EmailJob.perform_async(
-      email,
-      Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email,
-      {
-        'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-        'benefit' => benefit_claimed,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => education_benefits_claim.confirmation_number,
-        'regional_office_address' => regional_office_address
-      },
-      callback_options
-    )
-
-    notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email, callback_options)
-
-    notify_response = notify_client.send_email()
+    # this method is in the parent class
+    send_education_benefits_confirmation_email(email, parsed_form_data, form_specific_params)
   end
-  # rubocop:enable Metrics/MethodLength
+
+  def template_id
+    Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email
+  end
 end
