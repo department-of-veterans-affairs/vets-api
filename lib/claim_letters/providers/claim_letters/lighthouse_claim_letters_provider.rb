@@ -155,6 +155,7 @@ class LighthouseClaimLettersProvider
 
   def parse_date(date, attribute_name)
     return nil if date.nil? || date.to_s.strip.empty?
+
     Date.parse(date)
   rescue => e
     Rails.logger.warn(
