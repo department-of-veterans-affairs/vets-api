@@ -162,6 +162,28 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           expect(monitor).to have_received(:track_missing_user_pid_itf_controller)
         end
 
+        it 'skips raising MissingParticipantIDError when flipper is enabled' do
+          user_no_pid = build(:disabilities_compensation_user, participant_id: nil)
+          allow(Flipper).to receive(:enabled?).with(:pension_itf_skip_missing_person_error_enabled,
+                                                    user_no_pid).and_return(true)
+
+          expect { subject.send(:validate_data, user_no_pid, 'get', 'form_id', 'survivor') }
+            .not_to raise_error
+
+          expect(monitor).to have_received(:track_missing_user_pid_itf_controller)
+        end
+
+        it 'raises MissingParticipantIDError when flipper is disabled' do
+          user_no_pid = build(:disabilities_compensation_user, participant_id: nil)
+          allow(Flipper).to receive(:enabled?).with(:pension_itf_skip_missing_person_error_enabled,
+                                                    user_no_pid).and_return(false)
+
+          expect { subject.send(:validate_data, user_no_pid, 'get', 'form_id', 'survivor') }
+            .to raise_error V0::IntentToFilesController::MissingParticipantIDError
+
+          expect(monitor).to have_received(:track_missing_user_pid_itf_controller)
+        end
+
         it 'raises InvalidITFTypeError' do
           expect { subject.send(:validate_data, user, 'get', nil, 'survivor') }
             .to raise_error V0::IntentToFilesController::InvalidITFTypeError
