@@ -30,14 +30,18 @@ RSpec.describe TravelClaim::TokenClient do
     it 'POSTs to the VEIS token endpoint with form-encoded body' do
       url = "#{settings_double.auth_url}/#{settings_double.tenant_id}/oauth2/v2.0/token"
       stub = stub_request(:post, url)
-             .to_return(status: 200, body: { access_token: 'veis' }.to_json, headers: { 'Content-Type' => 'application/json' })
+             .to_return(
+               status: 200,
+               body: { access_token: 'veis' }.to_json,
+               headers: { 'Content-Type' => 'application/json' }
+             )
 
       resp = client.veis_token
       expect(resp.status).to eq(200)
 
       expect(stub).to have_been_requested
 
-      expect(WebMock).to have_requested(:post, url).with { |req|
+      expect(WebMock).to(have_requested(:post, url).with do |req|
         expect(req.headers['Content-Type']).to eq('application/x-www-form-urlencoded')
         form = URI.decode_www_form(req.body).to_h
         expect(form).to include(
@@ -46,7 +50,7 @@ RSpec.describe TravelClaim::TokenClient do
           'scope' => settings_double.scope,
           'grant_type' => 'client_credentials'
         )
-      }
+      end)
     end
   end
 
@@ -54,13 +58,17 @@ RSpec.describe TravelClaim::TokenClient do
     it 'POSTs to the v4 system access token endpoint with required headers and body' do
       url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
       stub = stub_request(:post, url)
-             .to_return(status: 200, body: { data: { accessToken: 'v4' } }.to_json, headers: { 'Content-Type' => 'application/json' })
+             .to_return(
+               status: 200,
+               body: { data: { accessToken: 'v4' } }.to_json,
+               headers: { 'Content-Type' => 'application/json' }
+             )
 
       resp = client.system_access_token_v4(veis_access_token: 'veis', icn: '123V456')
       expect(resp.status).to eq(200)
       expect(stub).to have_been_requested
 
-      expect(WebMock).to have_requested(:post, url).with { |req|
+      expect(WebMock).to(have_requested(:post, url).with do |req|
         # Headers
         expect(req.headers['Authorization']).to eq('Bearer veis')
         expect(req.headers['Content-Type']).to eq('application/json')
@@ -70,12 +78,16 @@ RSpec.describe TravelClaim::TokenClient do
         # Body
         parsed = JSON.parse(req.body)
         expect(parsed).to include('secret' => settings_double.travel_pay_client_secret, 'icn' => '123V456')
-      }
+      end)
     end
 
     it 'does not log secrets on error paths' do
       url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
-      stub_request(:post, url).to_return(status: 500, body: { detail: 'boom' }.to_json, headers: { 'Content-Type' => 'application/json' })
+      stub_request(:post, url).to_return(
+        status: 500,
+        body: { detail: 'boom' }.to_json,
+        headers: { 'Content-Type' => 'application/json' }
+      )
 
       original_logger = Rails.logger
       io = StringIO.new
