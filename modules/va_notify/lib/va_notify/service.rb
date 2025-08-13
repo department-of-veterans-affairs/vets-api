@@ -108,14 +108,13 @@ module VaNotify
       )
     end
 
-    def create_notification(response)
+    def create_notification(response) # rubocop:disable Metrics/MethodLength
       if response.nil?
         Rails.logger.error('VANotify - no response')
         return
       end
 
       service_api_key_path = retrieve_service_api_key_path
-
       # when the class is used directly we can pass symbols as keys
       # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
       notification = VANotify::Notification.new(
