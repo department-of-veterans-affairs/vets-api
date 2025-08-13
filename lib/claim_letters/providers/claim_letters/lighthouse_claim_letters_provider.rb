@@ -113,8 +113,8 @@ class LighthouseClaimLettersProvider
     type_description =
       ClaimLetters::Utils::LetterTransformer.decorate_description(doc_type) || letter['documentTypeLabel']
 
-    received_at = Date.parse(letter['receivedAt']) if letter['receivedAt']
-    upload_date = Date.parse(letter['uploadedDateTime']) if letter['uploadedDateTime']
+    received_at = Date.parse(letter['receivedAt']) rescue nil if letter['receivedAt']
+    upload_date = Date.parse(letter['uploadedDateTime']) rescue nil if letter['uploadedDateTime']
 
     ClaimLetters::Responses::ClaimLetterResponse.new(
       # Please note:
