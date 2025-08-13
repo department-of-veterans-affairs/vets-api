@@ -8,7 +8,6 @@ module ClaimsApi::OneOff
 
     LOG_TAG = 'header_hash_filler_job'
 
-    # rubocop:disable Metrics/MethodLength
     # Testing max_to_process at 5k was 5m long, so 750 should stay under the 1m timeout limit for Sidekiq jobs
     def perform(model = 'ClaimsApi::PowerOfAttorney', ids = [], max_to_process = 750, force: false)
       return if !force && !Flipper.enabled?(:lighthouse_claims_api_run_header_hash_filler_job)
@@ -37,11 +36,8 @@ module ClaimsApi::OneOff
                                          error_message: e.message
         end
       end
-      remaining = model.constantize.where(header_hash: nil).count
-      ClaimsApi::Logger.log LOG_TAG,
-                            details: "Processed #{processed_count} records for #{model}. #{remaining} records remain."
+      ClaimsApi::Logger.log LOG_TAG, details: "Processed #{processed_count} records for #{model}"
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
