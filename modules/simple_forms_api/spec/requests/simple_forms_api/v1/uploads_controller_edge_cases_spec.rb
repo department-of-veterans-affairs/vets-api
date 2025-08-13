@@ -52,10 +52,11 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Edge Cases', type: :reques
         end
 
         it 'logs error and continues processing' do
-          expect(Rails.logger).to receive(:error).with('Simple forms api - error sending confirmation email', error: anything)
-          
+          expect(Rails.logger).to receive(:error)
+            .with('Simple forms api - error sending confirmation email', error: anything)
+
           post '/simple_forms_api/v1/simple_forms', params: data
-          
+
           expect(response).to have_http_status(:ok)
         end
       end
@@ -170,14 +171,14 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Edge Cases', type: :reques
     describe '#build_response' do
       it 'builds response with confirmation number and status' do
         result = controller.send(:build_response, 'conf123', 'https://example.com/pdf', 200)
-        
+
         expect(result[:json][:confirmation_number]).to eq('conf123')
         expect(result[:status]).to eq(200)
       end
 
       it 'handles nil values gracefully' do
         result = controller.send(:build_response, nil, nil, 500)
-        
+
         expect(result[:json][:confirmation_number]).to be_nil
         expect(result[:status]).to eq(500)
       end
