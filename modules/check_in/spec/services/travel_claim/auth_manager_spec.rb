@@ -25,9 +25,9 @@ RSpec.describe TravelClaim::AuthManager do
 
       service = described_class.new
       allow(service).to receive(:veis_token).and_return(veis_resp)
-      allow(service).to receive(:system_access_token_v4).with(veis_access_token: 'veis', icn: icn).and_return(v4_resp)
+      allow(service).to receive(:system_access_token_v4).with(veis_access_token: 'veis', icn:).and_return(v4_resp)
 
-      token = service.authorize(icn: icn)
+      token = service.authorize(icn:)
       expect(token).to eq('v4')
     end
 
@@ -38,7 +38,8 @@ RSpec.describe TravelClaim::AuthManager do
 
       service = described_class.new(check_in_session: session)
       allow(service).to receive(:veis_token).and_return(veis_resp)
-      allow(service).to receive(:system_access_token_v4).with(veis_access_token: 'veis', icn: '123V456').and_return(v4_resp)
+      allow(service).to receive(:system_access_token_v4).with(veis_access_token: 'veis',
+                                                              icn: '123V456').and_return(v4_resp)
 
       token = service.authorize
       expect(token).to eq('v4')

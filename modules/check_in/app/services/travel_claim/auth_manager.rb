@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module TravelClaim
   class AuthManager < BaseClient
     attr_reader :redis_client, :check_in_session
@@ -35,11 +36,11 @@ module TravelClaim
       connection(server_url: settings.auth_url).post("/#{settings.tenant_id}/oauth2/v2.0/token") do |req|
         req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form({
-                                          client_id: settings.travel_pay_client_id,
-                                          client_secret: settings.travel_pay_client_secret,
-                                          scope: settings.scope,
-                                          grant_type: 'client_credentials'
-                                        })
+                                         client_id: settings.travel_pay_client_id,
+                                         client_secret: settings.travel_pay_client_secret,
+                                         scope: settings.scope,
+                                         grant_type: 'client_credentials'
+                                       })
       end
     end
 

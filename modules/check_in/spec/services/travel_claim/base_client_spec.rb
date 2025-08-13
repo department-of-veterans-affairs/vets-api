@@ -22,9 +22,9 @@ RSpec.describe TravelClaim::BaseClient do
           with_settings(Settings.check_in.travel_reimbursement_api_v2,
                         e_subscription_key: 'e-key', s_subscription_key: 's-key') do
             expect(client.send(:claim_headers)).to eq({
-              'Ocp-Apim-Subscription-Key-E' => 'e-key',
-              'Ocp-Apim-Subscription-Key-S' => 's-key'
-            })
+                                                        'Ocp-Apim-Subscription-Key-E' => 'e-key',
+                                                        'Ocp-Apim-Subscription-Key-S' => 's-key'
+                                                      })
           end
         end
       end
