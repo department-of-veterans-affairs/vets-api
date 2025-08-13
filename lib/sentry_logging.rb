@@ -5,7 +5,7 @@ require 'sentry_logging'
 module SentryLogging
   # WARNING: This module is deprecated, and will be removed in October 2025. Please use Vets::SharedLogging instead.
   # If your team currently uses this module, please see documentation for migrating to Vets::SharedLogging: TODO
-  if !Rails.env.test?
+  unless Rails.env.test?
     ActiveSupport::Deprecation
       .new.warn('SentryLogging is deprecated and will be removed in October 2025. Use Vets::SharedLogging instead.')
   end
