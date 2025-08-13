@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module BenefitsClaims
   module Constants
     CLAIM_TYPE_LANGUAGE_MAP = {
@@ -23,7 +24,22 @@ module BenefitsClaims
       'Request Service Treatment Records from Veteran' => 'Official service treatment records',
       '21-4142 incomplete - need provider address' => 'Address of non-VA medical provider',
       'Submit buddy statement(s)' => 'Witness or corroboration statements',
-      'ASB - tell us where, when, how exposed' => 'Asbestos exposure information'
+      'ASB - tell us where, when, how exposed' => 'Asbestos exposure information',
+      'HAIMS STR Request' => 'Service treatment records',
+      'Name of disability needed' => 'Name of disability',
+      'NG1 - National Guard Records Request' => 'National Guard service treatment records',
+      'DBQ RESP Sleep Apnea' => 'Sleep apnea exam',
+      'DBQ MUSC Back (thoracolumbar spine)' => 'Back pain exam',
+      'DBQ MUSC Knee and Lower Leg' => 'Knee and leg exam',
+      'DBQ NEURO Headaches (including migraines)' => 'Headache and migraine exam',
+      '21-4142' => 'Authorization to disclose information',
+      '21-4142a' => 'Non-VA medical provider information',
+      'DBQ PSYCH PTSD initial' => 'PTSD claim exam',
+      'SSA medical evidence requested' => 'Medical records from the Social Security Administration',
+      'DBQ PSYCH PTSD Review' => 'PTSD claim follow-up exam',
+      'Clarification of Claimed Issue' => 'Clarify claimed condition',
+      'DBQ GU Male Reproductive Organ' => 'Reproductive health exam',
+      'ASB-medical evid of disease (biopsy) needed' => 'Asbestos exposure medical documentation'
     }.freeze
 
     ACTIVITY_DESCRIPTION_MAPPING = {
@@ -36,11 +52,7 @@ module BenefitsClaims
                                                                      ' your posttraumatic stress disorder (PTSD).',
       'RV1 - Reserve Records Request' => 'We’ve requested your reserve records on your behalf. No action is needed.',
       'Proof of service (DD214, etc.)' => 'We’ve requested your proof of service on your behalf. No action is needed.',
-      'PMR Request' => 'We’ve requested your non-VA medical records on your behalf. No action is needed.',
-      'DBQ AUDIO Hearing Loss and Tinnitus' => 'We’ve requested a disability exam for your hearing.' \
-                                               ' The examiner’s office will contact you to schedule this appointment.',
-      'DBQ PSYCH Mental Disorders' => 'We’ve requested a mental health exam for you. The examiner’s office' \
-                                      ' will contact you to schedule this appointment.'
+      'PMR Request' => 'We’ve requested your non-VA medical records on your behalf. No action is needed.'
     }.freeze
 
     SHORT_DESCRIPTION_MAPPING = {
@@ -60,7 +72,37 @@ module BenefitsClaims
                                                       ' request information for your claim.',
       'Submit buddy statement(s)' => 'We need statements from people who know about your condition.',
       'ASB - tell us where, when, how exposed' => 'To process your disability claim for asbestos exposure, we' \
-                                                  ' need a bit more information from you.'
+                                                  ' need a bit more information from you.',
+      'HAIMS STR Request' => 'We’ve requested your service treatment records from the Department of Defense.',
+      'Name of disability needed' => 'We need to know what your disability is and how it’s connected' \
+                                     ' to your military service.',
+      'DBQ RESP Sleep Apnea' => 'We’ve requested an exam to learn more about your sleep apnea.' \
+                                ' The examiner’s office will contact you to schedule this appointment.',
+      'DBQ MUSC Back (thoracolumbar spine)' => 'We’ve requested an exam to understand your back condition.' \
+                                               ' The examiner’s office will contact you to schedule this appointment.',
+      'DBQ MUSC Knee and Lower Leg' => 'We’ve requested an exam for your knee and lower leg.' \
+                                       ' The examiner’s office will contact you to schedule this appointment.',
+      'DBQ NEURO Headaches (including migraines)' => 'We’ve requested an exam for your headaches. The' \
+                                                     ' examiner’s office will contact you to schedule' \
+                                                     ' this appointment.',
+      '21-4142' => 'We need your permission to request your personal information from a non-VA source,' \
+                   ' like a private doctor or hospital.',
+      '21-4142a' => 'We need information about where you received treatment so we can request your medical' \
+                    ' records from non-VA medical providers.',
+      'DBQ PSYCH PTSD initial' => 'We’ve requested an exam related to your PTSD. The examiner’s' \
+                                  ' office will contact you to schedule this appointment.',
+      'SSA medical evidence requested' => 'We’ve asked the Social Security Administration (SSA) for your medical' \
+                                          ' records.',
+      'DBQ PSYCH PTSD Review' => 'We’ve requested a follow-up exam related to your PTSD. The examiner’s' \
+                                 ' office will contact you to schedule this appointment.',
+      'Clarification of Claimed Issue' => 'We need more information or a medical diagnosis for the condition in your' \
+                                          ' benefits claim.',
+      'DBQ GU Male Reproductive Organ' => 'We’ve requested an exam to understand the condition affecting your' \
+                                          ' reproductive health. The examiner’s office will contact you to' \
+                                          ' schedule this appointment.',
+      'ASB-medical evid of disease (biopsy) needed' => 'We need medical documentation that supports your claim.',
+      'NG1 - National Guard Records Request' => 'We’ve asked your National Guard unit for your' \
+                                                ' service treatment records.'
     }.freeze
 
     SUPPORT_ALIASES_MAPPING = {
@@ -82,7 +124,22 @@ module BenefitsClaims
       'Request Service Treatment Records from Veteran' => ['Request Service Treatment Records from Veteran'],
       '21-4142 incomplete - need provider address' => ['21-4142 incomplete - need provider address'],
       'Submit buddy statement(s)' => ['Submit buddy statement(s)'],
-      'ASB - tell us where, when, how exposed' => ['ASB - tell us where, when, how exposed']
+      'ASB - tell us where, when, how exposed' => ['ASB - tell us where, when, how exposed'],
+      'HAIMS STR Request' => ['HAIMS STR Request'],
+      'Name of disability needed' => ['Name of disability needed'],
+      'DBQ RESP Sleep Apnea' => ['DBQ RESP Sleep Apnea'],
+      'DBQ MUSC Back (thoracolumbar spine)' => ['DBQ MUSC Back (thoracolumbar spine)'],
+      'DBQ MUSC Knee and Lower Leg' => ['DBQ MUSC Knee and Lower Leg'],
+      'DBQ NEURO Headaches (including migraines)' => ['DBQ NEURO Headaches (including migraines)'],
+      '21-4142' => ['21-4142'],
+      '21-4142a' => ['21-4142a'],
+      'DBQ PSYCH PTSD initial' => ['DBQ PSYCH PTSD initial'],
+      'SSA medical evidence requested' => ['SSA medical evidence requested'],
+      'DBQ PSYCH PTSD Review' => ['DBQ PSYCH PTSD Review'],
+      'Clarification of Claimed Issue' => ['Clarification of Claimed Issue'],
+      'DBQ GU Male Reproductive Organ' => ['DBQ GU Male Reproductive Organ'],
+      'ASB-medical evid of disease (biopsy) needed' => ['ASB-medical evid of disease (biopsy) needed'],
+      'NG1 - National Guard Records Request' => ['NG1 - National Guard Records Request']
     }.freeze
 
     UPLOADER_MAPPING = {
@@ -102,7 +159,23 @@ module BenefitsClaims
       'Request Service Treatment Records from Veteran' => true,
       '21-4142 incomplete - need provider address' => true,
       'Submit buddy statement(s)' => true,
-      'ASB - tell us where, when, how exposed' => true
+      'ASB - tell us where, when, how exposed' => true,
+      'HAIMS STR Request' => false,
+      'Name of disability needed' => true,
+      'DBQ RESP Sleep Apnea' => false,
+      'DBQ MUSC Back (thoracolumbar spine)' => false,
+      'DBQ MUSC Knee and Lower Leg' => false,
+      'DBQ NEURO Headaches (including migraines)' => false,
+      '21-4142' => true,
+      '21-4142a' => true,
+      'DBQ PSYCH PTSD initial' => false,
+      'SSA medical evidence requested' => false,
+      'DBQ PSYCH PTSD Review' => false,
+      'Clarification of Claimed Issue' => true,
+      'DBQ GU Male Reproductive Organ' => false,
+      'ASB-medical evid of disease (biopsy) needed' => true,
+      'NG1 - National Guard Records Request' => false
     }.freeze
   end
 end
+# rubocop:enable Metrics/ModuleLength
