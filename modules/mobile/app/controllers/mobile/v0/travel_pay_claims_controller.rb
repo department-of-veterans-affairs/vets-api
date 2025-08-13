@@ -55,10 +55,6 @@ module Mobile
 
       private
 
-      def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
-      end
-
       def normalize_claim_summary(claim)
         Mobile::V0::TravelPayClaimSummary.new(
           id: claim['id'],
@@ -109,6 +105,10 @@ module Mobile
 
       def smoc_service
         @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user, 'VAHB')
+      end
+
+      def claims_service
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
     end
   end
