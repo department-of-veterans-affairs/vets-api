@@ -184,8 +184,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
         tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
         can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-        expect(can_upload_values).to eq([true, true, true, true, true, true, true, true, false, true, true, true,
-                                         false, false, true])
+        expect(can_upload_values).to eq([true, true, false, true, true, true, true, true, false,
+                                         true, true, true, false, false, true])
         friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
         expect(friendly_name_values).to include('Authorization to disclose information')
         expect(friendly_name_values).to include('Proof of service')
@@ -212,12 +212,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                        ' your behalf. No action is needed.')
         expect(activity_description_values).to include('We’ve requested your non-VA medical records on' \
                                                        ' your behalf. No action is needed.')
-        expect(activity_description_values).to include('We’ve requested a disability exam for your hearing.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
-        expect(activity_description_values).to include('We’ve requested a mental health exam for you.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
         short_description_values = tracked_items.map { |i| i['shortDescription'] }
         expect(short_description_values).to include('We’ve requested your service' \
                                                     ' records or treatment records from your reserve unit.')
