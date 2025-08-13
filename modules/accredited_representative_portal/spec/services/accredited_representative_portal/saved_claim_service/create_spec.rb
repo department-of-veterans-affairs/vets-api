@@ -170,6 +170,32 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
               )
             end
           end
+
+          context 'with any error' do
+            let(:attachments) { [form_a, attachment_a, attachment_b] }
+
+            before do
+              allow_any_instance_of(
+                AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob
+              ).to receive(:perform).and_raise(described_class::WrongAttachmentsError)
+            end
+
+            it 'does not leave any saved claim join objects' do
+              expect do
+                suppress(described_class::WrongAttachmentsError) do
+                  perform
+                end
+              end.not_to(change(AccreditedRepresentativePortal::SavedClaimClaimantRepresentative, :count))
+            end
+
+            it 'does not leave any saved claim objects' do
+              expect do
+                suppress(described_class::WrongAttachmentsError) do
+                  perform
+                end
+              end.not_to(change(AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim, :count))
+            end
+          end
         end
       end
     end
