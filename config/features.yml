@@ -1913,9 +1913,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
