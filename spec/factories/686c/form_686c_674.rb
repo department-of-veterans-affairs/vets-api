@@ -1153,8 +1153,8 @@ FactoryBot.define do
           'ssn' => '987654321',
           'va_file_number' => '987654321'
         },
-        statement_of_truth_signature: 'Wesley Ford',
-        statement_of_truth_certified: true
+        'statement_of_truth_signature' => 'Wesley Ford',
+        'statement_of_truth_certified' => true
       }
     end
   end
