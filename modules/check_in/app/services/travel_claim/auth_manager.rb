@@ -52,9 +52,5 @@ module TravelClaim
         req.body = { secret: settings.travel_pay_client_secret, icn: }.to_json
       end
     end
-
-    def settings
-      @settings ||= Settings.check_in.travel_reimbursement_api_v2
-    end
   end
 end
