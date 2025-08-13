@@ -52,6 +52,15 @@ RSpec.describe TravelClaim::TokenClient do
         )
       end)
     end
+
+    it 'bubbles errors when VEIS returns non-200' do
+      url = "#{settings_double.auth_url}/#{settings_double.tenant_id}/oauth2/v2.0/token"
+      stub_request(:post, url).to_return(status: 500, body: { detail: 'err' }.to_json,
+                                         headers: { 'Content-Type' => 'application/json' })
+      expect do
+        client.veis_token
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
   end
 
   describe '#system_access_token_v4' do
@@ -81,6 +90,18 @@ RSpec.describe TravelClaim::TokenClient do
       end)
     end
 
+    it 'uses E/S subscription keys in production' do
+      allow(Settings).to receive(:vsp_environment).and_return('production')
+      url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
+      stub_request(:post, url).to_return(status: 200, body: { data: { accessToken: 'v4' } }.to_json,
+                                         headers: { 'Content-Type' => 'application/json' })
+      client.system_access_token_v4(veis_access_token: 'x', icn: 'y')
+      expect(WebMock).to(have_requested(:post, url).with do |req|
+        expect(req.headers['Ocp-Apim-Subscription-Key-E']).to eq('e-sub')
+        expect(req.headers['Ocp-Apim-Subscription-Key-S']).to eq('s-sub')
+      end)
+    end
+
     it 'does not log secrets on error paths' do
       url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
       stub_request(:post, url).to_return(
@@ -99,7 +120,6 @@ RSpec.describe TravelClaim::TokenClient do
         end.to raise_error(Common::Exceptions::BackendServiceException)
 
         logs = io.string
-        # Ensure the client secret marker is not leaked in logs
         expect(logs).not_to include(settings_double.travel_pay_client_secret)
       ensure
         Rails.logger = original_logger

@@ -154,4 +154,39 @@ RSpec.describe TravelClaim::AuthManager do
       expect { service.request_new_tokens }.to raise_error(ArgumentError, /ICN not available/)
     end
   end
+
+  describe '#secure_cache_key' do
+    it 'uses settings.cache_key_secret when present' do
+      service = described_class.new
+      sd = OpenStruct.new(cache_key_secret: 'sekret')
+      allow(service).to receive(:settings).and_return(sd)
+      expect(OpenSSL::HMAC).to receive(:hexdigest).with('SHA256', 'sekret', 'ICN').and_return('d')
+      key = service.send(:secure_cache_key, 'ICN')
+      expect(key).to include('icn_hmac:d')
+    end
+
+    it 'falls back to credentials secret_key_base when settings secret is absent' do
+      service = described_class.new
+      sd = OpenStruct.new(cache_key_secret: nil)
+      fake_creds = double('creds', secret_key_base: 'cred-secret')
+      fake_app = double('app', credentials: fake_creds)
+      allow(Rails).to receive(:application).and_return(fake_app)
+      allow(service).to receive(:settings).and_return(sd)
+      expect(OpenSSL::HMAC).to receive(:hexdigest).with('SHA256', 'cred-secret', 'ICN').and_return('d2')
+      key = service.send(:secure_cache_key, 'ICN')
+      expect(key).to include('icn_hmac:d2')
+    end
+
+    it 'uses hardcoded fallback when neither settings nor credentials provide a secret' do
+      service = described_class.new
+      sd = OpenStruct.new(cache_key_secret: nil)
+      fake_creds = Object.new
+      fake_app = double('app', credentials: fake_creds)
+      allow(Rails).to receive(:application).and_return(fake_app)
+      allow(service).to receive(:settings).and_return(sd)
+      expect(OpenSSL::HMAC).to receive(:hexdigest).with('SHA256', 'checkin-travel-pay', 'ICN').and_return('d3')
+      key = service.send(:secure_cache_key, 'ICN')
+      expect(key).to include('icn_hmac:d3')
+    end
+  end
 end
