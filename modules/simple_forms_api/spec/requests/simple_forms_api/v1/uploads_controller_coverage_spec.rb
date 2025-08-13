@@ -7,10 +7,9 @@ require 'lighthouse/benefits_intake/service'
 require 'lgy/service'
 require 'benefits_intake_service/service'
 
-# Include ActiveSupport::Testing::TimeHelpers for time manipulation in tests
-include ActiveSupport::Testing::TimeHelpers
-
 RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type: :request do
+  # Include ActiveSupport::Testing::TimeHelpers for time manipulation in tests
+  include ActiveSupport::Testing::TimeHelpers
   let(:user) { create(:user, :legacy_icn) }
   let(:lighthouse_service) { instance_double(BenefitsIntake::Service) }
 
@@ -22,7 +21,7 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
   describe '#submit_supporting_documents' do
     context 'with invalid form_id' do
       it 'returns unauthorized when form_id is not in allowed list' do
-        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', 
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents',
              params: { form_id: '21-4142', file: fixture_file_upload('doctors-note.pdf', 'application/pdf') }
 
         expect(response).to have_http_status(:unauthorized)
@@ -36,12 +35,12 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
         context 'when validation fails' do
           before do
             allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?)
-              .and_raise(BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid document'))
+              .and_raise(BenefitsIntakeService::Service::InvalidDocumentError, 'Invalid document')
           end
 
           it 'returns error for 40-0247' do
             post '/simple_forms_api/v1/simple_forms/submit_supporting_documents',
-                 params: { form_id: '40-0247', file: file }
+                 params: { form_id: '40-0247', file: }
 
             expect(response).to have_http_status(:unprocessable_entity)
             parsed_response = JSON.parse(response.body)
@@ -56,7 +55,7 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
 
           it 'proceeds with upload for 40-0247' do
             post '/simple_forms_api/v1/simple_forms/submit_supporting_documents',
-                 params: { form_id: '40-0247', file: file }
+                 params: { form_id: '40-0247', file: }
 
             expect(response).to have_http_status(:ok)
           end
@@ -67,12 +66,12 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
         context 'when validation fails' do
           before do
             allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?)
-              .and_raise(BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid document'))
+              .and_raise(BenefitsIntakeService::Service::InvalidDocumentError, 'Invalid document')
           end
 
           it 'returns specific error message for 40-10007' do
             post '/simple_forms_api/v1/simple_forms/submit_supporting_documents',
-                 params: { form_id: '40-10007', file: file }
+                 params: { form_id: '40-10007', file: }
 
             expect(response).to have_http_status(:unprocessable_entity)
             parsed_response = JSON.parse(response.body)
@@ -88,7 +87,7 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
           expect_any_instance_of(BenefitsIntakeService::Service).not_to receive(:valid_document?)
 
           post '/simple_forms_api/v1/simple_forms/submit_supporting_documents',
-               params: { form_id: '40-0247', file: file }
+               params: { form_id: '40-0247', file: }
 
           expect(response).to have_http_status(:ok)
         end
@@ -111,7 +110,7 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
 
       it 'returns validation error response' do
         post '/simple_forms_api/v1/simple_forms/submit_supporting_documents',
-             params: { form_id: '40-0247', file: file }
+             params: { form_id: '40-0247', file: }
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -131,13 +130,13 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
       context 'when Prawn::Errors::IncompatibleStringEncoding is raised' do
         before do
           allow_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate)
-            .and_raise(Prawn::Errors::IncompatibleStringEncoding.new('encoding error'))
+            .and_raise(Prawn::Errors::IncompatibleStringEncoding, 'encoding error')
         end
 
         it 'does not catch the exception' do
-          expect {
+          expect do
             post '/simple_forms_api/v1/simple_forms', params: data
-          }.to raise_error(Prawn::Errors::IncompatibleStringEncoding)
+          end.to raise_error(Prawn::Errors::IncompatibleStringEncoding)
         end
       end
 
@@ -150,7 +149,9 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
         end
 
         it 'logs the error and continues' do
-          expect(Rails.logger).to receive(:error).with('Simple forms api - error uploading form submission to S3 bucket', error: anything)
+          expect(Rails.logger).to receive(:error)
+            .with('Simple forms api - error uploading form submission to S3 bucket',
+                  error: anything)
 
           post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -191,7 +192,8 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
 
       context 'when VSI flash feature is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:priority_processing_request_apply_vsi_flash, user).and_return(false)
+          allow(Flipper).to receive(:enabled?)
+            .with(:priority_processing_request_apply_vsi_flash, user).and_return(false)
         end
 
         it 'does not attempt VSI flash operations' do
@@ -220,7 +222,7 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
       context 'when BenefitsClaimsApiDownError is raised' do
         before do
           allow_any_instance_of(SimpleFormsApi::IntentToFile).to receive(:submit)
-            .and_raise(SimpleFormsApi::Exceptions::BenefitsClaimsApiDownError.new('API is down'))
+            .and_raise(SimpleFormsApi::Exceptions::BenefitsClaimsApiDownError, 'API is down')
           allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:upload_pdf)
             .and_return([200, 'confirmation_number', double])
         end
@@ -242,7 +244,7 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
         before do
           allow_any_instance_of(User).to receive(:address).and_return({})
           allow_any_instance_of(SimpleFormsApi::IntentToFile).to receive(:submit)
-            .and_raise(Common::Exceptions::UnprocessableEntity.new({}))
+            .and_raise(Common::Exceptions::UnprocessableEntity, {})
           allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:upload_pdf)
             .and_return([200, 'confirmation_number', double])
         end
@@ -329,11 +331,12 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
       context 'when confirmation email fails' do
         before do
           allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send)
-            .and_raise(StandardError.new('Email service down'))
+            .and_raise(StandardError, 'Email service down')
         end
 
         it 'logs the error and continues' do
-          expect(Rails.logger).to receive(:error).with('Simple forms api - error sending confirmation email', error: anything)
+          expect(Rails.logger).to receive(:error)
+            .with('Simple forms api - error sending confirmation email', error: anything)
 
           post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -353,15 +356,15 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
     describe '#form_id' do
       it 'raises error when form_number is missing' do
         controller.params = {}
-        
-        expect {
+
+        expect do
           controller.send(:form_id)
-        }.to raise_error('missing form_number in params')
+        end.to raise_error('missing form_number in params')
       end
 
       it 'returns mapped form number' do
         allow(controller).to receive(:params).and_return({ form_number: '21-0966' })
-        
+
         expect(controller.send(:form_id)).to eq('vba_21_0966')
       end
     end
@@ -373,14 +376,14 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
 
       it 'includes pdf_url when present' do
         result = controller.send(:get_json, 'conf123', 'https://example.com/pdf')
-        
+
         expect(result[:pdf_url]).to eq('https://example.com/pdf')
       end
 
       it 'includes expiration_date for 21-0966 forms' do
         travel_to Time.zone.local(2024, 1, 1) do
           result = controller.send(:get_json, 'conf123', nil)
-          
+
           expect(result[:expiration_date]).to eq(1.year.from_now)
         end
       end
@@ -389,19 +392,19 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
     describe '#skip_authentication?' do
       it 'returns true for unauthenticated form numbers' do
         allow(controller).to receive(:params).and_return({ form_number: '40-0247' })
-        
+
         expect(controller.send(:skip_authentication?)).to be true
       end
 
       it 'returns true for unauthenticated form ids' do
         allow(controller).to receive(:params).and_return({ form_id: '40-10007' })
-        
+
         expect(controller.send(:skip_authentication?)).to be true
       end
 
       it 'returns false for authenticated forms' do
         allow(controller).to receive(:params).and_return({ form_number: '21-0966' })
-        
+
         expect(controller.send(:skip_authentication?)).to be false
       end
     end
@@ -455,8 +458,8 @@ RSpec.describe 'SimpleFormsApi::V1::UploadsController Additional Coverage', type
 
     context 'when user is authenticated' do
       let(:user) { create(:user, :legacy_icn) }
-      
-      before do 
+
+      before do
         sign_in(user)
         allow(user).to receive(:loa).and_return({ current: 3 })
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:upload_pdf)
