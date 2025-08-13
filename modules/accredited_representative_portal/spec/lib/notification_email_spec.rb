@@ -17,10 +17,17 @@ RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
 
       allow_any_instance_of(described_class).to receive(:email).and_return('example@email.com')
 
+      expected_personalization = hash_including(
+        'form_id' => saved_claim.class::PROPER_FORM_ID,
+        'confirmation_number' => saved_claim.confirmation_number,
+        'first_name' => anything,
+        'submission_date' => anything
+      )
+
       args = [
         'example@email.com',
         Settings.vanotify.services.accredited_representative_portal.email.error.template_id,
-        anything,
+        expected_personalization,
         Settings.vanotify.services.accredited_representative_portal.api_key,
         {
           callback_klass: AccreditedRepresentativePortal::NotificationCallback.to_s,
