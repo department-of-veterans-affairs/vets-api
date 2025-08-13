@@ -2,7 +2,6 @@
 module TravelClaim
   class BaseClient
     def initialize
-      super()
       @settings = Settings.check_in.travel_reimbursement_api_v2
     end
 
