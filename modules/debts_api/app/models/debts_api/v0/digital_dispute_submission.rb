@@ -5,6 +5,8 @@ module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
       STATS_KEY = 'api.digital_dispute_submission'
+      CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_confirmation_email
+      FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
       self.table_name = 'digital_dispute_submissions'
       belongs_to :user_account, dependent: nil, optional: false
       has_kms_key
@@ -47,10 +49,17 @@ module DebtsApi
       def register_failure(message)
         failed!
         update(error_message: message)
+        begin
+          send_failure_email if Settings.vsp_environment == 'production'
+        rescue => e
+          StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
+          Rails.logger.error("Failed to send failed form email: #{e.message}")
+        end
       end
 
       def register_success
         submitted!
+        send_success_email if Settings.vsp_environment == 'production'
       end
 
       private
@@ -61,6 +70,49 @@ module DebtsApi
 
       def extract_dispute_reasons(disputes)
         disputes.map { |d| d[:dispute_reason] }.compact.uniq
+      end
+
+      def send_success_email
+        user = User.find(user_uuid)
+        return if user&.email.blank?
+
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
+          {
+            'submission_type' => 'digital_dispute',
+            'email' => user.email,
+            'first_name' => user.first_name,
+            'user_uuid' => user.uuid,
+            'template_id' => CONFIRMATION_TEMPLATE
+          }
+        )
+      rescue => e
+        Rails.logger.error("Failed to send digital dispute success email: #{e.message}")
+      end
+
+      def send_failure_email
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
+        user = User.find(user_uuid)
+        return if user&.email.blank?
+
+        submission_email = user.email.downcase
+        jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
+          24.hours,
+          submission_email,
+          FAILURE_TEMPLATE,
+          failure_email_personalization_info(user),
+          { id_type: 'email', failure_mailer: true }
+        )
+
+        Rails.logger.info("Failed digital dispute email enqueued form: #{id} email scheduled with jid: #{jid}")
+      end
+
+      def failure_email_personalization_info(user)
+        {
+          'first_name' => user.first_name,
+          'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
+          'updated_at' => updated_at,
+          'confirmation_number' => id
+        }
       end
     end
   end
