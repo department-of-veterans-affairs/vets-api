@@ -34,6 +34,32 @@ RSpec.describe SSOe::Service, type: :service do
     let(:credential_method) { 'idme' }
     let(:credential_id) { '12345' }
 
+    shared_examples 'responds with 502' do
+      it 'logs the error and returns the error response' do
+        error_message = '[SSOe::Service::get_traits] connection error: Common::Client::Errors::ClientError - ' \
+                        'Failed to open TCP connection to int.services.eauth.va.gov:9303 ' \
+                        '(getaddrinfo: nodename nor servname provided, or not known)'
+
+        expect(Rails.logger).to receive(:error).with(error_message)
+
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
+
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 502,
+                                   message: 'Failed to open TCP connection to int.services.eauth.va.gov:9303 ' \
+                                            '(getaddrinfo: nodename nor servname provided, or not known)'
+                                 }
+                               })
+      end
+    end
+
     context 'when the response is successful' do
       context 'parse_response' do
         it 'parses ICN response' do
@@ -131,24 +157,7 @@ RSpec.describe SSOe::Service, type: :service do
         VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
       end
 
-      it 'logs the error and returns the error response' do
-        expect(Rails.logger).to receive(:error).with(/Connection error/)
-
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 502,
-                                   message: 'Bad Gateway: Failed to connect'
-                                 }
-                               })
-      end
+      it_behaves_like 'responds with 502'
     end
 
     context 'when there is a timeout error' do
@@ -161,24 +170,7 @@ RSpec.describe SSOe::Service, type: :service do
         VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
       end
 
-      it 'logs the error and returns the error response' do
-        expect(Rails.logger).to receive(:error).with(/Connection error: Common::Client::Errors::ClientError/)
-
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 502,
-                                   message: 'Bad Gateway: Failed to connect'
-                                 }
-                               })
-      end
+      it_behaves_like 'responds with 502'
     end
 
     context 'when an unexpected error occurs', vcr: false do
@@ -188,7 +180,7 @@ RSpec.describe SSOe::Service, type: :service do
 
       it 'logs the error and returns an unknown error response' do
         expect(Rails.logger).to receive(:error).with(
-          /\[SSOe::Service::get_traits\] Unexpected error: StandardError - Unexpected error/
+          '[SSOe::Service::get_traits] unknown error: StandardError - Unexpected error'
         )
 
         response = service.get_traits(
@@ -202,7 +194,7 @@ RSpec.describe SSOe::Service, type: :service do
                                  success: false,
                                  error: {
                                    code: 500,
-                                   message: 'UnknownError: Unable to parse SOAP response'
+                                   message: 'Unexpected error'
                                  }
                                })
       end

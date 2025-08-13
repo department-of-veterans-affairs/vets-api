@@ -11,20 +11,6 @@ module SSOe
     configuration SSOe::Configuration
 
     STATSD_KEY_PREFIX = 'api.ssoe'
-    UNKNOWN_ERROR = {
-      success: false,
-      error: {
-        code: 500,
-        message: 'UnknownError: Unable to parse SOAP response'
-      }
-    }.freeze
-    CONNECTION_ERROR = {
-      success: false,
-      error: {
-        code: 502,
-        message: 'Bad Gateway: Failed to connect'
-      }
-    }.freeze
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
       Common::Client::Errors::ClientError,
@@ -43,14 +29,24 @@ module SSOe
         parse_response(raw_response.body)
       end
     rescue *CONNECTION_ERRORS => e
-      Rails.logger.error("[SSOe::Service::get_traits] Connection error: #{e.class} - #{e.message}")
-      CONNECTION_ERROR
+      error_response(e, :connection, 502)
     rescue => e
-      Rails.logger.error("[SSOe::Service::get_traits] Unexpected error: #{e.class} - #{e.message}")
-      UNKNOWN_ERROR
+      error_response(e, :unknown, 500)
     end
 
     private
+
+    def error_response(e, type, code)
+      Rails.logger.error("[SSOe::Service::get_traits] #{type} error: #{e.class} - #{e.message}")
+
+      {
+        success: false,
+        error: {
+          code:,
+          message: e.message
+        }
+      }
+    end
 
     def build_message(credential_method, credential_id, user, address)
       SSOe::GetSSOeTraitsByCspidMessage.new(
