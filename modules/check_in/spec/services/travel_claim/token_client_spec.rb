@@ -28,7 +28,7 @@ RSpec.describe TravelClaim::TokenClient do
   end
 
   describe '#veis_token' do
-    it 'POSTs to the VEIS token endpoint with form-encoded body (no client number)' do
+    it 'POSTs to the VEIS token endpoint with form-encoded body' do
       url = "#{settings_double.auth_url}/#{settings_double.tenant_id}/oauth2/v2.0/token"
       stub = stub_request(:post, url)
              .to_return(
