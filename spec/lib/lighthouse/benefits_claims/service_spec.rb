@@ -209,20 +209,20 @@ RSpec.describe BenefitsClaims::Service do
         it 'has formatted request body data correctly' do
           transaction_id = 'vagov'
           body = service.send(:prepare_submission_body,
-                               {
-                                 'serviceInformation' => {
-                                   'confinements' => []
-                                 },
-                                 'toxicExposure' => {
-                                   'multipleExposures' => [],
-                                   'herbicideHazardService' => {
-                                     'serviceDates' => {
-                                       'beginDate' => '1991-03-01',
-                                       'endDate' => '1992-01-01'
-                                     }
-                                   }
-                                 }
-                               }, transaction_id)
+                              {
+                                'serviceInformation' => {
+                                  'confinements' => []
+                                },
+                                'toxicExposure' => {
+                                  'multipleExposures' => [],
+                                  'herbicideHazardService' => {
+                                    'serviceDates' => {
+                                      'beginDate' => '1991-03-01',
+                                      'endDate' => '1992-01-01'
+                                    }
+                                  }
+                                }
+                              }, transaction_id)
 
           expect(body).to eq({
                                'data' => {
