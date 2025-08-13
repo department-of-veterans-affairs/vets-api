@@ -35,20 +35,18 @@ module Mobile
 
         submitted_claim = smoc_service.submit_mileage_expense(appt_params)
 
-        normalized_submitted_claim_data = {
-          'id' => submitted_claim['claimId'],
-          'claimNumber' => '',
-          'claimStatus' => submitted_claim['status'].underscore.humanize,
-          'appointmentDateTime' => validated_params[:appointment_date_time],
-          'facilityId' => validated_params[:facility_station_number],
-          'facilityName' => validated_params[:facility_name],
-          'totalCostRequested' => 0,
-          'reimbursementAmount' => 0,
-          'createdOn' => DateTime.now.to_fs(:iso8601),
-          'modifiedOn' => DateTime.now.to_fs(:iso8601)
-        }
-
-        new_claim_hash = normalize_claim_summary(normalized_submitted_claim_data)
+        new_claim_hash = normalize_claim_summary({
+                                                   'id' => submitted_claim['claimId'],
+                                                   'claimNumber' => '',
+                                                   'claimStatus' => submitted_claim['status'].underscore.humanize,
+                                                   'appointmentDateTime' => validated_params[:appointment_date_time],
+                                                   'facilityId' => validated_params[:facility_station_number],
+                                                   'facilityName' => validated_params[:facility_name],
+                                                   'totalCostRequested' => 0,
+                                                   'reimbursementAmount' => 0,
+                                                   'createdOn' => DateTime.now.to_fs(:iso8601),
+                                                   'modifiedOn' => DateTime.now.to_fs(:iso8601)
+                                                 })
 
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
