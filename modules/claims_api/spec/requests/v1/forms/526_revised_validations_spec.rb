@@ -22,15 +22,6 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
   end
   let(:form_attributes) { {} }
 
-  let(:valid_countries) { ['Bolivia', 'China', 'Serbia/Montenegro'] }
-
-  before do
-    # Stubbing this because it's a method on the subject that fetches data from BRD
-    # rubocop:disable RSpec/SubjectStub
-    allow(subject).to receive(:valid_countries).and_return(valid_countries)
-    # rubocop:enable RSpec/SubjectStub
-  end
-
   describe '#validate_form_526_submission_claim_date!' do
     context 'when claim date is blank' do
       it 'does not raise an error' do
@@ -499,6 +490,15 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
   end
 
   describe '#validate_form_526_current_mailing_address_country!' do
+    let(:valid_countries) { ['Bolivia', 'China', 'Serbia/Montenegro'] }
+
+    before do
+      # Stubbing this because it's a method on the subject that fetches data from BRD
+      # rubocop:disable RSpec/SubjectStub
+      allow(subject).to receive(:valid_countries).and_return(valid_countries)
+      # rubocop:enable RSpec/SubjectStub
+    end
+
     context 'when country is valid' do
       let(:form_attributes) do
         {
