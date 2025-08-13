@@ -93,8 +93,7 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
-           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
           ves_request = prepare_ves_request(parsed_form_data)
 
