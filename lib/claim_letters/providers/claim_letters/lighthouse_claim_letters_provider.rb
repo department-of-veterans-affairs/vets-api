@@ -114,7 +114,7 @@ class LighthouseClaimLettersProvider
       ClaimLetters::Utils::LetterTransformer.decorate_description(doc_type) || letter['documentTypeLabel']
 
     received_at = parse_date(letter['receivedAt'], 'received_at')
-    upload_date = parse_date(letter['uploadedDateTime'], 'upload_at')
+    upload_date = parse_date(letter['uploadedDateTime'], 'upload_date')
 
     ClaimLetters::Responses::ClaimLetterResponse.new(
       # Please note:
@@ -154,6 +154,7 @@ class LighthouseClaimLettersProvider
   end
 
   def parse_date(date, attribute_name)
+    return nil if date.nil? || date.to_s.strip.empty?
     Date.parse(date)
   rescue => e
     Rails.logger.warn(
