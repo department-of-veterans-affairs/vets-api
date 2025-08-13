@@ -1452,6 +1452,16 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+  ep120_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
+    enable_in_development: true
+  ep180_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
+    enable_in_development: true
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1906,9 +1916,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
