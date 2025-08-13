@@ -115,21 +115,21 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
       expect { job }.not_to raise_error
     end
   end
-end
 
-context 'when submission raises error' do
-  it 'raises error' do
-    expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-    expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm686cV2Job::Invalid686cClaim)
+  context 'when submission raises error' do
+    it 'raises error' do
+      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm686cV2Job::Invalid686cClaim)
 
-    expect { job }.to raise_error(BGS::SubmitForm686cV2Job::Invalid686cClaim)
-  end
+      expect { job }.to raise_error(BGS::SubmitForm686cV2Job::Invalid686cClaim)
+    end
 
-  it 'filters based on error cause' do
-    expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-    expect(client_stub).to receive(:submit) { raise_nested_err }
+    it 'filters based on error cause' do
+      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit) { raise_nested_err }
 
-    expect { job }.to raise_error(Sidekiq::JobRetry::Skip)
+      expect { job }.to raise_error(Sidekiq::JobRetry::Skip)
+    end
   end
 end
 
