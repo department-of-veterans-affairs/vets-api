@@ -11,7 +11,6 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   let(:allowed_doctypes) { %w[184] }
   let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
 
-
   describe '#get_letters' do
     it 'retrieves letters in descending order according to received_at date' do
       letters = downloader.get_letters
@@ -96,7 +95,6 @@ describe ClaimStatusTool::ClaimLetterDownloader do
     end
 
     let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
-
 
     it 'gives each letter a `display_description` field' do
       letters = downloader.get_letters
