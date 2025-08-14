@@ -8,7 +8,6 @@ module PdfFill
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
-        # Institution details section
         'institutionDetails' => {
           'institutionName' => {
             key: 'institutionName',
@@ -18,317 +17,222 @@ module PdfFill
             question_text: 'INSTITUTION NAME'
           },
           'institutionAddress' => {
-            'formatted' => {
+            'street' => {
               key: 'institutionAddress',
-              limit: 200,
+              limit: 100,
               question_num: 2,
               question_suffix: 'A',
               question_text: 'INSTITUTION ADDRESS'
             }
-          }
-        },
-
-        # Section (1) Proprietary Profit Schools Only
-        'proprietaryProfitConflicts' => {
-          '[0]' => {
-            'affiliatedIndividuals' => {
-              'fullName' => {
-                key: 'employeeName0',
-                limit: 60,
-                question_num: 4,
-                question_suffix: 'A',
-                question_text: 'EMPLOYEE NAME'
-              },
-              'individualAssociationType' => {
-                key: 'association0',
-                limit: 20,
-                question_num: 5,
-                question_suffix: 'A',
-                question_text: 'ASSOCIATION TYPE'
-              }
-            }
           },
-          '[1]' => {
-            'affiliatedIndividuals' => {
-              'fullName' => {
-                key: 'employeeName1',
-                limit: 60,
-                question_num: 6,
-                question_suffix: 'A',
-                question_text: 'EMPLOYEE NAME'
-              },
-              'individualAssociationType' => {
-                key: 'association1',
-                limit: 20,
-                question_num: 7,
-                question_suffix: 'A',
-                question_text: 'ASSOCIATION TYPE'
-              }
-            }
-          }
-        },
-
-        # Section (2) All Proprietary Schools
-        'allProprietaryProfitConflicts' => {
-          '[0]' => {
-            'certifyingOfficial' => {
-              'first' => {
-                key: 'official0',
-                limit: 30,
-                question_num: 10,
-                question_suffix: 'A',
-                question_text: 'OFFICIAL NAME (FIRST)'
-              },
-              'last' => {
-                key: 'official0',
-                limit: 30,
-                question_num: 10,
-                question_suffix: 'B',
-                question_text: 'OFFICIAL NAME (LAST)',
-                combine_with: ['allProprietaryProfitConflicts', '[0]', 'certifyingOfficial', 'first']
-              },
-              'title' => {
-                key: 'officialTitle0',
-                limit: 50,
-                question_num: 11,
-                question_suffix: 'A',
-                question_text: 'OFFICIAL TITLE'
-              }
-            },
-            'fileNumber' => {
-              key: 'fileNumber0',
-              limit: 15,
-              question_num: 12,
-              question_suffix: 'A',
-              question_text: 'VA FILE NUMBER'
-            },
-            'enrollmentPeriod' => {
-              'from' => {
-                key: 'dateStart0',
-                limit: 10,
-                question_num: 13,
-                question_suffix: 'A',
-                question_text: 'ENROLLMENT START DATE',
-                format: 'date'
-              },
-              'to' => {
-                key: 'dateEnd0',
-                limit: 10,
-                question_num: 13,
-                question_suffix: 'B',
-                question_text: 'ENROLLMENT END DATE',
-                format: 'date'
-              }
-            }
-          },
-          '[1]' => {
-            'certifyingOfficial' => {
-              'first' => {
-                key: 'official1',
-                limit: 30,
-                question_num: 14,
-                question_suffix: 'A',
-                question_text: 'OFFICIAL NAME (FIRST)'
-              },
-              'last' => {
-                key: 'official1',
-                limit: 30,
-                question_num: 14,
-                question_suffix: 'B',
-                question_text: 'OFFICIAL NAME (LAST)',
-                combine_with: ['allProprietaryProfitConflicts', '[1]', 'certifyingOfficial', 'first']
-              },
-              'title' => {
-                key: 'officialTitle1',
-                limit: 50,
-                question_num: 15,
-                question_suffix: 'A',
-                question_text: 'OFFICIAL TITLE'
-              }
-            },
-            'fileNumber' => {
-              key: 'fileNumber1',
-              limit: 15,
-              question_num: 16,
-              question_suffix: 'A',
-              question_text: 'VA FILE NUMBER'
-            },
-            'enrollmentPeriod' => {
-              'from' => {
-                key: 'dateStart1',
-                limit: 10,
-                question_num: 17,
-                question_suffix: 'A',
-                question_text: 'ENROLLMENT START DATE',
-                format: 'date'
-              },
-              'to' => {
-                key: 'dateEnd1',
-                limit: 10,
-                question_num: 17,
-                question_suffix: 'B',
-                question_text: 'ENROLLMENT END DATE',
-                format: 'date'
-              }
-            }
-          }
-        },
-
-        # Certification section
-        'certifyingOfficial' => {
-          'first' => {
-            key: 'certifyingOfficialName',
-            limit: 50,
-            question_num: 18,
+          'facilityCode' => {
+            key: 'facilityCode',
+            limit: 8,
+            question_num: 3,
             question_suffix: 'A',
-            question_text: 'CERTIFYING OFFICIAL NAME (FIRST)'
-          },
-          'last' => {
+            question_text: 'FACILITY CODE'
+          }
+        },
+        'certifyingOfficial' => {
+          'fullName' => {
             key: 'certifyingOfficialName',
-            limit: 50,
-            question_num: 18,
-            question_suffix: 'B',
-            question_text: 'CERTIFYING OFFICIAL NAME (LAST)',
-            combine_with: ['certifyingOfficial', 'first']
+            limit: 60,
+            question_num: 4,
+            question_suffix: 'A',
+            question_text: 'CERTIFYING OFFICIAL NAME'
           },
           'role' => {
-            'level' => {
+            'displayRole' => {
               key: 'certifyingOfficialTitle',
               limit: 50,
-              question_num: 19,
+              question_num: 5,
               question_suffix: 'A',
               question_text: 'CERTIFYING OFFICIAL TITLE'
-            },
-            'other' => {
-              key: 'certifyingOfficialTitle',
-              limit: 50,
-              question_num: 19,
-              question_suffix: 'B',
-              question_text: 'CERTIFYING OFFICIAL TITLE (OTHER)'
             }
           }
         },
-
-        'statementOfTruthSignature' => {
-          key: 'certifyingOfficialSignature',
-          limit: 50,
-          question_num: 20,
+        'isProprietaryProfit' => {
+          key: 'isProprietaryProfit',
+          limit: 3,
+          question_num: 6,
           question_suffix: 'A',
-          question_text: 'SIGNATURE'
+          question_text: 'IS PROPRIETARY PROFIT'
         },
-
+        'isProfitConflictOfInterest' => {
+          key: 'isProfitConflictOfInterest',
+          limit: 3,
+          question_num: 7,
+          question_suffix: 'A',
+          question_text: 'IS PROFIT CONFLICT OF INTEREST'
+        },
+        'proprietaryProfitConflicts0' => {
+          'employeeName' => {
+            key: 'employeeName0',
+            limit: 60,
+            question_num: 8,
+            question_suffix: 'A',
+            question_text: 'EMPLOYEE NAME 0'
+          },
+          'association' => {
+            key: 'association0',
+            limit: 30,
+            question_num: 9,
+            question_suffix: 'A',
+            question_text: 'ASSOCIATION 0'
+          }
+        },
+        'proprietaryProfitConflicts1' => {
+          'employeeName' => {
+            key: 'employeeName1',
+            limit: 60,
+            question_num: 10,
+            question_suffix: 'A',
+            question_text: 'EMPLOYEE NAME 1'
+          },
+          'association' => {
+            key: 'association1',
+            limit: 30,
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'ASSOCIATION 1'
+          }
+        },
+        'allProprietaryConflictOfInterest' => {
+          key: 'allProprietaryConflictOfInterest',
+          limit: 3,
+          question_num: 12,
+          question_suffix: 'A',
+          question_text: 'ALL PROPRIETARY CONFLICT OF INTEREST'
+        },
+        'allProprietaryProfitConflicts0' => {
+          'officialName' => {
+            key: 'official0',
+            limit: 60,
+            question_num: 13,
+            question_suffix: 'A',
+            question_text: 'OFFICIAL NAME 0'
+          },
+          'fileNumber' => {
+            key: 'fileNumber0',
+            limit: 20,
+            question_num: 14,
+            question_suffix: 'A',
+            question_text: 'FILE NUMBER 0'
+          },
+          'enrollmentDateRange' => {
+            key: 'dateStart0',
+            limit: 10,
+            question_num: 15,
+            question_suffix: 'A',
+            question_text: 'ENROLLMENT DATE START 0'
+          },
+          'enrollmentDateRangeEnd' => {
+            key: 'dateEnd0',
+            limit: 10,
+            question_num: 16,
+            question_suffix: 'A',
+            question_text: 'ENROLLMENT DATE END 0'
+          }
+        },
+        'allProprietaryProfitConflicts1' => {
+          'officialName' => {
+            key: 'official1',
+            limit: 60,
+            question_num: 17,
+            question_suffix: 'A',
+            question_text: 'OFFICIAL NAME 1'
+          },
+          'fileNumber' => {
+            key: 'fileNumber1',
+            limit: 20,
+            question_num: 18,
+            question_suffix: 'A',
+            question_text: 'FILE NUMBER 1'
+          },
+          'enrollmentDateRange' => {
+            key: 'dateStart1',
+            limit: 10,
+            question_num: 19,
+            question_suffix: 'A',
+            question_text: 'ENROLLMENT DATE START 1'
+          },
+          'enrollmentDateRangeEnd' => {
+            key: 'dateEnd1',
+            limit: 10,
+            question_num: 20,
+            question_suffix: 'A',
+            question_text: 'ENROLLMENT DATE END 1'
+          }
+        },
+        'statementOfTruthSignature' => {
+          key: 'certifyingOfficialName',
+          limit: 60,
+          question_num: 21,
+          question_suffix: 'A',
+          question_text: 'STATEMENT OF TRUTH SIGNATURE'
+        },
         'dateSigned' => {
           key: 'dateSigned',
           limit: 10,
-          question_num: 21,
+          question_num: 22,
           question_suffix: 'A',
-          question_text: 'DATE SIGNED',
-          format: 'date'
+          question_text: 'DATE SIGNED'
         }
       }.freeze
 
       def merge_fields(_)
         form_data = @form_data
 
-        # Combine certifying official first and last name
+        # Combine first and last name for certifying official
         if form_data['certifyingOfficial']
           official = form_data['certifyingOfficial']
-          if official['first'] && official['last']
-            official['fullName'] = "#{official['first']} #{official['last']}"
-          end
-
-          # Handle role field - if 'other' is selected, use the other value, otherwise use level
+          official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
+          
+          # Set display role
           if official['role']
             role = official['role']
-            if role['level'] == 'other' && role['other']
-              official['roleDisplay'] = role['other']
-            else
-              official['roleDisplay'] = role['level']&.titleize
-            end
+            official['role']['displayRole'] = role['level'] == 'other' ? role['other'] : role['level']
           end
         end
 
-        # Handle institution address formatting
-        if form_data['institutionDetails'] && form_data['institutionDetails']['institutionAddress']
-          address = form_data['institutionDetails']['institutionAddress']
-          address_parts = []
-          address_parts << address['street'] if address['street']
-          address_parts << address['street2'] if address['street2']
-          
-          city_state_zip = []
-          city_state_zip << address['city'] if address['city']
-          city_state_zip << address['state'] if address['state']
-          city_state_zip << address['postalCode'] if address['postalCode']
-          
-          address_parts << city_state_zip.join(', ') if city_state_zip.any?
-          
-          form_data['institutionDetails']['institutionAddress']['formatted'] = address_parts.join("\n")
+        # Convert boolean fields to YES/NO
+        form_data['isProprietaryProfit'] = convert_boolean_to_yes_no(form_data['isProprietaryProfit'])
+        form_data['isProfitConflictOfInterest'] = convert_boolean_to_yes_no(form_data['isProfitConflictOfInterest'])
+        form_data['allProprietaryConflictOfInterest'] = convert_boolean_to_yes_no(form_data['allProprietaryConflictOfInterest'])
+
+        # Process proprietary profit conflicts (max 2)
+        if form_data['proprietaryProfitConflicts']
+          conflicts = form_data['proprietaryProfitConflicts'].first(2)
+          conflicts.each_with_index do |conflict, index|
+            form_data["proprietaryProfitConflicts#{index}"] = {
+              'employeeName' => "#{conflict['affiliatedIndividuals']['first']} #{conflict['affiliatedIndividuals']['last']}",
+              'association' => conflict['affiliatedIndividuals']['individualAssociationType']&.upcase
+            }
+          end
         end
 
-        # Transform array fields to handle multiple entries
-        transform_proprietary_conflicts(form_data)
-        transform_all_proprietary_conflicts(form_data)
+        # Process all proprietary profit conflicts (max 2)
+        if form_data['allProprietaryProfitConflicts']
+          conflicts = form_data['allProprietaryProfitConflicts'].first(2)
+          conflicts.each_with_index do |conflict, index|
+            form_data["allProprietaryProfitConflicts#{index}"] = {
+              'officialName' => "#{conflict['certifyingOfficial']['first']} #{conflict['certifyingOfficial']['last']}",
+              'fileNumber' => conflict['fileNumber'],
+              'enrollmentDateRange' => conflict['enrollmentPeriod']['from'],
+              'enrollmentDateRangeEnd' => conflict['enrollmentPeriod']['to']
+            }
+          end
+        end
 
         form_data
       end
 
       private
 
-      def transform_proprietary_conflicts(form_data)
-        return unless form_data['proprietaryProfitConflicts']
+      def convert_boolean_to_yes_no(value)
+        return 'N/A' if value.nil?
 
-        form_data['proprietaryProfitConflicts'].each_with_index do |conflict, index|
-          next unless conflict['affiliatedIndividuals']
-
-          individual = conflict['affiliatedIndividuals']
-          
-          # Combine first and last name
-          if individual['first'] && individual['last']
-            individual['fullName'] = "#{individual['first']} #{individual['last']}"
-          end
-
-          # Transform association type to display format
-          if individual['individualAssociationType']
-            individual['associationDisplay'] = individual['individualAssociationType'].upcase
-          end
-        end
-      end
-
-      def transform_all_proprietary_conflicts(form_data)
-        return unless form_data['allProprietaryProfitConflicts']
-
-        form_data['allProprietaryProfitConflicts'].each_with_index do |conflict, index|
-          next unless conflict['certifyingOfficial']
-
-          official = conflict['certifyingOfficial']
-          
-          # Combine first and last name
-          if official['first'] && official['last']
-            official['fullName'] = "#{official['first']} #{official['last']}"
-          end
-
-          # Format enrollment period dates
-          if conflict['enrollmentPeriod']
-            period = conflict['enrollmentPeriod']
-            if period['from']
-              conflict['enrollmentFromFormatted'] = format_date(period['from'])
-            end
-            if period['to']
-              conflict['enrollmentToFormatted'] = format_date(period['to'])
-            end
-          end
-        end
-      end
-
-      def format_date(date_string)
-        return date_string unless date_string.is_a?(String)
-
-        begin
-          date = Date.parse(date_string)
-          date.strftime('%m/%d/%Y')
-        rescue ArgumentError
-          date_string
-        end
+        value ? 'YES' : 'NO'
       end
     end
   end
