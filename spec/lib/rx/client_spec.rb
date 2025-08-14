@@ -165,22 +165,19 @@ describe Rx::Client do
     it_behaves_like 'prescriptions', true
   end
 
-  describe 'Test new API gateway methods' do
+  describe 'API gateway methods' do
     let(:config) { Rx::Configuration.instance }
 
-    context 'when mhv_medications_migrate_to_api_gateway flipper flag is true' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(true)
-        allow(Settings.mhv.rx).to receive(:x_api_key).and_return('test-api-key')
-      end
+    before do
+      allow(Settings.mhv.rx).to receive(:x_api_key).and_return('test-api-key')
+    end
 
-      it 'returns the x-api-key header' do
-        result = client.send(:auth_headers)
-        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
-        allow(client).to receive(:auth_headers).and_return(headers)
-        expect(result).to include('x-api-key' => 'test-api-key')
-        expect(config.x_api_key).to eq('test-api-key')
-      end
+    it 'returns the x-api-key header' do
+      result = client.send(:auth_headers)
+      headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
+      allow(client).to receive(:auth_headers).and_return(headers)
+      expect(result).to include('x-api-key' => 'test-api-key')
+      expect(config.x_api_key).to eq('test-api-key')
     end
   end
 

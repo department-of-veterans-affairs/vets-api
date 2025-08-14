@@ -47,6 +47,11 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
+  accredited_representative_portal_form_526ez:
+    actor_type: user
+    description: >
+      When enabled, shows form 526ez in the accredited representative portal.
+    enable_in_development: true
   accredited_representative_portal_submissions:
     actor_type: user
     description: Enables the form submissions view in the accredited representative portal
@@ -175,9 +180,6 @@ features:
     actor_type: user
     description: Enables the registration-only path for the Health Care Application
     enable_in_development: true
-  hca_log_form_attachment_create:
-    actor_type: user
-    description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
@@ -278,6 +280,9 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_foreign_address_fix:
+    actor_type: user
+    description: Enables the fix for foreign address fields on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -305,6 +310,14 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
+    enable_in_development: true
+  check_in_experience_travel_pay_api:
+    actor_type: user
+    description: Enables the use of Travel Pay API for travel claim operations
+    enable_in_development: true
+  check_in_experience_lorota_travel_reimbursement:
+    actor_type: user
+    description: Enables the full LoROTA standalone mileage-only travel reimbursement feature
     enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
@@ -458,10 +471,6 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_friendly_evidence_requests:
-    actor_type: user
-    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
-    enable_in_development: true
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
@@ -494,6 +503,10 @@ features:
   fsr_zero_silent_errors_in_progress_email:
     actor_type: user
     description: Enables sending an email to the veteran when FSR form is in progress
+    enable_in_development: true
+  digital_dispute_email_notifications:
+    actor_type: user
+    description: Enables email notifications for digital dispute submissions
     enable_in_development: true
   communication_preferences:
     actor_type: user
@@ -636,18 +649,9 @@ features:
   dependents_claims_evidence_api_upload:
     actor_type: user
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
-  dependents_trigger_action_needed_email:
+  dependents_bypass_schema_validation:
     actor_type: user
-    description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
-  dependents_failure_callback_email:
-    actor_type: user
-    description: Enables the dependents action needed email callback to be used when an action needed email is triggered
-  dependents_submitted_email:
-    actor_type: cookie_id
-    description: Enables the dependents submitted email
-  dependents_separate_confirmation_email:
-    actor_type: cookie_id
-    description: Enables the dependents confirmation/received email to be differentiated by form
+    description: Bypasses vets_json_schema validation for dependency claims 
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -1459,10 +1463,6 @@ features:
     description: >
       When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
     enable_in_development: true
-  pension_income_and_assets_overflow_pdf_redesign:
-    actor_type: user
-    description: >
-      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1804,10 +1804,6 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
-  va1010_forms_enrollment_system_service_enabled:
-    actor_type: user
-    description: Enables the VA1010Forms enrollment system service
-    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -1862,8 +1858,11 @@ features:
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
+  va_dependents_net_worth_and_pension:
+    actor_type: user
+    description: Allows us to toggle the net worth and pension questions on the 686C-674
   va_dependents_new_fields_for_pdf:
-    actor_typer: user
+    actor_type: user
     description: Allows us to toggle the new fields on the front end for 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
@@ -1930,6 +1929,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_use_new_vfs_notification_library:
+    actor_type: user
+    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2140,6 +2142,9 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
+  income_and_assets_browser_monitoring_enabled:
+    actor_type: user
+    description: Income and Assets Datadog RUM monitoring
   income_and_assets_content_updates:
     actor_type: user
     description: Implement plain language and content updates
@@ -2356,5 +2361,8 @@ features:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
   calculator_constants_versioning:
-    actor_type: 
+    actor_type:
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
+  gi_feedback_tool_vet_tec_education_benefit:
+    actor_type: user
+    description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool

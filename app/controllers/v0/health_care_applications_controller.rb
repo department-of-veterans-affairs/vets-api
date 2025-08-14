@@ -48,7 +48,11 @@ module V0
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      clear_saved_form(FORM_ID)
+      begin
+        clear_saved_form(FORM_ID) if current_user
+      rescue => e
+        Rails.logger.warn("[10-10EZ] - Failed to clear saved form: #{e.message}")
+      end
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
