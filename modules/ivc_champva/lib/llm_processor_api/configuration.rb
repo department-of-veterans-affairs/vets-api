@@ -26,8 +26,11 @@ module IvcChampva
       end
 
       def connection
-        Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        headers = base_request_headers.except('Content-Type')
+        Faraday.new(base_path, headers:, request: request_options) do |conn|
           conn.use(:breakers, service_name:)
+          conn.request :multipart
+          conn.response :json
           # conn.use :instrumentation, name: 'ivc_champva.llm_processor.request.faraday'
 
           # Uncomment this if you want curl command equivalent or response output to log
