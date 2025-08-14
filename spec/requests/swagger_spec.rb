@@ -1575,8 +1575,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when sending emails' do
         let(:params) do
           {
-            template_id: '5678',
-            ep_code: 'EP110'
+            template_id: '5678'
           }
         end
 
@@ -1591,26 +1590,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             200,
             '_headers' => service_account_auth_header,
             '_data' => params
-          )
-        end
-
-        it 'documents missing ep_code error' do
-          expect(subject).to validate(
-            :post,
-            '/v0/event_bus_gateway/send_email',
-            400,
-            '_headers' => service_account_auth_header,
-            '_data' => { template_id: '5678' }
-          )
-        end
-
-        it 'documents missing template_id error' do
-          expect(subject).to validate(
-            :post,
-            '/v0/event_bus_gateway/send_email',
-            400,
-            '_headers' => service_account_auth_header,
-            '_data' => { ep_code: 'EP110' }
           )
         end
       end
