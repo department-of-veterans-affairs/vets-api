@@ -235,6 +235,8 @@ FactoryBot.define do
 
     form {
       {
+        statement_of_truth_certified: true,
+        statement_of_truth_signature: 'Mark Webb',
         'view:selectable686_options': {
           add_spouse: true,
           add_child: true,
@@ -693,8 +695,7 @@ FactoryBot.define do
           birth_date: '1980-01-01',
           full_name: {
             first: 'Mark',
-            last: 'Webb',
-            middle: nil
+            last: 'Webb'
           },
           ssn: '000000000',
           va_file_number: '000000000'
