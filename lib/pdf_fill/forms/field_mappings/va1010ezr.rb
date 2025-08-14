@@ -10,7 +10,7 @@ module PdfFill
             limit: 40,
             question_num: 1.1,
             question_suffix: 'A',
-            question_text: 'VETERAN&apos;S NAME (Last, First, Middle Name)'
+            question_text: "VETERAN'S NAME (Last, First, Middle Name)"
           },
           'veteranSocialSecurityNumber' => {
             key: ['F[0].P3[0].VeteranSSN[0]', 'F[0].P4[0].VeteranSSN[0]', 'F[0].P5[0].VeteranSSN[0]']
@@ -225,7 +225,7 @@ module PdfFill
             limit: 40,
             question_num: 4.1,
             question_text: 'SECTION 4 - DEPENDENT INFORMATION (Use a separate sheet for additional ' \
-                           'dependents). 1. SPOUSE&apos;S NAME (Last, First, Middle Name).'
+                           "dependents). 1. SPOUSE'S NAME (Last, First, Middle Name)."
           },
           'spouseSocialSecurityNumber' => {
             key: 'F[0].P4[0].SpouseSSN[0]'
@@ -240,8 +240,8 @@ module PdfFill
             key: 'F[0].P4[0].SpouseAddress[0]',
             limit: 120,
             question_num: 4.6,
-            question_text: '6. SPOUSE&apos;S ADDRESS AND TELEPHONE NUMBER (Street, City, State, ' \
-                           'ZIP - if different from Veteran&apos;s).'
+            question_text: "6. SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State, " \
+                           "ZIP - if different from Veteran's)."
           },
           'dependents' => {
             limit: 1,
@@ -250,18 +250,18 @@ module PdfFill
               key: 'F[0].P4[0].ChildName[0]',
               limit: 42,
               question_num: 4.7,
-              question_text: '7. CHILD&apos;S NAME (Last, First, Middle Name).'
+              question_text: "7. CHILD'S NAME (Last, First, Middle Name)."
             },
             'dateOfBirth' => {
               key: 'F[0].P4[0].ChildDateofBirth[0]',
               question_num: 4.8,
-              question_text: '8. CHILD&apos;S DATE OF BIRTH. Enter 2 digit ' \
+              question_text: "8. CHILD'S DATE OF BIRTH. Enter 2 digit " \
                              'month, 2 digit day and 4 digit year.'
             },
             'socialSecurityNumber' => {
               key: 'F[0].P4[0].ChildSSN[0]',
               question_num: 4.9,
-              question_text: '9. CHILD&apos;S SOCIAL SECURITY NUMBER. Enter 9 digit social security number.'
+              question_text: "9. CHILD'S SOCIAL SECURITY NUMBER. Enter 9 digit social security number."
             },
             'becameDependent' => {
               key: 'F[0].P4[0].DateDependent[0]',
