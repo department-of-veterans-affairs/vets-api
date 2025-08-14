@@ -221,10 +221,13 @@ module VAOS
           else
             appointment = update_appointment_vaos(appt_id, status).body
             convert_appointment_time(appointment)
+            find_and_merge_provider_name(appointment) if cc?(appointment)
             extract_appointment_fields(appointment)
             merge_clinic(appointment)
             merge_facility(appointment)
             set_type(appointment)
+            set_modality(appointment)
+            set_derived_appointment_date_fields(appointment)
             appointment[:show_schedule_link] = schedulable?(appointment)
             OpenStruct.new(appointment)
           end
