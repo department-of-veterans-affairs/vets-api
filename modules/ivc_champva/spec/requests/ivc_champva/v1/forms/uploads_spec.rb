@@ -659,6 +659,104 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         expect(form).to be_a(IvcChampva::VHA1010d)
       end
     end
+
+    context 'with form 10-7959A resubmissions' do
+      before do
+        allow(controller).to receive_messages(
+          params: { form_number: '10-7959A' },
+          current_user: mock_user
+        )
+      end
+
+      context 'when PDI number is selected' do
+        let(:parsed_form_data) do
+          {
+            'form_number' => '10-7959A',
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'PDI number',
+            'identifying_number' => 'PDI123456',
+            'claims' => [
+              { 'provider_name' => 'Test Provider' }
+            ],
+            'supporting_docs' => [
+              { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' },
+              { 'confirmation_code' => 'code2', 'attachment_id' => 'EOB' }
+            ]
+          }
+        end
+
+        it 'sets main claim sheet to default form_id and preserves supporting doc types' do
+          # Mock the supporting documents in the database
+          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
+          record2 = double('Record2', created_at: Time.zone.now, file: double(id: 'file2'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code2').and_return(record2)
+
+          # Mock tracking methods but let stamp_metadata work naturally
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          # Mock the PDF operations to avoid file creation
+          allow(IvcChampva::Attachments).to receive(:get_blank_page).and_return('/tmp/blank.pdf')
+          allow(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
+          allow(controller).to receive(:create_custom_attachment).and_return({
+                                                                               'confirmation_code' => 'stamped_doc_code',
+                                                                               'attachment_id' => 'CVA Bene Response'
+                                                                             })
+
+          # Mock the stamped doc record for the dynamically created confirmation code
+          stamped_record = double('StampedRecord', created_at: 2.hours.ago, file: double(id: 'stamped_file'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'stamped_doc_code').and_return(stamped_record)
+
+          attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
+
+          # Verify: main claim sheet gets default form_id, supporting docs retain their types
+          # The stamped doc gets added with "CVA Bene Response" by the actual stamp_metadata logic
+          # Note: The stamped doc is added before supporting docs are sorted by creation date
+          expect(attachment_ids).to eq(['vha_10_7959a', 'Medical Records', 'CVA Bene Response', 'EOB'])
+          expect(form).to be_a(IvcChampva::VHA107959a)
+        end
+      end
+
+      context 'when Claim control number is selected' do
+        let(:parsed_form_data) do
+          {
+            'form_number' => '10-7959A',
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'Claim control number',
+            'identifying_number' => 'CLAIM789',
+            'claims' => [
+              { 'provider_name' => 'Test Provider' }
+            ],
+            'supporting_docs' => [
+              { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' },
+              { 'confirmation_code' => 'code2', 'attachment_id' => 'EOB' }
+            ]
+          }
+        end
+
+        it 'sets main claim sheet to CVA Reopen and preserves supporting doc types' do
+          # Mock the supporting documents in the database
+          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
+          record2 = double('Record2', created_at: Time.zone.now, file: double(id: 'file2'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code2').and_return(record2)
+
+          # Mock tracking methods but let stamp_metadata work naturally
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
+
+          # Verify: main claim sheet gets "CVA Reopen", supporting docs retain their types
+          # For claim control number, stamp_metadata should return nil (no stamped doc)
+          expect(attachment_ids).to eq(['CVA Reopen', 'Medical Records', 'EOB'])
+          expect(form).to be_a(IvcChampva::VHA107959a)
+        end
+      end
+    end
   end
 
   describe '#supporting_document_ids' do

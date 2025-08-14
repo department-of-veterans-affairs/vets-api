@@ -718,7 +718,13 @@ module IvcChampva
 
       ##
       # Builds the attachment_ids array for the given form submission.
-      # For form 10-7959a resubmissions/reopens, applies special logic based on dropdown selection.
+      # For 10-7959a resubmissions:
+      #  - If Claim control number selected: the main claim sheet is labeled "CVA Reopen",
+      #    supporting docs retain original types.
+      #  - If PDI selected: use the standard logic because the generated stamped doc
+      #    (created in stamp_metadata) is labeled "CVA Bene Response" by the model, and
+      #    supporting docs retain original types. Main claim sheet remains the default
+      #    form_id.
       # For all other cases, uses the standard logic.
       #
       # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
@@ -726,16 +732,16 @@ module IvcChampva
       # @param [Integer] applicant_rounded_number number of main form attachments needed
       # @return [Array<String>] array of attachment_ids for all documents
       def build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
-        if form_id == 'vha_10_7959a'
-          resubmission_attachment_id = get_resubmission_attachment_id(parsed_form_data)
-          if resubmission_attachment_id
-            # Set the same attachment_id for main form and all supporting documents
-            main_form_count = applicant_rounded_number
-            supporting_docs_count = parsed_form_data['supporting_docs']&.count || 0
-            total_count = main_form_count + supporting_docs_count
-            Array.new(total_count, resubmission_attachment_id)
+        if form_id == 'vha_10_7959a' && parsed_form_data['claim_status'] == 'resubmission'
+          selector = parsed_form_data['pdi_or_claim_number']
+
+          if selector == 'Claim control number'
+            # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
+            main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
+            main.concat(supporting_document_ids(parsed_form_data))
           else
-            # Use default logic for non-resubmission cases
+            # Main claim sheet stays as default form_id; generated stamped page in model is labeled
+            # "CVA Bene Response"; supporting docs keep their original types.
             build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           end
         else
@@ -753,23 +759,6 @@ module IvcChampva
       def build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = Array.new(applicant_rounded_number) { form_id }
         attachment_ids.concat(supporting_document_ids(parsed_form_data))
-      end
-
-      ##
-      # Determines the attachment_id for form 10-7959a resubmissions/reopens
-      # based on the dropdown selection for identifying number type.
-      #
-      # @param [Hash] parsed_form_data complete form submission data object
-      # @return [String, nil] attachment_id to use for all documents, or nil if not applicable
-      def get_resubmission_attachment_id(parsed_form_data)
-        return nil if parsed_form_data['pdi_or_claim_number'].blank?
-
-        case parsed_form_data['pdi_or_claim_number']
-        when 'Claim control number'
-          'CVA Reopen'
-        when 'PDI number'
-          'CVA Bene Response'
-        end
       end
 
       ##
