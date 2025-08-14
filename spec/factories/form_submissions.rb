@@ -70,5 +70,118 @@ FactoryBot.define do
         create_list(:form_submission_attempt, 1, benefits_intake_uuid: '84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c')
       end
     end
+
+    # VFF Form traits
+    trait :vff_21_0966 do
+      form_type { '21-0966' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'ssn' => '123456789',
+          'email' => 'john.doe@example.com',
+          'phone' => '555-123-4567',
+          'preparerIdentification' => 'VETERAN',
+          'intentTypes' => ['disability'],
+          'form_name' => '21-0966'
+        }.to_json
+      end
+    end
+
+    trait :vff_21_4142 do
+      form_type { '21-4142' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Jane', 'last' => 'Smith' },
+          'ssn' => '987654321',
+          'email' => 'jane.smith@example.com',
+          'phone' => '555-987-6543',
+          'form_name' => '21-4142'
+        }.to_json
+      end
+    end
+
+    trait :vff_21_10210 do
+      form_type { '21-10210' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Bob', 'last' => 'Johnson' },
+          'ssn' => '456789123',
+          'email' => 'bob.johnson@example.com',
+          'form_name' => '21-10210'
+        }.to_json
+      end
+    end
+
+    trait :vff_21_0972 do
+      form_type { '21-0972' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Alice', 'last' => 'Williams' },
+          'ssn' => '321654987',
+          'email' => 'alice.williams@example.com',
+          'form_name' => '21-0972'
+        }.to_json
+      end
+    end
+
+    trait :vff_21p_0847 do
+      form_type { '21P-0847' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Charlie', 'last' => 'Brown' },
+          'ssn' => '654321789',
+          'email' => 'charlie.brown@example.com',
+          'form_name' => '21P-0847'
+        }.to_json
+      end
+    end
+
+    trait :vff_20_10206 do
+      form_type { '20-10206' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Diana', 'last' => 'Davis' },
+          'ssn' => '789123456',
+          'email' => 'diana.davis@example.com',
+          'form_name' => '20-10206'
+        }.to_json
+      end
+    end
+
+    trait :vff_20_10207 do
+      form_type { '20-10207' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Edward', 'last' => 'Miller' },
+          'ssn' => '147258369',
+          'email' => 'edward.miller@example.com',
+          'form_name' => '20-10207'
+        }.to_json
+      end
+    end
+
+    trait :vff_21_0845 do
+      form_type { '21-0845' }
+      form_data do
+        {
+          'full_name' => { 'first' => 'Fiona', 'last' => 'Wilson' },
+          'ssn' => '963852741',
+          'email' => 'fiona.wilson@example.com',
+          'form_name' => '21-0845'
+        }.to_json
+      end
+    end
+
+    # Generic VFF trait that randomly selects a VFF form type
+    trait :vff_form do
+      vff_forms = %w[vff_21_0966 vff_21_4142 vff_21_10210 vff_21_0972 vff_21p_0847 vff_20_10206 vff_20_10207 vff_21_0845]
+      transient do
+        vff_form_type { vff_forms.sample }
+      end
+      
+      after(:build) do |form_submission, evaluator|
+        form_submission.send(evaluator.vff_form_type)
+      end
+    end
   end
 end
