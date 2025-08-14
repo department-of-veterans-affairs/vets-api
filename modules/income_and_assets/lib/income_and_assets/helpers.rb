@@ -81,7 +81,7 @@ module IncomeAndAssets
     #
     def get_currency_field(arr, neg_i, field_length)
       value = arr.length >= -neg_i ? arr[neg_i] : nil
-      (field_length - value.length).times { value.prepend(' ') } if value
+      (field_length - value.length).times { value = value.dup.prepend(' ') } if value
       value
     end
 
