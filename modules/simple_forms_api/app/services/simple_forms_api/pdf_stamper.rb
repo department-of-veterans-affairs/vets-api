@@ -9,6 +9,7 @@ module SimpleFormsApi
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     FORM_UPLOAD_SUBMISSION_TEXT = 'Submitted via VA.gov at '
+    MINIMUM_PAGE_COUNT = 5
 
     def initialize(stamped_template_path:, form: nil, current_loa: nil, timestamp: nil)
       @stamped_template_path = stamped_template_path
@@ -125,13 +126,10 @@ module SimpleFormsApi
     def get_page_configuration(stamp)
       page = stamp[:page]
       position = stamp[:coords]
-      [
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page },
-        { type: :new_page }
-      ].tap do |config|
+      [].tap do |config|
+        [page, MINIMUM_PAGE_COUNT].max.times do
+          config << { type: :new_page }
+        end
         config[page] = { type: :text, position: }
       end
     end

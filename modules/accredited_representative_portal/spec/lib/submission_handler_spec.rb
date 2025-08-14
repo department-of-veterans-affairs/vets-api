@@ -14,7 +14,6 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
     let(:form_submission) do
       create(:form_submission, saved_claim: claim, form_type: '21-686C_BENEFITS-INTAKE')
     end
-
     let!(:submission_attempt) do
       create(:form_submission_attempt, form_submission:, aasm_state: 'pending')
     end
@@ -48,6 +47,7 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
         hash_including(claim_id: claim.id),
         call_location: nil
       )
+
       instance.handle(:failure)
     end
 
@@ -58,7 +58,31 @@ RSpec.describe AccreditedRepresentativePortal::SubmissionHandler do
         hash_including(message:),
         call_location: nil
       )
+
       expect { instance.handle(:failure) }.to raise_error message
+    end
+  end
+
+  describe '#on_success' do
+    let(:notification) { instance_double(AccreditedRepresentativePortal::NotificationEmail) }
+
+    before do
+      allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).with(claim.id).and_return(notification)
+      allow(SavedClaim).to receive(:find).and_return(claim)
+    end
+
+    it 'sends success notification email' do
+      expect(notification).to receive(:deliver).with(:received)
+
+      instance.handle(:success)
+    end
+
+    it 'calls super after sending notification' do
+      allow(notification).to receive(:deliver).with(:received)
+
+      expect_any_instance_of(BenefitsIntake::SubmissionHandler::SavedClaim).to receive(:on_success)
+
+      instance.handle(:success)
     end
   end
 end
