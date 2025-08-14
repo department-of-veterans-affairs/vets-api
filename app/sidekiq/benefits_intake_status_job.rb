@@ -5,6 +5,7 @@ require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 require 'pcpg/monitor'
 require 'dependents/monitor'
 require 'vre/monitor'
+require 'vff/monitor'
 
 # Datadog Dashboard:
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking?fromUser=false&refresh_mode=sliding&view=spans&from_ts=1717772535566&to_ts=1718377335566&live=true
@@ -184,6 +185,14 @@ class BenefitsIntakeStatusJob
       else
         VRE::Monitor.new.log_silent_failure(context, call_location:)
       end
+    end
+
+    # VFF Forms
+    if VFF::Monitor.vff_form?(form_id)
+      form_submission = FormSubmission.joins(:form_submission_attempts)
+                                     .find_by(form_submission_attempts: { benefits_intake_uuid: bi_uuid })
+      monitor = VFF::Monitor.new
+      monitor.track_benefits_intake_failure(context, form_submission: form_submission)
     end
   end
   # rubocop:enable Metrics/MethodLength
