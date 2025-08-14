@@ -19,6 +19,7 @@ ALLOWLIST = %w[
   document_type
   endDate
   endpoint_sid
+  ep_code
   error
   errors
   excludeProvidedMessage
@@ -53,6 +54,7 @@ ALLOWLIST = %w[
   submission_id
   tags
   tempfile
+  template_id
   to_date
   type
   useCache
