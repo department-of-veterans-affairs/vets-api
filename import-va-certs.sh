@@ -26,6 +26,15 @@ set -euo pipefail
         --no-host-directories \
         --no-directories \
         --accept="VA*.cer" \
+        https://aia.pki.va.gov/PKI/AIA/VA/ || \
+    wget \
+        --level=1 \
+        --quiet \
+        --recursive \
+        --no-parent \
+        --no-host-directories \
+        --no-directories \
+        --accept="VA*.cer" \
         http://aia.pki.va.gov/PKI/AIA/VA/
 
     for cert in *.{cer,pem}
