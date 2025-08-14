@@ -27,7 +27,7 @@ module BGSDependentsV2
     attribute :birth_date, String
     attribute :ever_married_ind, String
     attribute :dependent_income, String
-    attribute :is_parent, String
+    attribute :is_parent, Bool
     validates :first, presence: true
     validates :last, presence: true
 
