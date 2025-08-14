@@ -50,6 +50,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
               'confirmation_number' => confirmation_number,
               'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
             },
+            Settings.vanotify.services.va_gov.api_key,
             callback_options
           )
         end
@@ -73,6 +74,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
               'confirmation_number' => confirmation_number,
               'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
             },
+            Settings.vanotify.services.va_gov.api_key,
             callback_options
           )
         end
@@ -104,6 +106,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
               'confirmation_number' => confirmation_number,
               'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
             },
+            Settings.vanotify.services.va_gov.api_key,
             callback_options
           )
         end
@@ -127,6 +130,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
               'confirmation_number' => confirmation_number,
               'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
             },
+            Settings.vanotify.services.va_gov.api_key,
             callback_options
           )
         end

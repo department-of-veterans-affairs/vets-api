@@ -31,8 +31,8 @@ class SavedClaim::EducationBenefits < SavedClaim
   end
 
   # most forms use regional_office_address so default to true. For forms that don't, set regional_office: false
+  # rubocop:disable Metrics/MethodLength
   def send_education_benefits_confirmation_email(email, parsed_form_data, template_params = {}, regional_office: true)
-    Rails.logger.info('**** top of send_education_benefits_confirmation_email ****')
     form_number = self.class.name.split('::').last.downcase.gsub('va', '')
 
     # Base parameters that all forms have
@@ -55,14 +55,19 @@ class SavedClaim::EducationBenefits < SavedClaim
     callback_options = build_callback_options(form_number)
 
     begin
-      Rails.logger.info('**** Calling VANotify::EmailJob ****')
-      VANotify::EmailJob.perform_async(email, template_id, all_params, callback_options)
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        all_params,
+        Settings.vanotify.services.va_gov.api_key,
+        callback_options
+      )
     rescue => e
-      Rails.logger.info('**** Got an error ****')
       method_name = 'send_confirmation_email'
       Rails.logger.error "#{self.class.name}##{method_name}: Failed to queue confirmation email: #{e.message}"
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def determine_first_name_key
     case self.class.name.split('::').last
