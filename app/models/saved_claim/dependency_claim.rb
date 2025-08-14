@@ -207,7 +207,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = original_form_id
   end
 
-  def send_failure_email(email) # rubocop:disable Metrics/MethodLength
+  def send_failure_email(email)
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
     personalisation = {
@@ -226,15 +226,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     nil
                   end
     if email.present? && template_id.present?
-      if Flipper.enabled?(:dependents_failure_callback_email)
-        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
-      else
-        VANotify::EmailJob.perform_async(
-          email,
-          template_id,
-          personalisation
-        )
-      end
+      Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
     end
   end
 
