@@ -12,14 +12,12 @@ module V0
     def send_email
       # Log incoming request
       Rails.logger.info('EventBusGateway: send_email request received', 
-                       participant_id: participant_id,
                        ep_code: send_email_params[:ep_code],
                        template_id: send_email_params[:template_id],
                        service_account: @service_account_access_token.user_attributes['client_id'])
 
       if decision_letter_enabled?
         Rails.logger.info('EventBusGateway: decision_letter feature enabled, enqueuing email job', 
-                         participant_id: participant_id,
                          ep_code: send_email_params[:ep_code],
                          template_id: send_email_params[:template_id])
         
@@ -34,13 +32,11 @@ module V0
 
         
         Rails.logger.info('EventBusGateway: email job enqueued successfully', 
-                         participant_id: participant_id,
                          ep_code: send_email_params[:ep_code],
                          template_id: send_email_params[:template_id],
                          email_job: email_job)
       else
         Rails.logger.info('EventBusGateway: decision_letter feature disabled, skipping email job', 
-                         participant_id: participant_id,
                          ep_code: send_email_params[:ep_code],
                          template_id: send_email_params[:template_id])
       end
