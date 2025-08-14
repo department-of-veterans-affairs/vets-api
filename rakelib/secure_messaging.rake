@@ -66,10 +66,11 @@ namespace :sm do
                 patient: true,
                 sm_account_created: true,
                 message: 'This cache entry was created by rakelib/secure_messaging.rake',
-            }
+            },
+            expires_in: 1.year
         )
     rescue => e
-        puts "Something went wrong while trying to cache the user's mhv_account."
+        puts "Something went wrong while trying to cache mhv_account for user with ICN: #{icn}."
         raise e
     end
 end
