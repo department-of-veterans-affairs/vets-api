@@ -19,7 +19,7 @@ module V0
       else
         log_feature_disabled
       end
-      
+
       head :ok
     end
 
