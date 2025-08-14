@@ -162,7 +162,8 @@ module V0
         monitor = DisabilityCompensation::Loggers::Monitor.new
 
         begin
-          in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) if @current_user
+          in_progress_form =
+            @current_user ? InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) : nil
         ensure
           monitor.track_saved_claim_save_error(
             # Array of ActiveModel::Error instances from the claim that failed to save
