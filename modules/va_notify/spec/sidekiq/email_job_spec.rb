@@ -92,9 +92,9 @@ RSpec.describe VANotify::EmailJob, type: :worker do
         expect(job).not_to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('va_notify/auth_error_invalid_token') do
-          expect {
+          expect do
             job.perform(email, template_id, personalisation)
-          }.to raise_error(VANotify::Forbidden, /Invalid token/)
+          end.to raise_error(VANotify::Forbidden, /Invalid token/)
         end
       end
     end
