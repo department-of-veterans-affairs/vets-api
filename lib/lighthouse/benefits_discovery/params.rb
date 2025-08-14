@@ -43,7 +43,7 @@ module BenefitsDiscovery
     end
 
     def disability_rating
-      # guard should be in controller once this is being used from a controller
+      # guard should be moved to controller once this is being called from a controller
       return nil unless @user.authorize(:lighthouse, :access?)
 
       service = VeteranVerification::Service.new
@@ -53,7 +53,7 @@ module BenefitsDiscovery
     end
 
     def service_history_episodes
-      # guard should be in controller once this is being used from a controller
+      # guard should be moved to controller once this is being called from a controller
       return [] unless @user.authorize(:vet360, :military_access?)
 
       service = VAProfile::MilitaryPersonnel::Service.new(@user)

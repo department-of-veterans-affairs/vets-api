@@ -20,8 +20,7 @@ module Lighthouse
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
         sorted_benefits = sort_benefits(eligible_benefits)
-        formatted_benefits = sorted_benefits.to_h.to_s.tr('\"', '').tr(' ', '')
-        StatsD.increment("BenefitsDiscoveryService.#{formatted_benefits}")
+        StatsD.increment('benefits_discovery.logging', tags: sorted_benefits)
       rescue => e
         Rails.logger.error("Failed to process eligible benefits for user: #{user_uuid}, error: #{e.message}")
         raise e
