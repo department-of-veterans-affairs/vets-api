@@ -24,9 +24,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
   let(:ves_request) { double('IvcChampva::VesRequest') }
   let(:ves_client) { double('IvcChampva::VesApi::Client') }
+  let(:original_aws_config) { Aws.config.dup }
 
   before do
-    @original_aws_config = Aws.config.dup
     Aws.config.update(stub_responses: true)
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
@@ -38,7 +38,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   end
 
   after do
-    Aws.config = @original_aws_config
+    Aws.config = original_aws_config
   end
 
   describe 'run this section with both values of champva_retry_logic_refactor expecting identical behavior' do

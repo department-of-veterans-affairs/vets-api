@@ -4,6 +4,7 @@ inherit_from:
 
 require:
   - './lib/rubocop/cops/ams_serializer.rb'
+  - './lib/rubocop/cops/custom/no_instance_vars_in_specs.rb'
 
 plugins:
   - rubocop-rails
@@ -33,6 +34,9 @@ AllCops:
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
     - 'tmp/**/*'
+
+Custom/NoInstanceVarsInSpecs:
+  Enabled: true
 
 Style/Documentation:
   Enabled: false
