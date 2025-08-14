@@ -1337,6 +1337,10 @@ describe VAOS::V2::AppointmentsService do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
                   expect(response[:show_schedule_link]).to be(true)
+                  expect(response[:modality]).to be('vaInPerson')
+                  expect(response[:past]).to be(true)
+                  expect(response[:pending]).to be(true)
+                  expect(response[:future]).to be(false)
                 end
               end
             end
@@ -1370,6 +1374,10 @@ describe VAOS::V2::AppointmentsService do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
                   expect(response[:show_schedule_link]).to be(true)
+                  expect(response[:modality]).to be('vaInPerson')
+                  expect(response[:past]).to be(true)
+                  expect(response[:pending]).to be(true)
+                  expect(response[:future]).to be(false)
                 end
               end
             end
