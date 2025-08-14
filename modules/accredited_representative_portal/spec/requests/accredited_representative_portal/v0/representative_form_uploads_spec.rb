@@ -124,7 +124,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end
     end
 
-    context 'claimant with matching poa found' do
+    context '21-686c form' do
       around do |example|
         VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
@@ -137,7 +137,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
       end
 
-      context 'when confirmation email sends' do
+      context 'claimant with matching poa found' do
         before do
           notification_double = double('notification')
           allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_double)
@@ -186,6 +186,58 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
           post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
           expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context '21-526EZ form' do
+      let(:form_number) { '21-526EZ' }
+      let(:representative_fixture_path) do
+        Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+                        'representative_form_upload_21_526EZ.json')
+      end
+      let(:pdf_path) do
+        Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
+                        'VBA-21-526EZ-ARE.pdf')
+      end
+      let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
+      let!(:supporting_attachment) do
+        PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-526EZ')
+      end
+
+      around do |example|
+        VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+        VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        example.run
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+      end
+
+      context 'claimant with matching poa found' do
+        it 'makes the veteran request' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
+        end
+
+        it 'makes the veteran request with multiple attachments' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
         end
       end
     end
