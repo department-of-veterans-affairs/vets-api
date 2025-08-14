@@ -36,9 +36,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
   describe '#validate_form_526_fes_values' do
     context 'with valid data' do
-      it 'returns empty errors array' do
+      it 'returns nil when no errors' do
         errors = subject.validate_form_526_fes_values
-        expect(errors).to eq([])
+        expect(errors).to be_nil
       end
     end
 
@@ -78,7 +78,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
         it 'returns no errors (JSON schema will validate)' do
           errors = subject.validate_form_526_fes_values
-          expect(errors).to eq([])
+          expect(errors).to be_nil
         end
       end
 

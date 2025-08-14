@@ -20,7 +20,7 @@ module ClaimsApi
         validate_service_information!
 
         # Return collected errors
-        @errors || []
+        error_collection if @errors
 
         # TODO: Future PRs will add more validations here
       end
@@ -267,14 +267,24 @@ module ClaimsApi
         nil
       end
 
-      def collect_error(source:, title:, detail:)
+      def errors_array
         @errors ||= []
-        @errors << {
-          source:,
-          title:,
-          detail:,
-          status: '422'
-        }
+      end
+
+      def collect_error(source:, title:, detail:)
+        errors_array.push(
+          {
+            source:,
+            title:,
+            detail:,
+            status: '422'
+          }
+        )
+      end
+
+      def error_collection
+        errors_array.uniq! { |e| e[:detail] }
+        errors_array
       end
     end
     # rubocop:enable Metrics/ModuleLength
