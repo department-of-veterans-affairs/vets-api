@@ -212,6 +212,13 @@ jobs:
               exempt_team=true
               backend_approval_required=false
               break
+            else
+              if gh api -X GET "orgs/${TEAM%%/*}/teams/${TEAM##*/}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
+                exempt_team=true
+                backend_approval_required=false
+                break
+              fi
             fi
           done
 
@@ -345,17 +352,14 @@ jobs:
           if [[ "$team_approval_status" == "confirmed" ]]; then
             for TEAM in "${EXEMPT_TEAMS[@]}"; do
               echo "Fetching members of team: $TEAM"
-              TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
-              while IFS= read -r MEMBER; do
-                while IFS= read -r REVIEWER; do
-                  echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                  if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                    echo "Reviewer is in exempt team"
-                    echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                    break 2
-                  fi
-                done <<< "$APPROVED"
-              done <<< "$TEAM_MEMBERS"
+              if gh api -X GET "orgs/${TEAM%%/*}/teams/${TEAM##*/}/memberships/$REVIEWER" >/dev/null 2>&1; then
+                echo "$REVIEWER is in exempt $TEAM"
+                exempt_be_review=true
+                backend_approval_required=false
+                team_approval_status=confirmed
+                approval_status=confirmed
+                break
+              fi
             done
           fi
 
