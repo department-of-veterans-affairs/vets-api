@@ -16,7 +16,7 @@ module V0
       private
 
       def service
-        @service ||= VeteranVerification::Service.new
+        @service ||= VeteranVerification::Service.new(@current_user)
       end
     end
   end
