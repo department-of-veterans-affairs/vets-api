@@ -13,8 +13,6 @@ module ClaimsApi
       def validate_form_526_fes_values(_target_veteran = nil)
         return [] if form_attributes.empty?
 
-        @errors = []
-
         # Validate claim date if provided
         validate_claim_date!
 
@@ -22,7 +20,7 @@ module ClaimsApi
         validate_service_information!
 
         # Return collected errors
-        @errors
+        @errors || []
 
         # TODO: Future PRs will add more validations here
       end
@@ -270,6 +268,7 @@ module ClaimsApi
       end
 
       def collect_error(source:, title:, detail:)
+        @errors ||= []
         @errors << {
           source:,
           title:,
