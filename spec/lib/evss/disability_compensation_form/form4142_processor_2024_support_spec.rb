@@ -35,7 +35,7 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
   describe '#initialize' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_use_2024_template).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_use_2024_frontend).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
     end
 
@@ -91,7 +91,7 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
     context 'when feature flag is disabled' do
       it 'uses the legacy template' do
-        allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_use_2024_template).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_use_2024_frontend).and_return(false)
 
         expect(PdfFill::Filler).to receive(:fill_ancillary_form)
           .and_call_original
