@@ -60,7 +60,7 @@ module ClaimsApi
           res['id'] = poa_request.id
           if poa_request.claimant_icn.present?
             res['claimant_icn'] = poa_request.claimant_icn
-            res = add_dependent_data_to_poa_response(res)
+            res = add_dependent_data_to_poa_response(res).first
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
@@ -170,7 +170,7 @@ module ClaimsApi
         private
 
         def add_dependent_data_to_poa_response(poa_list)
-          items = poa_list.is_a?(Array) ? poa_list : [poa_list]
+          items = Array.wrap(poa_list)
 
           items.each do |item|
             next unless item['claimant_icn']
@@ -180,7 +180,7 @@ module ClaimsApi
             item['claimantLastName'] = last_name
           end
 
-          poa_list.is_a?(Array) ? items : items.first
+          items
         end
 
         def get_dependent_name(icn)

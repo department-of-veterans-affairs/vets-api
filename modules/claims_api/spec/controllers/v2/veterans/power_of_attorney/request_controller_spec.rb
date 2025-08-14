@@ -302,8 +302,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
           poa_res_with_dependent = subject.send(:add_dependent_data_to_poa_response, poa_res_only_dependent_info)
 
-          expect(poa_res_with_dependent['claimantFirstName']).to eq(dependent.first_name)
-          expect(poa_res_with_dependent['claimantLastName']).to eq(dependent.last_name)
+          expect(poa_res_with_dependent.first['claimantFirstName']).to eq(dependent.first_name)
+          expect(poa_res_with_dependent.first['claimantLastName']).to eq(dependent.last_name)
         end
       end
     end
