@@ -345,9 +345,12 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
     context 'when the disability_526_track_saved_claim_error Flipper is enabled' do
       before do
         Flipper.enable(:disability_526_track_saved_claim_error)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(true)
       end
 
-      after { Flipper.disable(:disability_526_track_saved_claim_error) }
+      after do
+        allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(false)
+      end
 
       context 'when the claim fails to save' do
         before do
@@ -382,7 +385,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
     context 'when the disability_526_track_saved_claim_error Flipper is disabled' do
       before do
-        Flipper.disable(:disability_526_track_saved_claim_error)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(false)
         allow(SavedClaim::DisabilityCompensation::Form526AllClaim).to receive(:from_hash)
           .and_return(claim_with_save_error)
       end
