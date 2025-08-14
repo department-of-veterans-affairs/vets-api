@@ -23216,8 +23216,7 @@
             "minItems": 0,
             "items": {
               "$ref": "#/components/schemas/TravelPayClaimSummary"
-            },
-            "example": []
+            }
           }
         }
       },

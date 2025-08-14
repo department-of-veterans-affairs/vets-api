@@ -31,4 +31,3 @@ properties:
     minItems: 0
     items:
       $ref: './TravelPayClaimSummary.yml'
-    example: []

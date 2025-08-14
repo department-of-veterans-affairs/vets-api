@@ -4028,7 +4028,7 @@ paths:
               schema:
                 $ref: ./schemas/TravelPayClaims.yml
           description: OK
-                  '206':
+        '206':
           content:
             application/json:
               schema:
