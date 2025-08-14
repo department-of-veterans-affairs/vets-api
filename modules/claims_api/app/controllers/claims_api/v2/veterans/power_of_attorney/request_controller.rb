@@ -34,9 +34,9 @@ module ClaimsApi
           )
 
           poa_list = service.get_poa_list
-          poa_list_with_dependent_data = add_dependent_data_to_poa_response(poa_list)
-
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
+
+          poa_list_with_dependent_data = add_dependent_data_to_poa_response(poa_list)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
             poa_list_with_dependent_data, view: :shared_response, root: :data
