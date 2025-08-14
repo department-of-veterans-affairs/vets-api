@@ -123,7 +123,7 @@ RSpec.describe BenefitsDiscovery::Params do
     end
 
     context 'when discharge code is blank' do
-      it 'does not raise an error' do
+      it 'sets dischargeStatus to nil' do
         service_history_episodes = Array.wrap(build(:service_history, character_of_discharge_code: nil))
         service_history_response = OpenStruct.new episodes: service_history_episodes
         allow_any_instance_of(VAProfile::MilitaryPersonnel::Service).to \
@@ -188,7 +188,7 @@ RSpec.describe BenefitsDiscovery::Params do
     end
 
     context 'discharge code is blank' do
-      it 'does not raise an error' do
+      it 'sets dischargeStatus to nil' do
         service_history_episodes = Array.wrap(build(:service_history, character_of_discharge_code: nil))
         expect(described_class.service_history_params(service_history_episodes)).to eq([{
                                                                                          startDate: '2012-03-02',
