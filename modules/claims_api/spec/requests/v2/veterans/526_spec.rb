@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require_relative '../../../rails_helper'
-require 'brd/brd'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
