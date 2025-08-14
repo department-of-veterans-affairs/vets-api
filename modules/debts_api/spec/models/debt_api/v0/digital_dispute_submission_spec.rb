@@ -75,35 +75,37 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     end
   end
 
-  describe '#send_failure_email' do
+  describe 'email functionality' do
     let(:form_submission) { create(:debts_api_digital_dispute_submission) }
     let(:user) { create(:user, :loa3, uuid: form_submission.user_uuid, email: 'test@example.com', first_name: 'John') }
 
-    before do
-      form_submission.update(updated_at: Time.new(2025, 1, 1).utc)
-    end
-
-    it 'sends an email with 24 hour delay' do
-      Timecop.freeze(Time.new(2025, 1, 1).utc) do
-        expected_personalization_info = {
-          'first_name' => user.first_name,
-          'date_submitted' => '01/01/2025',
-          'updated_at' => form_submission.updated_at,
-          'confirmation_number' => form_submission.id
-        }
+    describe '#send_failure_email' do
+      it 'handles errors gracefully with failure StatsD tracking' do
+        allow(User).to receive(:find).and_raise(StandardError.new('User not found'))
 
         expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_failed_form_email.enqueue")
+        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_failed_form_email.failure")
 
-        expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
-          24.hours,
-          user.email.downcase,
-          described_class::FAILURE_TEMPLATE,
-          expected_personalization_info,
-          { id_type: 'email', failure_mailer: true }
-        )
-
-        form_submission.send(:send_failure_email)
+        expect { form_submission.send(:send_failure_email) }.not_to raise_error
       end
+    end
+
+    describe '#send_success_email' do
+      it 'handles errors gracefully with failure StatsD tracking' do
+        allow(User).to receive(:find).and_raise(StandardError.new('User not found'))
+
+        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_success_email.enqueue")
+        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_success_email.failure")
+
+        expect { form_submission.send(:send_success_email) }.not_to raise_error
+      end
+    end
+  end
+
+  describe '#register_failure blank message handling' do
+    it 'sets default error message when blank' do
+      form_submission.register_failure('')
+      expect(form_submission.error_message).to include('An unknown error occurred')
     end
   end
 

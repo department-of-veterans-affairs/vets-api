@@ -5,6 +5,7 @@ module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
       STATS_KEY = 'api.digital_dispute_submission'
+      SUBMISSION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_submission_email
       CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_confirmation_email
       FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
       self.table_name = 'digital_dispute_submissions'
@@ -48,12 +49,14 @@ module DebtsApi
 
       def register_failure(message)
         failed!
-        update(error_message: message)
+        update(
+          error_message: message.presence ||
+            "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+        )
         begin
           send_failure_email if Settings.vsp_environment == 'production'
-        rescue => e
+        rescue
           StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
-          Rails.logger.error("Failed to send failed form email: #{e.message}")
         end
       end
 
@@ -73,6 +76,7 @@ module DebtsApi
       end
 
       def send_success_email
+        StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
         user = User.find(user_uuid)
         return if user&.email.blank?
 
@@ -85,8 +89,10 @@ module DebtsApi
             'template_id' => CONFIRMATION_TEMPLATE
           }
         )
-      rescue => e
-        Rails.logger.error("Failed to send digital dispute success email: #{e.message}")
+        StatsD.increment("#{STATS_KEY}.send_success_email.success")
+      rescue
+        StatsD.increment("#{STATS_KEY}.send_success_email.failure")
+        nil
       end
 
       def send_failure_email
@@ -95,15 +101,16 @@ module DebtsApi
         return if user&.email.blank?
 
         submission_email = user.email.downcase
-        jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
+        DebtManagementCenter::VANotifyEmailJob.perform_in(
           24.hours,
           submission_email,
           FAILURE_TEMPLATE,
           failure_email_personalization_info(user),
           { id_type: 'email', failure_mailer: true }
         )
-
-        Rails.logger.info("Failed digital dispute email enqueued form: #{id} email scheduled with jid: #{jid}")
+      rescue
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.failure")
+        nil
       end
 
       def failure_email_personalization_info(user)
