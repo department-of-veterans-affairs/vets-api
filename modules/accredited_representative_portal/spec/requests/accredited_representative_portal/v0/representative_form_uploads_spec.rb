@@ -3,7 +3,9 @@
 require_relative '../../../rails_helper'
 require 'benefits_intake_service/service'
 
-RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadController, type: :request do
+RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadController, :uploader_helpers,
+               type: :request do
+  stub_virus_scan
   let!(:poa_code) { '067' }
   let(:representative_user) do
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
@@ -122,7 +124,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end
     end
 
-    context 'claimant with matching poa found' do
+    context '21-686c form' do
       around do |example|
         VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
@@ -135,37 +137,108 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
       end
 
-      it 'makes the veteran request' do
-        post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq(
-          {
-            'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
-            'status' => '200'
-          }
-        )
+      context 'claimant with matching poa found' do
+        before do
+          notification_double = double('notification')
+          allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_double)
+          expect(notification_double).to receive(:deliver).with(:confirmation)
+        end
+
+        it 'makes the veteran request' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
+        end
+
+        it 'makes the veteran request with multiple attachments' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
+        end
+
+        it 'makes the claimant request' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
+        end
       end
 
-      it 'makes the veteran request with multiple attachments' do
-        post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq(
-          {
-            'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
-            'status' => '200'
-          }
-        )
+      context 'when email sending fails' do
+        it 'still returns success but logs the error' do
+          allow(AccreditedRepresentativePortal::NotificationEmail)
+            .to receive(:new).and_raise(StandardError.new('Email failed'))
+          expect_any_instance_of(AccreditedRepresentativePortal::Monitor).to receive(:track_send_email_failure)
+
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context '21-526EZ form' do
+      let(:form_number) { '21-526EZ' }
+      let(:representative_fixture_path) do
+        Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+                        'representative_form_upload_21_526EZ.json')
+      end
+      let(:pdf_path) do
+        Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
+                        'VBA-21-526EZ-ARE.pdf')
+      end
+      let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
+      let!(:supporting_attachment) do
+        PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-526EZ')
       end
 
-      it 'makes the claimant request' do
-        post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq(
-          {
-            'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
-            'status' => '200'
-          }
-        )
+      around do |example|
+        VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+        VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        example.run
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+      end
+
+      context 'claimant with matching poa found' do
+        it 'makes the veteran request' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
+        end
+
+        it 'makes the veteran request with multiple attachments' do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq(
+            {
+              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+              'status' => '200'
+            }
+          )
+        end
       end
     end
   end
@@ -215,8 +288,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end.not_to change(PersistentAttachments::VAForm, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
-                                                     'code' => '422', 'status' => '422' }] })
+      expect(parsed_response).to eq({
+                                      'errors' => [{
+                                        'title' => 'Unprocessable Entity',
+                                        'detail' => 'Invalid form',
+                                        'code' => '422',
+                                        'status' => '422'
+                                      }]
+                                    })
     end
   end
 
@@ -265,8 +344,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(parsed_response).to eq({ 'errors' => [{ 'title' => 'Unprocessable Entity', 'detail' => 'Invalid form',
-                                                     'code' => '422', 'status' => '422' }] })
+      expect(parsed_response).to eq({
+                                      'errors' => [{
+                                        'title' => 'Unprocessable Entity',
+                                        'detail' => 'Invalid form',
+                                        'code' => '422',
+                                        'status' => '422'
+                                      }]
+                                    })
     end
   end
 end

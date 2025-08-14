@@ -26,11 +26,13 @@ module AccreditedRepresentativePortal
         # drawn to the fact that `PROPER_FORM_ID` is the alternative for dealing
         # with this overworking problem.
         #
-        def define_claim_type(form_id:, proper_form_id:, business_line:)
+        def define_claim_type(form_id:, proper_form_id:, business_line:, stamping_form_class:, feature_flag:)
           Class.new(self) do
             const_set(:FORM_ID, form_id)
             const_set(:PROPER_FORM_ID, proper_form_id)
             const_set(:BUSINESS_LINE, business_line)
+            const_set(:STAMPING_FORM_CLASS, stamping_form_class)
+            const_set(:FEATURE_FLAG, feature_flag)
 
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
@@ -42,12 +44,26 @@ module AccreditedRepresentativePortal
         COMPENSATION = 'CMP'
       end
 
-      DependencyClaim =
-        define_claim_type(
-          form_id: '21-686C_BENEFITS-INTAKE',
-          proper_form_id: '21-686c',
-          business_line: BusinessLines::COMPENSATION
+      FORM_TYPES = [
+        (DependencyClaim =
+           define_claim_type(
+             form_id: '21-686C_BENEFITS-INTAKE',
+             proper_form_id: '21-686c',
+             business_line: BusinessLines::COMPENSATION,
+             stamping_form_class: SimpleFormsApi::VBA21686C,
+             feature_flag: 'accredited_representative_portal_submissions'
+           )
+        ),
+        (DisabilityClaim =
+           define_claim_type(
+             form_id: '21-526EZ_BENEFITS-INTAKE',
+             proper_form_id: '21-526EZ',
+             business_line: BusinessLines::COMPENSATION,
+             stamping_form_class: SimpleFormsApi::VBA21526EZ,
+             feature_flag: 'accredited_representative_portal_form_526ez'
+           )
         )
+      ].freeze
 
       ##
       # Needed to interoperate with the form schema validations performed by the
@@ -82,6 +98,12 @@ module AccreditedRepresentativePortal
 
       def display_form_id
         self.class::PROPER_FORM_ID
+      end
+
+      def self.form_class_from_proper_form_id(proper_form_id)
+        FORM_TYPES.find do |klass|
+          klass::PROPER_FORM_ID.casecmp?(proper_form_id)
+        end
       end
     end
   end

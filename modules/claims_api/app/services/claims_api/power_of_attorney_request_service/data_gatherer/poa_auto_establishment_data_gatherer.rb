@@ -38,11 +38,14 @@ module ClaimsApi
           data.merge!('registration_number' => @registration_number.to_s)
           if @claimant.present?
             claimant_addr_data = gather_vnp_addrs_data('claimant')
-            claimant_phone_data = gather_vnp_phone_data
+
+            if @metadata['claimant'].key?('vnp_phone_id')
+              claimant_phone_data = gather_vnp_phone_data
+              claimant_addr_data.merge!(claimant_phone_data)
+            end
 
             claimant_addr_data.merge!(claimant_addr_data)
-            claimant_addr_data.merge!(claimant_phone_data)
-            claimant_addr_data.merge!('claimant_id' => @claimant.icn)
+            claimant_addr_data.merge!('claimant_id' => claimant_icn)
 
             data.merge!('claimant' => claimant_addr_data)
           end
@@ -89,6 +92,10 @@ module ClaimsApi
           ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::VnpPtcpntPhoneFindByPrimaryKeyDataGatherer.new(
             record: res
           ).call
+        end
+
+        def claimant_icn
+          @claimant.icn.presence || @claimant.mpi.icn
         end
       end
     end
