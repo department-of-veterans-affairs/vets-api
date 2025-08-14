@@ -21,6 +21,8 @@ module BGS
 
     STATS_KEY = 'bgs.dependent_service'
 
+    class PDFSubmissionError < StandardError; end
+
     def initialize(user)
       @first_name = user.first_name
       @middle_name = user.middle_name
@@ -55,9 +57,9 @@ module BGS
         @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
       end
 
-      {
-        submit_form_job_id:
-      }
+      { submit_form_job_id: }
+    rescue PDFSubmissionError
+      submit_to_central_service(claim:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
@@ -85,7 +87,7 @@ module BGS
     end
 
     def claims_evidence_uploader
-      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
+      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source: self.class.to_s)
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
@@ -106,13 +108,10 @@ module BGS
       @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
     rescue => e
-      # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       @monitor.track_event('warn',
                            'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      submit_to_central_service(claim:)
-
-      raise e
+      raise PDFSubmissionError, e.message
     end
 
     def submit_claim_via_claims_evidence(claim)
@@ -120,14 +119,14 @@ module BGS
       doctype = claim.document_type
       if claim.submittable_686?
         form_id = '686C-674'
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
+        file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
       if claim.submittable_674?
         form_id = '21-674'
         doctype = '142'
-        pdf_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, nil, doctype, claim.created_at)
+        claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
 
       form_id
@@ -137,8 +136,8 @@ module BGS
       stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
-        pdf_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
-        claims_evidence_uploader.upload_file(pdf_path, form_id, claim.id, pa.id, doctype, claim.created_at)
+        file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+        claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
       end
     end
 

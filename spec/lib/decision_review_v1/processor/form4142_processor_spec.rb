@@ -11,7 +11,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   let(:form_json) do
     # This file is used to test the form4142 processor with the 2018 template
     # File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
-    File.read('spec/support/disability_compensation_form/submissions/with_4142_2024.json')
+    File.read('spec/support/decision_reviews/with_4142_2024.json')
   end
 
   let(:saved_claim) { create(:va526ez) }

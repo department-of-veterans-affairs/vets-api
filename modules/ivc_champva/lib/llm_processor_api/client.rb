@@ -16,8 +16,6 @@ module IvcChampva
         Settings.ivc_champva_llm_processor_api
       end
 
-      delegate :api_key, to: :settings
-
       ##
       # HTTP POST call to the LLM processor service to process a document
       #
@@ -30,7 +28,7 @@ module IvcChampva
           req.body = build_multipart_body(request_data)
         end
 
-        monitor.track_llm_processor_response(transaction_uuid, resp.status, resp.body)
+        monitor.track_llm_processor_response(transaction_uuid, resp.status, resp.body.to_s)
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
 
@@ -47,7 +45,7 @@ module IvcChampva
       # @return [Hash] the headers
       def headers(transaction_uuid, acting_user)
         {
-          'apiKey' => settings.api_key,
+          'apiKey' => config.api_key,
           'transactionUUID' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }
