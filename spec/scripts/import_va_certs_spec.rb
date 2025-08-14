@@ -40,18 +40,17 @@ RSpec.describe 'import-va-certs.sh script' do
   end
 
   describe 'certificate download fallback mechanism' do
-
     it 'implements HTTPS/HTTP fallback for VA certificates' do
       script_content = File.read(script_path)
 
       # Verify the script contains HTTPS first, then HTTP fallback for VA certs
       expect(script_content).to include('https://aia.pki.va.gov/PKI/AIA/VA/')
       expect(script_content).to include('http://aia.pki.va.gov/PKI/AIA/VA/')
-      
+
       # Check that HTTPS comes before HTTP in the script (fallback pattern)
       https_position = script_content.index('https://aia.pki.va.gov/PKI/AIA/VA/')
       http_position = script_content.index('http://aia.pki.va.gov/PKI/AIA/VA/')
-      
+
       expect(https_position).to be < http_position
       expect(script_content).to include('||') # Fallback operator between them
     end
@@ -60,11 +59,11 @@ RSpec.describe 'import-va-certs.sh script' do
       script_content = File.read(script_path)
 
       # Verify the fallback structure is correctly implemented
-      expect(script_content).to match(/wget.*https:\/\/aia\.pki\.va\.gov.*?\|\|.*wget.*http:\/\/aia\.pki\.va\.gov/m)
-      
+      expect(script_content).to match(%r{wget.*https://aia\.pki\.va\.gov.*?\|\|.*wget.*http://aia\.pki\.va\.gov}m)
+
       # Verify DoD fallback is also present
-      expect(script_content).to match(/curl.*https:\/\/dl\.dod\.cyber\.mil.*?\|\|.*curl.*http:\/\/dl\.dod\.cyber\.mil/m)
-      
+      expect(script_content).to match(%r{curl.*https://dl\.dod\.cyber\.mil.*?\|\|.*curl.*http://dl\.dod\.cyber\.mil}m)
+
       # Verify certificate processing loop exists
       expect(script_content).to include('for cert in *.{cer,pem}')
       expect(script_content).to include('if file "${cert}" | grep \'PEM\'')
@@ -97,7 +96,7 @@ RSpec.describe 'import-va-certs.sh script' do
       # Verify the script structure contains the correct commands for conversion
       expect(script_content).to include('openssl x509 -in "${cert}" -inform der -outform pem -out "${cert}.crt"')
       expect(script_content).to include('if file "${cert}" | grep \'PEM\'')
-      
+
       # Verify the else branch for DER conversion is present
       expect(script_content).to match(/else.*openssl x509.*-inform der -outform pem/m)
     end
@@ -131,7 +130,7 @@ RSpec.describe 'import-va-certs.sh script' do
     it 'implements HTTPS/HTTP fallback for DoD certificates' do
       script_content = File.read(script_path)
 
-      dod_section = script_content[/curl.*https:\/\/dl\.dod\.cyber\.mil.*?\|\|.*?curl.*http:\/\/dl\.dod\.cyber\.mil/m]
+      dod_section = script_content[%r{curl.*https://dl\.dod\.cyber\.mil.*?\|\|.*?curl.*http://dl\.dod\.cyber\.mil}m]
 
       expect(dod_section).to be_present
       expect(dod_section).to include('https://dl.dod.cyber.mil')
