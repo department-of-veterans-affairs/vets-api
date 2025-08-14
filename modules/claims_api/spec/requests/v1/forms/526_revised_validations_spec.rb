@@ -375,6 +375,72 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
+
+    context 'when applicant is a reservist or National Guardsman with a prior ended service period' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
+              },
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => 1.year.ago.to_date.iso8601
+              }
+            ],
+            'reservesNationalGuardService' => { 'someField' => 'someValue' }
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }.not_to raise_error
+      end
+    end
+
+    context 'when applicant is a reservist or National Guardsman without a prior ended service period' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
+              }
+            ],
+            'reservesNationalGuardService' => { 'someField' => 'someValue' }
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when applicant is not a reservist or National Guardsman and has a future end date' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
+              }
+            ]
+            # reservesNationalGuardService is missing
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
   end
 
   describe '#validate_form_526_title10_activation_date!' do

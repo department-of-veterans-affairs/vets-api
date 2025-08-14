@@ -180,9 +180,6 @@ features:
     actor_type: user
     description: Enables the registration-only path for the Health Care Application
     enable_in_development: true
-  hca_log_form_attachment_create:
-    actor_type: user
-    description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
@@ -498,6 +495,10 @@ features:
   fsr_zero_silent_errors_in_progress_email:
     actor_type: user
     description: Enables sending an email to the veteran when FSR form is in progress
+    enable_in_development: true
+  digital_dispute_email_notifications:
+    actor_type: user
+    description: Enables email notifications for digital dispute submissions
     enable_in_development: true
   communication_preferences:
     actor_type: user
