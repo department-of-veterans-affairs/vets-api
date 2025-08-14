@@ -816,7 +816,7 @@ RSpec.describe LighthouseClaimLettersProvider do
         # Valid date should parse correctly
         valid_date_letter = letters.find { |l| l[:document_id] == 'valid-date' }
         expect(valid_date_letter[:received_at]).not_to be_nil
-        expect(valid_date_letter[:received_at]).to be_a(Time)
+        expect(valid_date_letter[:received_at]).to be_a(Date)
       end
     end
 
