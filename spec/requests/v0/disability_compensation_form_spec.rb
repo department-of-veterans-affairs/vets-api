@@ -344,7 +344,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
     context 'when the disability_526_track_saved_claim_error Flipper is enabled' do
       before do
-        Flipper.enable(:disability_526_track_saved_claim_error)
         allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(true)
       end
 
