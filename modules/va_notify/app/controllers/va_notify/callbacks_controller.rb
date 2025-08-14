@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_notify/default_callback'
+require 'va_notify/callback_signature_generator'
 
 module VANotify
   class CallbacksController < VANotify::ApplicationController
@@ -11,21 +12,23 @@ module VANotify
     skip_before_action :verify_authenticity_token, only: [:create]
     skip_before_action :authenticate, only: [:create]
 
+    before_action :set_notification, only: [:create]
+    before_action :authenticate_callback!, only: [:create]
+
     def create
       notification_id = params[:id]
-
-      if (notification = VANotify::Notification.find_by(notification_id:)) && authenticate_callback
-        notification.update(notification_params)
-        Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
+      if @notification
+        @notification.update(notification_params)
+        Rails.logger.info("va_notify callbacks - Updating notification: #{@notification.id}",
                           {
-                            source_location: notification.source_location,
-                            template_id: notification.template_id,
-                            callback_metadata: notification.callback_metadata,
-                            status: notification.status,
-                            status_reason: notification.status_reason
+                            source_location: @notification.source_location,
+                            template_id: @notification.template_id,
+                            callback_metadata: @notification.callback_metadata,
+                            status: @notification.status,
+                            status_reason: @notification.status_reason
                           })
 
-        VANotify::DefaultCallback.new(notification).call
+        VANotify::DefaultCallback.new(@notification).call
         VANotify::CustomCallback.new(notification_params.merge(id: notification_id)).call
       else
         Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
@@ -36,21 +39,28 @@ module VANotify
 
     private
 
-    def authenticate_callback
-      authenticate_signature || authenticate_token || authenticity_error
+    def set_notification
+      notification_id = params[:id]
+      @notification = VANotify::Notification.find_by(notification_id:)
+    end
+
+    def authenticate_callback!
+      return if authenticate_token || authenticate_signature
+
+      authenticity_error
     end
 
     def authenticate_signature
+      return unless Flipper.enabled?(:va_notify_request_level_callbacks)
+      return false unless @notification
+
       signature_from_header = request.headers['x-enp-signature'].to_s.strip
 
-      # how to reach into settings to get a specific api key
-      api_key = Settings.vanotify.services.SOME_SERVICE_NAME.api_key
+      api_key = get_api_key_value(@notification.service_api_key_path)
 
       signature = VANotify::CallbackSignatureGenerator.call(request.raw_post, api_key)
 
-      if Flipper.enabled?(:va_notify_request_level_callbacks)
-        ActiveSupport::SecurityUtils.secure_compare(signature, signature_from_header)
-      end
+      ActiveSupport::SecurityUtils.secure_compare(signature, signature_from_header)
     end
 
     def authenticate_token
@@ -93,6 +103,12 @@ module VANotify
         :source_location,
         :callback
       )
+    end
+
+    def get_api_key_value(path_string)
+      keys = path_string.sub(/^Settings\./, '').split('.')
+      secret_token = Settings.dig(*keys)
+      secret_token[(secret_token.length - 36)..secret_token.length]
     end
   end
 end
