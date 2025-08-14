@@ -107,6 +107,37 @@ RSpec.describe BenefitsDiscovery::Params do
         end
       end
     end
+
+    context 'when the discharge code is present but discharge status is not found' do
+      it 'raises error' do
+        unfound_discharge_history = Array.wrap(build(:service_history, character_of_discharge_code: 'foo'))
+        service_history_response = OpenStruct.new episodes: unfound_discharge_history
+        allow_any_instance_of(VAProfile::MilitaryPersonnel::Service).to \
+          receive(:get_service_history).and_return(service_history_response)
+        VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+          expect { subject.prepared_params }.to raise_error(Common::Exceptions::UnprocessableEntity),
+                                                { detail: 'No matching discharge type for: foo',
+                                                  source: described_class.name }
+        end
+      end
+    end
+
+    context 'when discharge code is blank' do
+      it 'does not raise an error' do
+        service_history_episodes = Array.wrap(build(:service_history, character_of_discharge_code: nil))
+        service_history_response = OpenStruct.new episodes: service_history_episodes
+        allow_any_instance_of(VAProfile::MilitaryPersonnel::Service).to \
+          receive(:get_service_history).and_return(service_history_response)
+        VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+          expect(subject.prepared_params).to eq(
+            { dateOfBirth: '1809-02-12', disabilityRating: 100,
+              serviceHistory: [
+                { startDate: '2012-03-02', endDate: '2018-10-31', dischargeStatus: nil, branchOfService: 'ARMY' }
+              ] }
+          )
+        end
+      end
+    end
   end
 
   describe '#build_from_service_history' do
@@ -147,11 +178,25 @@ RSpec.describe BenefitsDiscovery::Params do
       expect(described_class.service_history_params(service_history_episodes)).to eq(prepared_service_history_params)
     end
 
-    it 'logs error and skips record when the discharge code is not found' do
-      unfound_discharge_history = Array.wrap(build(:service_history, character_of_discharge_code: 'foo'))
-      expect do
-        described_class.service_history_params(unfound_discharge_history)
-      end.to raise_error(Common::Exceptions::UnprocessableEntity), { detail: 'No matching discharge code for: foo', source: described_class.name }
+    context 'when the discharge code is present but discharge status is not found' do
+      it 'raises error' do
+        unfound_discharge_history = Array.wrap(build(:service_history, character_of_discharge_code: 'foo'))
+        expect do
+          described_class.service_history_params(unfound_discharge_history)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity), { detail: 'No matching discharge type for: foo', source: described_class.name }
+      end
+    end
+
+    context 'discharge code is blank' do
+      it 'does not raise an error' do
+        service_history_episodes = Array.wrap(build(:service_history, character_of_discharge_code: nil))
+        expect(described_class.service_history_params(service_history_episodes)).to eq([{
+                                                                                         startDate: '2012-03-02',
+                                                                                         endDate: '2018-10-31',
+                                                                                         dischargeStatus: nil,
+                                                                                         branchOfService: 'ARMY'
+                                                                                       }])
+      end
     end
   end
 end
