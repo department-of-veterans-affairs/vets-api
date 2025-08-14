@@ -246,6 +246,10 @@ module ClaimsApi
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
     end
 
+    def fes_mapper_service(auto_claim)
+      ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim)
+    end
+
     def veteran_file_number(auto_claim)
       auto_claim.auth_headers['va_eauth_birlsfilenumber']
     end
