@@ -358,7 +358,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
         it 'logs save errors for the claim and still returns a 422' do
           expect_any_instance_of(DisabilityCompensation::Loggers::Monitor).to receive(:track_saved_claim_save_error)
             .with(
-              claim_with_save_error.errors,
+              claim_with_save_error.errors.errors,
               in_progress_form.id,
               user.uuid
             )

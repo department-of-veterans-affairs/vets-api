@@ -163,7 +163,8 @@ module V0
         in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) if @current_user
 
         monitor.track_saved_claim_save_error(
-          claim&.errors,
+          # Array of ActiveModel::Error instances from the claim that failed to save
+          claim&.errors&.errors,
           in_progress_form&.id,
           @current_user.uuid
         )

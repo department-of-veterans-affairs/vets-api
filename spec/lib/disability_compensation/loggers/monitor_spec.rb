@@ -39,16 +39,14 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
   describe('#track_saved_claim_save_error') do
     let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
     let(:in_progress_form) { create(:in_progress_form) }
+    let(:mock_form_error) { 'Mock form validation error' }
 
-    let(:error_details) { { base: [{ error: :invalid }] } }
-    let(:error_messages) { ['Base is invalid', 'Other Error Message'] }
-
-    let(:mock_errors) do
-      instance_double(
-        ActiveModel::Errors,
-        details: error_details,
-        full_messages: error_messages
-      )
+    let(:claim_with_save_error) do
+      claim = SavedClaim::DisabilityCompensation::Form526AllClaim.new
+      errors = ActiveModel::Errors.new(claim)
+      errors.add(:form, mock_form_error)
+      allow(claim).to receive_messages(errors:)
+      claim
     end
 
     it 'logs the error metadata' do
@@ -56,14 +54,30 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         :error,
         "#{described_class} Form526 SavedClaim save error",
         described_class::CLAIM_STATS_KEY,
+        form_id: '21-526EZ-ALLCLAIMS',
         in_progress_form_id: in_progress_form.id,
-        user_uuid: user.uuid,
-        error_details: error_details.to_s,
-        error_messages: error_messages.to_s
+        errors: [{ form: mock_form_error }].to_s,
+        user_account_uuid: user.uuid
       )
 
       monitor.track_saved_claim_save_error(
-        mock_errors,
+        claim_with_save_error.errors.errors,
+        in_progress_form.id,
+        user.uuid
+      )
+    end
+
+    # NOTE: in_progress_form_id, user_account_uuid, and errors keys are whitelisted payload keys
+    # for monitors inheriting from Logging::BaseMonitor; ensures this informaiton will not be filtered out when it is
+    # written to the Rails logger; see config/initializers/filter_parameter_logging.rb
+    it 'does not filter out error details when writing to the Rails logger' do
+      expect(Rails.logger).to receive(:error) do |_, payload|
+        expect(payload[:context][:user_account_uuid]).to eq(user.uuid)
+        expect(payload[:context][:errors]).to eq([{ form: mock_form_error }].to_s)
+      end
+
+      monitor.track_saved_claim_save_error(
+        claim_with_save_error.errors,
         in_progress_form.id,
         user.uuid
       )
