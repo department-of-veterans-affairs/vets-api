@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/model'
+require 'bid/awards/service'
 
 class FormProfiles::VA686c674v2 < FormProfile
   class FormAddress
@@ -62,5 +63,44 @@ class FormProfiles::VA686c674v2 < FormProfile
     (
       response.file_number.presence || user.ssn.presence
     )&.last(4)
+  end
+
+  # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
+  # Needed for FE to differentiate between 200 response and error
+  def is_in_receipt_of_pension # rubocop:disable Naming/PredicatePrefix
+    case awards_pension[:is_in_receipt_of_pension]
+    when true
+      1
+    when false
+      0
+    else
+      -1
+    end
+  end
+
+  # @return [Integer] the net worth limit for pension, default is 159240 as of 2025
+  # Default will be cached in future enhancement
+  def net_worth_limit
+    awards_pension[:net_worth_limit] || 159240 # rubocop:disable Style/NumericLiterals
+  end
+
+  # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
+  def awards_pension
+    @awards_pension ||= begin
+      response = pension_award_service.get_awards_pension
+      response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
+    rescue => e
+      payload = {
+        user_account_uuid: user&.user_account_uuid,
+        error: e.message,
+        form_id:
+      }
+      Rails.logger.warn('Failed to retrieve awards pension data', payload)
+      {}
+    end
+  end
+
+  def pension_award_service
+    @pension_award_service ||= BID::Awards::Service.new(user)
   end
 end

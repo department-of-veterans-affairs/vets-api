@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/session"
+    uri: "<MHV_MR_HOST>/v1/usermgmt/auth/session"
     body:
       encoding: US-ASCII
       string: ''
@@ -16,7 +16,9 @@ http_interactions:
       Apptoken:
       - "<APP_TOKEN>"
       Mhvcorrelationid:
-      - '12210827'
+      - '21207668'
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -24,20 +26,31 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - Apache-Coyote/1.1
-      Expires:
-      - Tue, 31 Jan 2017 00:11:43 GMT
-      Token: "<SESSION_TOKEN>"
+      Date:
+      - Wed, 26 Mar 2025 16:14:44 GMT
+      Content-Type:
+      - application/json
       Content-Length:
       - '0'
-      Date:
-      - Tue, 31 Jan 2017 00:01:43 GMT
+      X-Amzn-Requestid:
+      - 8ce0ca2b-7fba-4ebc-92f8-e4f8777b9972
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - ICsuVGcXPHMFcXg=
+      Expires:
+      - Wed, 26 Mar 2025 16:24:44 GMT+00:00
+      Token: "<SESSION_TOKEN>"
+      X-Amzn-Remapped-Date:
+      - Wed, 26 Mar 2025 16:14:44 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
-  recorded_at: Tue, 31 Jan 2017 00:01:43 GMT
+  recorded_at: Wed, 26 Mar 2025 16:14:45 GMT
 - request:
     method: get
     uri: "<MHV_HOST>/mhv-api/patient/v1/session"

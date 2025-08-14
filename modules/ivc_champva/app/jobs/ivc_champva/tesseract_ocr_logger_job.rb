@@ -12,10 +12,10 @@ module IvcChampva
     ## Performs the job
     # @param form_id [String] The ID of the current form, e.g., 'vha_10_10d'
     # @param uuid [String, nil] The UUID associated with the attachment
-    # @param file_path [String] The path to the file to be processed
+    # @param [PersistentAttachments::MilitaryRecords] attachment Attachment object containing the file to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
-    def perform(form_id, uuid, file_path, attachment_id)
+    def perform(form_id, uuid, attachment, attachment_id)
       return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
 
       Rails.logger.info(
@@ -24,26 +24,51 @@ module IvcChampva
       )
 
       begin
-        start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+        begin
+          # Create a tempfile from the persistent attachment object
+          tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
+          file_path = tempfile.path
 
-        # Ensure the file exists before processing
-        raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
+          # Ensure the file exists before processing
+          raise Errno::ENOENT, 'File path is nil' if file_path.nil?
+          raise Errno::ENOENT, 'File not found' unless File.exist?(file_path)
 
-        # Run Tesseract OCR on the file
-        validator = IvcChampva::SupportingDocumentValidator.new(file_path, uuid, attachment_id:)
-        result = validator.process
-        Rails.logger.info('IvcChampva::TesseractOcrLoggerJob OCR processing has returned results')
+          # Run Tesseract OCR on the file
+          result = run_ocr(file_path, uuid, attachment_id)
+        ensure
+          # Clean up the tempfile
+          tempfile.close!
+        end
 
-        duration_ms = ((::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time) * 1000).round(2)
-        Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{attachment_id} OCR processing completed in " \
-                          "#{duration_ms} milliseconds")
-
+        # Log the OCR result
         log_result(result, uuid)
       rescue => e
         Rails.logger.error("IvcChampva::TesseractOcrLoggerJob failed with error: #{e.message}")
       end
     end
 
+    ## Runs the Tesseract OCR validator
+    # @param file_path [String] The path to the file to be processed
+    # @param uuid [String, nil] The UUID associated with the attachment
+    # @param attachment_id [String] The attachment type ID of the attachment being processed
+    def run_ocr(file_path, uuid, attachment_id)
+      Rails.logger.info('IvcChampva::TesseractOcrLoggerJob Starting OCR processing')
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+
+      validator = IvcChampva::SupportingDocumentValidator.new(file_path, uuid, attachment_id:)
+      result = validator.process
+
+      Rails.logger.info('IvcChampva::TesseractOcrLoggerJob OCR processing has returned results')
+      duration_ms = ((::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time) * 1000).round(2)
+      Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{attachment_id} OCR processing completed in " \
+                        "#{duration_ms} milliseconds")
+
+      result
+    end
+
+    ## Logs the OCR result
+    # @param result [Hash] The result of the OCR validation
+    # @param uuid [String, nil] The UUID associated with the attachment
     def log_result(result, uuid)
       # Log top level results
       Rails.logger.info("IvcChampva::TesseractOcrLoggerJob #{uuid} validator_type: #{result[:validator_type]}")

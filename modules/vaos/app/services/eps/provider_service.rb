@@ -82,7 +82,6 @@ module Eps
 
       loop do
         check_pagination_timeout(start_time, provider_id)
-
         params = build_slot_params(next_token, opts)
         response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params,
                            request_headers_with_correlation_id)
@@ -190,7 +189,12 @@ module Eps
       end
 
       if address_match.nil?
-        Rails.logger.warn("No address match found among #{specialty_matches.size} provider(s) for NPI")
+        warn_data = {
+          specialty_matches_count: specialty_matches.size,
+          user_uuid: @current_user&.uuid
+        }
+        message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
+        Rails.logger.warn(message, warn_data)
       end
 
       address_match&.then { |provider| OpenStruct.new(provider) }
@@ -207,9 +211,12 @@ module Eps
       timeout_seconds = config.pagination_timeout_seconds
       return unless Time.current - start_time > timeout_seconds
 
-      Rails.logger.error(
-        "Provider slots pagination exceeded #{timeout_seconds} seconds timeout for provider #{provider_id}"
-      )
+      error_data = {
+        provider_id:,
+        timeout_seconds:,
+        user_uuid: @current_user&.uuid
+      }
+      Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(
         'PROVIDER_SLOTS_TIMEOUT',
         source: self.class.to_s
@@ -219,12 +226,17 @@ module Eps
     ##
     # Builds parameters for slot request based on token availability
     #
-    # @param next_token [String] Token for pagination
-    # @param opts [Hash] Original request options
+    # For initial requests (next_token is nil), validates all required parameters including appointmentId.
+    # For pagination requests (next_token is present), includes both nextToken and appointmentId.
+    # The appointmentId is guaranteed to exist in opts when next_token is present, since next_token
+    # only exists after a successful initial request that required appointmentId.
+    #
+    # @param next_token [String] Token for pagination (only present for subsequent requests)
+    # @param opts [Hash] Original request options containing appointmentId and other required params
     # @return [Hash] Parameters for the API request
     #
     def build_slot_params(next_token, opts)
-      return { nextToken: next_token } if next_token
+      return { nextToken: next_token, appointmentId: opts[:appointmentId] } if next_token
 
       required_params = %i[appointmentTypeId startOnOrAfter startBefore appointmentId]
       missing_params = required_params - opts.keys
@@ -268,10 +280,14 @@ module Eps
 
       # Log for monitoring if some components match but not all (helps identify format issues)
       if zip_matches && !street_matches
-        Rails.logger.warn("Provider address partial match - Street: #{street_matches}, " \
-                          "Zip: #{zip_matches}. " \
-                          "Provider: '#{provider_address}', " \
-                          "Referral: '#{address[:street1]}, #{address[:zip]}'")
+        warn_data = {
+          street_matches:,
+          zip_matches:,
+          provider_address:,
+          referral_address: "#{address[:street1]}, #{address[:zip]}",
+          user_uuid: @current_user&.uuid
+        }
+        Rails.logger.warn("#{CC_APPOINTMENTS}: Provider address partial match", warn_data)
       end
 
       street_matches && zip_matches

@@ -107,6 +107,11 @@ features:
       Primarily used for coordinated maintenance windows or temporary system suspensions,
       allowing the team to manage API exposure dynamically without requiring a redeploy.
     enable_in_development: true
+  ask_va_api_patsr_separation:
+    actor_type: user
+    description: >
+      Use new CRM environments for Ask VA API
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -118,17 +123,9 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
-  benefits_documents_filter_duplicates:
-    actor_type: user
-    description: When enabled, attempt to catch duplicate documents before sending them to LH
-    enable_in_development: false
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
-    enable_in_development: false
-  benefits_documents_validate_claimant:
-    actor_type: user
-    description: When enabled, validate that the given claimant can upload docs for the claim
     enable_in_development: false
   benefits_require_gateway_origin:
     actor_type: user
@@ -145,15 +142,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_request_duration_monitoring:
-    actor_type: user
-    description: Enables logging of 10-10CG request durations to StatsD
-  caregiver_use_rails_logging_over_sentry:
-    actor_type: user
-    description: Use Rails for logging instead of Sentry
-  caregiver_mulesoft_config_v2:
-    actor_type: user
-    description: Use refactored mulesoft configuration
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
@@ -176,9 +164,6 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_enrollment_status_filter_get:
-    actor_type: user
-    description: Filters out query params from GET requests for the enrollment_status endpoint.
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -287,6 +272,15 @@ features:
   champva_enable_llm_on_submit:
     actor_type: user
     description: Enables background LLM validation and logging on form submissions
+  champva_insights_datadog_job:
+    actor_type: user
+    description: Enables the job to publish insights to Datadog
+  champva_claims_llm_validation:
+    actor_type: user
+    description: Enables LLM validation of claims on form submissions
+  champva_foreign_address_fix:
+    actor_type: user
+    description: Enables the fix for foreign address fields on form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -335,6 +329,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_vaec_cie_endpoints:
+    actor_type: user
+    description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
+    enable_in_development: false
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
@@ -608,22 +606,9 @@ features:
     actor_type: user
     description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
-  decision_review_notify_4142_failures:
-    actor_type: user
-    description: Enable sending an email if a 4142 submission is not successful in Lighthouse
-    enable_in_development: true
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_notification_form_callbacks:
-    actor_type: user
-    description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
-  decision_review_notification_evidence_callbacks:
-    actor_type: user
-    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for evidence
-  decision_review_notification_secondary_form_callbacks:
-    actor_type: user
-    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
   decision_review_form4142_use_2024_template:
     actor_type: user
     description: Enables the use of the 2024 template for form 4142 in decision review applications
@@ -772,10 +757,10 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
-  event_bus_gateway_emails_enabled:
+  digital_dispute_duplicate_prevention:
     actor_type: user
-    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
-    enable_in_development: true
+    description: Enables duplicate prevention for digital dispute submissions
+    enable_in_development: false
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1224,9 +1209,6 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
-  mhv_secure_messaging_migrate_to_api_gateway:
-    actor_type: user
-    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
@@ -1382,10 +1364,6 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
-  mhv_medications_to_va_gov_release:
-    actor_type: user
-    description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
-    enable_in_development: true
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
@@ -1416,10 +1394,6 @@ features:
   mhv_medications_display_refill_progress:
     actor_type: user
     description: Enables/disables refill progress related work
-    enable_in_development: true
-  mhv_medications_remove_landing_page:
-    actor_type: user
-    description: Enables/disables removal of landing page
     enable_in_development: true
   mhv_medications_show_ipe_content:
     actor_type: user
@@ -1481,10 +1455,16 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_income_and_assets_overflow_pdf_redesign:
+  ep120_decision_letter_notifications:
     actor_type: user
     description: >
-      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
+      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
+    enable_in_development: true
+  ep180_decision_letter_notifications:
+    actor_type: user
+    description: >
+      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
+    enable_in_development: true
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1826,10 +1806,6 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
-  va1010_forms_enrollment_system_service_enabled:
-    actor_type: user
-    description: Enables the VA1010Forms enrollment system service
-    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -1884,8 +1860,11 @@ features:
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
+  va_dependents_net_worth_and_pension:
+    actor_type: user
+    description: Allows us to toggle the net worth and pension questions on the 686C-674
   va_dependents_new_fields_for_pdf:
-    actor_typer: user
+    actor_type: user
     description: Allows us to toggle the new fields on the front end for 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
@@ -1952,6 +1931,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_use_new_vfs_notification_library:
+    actor_type: user
+    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2099,10 +2081,6 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
-  nod_callbacks_endpoint:
-    actor_type: user
-    description: Enables Decision Review endpoint to process VANotify notification callbacks
-    enable_in_development: true
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
@@ -2222,6 +2200,21 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
+  travel_pay_claims_management_decision_reason:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the front-end display of decision reason parsed from the decision letter document on the claim details page.
+      Enabled - The Travel Pay FE will show a decision reason section on the claims details page if it receives decision reason text from the API.
+      Disabled - The Travel Pay FE will hide the decision reason section on the claims details page.
+  travel_pay_claims_management_decision_reason_api:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the decision reason API functionality, including finding decision letter documents and extracting decision reasons from them.
+      The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
+      Enabled - Decision letter documents are parsed and the decision reason is extracted.
+      Disabled - Decision letter documents are not parsed for the decision reason.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
@@ -2366,3 +2359,9 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  calculator_constants_versioning:
+    actor_type: 
+    description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
+  gi_feedback_tool_vet_tec_education_benefit:
+    actor_type: user
+    description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool

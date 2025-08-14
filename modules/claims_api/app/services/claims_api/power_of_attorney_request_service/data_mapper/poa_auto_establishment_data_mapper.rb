@@ -19,10 +19,9 @@ module ClaimsApi
           '2122' => ClaimsApi::PowerOfAttorneyRequestService::DataMapper::OrganizationDataMapper
         }.freeze
 
-        def initialize(type:, data:, veteran:)
+        def initialize(type:, data:)
           @type = type
           @data = data
-          @veteran = veteran
         end
 
         def map_data
@@ -36,17 +35,6 @@ module ClaimsApi
           @mapped_data = mapper_class.map_data
 
           [@mapped_data, @type]
-        end
-
-        private
-
-        def validate_json_schema(form_number = self.class::FORM_NUMBER)
-          validator = ClaimsApi::FormSchemas.new(schema_version: 'v2')
-          validator.validate!(form_number, form_attributes)
-        end
-
-        def form_attributes
-          @json_form_data&.dig('data', 'attributes') || {}
         end
       end
     end

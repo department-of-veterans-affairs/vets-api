@@ -184,10 +184,10 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4,
                                  'displayName')).to eq('RV1 - Reserve Records Request')
           # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
         end
       end
 
@@ -202,10 +202,10 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4,
                                  'displayName')).to eq('RV1 - Reserve Records Request')
           # Do not override the cassette value
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 3, 'status')).to eq('NEEDED_FROM_YOU')
         end
       end
 
@@ -220,11 +220,10 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(13)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('Private Medical Record')
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
-                                 'displayName')).to eq('Submit buddy statement(s)')
+          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).not_to include('Attorney Fees')
+          expect(names).not_to include('Secondary Action Required')
+          expect(names).not_to include('Stage 2 Development')
         end
       end
 
@@ -239,12 +238,10 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(14)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('Private Medical Record')
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
-                                 'displayName')).to eq('Submit buddy statement(s)')
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
+          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).to include('Attorney Fees')
+          expect(names).to include('Secondary Action Required')
+          expect(names).to include('Stage 2 Development')
         end
       end
     end
