@@ -47,6 +47,11 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
+  accredited_representative_portal_form_526ez:
+    actor_type: user
+    description: >
+      When enabled, shows form 526ez in the accredited representative portal.
+    enable_in_development: true
   accredited_representative_portal_submissions:
     actor_type: user
     description: Enables the form submissions view in the accredited representative portal
@@ -461,10 +466,6 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_friendly_evidence_requests:
-    actor_type: user
-    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
-    enable_in_development: true
   cst_filter_ep_codes:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
@@ -639,18 +640,6 @@ features:
   dependents_claims_evidence_api_upload:
     actor_type: user
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
-  dependents_trigger_action_needed_email:
-    actor_type: user
-    description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
-  dependents_failure_callback_email:
-    actor_type: user
-    description: Enables the dependents action needed email callback to be used when an action needed email is triggered
-  dependents_submitted_email:
-    actor_type: cookie_id
-    description: Enables the dependents submitted email
-  dependents_separate_confirmation_email:
-    actor_type: cookie_id
-    description: Enables the dependents confirmation/received email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -1455,16 +1444,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  ep120_decision_letter_notifications:
-    actor_type: user
-    description: >
-      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
-    enable_in_development: true
-  ep180_decision_letter_notifications:
-    actor_type: user
-    description: >
-      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
-    enable_in_development: true
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
