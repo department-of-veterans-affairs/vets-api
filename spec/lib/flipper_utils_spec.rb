@@ -12,9 +12,9 @@ RSpec.describe FlipperUtils do
         # The below retruns "constant" 3 times and nil 2 times when 'puts ing defined?(Flipper)'
         @original_flipper = Object.const_get(:Flipper) if Object.const_defined?(:Flipper)
 
-        # rubocop:disable RSpec/RemoveConst
+        # rubocop:disable Rspec/RemoveConst
         Object.send(:remove_const, :Flipper)
-        # rubocop:enable RSpec/RemoveConst
+        # rubocop:enable Rspec/RemoveConst
       end
 
       after do
