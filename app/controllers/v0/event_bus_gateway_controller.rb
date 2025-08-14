@@ -10,40 +10,54 @@ module V0
     }.freeze
 
     def send_email
-      # Log incoming request
-      Rails.logger.info('EventBusGateway: send_email request received', 
-                       ep_code: send_email_params[:ep_code],
-                       template_id: send_email_params[:template_id],
-                       service_account: @service_account_access_token.user_attributes['client_id'])
+      log_request_received
 
       if decision_letter_enabled?
-        Rails.logger.info('EventBusGateway: decision_letter feature enabled, enqueuing email job', 
-                         ep_code: send_email_params[:ep_code],
-                         template_id: send_email_params[:template_id])
-        
-        # All EP codes (including EP120 and EP180) use the same LetterReadyEmailJob
-        # since the email content is the same for all decision letters thus far
-        email_job = EventBusGateway::LetterReadyEmailJob.perform_async(
-          participant_id,
-          send_email_params[:template_id],
-          # include ep_code for google analytics
-          send_email_params[:ep_code]
-        )
-
-        
-        Rails.logger.info('EventBusGateway: email job enqueued successfully', 
-                         ep_code: send_email_params[:ep_code],
-                         template_id: send_email_params[:template_id],
-                         email_job: email_job)
+        log_feature_enabled
+        email_job = enqueue_email_job
+        log_job_enqueued(email_job)
       else
-        Rails.logger.info('EventBusGateway: decision_letter feature disabled, skipping email job', 
-                         ep_code: send_email_params[:ep_code],
-                         template_id: send_email_params[:template_id])
+        log_feature_disabled
       end
+      
       head :ok
     end
 
     private
+
+    def log_request_received
+      Rails.logger.info('EventBusGateway: send_email request received',
+                        ep_code: send_email_params[:ep_code],
+                        template_id: send_email_params[:template_id],
+                        service_account: @service_account_access_token.user_attributes['client_id'])
+    end
+
+    def log_feature_enabled
+      Rails.logger.info('EventBusGateway: decision_letter feature enabled, enqueuing email job',
+                        ep_code: send_email_params[:ep_code],
+                        template_id: send_email_params[:template_id])
+    end
+
+    def log_feature_disabled
+      Rails.logger.info('EventBusGateway: decision_letter feature disabled, skipping email job',
+                        ep_code: send_email_params[:ep_code],
+                        template_id: send_email_params[:template_id])
+    end
+
+    def enqueue_email_job
+      EventBusGateway::LetterReadyEmailJob.perform_async(
+        participant_id,
+        send_email_params[:template_id],
+        send_email_params[:ep_code]
+      )
+    end
+
+    def log_job_enqueued(email_job)
+      Rails.logger.info('EventBusGateway: email job enqueued successfully',
+                        ep_code: send_email_params[:ep_code],
+                        template_id: send_email_params[:template_id],
+                        email_job:)
+    end
 
     def participant_id
       @participant_id ||= @service_account_access_token.user_attributes['participant_id']
