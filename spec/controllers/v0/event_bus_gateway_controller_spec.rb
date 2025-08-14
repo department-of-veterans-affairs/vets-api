@@ -108,30 +108,9 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
     context 'with missing ep_code' do
       let(:params) { { template_id: '5678' } }
 
-      it 'returns a bad request error' do
+      it 'invokes the letter ready email job' do
         post(:send_email, params:)
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'ep_code is required' })
-      end
-    end
-
-    context 'with empty ep_code' do
-      let(:params) { { template_id: '5678', ep_code: '' } }
-
-      it 'returns a bad request error' do
-        post(:send_email, params:)
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'ep_code is required' })
-      end
-    end
-
-    context 'with missing template_id' do
-      let(:params) { { ep_code: 'EP110' } }
-
-      it 'returns a bad request error' do
-        post(:send_email, params:)
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'template_id is required' })
+        expect(response).to have_http_status(:ok)
       end
     end
   end

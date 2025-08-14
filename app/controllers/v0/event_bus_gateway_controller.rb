@@ -10,22 +10,39 @@ module V0
     }.freeze
 
     def send_email
-      # Validate required parameters
-      return render json: { error: 'ep_code is required' }, status: :bad_request if send_email_params[:ep_code].blank?
-
-      if send_email_params[:template_id].blank?
-        return render json: { error: 'template_id is required' }, status: :bad_request
-      end
+      # Log incoming request
+      Rails.logger.info('EventBusGateway: send_email request received', 
+                       participant_id: participant_id,
+                       ep_code: send_email_params[:ep_code],
+                       template_id: send_email_params[:template_id],
+                       service_account: @service_account_access_token.user_attributes['client_id'])
 
       if decision_letter_enabled?
+        Rails.logger.info('EventBusGateway: decision_letter feature enabled, enqueuing email job', 
+                         participant_id: participant_id,
+                         ep_code: send_email_params[:ep_code],
+                         template_id: send_email_params[:template_id])
+        
         # All EP codes (including EP120 and EP180) use the same LetterReadyEmailJob
         # since the email content is the same for all decision letters thus far
-        EventBusGateway::LetterReadyEmailJob.perform_async(
+        email_job = EventBusGateway::LetterReadyEmailJob.perform_async(
           participant_id,
           send_email_params[:template_id],
           # include ep_code for google analytics
           send_email_params[:ep_code]
         )
+
+        
+        Rails.logger.info('EventBusGateway: email job enqueued successfully', 
+                         participant_id: participant_id,
+                         ep_code: send_email_params[:ep_code],
+                         template_id: send_email_params[:template_id],
+                         email_job: email_job)
+      else
+        Rails.logger.info('EventBusGateway: decision_letter feature disabled, skipping email job', 
+                         participant_id: participant_id,
+                         ep_code: send_email_params[:ep_code],
+                         template_id: send_email_params[:template_id])
       end
       head :ok
     end
@@ -43,8 +60,6 @@ module V0
     def decision_letter_enabled?
       ep_code = send_email_params[:ep_code]
 
-      return false unless valid_ep_code_format?(ep_code)
-
       # Check if this EP code requires a feature flag
       if FEATURE_FLAGGED_EP_CODES.key?(ep_code)
         Flipper.enabled?(FEATURE_FLAGGED_EP_CODES[ep_code])
@@ -52,15 +67,6 @@ module V0
         # All other EP codes (EP010, EP110, EP020, etc.) are always enabled
         true
       end
-    end
-
-    def valid_ep_code_format?(ep_code)
-      # Validate ep_code is present and a string
-      unless ep_code.is_a?(String) && ep_code.present?
-        Rails.logger.error('Invalid ep_code format', ep_code:, participant_id:)
-        return false
-      end
-      true
     end
   end
 end
