@@ -26,10 +26,10 @@ module DisabilityCompensation
       # Logs SavedClaim ActiveRecord save errors
       #
       # We use these logs to debug unforseen validation issues when
-      # SavedClaim::DisabilityCompensation::Form526AllClaim saves to the database. Includes in_progress_form_id, since we
-      # can use this to inspect Veteran's form selections in the production console, even if claim itself failed to save
+      # SavedClaim::DisabilityCompensation::Form526AllClaim saves to the database. Includes in_progress_form_id, since
+      # we can use it to inspect Veteran's form choices in the production console, even if claim itself failed to save
       #
-      # @param saved_claim_errors [Array<ActiveModel::Error>] array of error objects from a SavedClaim that failed to save
+      # @param saved_claim_errors [Array<ActiveModel::Error>] array of error objects from SavedClaim that failed to save
       # @param in_progress_form_id [Integer] ID of the InProgressForm for this claim
       # @param user_uuid [uuid] uuid of the user attempting to save the claim
       def track_saved_claim_save_error(errors, in_progress_form_id, user_uuid)
