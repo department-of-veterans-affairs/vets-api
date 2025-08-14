@@ -6,9 +6,7 @@ require 'lighthouse/veteran_verification/service'
 require 'lighthouse/service_exception'
 
 RSpec.describe VeteranVerification::Service do
-  before(:all) do
-    @service = VeteranVerification::Service.new
-  end
+  let(:service) { VeteranVerification::Service.new }
 
   describe 'making requests' do
     context 'valid requests' do
