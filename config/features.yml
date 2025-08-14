@@ -649,6 +649,9 @@ features:
   dependents_claims_evidence_api_upload:
     actor_type: user
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
+  dependents_bypass_schema_validation:
+    actor_type: user
+    description: Bypasses vets_json_schema validation for dependency claims 
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
