@@ -8,10 +8,11 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   let(:current_user) do
     create(:evss_user)
   end
-  let(:allowed_doctypes) { %w[184] }
-  let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
 
   describe '#get_letters' do
+    let(:allowed_doctypes) { %w[184] }
+    let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
+
     it 'retrieves letters in descending order according to received_at date' do
       letters = downloader.get_letters
 
@@ -27,6 +28,9 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   end
 
   describe '#get_letter' do
+    let(:allowed_doctypes) { %w[184] }
+    let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
+
     it 'retrieves a single letter based on document id' do
       downloader.get_letter(doc_id) do |data, mime_type, _disposition, _filename|
         expect(data).not_to be_nil
