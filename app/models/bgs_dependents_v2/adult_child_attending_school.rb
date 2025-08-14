@@ -27,13 +27,14 @@ module BGSDependentsV2
     attribute :birth_date, String
     attribute :ever_married_ind, String
     attribute :dependent_income, String
-
+    attribute :is_parent, String
     validates :first, presence: true
     validates :last, presence: true
 
     def initialize(dependents_application) # rubocop:disable Lint/MissingSuper
       @source = dependents_application
       @ssn = @source['ssn']
+      @is_parent = @source['is_parent']
       @full_name = @source['full_name']
       @birth_date = @source['birth_date']
       @was_married = @source['was_married']
