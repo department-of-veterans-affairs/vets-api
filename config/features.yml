@@ -1445,16 +1445,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  ep120_decision_letter_notifications:
-    actor_type: user
-    description: >
-      When enabled, veterans with reopened pension claims (EP120) will receive decision letter email notifications
-    enable_in_development: true
-  ep180_decision_letter_notifications:
-    actor_type: user
-    description: >
-      When enabled, veterans with initial pension claims (EP180) will receive decision letter email notifications
-    enable_in_development: true
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
