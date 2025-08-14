@@ -29,15 +29,14 @@ module AccreditedRepresentativePortal
         # with this overworking problem.
         #
         def define_claim_type(form_id:, proper_form_id:, business_line:,
-                              stamping_form_class:, feature_flag:,
-                              status_warning_threshold: pending_submission_warning_threshold)
+                              stamping_form_class:, feature_flag:)
           Class.new(self) do
             const_set(:FORM_ID, form_id)
             const_set(:PROPER_FORM_ID, proper_form_id)
             const_set(:BUSINESS_LINE, business_line)
             const_set(:STAMPING_FORM_CLASS, stamping_form_class)
             const_set(:FEATURE_FLAG, feature_flag)
-            const_set(:STATUS_WARNING_THRESHOLD, status_warning_threshold)
+            const_set(:STATUS_WARNING_THRESHOLD, DEFAULT_STATUS_WARNING_THRESHOLD)
 
             validates! :form_id, inclusion: [form_id]
             after_initialize { self.form_id = form_id }
