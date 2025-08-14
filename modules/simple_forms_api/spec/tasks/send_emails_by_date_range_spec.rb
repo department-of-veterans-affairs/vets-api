@@ -26,7 +26,6 @@ RSpec.describe 'simple_forms_api:send_emails_by_date_range', type: :task do
     Rake::Task['simple_forms_api:send_emails_by_date_range'].invoke(*args)
   end
 
-
   context 'when valid dates are provided' do
     let(:start_date) { '1 January 2025' }
     let(:end_date) { '3 January 2025' }
