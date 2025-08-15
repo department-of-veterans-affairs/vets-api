@@ -448,10 +448,6 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      # before do
-      #   allow(Flipper).to receive(:enabled?).and_call_original
-      # end
-
       it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
          'order (if applicable)',
          run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
