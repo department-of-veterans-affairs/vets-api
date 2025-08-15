@@ -152,6 +152,8 @@ check_in:
     service_name: BTSSS-API
     subscription_key: <%= ENV['check_in__travel_reimbursement_api_v2__subscription_key'] %>
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
+    travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
+    travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
 chip:
@@ -793,6 +795,7 @@ maintenance:
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
     appeals: P9S4RFU
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
+    askva: <%= ENV['maintenance__services__askva'] %>
     avs: <%= ENV['maintenance__services__avs'] %>
     bgs: P5Q2OCZ
     carma: <%= ENV['maintenance__services__carma'] %>
@@ -1389,8 +1392,12 @@ vanotify:
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
       email:
+        confirmation:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__confirmation__template_id'] %>
         error:
           template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__error__template_id'] %>
+        received:
+          template_id: <%= ENV['vanotify__services__accredited_representative_portal__email__received__template_id'] %>
     benefits_decision_review:
       api_key: <%= ENV['vanotify__services__benefits_decision_review__api_key'] %>
       template_id:
@@ -1441,6 +1448,9 @@ vanotify:
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
+        digital_dispute_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__digital_dispute_confirmation_email'] %>
+        digital_dispute_failure_email: <%= ENV['vanotify__services__dmc__template_id__digital_dispute_failure_email'] %>
+        digital_dispute_submission_email: <%= ENV['vanotify__services__dmc__template_id__digital_dispute_submission_email'] %>
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
         fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
         fsr_step_1_submission_in_progress_email: <%= ENV['vanotify__services__dmc__template_id__fsr_step_1_submission_in_progress_email'] %>
@@ -1624,7 +1634,6 @@ vba_documents:
   slack:
     api_key: <%= ENV['vba_documents__slack__api_key'] %>
     channel_id: <%= ENV['vba_documents__slack__channel_id'] %>
-    daily_notification_hour: 7
     default_alert_email: <%= ENV['vba_documents__slack__default_alert_email'] %>
     enabled: <%= ENV['vba_documents__slack__enabled'] %>
     in_flight_notification_hung_time_in_days: 14
@@ -1639,8 +1648,6 @@ vba_documents:
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: <%= ENV['vbms__ca_cert'] %>
   cert: <%= ENV['vbms__cert'] %>
@@ -1700,6 +1707,7 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
+  api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
   auth_endpoint: <%= ENV['veteran_readiness_and_employment__auth_endpoint'] %>
   base_url: <%= ENV['veteran_readiness_and_employment__base_url'] %>
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
@@ -1765,6 +1773,13 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  email:
+    confirmation_lighthouse:
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
+    confirmation_vbms:
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
+    error:
+      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

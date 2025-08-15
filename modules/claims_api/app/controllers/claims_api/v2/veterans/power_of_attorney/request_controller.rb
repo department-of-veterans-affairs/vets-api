@@ -38,7 +38,7 @@ module ClaimsApi
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-            poa_list, view: :index_or_show, root: :data
+            poa_list, view: :shared_response, root: :data
           ), status: :ok
         end
 
@@ -59,20 +59,20 @@ module ClaimsApi
           res = service.get_poa_request
           res['id'] = poa_request.id
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
                                                                                               root: :data),
                  status: :ok
         end
 
         # rubocop:disable Metrics/MethodLength
         def decide
+          validate_json_schema('DECIDE')
           lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
           request = find_poa_request!(lighthouse_id)
           proc_id = request.proc_id
 
-          validate_decide_params!(proc_id:, decision:)
           validate_decide_representative_params!(request.poa_code, representative_id)
 
           vet_icn = request.veteran_icn
@@ -99,11 +99,11 @@ module ClaimsApi
           # Two different responses needed, if declined no location URL is required
           if decision_response.nil?
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
-                                                                                           view: :index_or_show,
+                                                                                           view: :shared_response,
                                                                                            root: :data), status: :ok
           else
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-              get_poa_response, view: :index_or_show, root: :data
+              get_poa_response, view: :shared_response, root: :data
             ), status: :ok, location: url_for(
               controller: 'power_of_attorney/base', action: 'status', id: decision_response.id, veteranId: vet_icn
             )
@@ -167,7 +167,7 @@ module ClaimsApi
 
         def validate_decide_representative_params!(poa_code, representative_id)
           representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
-                                                                      poa_code, representative_id.to_s)
+                                                                      poa_code, representative_id)
           unless representative
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
               detail: "The accredited representative with registration number #{representative_id} does not match " \
@@ -296,20 +296,6 @@ module ClaimsApi
           if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s.upcase].blank?
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'The country provided is not valid.'
-            )
-          end
-        end
-
-        def validate_decide_params!(proc_id:, decision:)
-          if proc_id.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('procId',
-                                                             detail: 'procId is required')
-          end
-
-          unless decision.present? && %w[accepted declined].include?(decision)
-            raise ::Common::Exceptions::ParameterMissing.new(
-              'decision',
-              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
         end

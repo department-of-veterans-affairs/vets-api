@@ -63,10 +63,12 @@ module ClaimsEvidenceApi
     # @param doctype [Integer] the document type for the file; default to `document_type` of evidence
     #
     # @return [String] the file_uuid
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def upload_evidence(saved_claim_id, persistent_attachment_id = nil, file_path: nil, stamp_set: nil, form_id: nil,
                         doctype: nil)
-      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype: }
+      # track the initial values provided for this upload
+      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype:,
+                  content_source: }
       monitor.track_upload_begun(**context)
 
       evidence = claim = SavedClaim.find(saved_claim_id)
@@ -81,7 +83,9 @@ module ClaimsEvidenceApi
       init_tracking(saved_claim_id, persistent_attachment_id, form_id:)
       submission.saved_claim = claim
 
-      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype: }
+      # several values may have been updated, so reassign the tracking context
+      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype:,
+                  content_source: }
       monitor.track_upload_attempt(**context)
       perform_upload(file_path, evidence.created_at, doctype)
 
@@ -94,7 +98,7 @@ module ClaimsEvidenceApi
       attempt_failed(e)
       raise e
     end
-    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     private
 

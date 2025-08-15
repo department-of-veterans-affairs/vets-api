@@ -31,7 +31,7 @@ module ClaimsEvidenceApi
     # Monitor to be used within ActiveRecord models
     class Record < Monitor
       # StatsD metric
-      METRIC = 'module.claims_evidence_api.service.record'
+      METRIC = 'module.claims_evidence_api.record'
 
       attr_reader :record
 
@@ -121,10 +121,13 @@ module ClaimsEvidenceApi
         msg = "upload #{stage}"
         msg += " - #{message}" if message
 
+        tags = { action: stage.to_s }
+        tags[:content_source] = context[:content_source].to_s.downcase.gsub(/:+/, '_') if context[:content_source]
+
         call_location = caller_locations.second
-        msg = format_message(msg)
-        tags = format_tags({ action: stage.to_s })
         level = stage == :failure ? :error : :info
+        msg = format_message(msg)
+        tags = format_tags(tags)
 
         track_request(level, msg, METRIC, call_location:, message:, tags:, **context)
       end
