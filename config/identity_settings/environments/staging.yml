@@ -62,6 +62,7 @@ sign_in:
   vamobile_client_id:
     - vamobile
     - vamobile_test
+    - vamobile_test_dev
 
 ssoe_eauth_cookie:
   domain: .va.gov
