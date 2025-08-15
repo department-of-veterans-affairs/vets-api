@@ -286,6 +286,7 @@ jobs:
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
       pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
