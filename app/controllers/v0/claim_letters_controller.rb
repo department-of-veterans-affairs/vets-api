@@ -43,7 +43,8 @@ module V0
     def service
       ::Rails.logger.info('Choosing Claim Letters API Provider via cst_claim_letters_use_lighthouse_api_provider',
                           { message_type: 'cst.api_provider',
-                            api_provider: @api_provider })
+                            api_provider: @api_provider,
+                            action: action_name })
       Datadog::Tracing.active_trace&.set_tag('api_provider', @api_provider)
       if @use_lighthouse
         LighthouseClaimLettersProvider.new(@current_user)
@@ -69,7 +70,8 @@ module V0
                             message_type: 'cst.api_provider.error',
                             error_type: error.class.to_s,
                             error_backtrace: error.backtrace&.first(3),
-                            api_provider: @api_provider
+                            api_provider: @api_provider,
+                            action: action_name
                           })
     end
   end
