@@ -260,6 +260,17 @@ jobs:
             fi
           done
 
+          # Added for testing
+          for LABEL in "${LABELS[@]}"; do
+            echo "Fetching $LABEL"
+            if [[ "$LABEL" == "require-backend-approval" ]]; then
+              echo "Label exists"
+              backend_approval_required=true
+              break
+            fi
+          done
+          #Remove after testing
+
           membership_state=$(gh api -X GET \
             "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" \
             --jq '.state' 2>/dev/null || echo "")
@@ -278,14 +289,14 @@ jobs:
                 backend_approval_required=true
               else
                 echo "Fetching Labels"
-                for LABEL in "${LABELS[@]}"; do
-                  echo "Fetching $LABEL"
-                  if [[ "$LABEL" == "require-backend-approval" ]]; then
-                    echo "Label exists"
-                    backend_approval_required=true
-                    break
-                  fi
-                done
+                # for LABEL in "${LABELS[@]}"; do
+                #   echo "Fetching $LABEL"
+                #   if [[ "$LABEL" == "require-backend-approval" ]]; then
+                #     echo "Label exists"
+                #     backend_approval_required=true
+                #     break
+                #   fi
+                # done
               fi
             fi
           fi
