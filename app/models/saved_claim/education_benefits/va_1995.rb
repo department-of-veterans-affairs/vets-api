@@ -14,11 +14,15 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
     'transferOfEntitlement' => 'Transfer of Entitlement Program (TOE)'
   }.freeze
 
-  def after_submit(_user)
+  def after_submit(user)
     return unless Flipper.enabled?(:form1995_confirmation_email)
 
     parsed_form_data = JSON.parse(form)
-    email = parsed_form_data['email']
+    # Use the user's profile email if available (logged in). Otherwise, use the form email.
+    # The email's more likely to be if the profile email is available. Users
+    # can fat finger their email on the form or it might not be their primary email.
+    # If they're not logged in, we have to use the form email
+    email = user&.email || parsed_form_data['email']
     return if email.blank?
 
     send_confirmation_email(parsed_form_data, email)
@@ -28,17 +32,13 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
 
   def send_confirmation_email(parsed_form_data, email)
     benefit_claimed = BENEFIT_TITLE_FOR_1995[parsed_form_data['benefit']] || ''
+    form_specific_params = { 'benefit' => benefit_claimed }
 
-    VANotify::EmailJob.perform_async(
-      email,
-      Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email,
-      {
-        'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-        'benefit' => benefit_claimed,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => education_benefits_claim.confirmation_number,
-        'regional_office_address' => regional_office_address
-      }
-    )
+    # this method is in the parent class
+    send_education_benefits_confirmation_email(email, parsed_form_data, form_specific_params)
+  end
+
+  def template_id
+    Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email
   end
 end
