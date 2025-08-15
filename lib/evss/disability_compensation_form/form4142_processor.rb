@@ -77,7 +77,7 @@ module EVSS
 
       # Flip this on to validate the schema of the form data
       def should_validate_schema?
-        Flipper.enabled?(:disability_526_form4142_validate_schema, @submission.user_account)
+        Flipper.enabled?(:disability_526_form4142_validate_schema)
       end
     end
   end
