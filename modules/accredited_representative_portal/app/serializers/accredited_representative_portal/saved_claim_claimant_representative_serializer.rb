@@ -38,7 +38,11 @@ module AccreditedRepresentativePortal
     end
 
     attribute :vbms_status do |object|
-      STATUSES[object.latest_submission_attempt&.aasm_state]
+      if object.pending_submission_attempt_stale?
+        'awaiting_receipt_warning'
+      else
+        STATUSES[object.latest_submission_attempt&.aasm_state]
+      end
     end
 
     attribute :vbms_received_date do |object|
