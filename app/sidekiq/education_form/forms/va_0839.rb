@@ -7,24 +7,5 @@ module EducationForm::Forms
       @applicant = education_benefits_claim.parsed_form
       super(app)
     end
-
-    def header_form_type
-      'V0839'
-    end
-
-    # Add form-specific helper methods here based on your JSON structure
-    # Examples:
-    # 
-    # def school_name
-    #   @applicant['schoolDetails']['schoolName']
-    # end
-    #
-    # def program_type
-    #   @applicant['programInformation']['programType']
-    # end
-    #
-    # def benefit_type
-    #   @applicant['benefitType']
-    # end
   end
 end
