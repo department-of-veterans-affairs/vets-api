@@ -732,7 +732,9 @@ module IvcChampva
       # @param [Integer] applicant_rounded_number number of main form attachments needed
       # @return [Array<String>] array of attachment_ids for all documents
       def build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
-        if form_id == 'vha_10_7959a' && parsed_form_data['claim_status'] == 'resubmission'
+        if Flipper.enabled?(:champva_resubmission_attachment_ids) &&
+           form_id == 'vha_10_7959a' &&
+           parsed_form_data['claim_status'] == 'resubmission'
           selector = parsed_form_data['pdi_or_claim_number']
 
           if selector == 'Claim control number'
