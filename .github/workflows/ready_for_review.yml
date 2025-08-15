@@ -257,6 +257,11 @@ jobs:
             fi
           done
 
+          if gh api -X GET "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+            echo "PR author '$PR_AUTHOR' is a backend-review-group member."
+            backend_approval_required=true
+          end
+
           if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Teams were not found."
             echo "PR author '$PR_AUTHOR' is not a member of exempt team."
@@ -264,9 +269,6 @@ jobs:
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
               echo "Backend review group requested"
-              backend_approval_required=true
-            elif gh api -X GET "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
-              echo "PR author '$PR_AUTHOR' is a backend-review-group member."
               backend_approval_required=true
             else
               echo "PR author '$PR_AUTHOR' is not a backend-review-group member."
@@ -276,6 +278,7 @@ jobs:
                 if [[ "$LABEL" == "require-backend-approval" ]]; then
                   echo "Label exists"
                   backend_approval_required=true
+                  break
                 fi
               done
             fi
