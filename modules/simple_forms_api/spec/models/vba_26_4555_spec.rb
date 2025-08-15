@@ -134,7 +134,7 @@ RSpec.describe SimpleFormsApi::VBA264555 do
 
     it 'includes country in development environment' do
       allow(Rails.env).to receive(:eql?).with('development').and_return(true)
-      
+
       payload = form.send(:living_situation_payload)
       expect(payload[:careFacilityAddress][:country]).to eq('USA')
     end
@@ -142,9 +142,9 @@ RSpec.describe SimpleFormsApi::VBA264555 do
     it 'excludes country in production environment' do
       allow(Rails.env).to receive(:eql?).with('development').and_return(false)
       allow(Settings).to receive(:vsp_environment).and_return('production')
-      
+
       payload = form.send(:living_situation_payload)
       expect(payload[:careFacilityAddress]).not_to have_key(:country)
     end
-  end 
+  end
 end
