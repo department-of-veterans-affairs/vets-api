@@ -12,7 +12,7 @@ module ClaimLetters
       def self.filter_boa(doc)
         # Return true (don't filter) if received_at is nil
         return true if doc[:received_at].nil?
-byebug
+
         # Filter out BOA documents (type 27) received less than 2 days ago
         return false if doc[:doc_type] == '27' && Time.zone.today - doc[:received_at].to_date < 2
 
