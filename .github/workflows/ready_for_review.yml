@@ -267,7 +267,7 @@ jobs:
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             backend_approval_required=true
           else
-            PR_LABELS="${pr_labels}"
+
             if [[ "$exempt_team" == "false" ]]; then
               echo "Excemption Teams were not found."
               echo "PR author '$PR_AUTHOR' is not a member of exempt team."
@@ -277,6 +277,7 @@ jobs:
                 echo "Backend review group requested"
                 backend_approval_required=true
               else
+                PR_LABELS="${pr_labels}"
                 echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
                   echo "Fetching label: $LABEL"
                   if [[ "$LABEL" == "require-backend-approval" ]]; then
@@ -337,7 +338,7 @@ jobs:
             echo "PR author '$PR_AUTHOR' is NOT a backend-review-group member."
           fi
 
-          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
+          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
             [ .[]
             | select(.state == "APPROVED")
             ]
