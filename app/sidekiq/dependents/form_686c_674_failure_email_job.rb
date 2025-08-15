@@ -53,14 +53,6 @@ class Dependents::Form686c674FailureEmailJob
     }
   end
 
-  def additional_context(msg = '')
-    if msg.present?
-      @monitor.default_payload.merge({ message: msg })
-    else
-      @monitor.default_payload
-    end
-  end
-
   def init_monitor(saved_claim_id)
     @monitor ||= Dependents::Monitor.new(saved_claim_id)
   end
