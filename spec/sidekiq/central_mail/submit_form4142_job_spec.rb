@@ -11,9 +11,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     # Make Job use old CentralMail route for all tests
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_form4142_supplemental).and_return(false)
     # By default, features are enabled in test environments and disabled by default in other environments
-    # This is to ensure that the 2024 4142 template and schema validation is
+    # This is to ensure that the 2024 4142 template is
     # not used in tests unless explicitly enabled
-    allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_use_2024_version).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
   end
 
