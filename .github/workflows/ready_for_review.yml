@@ -203,7 +203,7 @@ jobs:
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
           echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
-          echo "Pull request Author: ${{ env.pr_author }}
+          echo "Pull request Author: ${{ env.pr_author }}"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -222,8 +222,8 @@ jobs:
               backend_approval_required=false
               break
             else
-              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
-                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
+              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/${{ env.pr_author }}" >/dev/null 2>&1; then
+                echo "PR author '${{ env.pr_author }}' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
                 break
