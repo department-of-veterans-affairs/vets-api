@@ -21,6 +21,9 @@ module ClaimsApi
         # Validate service information
         validate_service_information!
 
+        # Validate veteran information
+        validate_veteran!
+
         # Return collected errors
         @errors
 
@@ -260,6 +263,302 @@ module ClaimsApi
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
+      end
+
+      # FES Val Section 5: veteran validations
+      def validate_veteran!
+        veteran_info = form_attributes['veteran']
+        return if veteran_info.blank?
+
+        # FES Val Section 5.a: homelessness validations
+        validate_veteran_homelessness!
+
+        # FES Val Section 5.b: currentMailingAddress validations
+        validate_current_mailing_address!
+
+        # FES Val Section 5.c: changeOfAddress validations
+        validate_change_of_address!
+      end
+
+      # From V2 disability_compensation_validation.rb:432-512
+      # FES Val Section 5.a: homelessness validation rules
+      def validate_veteran_homelessness!
+        return if form_attributes&.dig('veteran', 'homelessness').nil?
+
+        homelessness = form_attributes.dig('veteran', 'homelessness')
+        handle_empty_other_description!(homelessness)
+
+        if too_many_homelessness_attributes_provided?(homelessness)
+          collect_error(
+            source: '/veteran/homelessness/',
+            title: 'Invalid homelessness data',
+            detail: "Must define only one of 'currentlyHomeless' or 'homelessnessRisk'"
+          )
+        end
+
+        if unnecessary_homelessness_point_of_contact_provided?(homelessness)
+          collect_error(
+            source: '/veteran/homelessness/',
+            title: 'Invalid point of contact',
+            detail: "If 'pointOfContact' is defined, then one of 'currentlyHomeless' or 'homelessnessRisk' is required"
+          )
+        end
+
+        if missing_point_of_contact?(homelessness)
+          collect_error(
+            source: '/veteran/homelessness/',
+            title: 'Missing point of contact',
+            detail: "If one of 'currentlyHomeless' or 'homelessnessRisk' is defined, then 'pointOfContact' is required"
+          )
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:224-250
+      # FES Val Section 5.b: currentMailingAddress validations
+      def validate_current_mailing_address!
+        mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+        return if mailing_address.blank?
+
+        # FES Val Section 5.b.i: JSON must contain the currentMailingAddress element
+        # Handled by JSON schema
+
+        # FES Val Section 5.b.ii: city, state and zipCode are required if type=DOMESTIC
+        if mailing_address['type'] == 'DOMESTIC'
+          validate_domestic_address_fields!(mailing_address, 'currentMailingAddress')
+        end
+
+        # FES Val Section 5.b.iii: city and country are required if type=INTERNATIONAL
+        if mailing_address['type'] == 'INTERNATIONAL'
+          validate_international_address_fields!(mailing_address, 'currentMailingAddress')
+        end
+
+        # FES Val Section 5.b.iv: MilitaryStateCode, militaryPostOfficeTypeCode and zipFirstFive if type=MILITARY
+        if mailing_address['type'] == 'MILITARY'
+          validate_military_address_fields!(mailing_address, 'currentMailingAddress')
+        end
+
+        # FES Val Section 5.b.vi: country must be in the list provided by the referenceDataService
+        validate_address_country!(mailing_address, 'currentMailingAddress')
+      end
+
+      # From V2 disability_compensation_validation.rb:55-196
+      # FES Val Section 5.c: changeOfAddress validations
+      def validate_change_of_address!
+        change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+        return if change_of_address.blank?
+
+        validate_change_of_address_dates!(change_of_address)
+        validate_change_of_address_fields!(change_of_address)
+      end
+
+      def validate_change_of_address_dates!(change_of_address)
+        # FES Val Section 5.c.i: endingDate and beginningDate required if addressChangeType is TEMPORARY
+        if change_of_address['addressChangeType'] == 'TEMPORARY'
+          if change_of_address['beginningDate'].blank?
+            collect_error(
+              source: '/veteran/changeOfAddress/beginningDate',
+              title: 'Missing required field',
+              detail: 'beginningDate is required for temporary address'
+            )
+          end
+
+          if change_of_address['endingDate'].blank?
+            collect_error(
+              source: '/veteran/changeOfAddress/endingDate',
+              title: 'Missing required field',
+              detail: 'endingDate is required for temporary address'
+            )
+          end
+
+          # FES Val Section 5.c.iii: beginningDate must be in the future if addressChangeType is TEMPORARY
+          if change_of_address['beginningDate'].present?
+            begin_date = parse_date_safely(change_of_address['beginningDate'])
+            if begin_date && begin_date <= Date.current
+              collect_error(
+                source: '/veteran/changeOfAddress/beginningDate',
+                title: 'Invalid date',
+                detail: 'beginningDate cannot be in the past for temporary address'
+              )
+            end
+          end
+
+          # FES Val Section 5.c.iv: beginningDate and endingDate must be in chronological order
+          if change_of_address['beginningDate'].present? && change_of_address['endingDate'].present?
+            begin_date = parse_date_safely(change_of_address['beginningDate'])
+            end_date = parse_date_safely(change_of_address['endingDate'])
+            if begin_date && end_date && begin_date >= end_date
+              collect_error(
+                source: '/veteran/changeOfAddress/beginningDate',
+                title: 'Invalid date range',
+                detail: 'beginningDate must be before endingDate'
+              )
+            end
+          end
+        end
+
+        # FES Val Section 5.c.ii: endingDate must be null if addressChangeType is PERMANENT
+        if change_of_address['addressChangeType'] == 'PERMANENT' && change_of_address['endingDate'].present?
+          collect_error(
+            source: '/veteran/changeOfAddress/endingDate',
+            title: 'Invalid field',
+            detail: 'endingDate cannot be provided for permanent address'
+          )
+        end
+      end
+
+      def validate_change_of_address_fields!(change_of_address)
+        # FES Val Section 5.c.v-viii: Address field validations based on type
+        case change_of_address['type']
+        when 'DOMESTIC'
+          validate_domestic_address_fields!(change_of_address, 'changeOfAddress')
+        when 'INTERNATIONAL'
+          validate_international_address_fields!(change_of_address, 'changeOfAddress')
+        when 'MILITARY'
+          validate_military_address_fields!(change_of_address, 'changeOfAddress')
+        end
+
+        # FES Val Section 5.c.x: country must be in the list provided by the referenceDataService
+        validate_address_country!(change_of_address, 'changeOfAddress')
+      end
+
+      # Helper methods for address validation
+      def validate_domestic_address_fields!(address, address_type)
+        if address['city'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/city",
+            title: 'Missing required field',
+            detail: 'City is required for domestic address'
+          )
+        end
+
+        if address['state'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/state",
+            title: 'Missing required field',
+            detail: 'State is required for domestic address'
+          )
+        end
+
+        if address['zipFirstFive'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/zipFirstFive",
+            title: 'Missing required field',
+            detail: 'ZipFirstFive is required for domestic address'
+          )
+        end
+      end
+
+      def validate_international_address_fields!(address, address_type)
+        if address['city'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/city",
+            title: 'Missing required field',
+            detail: 'City is required for international address'
+          )
+        end
+
+        if address['country'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/country",
+            title: 'Missing required field',
+            detail: 'Country is required for international address'
+          )
+        end
+
+        # FES Val Section 5.b.v: internationalPostalCode is required if type=INTERNATIONAL
+        if address['internationalPostalCode'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/internationalPostalCode",
+            title: 'Missing required field',
+            detail: 'InternationalPostalCode is required for international address'
+          )
+        end
+      end
+
+      def validate_military_address_fields!(address, address_type)
+        if address['militaryPostOfficeTypeCode'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/militaryPostOfficeTypeCode",
+            title: 'Missing required field',
+            detail: 'MilitaryPostOfficeTypeCode is required for military address'
+          )
+        end
+
+        if address['militaryStateCode'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/militaryStateCode",
+            title: 'Missing required field',
+            detail: 'MilitaryStateCode is required for military address'
+          )
+        end
+
+        if address['zipFirstFive'].blank?
+          collect_error(
+            source: "/veteran/#{address_type}/zipFirstFive",
+            title: 'Missing required field',
+            detail: 'ZipFirstFive is required for military address'
+          )
+        end
+      end
+
+      def validate_address_country!(address, address_type)
+        return if address['country'].blank?
+        return if valid_countries.include?(address['country'])
+
+        collect_error(
+          source: "/veteran/#{address_type}/country",
+          title: 'Invalid country',
+          detail: "Provided country is not valid: #{address['country']}"
+        )
+      end
+
+      # Helper methods for homelessness validation
+      def handle_empty_other_description!(homelessness)
+        currently_homeless = homelessness&.dig('currentlyHomeless')
+        homelessness_risk = homelessness&.dig('homelessnessRisk')
+
+        # FES Val Section 5.a.i: When "OTHER" is selected for Living Situation, a value needs to be specified
+        if currently_homeless.present?
+          homeless_situation = currently_homeless['homelessSituationOptions']
+          other_description = currently_homeless['otherDescription']
+          if homeless_situation == 'OTHER' && other_description.blank?
+            collect_error(
+              source: '/veteran/homelessness/currentlyHomeless/otherDescription',
+              title: 'Missing required field',
+              detail: 'otherDescription is required when homelessSituationOptions is OTHER'
+            )
+          end
+        elsif homelessness_risk.present?
+          living_situation = homelessness_risk['livingSituationOptions']
+          other_description = homelessness_risk['otherDescription']
+          if living_situation == 'OTHER' && other_description.blank?
+            collect_error(
+              source: '/veteran/homelessness/homelessnessRisk/otherDescription',
+              title: 'Missing required field',
+              detail: 'otherDescription is required when livingSituationOptions is OTHER'
+            )
+          end
+        end
+      end
+
+      def too_many_homelessness_attributes_provided?(homelessness)
+        currently_homeless = homelessness&.dig('currentlyHomeless')
+        homelessness_risk = homelessness&.dig('homelessnessRisk')
+        currently_homeless.present? && homelessness_risk.present?
+      end
+
+      def unnecessary_homelessness_point_of_contact_provided?(homelessness)
+        currently_homeless = homelessness&.dig('currentlyHomeless')
+        homelessness_risk = homelessness&.dig('homelessnessRisk')
+        point_of_contact = homelessness&.dig('pointOfContact')
+        currently_homeless.blank? && homelessness_risk.blank? && point_of_contact.present?
+      end
+
+      def missing_point_of_contact?(homelessness)
+        currently_homeless = homelessness&.dig('currentlyHomeless')
+        homelessness_risk = homelessness&.dig('homelessnessRisk')
+        point_of_contact = homelessness&.dig('pointOfContact')
+        point_of_contact.blank? && (currently_homeless.present? || homelessness_risk.present?)
       end
 
       # Utility methods grouped at the bottom

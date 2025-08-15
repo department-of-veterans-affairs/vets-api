@@ -200,5 +200,407 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
     end
+
+    # FES Val Section 5: veteran validations
+    context 'veteran validations' do
+      # FES Val Section 5.a: homelessness validations
+      context 'homelessness validation' do
+        # FES Val Section 5.a.i: otherLivingSituation - When "OTHER" is selected, value needed
+        context 'when currentlyHomeless has OTHER without description' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'homelessness' => {
+                  'currentlyHomeless' => {
+                    'homelessSituationOptions' => 'OTHER',
+                    'otherDescription' => nil
+                  },
+                  'pointOfContact' => 'John Doe'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/homelessness/currentlyHomeless/otherDescription')
+            expect(errors.first[:detail]).to eq('otherDescription is required when homelessSituationOptions is OTHER')
+          end
+        end
+
+        # FES Val Section 5.a.ii: currentlyHomeless or homelessnessRisk - only one allowed
+        context 'when both currentlyHomeless and homelessnessRisk are provided' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'homelessness' => {
+                  'currentlyHomeless' => { 'homelessSituationOptions' => 'FLEEING' },
+                  'homelessnessRisk' => { 'livingSituationOptions' => 'SHELTER' },
+                  'pointOfContact' => 'John Doe'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/homelessness/')
+            expect(errors.first[:detail]).to include(
+              "Must define only one of 'currentlyHomeless' or 'homelessnessRisk'"
+            )
+          end
+        end
+
+        # FES Val Section 5.a.iii: pointOfContact must be null if no homelessness info
+        context 'when pointOfContact provided without homelessness attributes' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'homelessness' => {
+                  'pointOfContact' => 'John Doe'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/homelessness/')
+            expect(errors.first[:detail]).to include("If 'pointOfContact' is defined")
+          end
+        end
+
+        # FES Val Section 5.a.iv: pointOfContact required if homeless info provided
+        context 'when currentlyHomeless provided without pointOfContact' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'homelessness' => {
+                  'currentlyHomeless' => { 'homelessSituationOptions' => 'FLEEING' }
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/homelessness/')
+            expect(errors.first[:detail]).to include("'pointOfContact' is required")
+          end
+        end
+      end
+
+      # FES Val Section 5.b: currentMailingAddress validations
+      context 'currentMailingAddress validation' do
+        # FES Val Section 5.b.ii: city, state and zipCode required for DOMESTIC
+        context 'when DOMESTIC address missing city' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'DOMESTIC',
+                  'state' => 'CA',
+                  'zipFirstFive' => '90210'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/city')
+            expect(errors.first[:detail]).to eq('City is required for domestic address')
+          end
+        end
+
+        context 'when DOMESTIC address missing state' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'DOMESTIC',
+                  'city' => 'Los Angeles',
+                  'zipFirstFive' => '90210'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/state')
+            expect(errors.first[:detail]).to eq('State is required for domestic address')
+          end
+        end
+
+        # FES Val Section 5.b.iii: city and country required for INTERNATIONAL
+        context 'when INTERNATIONAL address missing country' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/country')
+            expect(errors.first[:detail]).to eq('Country is required for international address')
+          end
+        end
+
+        # FES Val Section 5.b.v: internationalPostalCode required for INTERNATIONAL
+        context 'when INTERNATIONAL address missing postal code' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'country' => 'GBR'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/internationalPostalCode')
+            expect(errors.first[:detail]).to eq('InternationalPostalCode is required for international address')
+          end
+        end
+
+        # FES Val Section 5.b.iv: Military address field requirements
+        context 'when MILITARY address missing militaryPostOfficeTypeCode' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'MILITARY',
+                  'militaryStateCode' => 'AA',
+                  'zipFirstFive' => '34004'
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/militaryPostOfficeTypeCode')
+            expect(errors.first[:detail]).to eq('MilitaryPostOfficeTypeCode is required for military address')
+          end
+        end
+
+        # FES Val Section 5.b.vi: country must be valid
+        context 'when country is invalid' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'country' => 'INVALID_COUNTRY',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/country')
+            expect(errors.first[:detail]).to eq('Provided country is not valid: INVALID_COUNTRY')
+          end
+        end
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      context 'changeOfAddress validation' do
+        # FES Val Section 5.c.i: TEMPORARY address requires dates
+        context 'when TEMPORARY address missing beginningDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'TEMPORARY',
+                  'type' => 'DOMESTIC',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'endingDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? { |e| e[:source] == '/veteran/changeOfAddress/beginningDate' }).to be true
+            matching_error = errors.find { |e| e[:source] == '/veteran/changeOfAddress/beginningDate' }
+            expect(matching_error[:detail]).to eq('beginningDate is required for temporary address')
+          end
+        end
+
+        # FES Val Section 5.c.ii: PERMANENT address cannot have endingDate
+        context 'when PERMANENT address has endingDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'PERMANENT',
+                  'type' => 'DOMESTIC',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'endingDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/changeOfAddress/endingDate')
+            expect(errors.first[:detail]).to eq('endingDate cannot be provided for permanent address')
+          end
+        end
+
+        # FES Val Section 5.c.iii: beginningDate must be in future for TEMPORARY
+        context 'when TEMPORARY address beginningDate is in past' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'TEMPORARY',
+                  'type' => 'DOMESTIC',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'beginningDate' => (Date.current - 1.day).to_s,
+                  'endingDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? do |e|
+              e[:detail] == 'beginningDate cannot be in the past for temporary address'
+            end).to be true
+          end
+        end
+
+        # FES Val Section 5.c.iv: dates must be chronological
+        context 'when beginningDate is after endingDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'TEMPORARY',
+                  'type' => 'DOMESTIC',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'beginningDate' => (Date.current + 60.days).to_s,
+                  'endingDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? { |e| e[:detail] == 'beginningDate must be before endingDate' }).to be true
+          end
+        end
+
+        # FES Val Section 5.c.v-viii: Address field requirements same as currentMailingAddress
+        context 'when changeOfAddress DOMESTIC missing required fields' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'PERMANENT',
+                  'type' => 'DOMESTIC',
+                  'city' => 'New York'
+                  # Missing state and zipFirstFive
+                }
+              }
+            )
+          end
+
+          it 'returns validation errors for missing fields' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.size).to be >= 2
+
+            error_sources = errors.map { |e| e[:source] }
+            expect(error_sources).to include('/veteran/changeOfAddress/state')
+            expect(error_sources).to include('/veteran/changeOfAddress/zipFirstFive')
+          end
+        end
+      end
+
+      # Testing error aggregation for veteran validations
+      context 'with multiple veteran validation errors' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteran' => {
+              'homelessness' => {
+                'currentlyHomeless' => { 'homelessSituationOptions' => 'FLEEING' }
+                # Missing pointOfContact
+              },
+              'currentMailingAddress' => {
+                'type' => 'DOMESTIC'
+                # Missing required fields
+              },
+              'changeOfAddress' => {
+                'addressChangeType' => 'PERMANENT',
+                'endingDate' => '2025-01-01' # Invalid for permanent
+              }
+            }
+          )
+        end
+
+        it 'collects all veteran validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to be >= 4 # At least 4 errors expected
+
+          error_sources = errors.map { |e| e[:source] }
+          expect(error_sources).to include('/veteran/homelessness/')
+          expect(error_sources).to include('/veteran/currentMailingAddress/city')
+          expect(error_sources).to include('/veteran/changeOfAddress/endingDate')
+        end
+      end
+    end
   end
 end
