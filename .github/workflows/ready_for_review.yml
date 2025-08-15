@@ -217,20 +217,23 @@ jobs:
               backend_approval_required=false
               break
             else
+              echo "Excemption Groups were not found."
               if gh api -X GET "orgs/${TEAM%%/*}/teams/${TEAM##*/}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
                 break
+              else
+                echo "PR author '$PR_AUTHOR' is a not member of an exempt team.
               fi
             fi
           done
 
           if [[ "$exempt_team" == "false" ]]; then
-            echo "Excemption Groups were not found"
+            echo "Fetching PR REQUESTED TEAMS"
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null || \
-                echo "$PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
+              echo "$PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
               backend_approval_required=true
             fi
           fi
@@ -265,6 +268,7 @@ jobs:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
+      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
@@ -315,6 +319,8 @@ jobs:
           if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "PR author '$PR_AUTHOR' is NOT a backend-review-group member."
           fi
 
           APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
