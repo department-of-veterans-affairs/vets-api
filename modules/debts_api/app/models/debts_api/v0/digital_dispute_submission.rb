@@ -89,7 +89,6 @@ module DebtsApi
             'template_id' => CONFIRMATION_TEMPLATE
           }
         )
-        StatsD.increment("#{STATS_KEY}.send_success_email.success")
       rescue
         StatsD.increment("#{STATS_KEY}.send_success_email.failure")
         nil
