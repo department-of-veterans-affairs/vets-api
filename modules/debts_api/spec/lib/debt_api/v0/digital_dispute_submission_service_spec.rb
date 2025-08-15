@@ -100,13 +100,12 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
       end
 
       it 'returns failure for oversized files' do
-        allow(pdf_file_one).to receive(:size).and_return(2.megabytes)
+        submission = build(:debts_api_digital_dispute_submission)
+        allow(submission.files.first.blob).to receive(:byte_size).and_return(2.megabytes)
 
-        service = described_class.new(user, [pdf_file_one])
-        result = service.call
+        submission.valid?
 
-        expect(result[:success]).to be false
-        expect(result[:errors][:base]).to include('An error occurred processing your submission') # wat?
+        expect(submission.errors[:files]).to include('File 1 is too large (maximum is 1MB)')
       end
 
       it 'returns multiple errors for multiple invalid files' do
@@ -117,7 +116,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
 
         expect(result[:success]).to be false
         expect(result[:errors][:base]).to include('Files File 2 must be a PDF')
-        expect(result[:errors][:base]).to include('Files File 2 must be a PDF') # wat?
       end
     end
 

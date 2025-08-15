@@ -94,6 +94,10 @@ module DebtsApi
 
         submission.files.attach(files) if files.present?
 
+        unless submission.valid?
+          raise ActiveRecord::RecordInvalid.new(submission)
+        end
+
         submission.save!
         submission
       end
