@@ -82,7 +82,7 @@ module EVSS
 
       # Flip this on to validate the schema of the form data
       # TODO if we ever use this to validate the schema, we should use a form_data key set in the frontend instead
-      # since this relies
+      # since it might rely on the user account which is not available here
       def should_validate_schema?
         Flipper.enabled?(:disability_526_form4142_validate_schema)
       end
