@@ -4,7 +4,6 @@ require 'claims_evidence_api/exceptions/service'
 require 'claims_evidence_api/exceptions/folder_identifier'
 
 module ClaimsEvidenceApi
-  # collection of module exceptions
   module Exceptions
     include ClaimsEvidenceApi::Exceptions::Service
     include ClaimsEvidenceApi::Exceptions::FolderIdentifier

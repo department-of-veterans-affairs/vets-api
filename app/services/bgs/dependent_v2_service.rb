@@ -59,7 +59,7 @@ module BGS
 
       { submit_form_job_id: }
     rescue PDFSubmissionError
-      submit_to_central_service(claim:)
+      submit_to_central_service(claim:, encrypted_vet_info:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
@@ -87,7 +87,7 @@ module BGS
     end
 
     def claims_evidence_uploader
-      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
+      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source: self.class.to_s)
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
@@ -173,14 +173,13 @@ module BGS
       end
     end
 
-    def submit_to_central_service(claim:)
+    def submit_to_central_service(claim:, encrypted_vet_info:)
       vet_info = JSON.parse(claim.form)['dependents_application']
-      vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
       user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
         claim.id,
-        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        encrypted_vet_info,
         KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
       )
     end
