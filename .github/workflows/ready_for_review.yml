@@ -7,7 +7,7 @@ on:
     types: [completed]
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  # cancel-in-progress: true
 permissions:
   id-token: write
   contents: read
