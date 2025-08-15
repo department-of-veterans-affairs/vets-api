@@ -17,6 +17,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   let(:claimant_expected) do
     { 'firstName' => '[Claimant First Name]', 'lastName' => '[Claimant Last Name]' }
   end
+  let(:dependent) do
+    OpenStruct.new(
+      first_name: 'Wally',
+      last_name: 'Morell',
+      middle_name: nil
+    )
+  end
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
@@ -205,6 +212,29 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
           expect(response).to have_http_status(:unprocessable_entity)
         end
+      end
+    end
+
+    context 'when the request is filed by a dependent' do
+      let(:dependent_icn) { '1013093331V548481' }
+      let(:poa_list_only_dependent_info) do
+        [
+          {
+            'claimant_icn' => nil
+          }, {
+            'claimant_icn' => dependent_icn
+          }
+        ]
+      end
+
+      it 'add the frst_name and last_name of the claimant to the appropriate records' do
+        allow(subject).to receive(:build_veteran_or_dependent_data).with(anything).and_return(dependent)
+
+        poa_list_with_dependent = subject.send(:add_dependent_data_to_poa_response, poa_list_only_dependent_info)
+        dependent_record = poa_list_with_dependent.find { |item| item['claimant_icn'] == dependent_icn }
+
+        expect(dependent_record['claimantFirstName']).to eq(dependent.first_name)
+        expect(dependent_record['claimantLastName']).to eq(dependent.last_name)
       end
     end
   end
