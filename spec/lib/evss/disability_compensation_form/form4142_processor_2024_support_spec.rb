@@ -27,6 +27,7 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
   let(:processor) { described_class.new(submission, jid) }
   let(:received_date) { submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
+
   let(:form4142_post_db_post_transform) do
     JSON.parse(
       File.read('spec/support/disability_compensation_form/submissions/with_4142_2024_post_transform_4142.json')
@@ -90,25 +91,28 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
     context 'when feature flag is disabled on the frontend' do
       let(:legacy_form_json) { File.read('spec/support/disability_compensation_form/submissions/with_4142.json') }
-      let(:legacy_processor) { described_class.new(submission_with_legacy_4142, jid) }
-      let(:legacy_received_date) { submission_with_legacy_4142.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
-      let(:submission_with_legacy_4142) do
+      let(:legacy_processor) { described_class.new(submission_with_legacy4142, jid) }
+      let(:legacy_received_date) do
+        submission_with_legacy4142.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S')
+      end
+      let(:submission_with_legacy4142) do
         create(:form526_submission,
                user_uuid: user.uuid,
                auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim_2.id,
+               saved_claim_id: saved_claim2.id,
                form_json: legacy_form_json,
                submitted_claim_id: 2)
       end
-      let(:saved_claim_2) { create(:va526ez) }
+      let(:saved_claim2) { create(:va526ez) }
       let(:legacy_form4142) { JSON.parse(legacy_form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
+
       it 'parses frontend submission data and uses the legacy template' do
         expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-                                     .and_call_original
-                                     .once
-                                     .with(legacy_form4142, submission_with_legacy_4142.submitted_claim_id, '21-4142')
+          .and_call_original
+          .once
+          .with(legacy_form4142, submission_with_legacy4142.submitted_claim_id, '21-4142')
 
-        expect(legacy_processor.instance_variable_get(:@submission)).to eq(submission_with_legacy_4142)
+        expect(legacy_processor.instance_variable_get(:@submission)).to eq(submission_with_legacy4142)
         expect(legacy_processor.instance_variable_get(:@pdf_path)).to be_a(String)
         expect(legacy_processor.instance_variable_get(:@request_body)).to be_a(Hash)
       end
