@@ -96,7 +96,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
         result = service.call
 
         expect(result[:success]).to be false
-        expect(result[:errors][:base]).to include('File 2 must be a PDF')
+        expect(result[:errors][:base]).to include('Files File 2 must be a PDF')
       end
 
       it 'returns failure for oversized files' do
