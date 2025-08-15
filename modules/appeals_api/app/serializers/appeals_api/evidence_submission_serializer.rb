@@ -10,9 +10,16 @@ module AppealsApi
     set_key_transform(:camel_lower)
     set_type(:evidence_submission)
 
-    attributes :status, :code, :detail, :location
+    attributes :in_final_status?, :status, :code, :detail, :location
 
     attribute :appeal_id, &:supportable_id
+
+    attribute :final_status, if: proc { |_, _|
+      # The final_status will be serialized only if the :decision_reviews_final_status_field flag is enabled
+      Flipper.enabled?(:decision_reviews_final_status_field)
+    } do |object, _|
+      object.in_final_status?
+    end
 
     attribute :appeal_type do |object|
       object.supportable_type.to_s.demodulize
