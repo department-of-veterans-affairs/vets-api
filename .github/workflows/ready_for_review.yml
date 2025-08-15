@@ -42,7 +42,7 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "Pull request triggered workflow"
-            echo "pr_number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "pr_number=${{ github.event.workflow_run.pull_requests[0].number }}" >> "$GITHUB_OUTPUT"
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> "$GITHUB_OUTPUT"
             echo "pr_author=${{ github.event.pull_request.user.login }}" >> "$GITHUB_OUTPUT"
             echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> "$GITHUB_OUTPUT"
@@ -97,6 +97,8 @@ jobs:
             exit 1
           fi
 
+          echo "PR_DRAFT: $PR_DRAFT"
+          echo "PR_NUMBER: $PR_NUMBER"
           echo "PR_AUTHOR: $PR_AUTHOR"
           echo "PR_LABELS: $PR_LABELS"
 
