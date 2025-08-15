@@ -72,7 +72,7 @@ module EVSS
 
       # Flip this on to use the 2024 PDF template
       def generate_2024_version?
-        Flipper.enabled?(:disability_526_form4142_use_2024_version)
+        form_data['completed2024Form'] == true
       end
 
       # Flip this on to validate the schema of the form data
