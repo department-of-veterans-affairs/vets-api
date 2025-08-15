@@ -223,9 +223,7 @@ jobs:
         id: check_backend_requirement
         run: |
           backend_approval_required=false
-          exempt_team=false
-          LABELS="${{ env.pr_labels }}"
-          echo "Labels: $LABELS"
+          exempt_team=fals
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_AUTHOR=${{ env.pr_author }}
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
@@ -296,7 +294,13 @@ jobs:
           #   fi
           # done
 
-          echo "$LABELS" | jq -r '.[]' | while read -r LABEL; do
+          PR_LABELS="${pr_labels}"
+          LABELS_ARRAY=($(echo "$PR_LABELS" | jq -r '.[] | @sh'))
+          echo "Raw PR labels: $PR_LABELS"
+          echo "Labels: $LABELS"
+          for LABEL in "${LABELS_ARRAY[@]}"; do
+            # Remove surrounding quotes added by @sh
+            LABEL=$(eval echo "$LABEL")
             echo "Fetching label: $LABEL"
             if [[ "$LABEL" == "require-backend-approval" ]]; then
               echo "Label exists"
