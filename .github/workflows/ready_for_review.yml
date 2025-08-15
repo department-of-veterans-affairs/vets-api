@@ -262,7 +262,12 @@ jobs:
           done
 
           # Added for testing
-          for LABEL in "${LABELS[@]}"; do
+          # Remove brackets and quotes
+          CLEANED=$(echo "$LABELS" | tr -d '[]"')
+
+          # Convert to array
+          IFS=',' read -r -a LABELS_ARRAY <<< "$CLEANED"
+          for LABEL in "${LABELS_ARRAY[@]}"; do
             echo "Fetching $LABEL"
             if [[ "$LABEL" == "require-backend-approval" ]]; then
               echo "Label exists"
