@@ -202,7 +202,6 @@ jobs:
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
           echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
-          PREVIOUS_PR_LABELS="${{ env.pr_labels }}"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -235,12 +234,17 @@ jobs:
             echo "PR author '$PR_AUTHOR' is not a member of exempt team."
             echo "Fetching PR REQUESTED TEAMS"
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
-            if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null || \
-                echo "$PREVIOUS_PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
+            if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
               echo "true"
               backend_approval_required=true
             else
-              echo "false"
+              for label in "${PR_LABELS[@]}"; do
+                if [[ "$label" == "require-backend-approval" ]]; then
+                  echo "Label exists"
+                  found=true
+                  break
+                fi
+              done
             fi
           fi
 
