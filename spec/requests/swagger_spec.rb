@@ -606,6 +606,20 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         let(:pdf_file) do
           fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
         end
+        let(:metadata_json) do
+          {
+            'disputes' => [
+              {
+                'composite_debt_id' => '71166',
+                'deduction_code' => '71',
+                'original_ar' => 166.67,
+                'current_ar' => 120.4,
+                'benefit_type' => 'CH33 Books, Supplies/MISC EDU',
+                'dispute_reason' => "I don't think I owe this debt to VA"
+              }
+            ]
+          }.to_json
+        end
 
         it 'validates the route' do
           allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:call).and_return(
@@ -616,7 +630,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/debts_api/v0/digital_disputes',
             200,
             headers.merge(
-              '_data' => { files: [pdf_file] }
+              '_data' => { metadata: metadata_json, files: [pdf_file] }
             )
           )
         end
