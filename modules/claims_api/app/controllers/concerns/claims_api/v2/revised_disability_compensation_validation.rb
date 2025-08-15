@@ -21,6 +21,9 @@ module ClaimsApi
         # Validate service information
         validate_service_information!
 
+        # Validate disabilities
+        validate_disabilities!
+
         # Return collected errors
         @errors
 
@@ -30,7 +33,7 @@ module ClaimsApi
       private
 
       def validate_claim_date!
-        # PDF Section 2.1: claimDate must be equal to or earlier than today's date
+        # FES Val Section 2.1: claimDate must be equal to or earlier than today's date
         return if form_attributes['claimDate'].blank?
 
         claim_date = Date.parse(form_attributes['claimDate'])
@@ -50,7 +53,7 @@ module ClaimsApi
       end
 
       def validate_service_information!
-        # PDF Section 2.4: serviceInformation validations
+        # FES Val Section 2.4: serviceInformation validations
         service_info = form_attributes['serviceInformation']
         return if service_info.blank?
 
@@ -62,7 +65,7 @@ module ClaimsApi
       end
 
       def validate_separation_location_codes!(service_info)
-        # PDF Section 2.4.a: separationLocationCode must match an intake site code in wss-referencedata-services
+        # FES Val Section 2.4.a: separationLocationCode must match an intake site code in wss-referencedata-services
         service_periods = service_info['servicePeriods']
         return if service_periods.blank?
 
@@ -104,7 +107,7 @@ module ClaimsApi
       end
 
       def validate_service_periods!(service_periods)
-        # PDF Section 2.4.b: servicePeriods must be provided and between 1-100
+        # FES Val Section 2.4.b: servicePeriods must be provided and between 1-100
 
         # Skip validation if empty - JSON schema will catch this
         return if service_periods.blank?
@@ -124,7 +127,7 @@ module ClaimsApi
 
       def validate_single_service_period!(period, index)
         # TODO: Need to revisit as per ongoing conversation with Firefly
-        # PDF Section 2.4.b.ii-iv: validate dates chronology, 180-day limit, reserves/guard
+        # FES Val Section 2.4.b.ii-iv: validate dates chronology, 180-day limit, reserves/guard
         begin_date = parse_date_safely(period['activeDutyBeginDate'])
         end_date = parse_date_safely(period['activeDutyEndDate'])
 
@@ -163,7 +166,7 @@ module ClaimsApi
       end
 
       def validate_reserves_national_guard!(period, index)
-        # PDF Section 2.4.c: reservesNationalGuardService validation rules
+        # FES Val Section 2.4.c: reservesNationalGuardService validation rules
         rng_service = period['reservesNationalGuardService']
 
         # Validate obligation dates
@@ -190,7 +193,7 @@ module ClaimsApi
       end
 
       def validate_title10_activation!(activation, period, index)
-        # PDF Section 2.4.c.iii-iv: title10Activation requires dates and validation
+        # FES Val Section 2.4.c.iii-iv: title10Activation requires dates and validation
         validate_anticipated_separation_date!(activation, index)
 
         activation_date = parse_date_safely(activation['title10ActivationDate'])
@@ -262,7 +265,263 @@ module ClaimsApi
         end
       end
 
-      # Utility methods grouped at the bottom
+      def validate_disabilities!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        validate_disability_name
+        validate_form_526_disability_classification_code
+        validate_form_526_disability_approximate_begin_date
+        validate_form_526_disability_service_relevance
+        validate_special_issues
+        validate_form_526_disability_secondary_disabilities
+      end
+
+      # From V2 disability_compensation_validation.rb:270-278
+      # FES Val Section 7.a: Must have at least 1 disability
+      # FES Val Section 7.m: name must match regex pattern for a disability with disabilityActionType=NEW
+      # Validates that disability name is present for each disability
+      def validate_disability_name
+        form_attributes['disabilities'].each_with_index do |disability, idx|
+          disability_name = disability&.dig('name')
+          if disability_name.blank?
+            collect_error(
+              source: "/disabilities/#{idx}/name",
+              title: 'Missing required field',
+              detail: "The disability name at index #{idx} is required"
+            )
+          end
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:280-295
+      # FES Val Section 7.k: classificationCode (if present) must match a value in the BGS referencedata list
+      # Validates disability classification codes exist in BRD and are active
+      def validate_form_526_disability_classification_code
+        return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
+
+        form_attributes['disabilities'].each_with_index do |disability, idx|
+          next if disability['classificationCode'].blank?
+
+          if brd_classification_ids.include?(disability['classificationCode'].to_i)
+            validate_form_526_disability_code_enddate(disability['classificationCode'].to_i, idx)
+          else
+            collect_error(
+              source: "/disabilities/#{idx}/classificationCode",
+              title: 'Invalid classification code',
+              detail: "The classification code for disability #{idx} is not valid"
+            )
+          end
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:297-311
+      # FES Val Section 7.k: The classification code must be active (not expired)
+      # Validates that classification codes have not expired (endDateTime check)
+      def validate_form_526_disability_code_enddate(classification_code, idx, sd_idx = nil)
+        reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
+        end_date_time = reference_disability[:endDateTime] if reference_disability
+        return if end_date_time.nil?
+
+        if Date.parse(end_date_time) < Time.zone.today
+          source_message = if sd_idx
+                             "/disabilities/#{idx}/secondaryDisability/#{sd_idx}/classificationCode"
+                           else
+                             "/disabilities/#{idx}/classificationCode"
+                           end
+          collect_error(
+            source: source_message,
+            title: 'Invalid classification code',
+            detail: 'The classification code is no longer active'
+          )
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:313-328
+      # FES Val Section 7.t: approximateBeginDate (if present) must be in the past
+      # Validates disability approximate dates are valid and in the past
+      def validate_form_526_disability_approximate_begin_date
+        disabilities = form_attributes&.dig('disabilities')
+        return if disabilities.blank?
+
+        disabilities.each_with_index do |disability, idx|
+          approx_begin_date = disability&.dig('approximateDate')
+          next if approx_begin_date.blank?
+
+          unless date_is_valid?(approx_begin_date, "disability/#{idx}/approximateDate")
+            collect_error(
+              source: "/disabilities/#{idx}/approximateDate",
+              title: 'Invalid date',
+              detail: "Invalid date format for disability #{idx} approximateDate"
+            )
+            next
+          end
+
+          next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
+
+          collect_error(
+            source: "/disabilities/#{idx}/approximateDate",
+            title: 'Invalid date',
+            detail: "Approximate begin date for disability #{idx} cannot be in the future"
+          )
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:330-343
+      # FES Val Section 7: serviceRelevance is required if disabilityActionType is NEW
+      # Validates service relevance is present when disabilityActionType is NEW
+      def validate_form_526_disability_service_relevance
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        disabilities.each_with_index do |disability, idx|
+          disability_action_type = disability&.dig('disabilityActionType')
+          service_relevance = disability&.dig('serviceRelevance')
+          if disability_action_type == 'NEW' && service_relevance.blank?
+            collect_error(
+              source: "/disabilities/#{idx}/serviceRelevance",
+              title: 'Missing required field',
+              detail: "Service relevance is required for disability #{idx} when action type is NEW"
+            )
+          end
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:345-363
+      # FES Val Section 7.w: specialIssues cannot be POW unless JSON has valid confinements
+      # FES Val Section 7.u: specialIssues must be null if disabilityActionType=INCREASE (except EMP/RRD)
+      # Validates special issues - specifically POW requires confinements
+      def validate_special_issues
+        form_attributes['disabilities'].each_with_index do |disability, idx|
+          next if disability['specialIssues'].blank?
+
+          confinements = form_attributes['serviceInformation']&.dig('confinements')
+          disability_action_type = disability&.dig('disabilityActionType')
+          if disability['specialIssues'].include? 'POW'
+            if confinements.blank?
+              collect_error(
+                source: "/disabilities/#{idx}/specialIssues",
+                title: 'Missing required field',
+                detail: 'Confinements are required when special issue POW is selected'
+              )
+            elsif disability_action_type == 'INCREASE'
+              collect_error(
+                source: "/disabilities/#{idx}/disabilityActionType",
+                title: 'Invalid action type',
+                detail: 'Disability action type cannot be INCREASE when special issue POW is selected'
+              )
+            end
+          end
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:365-390
+      # FES Val Section 7.y.iii: secondaryDisabilities required if primary has disabilityActionType=NONE
+      # Validates secondary disabilities - required when action type is NONE,
+      # validates classification codes, and approximate dates
+      def validate_form_526_disability_secondary_disabilities # rubocop:disable Metrics/MethodLength
+        form_attributes['disabilities'].each_with_index do |disability, dis_idx|
+          if disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
+            collect_error(
+              source: "/disabilities/#{dis_idx}/secondaryDisabilities",
+              title: 'Missing required field',
+              detail: 'Secondary disabilities are required when disability action type is NONE'
+            )
+          end
+          next if disability['secondaryDisabilities'].blank?
+
+          validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
+
+          disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
+            if secondary_disability['classificationCode'].present?
+              validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx,
+                                                                                    sd_idx)
+              validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i, dis_idx,
+                                                        sd_idx)
+            end
+
+            if secondary_disability['approximateDate'].present?
+              validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
+                                                                                       sd_idx)
+            end
+          end
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:392-411
+      # FES Val Section 7.y.ii: name must match regex pattern for SECONDARY disability
+      # FES Val Section 7.y.v: disabilityActionType must be SECONDARY
+      # Validates required fields for secondary disabilities
+      def validate_form_526_disability_secondary_disability_required_fields(disability, disability_idx)
+        disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
+          sd_name = secondary_disability&.dig('name')
+          sd_classification_code = secondary_disability&.dig('classificationCode')
+
+          # Check if secondary disability has neither name nor classification code
+          if sd_name.blank? && sd_classification_code.blank?
+            collect_error(
+              source: "/disabilities/#{disability_idx}/secondaryDisabilities/#{sd_idx}/name",
+              title: 'Missing required field',
+              detail: 'Secondary disability must have either name or classification code'
+            )
+          elsif sd_name.present? && sd_name !~ %r{^[a-zA-Z0-9\-'.,&()/ ]+$}
+            # Validate name format if present
+            collect_error(
+              source: "/disabilities/#{disability_idx}/secondaryDisabilities/#{sd_idx}/name",
+              title: 'Invalid format',
+              detail: 'Secondary disability name has invalid format or exceeds 255 characters'
+            )
+          end
+        end
+      end
+
+      # From V2 disability_compensation_validation.rb:413-419
+      # FES Val Section 7.y.i: classificationCode (if present) must be valid if disabilityActionType=SECONDARY
+      # Validates secondary disability classification codes exist in BRD
+      def validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx, sd_idx)
+        return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
+
+        collect_error(
+          source: "/disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
+          title: 'Invalid classification code',
+          detail: 'Secondary disability classification code is not valid'
+        )
+      end
+
+      # From V2 disability_compensation_validation.rb:421-430
+      # FES Val Section 7.y.vii: approximateBeginDate must be in the past for secondary disabilities
+      # Validates secondary disability approximate dates are valid and in the past
+      def validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
+                                                                                   sd_idx)
+        return unless date_is_valid?(secondary_disability['approximateDate'],
+                                     'disabilities.secondaryDisabilities.approximateDate')
+
+        return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
+
+        collect_error(
+          source: "/disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/approximateDate",
+          title: 'Invalid date',
+          detail: 'Secondary disability approximate date cannot be in the future'
+        )
+      end
+
+      # From V2 disability_compensation_validation.rb - helper method
+      # Checks if date string can be parsed as a valid date
+      def date_is_valid?(date_string, _field_name)
+        Date.parse(date_string)
+        true
+      rescue ArgumentError
+        false
+      end
+
+      # From V2 disability_compensation_validation.rb - helper method
+      # Checks if date is not in the future (must be <= current date)
+      def date_is_valid_against_current_time_after_check_on_format?(date_string)
+        Date.parse(date_string) <= Date.current
+      rescue ArgumentError
+        false
+      end
+
       def parse_date_safely(date_string)
         Date.parse(date_string)
       rescue
