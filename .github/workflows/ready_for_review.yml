@@ -178,23 +178,47 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  check-backend-requirement:
-    name: Check Backend Requirement
+  fetch-pr-reviews:
+    name: Fetch Pull Request Reviews
     needs: [get-pr-data, check-workflow-status]
     if: needs.get-pr-data.outputs.pr_draft == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
-      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
+      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
-      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
     outputs:
-      exempt_team: ${{ steps.check_backend_requirement.outputs.exempt_team }}
-      backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
+      exempt_team: ${{ needs.check_backend_requirement.outputs.exempt_team }}
+      backend_approval_required: ${{ needs.check_backend_requirement.outputs.backend_approval_required }}
+      author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
+      team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
+      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
+      - name: Checkout PR HEAD ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Check Backend Requirement
         id: check_backend_requirement
         run: |
@@ -224,7 +248,7 @@ jobs:
               backend_approval_required=false
               break
             else
-              if gh api GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
@@ -241,7 +265,7 @@ jobs:
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
               echo "Backend review group requested"
               backend_approval_required=true
-            elif gh api "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/RachalCassity" >/dev/null 2>&1; then
+            elif gh api -X GET "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
               echo "PR author '$PR_AUTHOR' is a backend-review-group member."
               backend_approval_required=true
             else
@@ -259,6 +283,8 @@ jobs:
 
           echo "exempt_team=${exempt_team}" >> $GITHUB_OUTPUT
           echo "backend_approval_required=${backend_approval_required}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
@@ -273,45 +299,6 @@ jobs:
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
-
-  fetch-pr-reviews:
-    name: Fetch Pull Request Reviews
-    needs: [get-pr-data, check-workflow-status, check-backend-requirement]
-    if: needs.get-pr-data.outputs.pr_draft == 'false'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    env:
-      exempt_team: ${{ needs.check-backend-requirement.outputs.exempt_team }}
-      backend_approval_required: ${{ needs.check-backend-requirement.outputs.backend_approval_required }}
-      failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
-      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
-      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
-      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
-    outputs:
-      author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
-      team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
-      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
-    steps:
-      - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: "us-gov-west-1"
-
-      - name: Get bot token from Parameter Store
-        uses: marvinpinto/action-inject-ssm-secrets@latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Verify backend-review-group approval
         id: verify_approval
@@ -419,7 +406,8 @@ jobs:
       - name: Add ready-for-backend-review label
         if: |
           needs.check-workflow-status.outputs.failures_detected == 'false' &&
-          needs.check-backend-requirement.outputs.backend_approval_required == 'true' &&
+
+          steps.check_backend_requirement.outputs.backend_approval_required == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           (
             steps.verify_approval.outputs.author_is_backend == 'true' ||
