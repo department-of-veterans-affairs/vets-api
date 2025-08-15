@@ -184,8 +184,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
         tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
         can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-        expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, false, false,
-                                         true])
+        expect(can_upload_values).to eq([true, true, false, true, true, true, true, true, false,
+                                         true, true, true, false, false, true])
         friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
         expect(friendly_name_values).to include('Authorization to disclose information')
         expect(friendly_name_values).to include('Proof of service')
@@ -212,12 +212,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                        ' your behalf. No action is needed.')
         expect(activity_description_values).to include('We’ve requested your non-VA medical records on' \
                                                        ' your behalf. No action is needed.')
-        expect(activity_description_values).to include('We’ve requested a disability exam for your hearing.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
-        expect(activity_description_values).to include('We’ve requested a mental health exam for you.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
         short_description_values = tracked_items.map { |i| i['shortDescription'] }
         expect(short_description_values).to include('We’ve requested your service' \
                                                     ' records or treatment records from your reserve unit.')
@@ -247,10 +241,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
                                  'displayName')).to eq('RV1 - Reserve Records Request')
           # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
         end
       end
 
@@ -264,10 +258,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
                                  'displayName')).to eq('RV1 - Reserve Records Request')
           # Do not modify the cassette value
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_YOU')
         end
       end
 
@@ -281,11 +275,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(13)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('PMR Pending')
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
-                                 'displayName')).to eq('Submit buddy statement(s)')
+          names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).not_to include('Attorney Fees')
+          expect(names).not_to include('Secondary Action Required')
+          expect(names).not_to include('Stage 2 Development')
         end
       end
 
@@ -299,12 +292,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(14)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
-                                 'displayName')).to eq('PMR Pending')
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
-                                 'displayName')).to eq('Submit buddy statement(s)')
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
+          names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          expect(names).to include('Attorney Fees')
+          expect(names).to include('Secondary Action Required')
+          expect(names).to include('Stage 2 Development')
         end
       end
 

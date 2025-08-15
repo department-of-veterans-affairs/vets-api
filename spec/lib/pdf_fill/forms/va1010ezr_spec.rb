@@ -8,7 +8,7 @@ describe PdfFill::Forms::Va1010ezr do
   include SchemaMatchers
 
   let(:form_data) do
-    get_fixture('pdf_fill/10-10EZR/simple')
+    get_fixture('pdf_fill/10-10EZR/kitchen_sink')
   end
 
   let(:form_class) do
@@ -20,7 +20,7 @@ describe PdfFill::Forms::Va1010ezr do
     factory: :fake_saved_claim,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10EZR',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10EZR/unsigned',
-    test_data_types: %w[simple]
+    test_data_types: %w[simple kitchen_sink]
   }
 
   describe '#merge_fields' do
@@ -28,6 +28,28 @@ describe PdfFill::Forms::Va1010ezr do
       expect(form_class.merge_fields.to_json).to eq(
         get_fixture('pdf_fill/10-10EZR/merge_fields').to_json
       )
+    end
+
+    context 'when veteran personal information is missing' do
+      let(:form_data) do
+        get_fixture('pdf_fill/10-10EZR/simple_with_invalid_values')
+      end
+
+      it 'logs an error for each missing value' do
+        %w[veteranFullName veteranDateOfBirth veteranSocialSecurityNumber gender].each do |type|
+          expect(Rails.logger).to receive(:error).with(
+            "Invalid #{type} value when filling out 10-10EZR pdf.",
+            {
+              type:,
+              value: nil
+            }
+          )
+        end
+
+        described_class.new(
+          get_fixture('pdf_fill/10-10EZR/simple_with_missing_veteran_info')
+        ).merge_fields
+      end
     end
   end
 end
