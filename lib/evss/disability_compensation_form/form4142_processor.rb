@@ -72,12 +72,12 @@ module EVSS
 
       # Flip this on to use the 2024 PDF template
       def generate_2024_version?
-        Flipper.enabled?(:disability_526_form4142_use_2024_version)
+        Flipper.enabled?(:disability_526_form4142_use_2024_version, @submission.user_account)
       end
 
       # Flip this on to validate the schema of the form data
       def should_validate_schema?
-        Flipper.enabled?(:disability_526_form4142_validate_schema)
+        Flipper.enabled?(:disability_526_form4142_validate_schema, @submission.user_account)
       end
     end
   end
