@@ -644,6 +644,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           params: { form_number: '10-7959A' },
           current_user: mock_user
         )
+        # Enable the feature flag for resubmission attachment ID logic
+        allow(Flipper).to receive(:enabled?).with(:champva_resubmission_attachment_ids).and_return(true)
       end
 
       context 'when PDI number is selected' do
@@ -731,6 +733,45 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           # Verify: main claim sheet gets "CVA Reopen", supporting docs retain their types
           # For claim control number, stamp_metadata should return nil (no stamped doc)
           expect(attachment_ids).to eq(['CVA Reopen', 'Medical Records', 'EOB'])
+          expect(form).to be_a(IvcChampva::VHA107959a)
+        end
+      end
+
+      context 'when feature flag is disabled' do
+        let(:parsed_form_data) do
+          {
+            'form_number' => '10-7959A',
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'Claim control number',
+            'identifying_number' => 'CLAIM789',
+            'claims' => [
+              { 'provider_name' => 'Test Provider' }
+            ],
+            'supporting_docs' => [
+              { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' }
+            ]
+          }
+        end
+
+        before do
+          # Disable the feature flag
+          allow(Flipper).to receive(:enabled?).with(:champva_resubmission_attachment_ids).and_return(false)
+        end
+
+        it 'uses default behavior when feature flag is disabled' do
+          # Mock the supporting documents in the database
+          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+
+          # Mock tracking methods
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
+
+          # Verify: when feature flag is disabled, uses default behavior (no special resubmission logic)
+          expect(attachment_ids).to eq(['vha_10_7959a', 'Medical Records'])
           expect(form).to be_a(IvcChampva::VHA107959a)
         end
       end
