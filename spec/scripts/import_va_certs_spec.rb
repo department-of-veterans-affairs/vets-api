@@ -52,23 +52,28 @@ RSpec.describe 'import-va-certs.sh script' do
       http_position = script_content.index('http://aia.pki.va.gov/PKI/AIA/VA/')
 
       expect(https_position).to be < http_position
-      expect(script_content).to include('||') # Fallback operator between them
+      
+      # Verify if/elif fallback structure
+      expect(script_content).to include('if wget')
+      expect(script_content).to include('elif wget')
     end
 
-    it 'verifies fallback mechanism structure without full execution' do
+    it 'includes comprehensive error handling and logging' do
       script_content = File.read(script_path)
 
-      # Verify the fallback structure is correctly implemented
-      expect(script_content).to match(%r{wget.*https://aia\.pki\.va\.gov.*?\|\|.*wget.*http://aia\.pki\.va\.gov}m)
-
-      # Verify DoD fallback is also present
-      expect(script_content).to match(%r{curl.*https://dl\.dod\.cyber\.mil.*?\|\|.*curl.*http://dl\.dod\.cyber\.mil}m)
-
-      # Verify certificate processing loop exists
-      expect(script_content).to include('for cert in *.{cer,pem}')
-      expect(script_content).to include('if file "${cert}" | grep \'PEM\'')
-      expect(script_content).to include('cp "${cert}" "${cert}.crt"')
-      expect(script_content).to include('openssl x509 -in "${cert}"')
+      # Verify logging messages are present
+      expect(script_content).to include('Downloading VA certificates...')
+      expect(script_content).to include('✓ VA certificates downloaded via HTTPS')
+      expect(script_content).to include('✓ VA certificates downloaded via HTTP fallback')
+      expect(script_content).to include('✗ VA certificate download failed')
+      
+      # Verify enhanced wget options
+      expect(script_content).to include('--timeout=30')
+      expect(script_content).to include('--tries=3')
+      
+      # Verify certificate processing logging
+      expect(script_content).to include('Processing downloaded certificates...')
+      expect(script_content).to include('✓ Processed')
     end
   end
 
@@ -127,15 +132,20 @@ RSpec.describe 'import-va-certs.sh script' do
   end
 
   describe 'DoD ECA certificate handling' do
-    it 'implements HTTPS/HTTP fallback for DoD certificates' do
+    it 'implements multiple fallback mechanisms for DoD certificates' do
       script_content = File.read(script_path)
 
-      dod_section = script_content[%r{curl.*https://dl\.dod\.cyber\.mil.*?\|\|.*?curl.*http://dl\.dod\.cyber\.mil}m]
-
-      expect(dod_section).to be_present
-      expect(dod_section).to include('https://dl.dod.cyber.mil')
-      expect(dod_section).to include('http://dl.dod.cyber.mil')
-      expect(dod_section).to include('||') # Fallback operator
+      # Verify primary HTTPS attempt
+      expect(script_content).to include('curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO https://dl.dod.cyber.mil')
+      
+      # Verify HTTP fallback
+      expect(script_content).to include('curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
+      
+      # Verify alternative mirror fallback
+      expect(script_content).to include('https://crl.disa.mil/crl/DODECARCA5.zip')
+      
+      # Verify graceful degradation
+      expect(script_content).to include('Continuing without DoD ECA certificates...')
     end
 
     it 'processes DoD PKCS7 certificates' do
