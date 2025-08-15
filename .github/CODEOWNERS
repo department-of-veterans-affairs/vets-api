@@ -1061,6 +1061,7 @@ rakelib/prod/user_credential.rake @department-of-veterans-affairs/octo-identity
 rakelib/remove_va1995s_records.rake @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 rakelib/routes_csv.rake @department-of-veterans-affairs/backend-review-group
 rakelib/rswag.rake @department-of-veterans-affairs/backend-review-group
+rakelib/secure_messaging.rake @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 rakelib/security.rake @department-of-veterans-affairs/backend-review-group
 rakelib/service_tags.rake @department-of-veterans-affairs/backend-review-group
 rakelib/support/shell_command.rb @department-of-veterans-affairs/backend-review-group
@@ -1613,6 +1614,7 @@ spec/rakelib/form526_spec.rb @department-of-veterans-affairs/disability-benefits
 spec/rakelib/jobs_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/rakelib/piilog_repl @department-of-veterans-affairs/backend-review-group
 spec/rakelib/piilog_repl/piilog_helpers_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/rakelib/secure_messaging_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/rakelib/user_credential_spec.rb @department-of-veterans-affairs/octo-identity
 spec/rakelib/vet360_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/requests/authentication/standard_authentication_spec.rb @department-of-veterans-affairs/octo-identity
