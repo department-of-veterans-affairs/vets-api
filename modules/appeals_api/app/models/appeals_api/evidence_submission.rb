@@ -12,7 +12,7 @@ module AppealsApi
 
     STATUSES = VBADocuments::UploadSubmission::ALL_STATUSES
 
-    delegate :final_status, to: :upload_submission
+    delegate :in_final_status?, to: :upload_submission
     delegate :status, to: :upload_submission
     delegate :code, to: :upload_submission
     delegate :detail, to: :upload_submission
