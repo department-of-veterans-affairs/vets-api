@@ -248,7 +248,7 @@ jobs:
               backend_approval_required=false
               break
             else
-              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+              if gh api GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
@@ -257,10 +257,10 @@ jobs:
             fi
           done
 
-          if gh api -X GET "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+          if gh api GET "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             backend_approval_required=true
-          end
+          fi
 
           if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Teams were not found."
