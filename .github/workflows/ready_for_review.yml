@@ -224,8 +224,8 @@ jobs:
               backend_approval_required=false
               break
             else
-              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/${{ env.pr_author }}" >/dev/null 2>&1; then
-                echo "PR author '${{ env.pr_author }}' is a member of exempt team '$TEAM'."
+              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
                 break
@@ -235,13 +235,13 @@ jobs:
 
           if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Teams were not found."
-            echo "PR author '${{ env.pr_author }}' is not a member of exempt team."
+            echo "PR author '$PR_AUTHOR' is not a member of exempt team."
             echo "Fetching PR REQUESTED TEAMS"
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
               echo "Backend review group requested"
               backend_approval_required=true
-            elsif echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+            elif echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
               echo "PR author '$PR_AUTHOR' is a backend-review-group member."
               backend_approval_required=true
             else
