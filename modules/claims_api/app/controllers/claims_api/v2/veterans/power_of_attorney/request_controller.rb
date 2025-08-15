@@ -34,11 +34,12 @@ module ClaimsApi
           )
 
           poa_list = service.get_poa_list
-
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
+          poa_list_with_dependent_data = add_dependent_data_to_poa_response(poa_list)
+
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-            poa_list, view: :shared_response, root: :data
+            poa_list_with_dependent_data, view: :shared_response, root: :data
           ), status: :ok
         end
 
@@ -164,6 +165,24 @@ module ClaimsApi
         end
 
         private
+
+        def add_dependent_data_to_poa_response(poa_list)
+          poa_list.each do |item|
+            next unless item['claimant_icn']
+
+            first_name, last_name = get_dependent_name(item['claimant_icn'])
+            item['claimantFirstName'] = first_name
+            item['claimantLastName'] = last_name
+          end
+
+          poa_list
+        end
+
+        def get_dependent_name(icn)
+          dependent = build_veteran_or_dependent_data(icn)
+
+          [dependent.first_name, dependent.last_name]
+        end
 
         def validate_decide_representative_params!(poa_code, representative_id)
           representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
