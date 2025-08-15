@@ -8,7 +8,7 @@ FactoryBot.define do
 
     after(:build) do |submission|
       submission.files.attach(
-        io: File.open(Rails.root.join('spec/fixtures/pdf_fill/686C-674-V2/tester.pdf')),
+        io: Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674-V2', 'tester.pdf').open,
         filename: 'sample.pdf',
         content_type: 'application/pdf'
       )
