@@ -362,6 +362,58 @@ describe Eps::AppointmentService do
         expect { service.submit_appointment(appointment_id, invalid_params) }
           .to raise_error(ArgumentError, /Missing required parameters: network_id, provider_service_id/)
       end
+
+      it 'raises ArgumentError when required parameters have empty values' do
+        invalid_params = valid_params.merge(network_id: '', provider_service_id: nil)
+
+        expect { service.submit_appointment(appointment_id, invalid_params) }
+          .to raise_error(ArgumentError, /Empty required parameters: network_id, provider_service_id/)
+      end
+    end
+
+    context 'parameter validation logging' do
+      before do
+        # Mock Redis and job to focus on logging
+        redis_client = instance_double(Eps::RedisClient)
+        allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+        allow(redis_client).to receive(:store_appointment_data)
+        allow(Eps::AppointmentStatusJob).to receive(:perform_async)
+        allow(Rails.logger).to receive(:info) # Allow other logger calls
+      end
+
+      it 'logs slot_ids and appointment_id_last_four for valid parameters' do
+        successful_response = double('Response', status: 200, body: { 'id' => appointment_id }, response_headers:)
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_response)
+
+        expect(Rails.logger).to receive(:info).with(
+          'EPS appointment submission parameter validation',
+          {
+            appointment_id_last_four: '-123',
+            slot_ids: ['slot-789'],
+            user_uuid: user.uuid
+          }.to_json
+        )
+
+        service.submit_appointment(appointment_id, valid_params)
+      end
+
+      it 'logs missing and empty parameters with slot_ids' do
+        invalid_params = valid_params.except(:network_id).merge(provider_service_id: '', slot_ids: nil)
+
+        expect(Rails.logger).to receive(:info).with(
+          'EPS appointment submission parameter validation',
+          {
+            appointment_id_last_four: '-123',
+            slot_ids: nil,
+            missing_params: [:network_id],
+            empty_params: %i[provider_service_id slot_ids],
+            user_uuid: user.uuid
+          }.to_json
+        )
+
+        expect { service.submit_appointment(appointment_id, invalid_params) }
+          .to raise_error(ArgumentError, /Missing required parameters/)
+      end
     end
 
     context 'when API returns an error' do

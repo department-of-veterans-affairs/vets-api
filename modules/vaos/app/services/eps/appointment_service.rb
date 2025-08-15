@@ -84,10 +84,7 @@ module Eps
       raise ArgumentError, 'appointment_id is required and cannot be blank' if appointment_id.blank?
       raise ArgumentError, 'Email is required' if user.email.blank?
 
-      required_params = %i[network_id provider_service_id slot_ids referral_number]
-      missing_params = required_params - params.keys
-
-      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+      validate_and_log_params(appointment_id, params)
 
       payload = build_submit_payload(params)
 
@@ -116,6 +113,37 @@ module Eps
     end
 
     private
+
+    ##
+    # Validates required parameters and logs slot_ids and any parameter issues
+    #
+    # @param appointment_id [String] The appointment ID
+    # @param params [Hash] The parameters to validate
+    # @raise [ArgumentError] If required parameters are missing or empty
+    def validate_and_log_params(appointment_id, params)
+      required_params = %i[network_id provider_service_id slot_ids referral_number]
+      missing_params = required_params - params.keys
+
+      # Find parameters that are present but have empty/blank values
+      empty_params = required_params.select { |param| params.key?(param) && params[param].blank? }
+
+      # Log slot_ids and any parameter issues
+      appointment_last_four = appointment_id.to_s.last(4)
+      log_data = {
+        appointment_id_last_four: appointment_last_four,
+        slot_ids: params[:slot_ids]
+      }
+      log_data[:missing_params] = missing_params if missing_params.any?
+      log_data[:empty_params] = empty_params if empty_params.any?
+
+      Rails.logger.info(
+        'EPS appointment submission parameter validation',
+        log_data.merge(user_uuid: user.uuid).to_json
+      )
+
+      raise ArgumentError, "Missing required parameters: #{missing_params.join(', ')}" if missing_params.any?
+      raise ArgumentError, "Empty required parameters: #{empty_params.join(', ')}" if empty_params.any?
+    end
 
     ##
     # Merge provider data with appointment data
