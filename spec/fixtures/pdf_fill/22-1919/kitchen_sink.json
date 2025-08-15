@@ -1,29 +1,20 @@
 {
   "institutionDetails": {
-    "institutionName": "Mega Tech Institute of Learning and Advancement",
-    "facilityCode": "Z9Y8X7W6",
+    "institutionName": "Example Proprietary School",
+    "facilityCode": "A1B2C3D4",
     "institutionAddress": {
-      "street": "456 Innovation Way",
-      "street2": "Suite 900",
-      "city": "Arlington",
+      "street": "123 Main St",
+      "city": "Springfield",
       "state": "VA",
-      "postalCode": "22203"
+      "postalCode": "22150"
     }
   },
   "proprietaryProfitConflicts": [
     {
       "affiliatedIndividuals": {
-        "first": "Diana",
-        "last": "Dawson",
-        "title": "Dean of Students",
-        "individualAssociationType": "saa"
-      }
-    },
-    {
-      "affiliatedIndividuals": {
-        "first": "Ethan",
-        "last": "Edwards",
-        "title": "Assistant Registrar",
+        "first": "Alice",
+        "last": "Anderson",
+        "title": "Administrator",
         "individualAssociationType": "va"
       }
     }
@@ -31,38 +22,24 @@
   "allProprietaryProfitConflicts": [
     {
       "certifyingOfficial": {
-        "first": "Fiona",
-        "last": "Fletcher",
-        "title": "President"
+        "first": "Brian",
+        "last": "Baker",
+        "title": "Director"
       },
-      "fileNumber": "987654321",
+      "fileNumber": "123456789",
       "enrollmentPeriod": {
-        "from": "2024-06-15",
-        "to": "2024-12-15"
-      }
-    },
-    {
-      "certifyingOfficial": {
-        "first": "George",
-        "last": "Garrison",
-        "title": "Chief Administrator"
-      },
-      "fileNumber": "246813579",
-      "enrollmentPeriod": {
-        "from": "2024-01-10",
-        "to": "2024-05-30"
+        "from": "2024-01-01",
+        "to": "2024-12-31"
       }
     }
   ],
   "certifyingOfficial": {
-    "first": "Hannah",
-    "last": "Hart",
+    "first": "Carol",
+    "last": "Clark",
     "role": {
-      "level": "other",
-      "other": "Compliance Officer"
+      "level": "certifying official"
     }
   },
-  "statementOfTruthSignature": "Hannah Hart",
-  "dateSigned": "2024-07-04"
+  "statementOfTruthSignature": "Carol Clark",
+  "dateSigned": "2024-04-01"
 }
-

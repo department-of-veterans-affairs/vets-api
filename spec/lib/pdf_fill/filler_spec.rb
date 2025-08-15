@@ -65,8 +65,6 @@ describe PdfFill::Filler, type: :model do
        22-10216 22-10215 22-10215a 22-1919].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
-        # 22-1919 currently has no overflow test fixtures; limit cases to simple and kitchen_sink
-        form_types = %w[simple kitchen_sink].product([false]) if form_id == '22-1919'
         form_types << ['overflow', true] if form_id == '21-0781V2'
         form_types.each do |type, extras_redesign|
           context "with #{type} test data with extras_redesign #{extras_redesign}" do
@@ -98,7 +96,9 @@ describe PdfFill::Filler, type: :model do
 
               if type == 'overflow'
                 extras_fixture = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
-                skip("Missing extras PDF fixture: #{extras_fixture}. Add it to enable this test.") unless File.exist?(extras_fixture)
+                unless File.exist?(extras_fixture)
+                  skip("Missing extras PDF fixture: #{extras_fixture}. Add it to enable this test.")
+                end
                 extras_path = the_extras_generator.generate
                 fixture_pdf = extras_fixture
                 expect(extras_path).to match_file_exactly(fixture_pdf)
@@ -116,8 +116,6 @@ describe PdfFill::Filler, type: :model do
       end
     end
   end
-
-  
 
   describe '#fill_ancillary_form with form_id is 21-0781V2' do
     context 'when form_id is 21-0781V2' do
