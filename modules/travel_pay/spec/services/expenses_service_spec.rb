@@ -4,24 +4,24 @@ require 'rails_helper'
 require 'securerandom'
 
 describe TravelPay::ExpensesService do
-  context 'add_expense' do
-    let(:user) { build(:user) }
-    let(:add_expense_data) do
+  let(:user) { build(:user) }
+  let(:add_expense_data) do
+    {
+      'data' =>
       {
-        'data' =>
-        {
-          'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
-        }
+        'expenseId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       }
-    end
-    let(:add_expense_response) do
-      Faraday::Response.new(
-        body: add_expense_data
-      )
-    end
+    }
+  end
+  let(:add_expense_response) do
+    Faraday::Response.new(
+      body: add_expense_data
+    )
+  end
 
-    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+  let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
+  context 'add_expense' do
     context 'add new expense' do
       let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
       let(:service) { TravelPay::ExpensesService.new(auth_manager) }
@@ -63,6 +63,178 @@ describe TravelPay::ExpensesService do
                                 'trip_type' => 'OneWay' })
         end.to raise_error(ArgumentError, /You must provide/i)
       end
+    end
+  end
+
+  context 'create_expense' do
+    before do
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ExpensesService.new(auth_manager)
+    end
+
+    context 'with mileage expense type' do
+      it 'routes to add_expense method for SMOC compatibility' do
+        params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'mileage',
+          'purchase_date' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Trip to VA medical center'
+        }
+
+        # Expect the service to call add_expense with converted parameters
+        expect(@service).to receive(:add_expense).with({
+                                                         'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+                                                         'appt_date' => '2024-10-02T14:36:38.043Z',
+                                                         'description' => 'Trip to VA medical center',
+                                                         'trip_type' => 'RoundTrip'
+                                                       }).and_return(add_expense_data['data'])
+
+        result = @service.create_expense(params)
+        expect(result).to eq(add_expense_data['data'])
+      end
+
+      it 'uses appt_date if purchase_date is not provided' do
+        params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'mileage',
+          'appt_date' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Trip to VA medical center'
+        }
+
+        expect(@service).to receive(:add_expense).with({
+                                                         'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+                                                         'appt_date' => '2024-10-02T14:36:38.043Z',
+                                                         'description' => 'Trip to VA medical center',
+                                                         'trip_type' => 'RoundTrip'
+                                                       }).and_return(add_expense_data['data'])
+
+        result = @service.create_expense(params)
+        expect(result).to eq(add_expense_data['data'])
+      end
+    end
+
+    context 'with non-mileage expense types' do
+      let(:general_expense_response) do
+        Faraday::Response.new(
+          body: { 'data' => { 'id' => 'expense-456' } }
+        )
+      end
+
+      it 'routes to generic client method for other expense types' do
+        params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'lodging',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'cost_requested' => 125.50
+        }
+
+        expected_request_body = {
+          'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'dateIncurred' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'amount' => 125.50,
+          'expenseType' => 'lodging'
+        }
+
+        allow_any_instance_of(TravelPay::ExpensesClient)
+          .to receive(:add_expense)
+          .with(tokens[:veis_token], tokens[:btsss_token], 'lodging', expected_request_body)
+          .and_return(general_expense_response)
+
+        result = @service.create_expense(params)
+        expect(result).to eq({ 'id' => 'expense-456' })
+      end
+
+      it 'handles meal expenses' do
+        params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'meal',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Lunch during appointment',
+          'cost_requested' => 15.75
+        }
+
+        expected_request_body = {
+          'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'dateIncurred' => '2024-10-02',
+          'description' => 'Lunch during appointment',
+          'amount' => 15.75,
+          'expenseType' => 'meal'
+        }
+
+        allow_any_instance_of(TravelPay::ExpensesClient)
+          .to receive(:add_expense)
+          .with(tokens[:veis_token], tokens[:btsss_token], 'meal', expected_request_body)
+          .and_return(general_expense_response)
+
+        result = @service.create_expense(params)
+        expect(result).to eq({ 'id' => 'expense-456' })
+      end
+
+      it 'handles other expense types' do
+        params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'other',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Parking fee',
+          'cost_requested' => 10.00
+        }
+
+        expected_request_body = {
+          'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'dateIncurred' => '2024-10-02',
+          'description' => 'Parking fee',
+          'amount' => 10.00,
+          'expenseType' => 'other'
+        }
+
+        allow_any_instance_of(TravelPay::ExpensesClient)
+          .to receive(:add_expense)
+          .with(tokens[:veis_token], tokens[:btsss_token], 'other', expected_request_body)
+          .and_return(general_expense_response)
+
+        result = @service.create_expense(params)
+        expect(result).to eq({ 'id' => 'expense-456' })
+      end
+
+      it 'handles API errors gracefully' do
+        params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'lodging',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'cost_requested' => 125.50
+        }
+
+        faraday_error = Faraday::BadRequestError.new('Bad request')
+        allow_any_instance_of(TravelPay::ExpensesClient)
+          .to receive(:add_expense)
+          .and_raise(faraday_error)
+
+        # Mock the ServiceError.raise_mapped_error method to raise a Common::Exceptions error
+        allow(TravelPay::ServiceError).to receive(:raise_mapped_error).with(faraday_error)
+                                                                      .and_raise(
+                                                                        Common::Exceptions::BadRequest.new(
+                                                                          errors: [{ title: 'API Error', status: 400 }]
+                                                                        )
+                                                                      )
+
+        expect { @service.create_expense(params) }.to raise_error(Common::Exceptions::BadRequest)
+      end
+    end
+
+    it 'raises ArgumentError when claim_id is missing' do
+      params = {
+        'expense_type' => 'lodging',
+        'purchase_date' => '2024-10-02',
+        'description' => 'Hotel stay',
+        'cost_requested' => 125.50
+      }
+
+      expect do
+        @service.create_expense(params)
+      end.to raise_error(ArgumentError, 'You must provide a claim ID to create an expense.')
     end
   end
 end
