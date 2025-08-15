@@ -15,6 +15,7 @@ module EVSS
       def initialize(submission, jid)
         @submission = submission
         @jid = jid
+        @generate_2024_version = determine_2024_version
         super()
       end
 
@@ -72,7 +73,11 @@ module EVSS
 
       # Flip this on to use the 2024 PDF template
       def generate_2024_version?
-        form_data['completed2024Form'] == true
+        @generate_2024_version
+      end
+
+      def determine_2024_version
+        @submission.form[Form526Submission::FORM_4142]['completed2024Form'] == true
       end
 
       # Flip this on to validate the schema of the form data
