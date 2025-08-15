@@ -21,9 +21,22 @@ module ClaimsApi
                                                              external_key: Settings.bgs.external_key)
 
         res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id:)
-        res['poaRequestRespondReturnVOList']
+        res = res['poaRequestRespondReturnVOList'] if res.present?
         res['id'] = lighthouse_id
         res
+      end
+
+      def build_veteran_and_dependent_data(request, build_target_veteran)
+        vet_icn = request.veteran_icn
+        claimant_icn = request.claimant_icn
+        veteran_info = build_target_veteran.call(veteran_id: vet_icn, loa: { current: 3, highest: 3 })
+        if claimant_icn.present?
+          claimant_info = build_target_veteran.call(veteran_id: claimant_icn,
+                                                    loa: { current: 3,
+                                                           highest: 3 })
+        end
+
+        [veteran_info, claimant_info]
       end
     end
   end

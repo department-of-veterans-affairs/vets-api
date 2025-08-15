@@ -333,6 +333,24 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         representativeId: '123456789456'
       }
     end
+    let(:veteran) do
+      OpenStruct.new(
+        icn: '1012861229V078999',
+        first_name: 'Ralph',
+        last_name: 'Lee',
+        middle_name: nil,
+        birls_id: '796378782',
+        birth_date: '1948-10-30',
+        loa: { current: 3, highest: 3 },
+        edipi: nil,
+        ssn: '796378782',
+        participant_id: '600043284',
+        mpi: OpenStruct.new(
+          icn: '1012861229V078999',
+          profile: OpenStruct.new(ssn: '796378782')
+        )
+      )
+    end
 
     context 'when the decide endpoint is called' do
       context 'when decision is not present' do
@@ -387,6 +405,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow_any_instance_of(
           ClaimsApi::PowerOfAttorneyRequestService::Decide
         ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:build_veteran_and_dependent_data).with(anything, anything).and_return(veteran)
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
           .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
@@ -495,8 +516,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
         allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)
                                                                  .and_return(poa_request_response)
-        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
-          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow_any_instance_of(

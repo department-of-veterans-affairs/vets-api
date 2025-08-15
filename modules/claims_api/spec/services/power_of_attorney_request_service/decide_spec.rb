@@ -42,4 +42,104 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Decide do
       end
     end
   end
+
+  describe '#build_veteran_and_dependent_data' do
+    let(:metadata_without_dependent) do
+      { 'veteran' => { 'vnp_mail_id' => '158492', 'vnp_email_id' => '158491', 'vnp_phone_id' => '112642' } }
+    end
+    let(:metadata_with_dependent) do
+      {
+        'veteran' => { 'vnp_mail_id' => '158481', 'vnp_email_id' => '158482', 'vnp_phone_id' => '112638' },
+        'claimant' => { 'vnp_mail_id' => '158483', 'vnp_email_id' => '158484', 'vnp_phone_id' => '112639' }
+      }
+    end
+    let(:veteran_icn) { '1012861229V078999' }
+    let(:claimant_icn) { '1013093331V548481' }
+
+    let(:veteran) do
+      OpenStruct.new(
+        icn: veteran_icn,
+        first_name: 'Ralph',
+        last_name: 'Lee',
+        middle_name: nil,
+        birls_id: '796378782',
+        birth_date: '1948-10-30',
+        loa: { current: 3, highest: 3 },
+        edipi: nil,
+        ssn: '796378782',
+        participant_id: '600043284',
+        mpi: OpenStruct.new(
+          icn: '1012861229V078999',
+          profile: OpenStruct.new(ssn: '796378782')
+        )
+      )
+    end
+    let(:claimant) do
+      OpenStruct.new(
+        icn: '1013093331V548481',
+        first_name: 'Wally',
+        last_name: 'Morell',
+        middle_name: nil,
+        birth_date: '1948-10-30',
+        loa: { current: 3, highest: 3 },
+        edipi: nil,
+        ssn: '796378782',
+        participant_id: '600264235',
+        mpi: OpenStruct.new(
+          icn: '1013093331V548481',
+          profile: OpenStruct.new(ssn: '796378782'),
+          birls_id: '796378782'
+        )
+      )
+    end
+    let(:build_target_veteran) { double('build_target_veteran') }
+
+    context 'without a dependent' do
+      let(:request) do
+        create(:claims_api_power_of_attorney_request, veteran_icn:,
+                                                      poa_code: '067', metadata: metadata_without_dependent)
+      end
+
+      before do
+        allow(
+          build_target_veteran
+        ).to receive(:call).with(
+          { loa: { current: 3, highest: 3 }, veteran_id: veteran.icn }
+        ).and_return(veteran)
+      end
+
+      it 'returns the veteran data' do
+        res = subject.build_veteran_and_dependent_data(request, build_target_veteran)
+
+        expect(res).to eq([veteran, nil])
+      end
+    end
+
+    context 'with the dependent data' do
+      let(:request) do
+        create(:claims_api_power_of_attorney_request, veteran_icn:,
+                                                      claimant_icn:, poa_code: '067', metadata: metadata_with_dependent)
+      end
+
+      before do
+        allow(
+          build_target_veteran
+        ).to receive(:call).with(
+          { loa: { current: 3, highest: 3 }, veteran_id: veteran.icn }
+        ).and_return(veteran)
+
+        allow(
+          build_target_veteran
+        ).to receive(:call).with(
+          { loa: { current: 3, highest: 3 }, veteran_id: claimant.icn }
+        ).and_return(claimant)
+      end
+
+      it 'returns the veteran data' do
+        res = subject.build_veteran_and_dependent_data(request, build_target_veteran)
+
+        expect(res).to eq([veteran, claimant])
+      end
+    end
+  end
 end
