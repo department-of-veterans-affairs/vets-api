@@ -210,8 +210,8 @@ jobs:
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
           echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
-          PR_LABELS="${{ env.pr_labels }}"
-          echo "PR_LABELS: $PR_LABELS"
+          PREVIOUS_PR_LABELS="${{ env.pr_labels }}"
+          echo "PREVIOUS_PR_LABELS: $PREVIOUS_PR_LABELS"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -247,7 +247,7 @@ jobs:
             echo "Fetching PR REQUESTED TEAMS"
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null || \
-              echo "$PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
+              echo "$PREVIOUS_PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
               echo "true"
               backend_approval_required=true
             else
