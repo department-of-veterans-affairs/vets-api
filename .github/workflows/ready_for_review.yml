@@ -202,9 +202,10 @@ jobs:
           exempt_team=false
           LABELS=${{ env.pr_labels }}
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
+          PR_AUTHOR=${{ env.pr_author }}
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
           echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
-          echo "Pull request Author: ${{ env.pr_author }}"
+          echo "Pull request Author: $PR_AUTHOR"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -231,6 +232,7 @@ jobs:
               fi
             fi
           done
+
           if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Teams were not found."
             echo "PR author '${{ env.pr_author }}' is not a member of exempt team."
@@ -239,14 +241,17 @@ jobs:
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
               echo "Backend review group requested"
               backend_approval_required=true
+            elsif echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+              echo "PR author '$PR_AUTHOR' is a backend-review-group member."
+              backend_approval_required=true
             else
+              echo "PR author '$PR_AUTHOR' is not a backend-review-group member."
               echo "Fetching Labels"
               for LABEL in "${LABELS[@]}"; do
                 echo "Fetching $LABEL"
                 if [[ "$LABEL" == "require-backend-approval" ]]; then
                   echo "Label exists"
                   backend_approval_required=true
-                  break
                 fi
               done
             fi
@@ -328,7 +333,7 @@ jobs:
           echo "Backend reviewers regex: $BACKEND_REVIEWERS"
 
           # Get PR author
-          PR_AUTHOR=$(gh pr view ${{ env.pr_number }} --json author -q '.author.login')
+          PR_AUTHOR=${{ env.pr_author }}
           if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
