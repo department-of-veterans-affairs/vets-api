@@ -224,7 +224,7 @@ jobs:
         run: |
           backend_approval_required=false
           exempt_team=false
-          LABELS=${{ env.pr_labels }}
+          LABELS="${{ env.pr_labels }}"
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_AUTHOR=${{ env.pr_author }}
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
