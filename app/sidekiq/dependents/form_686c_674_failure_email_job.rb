@@ -20,9 +20,9 @@ class Dependents::Form686c674FailureEmailJob
                          saved_claim_id: claim_id,
                          error_message: ex.message
                        })
-    @monitor = Dependents::Monitor.new(claim_id)
-    @monitor.log_silent_failure(@monitor.default_payload.merge(message: ex.message),
-                                call_location: caller_locations.first)
+    monitor = Dependents::Monitor.new(claim_id)
+    monitor.log_silent_failure(monitor.default_payload.merge(message: ex.message),
+                               call_location: caller_locations.first)
   end
 
   def perform(claim_id, email, template_id, personalisation)
