@@ -187,16 +187,14 @@ class BenefitsIntakeStatusJob
       end
     end
 
-    # VFF Forms
+    # VFF Forms (Simple Forms API)
     if VFF::Monitor.vff_form?(form_id)
-      form_submission = FormSubmission.joins(:form_submission_attempts)
-                                     .find_by(form_submission_attempts: { benefits_intake_uuid: bi_uuid })
       monitor = VFF::Monitor.new
-      monitor.track_benefits_intake_failure(context, form_submission: form_submission)
+      form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: bi_uuid)
+      email_sent = form_submission_attempt&.should_send_simple_forms_email || false
+      monitor.track_benefits_intake_failure(bi_uuid, form_id, email_sent)
     end
   end
-  # rubocop:enable Metrics/MethodLength
-
   def form_submission_attempts_hash
     @_form_submission_attempts_hash ||= FormSubmissionAttempt
                                         .where(aasm_state: 'pending')
