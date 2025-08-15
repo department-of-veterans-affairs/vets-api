@@ -38,7 +38,7 @@ module AccreditedRepresentativePortal
     end
 
     attribute :vbms_status do |object|
-      STATUSES[object.latest_submission_attempt&.aasm_state]
+      STATUSES.fetch(object.latest_submission_attempt&.aasm_state, 'processing_error')
     end
 
     attribute :vbms_received_date do |object|
