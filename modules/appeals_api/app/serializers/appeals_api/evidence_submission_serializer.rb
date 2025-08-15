@@ -10,7 +10,7 @@ module AppealsApi
     set_key_transform(:camel_lower)
     set_type(:evidence_submission)
 
-    attributes :in_final_status?, :status, :code, :detail, :location
+    attributes :status, :code, :detail, :location
 
     attribute :appeal_id, &:supportable_id
 
