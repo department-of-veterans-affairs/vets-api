@@ -74,7 +74,7 @@ module ClaimsApi
           request = find_poa_request!(lighthouse_id)
           proc_id = request.proc_id
 
-          validate_decide_representative_params!(request.poa_code, representative_id)
+          decide_service.validate_decide_representative_params!(request.poa_code, representative_id)
 
           vet_icn = request.veteran_icn
           claimant_icn = request.claimant_icn
@@ -184,17 +184,6 @@ module ClaimsApi
           [dependent.first_name, dependent.last_name]
         end
 
-        def validate_decide_representative_params!(poa_code, representative_id)
-          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
-                                                                      poa_code, representative_id)
-          unless representative
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-              detail: "The accredited representative with registration number #{representative_id} does not match " \
-                      "poa code: #{poa_code}."
-            )
-          end
-        end
-
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           result = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
@@ -283,6 +272,10 @@ module ClaimsApi
                                                 declined_reason:)
 
           raise Common::Exceptions::Lighthouse::BadGateway if response.blank?
+        end
+
+        def decide_service
+          ClaimsApi::PowerOfAttorneyRequestService::Decide.new
         end
 
         def manage_representative_service
