@@ -25,6 +25,50 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
       allow(Flipper).to receive(:enabled?).with(:form1995_confirmation_email).and_return(true)
     end
 
+    context 'when form1995_confirmation_email flipper is disabled' do
+      let(:user) { create(:user) }
+
+      before { allow(Flipper).to receive(:enabled?).with(:form1995_confirmation_email).and_return(false) }
+
+      it 'returns early without parsing form data' do
+        expect(JSON).not_to receive(:parse)
+        subject.after_submit(user)
+      end
+    end
+
+    context 'when flipper is enabled' do
+      let(:user) { create(:user) }
+
+      before do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+      end
+
+      context 'happy path (email is not blank)' do
+        it 'parses the form data' do
+          subject = create(:va1995_full_form)
+
+          expect(JSON).to receive(:parse).with(subject.form).and_call_original
+
+          subject.after_submit(user)
+        end
+      end
+
+      context 'when the email is blank' do
+        let(:user) { nil } # unauthenticated so no user profile email
+
+        it 'returns early without sending the email' do
+          form_data_without_email = { 'name' => 'John' }.to_json # no email key
+
+          subject = create(:va1995_full_form)
+          allow(subject).to receive(:form).and_return(form_data_without_email)
+
+          expect(subject).not_to receive(:send_confirmation_email)
+
+          subject.after_submit(user)
+        end
+      end
+    end
+
     context 'authenticated user (logged in)' do
       # email will be picked up from the user profile of the logged in user
       let(:user) { create(:user) }
