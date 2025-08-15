@@ -295,17 +295,24 @@ jobs:
           # done
 
           PR_LABELS="${pr_labels}"
-          LABELS_ARRAY=($(echo "$PR_LABELS" | jq -r '.[] | @sh'))
-          echo "Raw PR labels: $PR_LABELS"
-          echo "Labels: $LABELS"
-          for LABEL in "${LABELS_ARRAY[@]}"; do
-            # Remove surrounding quotes added by @sh
-            LABEL=$(eval echo "$LABEL")
+          # LABELS_ARRAY=($(echo "$PR_LABELS" | jq -r '.[] | @sh'))
+          # echo "Raw PR labels: $PR_LABELS"
+          # echo "Labels: $LABELS"
+          # echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
+          #   # Remove surrounding quotes added by @sh
+          #   LABEL=$(eval echo "$LABEL")
+          #   echo "Fetching label: $LABEL"
+          #   if [[ "$LABEL" == "require-backend-approval" ]]; then
+          #     echo "Label exists"
+          #     backend_approval_required=true
+          #     break
+          #   fi
+          # done
+          echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
             echo "Fetching label: $LABEL"
             if [[ "$LABEL" == "require-backend-approval" ]]; then
               echo "Label exists"
               backend_approval_required=true
-              break
             fi
           done
 
