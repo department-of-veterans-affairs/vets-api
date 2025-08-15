@@ -77,7 +77,7 @@ module EVSS
       end
 
       def determine_2024_version
-        form_4142['completed2024Form'] == true
+        submitted_form4142['completed2024Form'] == true
       end
 
       def submitted_form4142
