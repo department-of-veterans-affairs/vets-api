@@ -232,9 +232,7 @@ jobs:
               backend_approval_required=false
               break
             else
-              if gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
-                >/dev/null 2>&1; then
+              if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
@@ -249,7 +247,7 @@ jobs:
             echo "Fetching PR REQUESTED TEAMS"
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null || \
-              echo "$PREVIOUS_PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
+                echo "$PREVIOUS_PR_LABELS" | jq -e '. | index("require-backend-approval")' > /dev/null; then
               echo "true"
               backend_approval_required=true
             else
