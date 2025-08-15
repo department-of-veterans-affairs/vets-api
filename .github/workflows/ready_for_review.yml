@@ -263,10 +263,32 @@ jobs:
 
           # Added for testing
           # Remove brackets and quotes
-          CLEANED=$(echo "$LABELS" | tr -d '[]"')
+          # CLEANED=$(echo "$LABELS" | tr -d '[]"')
 
           # Convert to array
+          # IFS=',' read -r -a LABELS_ARRAY <<< "$CLEANED"
+
+
+          # CLEANED=$(echo "${pr_labels}" | tr -d '[]"')
+          # IFS=',' read -r -a LABELS <<< "$CLEANED"
+          # for LABEL in "${LABELS[@]}"; do
+          #   echo "Fetching $LABEL"
+          #   if [[ "$LABEL" == "require-backend-approval" ]]; then
+          #     echo "Label exists"
+          #     backend_approval_required=true
+          #     break
+          #   fi
+          # done
+
+          RAW_LABELS="${pr_labels}"
+
+          # Remove brackets and quotes
+          CLEANED=$(echo "$RAW_LABELS" | tr -d '[]"')
+
+          # Convert to Bash array
           IFS=',' read -r -a LABELS_ARRAY <<< "$CLEANED"
+
+          # Loop safely
           for LABEL in "${LABELS_ARRAY[@]}"; do
             echo "Fetching $LABEL"
             if [[ "$LABEL" == "require-backend-approval" ]]; then
@@ -275,6 +297,7 @@ jobs:
               break
             fi
           done
+
           #Remove after testing
 
           membership_state=$(gh api -X GET \
