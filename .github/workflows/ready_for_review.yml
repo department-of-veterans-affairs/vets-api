@@ -203,7 +203,7 @@ jobs:
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
           echo "Parsed PR_REQUESTED_TEAMS_JSON: $PR_REQUESTED_TEAMS_JSON"
-          echo "Pull request Author: $PR_AUTHOR"
+          echo "Pull request Author: ${{ env.pr_author }}
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
