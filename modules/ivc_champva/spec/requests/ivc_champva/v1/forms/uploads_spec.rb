@@ -680,14 +680,17 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           # Mock the PDF operations to avoid file creation
           allow(IvcChampva::Attachments).to receive(:get_blank_page).and_return('/tmp/blank.pdf')
           allow(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
-          allow(controller).to receive(:create_custom_attachment).and_return({
-                                                                               'confirmation_code' => 'stamped_doc_code',
-                                                                               'attachment_id' => 'CVA Bene Response'
-                                                                             })
+          allow(controller).to receive(:create_custom_attachment)
+            .and_return(
+              'confirmation_code' => 'stamped_doc_code',
+              'attachment_id' => 'CVA Bene Response'
+            )
 
           # Mock the stamped doc record for the dynamically created confirmation code
           stamped_record = double('StampedRecord', created_at: 2.hours.ago, file: double(id: 'stamped_file'))
-          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'stamped_doc_code').and_return(stamped_record)
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+            .with(guid: 'stamped_doc_code')
+            .and_return(stamped_record)
 
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
