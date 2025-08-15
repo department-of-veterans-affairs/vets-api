@@ -374,7 +374,7 @@ jobs:
 
           if [[ "$team_approval_status" == "confirmed" ]]; then
             for TEAM in "${EXEMPT_TEAMS[@]}"; do
-              echo "Fetching members of team: $TEAM"
+              echo "Checking if Reviewer is a member of $TEAM"
               if gh api -X GET "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$REVIEWER" >/dev/null 2>&1; then
                 echo "$REVIEWER is apart of an exempt $TEAM"
                 exempt_be_review=true
@@ -382,8 +382,6 @@ jobs:
                 team_approval_status=confirmed
                 approval_status=confirmed
                 break
-              else
-                echo "$REVIEWER is not exempt $TEAM"
               fi
             done
           fi
