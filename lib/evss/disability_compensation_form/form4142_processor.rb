@@ -56,7 +56,7 @@ module EVSS
       end
 
       def form_data
-        @form_data ||= transform_form_data(set_signature_date(@submission.form[Form526Submission::FORM_4142]))
+        @form_data ||= transform_form_data(set_signature_date(submitted_form4142))
       end
 
       def pdf_identifier
@@ -77,7 +77,11 @@ module EVSS
       end
 
       def determine_2024_version
-        @submission.form[Form526Submission::FORM_4142]['completed2024Form'] == true
+        form_4142['completed2024Form'] == true
+      end
+
+      def submitted_form4142
+        @submission.form[Form526Submission::FORM_4142]
       end
 
       # Flip this on to validate the schema of the form data
