@@ -223,7 +223,7 @@ jobs:
         id: check_backend_requirement
         run: |
           backend_approval_required=false
-          exempt_team=fals
+          exempt_team=false
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_AUTHOR=${{ env.pr_author }}
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
@@ -414,7 +414,6 @@ jobs:
       - name: Add ready-for-backend-review label
         if: |
           needs.check-workflow-status.outputs.failures_detected == 'false' &&
-
           steps.check_backend_requirement.outputs.backend_approval_required == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           (
