@@ -42,10 +42,15 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "Pull request triggered workflow"
-            echo "pr_number=${{ github.event.workflow_run.pull_requests[0].number }}" >> "$GITHUB_OUTPUT"
-            echo "pr_draft=${{ github.event.pull_request.draft }}" >> "$GITHUB_OUTPUT"
-            echo "pr_author=${{ github.event.pull_request.user.login }}" >> "$GITHUB_OUTPUT"
-            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> "$GITHUB_OUTPUT"
+            echo "PR_NUMBER=${{ github.event.workflow_run.pull_requests[0].number }}"
+            echo "PR_DRAFT=${{ github.event.pull_request.draft }}"
+            echo "PR_AUTHOR=${{ github.event.pull_request.user.login }}"
+            echo "PR_LABELS=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')"
+
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT" >> "$GITHUB_OUTPUT"
+            echo "pr_draft=PR_DRAFT" >> "$GITHUB_OUTPUT"
+            echo "pr_author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
+            echo "pr_labels=PR_LABELS" >> "$GITHUB_OUTPUT"
             echo "pr_branch=$SAFE_HEAD_REF" >> "$GITHUB_OUTPUT"
 
             if [ "${{ github.event.pull_request.draft }}" = "true" ]; then
