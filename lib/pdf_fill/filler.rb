@@ -179,7 +179,6 @@ module PdfFill
 
       file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
       output = combine_extras(file_path, hash_converter.extras_generator)
-      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
     end
     # rubocop:enable Metrics/MethodLength
