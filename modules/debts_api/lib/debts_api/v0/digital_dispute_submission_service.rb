@@ -9,10 +9,6 @@ module DebtsApi
       MAX_FILE_SIZE = 1.megabyte
       ACCEPTED_CONTENT_TYPE = 'application/pdf'
 
-      class InvalidFileTypeError < StandardError; end
-      class FileTooLargeError < StandardError; end
-      class NoFilesProvidedError < StandardError; end
-
       configuration DebtManagementCenter::DebtsConfiguration
 
       def initialize(user, files, metadata = nil)
@@ -139,10 +135,6 @@ module DebtsApi
         base_hash = { success: false }
 
         details = case error
-                  when NoFilesProvidedError
-                    { error_type: 'no_files', errors: { files: [error.message] } }
-                  when InvalidFileTypeError
-                    { error_type: 'invalid_file', errors: { files: error.message.split(', ') } }
                   when ActiveRecord::RecordInvalid
                     { error_type: 'validation_error', errors: { base: error.record.errors.full_messages } }
                   else
