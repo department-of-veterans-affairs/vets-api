@@ -24,7 +24,6 @@ jobs:
       pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
-      pr_author:  ${{ steps.get_pr_data.outputs.pr_author }}
     steps:
       - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
@@ -46,7 +45,6 @@ jobs:
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> "$GITHUB_OUTPUT"
             echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> "$GITHUB_OUTPUT"
             echo "pr_branch=$SAFE_HEAD_REF" >> "$GITHUB_OUTPUT"
-            echo "pr_author=${{ github.event.pull_request.user.login }}" >> "$GITHUB_OUTPUT"
 
             if [ "${{ github.event.pull_request.draft }}" = "true" ]; then
               echo "pr_requested_teams=[]" >> "$GITHUB_OUTPUT"
@@ -63,7 +61,6 @@ jobs:
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
               PR_AUTHOR=$(gh pr view "$PR_NUMBER" --json author --jq '.author.login')
               echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-              echo "pr_author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
               echo "pr_branch=$SAFE_WORKFLOW_HEAD_BRANCH" >> "$GITHUB_OUTPUT"
 
               # Fetch PR details from GitHub API
@@ -189,7 +186,6 @@ jobs:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
-      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
     outputs:
       exempt_team: ${{ steps.check_backend_requirement.outputs.exempt_team }}
       backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
@@ -211,6 +207,7 @@ jobs:
             accredited-representatives-admin
             benefits-admin
           )
+          PR_AUTHOR=$(gh pr view ${{ env.pr_number }} --json author -q '.author.login')
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
@@ -241,7 +238,7 @@ jobs:
               for label in "${PR_LABELS[@]}"; do
                 if [[ "$label" == "require-backend-approval" ]]; then
                   echo "Label exists"
-                  found=true
+                  backend_approval_required=true
                   break
                 fi
               done
@@ -278,7 +275,6 @@ jobs:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
-      pr_author: ${{ needs.get-pr-data.outputs.pr_author }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
