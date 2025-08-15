@@ -92,21 +92,39 @@ module ClaimsApi
     end
 
     def validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
-      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods') || []
+      return unless end_date_beyond_180_days?(service_periods)
 
-      end_date_180_days_in_future = service_periods.find do |sp|
-        active_duty_end_date = sp['activeDutyEndDate']
-        next if active_duty_end_date.blank?
-
-        Date.parse(active_duty_end_date) > 180.days.from_now.to_date
-      end
-
-      unless end_date_180_days_in_future.nil?
+      unless eligible_for_future_end_date?(service_periods)
+        # NOTE: this error message doesn't really cover all the ways this validation could
+        # fail, but for backwards compatibility, it has not been changed.
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'serviceInformation/servicePeriods/activeDutyEndDate',
-          'Provided service period duty end date is more than 180 days in the future: ' \
-          "#{end_date_180_days_in_future['activeDutyEndDate']}"
+          'At least one active duty end date must be within 180 days from now.'
         )
+      end
+    end
+
+    def end_date_beyond_180_days?(service_periods)
+      service_periods.any? do |sp|
+        end_date = sp['activeDutyEndDate']
+        next false if end_date.blank?
+
+        Date.parse(end_date) > 180.days.from_now.end_of_day
+      end
+    end
+
+    def eligible_for_future_end_date?(service_periods)
+      reserves_national_guard_service = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
+      reserves_national_guard_service.present? && past_service_period?(service_periods)
+    end
+
+    def past_service_period?(service_periods)
+      service_periods.any? do |sp|
+        end_date = sp['activeDutyEndDate']
+        next false if end_date.blank?
+
+        Date.parse(end_date) <= Time.zone.today.end_of_day
       end
     end
 
