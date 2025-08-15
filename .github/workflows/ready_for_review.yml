@@ -232,11 +232,11 @@ jobs:
           done
           if [[ "$exempt_team" == "false" ]]; then
             echo "Excemption Teams were not found."
-            echo "PR author '$PR_AUTHOR' is not a member of exempt team."
+            echo "PR author '${{ env.pr_author }}' is not a member of exempt team."
             echo "Fetching PR REQUESTED TEAMS"
             echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
-              echo "true"
+              echo "Backend review group requested"
               backend_approval_required=true
             else
               for label in "${PR_LABELS[@]}"; do
