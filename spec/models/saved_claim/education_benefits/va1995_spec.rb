@@ -5,7 +5,7 @@ require 'lib/saved_claims_spec_helper'
 
 RSpec.describe SavedClaim::EducationBenefits::VA1995 do
   let(:instance) { build(:va1995) }
-  let(:callback_options) {
+  let(:callback_options) do
     {
       callback_metadata: {
         notification_type: 'confirmation',
@@ -13,7 +13,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
         statsd_tags: { service: 'submit-1995-form', function: 'form_1995_failure_confirmation_email_sending' }
       }
     }
-  }
+  end
 
   it_behaves_like 'saved_claim'
 
