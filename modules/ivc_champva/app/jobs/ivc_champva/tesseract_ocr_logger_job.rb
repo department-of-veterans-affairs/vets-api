@@ -37,7 +37,7 @@ module IvcChampva
           result = run_ocr(file_path, uuid, attachment_id)
         ensure
           # Clean up the tempfile
-          tempfile.close!
+          tempfile&.close!
         end
 
         # Log the OCR result
