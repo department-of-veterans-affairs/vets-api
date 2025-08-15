@@ -15,6 +15,16 @@ module ClaimsApi
           )
         end
       end
+
+      def get_poa_request(ptcpnt_id:, lighthouse_id:)
+        service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                             external_key: Settings.bgs.external_key)
+
+        res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id:)
+        res['poaRequestRespondReturnVOList']
+        res['id'] = lighthouse_id
+        res
+      end
     end
   end
 end

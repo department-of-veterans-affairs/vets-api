@@ -307,10 +307,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
-    let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:lighthouse_id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
     let(:request_response) do
       ClaimsApi::PowerOfAttorneyRequest.new(
-        id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+        id: lighthouse_id,
         proc_id: '76529',
         veteran_icn: '1008714701V416111',
         claimant_icn: '',
@@ -344,7 +344,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
               accepted_form_attributes[:decision] = ''
-              decide_request_with(id:, form_attributes: accepted_form_attributes, auth_header:)
+              decide_request_with(id: lighthouse_id, form_attributes: accepted_form_attributes, auth_header:)
 
               response_body = JSON.parse(response.body)
 
@@ -365,7 +365,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         it 'raises an error if decision is not valid' do
           mock_ccg(scopes) do |auth_header|
             declined_form_attributes[:decision] = 'indecision'
-            decide_request_with(id:, form_attributes: declined_form_attributes, auth_header:)
+            decide_request_with(id: lighthouse_id, form_attributes: declined_form_attributes, auth_header:)
 
             response_body = JSON.parse(response.body)
 
@@ -379,12 +379,11 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
 
     context 'when procId is present and valid and decision is accepted' do
-      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
-
       before do
         allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
-        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
-        allow(service).to receive(:get_poa_request).and_return({})
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:get_poa_request).and_return({ 'id' => lighthouse_id })
         allow_any_instance_of(
           ClaimsApi::PowerOfAttorneyRequestService::Decide
         ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
@@ -396,12 +395,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-            decide_request_with(id:, form_attributes: accepted_form_attributes, auth_header:)
+            decide_request_with(id: lighthouse_id, form_attributes: accepted_form_attributes, auth_header:)
 
             response_body = JSON.parse(response.body)
 
             expect(response).to have_http_status(:ok)
-            expect(response_body['data']['id']).to eq(id)
+            expect(response_body['data']['id']).to eq(lighthouse_id)
           end
         end
       end
@@ -409,7 +408,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       it 'includes location in the response header' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-            decide_request_with(id:, form_attributes: accepted_form_attributes, auth_header:)
+            decide_request_with(id: lighthouse_id, form_attributes: accepted_form_attributes, auth_header:)
 
             expect(response.headers).to have_key('Location')
           end
@@ -511,13 +510,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         mock_ccg(scopes) do |auth_header|
           expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
 
-          decide_request_with(id:, form_attributes: declined_form_attributes, auth_header:)
+          decide_request_with(id: lighthouse_id, form_attributes: declined_form_attributes, auth_header:)
         end
       end
 
       it 'does not include location in the response header' do
         mock_ccg(scopes) do |auth_header|
-          decide_request_with(id:, form_attributes: declined_form_attributes, auth_header:)
+          decide_request_with(id: lighthouse_id, form_attributes: declined_form_attributes, auth_header:)
 
           expect(response.headers).not_to have_key('Location')
         end
