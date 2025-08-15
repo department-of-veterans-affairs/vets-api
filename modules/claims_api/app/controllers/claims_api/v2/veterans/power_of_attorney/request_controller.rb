@@ -65,8 +65,7 @@ module ClaimsApi
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
-                                                                                              root: :data),
-                 status: :ok
+                                                                                              root: :data), status: :ok
         end
 
         # rubocop:disable Metrics/MethodLength
