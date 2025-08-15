@@ -206,7 +206,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   describe 'Test new Lighthouse route' do
     before do
       # Make Job use new Lighthouse route for all tests
-      Flipper.enable(:disability_compensation_form4142_supplemental)
+      allow(Flipper).to receive(:enabled?).with(:disability_compensation_form4142_supplemental).and_return(true)
     end
 
     let(:user_account) { user.user_account }
