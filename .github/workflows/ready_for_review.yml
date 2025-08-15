@@ -212,19 +212,21 @@ jobs:
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
-              echo "Excemption Groups were found: $TEAM"
+              echo "Excemption Teams were found: $TEAM"
               exempt_team=true
               backend_approval_required=false
               break
             else
-              echo "Excemption Groups were not found."
-              if gh api -X GET "orgs/${TEAM%%/*}/teams/${TEAM##*/}/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
+              echo "Excemption Teams were not found."
+              if gh api -X GET \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
+                >/dev/null 2>&1; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_team=true
                 backend_approval_required=false
                 break
               else
-                echo "PR author '$PR_AUTHOR' is a not member of an exempt team.
+                echo "PR author '$PR_AUTHOR' is not a member of exempt team '$TEAM'."
               fi
             fi
           done
