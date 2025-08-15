@@ -11,14 +11,14 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
   let(:mock_service) { instance_double(DebtsApi::V0::DigitalDisputeSubmissionService) }
   let(:metadata_json) do
     {
-      "disputes" => [
+      'disputes' => [
         {
-          "composite_debt_id" => "71166",
-          "deduction_code" => "71",
-          "original_ar" => 166.67,
-          "current_ar" => 120.4,
-          "benefit_type" => "CH33 Books, Supplies/MISC EDU",
-          "dispute_reason" => "I don't think I owe this debt to VA"
+          'composite_debt_id' => '71166',
+          'deduction_code' => '71',
+          'original_ar' => 166.67,
+          'current_ar' => 120.4,
+          'benefit_type' => 'CH33 Books, Supplies/MISC EDU',
+          'dispute_reason' => "I don't think I owe this debt to VA"
         }
       ]
     }.to_json
@@ -50,14 +50,9 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         it 'tracks success metrics' do
           expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
           expect(StatsD).to receive(:increment).with(
-            "api.rack.request",
+            'api.rack.request',
             {
-              :tags => [
-                "controller:debts_api/v0/digital_disputes",
-                "action:create",
-                "source_app:not_provided",
-                "status:500"
-              ]
+              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:500]
             }
           )
 
@@ -85,14 +80,9 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         it 'tracks failure metrics' do
           expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
           expect(StatsD).to receive(:increment).with(
-            "api.rack.request",
+            'api.rack.request',
             {
-              :tags => [
-                "controller:debts_api/v0/digital_disputes",
-                "action:create",
-                "source_app:not_provided",
-                "status:500"
-              ]
+              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:500]
             }
           )
 
