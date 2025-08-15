@@ -47,7 +47,7 @@ jobs:
             PR_AUTHOR=${{ github.event.pull_request.user.login }}
             PR_LABELS=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')
 
-            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
             echo "pr_draft=PR_DRAFT" >> "$GITHUB_OUTPUT"
             echo "pr_author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
             echo "pr_labels=PR_LABELS" >> "$GITHUB_OUTPUT"
