@@ -241,7 +241,7 @@ jobs:
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
               echo "Backend review group requested"
               backend_approval_required=true
-            elif echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+            elif gh api -X GET "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" >/dev/null 2>&1; then
               echo "PR author '$PR_AUTHOR' is a backend-review-group member."
               backend_approval_required=true
             else
