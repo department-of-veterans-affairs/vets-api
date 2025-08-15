@@ -95,6 +95,9 @@ jobs:
             exit 1
           fi
 
+          echo "PR_AUTHOR: $PR_AUTHOR"
+          echo "PR_LABELS: $PR_LABELS"
+
       - name: Remove require-backend-approval label
         if: steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
