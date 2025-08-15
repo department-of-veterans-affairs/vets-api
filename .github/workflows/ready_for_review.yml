@@ -135,7 +135,7 @@ jobs:
   check-workflow-status:
     name: Check Workflow Statuses
     needs: [get-pr-data]
-    if: needs.get-pr-data.outputs.pr_draft == 'false'
+    if: contains(needs.get-pr-data.outputs.pr_draft, 'false')
     runs-on: ubuntu-latest
     permissions: write-all
     env:
