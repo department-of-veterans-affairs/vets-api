@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_notify/default_callback'
+require 'va_notify/callback_signature_generator'
 
 RSpec.describe 'VANotify Callbacks', type: :request do
   let(:valid_token) { Settings.vanotify.status_callback.bearer_token }
@@ -122,10 +123,59 @@ RSpec.describe 'VANotify Callbacks', type: :request do
     context 'without a token' do
       it 'returns http unauthorized' do
         post(callback_route,
-             params: callback_params,
+             params: callback_params.to_json,
              headers: { 'Content-Type' => 'application/json' })
         expect(response).to have_http_status(:unauthorized)
         expect(response.body).to include('Unauthorized')
+      end
+    end
+
+    context 'with request-level callback data' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+      end
+
+      it 'invalidates signature mis-match' do
+        signature = 'mismatched signature'
+        notification = instance_double(VANotify::Notification,
+                                       service_api_key_path: 'Settings.vanotify.services.check_in.api_key')
+        allow(VANotify::Notification).to receive(:find_by).and_return(notification)
+
+        post(callback_route,
+             params: callback_params.to_json,
+             headers: {
+               'Content-Type' => 'application/json',
+               'x-enp-signature' => signature
+             })
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'validates header signature' do
+        service_api_key_path = 'Settings.vanotify.services.check_in.api_key'
+        template_id = SecureRandom.uuid
+        notification = VANotify::Notification.create(notification_id:,
+                                                     template_id:,
+                                                     service_api_key_path:)
+
+        params = {
+          id: notification.notification_id,
+          status: 'delivered',
+          notification_type: 'email',
+          to: 'user@example.com',
+          status_reason: ''
+        }
+
+        signature = VANotify::CallbackSignatureGenerator.call(params.to_json, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')
+
+        post(callback_route,
+             params: params.to_json,
+             headers: {
+               'Content-Type' => 'application/json',
+               'x-enp-signature' => signature
+             })
+
+        expect(response).to have_http_status(:ok)
       end
     end
   end

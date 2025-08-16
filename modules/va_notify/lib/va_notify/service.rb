@@ -14,7 +14,7 @@ module VaNotify
 
     configuration VaNotify::Configuration
 
-    attr_reader :notify_client, :callback_options
+    attr_reader :notify_client, :callback_options, :template_id
 
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
@@ -25,11 +25,13 @@ module VaNotify
     end
 
     def send_email(args)
+      @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
+          args[:callback_url] = "#{Settings.vanotify.client_url}/va_notify/callbacks"
           notify_client.send_email(args)
         end
-        create_notification(response, args[:template_id])
+        create_notification(response)
         response
       else
         with_monitoring do
@@ -41,11 +43,13 @@ module VaNotify
     end
 
     def send_sms(args)
+      @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
+          args[:callback_url] = "#{Settings.vanotify.client_url}/va_notify/callbacks"
           notify_client.send_sms(args)
         end
-        create_notification(response, args[:template_id])
+        create_notification(response)
         response
       else
         with_monitoring do
@@ -104,12 +108,13 @@ module VaNotify
       )
     end
 
-    def create_notification(response, template_id)
+    def create_notification(response) # rubocop:disable Metrics/MethodLength
       if response.nil?
         Rails.logger.error('VANotify - no response')
         return
       end
 
+      service_api_key_path = retrieve_service_api_key_path
       # when the class is used directly we can pass symbols as keys
       # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
       notification = VANotify::Notification.new(
@@ -117,7 +122,8 @@ module VaNotify
         source_location: find_caller_locations,
         callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
         callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
-        template_id:
+        template_id:,
+        service_api_key_path:
       )
 
       if notification.save
@@ -165,6 +171,19 @@ module VaNotify
         next if ignored_files.any? { |path| location.path.include?(path) }
 
         return "#{location.path}:#{location.lineno} in #{location.base_label}"
+      end
+    end
+
+    def retrieve_service_api_key_path
+      service_config = Settings.vanotify.services.find do |_service, options|
+        options.api_key == @notify_client.api_key
+      end
+
+      if service_config.blank?
+        Rails.logger.error("api key path not found for template #{@template_id}")
+        nil
+      else
+        "Settings.vanotify.services.#{service_config[0]}.api_key"
       end
     end
   end
