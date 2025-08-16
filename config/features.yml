@@ -276,6 +276,9 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_resubmission_attachment_ids:
+    actor_type: user
+    description: Corrects attachment IDs for resubmission of form 10-7959a
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
