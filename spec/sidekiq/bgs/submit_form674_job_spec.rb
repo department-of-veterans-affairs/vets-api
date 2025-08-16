@@ -4,6 +4,11 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
+  # performance tweak
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
