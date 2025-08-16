@@ -38,4 +38,24 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       )
     end
   end
+
+  describe 'claims_api/_submission_grouped_table.html.erb', type: :view do
+    # Basic test verifying rendering works as expected, providing DD links for GUIDs
+    # in unsuccessful_report_mailer.rb
+    it 'renders GUIDs as links with correct query params' do
+      guid1 = '21a35517-d229-430b-8e6a-31f33f596e54'
+      guid2 = '21a35517-d229-430b-8e6a-31f33f596e56'
+      # Mock an ActiveRecord::Relation to simulate pluck behavior
+      ar_relation = double('ActiveRecord::Relation', pluck: [guid1, guid2])
+      group = ['1', ar_relation]
+      assign(:claims, [group])
+
+      render partial: 'claims_api/submission_grouped_table', locals: { claims: [group] }
+
+      doc = Nokogiri::HTML(rendered)
+      expect(doc.css('td').map(&:text)).to include('1') # 1 is the group
+      links = doc.css('a')
+      expect(links.map(&:text)).to include(guid1, guid2) # GUIDs are link texts
+    end
+  end
 end
