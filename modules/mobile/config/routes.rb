@@ -87,6 +87,7 @@ Mobile::Engine.routes.draw do
     post '/push/send', to: 'push_notifications#send_notification'
     get '/translations/download', to: 'translations#download'
     post '/travel-pay/claims', to: 'travel_pay_claims#create'
+    get '/travel-pay/claims', to: 'travel_pay_claims#index'
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
