@@ -7,13 +7,14 @@ RSpec.describe 'V0::EventBusGateway', type: :request do
   describe 'POST /v0/event_bus_gateway/send_email' do
     let(:params) do
       {
-        template_id: '5678'
+        template_id: '5678',
+        ep_code: 'EP110'
       }
     end
 
     context 'with the authentication header included' do
       it 'invokes the email-sending job' do
-        expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('1234', '5678')
+        expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('1234', '5678', 'EP110')
         post '/v0/event_bus_gateway/send_email', params:, headers: service_account_auth_header
         expect(response).to have_http_status(:ok)
       end

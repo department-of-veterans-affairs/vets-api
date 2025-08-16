@@ -15,13 +15,18 @@ module EventBusGateway
       'api.va.gov' => 'www.va.gov'
     }.freeze
 
-    def perform(participant_id, template_id)
+    def perform(participant_id, template_id, ep_code = nil)
       notify_client.send_email(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
-        personalisation: { host: HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
-                           first_name: get_first_name_from_participant_id(participant_id) }
+        personalisation: {
+          host: HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
+          first_name: get_first_name_from_participant_id(participant_id)
+        }
       )
+
+      # Track decision letter emails in Google Analytics
+      track_decision_letter_email(ep_code, participant_id) if ep_code
     rescue => e
       record_email_send_failure(e)
     end
@@ -29,8 +34,10 @@ module EventBusGateway
     private
 
     def notify_client
-      VaNotify::Service.new(NOTIFY_SETTINGS.api_key,
-                            { callback_klass: 'EventBusGateway::VANotifyEmailStatusCallback' })
+      VaNotify::Service.new(
+        NOTIFY_SETTINGS.api_key,
+        { callback_klass: 'EventBusGateway::VANotifyEmailStatusCallback' }
+      )
     end
 
     def get_first_name_from_participant_id(participant_id)
@@ -47,6 +54,67 @@ module EventBusGateway
       error_message = 'LetterReadyEmailJob errored'
       ::Rails.logger.error(error_message, { message: error.message })
       StatsD.increment('event_bus_gateway', tags: ['service:event-bus-gateway', "function: #{error_message}"])
+    end
+
+    def track_decision_letter_email(ep_code, participant_id)
+      return if Settings.google_analytics.tracking_id.blank?
+
+      tracker = Staccato.tracker(Settings.google_analytics.tracking_id)
+      track_ga_event(tracker, ep_code)
+      track_datadog_metrics(ep_code)
+      log_tracking_success(ep_code, participant_id)
+    rescue => e
+      track_tracking_failure(ep_code, e, participant_id)
+    end
+
+    def track_ga_event(tracker, ep_code)
+      event_params = {
+        category: 'email',
+        action: 'sent',
+        label: "decision_letter_#{ep_code.downcase}",
+        non_interactive: true,
+        campaign_name: "decision_letter_#{ep_code.downcase}",
+        campaign_medium: 'email',
+        campaign_source: 'event-bus-gateway',
+        document_title: "Decision Letter - #{ep_code}",
+        document_path: '/v0/event_bus_gateway/send_email'
+      }
+
+      tracker.event(event_params)
+    end
+
+    def track_datadog_metrics(ep_code)
+      StatsD.increment('event_bus_gateway.decision_letter_email.sent',
+                       tags: [
+                         "ep_code:#{ep_code}",
+                         'service:event-bus-gateway',
+                         'email_type:decision_letter'
+                       ])
+    end
+
+    def log_tracking_success(ep_code, participant_id)
+      ::Rails.logger.info('Decision Letter Email Tracked',
+                          {
+                            ep_code:,
+                            participant_id:,
+                            ga_tracking_id: Settings.google_analytics.tracking_id
+                          })
+    end
+
+    def track_tracking_failure(ep_code, error, participant_id)
+      StatsD.increment('event_bus_gateway.decision_letter_email.tracking_failed',
+                       tags: [
+                         "ep_code:#{ep_code}",
+                         'service:event-bus-gateway',
+                         "error_type:#{error.class.name}"
+                       ])
+
+      ::Rails.logger.error('Failed to track decision letter email',
+                           {
+                             ep_code:,
+                             participant_id:,
+                             error: error.message
+                           })
     end
   end
 end

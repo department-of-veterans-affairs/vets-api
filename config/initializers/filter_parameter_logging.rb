@@ -20,6 +20,7 @@ ALLOWLIST = %w[
   document_type
   endDate
   endpoint_sid
+  ep_code
   error
   errors
   excludeProvidedMessage
@@ -58,6 +59,7 @@ ALLOWLIST = %w[
   submission_id
   tags
   tempfile
+  template_id
   time_to_transition
   to_date
   to_state
