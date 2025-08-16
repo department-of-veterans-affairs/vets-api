@@ -59,10 +59,13 @@ module ClaimsApi
 
           res = service.get_poa_request
           res['id'] = poa_request.id
+          if poa_request.claimant_icn.present?
+            res['claimant_icn'] = poa_request.claimant_icn
+            res = add_dependent_data_to_poa_response(res).first
+          end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :shared_response,
-                                                                                              root: :data),
-                 status: :ok
+                                                                                              root: :data), status: :ok
         end
 
         # rubocop:disable Metrics/MethodLength
@@ -167,7 +170,9 @@ module ClaimsApi
         private
 
         def add_dependent_data_to_poa_response(poa_list)
-          poa_list.each do |item|
+          items = Array.wrap(poa_list)
+
+          items.each do |item|
             next unless item['claimant_icn']
 
             first_name, last_name = get_dependent_name(item['claimant_icn'])
@@ -175,7 +180,7 @@ module ClaimsApi
             item['claimantLastName'] = last_name
           end
 
-          poa_list
+          items
         end
 
         def get_dependent_name(icn)

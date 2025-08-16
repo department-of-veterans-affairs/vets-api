@@ -303,6 +303,37 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
     end
+
+    context 'when the request is filed by a dependent' do
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+      let(:dependent_icn) { '1013093331V548481' }
+      let(:poa_res_only_dependent_info) do
+        {
+          'VSOUserEmail' => nil, 'VSOUserFirstName' => 'VDC USER', 'VSOUserLastName' => nil,
+          'changeAddressAuth' => 'Y', 'claimantCity' => 'Los Angeles', 'claimantCountry' => 'Vietnam',
+          'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil, 'claimantState' => 'CA',
+          'claimantZip' => '92264', 'dateRequestActioned' => '2025-08-13T15:21:51-05:00',
+          'dateRequestReceived' => '2025-08-13T15:21:51-05:00', 'declinedReason' => nil, 'healthInfoAuth' => 'Y',
+          'poaCode' => '067', 'procID' => '3865154', 'secondaryStatus' => 'New', 'vetFirstName' => 'Margie',
+          'vetLastName' => 'Curtis', 'vetMiddleName' => nil, 'vetPtcpntID' => '600052700'
+        }
+      end
+      let(:poa_request_with_dependent) { create(:claims_api_power_of_attorney_request, claimant_icn: dependent_icn) }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return(poa_res_only_dependent_info)
+      end
+
+      it 'has the claimant firstName andlastName in the response' do
+        mock_ccg(scopes) do |auth_header|
+          show_request_with(id: poa_request_with_dependent.id, auth_header:)
+
+          expect(JSON.parse(response.body)['data']['attributes']['claimant']['firstName']).not_to be_nil
+          expect(JSON.parse(response.body)['data']['attributes']['claimant']['lastName']).not_to be_nil
+        end
+      end
+    end
   end
 
   describe '#decide' do
