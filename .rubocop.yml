@@ -187,6 +187,7 @@ RSpec/SpecFilePathFormat:
   Enabled: true
   Exclude:
     - 'modules/**/*'
+    - 'spec/controllers/v0/sign_in_controller/**/*'
     - 'spec/lib/common/models/**/*'
     - 'spec/lib/saml/*_user_spec.rb'
     - 'spec/lib/ihub/appointments/service_spec.rb'
