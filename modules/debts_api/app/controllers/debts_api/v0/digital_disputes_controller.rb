@@ -27,7 +27,7 @@ module DebtsApi
       private
 
       def process_submission
-        metadata = parse_metadata(submission_params[:metadata])
+        metadata = parse_metadata
 
         service = DebtsApi::V0::DigitalDisputeSubmissionService.new(
           current_user,
@@ -37,11 +37,8 @@ module DebtsApi
         service.call
       end
 
-      def parse_metadata(metadata_param)
-        return nil if metadata_param.blank?
-        return metadata_param if metadata_param.is_a?(Hash)
-
-        JSON.parse(metadata_param, symbolize_names: true)
+      def parse_metadata
+        JSON.parse(submission_params[:metadata], symbolize_names: true)
       end
 
       def submission_params

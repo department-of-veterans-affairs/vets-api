@@ -9,10 +9,6 @@ module DebtsApi
       MAX_FILE_SIZE = 1.megabyte
       ACCEPTED_CONTENT_TYPE = 'application/pdf'
 
-      class InvalidFileTypeError < StandardError; end
-      class FileTooLargeError < StandardError; end
-      class NoFilesProvidedError < StandardError; end
-
       configuration DebtManagementCenter::DebtsConfiguration
 
       SUBMISSION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_submission_email
@@ -26,9 +22,6 @@ module DebtsApi
       end
 
       def call
-        validate_files_present
-        validate_files
-
         submission = create_submission_record
         return duplicate_submission_result(submission) if check_duplicate?(submission)
 
@@ -37,6 +30,8 @@ module DebtsApi
         in_progress_form&.destroy
 
         success_result(submission)
+      rescue ActiveRecord::RecordInvalid => e
+        failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
         failure_result(e)
@@ -56,6 +51,7 @@ module DebtsApi
         {
           fileNumber: @file_number,
           disputePDFs: files.map do |file|
+            file.tempfile.rewind
             {
               fileName: sanitize_filename(file.original_filename),
               fileContents: Base64.strict_encode64(file.read)
@@ -73,20 +69,6 @@ module DebtsApi
           raise NoFilesProvidedError,
                 'at least one file is required'
         end
-      end
-
-      def validate_files
-        errors = []
-
-        files.each_with_index do |file, index|
-          file_index = index + 1
-
-          errors << "File #{file_index} must be a PDF" unless file.content_type == ACCEPTED_CONTENT_TYPE
-
-          errors << "File #{file_index} is too large (maximum is 1MB)" if file.size > MAX_FILE_SIZE
-        end
-
-        raise InvalidFileTypeError, errors.join(', ') if errors.any?
       end
 
       def sanitize_filename(filename)
@@ -113,6 +95,10 @@ module DebtsApi
           # Store non-PII data in public_metadata
           submission.store_public_metadata
         end
+
+        submission.files.attach(files) if files.present?
+
+        raise ActiveRecord::RecordInvalid, submission unless submission.valid?
 
         submission.save!
         submission
@@ -152,26 +138,18 @@ module DebtsApi
       end
 
       def failure_result(error)
-        case error
-        when NoFilesProvidedError
-          {
-            success: false,
-            error_type: 'no_files',
-            errors: { files: [error.message] }
-          }
-        when InvalidFileTypeError
-          {
-            success: false,
-            error_type: 'invalid_file',
-            errors: { files: error.message.split(', ') }
-          }
-        else
-          {
-            success: false,
-            error_type: 'processing_error',
-            errors: { base: ['An error occurred processing your submission'] }
-          }
-        end
+        base_hash = { success: false }
+
+        details = case error
+                  when ActiveRecord::RecordInvalid
+                    { error_type: 'validation_error', errors: { base: error.record.errors.full_messages } }
+                  else
+                    {
+                      error_type: 'processing_error', errors: { base: ['An error occurred processing your submission'] }
+                    }
+                  end
+
+        base_hash.merge!(details)
       end
     end
   end
