@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'ssoe/configuration'
-require 'nokogiri'
 
 module SSOe
   class Service < Common::Client::Base
@@ -12,7 +11,6 @@ module SSOe
     configuration SSOe::Configuration
 
     STATSD_KEY_PREFIX = 'api.ssoe'
-
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
       Common::Client::Errors::ClientError,
@@ -28,17 +26,27 @@ module SSOe
           build_message(credential_method, credential_id, user, address),
           soapaction: nil
         )
-        raw_response.body
+        parse_response(raw_response.body)
       end
     rescue *CONNECTION_ERRORS => e
-      Rails.logger.error("[SSOe::Service::get_traits] Connection error: #{e.class} - #{e.message}")
-      nil
+      error_response(e, :connection, 502)
     rescue => e
-      Rails.logger.error("[SSOe::Service::get_traits] Unexpected error: #{e.class} - #{e.message}")
-      nil
+      error_response(e, :unknown, 500)
     end
 
     private
+
+    def error_response(e, type, code)
+      Rails.logger.error("[SSOe::Service::get_traits] #{type} error: #{e.class} - #{e.message}")
+
+      {
+        success: false,
+        error: {
+          code:,
+          message: e.message
+        }
+      }
+    end
 
     def build_message(credential_method, credential_id, user, address)
       SSOe::GetSSOeTraitsByCspidMessage.new(
@@ -55,6 +63,27 @@ module SSOe
         state: address.state,
         zipcode: address.zipcode
       ).perform
+    end
+
+    def parse_response(response_body)
+      parsed = Hash.from_xml(response_body)
+      icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
+      return { success: true, icn: } if icn.present?
+
+      if parsed.dig('Envelope', 'Body', 'Fault')
+        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
+        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
+
+        return {
+          success: false,
+          error: {
+            code: fault_code,
+            message: fault_string
+          }
+        }
+      end
+
+      raise StandardError, 'Unable to parse SOAP response'
     end
   end
 end
