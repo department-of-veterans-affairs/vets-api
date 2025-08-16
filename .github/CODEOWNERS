@@ -266,6 +266,7 @@ app/models/saved_claim @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim.rb @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/dependency_claim.rb @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/disability_compensation.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+app/models/saved_claim/education_benefits.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10203.rb @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10215.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10216.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
@@ -1567,6 +1568,7 @@ spec/models/redis_caching_spec.rb @department-of-veterans-affairs/backend-review
 spec/models/saml_request_tracker_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/saved_claim @department-of-veterans-affairs/backend-review-group
 spec/models/saved_claim_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/models/saved_claim/education_benefits/va1995_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/models/schema_contract @department-of-veterans-affairs/backend-review-group
 spec/models/secondary_appeal_form_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/models/session_spec.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/octo-identity
