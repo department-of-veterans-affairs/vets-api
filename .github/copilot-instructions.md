@@ -5,7 +5,7 @@
 vets-api is a Ruby on Rails API that powers the website VA.gov. It's a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of a veteran The main user of the APIs is vets-website, the frontend repo that powers VA.gov. Both of them are in this GitHub organization.
 
 ## Architecture & Patterns
-- Rails API-only app.
+- Rails API-only application.
 - Follows REST conventions.
 - Background Sidekiq jobs in `app/sidekiq` or `modules/<name>/app/sidekiq`
 - Uses the rubyconfig/config gem to manage environment-specific settings. Settings need to be added to three files: config/settings.yml, config/settings/test.yml, and config/settings/development.yml and must be in alphabetical order.
