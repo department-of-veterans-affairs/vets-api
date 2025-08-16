@@ -36,9 +36,9 @@ module AccreditedRepresentativePortal
 
       {
         'form_id' => form_id,
-        'confirmation_number' => claim.confirmation_number,
+        'confirmation_number' => claim&.latest_submission_attempt&.benefits_intake_uuid,
         'first_name' => representative&.first_name || 'Representative',
-        'submission_date' => claim.created_at.strftime('%B %-d, %Y')
+        'submission_date' => claim&.created_at&.strftime('%B %-d, %Y')
       }.merge(default)
     end
 
