@@ -1330,6 +1330,7 @@ va_profile:
     mock: false
     timeout: 30
 vanotify:
+  callback_url: https://dev-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

@@ -1311,6 +1311,7 @@ va_profile:
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
 vanotify:
+  callback_url: <%= ENV['vanotify__callback_url'] %>
   client_url: <%= ENV['vanotify__client_url'] %>
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
