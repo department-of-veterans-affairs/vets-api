@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 class UserSessionForm
   include ActiveModel::Validations
-  include SentryLogging
+  include Vets::SharedLogging
 
   VALIDATIONS_FAILED_ERROR_CODE = '004'
   SAML_REPLAY_VALID_SESSION_ERROR_CODE = '002'
@@ -78,7 +80,10 @@ class UserSessionForm
                                                                ssn: saml_user_attributes[:ssn],
                                                                birth_date: saml_user_attributes[:birth_date],
                                                                idme_uuid:)
-    log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn) unless mpi_response.ok?
+    unless mpi_response.ok?
+      log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn)
+      log_message_to_rails("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn)
+    end
   end
 
   def uuid_from_account(identifier)
@@ -168,5 +173,6 @@ class UserSessionForm
   def log_existing_user_warning(saml_uuid, saml_icn)
     message = "Couldn't locate existing user after MFA establishment"
     log_message_to_sentry(message, :warn, { saml_uuid:, saml_icn: })
+    log_message_to_rails(message, :warn, { saml_uuid:, saml_icn: })
   end
 end

@@ -79,9 +79,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       it_behaves_like 'error response'
 
       it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+          expected_error, sentry_log_level, sentry_context
+        )
         subject
       end
     end
@@ -89,7 +89,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'user fingerprint validation' do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry).with(:warn)
           expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
@@ -282,7 +282,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'user fingerprint validation' do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry).with(:warn)
           expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
@@ -502,9 +502,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       let(:sentry_log_level) { :error }
 
       it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+          expected_error, sentry_log_level, sentry_context
+        )
         subject
       end
 
@@ -512,7 +512,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:skip_render_error) { true }
 
         it 'does not log an error to sentry' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
           subject
         end
       end
