@@ -15,7 +15,8 @@ RSpec.describe BGSDependentsV2::Child do
       'marriage_end_description' => 'description of annulment',
       'full_name' => { 'first' => 'first', 'middle' => 'middle', 'last' => 'last' },
       'ssn' => '987654321',
-      'birth_date' => '2005-01-01'
+      'birth_date' => '2005-01-01',
+      'does_child_have_permanent_disability' => false
     }
   end
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
@@ -54,7 +55,7 @@ RSpec.describe BGSDependentsV2::Child do
           'last' => 'last',
           'suffix' => nil,
           'child_income' => 'N',
-          'not_self_sufficient' => nil
+          'not_self_sufficient' => 'N'
         }
       end
 
