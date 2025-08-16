@@ -2,6 +2,7 @@
 
 require 'res/ch31_form'
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
@@ -12,9 +13,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
-  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email
+  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.veteran_readiness_and_employment.email.confirmation_vbms.template_id
   CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE =
-    Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email
+    Settings.veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -212,8 +213,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
-                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
+
+    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse, CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
+
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -295,6 +297,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
+  # @see ::Logging::BenefitsIntake::Monitor#track_submission_exhaustion
+  def send_email(email_type)
+    VRE::NotificationEmail.new(id).deliver(email_type)
+  end
+
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
   def send_vbms_lighthouse_confirmation_email(user, service, _email_type, email_template)
@@ -304,7 +311,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       return
     end
 
-    unless Flipper.enabled?(:vre_use_new_vfs_notification_library)
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library)
+      send_email(email_type)
+    else
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
         email_template,

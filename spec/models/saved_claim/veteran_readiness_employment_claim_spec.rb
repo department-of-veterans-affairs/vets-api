@@ -207,7 +207,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
             user.va_profile_email,
-            'ch31_vbms_fake_template_id',
+            'confirmation_vbms_email_template_id',
             {
               'date' => Time.zone.today.strftime('%B %d, %Y'),
               'first_name' => user.first_name.upcase.presence
