@@ -132,7 +132,7 @@ features:
     enable_in_development: true
   bds_gateway_enabled:
     actor_type: user
-    description: Enables the BDS Gateway for Benefits Discovery Service integration
+    description: Enables the BDS Gateway to proxy requests to Benefits Discovery Service
     enable_in_development: true
   bcas_letters_use_lighthouse:
     actor_type: user
