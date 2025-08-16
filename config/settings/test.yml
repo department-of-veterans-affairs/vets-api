@@ -145,6 +145,8 @@ check_in:
     client_number_oh: ~
     client_secret: fake_client_secret
     e_subscription_key: ~
+    travel_pay_client_id: fake_travel_pay_client_id
+    travel_pay_client_secret: fake_travel_pay_client_secret
     redis_token_expiry: 3540
     s_subscription_key: ~
     scope: fake_scope/.default
