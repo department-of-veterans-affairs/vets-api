@@ -16,6 +16,7 @@ require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
 require 'debts_api/v0/digital_dispute_submission_service'
 
+# rubocop:disable Rspec/MultipleDescribes
 RSpec.describe 'the v0 API documentation (Part 7)', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
@@ -419,3 +420,4 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
     end
   end
 end
+# rubocop:enable Rspec/MultipleDescribes
