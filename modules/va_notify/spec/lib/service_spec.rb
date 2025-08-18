@@ -202,9 +202,13 @@ describe VaNotify::Service do
         VCR.use_cassette('va_notify/success_email') do
           notification = VANotify::Notification.new
           notification.errors.add(:base, 'Some error occurred')
-
           allow(notification).to receive(:save).and_return(false)
           allow(VANotify::Notification).to receive(:new).and_return(notification)
+          allow(Settings.vanotify).to receive(:services).and_return(
+            { test_service: double('ServiceConfig', api_key: test_api_key) }
+          )
+          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key)
+
           allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
 
           expect(Rails.logger).to receive(:error).with(
@@ -259,6 +263,10 @@ describe VaNotify::Service do
 
           allow(notification).to receive(:save).and_return(false)
           allow(VANotify::Notification).to receive(:new).and_return(notification)
+          allow(Settings.vanotify).to receive(:services).and_return(
+            { test_service: double('ServiceConfig', api_key: test_api_key) }
+          )
+          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key)
           allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
 
           expect(Rails.logger).to receive(:error).with(
