@@ -173,7 +173,7 @@ jobs:
               --jq '.state' 2>/dev/null || echo "")
 
             if [[ "$membership_state" == "active" ]]; then
-              echo "Reviewer is apart of an exempt team"
+              echo "Reviewer is a part of an exempt team"
               exempt_be_review=true
               team_approval_status=confirmed
               approval_status=confirmed
@@ -185,7 +185,7 @@ jobs:
               backend_approval_required=false
               break
             elif echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
-              echo "Excemption Teams were found: $TEAM"
+              echo "Exemption Teams were found: $TEAM"
               exempt_be_review=true
               backend_approval_required=false
               break
