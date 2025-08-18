@@ -18,7 +18,7 @@ module AppealsApi
       # The final_status will be serialized only if the :decision_reviews_final_status_field flag is enabled
       Flipper.enabled?(:decision_reviews_final_status_field)
     } do |object, _|
-      object.upload_submission.in_final_status?
+      object.in_final_status?
     end
 
     attribute :appeal_type do |object|
