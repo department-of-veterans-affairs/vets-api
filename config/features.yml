@@ -124,10 +124,6 @@ features:
     actor_type: user
     description: Enables the After Visit Summary API.
     enable_in_development: true
-  bcas_letters_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view/download benefit letters.
-    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -414,10 +410,6 @@ features:
   lighthouse_claims_api_hardcode_wsdl:
     actor_type: user
     description: Use hardcoded namespaces for WSDL calls to BGS
-    enable_in_development: true
-  cst_5103_update_enabled:
-    actor_type: user
-    description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
     enable_in_development: true
   cst_show_document_upload_status:
     actor_type: user
@@ -1073,10 +1065,6 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
-    enable_in_development: true
-  letters_check_discrepancies:
-    actor_type: user
-    description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
   letters_page_new_design:
     actor_type: user
