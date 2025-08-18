@@ -33,14 +33,14 @@ module PdfFill
               limit: 27,
               question_num: 1.6,
               question_suffix: 'A',
-              question_text: '6. A. MAILING ADDRESS. STREET.'
+              question_text: 'STREET'
             },
             'city' => {
               key: 'F[0].P3[0].MailingAddress_City[0]',
               limit: 18,
               question_num: 1.6,
               question_suffix: 'B',
-              question_text: '6B. CITY.'
+              question_text: 'CITY'
             },
             'state' => {
               key: 'F[0].P3[0].MailingAddress_State[0]'
@@ -55,14 +55,14 @@ module PdfFill
               limit: 27,
               question_num: 1.7,
               question_suffix: 'A',
-              question_text: '7. A. HOME ADDRESS. STREET.'
+              question_text: 'STREET'
             },
             'city' => {
               key: 'F[0].P3[0].City[0]',
               limit: 18,
               question_num: 1.7,
               question_suffix: 'B',
-              question_text: '7B. CITY.'
+              question_text: 'CITY'
             },
             'state' => {
               key: 'F[0].P3[0].State[0]'
@@ -122,9 +122,7 @@ module PdfFill
             'insuranceName' => {
               key: 'F[0].P3[0].HealthInsurance[0]',
               question_num: 2.1,
-              question_text: 'INSURANCE INFORMATION (Use a separate sheet for additional information). ' \
-                             '1. ENTER YOUR HEALTH INSURANCE COMPANY NAME, ADDRESS AND TELEPHONE NUMBER ' \
-                             '(include coverage through spouse or other person).'
+              question_text: 'ENTER YOUR HEALTH INSURANCE COMPANY NAME, ADDRESS AND TELEPHONE NUMBER.'
             },
             'insurancePolicyHolderName' => {
               key: 'F[0].P3[0].NamePolicyHolder[0]',
@@ -226,8 +224,7 @@ module PdfFill
             key: 'F[0].P4[0].SpouseName[0]',
             limit: 40,
             question_num: 4.1,
-            question_text: 'DEPENDENT INFORMATION (Use a separate sheet for additional ' \
-                           "dependents). 1. SPOUSE'S NAME (Last, First, Middle Name)."
+            question_text: "SPOUSE'S NAME (Last, First, Middle Name)"
           },
           'spouseSocialSecurityNumber' => {
             key: 'F[0].P4[0].SpouseSSN[0]'
@@ -243,7 +240,7 @@ module PdfFill
             limit: 120,
             question_num: 4.6,
             question_text: "SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State, " \
-                           "ZIP - if different from Veteran's)."
+                           "ZIP - if different from Veteran's)"
           },
           'dependents' => {
             limit: 1,
@@ -257,19 +254,17 @@ module PdfFill
             'dateOfBirth' => {
               key: 'F[0].P4[0].ChildDateofBirth[0]',
               question_num: 4.8,
-              question_text: "CHILD'S DATE OF BIRTH. Enter 2 digit " \
-                             'month, 2 digit day and 4 digit year.'
+              question_text: "CHILD'S DATE OF BIRTH."
             },
             'socialSecurityNumber' => {
               key: 'F[0].P4[0].ChildSSN[0]',
               question_num: 4.9,
-              question_text: "CHILD'S SOCIAL SECURITY NUMBER. Enter 9 digit social security number."
+              question_text: "CHILD'S SOCIAL SECURITY NUMBER."
             },
             'becameDependent' => {
               key: 'F[0].P4[0].DateDependent[0]',
               question_num: 4.10,
-              question_text: 'DATE CHILD BECAME YOUR DEPENDENT. Enter 2 digit ' \
-                             'month, 2 digit day and 4 digit year.'
+              question_text: 'DATE CHILD BECAME YOUR DEPENDENT.'
             },
             'dependentRelation' => {
               key: 'F[0].P4[0].Relationship[0]',
@@ -292,17 +287,17 @@ module PdfFill
             'grossIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[1].Amount[2]',
               question_num: 5.12,
-              question_text: 'CHILD 1 GROSS ANNUAL INCOME. Enter dollar amount.'
+              question_text: 'CHILD GROSS ANNUAL INCOME. Enter dollar amount.'
             },
             'netIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[2].Amount[5]',
               question_num: 5.25,
-              question_text: 'CHILD 1 NET INCOME. Enter dollar amount.'
+              question_text: 'CHILD NET INCOME. Enter dollar amount.'
             },
             'otherIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[3].Amount[8]',
               question_num: 5.38,
-              question_text: 'CHILD 1 OTHER INCOME. Enter dollar amount.'
+              question_text: 'CHILD OTHER INCOME. Enter dollar amount.'
             }
           },
           'provideSupportLastYear' => {

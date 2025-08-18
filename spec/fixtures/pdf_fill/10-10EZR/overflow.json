@@ -79,6 +79,42 @@
       "grossIncome": 991.9,
       "netIncome": 981.2,
       "otherIncome": 91.9
+    },
+    {
+      "fullName": {
+        "first": "Jill",
+        "middle": "Janice",
+        "last": "Jones"
+      },
+      "dependentRelation": "Daughter",
+      "socialSecurityNumber": "143221234",
+      "dateOfBirth": "2001-02-01",
+      "becameDependent": "2001-02-01",
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": false,
+      "cohabitedLastYear": true,
+      "grossIncome": 100000,
+      "netIncome": 90000,
+      "otherIncome": 101
+    },
+    {
+      "fullName": {
+        "first": "Jonny",
+        "middle": "Janice",
+        "last": "Jones"
+      },
+      "dependentRelation": "Stepson",
+      "socialSecurityNumber": "143221234",
+      "dateOfBirth": "2001-02-01",
+      "becameDependent": "2001-02-01",
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": false,
+      "cohabitedLastYear": true,
+      "grossIncome": 100000,
+      "netIncome": 90000,
+      "otherIncome": 101
     }
   ],
   "nextOfKins": [
