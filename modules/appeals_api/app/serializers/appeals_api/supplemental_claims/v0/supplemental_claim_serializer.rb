@@ -7,10 +7,10 @@ class AppealsApi::SupplementalClaims::V0::SupplementalClaimSerializer
   attributes :status
 
   attribute :final_status, if: proc { |_, _|
-    # The final_status will be serialized only if the :decision_reviews_final_status_field flag is enabled
+    # The final_status will be serialized only if the decision_reviews_final_status_field flag is enabled
     Flipper.enabled?(:decision_reviews_final_status_field)
   } do |object, _|
-    object.in_final_status?
+    object.upload_submission.in_final_status?
   end
 
   attribute :code, if: proc { |sc| sc.status == 'error' }
