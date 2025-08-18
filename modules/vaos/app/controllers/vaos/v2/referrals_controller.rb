@@ -97,6 +97,7 @@ module VAOS
       # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
       # @return [Array<Ccra::ReferralListEntry>] Filtered collection without expired referrals
       def filter_expired_referrals(referrals)
+        return [] if referrals.nil?
         raise ArgumentError, 'referrals must be an enumerable collection' unless referrals.respond_to?(:each)
 
         today = Date.current

@@ -384,9 +384,12 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         let(:referral_detail_missing_data) do
           build(:ccra_referral_detail,
                 referral_consult_id:,
-                referral_number:,
-                referring_facility_code: nil,
-                provider_npi: '')
+                referral_number:).tap do |referral|
+            # Override the referring facility code by setting it directly
+            referral.instance_variable_set(:@referring_facility_code, nil)
+            # Override the provider NPI by setting it directly  
+            referral.instance_variable_set(:@provider_npi, '')
+          end
         end
 
         before do
@@ -398,7 +401,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         it 'logs missing provider data with JSON structured format' do
           expected_error_message = 'Community Care Appointments: Referral detail view: Missing provider data'
           expected_json_data = {
-            missing_data: %w[referring_facility_code provider_npi],
+            missing_data: %w[referring_facility_code referral_provider_npi],
             station_id: '528A6',
             user_uuid: user.uuid
           }
@@ -414,6 +417,8 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
                 'station_id:528A6'
               ]
             )
+          # Allow for middleware StatsD calls
+          allow(StatsD).to receive(:increment).with('api.rack.request', any_args)
 
           get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
 
@@ -424,9 +429,11 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           let(:referral_detail_partial_missing) do
             build(:ccra_referral_detail,
                   referral_consult_id:,
-                  referral_number:,
-                  referring_facility_code: nil,
-                  provider_npi: '1234567890')
+                  referral_number:).tap do |referral|
+              # Override the referring facility code by setting it directly
+              referral.instance_variable_set(:@referring_facility_code, nil)
+              # Keep the provider NPI as is from factory (should be '1234567890')
+            end
           end
 
           before do
@@ -452,6 +459,13 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         end
 
         context 'when no provider data is missing' do
+          before do
+            # Override the mock to return the default referral detail (which has complete data)
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+              .with(referral_consult_id, icn)
+              .and_return(referral_detail)
+          end
+
           it 'does not log any missing provider data errors' do
             expect(Rails.logger).not_to receive(:error)
               .with('Community Care Appointments: Referral detail view: Missing provider data', anything)
