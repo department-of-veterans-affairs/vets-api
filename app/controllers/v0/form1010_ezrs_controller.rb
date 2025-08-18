@@ -29,9 +29,10 @@ module V0
         PdfFill::Filler.fill_ancillary_form(parsed_form, file_name, '10-10EZR')
       end
 
-      file_contents = File.read(source_file_path)
+      client_file_name = file_name_for_pdf(parsed_form)
+      file_contents    = File.read(source_file_path)
 
-      send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'
+      send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
@@ -46,14 +47,11 @@ module V0
       JSON.parse(form)
     end
 
-    def file_name_for_pdf
-      '10-10EZR.pdf'
-
-      # full_name = current_user.full_name_normalized
-      # first_name = full_name[:first].presence || "First"
-      # last_name = full_name[:last].presence || "Last"
-
-      # "10-10EZR_#{first_name}_#{last_name}.pdf"
+    def file_name_for_pdf(parsed_form)
+      veteran_name = parsed_form.try(:[], 'veteranFullName')
+      first_name = veteran_name.try(:[], 'first') || 'First'
+      last_name = veteran_name.try(:[], 'last') || 'Last'
+      "10-10EZR_#{first_name}_#{last_name}.pdf"
     end
   end
 end
