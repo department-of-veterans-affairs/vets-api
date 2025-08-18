@@ -94,7 +94,7 @@ module BGSDependentsV2
       @reason_marriage_ended = reason_marriage_ended
       @ever_married_ind = marriage_indicator
       @child_income = formatted_boolean(@child_info['income_in_last_year'])
-      @not_self_sufficient = formatted_boolean(@child_info['not_self_sufficient'])
+      @not_self_sufficient = formatted_boolean(@child_info['does_child_have_permanent_disability'])
       @first = @child_info['full_name']['first']
       @middle = @child_info['full_name']['middle']
       @last = @child_info['full_name']['last']
