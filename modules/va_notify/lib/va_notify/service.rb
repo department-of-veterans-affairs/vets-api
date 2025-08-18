@@ -28,7 +28,7 @@ module VaNotify
       @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
-          args[:callback_url] = "#{Settings.vanotify.client_url}/va_notify/callbacks"
+          args[:callback_url] = "#{Settings.vanotify.callback_url}/va_notify/callbacks"
           notify_client.send_email(args)
         end
         create_notification(response)
@@ -176,7 +176,7 @@ module VaNotify
 
     def retrieve_service_api_key_path
       service_config = Settings.vanotify.services.find do |_service, options|
-        options.api_key == @notify_client.api_key
+        options.api_key == @notify_client.secret_token
       end
 
       if service_config.blank?
