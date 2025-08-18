@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-=begin
+
 require 'rails_helper'
 
 require 'lighthouse/direct_deposit/configuration'
@@ -3598,4 +3598,4 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
     end
   end
 end
-=end
+
