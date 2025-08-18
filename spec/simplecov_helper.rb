@@ -8,8 +8,8 @@ require 'support/codeowners_parser'
 class SimpleCovHelper
   def self.start_coverage
     SimpleCov.start 'rails' do
-      skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
-      print "#{ENV['TEST_ENV_NUMBER']}"
+      ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
+      print(ENV.fetch('TEST_ENV_NUMBER', nil))
       SimpleCov.command_name "rspec-#{ENV['TEST_ENV_NUMBER'] || '0'}"
       # track_files '{app,lib,modules}/**/*.rb'
       track_files '**/{app,lib}/**/*.rb'
@@ -23,14 +23,14 @@ class SimpleCovHelper
       # refuse_coverage_drop unless skip_check_coverage
       # merge_timeout(3600)
       if ENV['CI']
-        puts "Simple Cov ENV CI"
+        puts 'Simple Cov ENV CI'
         SimpleCov.minimum_coverage 90
         SimpleCov.refuse_coverage_drop
       end
     end
 
     if ENV['TEST_ENV_NUMBER'] # parallel specs
-      puts "Simple Cov Parallel spec exit ENV TEST_ENV_NUMBER"
+      puts 'Simple Cov Parallel spec exit ENV TEST_ENV_NUMBER'
       SimpleCov.at_exit do
         # SimpleCovHelper.report_coverage
         result = SimpleCov.result
