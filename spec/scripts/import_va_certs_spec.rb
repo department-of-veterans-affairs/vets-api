@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'tmpdir'
 require 'fileutils'
 
-RSpec.describe 'import-va-certs.sh script' do
+RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
   let(:script_path) { Rails.root.join('import-va-certs.sh') }
   let(:temp_dir) { Dir.mktmpdir }
   let(:mock_cert_dir) { File.join(temp_dir, 'ca-certificates') }
@@ -52,7 +52,7 @@ RSpec.describe 'import-va-certs.sh script' do
       http_position = script_content.index('http://aia.pki.va.gov/PKI/AIA/VA/')
 
       expect(https_position).to be < http_position
-      
+
       # Verify if/elif fallback structure
       expect(script_content).to include('if wget')
       expect(script_content).to include('elif wget')
@@ -66,11 +66,11 @@ RSpec.describe 'import-va-certs.sh script' do
       expect(script_content).to include('✓ VA certificates downloaded via HTTPS')
       expect(script_content).to include('✓ VA certificates downloaded via HTTP fallback')
       expect(script_content).to include('✗ VA certificate download failed')
-      
+
       # Verify enhanced wget options
       expect(script_content).to include('--timeout=30')
       expect(script_content).to include('--tries=3')
-      
+
       # Verify certificate processing logging
       expect(script_content).to include('Processing downloaded certificates...')
       expect(script_content).to include('✓ Processed')
@@ -137,13 +137,13 @@ RSpec.describe 'import-va-certs.sh script' do
 
       # Verify primary HTTPS attempt
       expect(script_content).to include('curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO https://dl.dod.cyber.mil')
-      
+
       # Verify HTTP fallback
       expect(script_content).to include('curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
-      
+
       # Verify alternative mirror fallback
       expect(script_content).to include('https://crl.disa.mil/crl/DODECARCA5.zip')
-      
+
       # Verify graceful degradation
       expect(script_content).to include('Continuing without DoD ECA certificates...')
     end
