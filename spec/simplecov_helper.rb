@@ -120,36 +120,36 @@ class SimpleCovHelper
   end
 end
 
-  #  def merge_results
-  #     SimpleCov.collate(all_results) do
-  #       add_filters
-  #       add_modules
-  #       parse_codeowners
-  #     end
-  #   rescue RuntimeError
-  #     nil
-  #   end
+#  def merge_results
+#     SimpleCov.collate(all_results) do
+#       add_filters
+#       add_modules
+#       parse_codeowners
+#     end
+#   rescue RuntimeError
+#     nil
+#   end
 
-  #   attr_reader :base_dir
+#   attr_reader :base_dir
 
-  #   def initialize(base_dir:)
-  #     @base_dir = base_dir
-  #   end
+#   def initialize(base_dir:)
+#     @base_dir = base_dir
+#   end
 
-  #   def all_results
-  #     Dir["#{base_dir}/.resultset*.json"]
-  #   end
+#   def all_results
+#     Dir["#{base_dir}/.resultset*.json"]
+#   end
 
-  #   if ENV['CI']
-  #     SimpleCov.minimum_coverage 90
-  #     SimpleCov.refuse_coverage_drop
-  #   end
-  # end
+#   if ENV['CI']
+#     SimpleCov.minimum_coverage 90
+#     SimpleCov.refuse_coverage_drop
+#   end
+# end
 
-  #   if ENV['TEST_ENV_NUMBER'] # parallel specs
-  #     SimpleCov.at_exit do
-  #       result = SimpleCov.result
-  #       result.format! if ParallelTests.number_of_running_processes <= 1
-  #     end
-  #   end
-  # end
+#   if ENV['TEST_ENV_NUMBER'] # parallel specs
+#     SimpleCov.at_exit do
+#       result = SimpleCov.result
+#       result.format! if ParallelTests.number_of_running_processes <= 1
+#     end
+#   end
+# end
