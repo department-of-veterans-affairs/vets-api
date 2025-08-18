@@ -398,7 +398,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         it 'logs missing provider data with JSON structured format' do
           expected_error_message = 'Community Care Appointments: Referral detail view: Missing provider data'
           expected_json_data = {
-            missing_data: %w[referring_facility_code referral_provider_npi],
+            missing_data: %w[referring_facility_code provider_npi],
             station_id: '528A6',
             user_uuid: user.uuid
           }
