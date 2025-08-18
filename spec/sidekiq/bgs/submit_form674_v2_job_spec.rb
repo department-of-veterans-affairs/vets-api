@@ -4,6 +4,21 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674V2Job, type: :job do
+  # Performance tweak
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
+  # Performance tweak
+  # This can be removed. Benchmarked all tests to see which tests are slowest.
+  around do |example|
+    puts "\nStarting: #{example.full_description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
+  end
+
   let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }

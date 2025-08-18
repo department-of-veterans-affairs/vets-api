@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
+# This whole suite is approx 57 tests as of this review. It looks deceptively smaller
+# than it is.
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
@@ -46,6 +48,36 @@ describe PdfFill::Filler, type: :model do
 
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
+    before do
+      # We are not testing the pdftk wrapper here, we are testing the fill_form method
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields) do |_instance, _path|
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper)
+        .to receive(:fill_form) do |_instance, _template, output, _hash, **_opts|
+          FileUtils.mkdir_p(File.dirname(output))
+          File.write(output, "%PDF-1.4\n% Fake PDF\n") # minimal valid PDF header
+          output
+        end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_instance, _a, _b, output|
+        File.write(output, "%PDF-1.4\n% Fake Combined PDF\n")
+        output
+      end
+
+      allow(PdfFill::Filler).to receive(:stamp_form) do |file_path, _submit_date|
+        stamped = file_path.sub('.pdf', '_stamped.pdf')
+        File.write(stamped, "%PDF-1.4\n% Fake Stamped PDF\n")
+        stamped
+      end
+
+      allow(File).to receive(:delete) # prevent accidental file deletion in tests
+    end
+
     [
       {
         form_id: '686C-674',
@@ -60,7 +92,43 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  # there are approx. 46 tests here which is deceptive.
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
+    # performance tweaks to speed up tests. Timestamping the methods in filler.rb
+    # identified these as being the bottlenecks
+    before do
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields).and_return(
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      )
+
+      # Stub Pdftk fill_form to avoid real PDF generation
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, template, output, *_args|
+        FileUtils.mkdir_p(File.dirname(output))
+        File.write(output, "%PDF-1.4\n% Fake filled PDF for #{File.basename(template)}\n%%EOF")
+        output
+      end
+
+      # Make stamp_form fast by stubbing out PDFUtilities::DatestampPdf
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) do |instance, *args|
+        # Return a unique tmp file each time to mimic real stamping
+        stamped_path = "tmp/pdfs/fake_stamped_#{SecureRandom.uuid}.pdf"
+        FileUtils.mkdir_p(File.dirname(stamped_path))
+        File.write(stamped_path, "%PDF-1.4\n% Fake stamped PDF\n%%EOF")
+        stamped_path
+      end
+
+      # Stub PDF concatenation to skip real pdftk
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_, a, b, output|
+        # Simulate a combined PDF
+        FileUtils.mkdir_p(File.dirname(output))
+        File.write(output, "%PDF-1.4\n% Fake combined PDF of #{File.basename(a)} + #{File.basename(b)}\n%%EOF")
+        output
+      end
+    end
+
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
        22-10216 22-10215 22-10215a].each do |form_id|
       context "form #{form_id}" do
