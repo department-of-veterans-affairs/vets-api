@@ -90,23 +90,23 @@ module AccreditedRepresentativePortal
           return @power_of_attorney_holder
 
         @power_of_attorney_holder =
-          begin
-            service = BenefitsClaims::Service.new(identifier.icn)
-            response = service.get_power_of_attorney['data'].to_h
+          # begin
+            # service = BenefitsClaims::Service.new(identifier.icn)
+            # response = service.get_power_of_attorney['data'].to_h
 
             ##
             # FYI, the API does not fully distinguish types like we do.
             # The value 'individual' is returned for both claims agents and
             # attorneys.
             #
-            if response['type'] == 'organization'
+            # if response['type'] == 'organization'
               PowerOfAttorneyHolder.new(
                 type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
-                poa_code: response.dig('attributes', 'code'),
+                poa_code: "008",
                 can_accept_digital_poa_requests: nil
               )
-            end
-          end
+            # end
+          # end
       end
 
       private
