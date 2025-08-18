@@ -661,4 +661,52 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_form_526_has_disabilities!' do
+    context 'when disabilities is present and non-empty' do
+      let(:form_attributes) { { 'disabilities' => [{ 'name' => 'PTSD' }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_has_disabilities! }.not_to raise_error
+      end
+    end
+
+    context 'when disabilities is missing' do
+      let(:form_attributes) { {} }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_has_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when disabilities is an empty array' do
+      let(:form_attributes) { { 'disabilities' => [] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_has_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  # spec for validate_form_526_fewer_than_150_disabilities!
+  describe '#validate_form_526_fewer_than_150_disabilities!' do
+    context 'when disabilities count is less than or equal to 150' do
+      let(:form_attributes) { { 'disabilities' => Array.new(150) { { 'name' => 'PTSD' } } } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }.not_to raise_error
+      end
+    end
+
+    context 'when disabilities count is greater than 150' do
+      let(:form_attributes) { { 'disabilities' => Array.new(151) { { 'name' => 'PTSD' } } } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
 end

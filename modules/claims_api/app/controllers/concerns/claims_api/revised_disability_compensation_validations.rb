@@ -24,6 +24,9 @@ module ClaimsApi
       validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
       validate_form_526_change_of_address!
+      # ensure at least 1 disability is provided
+      # ensure no more than 150 disabilities are provided
+      validate_form_526_disabilities!
     end
 
     def retrieve_separation_locations
@@ -199,6 +202,30 @@ module ClaimsApi
       return if valid_countries.include?(change_of_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
+    end
+
+    def validate_form_526_disabilities!
+      validate_form_526_has_disabilities!
+      validate_form_526_fewer_than_150_disabilities!
+      # TODO: pull these validations over from original 526 validations
+      # validate_form_526_disability_classification_code!
+      # validate_form_526_disability_approximate_begin_date!
+      # validate_form_526_special_issues!
+      # validate_form_526_disability_secondary_disabilities!
+    end
+
+    def validate_form_526_has_disabilities!
+      disabilities = form_attributes['disabilities']
+      return if disabilities.present? && disabilities.is_a?(Array) && disabilities.any?
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities', 'Must have at least 1 disability')
+    end
+
+    def validate_form_526_fewer_than_150_disabilities!
+      disabilities = form_attributes['disabilities']
+      return if disabilities.size <= 150
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities', 'A maximum of 150 disabilities allowed')
     end
   end
 end
