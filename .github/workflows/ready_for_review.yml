@@ -388,7 +388,7 @@ jobs:
                 backend_approval_required=false
                 echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                 break
-              end
+              fi
             done
           fi
 
