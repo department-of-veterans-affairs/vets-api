@@ -49,6 +49,14 @@ module ClaimsEvidenceApi
       provider_data
     end
 
+    def validate_schema_property(property, value)
+      prop = property.to_sym
+      raise ArgumentError unless ClaimsEvidenceApi::JsonSchema::PROPERTIES.key?(prop)
+
+      JSON::Validator.validate!(ClaimsEvidenceApi::JsonSchema::PROPERTIES[prop], value)
+      value
+    end
+
     # end Validation
   end
 

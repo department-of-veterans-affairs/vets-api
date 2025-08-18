@@ -3,6 +3,7 @@
 require 'claims_evidence_api/exceptions'
 require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/service/files'
+require 'claims_evidence_api/validation'
 require 'pdf_utilities/pdf_stamper'
 
 module ClaimsEvidenceApi
@@ -14,7 +15,7 @@ module ClaimsEvidenceApi
     # @param folder_identifier [String] the upload location; @see ClaimsEvidenceApi::FolderIdentifier
     # @param content_source [String] the metadata source value for the upload
     def initialize(folder_identifier, content_source: 'va.gov')
-      @content_source = content_source
+      @content_source = ClaimsEvidenceApi::Validation.validate_schema_property(:contentSource, content_source)
       @service = ClaimsEvidenceApi::Service::Files.new
       self.folder_identifier = folder_identifier
     end
@@ -135,7 +136,7 @@ module ClaimsEvidenceApi
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
         contentSource: content_source,
-        dateVaReceivedDocument: va_received_at,
+        dateVaReceivedDocument: DateTime.parse(va_received_at).strftime("%Y-%m-%d"),
         documentTypeId: doctype
       }
       attempt.save

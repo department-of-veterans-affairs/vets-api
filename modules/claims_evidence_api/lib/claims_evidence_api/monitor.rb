@@ -73,7 +73,7 @@ module ClaimsEvidenceApi
         tags = { method:, code:, root: path.split('/').first }
         level = /^2\d\d$/.match?(code.to_s.strip) ? :info : :error
 
-        track_request(level, message, METRIC, call_location:, path:, reason:, tags: format_tags(tags), **tags)
+        track_request(level, message, METRIC, call_location:, reason:, tags: format_tags(tags), **tags)
       end
     end
 
@@ -122,7 +122,7 @@ module ClaimsEvidenceApi
         msg += " - #{message}" if message
 
         tags = { action: stage.to_s }
-        tags[:content_source] = context[:content_source].to_s.downcase.gsub(/:+/, '_') if context[:content_source]
+        tags[:content_source] = context[:content_source].to_s.downcase if context[:content_source]
 
         call_location = caller_locations.second
         level = stage == :failure ? :error : :info
