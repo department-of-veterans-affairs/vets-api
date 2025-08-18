@@ -132,34 +132,88 @@ RSpec.describe 'VANotify Callbacks', type: :request do
 
     context 'with request-level callback data' do
       context 'when :va_notify_request_level_callbacks disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_notify_custom_bearer_tokens).and_return(false)
+        context 'when :va_notify_custom_bearer_tokens is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_custom_bearer_tokens).and_return(false)
+          end
+
+          it 'requires bearer token even if x-enp-signature provided' do
+            post(callback_route,
+                 params: callback_params.to_json,
+                 headers: {
+                   'Content-Type' => 'application/json',
+                   'x-enp-signature' => 'some-signature'
+                 })
+
+            expect(response).to have_http_status(:unauthorized)
+            expect(response.body).to include('Unauthorized')
+          end
+
+          it 'ignores x-enp-signature when bearer token is valid' do
+            post(callback_route,
+                 params: callback_params.to_json,
+                 headers: {
+                   'Authorization' => "Bearer #{valid_token}",
+                   'Content-Type' => 'application/json',
+                   'x-enp-signature' => 'mismatched-signature'
+                 })
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to include('success')
+          end
         end
 
-        it 'requires bearer token even if x-enp-signature provided' do
-          post(callback_route,
-               params: callback_params.to_json,
-               headers: {
-                 'Content-Type' => 'application/json',
-                 'x-enp-signature' => 'some-signature'
-               })
+        context 'when :va_notify_custom_bearer_tokens is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_custom_bearer_tokens).and_return(true)
+          end
 
-          expect(response).to have_http_status(:unauthorized)
-          expect(response.body).to include('Unauthorized')
-        end
+          it 'requires bearer token even if x-enp-signature provided' do
+            allow(Rails.logger).to receive(:info)
 
-        it 'ignores x-enp-signature when bearer token is valid' do
-          post(callback_route,
-               params: callback_params.to_json,
-               headers: {
-                 'Authorization' => "Bearer #{valid_token}",
-                 'Content-Type' => 'application/json',
-                 'x-enp-signature' => 'mismatched-signature'
-               })
+            post(callback_route,
+                 params: callback_params.to_json,
+                 headers: {
+                   'Content-Type' => 'application/json',
+                   'x-enp-signature' => 'some-signature'
+                 })
 
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to include('success')
+            expect(response).to have_http_status(:unauthorized)
+            expect(response.body).to include('Unauthorized')
+          end
+
+          it 'authenticates a valid configured token and ignores x-enp-signature' do
+            allow(Rails.logger).to receive(:info)
+            va_gov_bearer_token = Settings.vanotify.service_callback_tokens.va_gov
+
+            post(callback_route,
+                 params: callback_params.to_json,
+                 headers: {
+                   'Authorization' => "Bearer #{va_gov_bearer_token}",
+                   'Content-Type' => 'application/json',
+                   'x-enp-signature' => 'mismatched-signature'
+                 })
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to include('success')
+          end
+
+          it 'does not authenticate an invalid token even if x-enp-signature provided' do
+            allow(Rails.logger).to receive(:info)
+
+            post(callback_route,
+                 params: callback_params.to_json,
+                 headers: {
+                   'Authorization' => "Bearer #{invalid_token}",
+                   'Content-Type' => 'application/json',
+                   'x-enp-signature' => 'some-signature'
+                 })
+
+            expect(response).to have_http_status(:unauthorized)
+            expect(response.body).to include('Unauthorized')
+          end
         end
       end
 
