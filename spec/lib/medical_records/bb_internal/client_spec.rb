@@ -105,12 +105,19 @@ describe BBInternal::Client do
   describe '#request_study' do
     include_context 'redis setup'
 
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
         result = client.request_study(uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
         expect(result).to have_key('studyIdUrn')
+
+        expect(Rails.logger).not_to have_received(:info)
+          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
 
         # 'studyIdUrn' should match a specific UUID
         expect(result['studyIdUrn']).to equal(uuid)
@@ -120,7 +127,6 @@ describe BBInternal::Client do
     it 'raises RecordNotFound exception and logs the uuid if not in the cache' do
       allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
       allow(redis).to receive(:set)
-      allow(Rails.logger).to receive(:info)
 
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
         expect { client.request_study(uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
