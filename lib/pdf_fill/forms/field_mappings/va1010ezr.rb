@@ -223,7 +223,7 @@ module PdfFill
           'spouseFullName' => {
             key: 'F[0].P4[0].SpouseName[0]',
             limit: 40,
-            question_num: 4.1,
+            question_num: 4.01,
             question_text: "SPOUSE'S NAME (Last, First, Middle Name)"
           },
           'spouseSocialSecurityNumber' => {
@@ -238,7 +238,7 @@ module PdfFill
           'spouseAddress' => {
             key: 'F[0].P4[0].SpouseAddress[0]',
             limit: 120,
-            question_num: 4.6,
+            question_num: 4.06,
             question_text: "SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State, " \
                            "ZIP - if different from Veteran's)"
           },
@@ -248,17 +248,17 @@ module PdfFill
             'fullName' => {
               key: 'F[0].P4[0].ChildName[0]',
               limit: 42,
-              question_num: 4.7,
+              question_num: 4.07,
               question_text: "CHILD'S NAME (Last, First, Middle Name)."
             },
             'dateOfBirth' => {
               key: 'F[0].P4[0].ChildDateofBirth[0]',
-              question_num: 4.8,
+              question_num: 4.08,
               question_text: "CHILD'S DATE OF BIRTH."
             },
             'socialSecurityNumber' => {
               key: 'F[0].P4[0].ChildSSN[0]',
-              question_num: 4.9,
+              question_num: 4.09,
               question_text: "CHILD'S SOCIAL SECURITY NUMBER."
             },
             'becameDependent' => {
@@ -286,17 +286,17 @@ module PdfFill
             },
             'grossIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[1].Amount[2]',
-              question_num: 5.12,
+              question_num: 5.1,
               question_text: 'CHILD GROSS ANNUAL INCOME. Enter dollar amount.'
             },
             'netIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[2].Amount[5]',
-              question_num: 5.25,
+              question_num: 5.2,
               question_text: 'CHILD NET INCOME. Enter dollar amount.'
             },
             'otherIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[3].Amount[8]',
-              question_num: 5.38,
+              question_num: 5.3,
               question_text: 'CHILD OTHER INCOME. Enter dollar amount.'
             }
           },
