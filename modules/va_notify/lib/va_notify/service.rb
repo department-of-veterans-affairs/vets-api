@@ -46,7 +46,7 @@ module VaNotify
       @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
-          args[:callback_url] = "#{Settings.vanotify.client_url}/va_notify/callbacks"
+          args[:callback_url] = "#{Settings.vanotify.callback_url}/va_notify/callbacks"
           notify_client.send_sms(args)
         end
         create_notification(response)
