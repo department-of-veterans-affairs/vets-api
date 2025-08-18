@@ -160,8 +160,13 @@ module BenefitsIntake
     # @param submission [Hash] the full data hash returned for this record
     def update_attempt_record(uuid, status, submission)
       submission_attempt = pending_attempts_hash[uuid]
-      form_id = submission_attempt.submission.form_id
-      saved_claim_id = submission_attempt.submission.saved_claim_id
+      if submission_attempt.is_a?(FormSubmissionAttempt)
+        form_id = submission_attempt.form_submission.form_type
+        saved_claim_id = submission_attempt.form_submission.saved_claim_id
+      else
+        form_id = submission_attempt.submission.form_id
+        saved_claim_id = submission_attempt.submission.saved_claim_id
+      end
       handler = FORM_HANDLERS[form_id].new(saved_claim_id)
       handler.update_attempt_record(status, submission, submission_attempt)
     end
