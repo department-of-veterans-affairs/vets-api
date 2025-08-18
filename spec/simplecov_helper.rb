@@ -10,7 +10,8 @@ class SimpleCovHelper
     SimpleCov.start 'rails' do
       ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
       print(ENV.fetch('TEST_ENV_NUMBER', nil))
-      SimpleCov.command_name "(#{ENV['TEST_ENV_NUMBER'] || '1'}/#{ParallelTests.number_of_running_processes})"
+      parallel_tests_count = ParallelTests.number_of_running_processes
+      SimpleCov.command_name "(#{ENV['TEST_ENV_NUMBER'] || '1'}/#{parallel_tests_count})"
 
       # SimpleCov.command_name "rspec-#{ENV['TEST_ENV_NUMBER'] || '0'}"
       # track_files '{app,lib,modules}/**/*.rb'
