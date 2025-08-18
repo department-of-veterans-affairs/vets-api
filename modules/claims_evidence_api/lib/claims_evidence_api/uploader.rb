@@ -68,8 +68,7 @@ module ClaimsEvidenceApi
     def upload_evidence(saved_claim_id, persistent_attachment_id = nil, file_path: nil, stamp_set: nil, form_id: nil,
                         doctype: nil)
       # track the initial values provided for this upload
-      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype:,
-                  content_source: }
+      context = { saved_claim_id:, persistent_attachment_id:, stamp_set:, form_id:, doctype:, content_source: }
       monitor.track_upload_begun(**context)
 
       evidence = claim = SavedClaim.find(saved_claim_id)
@@ -85,8 +84,7 @@ module ClaimsEvidenceApi
       submission.saved_claim = claim
 
       # several values may have been updated, so reassign the tracking context
-      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype:,
-                  content_source: }
+      context = { saved_claim_id:, persistent_attachment_id:, stamp_set:, form_id:, doctype:, content_source: }
       monitor.track_upload_attempt(**context)
       perform_upload(file_path, evidence.created_at, doctype)
 
@@ -136,7 +134,7 @@ module ClaimsEvidenceApi
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
         contentSource: content_source,
-        dateVaReceivedDocument: DateTime.parse(va_received_at).strftime("%Y-%m-%d"),
+        dateVaReceivedDocument: DateTime.parse(va_received_at.to_s).strftime("%Y-%m-%d"),
         documentTypeId: doctype
       }
       attempt.save
@@ -161,8 +159,11 @@ module ClaimsEvidenceApi
     def attempt_failed(error)
       return unless attempt
 
+      error_message = error.body if error.respond_to?('body')
+      error_message ||= error.message
+
       attempt.status = 'failure'
-      attempt.error_message = error.body || error.message
+      attempt.error_message = error_message
       attempt.save
     end
   end

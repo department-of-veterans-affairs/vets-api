@@ -57,7 +57,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         formatted_tags = ['method:get', 'code:210', 'root:test']
         message = "#{service.class}: #{code} #{reason}"
 
-        kwargs = { call_location:, path:, reason:, tags: formatted_tags, **tags }
+        kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
         expect(service).to receive(:track_request).with(:info, message, metric, **kwargs)
 
         service.track_api_request(:get, path, code, reason, call_location:)
@@ -73,7 +73,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         formatted_tags = ['method:get', 'code:404', 'root:test']
         message = "#{service.class}: #{code} #{reason}"
 
-        kwargs = { call_location:, path:, reason:, tags: formatted_tags, **tags }
+        kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
         expect(service).to receive(:track_request).with(:error, message, metric, **kwargs)
 
         service.track_api_request(:get, path, code, reason, call_location:)
