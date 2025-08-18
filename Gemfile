@@ -221,6 +221,7 @@ group :development, :test do
   gem 'fuubar'
   gem 'guard-rspec'
   gem 'parallel_tests'
+  gem 'pdftotext'
   gem 'pry-byebug'
   gem 'rack-test', '2.2.0', require: 'rack/test'
   gem 'rack-vcr'
