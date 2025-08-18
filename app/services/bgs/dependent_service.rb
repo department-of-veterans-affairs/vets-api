@@ -107,11 +107,11 @@ module BGS
 
       @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
-    rescue => e
+    rescue
       @monitor.track_event('warn',
                            'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      raise PDFSubmissionError, e.message
+                           "#{STATS_KEY}.submit_pdf.failure")
+      raise PDFSubmissionError
     end
 
     def submit_claim_via_claims_evidence(claim)
