@@ -24,7 +24,7 @@ http_interactions:
   response:
     status:
       code: 200
-      message: Internal Server Error
+      message: OK
     headers:
       Date:
       - Mon, 24 Mar 2025 16:20:54 GMT
