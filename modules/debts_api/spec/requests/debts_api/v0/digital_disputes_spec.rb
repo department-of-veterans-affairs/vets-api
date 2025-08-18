@@ -52,11 +52,11 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
           expect(StatsD).to receive(:increment).with(
             'api.rack.request',
             {
-              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:500]
+              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:200]
             }
           )
 
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
         end
       end
 
@@ -82,11 +82,11 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
           expect(StatsD).to receive(:increment).with(
             'api.rack.request',
             {
-              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:500]
+              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:422]
             }
           )
 
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
         end
       end
 
