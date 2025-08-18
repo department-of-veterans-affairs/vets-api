@@ -179,7 +179,7 @@ jobs:
               approval_status=confirmed
               backend_approval_required=false
               break
-            elif [[ "$author_membership_state" == "active" ]]; then
+            elif [[ "$author_membership_state" == "active" && "$author_is_backend" == "false" ]]; then
               echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
               exempt_be_review=true
               backend_approval_required=false
@@ -238,8 +238,6 @@ jobs:
               backend_approval_required=false
             fi
           fi
-
-
 
           echo "exempt_be_review=$exempt_be_review" >> "$GITHUB_OUTPUT"
           echo "backend_approval_required=$backend_approval_required" >> "$GITHUB_OUTPUT"
