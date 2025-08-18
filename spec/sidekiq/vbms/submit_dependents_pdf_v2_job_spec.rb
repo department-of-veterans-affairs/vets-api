@@ -3,6 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe VBMS::SubmitDependentsPdfV2Job do
+  # Performance tweak
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:invalid_dependency_claim) { create(:dependency_claim_no_vet_information) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:vet_info) do
