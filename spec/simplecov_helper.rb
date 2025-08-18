@@ -3,6 +3,7 @@
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
+require 'support/codeowners_parser'
 
 class SimpleCovHelper
   def self.start_coverage
@@ -15,17 +16,21 @@ class SimpleCovHelper
       add_modules
       parse_codeowners
 
-      skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
-      minimum_coverage(90) unless skip_check_coverage
-      refuse_coverage_drop unless skip_check_coverage
-      merge_timeout(3600)
+      # skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
+      # minimum_coverage(90) unless skip_check_coverage
+      # refuse_coverage_drop unless skip_check_coverage
+      # merge_timeout(3600)
+      if ENV['CI']
+        SimpleCov.minimum_coverage 90
+        SimpleCov.refuse_coverage_drop
+      end
     end
 
     if ENV['TEST_ENV_NUMBER'] # parallel specs
       SimpleCov.at_exit do
-        SimpleCovHelper.report_coverage
-        # result = SimpleCov.result
-        # result.format! if ParallelTests.number_of_running_processes <= 1
+        # SimpleCovHelper.report_coverage
+        result = SimpleCov.result
+        result.format! if ParallelTests.number_of_running_processes <= 1
       end
     end
   end
