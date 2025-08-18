@@ -239,6 +239,10 @@ jobs:
             benefits-admin
           )
 
+          author_membership_state=$(gh api -X GET \
+              "orgs/department-of-veterans-affairs/backend-review-group/memberships/$PR_AUTHOR" \
+              --jq '.state' 2>/dev/null || echo "")
+
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
@@ -246,7 +250,7 @@ jobs:
               exempt_team=true
               backend_approval_required=false
               break
-            else
+            elif [[ "$author_membership_state" != "active" ]]; then
               membership_state=$(gh api -X GET \
                 "orgs/department-of-veterans-affairs/${TEAM}/memberships/$PR_AUTHOR" \
                 --jq '.state' 2>/dev/null || echo "")
