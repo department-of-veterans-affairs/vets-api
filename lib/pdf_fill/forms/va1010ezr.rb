@@ -197,12 +197,32 @@ module PdfFill
         dependent['cohabitedLastYear'] = map_select_value(dependent['cohabitedLastYear'])
       end
 
+      def merge_multiple_dependents
+        @form_data['dependents'].each do |dependent|
+          dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
+          dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
+          dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+
+          dependent['dependentEducationExpenses'] = FORMATTER.format_currency(dependent['dependentEducationExpenses'])
+          dependent['grossIncome'] = FORMATTER.format_currency(dependent['grossIncome'])
+          dependent['netIncome'] = FORMATTER.format_currency(dependent['netIncome'])
+          dependent['otherIncome'] = FORMATTER.format_currency(dependent['otherIncome'])
+        end
+      end
+
       def merge_dependents
         merge_value('provideSupportLastYear', :map_select_value)
 
         return if @form_data['dependents'].blank?
 
-        merge_single_dependent
+        if @form_data['dependents'].count == 1
+          # Format dependent data for pdf field inputs since only one will be rendered
+          merge_single_dependent
+        else
+          # Format dependent data for additional page since when there are more than one dependents
+          # we display them all on the additional info section
+          merge_multiple_dependents
+        end
       end
 
       def merge_single_association(type)
