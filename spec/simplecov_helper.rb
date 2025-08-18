@@ -3,7 +3,7 @@
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
-require 'support/codeowners_parser'
+require_relative 'support/codeowners_parser'
 
 class SimpleCovHelper
   def self.start_coverage
