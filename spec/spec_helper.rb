@@ -23,6 +23,8 @@ unless ENV['NOCOVERAGE']
   require 'simplecov'
 
   SimpleCov.start 'rails' do
+    SimpleCov.command_name "rspec-#{ENV['TEST_ENV_NUMBER'] || '0'}"
+
     track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
