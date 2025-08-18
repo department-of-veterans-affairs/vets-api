@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TravelClaim
-  class AuthManager < BaseClient
+  class AuthManager
     attr_reader :redis_client, :check_in_session
 
     CACHE_NAMESPACE = 'check-in-travel-pay-cache'
@@ -11,7 +11,7 @@ module TravelClaim
       super()
       @check_in_session = check_in_session
       @redis_client = ::TravelClaim::RedisClient.build
-      @token_client = TokenClient.new
+      @token_client = TravelClaim::TokenClient.new
     end
 
     # Returns a BTSSS system access token (v4)
