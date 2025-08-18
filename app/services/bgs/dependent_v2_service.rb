@@ -121,7 +121,7 @@ module BGS
       if claim.submittable_686?
         form_id = '686C-674-V2'
         file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
-        @monitor.track_event('info', "BGS::DependentV2Service claims evidence upload of #{form_id} claim_id #{claim.id}",
+        @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
                              "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
         claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
@@ -135,7 +135,7 @@ module BGS
       form_id = '21-674-V2'
       doctype = '142'
 
-      @monitor.track_event('info', "BGS::DependentV2Service claims evidence upload of #{form_id} claim_id #{claim.id}",
+      @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
                            "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
 
       form_674_pdfs = []

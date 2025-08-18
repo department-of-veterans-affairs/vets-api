@@ -49,6 +49,14 @@ module ClaimsEvidenceApi
       provider_data
     end
 
+    # validate a single property against the schema
+    # @see ClaimsEvidenceApi::JsonSchema::PROPERTIES
+    #
+    # @param property [String|Symbol] the property to validate
+    # @param value [Mixed] the value to validate
+    #
+    # @return [Mixed] valid value
+    # @raise JSON::Schema::ValidationError
     def validate_schema_property(property, value)
       prop = property.to_sym
       raise ArgumentError unless ClaimsEvidenceApi::JsonSchema::PROPERTIES.key?(prop)

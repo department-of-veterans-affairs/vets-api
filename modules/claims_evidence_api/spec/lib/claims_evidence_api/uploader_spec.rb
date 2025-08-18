@@ -15,7 +15,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:stamper) { PDFUtilities::PDFStamper.new([]) }
   let(:pdf_path) { 'path/to/pdf.pdf' }
   let(:content_source) { 'uploader_spec' }
-  let(:va_received_at) { DateTime.parse(claim.created_at.to_s).strftime("%Y-%m-%d") }
+  let(:va_received_at) { DateTime.parse(claim.created_at.to_s).strftime('%Y-%m-%d') }
 
   let(:folder_identifier) { 'VETERAN:SSN:123456789' }
   let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source:) }

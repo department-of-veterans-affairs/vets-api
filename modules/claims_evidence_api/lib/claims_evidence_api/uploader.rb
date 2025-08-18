@@ -64,7 +64,7 @@ module ClaimsEvidenceApi
     # @param doctype [Integer] the document type for the file; default to `document_type` of evidence
     #
     # @return [String] the file_uuid
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
     def upload_evidence(saved_claim_id, persistent_attachment_id = nil, file_path: nil, stamp_set: nil, form_id: nil,
                         doctype: nil)
       # track the initial values provided for this upload
@@ -97,7 +97,7 @@ module ClaimsEvidenceApi
       attempt_failed(e)
       raise e
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
     private
 
@@ -134,7 +134,7 @@ module ClaimsEvidenceApi
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
         contentSource: content_source,
-        dateVaReceivedDocument: DateTime.parse(va_received_at.to_s).strftime("%Y-%m-%d"),
+        dateVaReceivedDocument: DateTime.parse(va_received_at.to_s).strftime('%Y-%m-%d'),
         documentTypeId: doctype
       }
       attempt.save
