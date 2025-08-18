@@ -655,7 +655,7 @@ GEM
       base64
     jwt (2.10.2)
       base64
-    karafka-core (2.5.2)
+    karafka-core (2.5.5)
       karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
     karafka-rdkafka (0.20.1)
@@ -1172,9 +1172,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.5)
+    waterdrop (2.8.6)
       karafka-core (>= 2.4.9, < 3.0.0)
-      karafka-rdkafka (>= 0.19.2)
+      karafka-rdkafka (>= 0.20.0)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
