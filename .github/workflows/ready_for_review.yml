@@ -194,7 +194,6 @@ jobs:
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
       exempt_team: ${{ needs.check_backend_requirement.outputs.exempt_team }}
-      exempt_teams: ${{ needs.check_backend_requirement.outputs.exempt_teams }}
       backend_approval_required: ${{ needs.check_backend_requirement.outputs.backend_approval_required }}
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
@@ -239,8 +238,6 @@ jobs:
             accredited-representatives-admin
             benefits-admin
           )
-          echo "exempt_teams=$EXEMPT_TEAMS" >> "$GITHUB_OUTPUT"
-
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
@@ -319,7 +316,15 @@ jobs:
           team_approval_status=required
           author_is_backend=false
           EXEMPT_TEAM="${{ env.exempt_team }}"
-          EXEMPT_TEAMS=${{ steps.check_backend_requirement.outputs.exempt_teams }}
+          EXEMPT_TEAMS=(
+            octo-identity
+            lighthouse-dash
+            lighthouse-pivot
+            lighthouse-banana-peels
+            mobile-api-team
+            accredited-representatives-admin
+            benefits-admin
+          )
 
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
           BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
@@ -383,7 +388,7 @@ jobs:
                 backend_approval_required=false
                 echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                 break
-              fi
+              end
             done
           fi
 
