@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 module SignIn
-  class ClientAssertionValidator
-    attr_reader :client_assertion, :client_assertion_type, :client_config
+  class ClientAssertionValidator < BaseAssertionValidator
+    attr_reader :client_assertion, :client_assertion_type, :client_config, :decoded_assertion
 
     def initialize(client_assertion:, client_assertion_type:, client_config:)
+      super()
       @client_assertion = client_assertion
       @client_assertion_type = client_assertion_type
       @client_config = client_config
@@ -12,76 +13,44 @@ module SignIn
 
     def perform
       validate_client_assertion_type
-      validate_iss
-      validate_subject
-      validate_audience
+      @decoded_assertion = decode_assertion!(client_assertion)
+
+      true
     end
 
     private
 
     def validate_client_assertion_type
-      if client_assertion_type != Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION
-        raise Errors::ClientAssertionTypeInvalidError.new message: 'Client assertion type is not valid'
-      end
+      return if client_assertion_type == Constants::Urn::JWT_BEARER_CLIENT_AUTHENTICATION
+
+      raise Errors::ClientAssertionTypeInvalidError.new message: 'Client assertion type is not valid'
     end
 
-    def validate_iss
-      if decoded_client_assertion.iss != client_config.client_id
-        raise Errors::ClientAssertionAttributesError.new message: 'Client assertion issuer is not valid'
-      end
+    def jwt_decode_options
+      {
+        aud: [token_route],
+        sub: client_config.client_id,
+        iss: client_config.client_id,
+        verify_sub: true,
+        verify_aud: true,
+        verify_iss: true,
+        verify_iat: true,
+        verify_expiration: true,
+        required_claims: %w[iat sub exp iss],
+        algorithms: [algorithm]
+      }
     end
 
-    def validate_subject
-      if decoded_client_assertion.sub != client_config.client_id
-        raise Errors::ClientAssertionAttributesError.new message: 'Client assertion subject is not valid'
-      end
+    def active_certs
+      @active_certs ||= client_config.certs.active
     end
 
-    def validate_audience
-      unless decoded_client_assertion.aud.match(token_route)
-        raise Errors::ClientAssertionAttributesError.new message: 'Client assertion audience is not valid'
-      end
-    end
-
-    def token_route
-      "#{hostname}#{Constants::Auth::TOKEN_ROUTE_PATH}"
-    end
-
-    def hostname
-      return localhost_hostname if Settings.vsp_environment == 'localhost'
-
-      "https://#{Settings.hostname}"
-    end
-
-    def decoded_client_assertion
-      @decoded_client_assertion ||= jwt_decode
-    end
-
-    def jwt_decode(with_validation: true)
-      assertion_public_keys = with_validation ? client_config.certs.map(&:public_key) : nil
-
-      decoded_jwt = JWT.decode(
-        client_assertion,
-        assertion_public_keys,
-        with_validation,
-        {
-          verify_expiration: with_validation,
-          algorithm: Constants::Auth::ASSERTION_ENCODE_ALGORITHM
-        }
-      )&.first
-      OpenStruct.new(decoded_jwt)
-    rescue JWT::VerificationError
-      raise Errors::ClientAssertionSignatureMismatchError.new message: 'Client assertion body does not match signature'
-    rescue JWT::ExpiredSignature
-      raise Errors::ClientAssertionExpiredError.new message: 'Client assertion has expired'
-    rescue JWT::DecodeError
-      raise Errors::ClientAssertionMalformedJWTError.new message: 'Client assertion is malformed'
-    end
-
-    def localhost_hostname
-      port = URI.parse("http://#{Settings.hostname}").port
-
-      "http://localhost:#{port}"
-    end
+    def attributes_error_class         = Errors::ClientAssertionAttributesError
+    def signature_mismatch_error_class = Errors::ClientAssertionSignatureMismatchError
+    def expired_error_class            = Errors::ClientAssertionExpiredError
+    def malformed_error_class          = Errors::ClientAssertionMalformedJWTError
+    def signature_mismatch_message     = 'Client assertion body does not match signature'
+    def expired_message                = 'Client assertion has expired'
+    def malformed_message              = 'Client assertion is malformed'
   end
 end
