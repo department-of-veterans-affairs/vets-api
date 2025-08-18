@@ -150,58 +150,51 @@ describe HCA::Service do
     end
 
     context 'submitting with attachment' do
-      context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+      it 'works', with_run_at do
+        VCR.use_cassette(
+          'hca/submit_with_attachment_formatted_correctly',
+          vcr_options
+        ) do
+          result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
+          expect(result[:success]).to be(true)
+          expect(Rails.logger).to have_received(:info).with(
+            'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+          )
+          expect(Rails.logger).to have_received(:info).with(
+            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+          )
         end
+      end
 
+      context 'with a non-pdf attachment' do
         it 'works', with_run_at do
+          hca_attachment = build(:hca_attachment)
+          hca_attachment.set_file_data!(
+            Rack::Test::UploadedFile.new(
+              'spec/fixtures/files/sm_file1.jpg',
+              'image/jpeg'
+            )
+          )
+          hca_attachment.save!
+
+          health_care_application = build(:health_care_application)
+          form = health_care_application.parsed_form
+          form['attachments'] = [
+            {
+              'confirmationCode' => hca_attachment.guid,
+              'dd214' => true
+            }
+          ]
+          health_care_application.form = form.to_json
+          health_care_application.send(:remove_instance_variable, :@parsed_form)
+          health_care_application.save!
+
           VCR.use_cassette(
-            'hca/submit_with_attachment_formatted_correctly',
+            'hca/submit_with_attachment_jpg_formatted_correctly',
             vcr_options
           ) do
-            result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
+            result = HCA::Service.new.submit_form(health_care_application.parsed_form)
             expect(result[:success]).to be(true)
-            expect(Rails.logger).to have_received(:info).with(
-              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
-            )
-            expect(Rails.logger).to have_received(:info).with(
-              'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
-            )
-          end
-        end
-
-        context 'with a non-pdf attachment' do
-          it 'works', with_run_at do
-            hca_attachment = build(:hca_attachment)
-            hca_attachment.set_file_data!(
-              Rack::Test::UploadedFile.new(
-                'spec/fixtures/files/sm_file1.jpg',
-                'image/jpeg'
-              )
-            )
-            hca_attachment.save!
-
-            health_care_application = build(:health_care_application)
-            form = health_care_application.parsed_form
-            form['attachments'] = [
-              {
-                'confirmationCode' => hca_attachment.guid,
-                'dd214' => true
-              }
-            ]
-            health_care_application.form = form.to_json
-            health_care_application.send(:remove_instance_variable, :@parsed_form)
-            health_care_application.save!
-
-            VCR.use_cassette(
-              'hca/submit_with_attachment_jpg_formatted_correctly',
-              vcr_options
-            ) do
-              result = HCA::Service.new.submit_form(health_care_application.parsed_form)
-              expect(result[:success]).to be(true)
-            end
           end
         end
       end

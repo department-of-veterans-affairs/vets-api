@@ -14,18 +14,16 @@ module ClaimsApi
       validate_form_526_submission_claim_date!
       # ensure any provided 'separationLocationCode' values are valid EVSS ReferenceData values
       validate_form_526_location_codes!
-
       # ensure no more than 100 service periods are provided, and begin/end dates are in order
       validate_service_periods_quantity!
       validate_service_periods_chronology!
-
       validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
-
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
-
       # ensure 'currentMailingAddress' attributes are valid
       validate_form_526_current_mailing_address!
+      # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
+      validate_form_526_change_of_address!
     end
 
     def retrieve_separation_locations
@@ -92,21 +90,39 @@ module ClaimsApi
     end
 
     def validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
-      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods') || []
+      return unless end_date_beyond_180_days?(service_periods)
 
-      end_date_180_days_in_future = service_periods.find do |sp|
-        active_duty_end_date = sp['activeDutyEndDate']
-        next if active_duty_end_date.blank?
-
-        Date.parse(active_duty_end_date) > 180.days.from_now.to_date
-      end
-
-      unless end_date_180_days_in_future.nil?
+      unless eligible_for_future_end_date?(service_periods)
+        # NOTE: this error message doesn't really cover all the ways this validation could
+        # fail, but for backwards compatibility, it has not been changed.
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'serviceInformation/servicePeriods/activeDutyEndDate',
-          'Provided service period duty end date is more than 180 days in the future: ' \
-          "#{end_date_180_days_in_future['activeDutyEndDate']}"
+          'At least one active duty end date must be within 180 days from now.'
         )
+      end
+    end
+
+    def end_date_beyond_180_days?(service_periods)
+      service_periods.any? do |sp|
+        end_date = sp['activeDutyEndDate']
+        next false if end_date.blank?
+
+        Date.parse(end_date) > 180.days.from_now.end_of_day
+      end
+    end
+
+    def eligible_for_future_end_date?(service_periods)
+      reserves_national_guard_service = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
+      reserves_national_guard_service.present? && past_service_period?(service_periods)
+    end
+
+    def past_service_period?(service_periods)
+      service_periods.any? do |sp|
+        end_date = sp['activeDutyEndDate']
+        next false if end_date.blank?
+
+        Date.parse(end_date) <= Time.zone.today.end_of_day
       end
     end
 
@@ -141,6 +157,48 @@ module ClaimsApi
       return if valid_countries.include?(current_mailing_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', current_mailing_address['country'])
+    end
+
+    def validate_form_526_change_of_address!
+      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+
+      validate_form_526_change_of_address_beginning_date!(change_of_address)
+      validate_form_526_change_of_address_ending_date!(change_of_address)
+      validate_form_526_change_of_address_country!(change_of_address)
+    end
+
+    def validate_form_526_change_of_address_beginning_date!(change_of_address)
+      return if change_of_address.blank?
+      return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
+      return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
+    end
+
+    def validate_form_526_change_of_address_ending_date!(change_of_address)
+      return if change_of_address.blank?
+
+      change_type = change_of_address['addressChangeType']
+      ending_date = change_of_address['endingDate']
+
+      case change_type&.upcase
+      when 'PERMANENT'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.present?
+      when 'TEMPORARY'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
+
+        beginning_date = change_of_address['beginningDate']
+        if Date.parse(beginning_date) >= Date.parse(ending_date)
+          raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
+        end
+      end
+    end
+
+    def validate_form_526_change_of_address_country!(change_of_address)
+      return if change_of_address.blank?
+      return if valid_countries.include?(change_of_address['country'])
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
     end
   end
 end
