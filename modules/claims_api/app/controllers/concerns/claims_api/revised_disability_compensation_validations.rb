@@ -26,6 +26,7 @@ module ClaimsApi
       validate_form_526_change_of_address!
       # ensure at least 1 disability is provided
       # ensure no more than 150 disabilities are provided
+      # ensure any provided 'disability.classificationCode' is a known value in BGS
       validate_form_526_disabilities!
     end
 
