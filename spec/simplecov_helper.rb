@@ -45,7 +45,6 @@ class SimpleCovHelper
     SimpleCov.collate Dir["#{base_dir}/.resultset*.json"] do
       add_filters
       add_modules
-      parse_codeowners
     end
   rescue RuntimeError
     nil
