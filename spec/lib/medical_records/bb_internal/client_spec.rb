@@ -126,7 +126,6 @@ describe BBInternal::Client do
 
     it 'raises RecordNotFound exception and logs the uuid if not in the cache' do
       allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
-      allow(redis).to receive(:set)
 
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
         expect { client.request_study(uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
