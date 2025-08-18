@@ -15,7 +15,7 @@ module Crm
 
     if Flipper.enabled?(:ask_va_api_patsr_separation)
       crm_env.merge!(
-        'production' => 'ava-prod'
+        'production' => 'ava'
       )
     end
 
