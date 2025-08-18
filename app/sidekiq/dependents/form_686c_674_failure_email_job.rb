@@ -27,6 +27,7 @@ class Dependents::Form686c674FailureEmailJob
                                 personalisation:)
   rescue => e
     Rails.logger.warn('Form686c674FailureEmailJob failed, retrying send...', { claim_id:, error: e })
+    raise e
   end
 
   private

@@ -186,14 +186,15 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader.upload! unless Rails.env.development?
   end
 
-  # temporarily commented out before v2 rolls out. will be updated before v2's release.
-  # def form_matches_schema
-  #   return unless form_is_string
-  #
-  #   JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
-  #     errors.add(:form, v.to_s)
-  #   end
-  # end
+  def form_matches_schema
+    return if Flipper.enabled?(:dependents_bypass_schema_validation)
+
+    return unless form_is_string
+
+    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
+      errors.add(:form, v.to_s)
+    end
+  end
 
   def to_pdf(form_id: FORM, student: nil)
     original_form_id = self.form_id
@@ -209,8 +210,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def send_failure_email(email)
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
+    first_name = parsed_form.dig('dependents_application', 'veteran_information', 'full_name', 'first')&.upcase.presence
     personalisation = {
-      'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'first_name' => first_name,
       'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
       'confirmation_number' => confirmation_number
     }
