@@ -389,8 +389,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     describe 'failed requests scrub PII from error messages' do
       let(:data) { JSON.parse(fixture_path.read) }
       let(:fixture_path) do
-        Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form
-        )
+        Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
       end
 
       before do
