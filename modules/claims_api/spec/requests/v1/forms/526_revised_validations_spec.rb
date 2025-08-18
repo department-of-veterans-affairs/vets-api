@@ -375,6 +375,72 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
+
+    context 'when applicant is a reservist or National Guardsman with a prior ended service period' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
+              },
+              {
+                'activeDutyBeginDate' => '2000-01-01',
+                'activeDutyEndDate' => 1.year.ago.to_date.iso8601
+              }
+            ],
+            'reservesNationalGuardService' => { 'someField' => 'someValue' }
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }.not_to raise_error
+      end
+    end
+
+    context 'when applicant is a reservist or National Guardsman without a prior ended service period' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
+              }
+            ],
+            'reservesNationalGuardService' => { 'someField' => 'someValue' }
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when applicant is not a reservist or National Guardsman and has a future end date' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => '2010-01-01',
+                'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
+              }
+            ]
+            # reservesNationalGuardService is missing
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
   end
 
   describe '#validate_form_526_title10_activation_date!' do
@@ -424,7 +490,9 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
   end
 
   describe '#validate_form_526_current_mailing_address_country!' do
-    let(:valid_countries) { ['Bolivia', 'China', 'Serbia/Montenegro'] }
+    # These country values are the example ones displayed in the API documentation
+    # at https://developer.va.gov/explore/api/benefits-reference-data/docs?version=current
+    let(:valid_countries) { %w[Bolivia China Serbia/Montenegro] }
 
     before do
       # Stubbing this because it's a method on the subject that fetches data from BRD
@@ -477,6 +545,118 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
 
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_current_mailing_address_country! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_change_of_address!' do
+    let(:valid_countries) { %w[USA Canada] }
+
+    before do
+      # Stubbing this because it's a method on the subject that fetches data from BRD
+      # rubocop:disable RSpec/SubjectStub
+      allow(subject).to receive(:valid_countries).and_return(valid_countries)
+      # rubocop:enable RSpec/SubjectStub
+    end
+
+    context 'when changeOfAddress is blank' do
+      let(:form_attributes) { { 'veteran' => { 'changeOfAddress' => nil } } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_change_of_address! }.not_to raise_error
+      end
+    end
+
+    context 'when addressChangeType is TEMPORARY' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'changeOfAddress' => {
+              'addressChangeType' => 'TEMPORARY',
+              'beginningDate' => 1.day.from_now.to_date.iso8601,
+              'endingDate' => 2.days.from_now.to_date.iso8601,
+              'country' => 'USA'
+            }
+          }
+        }
+      end
+
+      it 'does not raise an error for valid dates and country' do
+        expect { subject.validate_form_526_change_of_address! }.not_to raise_error
+      end
+
+      it 'raises error if beginningDate is not in the future' do
+        form_attributes['veteran']['changeOfAddress']['beginningDate'] = 1.day.ago.to_date.iso8601
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises error if endingDate is missing' do
+        form_attributes['veteran']['changeOfAddress'].delete('endingDate')
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises error if beginningDate is after or equal to endingDate' do
+        form_attributes['veteran']['changeOfAddress']['endingDate'] = form_attributes.dig(
+          'veteran', 'changeOfAddress', 'beginningDate'
+        )
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises error if country is invalid' do
+        form_attributes['veteran']['changeOfAddress']['country'] = 'Invalid'
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when addressChangeType is PERMANENT' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'changeOfAddress' => {
+              'addressChangeType' => 'PERMANENT',
+              'endingDate' => nil,
+              'country' => 'USA'
+            }
+          }
+        }
+      end
+
+      it 'does not raise an error if endingDate is not present' do
+        expect { subject.validate_form_526_change_of_address! }.not_to raise_error
+      end
+
+      it 'raises error if endingDate is present' do
+        form_attributes['veteran']['changeOfAddress']['endingDate'] = 1.day.from_now.to_date.iso8601
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises error if country is invalid' do
+        form_attributes['veteran']['changeOfAddress']['country'] = 'Invalid'
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when country is missing' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'changeOfAddress' => {
+              'addressChangeType' => 'PERMANENT'
+              # country missing
+            }
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_change_of_address! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
