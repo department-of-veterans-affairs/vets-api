@@ -194,6 +194,7 @@ jobs:
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
       exempt_team: ${{ needs.check_backend_requirement.outputs.exempt_team }}
+      exempt_teams: ${{ needs.check_backend_requirement.outputs.exempt_teams }}
       backend_approval_required: ${{ needs.check_backend_requirement.outputs.backend_approval_required }}
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
@@ -238,6 +239,8 @@ jobs:
             accredited-representatives-admin
             benefits-admin
           )
+          echo "exempt_teams=$EXEMPT_TEAMS" >> "$GITHUB_OUTPUT"
+
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
@@ -316,15 +319,8 @@ jobs:
           team_approval_status=required
           author_is_backend=false
           EXEMPT_TEAM="${{ env.exempt_team }}"
-          EXEMPT_TEAMS=(
-            octo-identity
-            lighthouse-dash
-            lighthouse-pivot
-            lighthouse-banana-peels
-            mobile-api-team
-            accredited-representatives-admin
-            benefits-admin
-          )
+          EXEMPT_TEAMS=${{ steps.check_backend_requirement.outputs.exempt_teams }}
+
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
           BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
           echo "Backend reviewers regex: $BACKEND_REVIEWERS"
@@ -377,17 +373,17 @@ jobs:
           if [[ "$team_approval_status" == "confirmed" ]]; then
             for TEAM in "${EXEMPT_TEAMS[@]}"; do
               echo "Fetching members of team: $TEAM"
-              TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
-              while IFS= read -r MEMBER; do
-                while IFS= read -r REVIEWER; do
-                  echo "Comparing MEMBER='${MEMBER}' to REVIEWER='${REVIEWER}'"
-                  if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                    echo "Reviewer is in exempt team"
-                    echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                    break 2
-                  fi
-                done <<< "$APPROVED"
-              done <<< "$TEAM_MEMBERS"
+
+              membership_state=$(gh api -X GET \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
+                --jq '.state' 2>/dev/null || echo "")
+
+              if [[ "$membership_state" == "active" ]]; then
+                echo "Reviewer is apart of an exempt team"
+                backend_approval_required=false
+                echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+                break
+              end
             done
           fi
 
