@@ -24,7 +24,6 @@ module ClaimsApi
       validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
       validate_form_526_change_of_address!
-      # ensure at least 1 disability is provided
       # ensure no more than 150 disabilities are provided
       # ensure any provided 'disability.classificationCode' is a known value in BGS
       validate_form_526_disabilities!
@@ -206,20 +205,12 @@ module ClaimsApi
     end
 
     def validate_form_526_disabilities!
-      validate_form_526_has_disabilities!
       validate_form_526_fewer_than_150_disabilities!
       validate_form_526_disability_classification_code!
       # TODO: pull these validations over from original 526 validations
       # validate_form_526_disability_approximate_begin_date!
       # validate_form_526_special_issues!
       # validate_form_526_disability_secondary_disabilities!
-    end
-
-    def validate_form_526_has_disabilities!
-      disabilities = form_attributes['disabilities']
-      return if disabilities.present? && disabilities.is_a?(Array) && disabilities.any?
-
-      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities', 'Must have at least 1 disability')
     end
 
     def validate_form_526_fewer_than_150_disabilities!
