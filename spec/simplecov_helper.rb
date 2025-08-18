@@ -16,7 +16,7 @@ class SimpleCovHelper
 
       add_filters
       add_modules
-      parse_codeowners
+      # parse_codeowners
 
       # skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
       # minimum_coverage(90) unless skip_check_coverage
