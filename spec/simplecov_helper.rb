@@ -36,12 +36,12 @@ class SimpleCovHelper
         # SimpleCovHelper.report_coverage
         # result = SimpleCov.result
         # result.format!
-        SimpleCovHelper.report_coverage('./coverage') # merge and format
+        SimpleCovHelper.report_coverage # merge and format
       end
     end
   end
 
-  def self.report_coverage(base_dir: './coverage_results')
+  def self.report_coverage(base_dir: './coverage')
     SimpleCov.collate Dir["#{base_dir}/.resultset*.json"] do
       add_filters
       add_modules
