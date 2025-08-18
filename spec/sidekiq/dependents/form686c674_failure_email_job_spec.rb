@@ -57,14 +57,13 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
         allow(va_notify_client).to receive(:send_email).and_raise(StandardError.new('Test error'))
       end
 
-      it 'logs the error and allows retry' do
+      it 'logs the error and raises error to kick off retries' do
         expect(Rails.logger).to receive(:warn).with(
           'Form686c674FailureEmailJob failed, retrying send...',
           { claim_id:, error: instance_of(StandardError) }
         )
 
-        # Should not raise error
-        expect { job.perform(claim_id, email, template_id, personalisation) }.not_to raise_error
+        expect { job.perform(claim_id, email, template_id, personalisation) }.to raise_error(StandardError)
       end
     end
   end
@@ -159,14 +158,26 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
         )
       end
 
-      it 'handles nil first_name gracefully' do
+      before do
+        allow(va_notify_client)
+          .to receive(:send_email)
+          .and_raise(StandardError.new('BadRequestError: Missing personalisation: first_name'))
+      end
+
+      it 'throws an error' do
         expect(va_notify_client).to receive(:send_email).with(
           email_address: email,
           template_id:,
           personalisation: hash_including('first_name' => nil)
         )
         personalisation['first_name'] = nil
-        job.perform(claim_id, email, template_id, personalisation)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Form686c674FailureEmailJob failed, retrying send...',
+          { claim_id:, error: instance_of(StandardError) }
+        )
+
+        expect { job.perform(claim_id, email, template_id, personalisation) }.to raise_error(StandardError)
       end
     end
   end
