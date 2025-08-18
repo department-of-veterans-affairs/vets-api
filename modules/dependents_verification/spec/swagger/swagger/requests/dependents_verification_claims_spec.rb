@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-reg_office = 'Department of Veteran Affairs, Example Address, P.O. Box 0000, Janesville, Wisconsin 53547-5365'
+reg_office = 'Department of Veterans Affairs, Evidence Intake Center, P.O. Box 4444, Janesville, Wisconsin 53547-4444'
 
 # Dependents Verification Claim Integration
 RSpec.describe Swagger::Requests::DependentsVerificationClaims, type: %i[request serializer] do
@@ -36,18 +36,6 @@ RSpec.describe Swagger::Requests::DependentsVerificationClaims, type: %i[request
             form: full_claim.merge('veteranSocialSecurityNumber' => 'just a string').to_json
           }
         }
-      end
-
-      it 'shows the validation errors', pending: 'No vets-json-schema validation yet' do
-        subject
-        expect(response).to have_http_status(:unprocessable_entity)
-
-        expect(
-          JSON.parse(response.body)['errors'][0]['detail'].include?(
-            '/veteran-social-security-number - string at `/veteranSocialSecurityNumber` ' \
-            'does not match pattern: ^[0-9]{9}$'
-          )
-        ).to be(true)
       end
     end
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
 
 module BGS
@@ -19,6 +20,8 @@ module BGS
                 :file_number
 
     STATS_KEY = 'bgs.dependent_service'
+
+    class PDFSubmissionError < StandardError; end
 
     def initialize(user)
       @first_name = user.first_name
@@ -54,9 +57,9 @@ module BGS
         @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
       end
 
-      {
-        submit_form_job_id:
-      }
+      { submit_form_job_id: }
+    rescue PDFSubmissionError
+      submit_to_central_service(claim:, encrypted_vet_info:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
@@ -71,32 +74,91 @@ module BGS
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
     end
 
+    def folder_identifier
+      fid = 'VETERAN'
+      { ssn:, participant_id:, icn: }.each do |k, v|
+        if v.present?
+          fid += ":#{k.to_s.upcase}:#{v}"
+          break
+        end
+      end
+
+      fid
+    end
+
+    def claims_evidence_uploader
+      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source: self.class.to_s)
+    end
+
     def submit_pdf_job(claim:, encrypted_vet_info:)
       @monitor = init_monitor(claim&.id)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        # TODO: implement upload using the claims_evidence_api module
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
-                             "#{STATS_KEY}.claim_evidence.failure")
-        return
+        @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+                             "#{STATS_KEY}.submit_pdf.begin")
+        form_id = submit_claim_via_claims_evidence(claim)
+        submit_attachments_via_claims_evidence(form_id, claim)
+      else
+        @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+                             "#{STATS_KEY}.submit_pdf.begin")
+        # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
+        VBMS::SubmitDependentsPdfV2Job.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
+                                                    claim.submittable_674?)
       end
 
-      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                           "#{STATS_KEY}.submit_pdf.begin")
-      VBMS::SubmitDependentsPdfV2Job.perform_sync(
-        claim.id,
-        encrypted_vet_info,
-        claim.submittable_686?,
-        claim.submittable_674?
-      )
-      # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
-    rescue => e
-      # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
+      @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
+                           "#{STATS_KEY}.submit_pdf.completed")
+    rescue
       @monitor.track_event('warn',
-                           'DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      submit_to_central_service(claim:)
+                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
+                           "#{STATS_KEY}.submit_pdf.failure")
+      raise PDFSubmissionError
+    end
 
-      raise e
+    def submit_claim_via_claims_evidence(claim)
+      form_id = claim.form_id
+      doctype = claim.document_type
+
+      if claim.submittable_686?
+        form_id = '686C-674-V2'
+        file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
+      end
+
+      form_id = submit_674_via_claims_evidence(claim) if claim.submittable_674?
+
+      form_id
+    end
+
+    def submit_674_via_claims_evidence(claim)
+      form_id = '21-674-V2'
+      doctype = '142'
+
+      form_674_pdfs = []
+      claim.parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
+        file_path = claim.process_pdf(claim.to_pdf(form_id:, student:), claim.created_at, form_id, index)
+        file_uuid = claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
+        form_674_pdfs << [file_uuid, file_path]
+      end
+
+      # compensate for the abnormal nature of 674 V2 submissions
+      if form_674_pdfs.length > 1
+        file_uuid = form_674_pdfs.map { |fp| fp[0] } # rubocop:disable Rails/Pluck
+        submission = claims_evidence_uploader.submission
+        submission.update_reference_data(students: form_674_pdfs)
+        submission.file_uuid = file_uuid.to_s # set to stringified array
+        submission.save
+      end
+
+      form_id
+    end
+
+    def submit_attachments_via_claims_evidence(form_id, claim)
+      stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
+      claim.persistent_attachments.each do |pa|
+        doctype = pa.document_type
+        file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+        claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
+      end
     end
 
     def submit_to_standard_service(claim:, encrypted_vet_info:)
@@ -111,14 +173,13 @@ module BGS
       end
     end
 
-    def submit_to_central_service(claim:)
+    def submit_to_central_service(claim:, encrypted_vet_info:)
       vet_info = JSON.parse(claim.form)['dependents_application']
-      vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
       user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
         claim.id,
-        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        encrypted_vet_info,
         KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
       )
     end
