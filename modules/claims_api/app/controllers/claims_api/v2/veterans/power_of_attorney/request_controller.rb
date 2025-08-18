@@ -77,20 +77,19 @@ module ClaimsApi
           request = find_poa_request!(lighthouse_id)
           proc_id = request.proc_id
 
-          validate_decide_representative_params!(request.poa_code, representative_id)
+          decide_service.validate_decide_representative_params!(request.poa_code, representative_id)
 
-          vet_icn = request.veteran_icn
-          claimant_icn = request.claimant_icn
-          veteran_data = build_veteran_or_dependent_data(vet_icn)
-          claimant_data = build_veteran_or_dependent_data(claimant_icn) if claimant_icn.present?
-
+          # There will be a Veteran since we saved the Create request, claimant is optional
+          veteran_info, claimant_info = decide_service.build_veteran_and_dependent_data(
+            request, method(:build_target_veteran)
+          )
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
           unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
             # Will either get null when a decision is declined or
             # a poa.id for record saved in our DB when decision is accepted
             decision_response = process_poa_decision(
               decision:, proc_id:, representative_id:, poa_code: request.poa_code, metadata: request.metadata,
-              veteran: veteran_data, claimant: claimant_data
+              veteran: veteran_info, claimant: claimant_info
             )
             # updates the request with the decision in BGS (BEP)
             manage_representative_update_poa_request(
@@ -99,7 +98,7 @@ module ClaimsApi
             )
           end
 
-          get_poa_response = handle_get_poa_request(ptcpnt_id: veteran_data.participant_id, lighthouse_id:)
+          get_poa_response = decide_service.get_poa_request(ptcpnt_id: veteran_info.participant_id, lighthouse_id:)
           # Two different responses needed, if declined no location URL is required
           if decision_response.nil?
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,
@@ -109,7 +108,8 @@ module ClaimsApi
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
               get_poa_response, view: :shared_response, root: :data
             ), status: :ok, location: url_for(
-              controller: 'power_of_attorney/base', action: 'status', id: decision_response.id, veteranId: vet_icn
+              controller: 'power_of_attorney/base', action: 'status', id: decision_response.id,
+              veteranId: request.veteran_icn
             )
           end
         end
@@ -189,17 +189,6 @@ module ClaimsApi
           [dependent.first_name, dependent.last_name]
         end
 
-        def validate_decide_representative_params!(poa_code, representative_id)
-          representative = ::Veteran::Service::Representative.find_by('? = ANY(poa_codes) AND ? = representative_id',
-                                                                      poa_code, representative_id)
-          unless representative
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-              detail: "The accredited representative with registration number #{representative_id} does not match " \
-                      "poa code: #{poa_code}."
-            )
-          end
-        end
-
         # rubocop:disable Metrics/ParameterLists
         def process_poa_decision(decision:, proc_id:, representative_id:, poa_code:, metadata:, veteran:, claimant:)
           result = ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler.new(
@@ -276,18 +265,15 @@ module ClaimsApi
           build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
         end
 
-        def handle_get_poa_request(ptcpnt_id:, lighthouse_id:)
-          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
-          res = service.get_poa_request
-          res['id'] = lighthouse_id
-          res
-        end
-
         def manage_representative_update_poa_request(proc_id:, secondary_status:, declined_reason:, service:)
           response = service.update_poa_request(proc_id:, secondary_status:,
                                                 declined_reason:)
 
           raise Common::Exceptions::Lighthouse::BadGateway if response.blank?
+        end
+
+        def decide_service
+          ClaimsApi::PowerOfAttorneyRequestService::Decide.new
         end
 
         def manage_representative_service
