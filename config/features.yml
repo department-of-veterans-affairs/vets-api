@@ -1116,6 +1116,7 @@ features:
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
   mhv_accelerated_delivery_care_notes_enabled:
     actor_type: user
     description: Control fetching OH care summary and notes data
