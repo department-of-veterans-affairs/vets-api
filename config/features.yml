@@ -203,10 +203,6 @@ features:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
     enable_in_development: true
-  ezr_use_correct_format_for_file_uploads:
-    actor_type: user
-    description: Correctly formats the `va:attachments` XML for file uploads
-    enable_in_development: true
   ezr_route_guard_enabled:
     actor_type: user
     description: Enables the route guard authentication for 10-10EZR application
@@ -724,13 +720,10 @@ features:
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
-  disability_526_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in disability 526 applications
   disability_526_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in disability 526 applications
-  disability_526_form4142_use_2024_frontend:
+  disability_526_form4142_use_2024_version:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
@@ -2115,6 +2108,10 @@ features:
   pension_itf_enabled:
     actor_type: user
     description: Enable the Intent to File for Pension
+    enable_in_development: true
+  pension_itf_skip_missing_person_error_enabled:
+    actor_type: user
+    description: Enable ability to skip the missing person error when creating an ITF for Pension
     enable_in_development: true
   pension_itf_show_alert:
     actor_type: user
