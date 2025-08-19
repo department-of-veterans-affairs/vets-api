@@ -214,7 +214,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             }
           )
 
-          claim.send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, 'confirmation_vbms_email_template_id')
+          claim.send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms,
+                                                        'confirmation_vbms_email_template_id')
         end
       end
     end

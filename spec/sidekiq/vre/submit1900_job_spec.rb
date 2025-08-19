@@ -72,11 +72,12 @@ describe VRE::Submit1900Job do
             VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
               exhaustion_msg['args'] = [claim.id, encrypted_user]
               if feature_flag_state
-                expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim) do |msg, claim|
+                expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim) do |_msg, claim|
                   claim.send_email(:error)
                 end
               else
-                expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
+                expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg,
+                                                                              claim.parsed_form['email'])
                 expect(VANotify::EmailJob).to receive(:perform_async).with(
                   form_type == 'v1' ? 'test@gmail.xom' : 'email@test.com',
                   'form1900_action_needed_email_template_id',

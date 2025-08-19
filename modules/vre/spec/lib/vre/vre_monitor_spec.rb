@@ -252,7 +252,6 @@ RSpec.describe VRE::VREMonitor do
         end
       end
 
-
       expect(monitor).to receive(:track_request).with(
         log_level,
         log_message,

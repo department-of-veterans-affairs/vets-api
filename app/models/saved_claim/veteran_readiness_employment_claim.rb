@@ -213,9 +213,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-
-    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse, CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
-
+    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
+                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
