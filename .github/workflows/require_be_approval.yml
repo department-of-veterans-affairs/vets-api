@@ -18,7 +18,6 @@ jobs:
     outputs:
       pr_draft: ${{ steps.pr_data.outputs.pr_draft }}
       pr_author: ${{ steps.pr_data.outputs.pr_author }}
-      pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch: ${{ steps.pr_data.outputs.pr_branch }}
       pr_number: ${{ steps.pr_data.outputs.pr_number }}
       pr_labels: ${{ steps.pr_data.outputs.pr_labels }}
@@ -60,14 +59,6 @@ jobs:
           echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
           echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
 
-          if [[ "$PR_DRAFT" == "true" ]]; then
-            echo "pr_requested_teams=[]" >> "$GITHUB_OUTPUT"
-          else
-            PR_REQUESTED_TEAMS=$(echo "$PR_INFO" | jq -c '.requested_teams')
-            echo "Requested Teams: $PR_REQUESTED_TEAMS"
-            echo "pr_requested_teams=$PR_REQUESTED_TEAMS" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Remove ready-for-review label
         if: steps.pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
@@ -105,7 +96,6 @@ jobs:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
-      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
       exempt_be_review: ${{ steps.verify_approval.outputs.exempt_be_review }}
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
@@ -144,8 +134,6 @@ jobs:
           pr_reviewed=false
           membership_state=false
           author_membership_state=false
-          PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
-          PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
 
           EXEMPT_TEAMS=(
             octo-identity
@@ -212,11 +200,6 @@ jobs:
               break
             elif [[ "$author_membership_state" == "active" && "$author_is_backend" == "false" ]]; then
               echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
-              exempt_be_review=true
-              backend_approval_required=false
-              break
-            elif echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
-              echo "Exemption Teams were found: $TEAM"
               exempt_be_review=true
               backend_approval_required=false
               break
