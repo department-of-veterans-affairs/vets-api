@@ -13,9 +13,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
-  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.veteran_readiness_and_employment.email.confirmation_vbms.template_id
-  CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE =
-    Settings.veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
+  VBMS = 'vbms'
+  LIGHTHOUSE = 'lighthouse'
+
+  CONFIRMATION_EMAIL_TEMPLATES = {
+    VBMS => Settings.veteran_readiness_and_employment.email.confirmation_vbms.template_id,
+    LIGHTHOUSE => Settings.veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
+  }.freeze
+
+  CONFIRMATION_EMAIL_TYPES = {
+    VBMS => :confirmation_vbms,
+    LIGHTHOUSE => :confirmation_lighthouse
+  }.freeze
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -153,6 +162,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
+    send_submission_confirmation_email(user)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -178,8 +188,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         update!(form: updated_form.to_json)
       end
     end
-
-    send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, CONFIRMATION_EMAIL_TEMPLATE_VBMS)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -212,9 +220,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     process_attachments!
     @sent_to_lighthouse = true
-
-    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
-                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -303,26 +308,23 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-  def send_vbms_lighthouse_confirmation_email(user, service, email_type, email_template)
-    if user.va_profile_email.blank?
-      Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
-                        { user_uuid: user&.uuid })
-      return
-    end
-
+  def send_submission_confirmation_email(user)
+    sent_to = @sent_to_lighthouse ? LIGHTHOUSE : VBMS
     if Flipper.enabled?(:vre_use_new_vfs_notification_library)
-      send_email(email_type)
+      send_email(
+        CONFIRMATION_EMAIL_TYPES[sent_to]
+      )
     else
       VANotify::EmailJob.perform_async(
         user.va_profile_email,
-        email_template,
+        CONFIRMATION_EMAIL_TEMPLATES[sent_to],
         {
           'first_name' => user&.first_name&.upcase.presence,
           'date' => Time.zone.today.strftime('%B %d, %Y')
         }
       )
     end
-    Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
+    Rails.logger.info("VRE Submit1900Job successful. #{sent_to} confirmation email sent.")
   end
 
   def process_attachments!

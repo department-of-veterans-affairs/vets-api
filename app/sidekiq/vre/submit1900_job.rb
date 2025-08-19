@@ -36,20 +36,12 @@ module VRE
       claim = SavedClaim.find(claim_id)
 
       if Flipper.enabled?(:vre_use_new_vfs_notification_library)
-        monitor.track_submission_exhaustion(msg, claim)
+        VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
       else
         user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
         email = claim.parsed_form['email'] || user.try(:va_profile_email)
-        monitor.track_submission_exhaustion(msg, email)
+        VRE::Monitor.new.track_submission_exhaustion(msg, email)
         claim.send_failure_email(email) if claim.present?
-      end
-    end
-
-    def self.monitor
-      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
-        VRE::VREMonitor.new
-      else
-        VRE::Monitor.new
       end
     end
   end
