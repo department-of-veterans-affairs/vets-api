@@ -239,10 +239,6 @@ jobs:
             benefits-admin
           )
 
-          author_membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/backend-review-group/memberships/$PR_AUTHOR" \
-              --jq '.state' 2>/dev/null || echo "")
-
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
@@ -250,7 +246,7 @@ jobs:
               exempt_team=true
               backend_approval_required=false
               break
-            elif [[ "$author_membership_state" != "active" ]]; then
+            else
               membership_state=$(gh api -X GET \
                 "orgs/department-of-veterans-affairs/${TEAM}/memberships/$PR_AUTHOR" \
                 --jq '.state' 2>/dev/null || echo "")
@@ -263,24 +259,34 @@ jobs:
             fi
           done
 
-          if [[ "$exempt_team" == "false" ]]; then
-            echo "Excemption Teams were not found."
-            echo "PR author '$PR_AUTHOR' is not a member of exempt team."
-            echo "Fetching PR REQUESTED TEAMS"
-            echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
-            if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
-              echo "Backend review group requested"
-              backend_approval_required=true
-            else
-              PR_LABELS="${pr_labels}"
-              echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
-                echo "Fetching label: $LABEL"
-                if [[ "$LABEL" == "require-backend-approval" ]]; then
-                  echo "$LABEL exists"
-                  backend_approval_required=true
-                  break
-                fi
-              done
+          membership_state=$(gh api -X GET \
+            "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" \
+            --jq '.state' 2>/dev/null || echo "")
+
+          if [[ "$membership_state" == "active" ]]; then
+            echo "PR author '$PR_AUTHOR' is a backend-review-group member."
+            backend_approval_required=true
+          else
+
+            if [[ "$exempt_team" == "false" ]]; then
+              echo "Excemption Teams were not found."
+              echo "PR author '$PR_AUTHOR' is not a member of exempt team."
+              echo "Fetching PR REQUESTED TEAMS"
+              echo "PR REQUESTED TEAMS: ${PR_REQUESTED_TEAMS_JSON}"
+              if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e '. | index("backend-review-group")' > /dev/null; then
+                echo "Backend review group requested"
+                backend_approval_required=true
+              else
+                PR_LABELS="${pr_labels}"
+                echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
+                  echo "Fetching label: $LABEL"
+                  if [[ "$LABEL" == "require-backend-approval" ]]; then
+                    echo "$LABEL exists"
+                    backend_approval_required=true
+                    break
+                  fi
+                done
+              fi
             fi
           fi
 
@@ -380,7 +386,6 @@ jobs:
               if [[ "$membership_state" == "active" ]]; then
                 echo "Reviewer is apart of an exempt team"
                 backend_approval_required=false
-                approval_status=confirmed
                 echo "exempt_team=true" >> "$GITHUB_OUTPUT"
                 break
               fi
