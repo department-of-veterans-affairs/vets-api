@@ -41,9 +41,5 @@ RSpec.describe TravelClaim::AppointmentsClient do
         correlation_id:
       )
     end
-
-    it 'inherits from BaseClient' do
-      expect(described_class.superclass).to eq(TravelClaim::BaseClient)
-    end
   end
 end

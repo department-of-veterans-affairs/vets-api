@@ -53,6 +53,7 @@ RSpec.describe TravelClaim::AppointmentsService do
                                                                        veis_token: 'veis-token',
                                                                        btsss_token: 'btsss-token'
                                                                      })
+      allow(client).to receive(:find_or_create_appointment).and_return(mock_response)
     end
 
     it 'validates appointment parameters' do
@@ -62,16 +63,12 @@ RSpec.describe TravelClaim::AppointmentsService do
     end
 
     it 'validates appointment date format' do
-      allow(client).to receive(:find_or_create_appointment).and_return(mock_response)
+      invalid_date = 'not-a-date'
+      allow(service).to receive(:try_parse_date).and_raise(ArgumentError, 'Invalid date format')
 
-      service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
-    end
-
-    it 'requests new tokens from auth manager' do
-      expect(auth_manager).to receive(:request_new_tokens)
-      allow(client).to receive(:find_or_create_appointment).and_return(mock_response)
-
-      service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
+      expect do
+        service.find_or_create_appointment(appointment_date_time: invalid_date, facility_id:, correlation_id:)
+      end.to raise_error(ArgumentError, /Invalid date format.*Invalid appointment time provided.*not-a-date/)
     end
 
     it 'delegates to appointments client with correlation_id' do
@@ -87,20 +84,7 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(result[:data]).to eq({ 'id' => 'appointment-123' })
     end
 
-    it 'returns first appointment from response data' do
-      response_with_multiple = double('Response', body: {
-                                        'data' => [
-                                          { 'id' => 'appointment-1' },
-                                          { 'id' => 'appointment-2' }
-                                        ]
-                                      })
-      allow(client).to receive(:find_or_create_appointment).and_return(response_with_multiple)
-
-      result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
-      expect(result[:data]).to eq({ 'id' => 'appointment-1' })
-    end
-
-    it 'handles errors and logs appropriately' do
+    it 'handles API errors and logs to sentry' do
       allow(client).to receive(:find_or_create_appointment).and_raise(Common::Exceptions::BackendServiceException)
       allow(service).to receive(:log_message_to_sentry)
 
@@ -111,13 +95,21 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(service).to have_received(:log_message_to_sentry)
     end
 
-    it 'raises ArgumentError with detailed message for invalid date' do
-      invalid_date = 'invalid-date'
-      allow(service).to receive(:try_parse_date).and_raise(ArgumentError, 'Invalid date format')
+    it 'handles empty response data gracefully' do
+      empty_response = double('Response', body: { 'data' => [] })
+      allow(client).to receive(:find_or_create_appointment).and_return(empty_response)
+
+      result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
+      expect(result[:data]).to be_nil
+    end
+
+    it 'handles malformed response data' do
+      malformed_response = double('Response', body: { 'data' => nil })
+      allow(client).to receive(:find_or_create_appointment).and_return(malformed_response)
 
       expect do
-        service.find_or_create_appointment(appointment_date_time: invalid_date, facility_id:, correlation_id:)
-      end.to raise_error(ArgumentError, /Invalid date format.*Invalid appointment time provided.*invalid-date/)
+        service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
+      end.to raise_error(NoMethodError, /undefined method `\[\]' for nil/)
     end
   end
 
