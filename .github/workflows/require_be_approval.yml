@@ -3,6 +3,8 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
+  pull_request:
+     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested]
 permissions:
   id-token: write
   contents: read
