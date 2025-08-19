@@ -15,16 +15,13 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
   }.freeze
 
   def after_submit(user)
-    Rails.logger.info "=== Form 1995 after_submit called ==="
     return unless Flipper.enabled?(:form1995_confirmation_email)
-    Rails.logger.info "=== Feature flag enabled ==="
 
     parsed_form_data = JSON.parse(form)
     email = user&.email || parsed_form_data['email']
-    Rails.logger.info "=== Email found: #{email} ==="
+
     return if email.blank?
 
-    Rails.logger.info "=== About to send confirmation email ==="
     send_confirmation_email(parsed_form_data, email)
   end
 
