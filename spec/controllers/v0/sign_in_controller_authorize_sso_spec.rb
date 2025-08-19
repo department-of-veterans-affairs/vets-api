@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative 'sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'authorize_shared_setup'
+  include_context 'sign_in_controller_shared_setup'
 
   describe 'GET authorize_sso' do
     subject { get(:authorize_sso, params: authorize_sso_params) }

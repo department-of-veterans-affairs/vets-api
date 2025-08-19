@@ -4,27 +4,10 @@ require 'rails_helper'
 require_relative 'sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'authorize_shared_setup'
+  include_context 'sign_in_controller_shared_setup'
+  include_context 'authorize_setup'
 
   describe 'GET authorize' do
-    subject do
-      get(:authorize, params: authorize_params)
-    end
-
-    let(:authorize_params) do
-      {}.merge(type)
-        .merge(code_challenge)
-        .merge(code_challenge_method)
-        .merge(client_state)
-        .merge(client_id)
-        .merge(acr)
-        .merge(operation)
-        .merge(scope)
-    end
-    let(:statsd_tags) do
-      ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
-    end
-
     context 'when client_id is not given' do
       let(:client_id) { {} }
       let(:client_id_value) { nil }

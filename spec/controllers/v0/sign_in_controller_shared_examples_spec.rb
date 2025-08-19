@@ -59,32 +59,6 @@ RSpec.shared_context 'authorize_setup' do
   end
 end
 
-RSpec.shared_context 'authorize_shared_setup' do
-  let!(:client_config) do
-    create(:client_config, authentication:, pkce:, credential_service_providers:, service_levels:, shared_sessions:)
-  end
-  let(:acr) { { acr: acr_value } }
-  let(:acr_value) { 'some-acr' }
-  let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
-  let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-  let(:client_id) { { client_id: client_id_value } }
-  let(:pkce) { true }
-  let(:scope) { { scope: 'some-scope' } }
-  let(:shared_sessions) { false }
-  let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
-  let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
-  let(:client_id_value) { client_config.client_id }
-  let(:authentication) { SignIn::Constants::Auth::COOKIE }
-  let(:client_state) { {} }
-  let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
-  let(:type) { { type: type_value } }
-  let(:type_value) { 'some-type' }
-  let(:operation) { { operation: operation_value } }
-  let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
-
-  before { allow(Rails.logger).to receive(:info) }
-end
-
 RSpec.shared_examples 'api based error response' do
   let(:expected_error_json) { { 'errors' => expected_error } }
   let(:expected_error_status) { :bad_request }

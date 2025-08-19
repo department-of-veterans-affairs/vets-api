@@ -4,14 +4,11 @@ require 'rails_helper'
 require_relative 'sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'authorize_shared_setup'
+  include_context 'sign_in_controller_shared_setup'
   include_context 'authorize_setup'
 
   describe 'GET authorize' do
     let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
-    let(:statsd_tags) do
-      ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
-    end
 
     shared_context 'an idme authentication service interface' do
       context 'and operation param is not given' do
