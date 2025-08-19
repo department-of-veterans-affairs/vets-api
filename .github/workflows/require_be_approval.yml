@@ -18,6 +18,7 @@ jobs:
     outputs:
       pr_draft: ${{ steps.pr_data.outputs.pr_draft }}
       pr_author: ${{ steps.pr_data.outputs.pr_author }}
+      pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch: ${{ steps.pr_data.outputs.pr_branch }}
       pr_number: ${{ steps.pr_data.outputs.pr_number }}
       pr_labels: ${{ steps.pr_data.outputs.pr_labels }}
@@ -47,7 +48,8 @@ jobs:
           PR_INFO=$(gh api /repos/${REPO}/pulls/${PR_NUMBER} --jq '{
             draft: .draft,
             labels: [.labels[].name],
-            head_ref: .head.ref
+            head_ref: .head.ref,
+            requested_teams: [.requested_teams[].slug]
           }')
 
           PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
@@ -57,6 +59,14 @@ jobs:
           echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
           echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
           echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
+
+          if [[ "$PR_DRAFT" == "true" ]]; then
+            echo "pr_requested_teams=[]" >> "$GITHUB_OUTPUT"
+          else
+            PR_REQUESTED_TEAMS=$(echo "$PR_INFO" | jq -c '.requested_teams')
+            echo "Requested Teams: $PR_REQUESTED_TEAMS"
+            echo "pr_requested_teams=$PR_REQUESTED_TEAMS" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Remove ready-for-review label
         if: steps.pr_data.outputs.pr_draft == 'true'
@@ -95,6 +105,7 @@ jobs:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
+      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
       exempt_be_review: ${{ steps.verify_approval.outputs.exempt_be_review }}
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
@@ -133,6 +144,8 @@ jobs:
           pr_reviewed=false
           membership_state=false
           author_membership_state=false
+          PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
+          PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
 
           EXEMPT_TEAMS=(
             octo-identity
@@ -181,13 +194,14 @@ jobs:
                 "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
                 --jq '.state' 2>/dev/null || echo "")
               echo "membership state: $membership_state"
-            end
+            fi
 
-            author_membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
-              --jq '.state' 2>/dev/null || echo "")
-
-            echo "author membership state: $author_membership_state"
+            if "$author_is_backend" == "false" ]]; then
+              author_membership_state=$(gh api -X GET \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
+                --jq '.state' 2>/dev/null || echo "")
+              echo "author membership state: $author_membership_state"
+            fi
 
             if [[ "$membership_state" == "active" ]]; then
               echo "Reviewer is a part of an exempt team"
@@ -196,7 +210,7 @@ jobs:
               approval_status=confirmed
               backend_approval_required=false
               break
-            elif [[ "$author_membership_state" == "active" ]]; then
+            elif [[ "$author_membership_state" == "active" && "$author_is_backend" == "false" ]]; then
               echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
               exempt_be_review=true
               backend_approval_required=false
