@@ -45,8 +45,7 @@ jobs:
           PR_INFO=$(gh api /repos/${REPO}/pulls/${PR_NUMBER} --jq '{
             draft: .draft,
             labels: [.labels[].name],
-            head_ref: .head.ref,
-            requested_teams: [.requested_teams[].slug]
+            head_ref: .head.ref
           }')
 
           PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
