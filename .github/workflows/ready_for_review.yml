@@ -239,10 +239,6 @@ jobs:
             benefits-admin
           )
 
-          author_membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" \
-              --jq '.state' 2>/dev/null || echo "")
-
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
