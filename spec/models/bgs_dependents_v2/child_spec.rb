@@ -6,7 +6,7 @@ RSpec.describe BGSDependentsV2::Child do
   let(:child_info_v2) do
     {
       'does_child_live_with_you' => true,
-      'income_in_last_year' => false,
+      'income_in_last_year' => 'N',
       'birth_location' => { 'location' => { 'state' => 'NH', 'city' => 'Concord', 'postal_code' => '03301' } },
       'is_biological_child' => true,
       'has_child_ever_been_married' => true,
