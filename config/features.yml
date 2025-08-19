@@ -2348,3 +2348,9 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+
+# Gateway Integration Features
+  claim_label_filtering:
+    description: "Enable filtering of specific claim type codes within supported EP codes"
+  ep040_decision_letter_notifications:
+    description: "Enable decision letter email notifications for EP040 claims"
