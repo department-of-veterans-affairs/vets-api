@@ -103,13 +103,12 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(result[:data]).to be_nil
     end
 
-    it 'handles malformed response data' do
+    it 'handles malformed response data gracefully' do
       malformed_response = double('Response', body: { 'data' => nil })
       allow(client).to receive(:find_or_create_appointment).and_return(malformed_response)
 
-      expect do
-        service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
-      end.to raise_error(NoMethodError, /undefined method `\[\]' for nil/)
+      result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
+      expect(result[:data]).to be_nil
     end
   end
 

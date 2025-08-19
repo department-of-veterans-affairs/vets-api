@@ -55,7 +55,7 @@ module TravelClaim
 
       {
         # this returns an array of matching appointments - just return the first one
-        data: appointments[0]
+        data: appointments&.first
       }
     rescue ArgumentError => e
       handle_argument_error(e, appointment_date_time)
