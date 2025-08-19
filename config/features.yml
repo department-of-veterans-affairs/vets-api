@@ -1117,6 +1117,14 @@ features:
     actor_type: user
     description: Control fetching OH allergies data
     enable_in_development: false
+  mhv_accelerated_delivery_care_notes_enabled:
+    actor_type: user
+    description: Control fetching OH care summary and notes data
+    enable_in_development: false
+  mhv_accelerated_delivery_conditions_enabled:
+    actor_type: user
+    description: Control fetching OH health condition data
+    enable_in_development: false
   mhv_accelerated_delivery_labs_and_tests_enabled:
     actor_type: user
     description: Control fetching lab and test data from UHD (SCDF) service (web)
