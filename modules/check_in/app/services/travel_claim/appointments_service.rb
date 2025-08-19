@@ -79,8 +79,8 @@ module TravelClaim
     end
 
     def handle_argument_error(error, appointment_date_time)
-      Rails.logger.error(message: "#{error} Invalid appointment time provided (given: #{appointment_date_time}).")
-      raise ArgumentError, "#{error} Invalid appointment time provided (given: #{appointment_date_time})."
+      Rails.logger.error(message: "#{error} Invalid appointment date.")
+      raise ArgumentError, "#{error} Invalid appointment time date)."
     end
   end
 end
