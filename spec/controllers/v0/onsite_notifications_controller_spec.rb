@@ -39,7 +39,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         get(:index)
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data'].map { |d| d['id'] }).to eq(
+        expect(JSON.parse(response.body)['data'].pluck('id')).to eq(
           [onsite_notification.id.to_s]
         )
       end
@@ -48,9 +48,8 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         get :index, params: { include_dismissed: true }
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data'].map do |d|
-                 d['id']
-               end).to contain_exactly(onsite_notification.id.to_s, dismissed_onsite_notification.id.to_s)
+        expect(JSON.parse(response.body)['data'].pluck('id')).to contain_exactly(onsite_notification.id.to_s,
+                                                                                 dismissed_onsite_notification.id.to_s)
       end
 
       describe 'pagination metadata' do

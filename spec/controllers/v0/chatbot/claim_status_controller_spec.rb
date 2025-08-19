@@ -220,7 +220,7 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').pluck('displayName')
           expect(names).not_to include('Attorney Fees')
           expect(names).not_to include('Secondary Action Required')
           expect(names).not_to include('Stage 2 Development')
@@ -238,7 +238,7 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
-          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').pluck('displayName')
           expect(names).to include('Attorney Fees')
           expect(names).to include('Secondary Action Required')
           expect(names).to include('Stage 2 Development')

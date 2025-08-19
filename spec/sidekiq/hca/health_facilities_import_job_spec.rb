@@ -95,7 +95,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
           described_class.new.perform
         end.not_to change(HealthFacility, :count)
 
-        station_numbers = mock_institution_data.map { |institution| institution[:station_number] }
+        station_numbers = mock_institution_data.pluck(:station_number)
         expect(HealthFacility
           .where(station_number: station_numbers)
           .pluck(:name)).to contain_exactly(

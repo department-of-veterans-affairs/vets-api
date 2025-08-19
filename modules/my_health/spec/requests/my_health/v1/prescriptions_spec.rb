@@ -327,7 +327,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           }
         end
         # Expect alphabetical order of prescription names
-        expect(objects.map { |o| o['prescription_name'] }).to eq(objects.map { |o| o['prescription_name'] }.sort)
+        expect(objects.pluck('prescription_name')).to eq(objects.pluck('prescription_name').sort)
 
         # If prescription is the same, verify sort is by newest sorted_dispensed_date to oldest
         objects.group_by { |o| o['prescription_name'] }.each_value do |meds|

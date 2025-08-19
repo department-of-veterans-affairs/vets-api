@@ -72,15 +72,15 @@ RSpec.describe Users::Profile do
       end
 
       it 'includes form id' do
-        expect(subject.in_progress_forms.map { |form| form[:form] }).to match_array(expected_forms_id)
+        expect(subject.in_progress_forms.pluck(:form)).to match_array(expected_forms_id)
       end
 
       it 'includes last updated' do
-        expect(subject.in_progress_forms.map { |form| form[:lastUpdated] }).to match_array(expected_forms_updated_at)
+        expect(subject.in_progress_forms.pluck(:lastUpdated)).to match_array(expected_forms_updated_at)
       end
 
       it 'includes metadata' do
-        expect(subject.in_progress_forms.map { |form| form[:metadata] }).to match_array(expected_forms_metadata)
+        expect(subject.in_progress_forms.pluck(:metadata)).to match_array(expected_forms_metadata)
       end
     end
 

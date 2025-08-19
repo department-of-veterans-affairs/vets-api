@@ -102,7 +102,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
             get '/mobile/v0/claim/600117255', headers: sis_headers
           end
           parsed_body = JSON.parse(response.body)
-          display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').map { |h| h['displayName'] }
+          display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('displayName')
           expect(display_names.size).to eq(19)
           expect(display_names).not_to include('Attorney Fees')
         end
@@ -119,7 +119,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
             get '/mobile/v0/claim/600117255', headers: sis_headers
           end
           parsed_body = JSON.parse(response.body)
-          display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').map { |h| h['displayName'] }
+          display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('displayName')
           expect(display_names.size).to eq(20)
           expect(display_names).to include('Attorney Fees')
         end

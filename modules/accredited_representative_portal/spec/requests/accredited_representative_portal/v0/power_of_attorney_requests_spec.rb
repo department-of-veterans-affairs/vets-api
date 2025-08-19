@@ -68,7 +68,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].size).to eq(1)
         expect(parsed_response['data'].first['id']).to eq(poa_request.id)
-        expect(parsed_response['data'].map { |p| p['id'] }).not_to include(other_poa_request.id)
+        expect(parsed_response['data'].pluck('id')).not_to include(other_poa_request.id)
       end
 
       describe 'sorting' do
@@ -94,7 +94,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             expect(response).to have_http_status(:ok)
 
             # check that they're sorted by created_at in ascending order
-            ids = parsed_response.to_h['data'].map { |item| item['id'] }[0..2]
+            ids = parsed_response.to_h['data'].pluck('id')[0..2]
             expect(ids).to eq([poa_requests[2].id, poa_requests[0].id, poa_requests[1].id])
           end
 
@@ -105,7 +105,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             expect(response).to have_http_status(:ok)
 
             # check that they're sorted by created_at in descending order
-            ids = parsed_response.to_h['data'].map { |item| item['id'] }[1..3]
+            ids = parsed_response.to_h['data'].pluck('id')[1..3]
             expect(ids).to eq([poa_requests[1].id, poa_requests[0].id, poa_requests[2].id])
           end
         end
@@ -139,7 +139,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
             expect(response).to have_http_status(:ok)
             expect(parsed_response['data'].size).to eq(4) # 3 resolved + 1 unresolved
-            ids = parsed_response.to_h['data'].map { |item| item['id'] }
+            ids = parsed_response.to_h['data'].pluck('id')
             expect(ids).to eq(expected_resolved_asc_ids)
           end
 
@@ -149,7 +149,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
             expect(response).to have_http_status(:ok)
             expect(parsed_response['data'].size).to eq(4) # 3 resolved + 1 unresolved
-            ids = parsed_response.to_h['data'].map { |item| item['id'] }
+            ids = parsed_response.to_h['data'].pluck('id')
             expect(ids).to eq(expected_resolved_desc_ids)
           end
         end
@@ -269,7 +269,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(response.parsed_body['data'].size).to eq(3)
-        expect(response.parsed_body['data'].map { |poa| poa['id'] }).to match_array(assigned_list.map(&:id))
+        expect(response.parsed_body['data'].pluck('id')).to match_array(assigned_list.map(&:id))
       end
     end
 
@@ -355,7 +355,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].length).to eq(5)
-        ids = parsed_response['data'].map { |poa| poa['id'] }
+        ids = parsed_response['data'].pluck('id')
         # Default is DESC: latest first
         expect(ids).to eq(all_pending_ids.reverse)
         expect(ids).not_to include(expired_request.id, replaced_request.id, *all_processed_ids)
@@ -367,7 +367,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].length).to eq(5)
-        ids = parsed_response['data'].map { |poa| poa['id'] }
+        ids = parsed_response['data'].pluck('id')
         # Custom sort overrides default: ASC means earliest first
         expect(ids).to eq(all_pending_ids)
       end
@@ -378,7 +378,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].length).to eq(5)
-        ids = parsed_response['data'].map { |poa| poa['id'] }
+        ids = parsed_response['data'].pluck('id')
         # Explicit DESC sort matches default
         expect(ids).to eq(all_pending_ids.reverse)
       end
@@ -390,7 +390,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].length).to eq(3)
-        ids = parsed_response['data'].map { |poa| poa['id'] }
+        ids = parsed_response['data'].pluck('id')
         # Default is DESC: latest resolution first
         expect(ids).to eq(all_processed_ids.reverse)
         expect(ids).not_to include(expired_request.id, replaced_request.id, *all_pending_ids)
@@ -402,7 +402,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].length).to eq(3)
-        ids = parsed_response['data'].map { |poa| poa['id'] }
+        ids = parsed_response['data'].pluck('id')
         # Custom sort overrides default: ASC means earliest resolution first
         expect(ids).to eq(all_processed_ids)
       end
@@ -413,7 +413,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data'].length).to eq(3)
-        ids = parsed_response['data'].map { |poa| poa['id'] }
+        ids = parsed_response['data'].pluck('id')
         # Explicit DESC sort matches default
         expect(ids).to eq(all_processed_ids.reverse)
       end
@@ -562,7 +562,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
         expect(response).to have_http_status(:ok)
-        poa_ids = parsed_response['data'].map { |p| p['id'] }
+        poa_ids = parsed_response['data'].pluck('id')
 
         expect(poa_ids).to include(poa_request.id)
         expect(poa_ids).to include(another_unredacted_request.id)

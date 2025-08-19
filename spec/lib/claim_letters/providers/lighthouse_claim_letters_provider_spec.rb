@@ -857,7 +857,7 @@ RSpec.describe LighthouseClaimLettersProvider do
       it 'sorts correctly with nil dates present' do
         letters = provider.get_letters
 
-        document_ids = letters.map { |l| l[:document_id] }
+        document_ids = letters.pluck(:document_id)
 
         # Most recent first (reverse chronological)
         expect(document_ids.first).to eq('newest')

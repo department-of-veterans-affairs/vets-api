@@ -93,7 +93,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         end
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([poa_request.id])
+        expect(parsed_response.dig('data', 'poaRequests').pluck('id')).to eq([poa_request.id])
       end
 
       context 'there are multiple PoA request attempts' do
@@ -132,12 +132,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
           end
           parsed_response = JSON.parse(response.body)
           expect(response).to have_http_status(:ok)
-          expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([
-                                                                                             poa_request.id,
-                                                                                             other_poa_request.id,
-                                                                                             accepted_poa_request.id,
-                                                                                             declined_poa_request.id
-                                                                                           ])
+          expect(parsed_response.dig('data', 'poaRequests').pluck('id')).to eq([
+                                                                                 poa_request.id,
+                                                                                 other_poa_request.id,
+                                                                                 accepted_poa_request.id,
+                                                                                 declined_poa_request.id
+                                                                               ])
         end
       end
 
@@ -163,7 +163,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
           end
           parsed_response = JSON.parse(response.body)
           expect(response).to have_http_status(:ok)
-          returned_ids = parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }
+          returned_ids = parsed_response.dig('data', 'poaRequests').pluck('id')
           expect(returned_ids).not_to include(withdrawn_poa_request.id)
         end
       end

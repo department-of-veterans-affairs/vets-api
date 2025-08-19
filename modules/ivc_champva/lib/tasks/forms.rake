@@ -136,7 +136,7 @@ namespace :ivc_champva do
     # quantity + names, then a new mapping file is not needed.
     old_file = Rails.root.join(MAPPINGS_PATH, "#{form_name}.json.erb")
     old_keys = JSON.parse(File.read(old_file)).keys
-    new_keys = meta_data.map { |el| el[:pdf_field] }
+    new_keys = meta_data.pluck(:pdf_field)
 
     difference = (old_keys - new_keys) | (new_keys - old_keys)
 

@@ -77,7 +77,7 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
         assert_schema_conform(200)
         parsed_features = JSON.parse(response.body)['data']['features']
         expect(parsed_features.length).to eq(2)
-        expect(parsed_features.map { |f| f['name'] }).to include(@feature_name, @second_feature)
+        expect(parsed_features.pluck('name')).to include(@feature_name, @second_feature)
       end
     end
 
@@ -101,10 +101,10 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
         parsed_features = JSON.parse(response.body)['data']['features']
 
         # Check both formats exist
-        expect(parsed_features.map { |f| f['name'] }).to include(@feature_name)
-        expect(parsed_features.map { |f| f['name'] }).to include(@feature_name_camel)
-        expect(parsed_features.map { |f| f['name'] }).to include(@second_feature)
-        expect(parsed_features.map { |f| f['name'] }).to include(@second_feature_camel)
+        expect(parsed_features.pluck('name')).to include(@feature_name)
+        expect(parsed_features.pluck('name')).to include(@feature_name_camel)
+        expect(parsed_features.pluck('name')).to include(@second_feature)
+        expect(parsed_features.pluck('name')).to include(@second_feature_camel)
       end
     end
   end

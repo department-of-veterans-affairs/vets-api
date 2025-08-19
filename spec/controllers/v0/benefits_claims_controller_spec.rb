@@ -183,10 +183,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           get(:show, params: { id: '600383363' })
         end
         tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
-        can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
+        can_upload_values = tracked_items.pluck('canUploadFile')
         expect(can_upload_values).to eq([true, true, false, true, true, true, true, true, false,
                                          true, true, true, false, false, true])
-        friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
+        friendly_name_values = tracked_items.pluck('friendlyName')
         expect(friendly_name_values).to include('Authorization to disclose information')
         expect(friendly_name_values).to include('Proof of service')
         expect(friendly_name_values).to include('Employment information')
@@ -196,7 +196,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(friendly_name_values).to include('Non-VA medical records')
         expect(friendly_name_values).to include('Disability exam for hearing')
         expect(friendly_name_values).to include('Mental health exam')
-        activity_description_values = tracked_items.map { |i| i['activityDescription'] }
+        activity_description_values = tracked_items.pluck('activityDescription')
         expect(activity_description_values).to include('We need your permission to request your personal' \
                                                        ' information from a non-VA source, like a private' \
                                                        ' doctor or hospital.')
@@ -212,13 +212,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                        ' your behalf. No action is needed.')
         expect(activity_description_values).to include('We’ve requested your non-VA medical records on' \
                                                        ' your behalf. No action is needed.')
-        short_description_values = tracked_items.map { |i| i['shortDescription'] }
+        short_description_values = tracked_items.pluck('shortDescription')
         expect(short_description_values).to include('We’ve requested your service' \
                                                     ' records or treatment records from your reserve unit.')
         expect(short_description_values).to include('We’ve requested all your' \
                                                     ' DD Form 214’s or other separation papers for all' \
                                                     ' your periods of military service.')
-        support_alias_values = tracked_items.map { |i| i['supportAliases'] }
+        support_alias_values = tracked_items.pluck('supportAliases')
         expect(support_alias_values).to include(['21-4142/21-4142a'])
         expect(support_alias_values).to include(['VA Form 21-4192'])
         expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
@@ -275,7 +275,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          names = parsed_body.dig('data', 'attributes', 'trackedItems').pluck('displayName')
           expect(names).not_to include('Attorney Fees')
           expect(names).not_to include('Secondary Action Required')
           expect(names).not_to include('Stage 2 Development')
@@ -292,7 +292,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          names = parsed_body.dig('data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
+          names = parsed_body.dig('data', 'attributes', 'trackedItems').pluck('displayName')
           expect(names).to include('Attorney Fees')
           expect(names).to include('Secondary Action Required')
           expect(names).to include('Stage 2 Development')

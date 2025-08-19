@@ -210,7 +210,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
         result = controller.send(:applicants_with_ohi, applicants)
 
         expect(result.length).to eq(2)
-        expect(result.map { |a| a['first_name'] }).to contain_exactly('John', 'Bob')
+        expect(result.pluck('first_name')).to contain_exactly('John', 'Bob')
       end
 
       it 'handles empty applicant array' do

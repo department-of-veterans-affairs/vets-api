@@ -121,7 +121,7 @@ RSpec.describe V0::UserActionsController, type: :controller do
             data = JSON.parse(response.body)['data']
             dates = data.map { |d| Time.zone.parse(d['attributes']['created_at']) }
 
-            expect(data.map { |d| d['id'] }).to contain_exactly(user_actions[2].id, user_actions[1].id)
+            expect(data.pluck('id')).to contain_exactly(user_actions[2].id, user_actions[1].id)
             expect(dates).to eq(dates.sort.reverse)
           end
         end
