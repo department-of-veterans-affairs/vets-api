@@ -278,6 +278,9 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_ves_retry_failures_job:
+    actor_type: user
+    description: Enables the sidekiq job to retry VES submissions that failed
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
