@@ -130,6 +130,10 @@ jobs:
           author_is_backend=false
           backend_approval_required=true
           exempt_be_review=false
+          pr_reviewed=false
+          membership_state=false
+          author_membership_state=false
+
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -162,15 +166,22 @@ jobs:
             | .user.login // ""
           ' || true)
 
-          echo "Approvals: $APPROVED"
+          if [[ -n "$APPROVED" ]]; then
+            echo "Approved by: $APPROVED"
+            pr_reviewed=true
+          else
+            echo "No approvals found"
+          fi
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
-            membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/${TEAM}/memberships/$APPROVED" \
-              --jq '.state' 2>/dev/null || echo "")
 
-            echo "membership state: $membership_state"
+            if [[ "$pr_reviewed" == "true" ]]; then
+              membership_state=$(gh api -X GET \
+                "orgs/department-of-veterans-affairs/${TEAM}/memberships/$APPROVED" \
+                --jq '.state' 2>/dev/null || echo "")
+              echo "membership state: $membership_state"
+            end
 
             author_membership_state=$(gh api -X GET \
               "orgs/department-of-veterans-affairs/${TEAM}/memberships/$PR_AUTHOR" \
