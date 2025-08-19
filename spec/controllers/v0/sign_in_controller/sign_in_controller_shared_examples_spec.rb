@@ -4,7 +4,10 @@ require 'rails_helper'
 require 'sign_in/logingov/service'
 require 'sign_in/idme/service'
 
-# Shared examples and common setup for SignInController specs
+# =============================================================================
+# GENERIC SHARED SETUP (used across multiple routes)
+# =============================================================================
+
 RSpec.shared_context 'sign_in_controller_shared_setup' do
   let!(:client_config) do
     create(:client_config, authentication:, pkce:, credential_service_providers:, service_levels:, shared_sessions:)
@@ -56,6 +59,57 @@ RSpec.shared_examples 'api based error response' do
   it 'updates StatsD with a auth request failure' do
     expect { subject }.to trigger_statsd_increment(statsd_auth_failure)
   end
+end
+
+# =============================================================================
+# AUTHORIZE ROUTE SHARED EXAMPLES AND CONTEXTS
+# =============================================================================
+
+RSpec.shared_context 'authorize_setup' do
+  subject { get(:authorize, params: authorize_params) }
+
+  let(:authorize_params) do
+    {}.merge(type)
+      .merge(code_challenge)
+      .merge(code_challenge_method)
+      .merge(client_state)
+      .merge(client_id)
+      .merge(acr)
+      .merge(operation)
+      .merge(scope)
+  end
+
+  let(:client_id_value) { client_config.client_id }
+
+  let(:statsd_tags) do
+    ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
+  end
+end
+
+RSpec.shared_context 'authorize_shared_setup' do
+  let!(:client_config) do
+    create(:client_config, authentication:, pkce:, credential_service_providers:, service_levels:, shared_sessions:)
+  end
+  let(:acr) { { acr: acr_value } }
+  let(:acr_value) { 'some-acr' }
+  let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
+  let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
+  let(:client_id) { { client_id: client_id_value } }
+  let(:pkce) { true }
+  let(:scope) { { scope: 'some-scope' } }
+  let(:shared_sessions) { false }
+  let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
+  let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
+  let(:client_id_value) { client_config.client_id }
+  let(:authentication) { SignIn::Constants::Auth::COOKIE }
+  let(:client_state) { {} }
+  let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
+  let(:type) { { type: type_value } }
+  let(:type_value) { 'some-type' }
+  let(:operation) { { operation: operation_value } }
+  let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
+
+  before { allow(Rails.logger).to receive(:info) }
 end
 
 RSpec.shared_examples 'error response' do
@@ -212,7 +266,45 @@ RSpec.shared_context 'expected response with optional client state' do
   end
 end
 
-# Callback shared examples
+# =============================================================================
+# CALLBACK ROUTE SHARED EXAMPLES AND CONTEXTS
+# =============================================================================
+
+RSpec.shared_context 'callback_setup' do
+  subject { get(:callback, params: {}.merge(code).merge(state).merge(error)) }
+end
+
+RSpec.shared_context 'callback_shared_setup' do
+  let(:code) { { code: code_value } }
+  let(:state) { { state: state_value } }
+  let(:error) { { error: error_value } }
+  let(:state_value) { 'some-state' }
+  let(:code_value) { 'some-code' }
+  let(:error_value) { 'some-error' }
+  let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"] }
+  let(:type) {}
+  let(:acr) { nil }
+  let(:mpi_update_profile_response) { create(:add_person_response) }
+  let(:mpi_add_person_response) { create(:add_person_response, parsed_codes: { icn: add_person_icn }) }
+  let(:add_person_icn) { nil }
+  let(:find_profile) { create(:find_profile_response, profile: mpi_profile) }
+  let(:mpi_profile) { nil }
+  let(:client_id) { client_config.client_id }
+  let(:authentication) { SignIn::Constants::Auth::API }
+  let!(:client_config) { create(:client_config, authentication:, enforced_terms:, terms_of_use_url:) }
+  let(:enforced_terms) { nil }
+  let(:terms_of_use_url) { 'some-terms-of-use-url' }
+  let(:ial) { nil }
+
+  before do
+    allow(Rails.logger).to receive(:info)
+    allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(mpi_update_profile_response)
+    allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(find_profile)
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile)
+    allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(mpi_add_person_response)
+  end
+end
+
 RSpec.shared_examples 'callback api based error response' do
   let(:expected_error_json) { { 'errors' => expected_error } }
   let(:expected_error_status) { :bad_request }
@@ -296,26 +388,5 @@ RSpec.shared_examples 'callback error response' do
     let(:authentication) { SignIn::Constants::Auth::API }
 
     it_behaves_like 'callback api based error response'
-  end
-end
-
-RSpec.shared_context 'authorize_setup' do
-  subject { get(:authorize, params: authorize_params) }
-
-  let(:authorize_params) do
-    {}.merge(type)
-      .merge(code_challenge)
-      .merge(code_challenge_method)
-      .merge(client_state)
-      .merge(client_id)
-      .merge(acr)
-      .merge(operation)
-      .merge(scope)
-  end
-
-  let(:client_id_value) { client_config.client_id }
-
-  let(:statsd_tags) do
-    ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
   end
 end

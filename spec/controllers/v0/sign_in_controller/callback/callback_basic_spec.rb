@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
+require_relative '../sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
+  include_context 'callback_shared_setup'
 
   describe 'GET callback' do
     subject { get(:callback, params: {}.merge(code).merge(state).merge(error)) }
@@ -88,6 +88,8 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
         let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
+        let(:code_value) { 'some-code' }
+        let(:response) { nil }
 
         context 'and code in state payload does not match an existing state code' do
           let(:expected_error) { 'Code in state is not valid' }

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
+require_relative '../sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
+  include_context 'callback_shared_setup'
 
   describe 'GET callback' do
     subject { get(:callback, params: {}.merge(code).merge(state).merge(error)) }
@@ -12,21 +12,19 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code) { { code: code_value } }
     let(:state) { { state: state_value } }
     let(:error) { { error: error_value } }
-    let(:state_value) { 'some-state' }
     let(:code_value) { 'some-code' }
     let(:error_value) { 'some-error' }
-    let(:type) {}
-    let(:acr) { nil }
+    let(:authentication) { SignIn::Constants::Auth::API }
+    let!(:client_config) { create(:client_config, authentication:, enforced_terms:, terms_of_use_url:) }
+    let(:enforced_terms) { nil }
+    let(:terms_of_use_url) { 'some-terms-of-use-url' }
+    let(:client_id) { client_config.client_id }
+    let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"] }
     let(:mpi_update_profile_response) { create(:add_person_response) }
     let(:mpi_add_person_response) { create(:add_person_response, parsed_codes: { icn: add_person_icn }) }
     let(:add_person_icn) { nil }
     let(:find_profile) { create(:find_profile_response, profile: mpi_profile) }
     let(:mpi_profile) { nil }
-    let(:client_id) { client_config.client_id }
-    let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:, enforced_terms:, terms_of_use_url:) }
-    let(:enforced_terms) { nil }
-    let(:terms_of_use_url) { 'some-terms-of-use-url' }
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -67,47 +65,46 @@ RSpec.describe V0::SignInController, type: :controller do
 
           after { Timecop.return }
 
-          context 'when type in state JWT is logingov' do
-            let(:type) { SignIn::Constants::Auth::LOGINGOV }
-            let(:response) { OpenStruct.new(access_token: token) }
-            let(:token) { 'some-token' }
-            let(:logingov_uuid) { 'some-logingov_uuid' }
+          context 'when type in state JWT is idme' do
+            let(:type) { SignIn::Constants::Auth::IDME }
+            let(:idme_uuid) { 'some-idme-uuid' }
             let(:user_info) do
               OpenStruct.new(
-                {
-                  verified_at: '1-1-2022',
-                  sub: logingov_uuid,
-                  social_security_number: '123456789',
-                  birthdate: '2022-01-01',
-                  given_name: 'some-name',
-                  family_name: 'some-family-name',
-                  email: 'some-email'
-                }
+                sub: idme_uuid,
+                level_of_assurance:,
+                credential_ial:,
+                social: '123456789',
+                birth_date: '2022-01-01',
+                fname: 'some-name',
+                lname: 'some-family-name',
+                email: 'some-email'
               )
             end
+            let(:mpi_profile) do
+              build(:mpi_profile,
+                    ssn: user_info.social,
+                    birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
+                    given_names: [user_info.fname],
+                    family_name: user_info.lname)
+            end
+            let(:response) { OpenStruct.new(access_token: token) }
+            let(:level_of_assurance) { LOA::THREE }
+            let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
+            let(:token) { 'some-token' }
 
             before do
-              allow_any_instance_of(SignIn::Logingov::Service).to receive(:token).with(code_value).and_return(response)
-              allow_any_instance_of(SignIn::Logingov::Service).to receive(:user_info).with(token).and_return(user_info)
-            end
-
-            context 'and code is given but does not match expected code for auth service' do
-              let(:response) { nil }
-              let(:expected_error) { 'Code is not valid' }
-              let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
-
-              it_behaves_like 'callback error response'
+              allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
+              allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
             end
 
             context 'and code is given that matches expected code for auth service' do
-              let(:response) { OpenStruct.new(access_token: token, logingov_acr:, expires_in:) }
-              let(:expires_in) { 900 }
-              let(:logingov_acr) { IAL::LOGIN_GOV_IAL2 }
+              let(:response) { OpenStruct.new(access_token: token) }
+              let(:level_of_assurance) { LOA::THREE }
 
               context 'and credential should be uplevelled' do
                 let(:acr) { 'min' }
-                let(:logingov_acr) { IAL::LOGIN_GOV_IAL1 }
-                let(:expected_redirect_uri) { IdentitySettings.logingov.redirect_uri }
+                let(:credential_ial) { LOA::ONE }
+                let(:expected_redirect_uri) { IdentitySettings.idme.redirect_uri }
                 let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
                 before do
@@ -134,8 +131,9 @@ RSpec.describe V0::SignInController, type: :controller do
               end
 
               context 'and credential should not be uplevelled' do
-                let(:acr) { 'ial2' }
+                let(:acr) { 'loa3' }
                 let(:ial) { 2 }
+                let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
                 let(:client_code) { 'some-client-code' }
                 let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
@@ -148,25 +146,15 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    credential_uuid: logingov_uuid,
+                    credential_uuid: idme_uuid,
                     authentication_time:
                   }
-                end
-                let(:mpi_profile) do
-                  build(:mpi_profile,
-                        ssn: user_info.social_security_number,
-                        birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
-                        given_names: [user_info.given_name],
-                        family_name: user_info.family_name)
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
                 before do
                   allow(SecureRandom).to receive(:uuid).and_return(client_code)
-                  Timecop.freeze
                 end
-
-                after { Timecop.return }
 
                 it 'returns ok status' do
                   expect(subject).to have_http_status(:ok)
@@ -182,7 +170,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   context 'and the authenticated user has previously accepted terms of use' do
                     let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
                     let(:user_account) { user_verification.user_account }
-                    let(:user_verification) { create(:logingov_user_verification, logingov_uuid:) }
+                    let(:user_verification) { create(:idme_user_verification, idme_uuid:) }
 
                     it 'directs to the given redirect url set in the client configuration' do
                       expect(subject.body).to include(client_redirect_uri)
@@ -221,11 +209,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
                 it 'logs the successful callback' do
                   expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-                  subject
-                end
-
-                it 'updates StatsD with a callback request success' do
-                  statsd_tags = ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"]
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
               end

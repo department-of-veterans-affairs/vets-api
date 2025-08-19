@@ -4,14 +4,30 @@ require 'rails_helper'
 require_relative '../sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
-  include_context 'authorize_setup'
+  include_context 'authorize_shared_setup'
 
   describe 'GET authorize' do
-    shared_examples 'an idme service interface with appropriate operation' do
-      let(:expected_redirect_uri) { IdentitySettings.idme.redirect_uri }
-      let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
+    subject do
+      get(:authorize, params: authorize_params)
+    end
 
+    let(:authorize_params) do
+      {}.merge(type)
+        .merge(code_challenge)
+        .merge(code_challenge_method)
+        .merge(client_state)
+        .merge(client_id)
+        .merge(acr)
+        .merge(operation)
+        .merge(scope)
+    end
+    let(:client_id_value) { client_config.client_id }
+    let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
+    let(:statsd_tags) do
+      ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
+    end
+
+    shared_context 'a logingov authentication service interface' do
       context 'and acr param is not given' do
         let(:acr) { {} }
         let(:acr_value) { nil }
@@ -21,22 +37,22 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and acr param is given but not in client service_levels' do
-        let(:acr_value) { 'loa1' }
-        let(:service_levels) { ['loa3'] }
+        let(:acr_value) { 'ial1' }
+        let(:service_levels) { ['ial2'] }
         let(:expected_error) { 'ACR is not valid' }
 
         it_behaves_like 'error response'
       end
 
-      context 'and acr param is given and in client service_levels but not valid for type' do
-        let(:acr_value) { 'ial1' }
-        let(:expected_error) { "Invalid ACR for #{type_value}" }
+      context 'and acr param is given and in client service_levels but not valid for logingov' do
+        let(:acr_value) { 'loa1' }
+        let(:expected_error) { 'Invalid ACR for logingov' }
 
         it_behaves_like 'error response'
       end
 
-      context 'and acr param is given and in client service_levels and valid for type' do
-        let(:acr_value) { 'loa1' }
+      context 'and acr param is given and in client service_levels and valid for logingov' do
+        let(:acr_value) { 'ial1' }
 
         context 'and code_challenge_method is not given' do
           let(:code_challenge_method) { {} }
@@ -81,6 +97,7 @@ RSpec.describe V0::SignInController, type: :controller do
             context 'and client is configured with pkce enabled' do
               let(:pkce) { true }
               let(:expected_error) { 'Code Challenge is not valid' }
+              let(:expected_error_json) { { 'errors' => expected_error } }
 
               it_behaves_like 'error response'
             end
@@ -100,8 +117,6 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         context 'and code_challenge_method is not S256' do
-          let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-
           context 'and client is configured with pkce enabled' do
             let(:pkce) { true }
             let(:expected_error) { 'Code Challenge Method is not valid' }
@@ -118,20 +133,30 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    shared_context 'an idme authentication service interface' do
+    context 'when type param is logingov' do
+      let(:type_value) { SignIn::Constants::Auth::LOGINGOV }
+      let(:expected_redirect_uri) { IdentitySettings.logingov.redirect_uri }
+
       context 'and operation param is not given' do
         let(:operation) { {} }
         let(:expected_op_value) { '' }
 
-        it_behaves_like 'an idme service interface with appropriate operation'
+        it_behaves_like 'a logingov authentication service interface'
       end
-    end
 
-    context 'when type param is idme' do
-      let(:type_value) { SignIn::Constants::Auth::IDME }
-      let(:expected_type_value) { SignIn::Constants::Auth::IDME }
+      context 'and operation param is in OPERATION_TYPES' do
+        let(:operation_value) { SignIn::Constants::Auth::OPERATION_TYPES.first }
+        let(:expected_op_value) { '' }
 
-      it_behaves_like 'an idme authentication service interface'
+        it_behaves_like 'a logingov authentication service interface'
+      end
+
+      context 'and operation param is arbitrary' do
+        let(:operation_value) { 'some-operation-value' }
+        let(:expected_error) { 'Operation is not valid' }
+
+        it_behaves_like 'error response'
+      end
     end
   end
 end

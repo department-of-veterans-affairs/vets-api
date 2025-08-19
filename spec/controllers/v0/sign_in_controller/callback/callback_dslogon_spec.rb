@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
+require_relative '../sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
+  include_context 'callback_shared_setup'
 
   describe 'GET callback' do
     subject { get(:callback, params: {}.merge(code).merge(state).merge(error)) }
@@ -93,14 +93,6 @@ RSpec.describe V0::SignInController, type: :controller do
             before do
               allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
               allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
-            end
-
-            context 'and code is given but does not match expected code for auth service' do
-              let(:response) { nil }
-              let(:expected_error) { 'Code is not valid' }
-              let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
-
-              it_behaves_like 'callback error response'
             end
 
             context 'and code is given that matches expected code for auth service' do

@@ -4,13 +4,82 @@ require 'rails_helper'
 require_relative '../sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
+  include_context 'authorize_shared_setup'
   include_context 'authorize_setup'
 
   describe 'GET authorize' do
-    shared_examples 'an idme service interface with appropriate operation' do
+    let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
+    let(:statsd_tags) do
+      ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
+    end
+
+    shared_context 'an idme authentication service interface' do
+      context 'and operation param is not given' do
+        let(:operation) { {} }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and operation param is authorize' do
+        let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and operation param is arbitrary' do
+        let(:operation_value) { 'some-operation-value' }
+        let(:expected_error) { 'Operation is not valid' }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and operation param is sign_up' do
+        let(:operation_value) { SignIn::Constants::Auth::SIGN_UP }
+        let(:expected_op_value) { 'op=signup' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and the operation param is interstitial_verify' do
+        let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_VERIFY }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and the operation param is interstitial_signup' do
+        let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_SIGNUP }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and the operation param is verify_cta_authenticated' do
+        let(:operation_value) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and the operation param is verify_page_authenticated' do
+        let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_AUTHENTICATED }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+
+      context 'and the operation param is verify_page_unauthenticated' do
+        let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_UNAUTHENTICATED }
+        let(:expected_op_value) { '' }
+
+        it_behaves_like 'an idme service interface with appropriate operation'
+      end
+    end
+
+    shared_context 'an idme service interface with appropriate operation' do
       let(:expected_redirect_uri) { IdentitySettings.idme.redirect_uri }
-      let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
       context 'and acr param is not given' do
         let(:acr) { {} }
@@ -118,18 +187,23 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    shared_context 'an idme authentication service interface' do
-      context 'and operation param is authorize' do
-        let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
-        let(:expected_op_value) { '' }
-
-        it_behaves_like 'an idme service interface with appropriate operation'
-      end
-    end
-
     context 'when type param is idme' do
       let(:type_value) { SignIn::Constants::Auth::IDME }
       let(:expected_type_value) { SignIn::Constants::Auth::IDME }
+
+      it_behaves_like 'an idme authentication service interface'
+    end
+
+    context 'when type param is dslogon' do
+      let(:type_value) { SignIn::Constants::Auth::DSLOGON }
+      let(:expected_type_value) { SignIn::Constants::Auth::DSLOGON }
+
+      it_behaves_like 'an idme authentication service interface'
+    end
+
+    context 'when type param is mhv' do
+      let(:type_value) { SignIn::Constants::Auth::MHV }
+      let(:expected_type_value) { SignIn::Constants::Auth::MHV }
 
       it_behaves_like 'an idme authentication service interface'
     end
