@@ -185,7 +185,7 @@ jobs:
               approval_status=confirmed
               backend_approval_required=false
               break
-            elif [[ "$author_membership_state" == "active" && "$author_is_backend" == "false" ]]; then
+            elif [[ "$author_membership_state" == "active" ]]; then
               echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
               exempt_be_review=true
               backend_approval_required=false
