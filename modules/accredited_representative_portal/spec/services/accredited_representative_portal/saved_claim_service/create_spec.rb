@@ -51,10 +51,10 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
     let(:metadata) { dependent_claimant_form }
 
     describe 'attachment composition' do
-      let(:form_a) { create(:persistent_attachment_va_form, form_id: '21-686c') }
-      let(:form_b) { create(:persistent_attachment_va_form, form_id: '21-686c') }
-      let(:attachment_a) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
-      let(:attachment_b) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
+      let(:form_a) { create(:ar_persistent_attachment_va_form, form_id: '21-686c') }
+      let(:form_b) { create(:ar_persistent_attachment_va_form, form_id: '21-686c') }
+      let(:attachment_a) { create(:ar_persistent_attachment_va_form_documentation, form_id: '21-686c') }
+      let(:attachment_b) { create(:ar_persistent_attachment_va_form_documentation, form_id: '21-686c') }
 
       let(:already_parented_attachment) do
         create(

@@ -14,8 +14,8 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
 
   subject(:perform) do
     attachments = [
-      create(:persistent_attachment_va_form, form_id: '21-686c'),
-      create(:persistent_attachment_va_form_documentation, form_id: '21-686c')
+      create(:ar_persistent_attachment_va_form, form_id: '21-686c'),
+      create(:ar_persistent_attachment_va_form_documentation, form_id: '21-686c')
     ]
 
     AccreditedRepresentativePortal::SavedClaimService::Create.perform(

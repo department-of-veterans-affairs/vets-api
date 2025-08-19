@@ -48,7 +48,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
   describe '#submit' do
     let(:attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f3' }
     let(:supporting_attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f2' }
-    let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-686c') }
+    let!(:attachment) { AccreditedRepresentativePortal::PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-686c') }
     let!(:supporting_attachment) do
       AccreditedRepresentativePortal::PersistentAttachments::VAFormDocumentation.create!(
         guid: supporting_attachment_guid, form_id: '21-686c'
