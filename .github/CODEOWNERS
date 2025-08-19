@@ -832,6 +832,7 @@ lib/common/virus_scan.rb @department-of-veterans-affairs/backend-review-group
 lib/contention_classification @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-vro-engineers @department-of-veterans-affairs/benefits-contention-classification-engineers @department-of-veterans-affairs/benefits-admin
 lib/core_extensions @department-of-veterans-affairs/backend-review-group
 lib/data_migrations/write_benefits_intake_uuids_to_form_submission_attempts.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
+lib/data_migrations @department-of-veterans-affairs/backend-review-group
 lib/debt_management_center @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/decision_review @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 lib/decision_review_v1 @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
