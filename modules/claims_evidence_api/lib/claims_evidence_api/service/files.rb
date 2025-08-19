@@ -18,7 +18,7 @@ module ClaimsEvidenceApi
 
         validate_folder_identifier(folder_identifier)
 
-        headers = { 'X-Folder-URI' => folder_identifier }
+        headers = { 'X-Folder-URI' => folder_identifier, 'Content-Type' => 'multipart/form-data' }
         params = post_params(file_path, provider_data)
 
         perform :post, 'files', params, headers

@@ -46,6 +46,7 @@ module ClaimsEvidenceApi
         faraday.request :json
 
         faraday.response :betamocks if use_mocks?
+        faraday.response :raise_error, include_request: true
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
