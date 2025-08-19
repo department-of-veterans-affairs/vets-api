@@ -113,6 +113,16 @@ module DecisionReviews
 
         headers
       end
+
+      def handle_area_code_for_schema_validation(req_body_obj)
+        phone = req_body_obj.dig('data', 'attributes', 'veteran', 'phone')
+        area_code = phone&.dig('areaCode')
+
+        return req_body_obj if area_code.is_a?(String) && !area_code.empty?
+
+        req_body_obj['data']['attributes']['veteran']['phone']&.delete('areaCode')
+        req_body_obj
+      end
     end
   end
 end
