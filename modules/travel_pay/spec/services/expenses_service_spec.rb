@@ -23,10 +23,8 @@ describe TravelPay::ExpensesService do
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     context 'add new expense' do
-      before do
-        auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-        @service = TravelPay::ExpensesService.new(auth_manager)
-      end
+      let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
+      let(:service) { TravelPay::ExpensesService.new(auth_manager) }
 
       it 'returns an expense ID when passed a valid claim id and appointment date' do
         params = { 'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
@@ -39,7 +37,7 @@ describe TravelPay::ExpensesService do
           .with(tokens[:veis_token], tokens[:btsss_token], params)
           .and_return(add_expense_response)
 
-        actual_new_expense_response = @service.add_expense(params)
+        actual_new_expense_response = service.add_expense(params)
 
         expect(actual_new_expense_response).to equal(add_expense_data['data'])
       end
@@ -53,16 +51,16 @@ describe TravelPay::ExpensesService do
           .with(tokens[:veis_token], tokens[:btsss_token], params)
           .and_return(add_expense_response)
 
-        actual_new_expense_response = @service.add_expense(params)
+        actual_new_expense_response = service.add_expense(params)
 
         expect(actual_new_expense_response).to equal(add_expense_data['data'])
       end
 
       it 'throws an ArgumentException if not passed the right params' do
         expect do
-          @service.add_expense({ 'claim_id' => nil,
-                                 'appt_date' => '2024-10-02T14:36:38.043Z',
-                                 'trip_type' => 'OneWay' })
+          service.add_expense({ 'claim_id' => nil,
+                                'appt_date' => '2024-10-02T14:36:38.043Z',
+                                'trip_type' => 'OneWay' })
         end.to raise_error(ArgumentError, /You must provide/i)
       end
     end

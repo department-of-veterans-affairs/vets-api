@@ -90,118 +90,96 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(response).to have_http_status(:internal_server_error)
           end
 
-          context 'when environment is production' do
-            it 'does not do any VES processing' do
-              with_settings(Settings, vsp_environment: 'production') do
-                post '/ivc_champva/v1/forms', params: data
-                expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
-                expect(ves_client).not_to have_received(:submit_1010d)
-              end
+          it 'does VES processing only for form 10-10D' do
+            controller = IvcChampva::V1::UploadsController.new
+            allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
+                                                  call_upload_form: [[200], nil],
+                                                  get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                  params: ActionController::Parameters.new(data))
+            allow(controller).to receive(:render)
+
+            controller.send(:submit)
+
+            if data['form_number'] == '10-10D'
+              expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
+              # make sure submit_1010d is called with the request object from the formatter
+              expect(ves_client).to have_received(:submit_1010d).with(anything, anything, ves_request)
+            else
+              expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+              expect(ves_client).not_to have_received(:submit_1010d)
             end
           end
 
-          context 'when environment is not production' do
-            it 'does VES processing only for form 10-10D' do
-              with_settings(Settings, vsp_environment: 'staging') do
-                controller = IvcChampva::V1::UploadsController.new
-                allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
-                                                      call_upload_form: [[200], nil],
-                                                      get_file_paths_and_metadata: [[['path'], {}], {}],
-                                                      params: ActionController::Parameters.new(data))
-                allow(controller).to receive(:render)
+          it 'returns an error and does proceed when format_for_request throws an error' do
+            if data['form_number'] == '10-10D'
+              allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+                .and_raise(StandardError.new('oh no'))
+              controller = IvcChampva::V1::UploadsController.new
+              allow(controller).to receive(:call_handle_file_uploads)
+              allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+              allow(controller).to receive(:render)
 
-                controller.send(:submit)
+              controller.send(:submit)
 
-                if data['form_number'] == '10-10D'
-                  expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
-                  # make sure submit_1010d is called with the request object from the formatter
-                  expect(ves_client).to have_received(:submit_1010d).with(anything, anything, ves_request)
-                else
-                  expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
-                  expect(ves_client).not_to have_received(:submit_1010d)
-                end
-              end
+              expect(controller).not_to have_received(:call_handle_file_uploads)
+              expect(ves_client).not_to have_received(:submit_1010d)
+              expect(controller).to have_received(:render)
+                .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
             end
+          end
 
-            it 'returns an error and does proceed when format_for_request throws an error' do
-              with_settings(Settings, vsp_environment: 'staging') do
-                if data['form_number'] == '10-10D'
-                  allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
-                    .and_raise(StandardError.new('oh no'))
-                  controller = IvcChampva::V1::UploadsController.new
-                  allow(controller).to receive(:call_handle_file_uploads)
-                  allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
-                  allow(controller).to receive(:render)
+          it 'returns an error and does not proceed when format_for_request returns nil' do
+            if data['form_number'] == '10-10D'
+              allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
+              controller = IvcChampva::V1::UploadsController.new
+              allow(controller).to receive(:call_handle_file_uploads)
+              allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+              allow(controller).to receive(:render)
 
-                  controller.send(:submit)
+              controller.send(:submit)
 
-                  expect(controller).not_to have_received(:call_handle_file_uploads)
-                  expect(ves_client).not_to have_received(:submit_1010d)
-                  expect(controller).to have_received(:render)
-                    .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
-                end
-              end
+              expect(controller).not_to have_received(:call_handle_file_uploads)
+              expect(ves_client).not_to have_received(:submit_1010d)
+              expect(controller).to have_received(:render)
+                .with({
+                        json: { error_message: 'Error: Failed to format data for VES submission' },
+                        status: :internal_server_error
+                      })
             end
+          end
 
-            it 'returns an error and does not proceed when format_for_request returns nil' do
-              with_settings(Settings, vsp_environment: 'staging') do
-                if data['form_number'] == '10-10D'
-                  allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
-                  controller = IvcChampva::V1::UploadsController.new
-                  allow(controller).to receive(:call_handle_file_uploads)
-                  allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
-                  allow(controller).to receive(:render)
+          it 'returns an error and does not proceed when handle_file_uploads fails' do
+            if data['form_number'] == '10-10D'
+              controller = IvcChampva::V1::UploadsController.new
+              allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
+                                                    get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                    params: ActionController::Parameters.new(data))
+              allow(controller).to receive(:render)
 
-                  controller.send(:submit)
+              controller.send(:submit)
 
-                  expect(controller).not_to have_received(:call_handle_file_uploads)
-                  expect(ves_client).not_to have_received(:submit_1010d)
-                  expect(controller).to have_received(:render)
-                    .with({
-                            json: { error_message: 'Error: Failed to format data for VES submission' },
-                            status: :internal_server_error
-                          })
-                end
-              end
+              expect(ves_client).not_to have_received(:submit_1010d)
+              expect(controller).to have_received(:render)
+                .with({ json: { error_message: 'oh no' }, status: 400 })
             end
+          end
 
-            it 'returns an error and does not proceed when handle_file_uploads fails' do
-              with_settings(Settings, vsp_environment: 'staging') do
-                if data['form_number'] == '10-10D'
-                  controller = IvcChampva::V1::UploadsController.new
-                  allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
-                                                        get_file_paths_and_metadata: [[['path'], {}], {}],
-                                                        params: ActionController::Parameters.new(data))
-                  allow(controller).to receive(:render)
+          it 'returns ok when submitting to VES results in an error' do
+            if data['form_number'] == '10-10D'
+              # These must be mocked in order for submit to be able to complete successfully: find_by, put_object
+              allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+                .and_return(double('Record1', created_at: 1.day.ago,
+                                              id: 'some_uuid', file: double(id: 'file0')))
+              allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+                double('response',
+                       context: double('context', http_response: double('http_response', status_code: 200)))
+              )
+              # Mock VES returning an error
+              allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
 
-                  controller.send(:submit)
+              post '/ivc_champva/v1/forms', params: data
 
-                  expect(ves_client).not_to have_received(:submit_1010d)
-                  expect(controller).to have_received(:render)
-                    .with({ json: { error_message: 'oh no' }, status: 400 })
-                end
-              end
-            end
-
-            it 'returns ok when submitting to VES results in an error' do
-              with_settings(Settings, vsp_environment: 'staging') do
-                if data['form_number'] == '10-10D'
-                  # These must be mocked in order for submit to be able to complete successfully: find_by, put_object
-                  allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-                    .and_return(double('Record1', created_at: 1.day.ago,
-                                                  id: 'some_uuid', file: double(id: 'file0')))
-                  allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-                    double('response',
-                           context: double('context', http_response: double('http_response', status_code: 200)))
-                  )
-                  # Mock VES returning an error
-                  allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
-
-                  post '/ivc_champva/v1/forms', params: data
-
-                  expect(response).to have_http_status(:ok)
-                end
-              end
+              expect(response).to have_http_status(:ok)
             end
           end
 
@@ -657,6 +635,148 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
         expect(attachment_ids).to eq(['vha_10_10d'])
         expect(form).to be_a(IvcChampva::VHA1010d)
+      end
+    end
+
+    context 'with form 10-7959A resubmissions' do
+      before do
+        allow(controller).to receive_messages(
+          params: { form_number: '10-7959A' },
+          current_user: mock_user
+        )
+        # Enable the feature flag for resubmission attachment ID logic
+        allow(Flipper).to receive(:enabled?).with(:champva_resubmission_attachment_ids).and_return(true)
+      end
+
+      context 'when PDI number is selected' do
+        let(:parsed_form_data) do
+          {
+            'form_number' => '10-7959A',
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'PDI number',
+            'identifying_number' => 'PDI123456',
+            'claims' => [
+              { 'provider_name' => 'Test Provider' }
+            ],
+            'supporting_docs' => [
+              { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' },
+              { 'confirmation_code' => 'code2', 'attachment_id' => 'EOB' }
+            ]
+          }
+        end
+
+        it 'sets main claim sheet to default form_id and preserves supporting doc types' do
+          # Mock the supporting documents in the database
+          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
+          record2 = double('Record2', created_at: Time.zone.now, file: double(id: 'file2'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code2').and_return(record2)
+
+          # Mock tracking methods but let stamp_metadata work naturally
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          # Mock the PDF operations to avoid file creation
+          allow(IvcChampva::Attachments).to receive(:get_blank_page).and_return('/tmp/blank.pdf')
+          allow(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
+          allow(controller).to receive(:create_custom_attachment)
+            .and_return(
+              'confirmation_code' => 'stamped_doc_code',
+              'attachment_id' => 'CVA Bene Response'
+            )
+
+          # Mock the stamped doc record for the dynamically created confirmation code
+          stamped_record = double('StampedRecord', created_at: 2.hours.ago, file: double(id: 'stamped_file'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+            .with(guid: 'stamped_doc_code')
+            .and_return(stamped_record)
+
+          attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
+
+          # Verify: main claim sheet gets default form_id, supporting docs retain their types
+          # The stamped doc gets added with "CVA Bene Response" by the actual stamp_metadata logic
+          # Note: The stamped doc is added before supporting docs are sorted by creation date
+          expect(attachment_ids).to eq(['vha_10_7959a', 'Medical Records', 'CVA Bene Response', 'EOB'])
+          expect(form).to be_a(IvcChampva::VHA107959a)
+        end
+      end
+
+      context 'when Claim control number is selected' do
+        let(:parsed_form_data) do
+          {
+            'form_number' => '10-7959A',
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'Claim control number',
+            'identifying_number' => 'CLAIM789',
+            'claims' => [
+              { 'provider_name' => 'Test Provider' }
+            ],
+            'supporting_docs' => [
+              { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' },
+              { 'confirmation_code' => 'code2', 'attachment_id' => 'EOB' }
+            ]
+          }
+        end
+
+        it 'sets main claim sheet to CVA Reopen and preserves supporting doc types' do
+          # Mock the supporting documents in the database
+          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
+          record2 = double('Record2', created_at: Time.zone.now, file: double(id: 'file2'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code2').and_return(record2)
+
+          # Mock tracking methods but let stamp_metadata work naturally
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
+
+          # Verify: main claim sheet gets "CVA Reopen", supporting docs retain their types
+          # For claim control number, stamp_metadata should return nil (no stamped doc)
+          expect(attachment_ids).to eq(['CVA Reopen', 'Medical Records', 'EOB'])
+          expect(form).to be_a(IvcChampva::VHA107959a)
+        end
+      end
+
+      context 'when feature flag is disabled' do
+        let(:parsed_form_data) do
+          {
+            'form_number' => '10-7959A',
+            'claim_status' => 'resubmission',
+            'pdi_or_claim_number' => 'Claim control number',
+            'identifying_number' => 'CLAIM789',
+            'claims' => [
+              { 'provider_name' => 'Test Provider' }
+            ],
+            'supporting_docs' => [
+              { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' }
+            ]
+          }
+        end
+
+        before do
+          # Disable the feature flag
+          allow(Flipper).to receive(:enabled?).with(:champva_resubmission_attachment_ids).and_return(false)
+        end
+
+        it 'uses default behavior when feature flag is disabled' do
+          # Mock the supporting documents in the database
+          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
+          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+
+          # Mock tracking methods
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
+          allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
+
+          # Verify: when feature flag is disabled, uses default behavior (no special resubmission logic)
+          expect(attachment_ids).to eq(['vha_10_7959a', 'Medical Records'])
+          expect(form).to be_a(IvcChampva::VHA107959a)
+        end
       end
     end
   end
@@ -1324,7 +1444,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         allow(file).to receive(:respond_to?).with(:content_type).and_return(true)
       end
     end
-    let(:attachment) { double('PersistentAttachments::MilitaryRecords', file: mock_file, guid: attachment_guid, to_pdf: file_path) }
+    let(:attachment) { double('PersistentAttachments::MilitaryRecords', id: 123, file: mock_file, guid: attachment_guid, to_pdf: file_path) }
     let(:tmpfile) { double('Tempfile', path: file_path, binmode: true, write: true, flush: true) }
 
     context 'when form_id is 10-7959A' do
@@ -1341,7 +1461,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           expect(job).to receive(:perform_async).with(
             form_id,
             attachment_guid,
-            attachment,
+            attachment.id,
             'EOB'
           )
 

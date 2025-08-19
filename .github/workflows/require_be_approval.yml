@@ -20,7 +20,7 @@ jobs:
       pr_labels: ${{ steps.pr_data.outputs.pr_labels }}
     steps:
       - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -96,7 +96,7 @@ jobs:
       backend_approval_required: ${{ steps.verify_approval.outputs.backend_approval_required }}
     steps:
       - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}

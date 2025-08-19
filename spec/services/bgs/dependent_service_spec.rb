@@ -387,7 +387,8 @@ RSpec.describe BGS::DependentService do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
       expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                                                     "#{stats_key}.submit_pdf.begin")
-      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return uploader
+      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier, content_source: 'BGS::DependentService')
+                                                          .and_return(uploader)
 
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674',
                                                                    doctype: claim.document_type)
@@ -423,12 +424,12 @@ RSpec.describe BGS::DependentService do
 
     it 'in case of error it logs the exception and raises a custom error' do
       service = BGS::DependentService.new(user)
-      allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError, 'Test error')
+      allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
       expect do
         service.send(:submit_pdf_job, claim:,
                                       encrypted_vet_info:)
-      end.to raise_error(BGS::DependentService::PDFSubmissionError, 'Test error')
+      end.to raise_error(BGS::DependentService::PDFSubmissionError)
     end
   end
 end

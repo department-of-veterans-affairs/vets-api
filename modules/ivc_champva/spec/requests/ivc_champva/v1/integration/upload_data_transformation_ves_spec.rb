@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'ves_api/client'
 
 RSpec.describe 'TransformationVES', type: :request do
   forms = [
