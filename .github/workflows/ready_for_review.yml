@@ -239,10 +239,6 @@ jobs:
             benefits-admin
           )
 
-          author_membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" \
-              --jq '.state' 2>/dev/null || echo "")
-
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
             if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
@@ -250,16 +246,6 @@ jobs:
               exempt_team=true
               backend_approval_required=false
               break
-            elif [[ "$author_membership_state" != "active" ]]; then
-              membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
-                --jq '.state' 2>/dev/null || echo "")
-              if [[ "$membership_state" == "active" ]]; then
-                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
-                exempt_team=true
-                backend_approval_required=false
-                break
-              fi
             fi
           done
 
@@ -309,6 +295,8 @@ jobs:
           approval_status=required
           team_approval_status=required
           author_is_backend=false
+          author_membership_state=false
+          membership_state=false
           EXEMPT_TEAM="${{ env.exempt_team }}"
           EXEMPT_TEAMS=(
             octo-identity
@@ -369,23 +357,40 @@ jobs:
             fi
           fi
 
-          if [[ "$team_approval_status" == "confirmed" ]]; then
-            for TEAM in "${EXEMPT_TEAMS[@]}"; do
-              echo "Fetching members of team: $TEAM"
+          for TEAM in "${EXEMPT_TEAMS[@]}"; do
+            echo "Fetching members of team: $TEAM"
 
-              membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
+            if [[ "$author_is_backend" == "false" ]]; then
+              author_membership_state=$(gh api -X GET \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
                 --jq '.state' 2>/dev/null || echo "")
+              echo "author membership state: $author_membership_state"
+            fi
 
-              if [[ "$membership_state" == "active" ]]; then
-                echo "Reviewer is apart of an exempt team"
-                backend_approval_required=false
-                approval_status=confirmed
-                echo "exempt_team=true" >> "$GITHUB_OUTPUT"
-                break
-              fi
-            done
-          fi
+            if [[ "$author_membership_state" == "active" ]]; then
+              membership_state=$(gh api -X GET \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
+                --jq '.state' 2>/dev/null || echo "")
+              echo "Author is a part of an exempt team"
+              backend_approval_required=false
+              approval_status=confirmed
+              echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+              break
+            fi
+
+            membership_state=$(gh api -X GET \
+              "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
+              --jq '.state' 2>/dev/null || echo "")
+
+            if [[ "$membership_state" == "active" ]]; then
+              echo "Reviewer is a part of an exempt team"
+              backend_approval_required=false
+              approval_status=confirmed
+              team_approval_status=true
+              echo "exempt_team=true" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done
 
           echo "author_is_backend=$author_is_backend" >> "$GITHUB_OUTPUT"
           echo "team_approval_status=$team_approval_status" >> "$GITHUB_OUTPUT"
