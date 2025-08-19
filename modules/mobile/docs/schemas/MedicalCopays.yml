@@ -1,0 +1,5 @@
+type: array
+items:
+  type: object
+  additionalProperties: false
+  $ref: "./MedicalCopay.yml"
