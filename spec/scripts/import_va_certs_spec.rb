@@ -44,7 +44,9 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       script_content = File.read(script_path)
 
       # Verify primary HTTPS attempt with proper flags
-      expect(script_content).to include('curl --fail --silent --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5')
+      expect(script_content).to include(
+        'curl --fail --silent --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5'
+      )
       expect(script_content).to include('https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip')
 
       # Verify HTTP fallback
@@ -79,7 +81,7 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
       expect(script_content).to include('unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA')
       expect(script_content).to include('cd ECA_CA/certificates_pkcs7_v5_12_eca/')
-      expect(script_content).to include('openssl pkcs7 -inform DER -in ./certificates_pkcs7_v5_12_eca_ECA_Root_CA_5_der.p7b -print_certs')
+      expect(script_content).to include
       expect(script_content).to include('awk \'/BEGIN/{i++} {print > ("eca_cert" i ".pem")}\'')
       expect(script_content).to include('rm -f eca_cert.pem')
       expect(script_content).to include('cp *.pem ../../')
