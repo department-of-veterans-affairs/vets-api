@@ -28,32 +28,42 @@ module BenefitsDiscovery
     def service_history
       service_history_episodes.filter_map do |sh|
         code = sh.character_of_discharge_code
-        discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
-        if discharge_type.nil?
-          Rails.logger.error("No matching discharge code for: #{code}")
-          next
+        if code.present?
+          discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
+          # we want to know if the code is not found in the DISCHARGE_TYPES
+          if discharge_type.nil?
+            raise Common::Exceptions::UnprocessableEntity.new(
+              detail: "No matching discharge type for: #{code}",
+              source: self.class.name
+            )
+          end
         end
+        discharge_status = discharge_type.present? ? "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE" : nil
         {
           startDate: sh.begin_date,
           endDate: sh.end_date,
-          dischargeStatus: "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE",
+          dischargeStatus: discharge_status,
           branchOfService: sh.branch_of_service&.upcase
         }
       end
     end
 
     def disability_rating
+      # guard should be moved to controller once this is being called from a controller
+      return nil unless @user.authorize(:lighthouse, :access?)
+
       service = VeteranVerification::Service.new
       response = service.get_rated_disabilities(@user.icn)
       response.dig('data', 'attributes', 'combined_disability_rating')
     end
 
     def service_history_episodes
-      @service_history ||= begin
-        service = VAProfile::MilitaryPersonnel::Service.new(@user)
-        response = service.get_service_history
-        response.episodes
-      end
+      # guard should be moved to controller once this is being called from a controller
+      return [] unless @user.authorize(:vet360, :military_access?)
+
+      service = VAProfile::MilitaryPersonnel::Service.new(@user)
+      response = service.get_service_history
+      response.episodes
     end
 
     # this is also temporary code used for discovery purposes
@@ -61,15 +71,21 @@ module BenefitsDiscovery
       def service_history_params(episodes)
         episodes.filter_map do |sh|
           code = sh.character_of_discharge_code
-          discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
-          if discharge_type.nil?
-            Rails.logger.error("No matching discharge code for: #{code}")
-            next
+          if code.present?
+            discharge_type = VAProfile::Prefill::MilitaryInformation::DISCHARGE_TYPES[code]
+            # we want to know if the code is not found in the DISCHARGE_TYPES
+            if discharge_type.nil?
+              raise Common::Exceptions::UnprocessableEntity.new(
+                detail: "No matching discharge type for: #{code}",
+                source: self.class.name
+              )
+            end
           end
+          discharge_status = discharge_type.present? ? "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE" : nil
           {
             startDate: sh.begin_date,
             endDate: sh.end_date,
-            dischargeStatus: "#{discharge_type.upcase.gsub('-', '_')}_DISCHARGE",
+            dischargeStatus: discharge_status,
             branchOfService: sh.branch_of_service&.upcase
           }
         end

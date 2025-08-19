@@ -210,8 +210,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def send_failure_email(email)
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
+    first_name = parsed_form.dig('dependents_application', 'veteran_information', 'full_name', 'first')&.upcase.presence
     personalisation = {
-      'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'first_name' => first_name,
       'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
       'confirmation_number' => confirmation_number
     }
