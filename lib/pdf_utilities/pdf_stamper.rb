@@ -51,10 +51,9 @@ module PDFUtilities
 
     # prepare to datestamp an existing pdf document
     #
-    # @param id [String|Symbol] The ID of the set.
-    # @param stamps [Array<Hash>] The set of stamps to use instead of a predefined set
-    def initialize(id, stamps: nil)
-      @stamps = stamps || PDFStamper.get_stamp_set(id)
+    # @param stamp_set [String|Symbol|Array<Hash>] the identifier for a stamp set or an array of stamps
+    def initialize(stamp_set)
+      @stamps = stamp_set.instance_of?(Array) ? stamp_set : PDFStamper.get_stamp_set(stamp_set)
     end
 
     # stamp a generated pdf

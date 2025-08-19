@@ -34,28 +34,28 @@ module SwaggerSharedComponents
           type: :string,
           name: 'X-VA-SSN',
           required: false,
-          description: 'Veteran SSN if consumer is representative'
+          description: 'Claimant SSN if consumer is representative'
         },
         veteran_first_name_header: {
           in: :header,
           type: :string,
           name: 'X-VA-First-Name',
           required: false,
-          description: 'Veteran first name if consumer is representative'
+          description: 'Claimant first name if consumer is representative'
         },
         veteran_last_name_header: {
           in: :header,
           type: :string,
           name: 'X-VA-Last-Name',
           required: false,
-          description: 'Veteran last name if consumer is representative'
+          description: 'Claimant last name if consumer is representative'
         },
         veteran_birth_date_header: {
           in: :header,
           type: :string,
           name: 'X-VA-Birth-Date',
           required: false,
-          description: 'Veteran birthdate if consumer is representative, in iso8601 format'
+          description: 'Claimant birthdate if consumer is representative, in iso8601 format'
         },
         key_inflection_header: {
           in: :header,

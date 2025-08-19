@@ -4,16 +4,15 @@ require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
-require 'va1010_forms/utils'
 require 'hca/overrides_parser'
 require 'va1010_forms/enrollment_system/service'
 require 'form1010_ezr/veteran_enrollment_system/associations/service'
+require 'vets/shared_logging'
 
 module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    include VA1010Forms::Utils
-    extend SentryLogging
+    extend Vets::SharedLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 
@@ -66,13 +65,9 @@ module Form1010Ezr
 
     def submit_sync(parsed_form)
       res = with_monitoring do
-        if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
-          VA1010Forms::EnrollmentSystem::Service.new(
-            HealthCareApplication.get_user_identifier(@user)
-          ).submit(parsed_form, FORM_ID)
-        else
-          es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
-        end
+        VA1010Forms::EnrollmentSystem::Service.new(
+          HealthCareApplication.get_user_identifier(@user)
+        ).submit(parsed_form, FORM_ID)
       end
       # Log the 'formSubmissionId' for successful submissions
       log_successful_submission(res[:formSubmissionId], self.class.veteran_initials(parsed_form))
@@ -95,7 +90,7 @@ module Form1010Ezr
       @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
-      handle_associations(parsed_form) if Flipper.enabled?(:ezr_associations_api_enabled)
+      handle_associations(parsed_form) if Flipper.enabled?(:ezr_emergency_contacts_enabled, @user)
 
       submit_async(parsed_form)
     rescue => e
@@ -202,6 +197,11 @@ module Form1010Ezr
     end
 
     def handle_associations(parsed_form)
+      PersonalInformationLog.create!(
+        data: parsed_form,
+        error_class: 'Form1010Ezr handle associations'
+      )
+
       form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
 
       Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user).reconcile_and_update_associations(

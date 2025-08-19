@@ -133,7 +133,11 @@ module V0
         error_message = 'ITF request failed. No veteran participant ID provided'
         monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error_message)
 
-        raise MissingParticipantIDError, error_message
+        # Skip raise to allow request through to attempt to create ITF
+        # V2 Logic will internally call IAM's Add Person service to try to get the Participant ID for those users.
+        unless Flipper.enabled?(:pension_itf_skip_missing_person_error_enabled, user)
+          raise MissingParticipantIDError, error_message
+        end
       end
 
       if form_id.blank?

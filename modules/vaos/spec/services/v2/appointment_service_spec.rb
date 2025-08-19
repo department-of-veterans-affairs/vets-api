@@ -1337,6 +1337,10 @@ describe VAOS::V2::AppointmentsService do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
                   expect(response[:show_schedule_link]).to be(true)
+                  expect(response[:modality]).to be('vaInPerson')
+                  expect(response[:past]).to be(true)
+                  expect(response[:pending]).to be(true)
+                  expect(response[:future]).to be(false)
                 end
               end
             end
@@ -1370,6 +1374,10 @@ describe VAOS::V2::AppointmentsService do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
                   expect(response[:show_schedule_link]).to be(true)
+                  expect(response[:modality]).to be('vaInPerson')
+                  expect(response[:past]).to be(true)
+                  expect(response[:pending]).to be(true)
+                  expect(response[:future]).to be(false)
                 end
               end
             end
@@ -1631,6 +1639,57 @@ describe VAOS::V2::AppointmentsService do
               .to have_received(:warn)
               .with(expected_message)
             expect(check[:failures]).to eq('Missing ICN message')
+          end
+        end
+      end
+    end
+
+    context 'EPS mock bypass behavior' do
+      let(:referral_id) { 'test-referral-123' }
+      let(:mock_eps_appointments) do
+        OpenStruct.new(data: [
+                         {
+                           id: '999',
+                           state: 'submitted',
+                           referral: { referral_number: referral_id },
+                           appointment_details: { status: 'booked', start: '2024-12-02T10:00:00Z' }
+                         }
+                       ])
+      end
+      let(:eps_config) { instance_double(Eps::Configuration) }
+
+      before do
+        allow_any_instance_of(Eps::AppointmentService).to receive_messages(
+          config: eps_config,
+          get_appointments: mock_eps_appointments
+        )
+      end
+
+      context 'when EPS mocks are enabled' do
+        before do
+          allow(eps_config).to receive(:mock_enabled?).and_return(true)
+        end
+
+        it 'bypasses VAOS call and only checks EPS appointments' do
+          result = subject.referral_appointment_already_exists?(referral_id)
+
+          expect(result[:exists]).to be(true)
+          expect(result).not_to have_key(:error)
+          expect(result).not_to have_key(:failures)
+        end
+      end
+
+      context 'when EPS mocks are disabled' do
+        before do
+          allow(eps_config).to receive(:mock_enabled?).and_return(false)
+        end
+
+        it 'calls VAOS API to check appointments' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                           match_requests_on: %i[method query]) do
+            result = subject.referral_appointment_already_exists?(referral_id)
+
+            expect(result[:exists]).to be(true)
           end
         end
       end
@@ -2321,7 +2380,7 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    %w[MOBILE_ANY MOBILE_ANY_GROUP ADHOC].each do |input|
+    %w[ADHOC MOBILE_ANY MOBILE_ANY_GROUP MOBILE_GFE].each do |input|
       it "is vaVideoCareAtHome for #{input} vvsKind" do
         appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
         appt[:telehealth][:vvs_kind] = input
@@ -2346,7 +2405,7 @@ describe VAOS::V2::AppointmentsService do
 
     it 'is nil for unrecognized vvsKind' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
-      appt[:telehealth][:vvs_kind] = 'MOBILE_GFE'
+      appt[:telehealth][:vvs_kind] = 'MOBILE_UNKNOWN'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to be_nil
     end

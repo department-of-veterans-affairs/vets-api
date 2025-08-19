@@ -70,17 +70,16 @@ module BGS
 
     def log_claim_status(benefit_claim_record, proc_id)
       if @proc_state == 'MANUAL_VAGOV'
+        reason = 'This application needs manual review.'
         if @saved_claim.submittable_686?
-          monitor.track_event('info', '21-674 Combination 686C-674 claim set to manual by VA.gov: This
-                              application needs manual review because a 674 was submitted alongside a 686c.',
+          reason = 'This application needs manual review because a 674 was submitted alongside a 686c.'
+          monitor.track_event('info', "21-674 Combination 686C-674 claim set to manual by VA.gov: #{reason}",
                               "#{stats_key}.manual.combo", { proc_id: @proc_id, manual: true, combination_claim: true })
         else
-          monitor.track_event('info', '21-674 Claim set to manual by VA.gov: This application needs manual review.',
+          monitor.track_event('info', "21-674 Claim set to manual by VA.gov: #{reason}",
                               "#{stats_key}.manual", { proc_id: @proc_id, manual: true })
         end
-        # keep bgs note the same
-        note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
-        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
+        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], "Claim set to manual by VA.gov: #{reason}")
 
         bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
       else
@@ -90,21 +89,12 @@ module BGS
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def process_relationships(proc_id, veteran, payload)
       dependents = []
       # use this to make sure the created dependent and student payload line up for process_674
       # if it's nil, it is v1.
       dependent_student_map = {}
-      if Flipper.enabled?(:va_dependents_v2)
-        payload&.dig('dependents_application', 'student_information').to_a.each do |student|
-          dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
-          dependents << dependent
-          dependent_student_map[dependent[:vnp_participant_id]] = student
-        end
-      else
-        dependents << DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student: nil).create
-      end
+      dependents << DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student: nil).create
 
       VnpRelationships.new(
         proc_id:,
@@ -118,7 +108,6 @@ module BGS
         process_674(proc_id, dependent, payload, dependent_student_map[dependent[:vnp_participant_id]])
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def process_674(proc_id, dependent, payload, student = nil)
       StudentSchool.new(

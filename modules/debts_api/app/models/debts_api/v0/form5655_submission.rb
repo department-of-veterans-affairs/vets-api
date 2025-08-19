@@ -69,7 +69,9 @@ module DebtsApi
       batch.jobs do
         DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.perform_async(id, user_cache_id)
         # Delay sharepoint submission to allow VBA to process the form
-        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
+        unless Flipper.enabled?(:financial_management_vbs_only)
+          DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
+        end
       end
     end
 
@@ -156,7 +158,7 @@ module DebtsApi
       parsed_metadata = JSON.parse(metadata)
       copays = parsed_metadata['copays'] || []
 
-      copays.map { |copay| copay['id'] }.compact # rubocop:disable Rails/Pluck
+      copays.map { |copay| copay['id'] }.compact
     rescue JSON::ParserError
       []
     end

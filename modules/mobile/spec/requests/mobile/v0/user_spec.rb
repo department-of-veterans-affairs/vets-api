@@ -12,8 +12,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do
@@ -44,7 +42,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-            VCR.use_cassette('mr_client/bb_internal/apigw_session_auth.yml') do
+            VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
               VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
                 get '/mobile/v0/user', headers: sis_headers
               end

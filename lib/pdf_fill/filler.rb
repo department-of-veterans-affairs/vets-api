@@ -163,7 +163,7 @@ module PdfFill
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
       submit_date = Utilities::DateParser.parse(
-        merged_form_data['signatureDate'] || fill_options[:created_at] || Time.now.utc
+        fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
       )
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
@@ -177,15 +177,8 @@ module PdfFill
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
-      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
-      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
-      # implemented in lib/pdf_fill/extras_generator_v2.rb.
-      if fill_options.fetch(:extras_redesign, false) && submit_date.present?
-        file_path = stamp_form(file_path, submit_date)
-      end
-      output = combine_extras(file_path, hash_converter.extras_generator)
-      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
-      output
+      file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
+      combine_extras(file_path, hash_converter.extras_generator)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -225,6 +218,18 @@ module PdfFill
           ExtrasGenerator.new
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
+    end
+
+    def should_stamp_form?(form_id, fill_options, submit_date)
+      return false if fill_options[:omit_esign_stamp]
+
+      # special exception for dependents that isn't in extras_redesign
+      dependents = %w[686C-674 686C-674-V2 21-674 21-674-V2].include?(form_id)
+
+      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
+      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
+      # implemented in lib/pdf_fill/extras_generator_v2.rb.
+      (fill_options[:extras_redesign] || dependents) && submit_date.present?
     end
 
     def stamp_form(file_path, submit_date)

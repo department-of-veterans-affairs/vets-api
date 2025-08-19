@@ -51,7 +51,10 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
     describe '#log' do
       it 'logs info with correct format' do
-        expect(Rails.logger).to receive(:info).with("#{job.class}: test message", class: job.class.name, foo: 'bar')
+        monitor = instance_double(Logging::Monitor)
+        allow(Logging::Monitor).to receive(:new).with('benefits_intake_submission_status_job').and_return(monitor)
+        expect(monitor).to receive(:track_request).with(:info, 'BenefitsIntake::SubmissionStatusJob: test message',
+                                                        described_class::STATS_KEY, foo: 'bar')
         job.send(:log, :info, 'test message', foo: 'bar')
       end
     end
@@ -156,21 +159,43 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
     end
 
     describe '#update_attempt_record' do
-      let(:submission) { create(:lighthouse_submission, form_id: 'FORM1', saved_claim_id: 1) }
-      let(:attempt) { create(:lighthouse_submission_attempt, benefits_intake_uuid: 'uuid-1', submission:) }
-      let(:handler_instance) { double('HandlerInstance') }
-      let(:handler_class) { double('HandlerClass', new: handler_instance) }
+      describe 'when submission_attempt is Lighthouse::SubmissionAttempt' do
+        let(:submission) { create(:lighthouse_submission, form_id: 'FORM1', saved_claim_id: 1) }
+        let(:attempt) { create(:lighthouse_submission_attempt, benefits_intake_uuid: 'uuid-1', submission:) }
+        let(:handler_instance) { double('HandlerInstance') }
+        let(:handler_class) { double('HandlerClass', new: handler_instance) }
 
-      before do
-        job.instance_variable_set(:@pending_attempts, [attempt])
-        job.instance_variable_set(:@pah, { 'uuid-1' => attempt })
-        stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'FORM1' => handler_class })
+        before do
+          job.instance_variable_set(:@pending_attempts, [attempt])
+          job.instance_variable_set(:@pah, { 'uuid-1' => attempt })
+          stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'FORM1' => handler_class })
+        end
+
+        it 'calls update_attempt_record on the handler' do
+          expect(handler_class).to receive(:new).with(1).and_return(handler_instance)
+          expect(handler_instance).to receive(:update_attempt_record).with('vbms', { foo: 'bar' }, attempt)
+          job.send(:update_attempt_record, 'uuid-1', 'vbms', { foo: 'bar' })
+        end
       end
 
-      it 'calls update_attempt_record on the handler' do
-        expect(handler_class).to receive(:new).with(1).and_return(handler_instance)
-        expect(handler_instance).to receive(:update_attempt_record).with('vbms', { foo: 'bar' }, attempt)
-        job.send(:update_attempt_record, 'uuid-1', 'vbms', { foo: 'bar' })
+      describe 'when submission_attempt is FormSubmission' do
+        let(:saved_claim) { create(:saved_claim_benefits_intake) }
+        let(:form_submission) { create(:form_submission, saved_claim:, form_type: 'Form23-42Fake') }
+        let(:attempt) { create(:form_submission_attempt, form_submission:, benefits_intake_uuid: 'uuid-1') }
+        let(:handler_instance) { double('HandlerInstance') }
+        let(:handler_class) { double('HandlerClass', new: handler_instance) }
+
+        before do
+          job.instance_variable_set(:@pending_attempts, [attempt])
+          job.instance_variable_set(:@pah, { 'uuid-1' => attempt })
+          stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'Form23-42Fake' => handler_class })
+        end
+
+        it 'calls update_attempt_record on the handler' do
+          expect(handler_class).to receive(:new).with(form_submission.saved_claim_id).and_return(handler_instance)
+          expect(handler_instance).to receive(:update_attempt_record).with('vbms', { foo: 'bar' }, attempt)
+          job.send(:update_attempt_record, 'uuid-1', 'vbms', { foo: 'bar' })
+        end
       end
     end
 

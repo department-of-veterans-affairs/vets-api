@@ -3,6 +3,8 @@
 require 'datadog'
 require 'ves_api/client'
 
+# rubocop:disable Metrics/ClassLength
+# Note: Disabling this rule is temporary, refactoring of this class is planned
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
@@ -10,6 +12,7 @@ module IvcChampva
 
       FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
+        '10-10D-EXTENDED' => 'vha_10_10d',
         '10-7959F-1' => 'vha_10_7959f_1',
         '10-7959F-2' => 'vha_10_7959f_2',
         '10-7959C' => 'vha_10_7959c',
@@ -67,9 +70,14 @@ module IvcChampva
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
-          ohi_form = generate_ohi_form(app, parsed_form_data)
-          ohi_supporting_doc = create_ohi_attachment(ohi_form)
-          add_supporting_doc(parsed_form_data, ohi_supporting_doc)
+          # Generates overflow OHI forms if applicant is associated with
+          # more than 2 healthInsurance policies
+          ohi_forms = generate_ohi_form(app, parsed_form_data)
+          ohi_forms.each do |f|
+            ohi_path = fill_ohi_and_return_path(f)
+            ohi_supporting_doc = create_custom_attachment(f, ohi_path, 'VA form 10-7959c')
+            add_supporting_doc(parsed_form_data, ohi_supporting_doc)
+          end
         end
 
         submit(parsed_form_data)
@@ -85,8 +93,7 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
-           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
           ves_request = prepare_ves_request(parsed_form_data)
 
@@ -224,7 +231,7 @@ module IvcChampva
         file.tempfile = tmpf
       end
 
-      def submit_supporting_documents
+      def submit_supporting_documents # rubocop:disable Metrics/MethodLength
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A 10-10D-EXTENDED].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
@@ -233,7 +240,21 @@ module IvcChampva
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
-          render json: PersistentAttachmentSerializer.new(attachment)
+
+          launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
+
+          if Flipper.enabled?(:champva_claims_llm_validation, @current_user)
+            # Prepare the base response
+            response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
+
+            # Add LLM analysis if enabled
+            llm_result = call_llm_service(attachment, params[:form_id], params['attachment_id'])
+            response_data[:llm_response] = llm_result if llm_result.present?
+
+            render json: response_data
+          else
+            render json: PersistentAttachmentSerializer.new(attachment)
+          end
         else
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "Unsupported form_id: #{params[:form_id]}",
@@ -242,14 +263,136 @@ module IvcChampva
         end
       end
 
-      private
+      ##
+      # Launches background jobs for OCR and LLM processing if enabled
+      # @param [PersistentAttachments::MilitaryRecords] attachment Persistent attachment object for the uploaded file
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      def launch_background_job(attachment, form_id, attachment_id)
+        launch_ocr_job(form_id, attachment, attachment_id)
+        launch_llm_job(form_id, attachment, attachment_id)
+      rescue Errno::ENOENT
+        # Do not log the error details because they may contain PII
+        Rails.logger.error 'Unhandled ENOENT error while launching background job(s)'
+      rescue => e
+        Rails.logger.error "Unhandled error while launching background job(s): #{e.message}"
+      end
 
-      def applicants_with_ohi(applicants)
-        applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
+      def launch_ocr_job(form_id, attachment, attachment_id)
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
+          begin
+            # queue Tesseract OCR job for tmpfile
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
+            Rails.logger.info(
+              "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+            )
+          rescue => e
+            Rails.logger.error "Error launching OCR job: #{e.message}"
+          end
+        end
+      end
+
+      def launch_llm_job(form_id, attachment, attachment_id)
+        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
+          begin
+            # create a temp file from the persistent attachment object
+            tmpfile = tempfile_from_attachment(attachment, form_id)
+
+            # queue LLM job for tmpfile
+            pdf_path = Common::ConvertToPdf.new(tmpfile).run
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+            Rails.logger.info(
+              "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
+            )
+          rescue => e
+            Rails.logger.error "Error launching LLM job: #{e.message}"
+          end
+        end
       end
 
       ##
-      # Directly generates an OHI form + fills it (via fill_ohi_and_return_path)
+      # Calls the LLM service synchronously for immediate response
+      # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file
+      # @param [String] form_id The mapped form ID (e.g., '10-7959A')
+      # @param [String] attachment_id The document type/attachment ID
+      # @return [Hash, nil] LLM analysis result or nil if conditions not met
+      def call_llm_service(attachment, form_id, attachment_id)
+        return nil unless Flipper.enabled?(:champva_claims_llm_validation, @current_user)
+        return nil unless form_id == '10-7959A'
+
+        begin
+          # create a temp file from the persistent attachment object
+          tmpfile = tempfile_from_attachment(attachment, form_id)
+          pdf_path = Common::ConvertToPdf.new(tmpfile).run
+
+          # Convert form_id to mapped format for LLM service
+          mapped_form_id = FORM_NUMBER_MAP[form_id]
+
+          # Call LLM service synchronously
+          llm_service = IvcChampva::LlmService.new
+          llm_service.process_document(
+            form_id: mapped_form_id,
+            file_path: pdf_path,
+            uuid: attachment.guid,
+            attachment_id:
+          )
+        rescue => e
+          Rails.logger.error "Error calling LLM service: #{e.message}"
+          nil
+        end
+      end
+
+      ## Saves the attached file as a temporary file
+      # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      def tempfile_from_attachment(attachment, form_id)
+        original_filename = if attachment.file.respond_to?(:original_filename)
+                              attachment.file.original_filename
+                            else
+                              File.basename(attachment.file.path)
+                            end
+        # base = File.basename(original_filename, File.extname(original_filename))
+        ext = File.extname(original_filename)
+        tmpfile = Tempfile.new(["#{form_id}_attachment_", ext]) # a timestamp and unique ID are added automatically
+        tmpfile.binmode
+        tmpfile.write(attachment.file.read)
+        tmpfile.flush
+        tmpfile.rewind
+
+        content_type = if attachment.file.respond_to?(:content_type)
+                         attachment.file.content_type
+                       else
+                         content_type_from_extension(ext)
+                       end
+
+        # Define content_type method on the tmpfile singleton
+        tmpfile.define_singleton_method(:content_type) { content_type }
+
+        tmpfile
+      end
+
+      private
+
+      def content_type_from_extension(ext)
+        case ext.downcase
+        when '.pdf'
+          'application/pdf'
+        when '.jpg', '.jpeg'
+          'image/jpeg'
+        when '.png'
+          'image/png'
+        else
+          'application/octet-stream'
+        end
+      end
+
+      def applicants_with_ohi(applicants)
+        applicants.select do |item|
+          item.key?('health_insurance') || item.key?('medicare')
+        end
+      end
+
+      ##
+      # Directly generates OHI form(s) + fills them (via fill_ohi_and_return_path)
       # rather than trying to just send an OHI through the default submit
       # method.
       # Main reason for this is because since the PDFs need to be saved
@@ -259,21 +402,74 @@ module IvcChampva
       # @param [Hash] applicant A hash comprising a 10-10d applicant (name, ssn, etc)
       # @param [Hash] form_data complete form submission data object
       #
-      # @return [IvcChampva::VHA107959c] A form instance with details from form_data included
+      # @return [Array<IvcChampva::VHA107959c>] Array of form instances with details from form_data included
       def generate_ohi_form(applicant, form_data)
-        # Create applicant-specific form data
-        applicant_data = form_data.except('applicants', 'raw_data').merge(applicant)
-        applicant_data['form_number'] = '10-7959C'
+        forms = []
+        health_insurance = applicant['health_insurance'] || [{}]
 
-        # Create and configure form
-        form = IvcChampva::VHA107959c.new(applicant_data)
-        form.data['form_number'] = '10-7959C'
-        form
+        # Process insurance policies in pairs (2 per form)
+        # TODO: is there a clean way to piggyback off of existing generate_additional_pdf method?
+        health_insurance.each_slice(2).with_index do |policies_pair, _form_index|
+          # Create applicant-specific form data for this pair of policies
+          applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
+          applicant_data['form_number'] = '10-7959C-REV2025'
+
+          # Map the current pair of policies to the applicant data
+          applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
+
+          # Create and configure form
+          form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
+          form.data['form_number'] = '10-7959C-REV2025'
+          forms << form
+        end
+
+        forms
+      end
+
+      ##
+      # Sets the primary/secondary health insurance properties on the provided
+      # applicant based on a pair of policies. This is so that we can automatically
+      # get the keys/values needed to generate overflow OHI forms in the event
+      # an applicant is associated with > 2 health insurance policies
+      #
+      # @param [Array<Hash>] policies Array of hashes representing insurance policies.
+      # @param [Hash] applicant Hash representing an applicant object from a 10-10d/10-7959c form
+      #
+      # @returns [Hash] Updated applicant hash with the primary/secondary insurances mapped
+      # so an OHI (10-7959c) PDF can be stamped with this info
+      #
+      def map_policies_to_applicant(policies, applicant)
+        # Create a copy of the applicant hash to avoid modifying the original
+        updated_applicant = Marshal.load(Marshal.dump(applicant))
+
+        # Map primary insurance policy (policies[0]) if it exists
+        if policies&.[](0)
+          updated_applicant['applicant_primary_provider'] = policies[0]['provider']
+          updated_applicant['applicant_primary_effective_date'] = policies[0]['effective_date']
+          updated_applicant['applicant_primary_expiration_date'] = policies[0]['expiration_date']
+          updated_applicant['applicant_primary_through_employer'] = policies[0]['through_employer']
+          updated_applicant['applicant_primary_insurance_type'] = policies[0]['insurance_type']
+          updated_applicant['primary_medigap_plan'] = policies[0]['medigap_plan']
+          updated_applicant['primary_additional_comments'] = policies[0]['additional_comments']
+        end
+
+        # Map secondary insurance policy (policies[1]) if it exists
+        if policies&.[](1)
+          updated_applicant['applicant_secondary_provider'] = policies[1]['provider']
+          updated_applicant['applicant_secondary_effective_date'] = policies[1]['effective_date']
+          updated_applicant['applicant_secondary_expiration_date'] = policies[1]['expiration_date']
+          updated_applicant['applicant_secondary_through_employer'] = policies[1]['through_employer']
+          updated_applicant['applicant_secondary_insurance_type'] = policies[1]['insurance_type']
+          updated_applicant['secondary_medigap_plan'] = policies[1]['medigap_plan']
+          updated_applicant['secondary_additional_comments'] = policies[1]['additional_comments']
+        end
+
+        updated_applicant
       end
 
       def fill_ohi_and_return_path(form)
         # Generate PDF
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        filler = IvcChampva::PdfFiller.new(form_number: 'vha_10_7959c_rev2025', form:, uuid: form.uuid)
         # Results in a file path, which is returned
         if @current_user
           filler.generate(@current_user.loa[:current])
@@ -282,8 +478,7 @@ module IvcChampva
         end
       end
 
-      def create_ohi_attachment(form)
-        file_path = fill_ohi_and_return_path(form)
+      def create_custom_attachment(form, file_path, attachment_id)
         # Create attachment
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: form.form_id)
 
@@ -296,17 +491,9 @@ module IvcChampva
           # Clean up the file
           FileUtils.rm_f(file_path)
 
-          # Get serialized attachment data -
-          # This is a lot chained together, but basically have to take the
-          # persistentattachment and turn it into the same hash structure as
-          # produced when the user directly uploads a supporting attachment.
-          PersistentAttachmentSerializer.new(attachment)
-                                        .serializable_hash
-                                        .dig(:data, :attributes)
-                                        .merge!('attachment_id' => 'VA form 10-7959c')
-                                        .stringify_keys!
+          IvcChampva::Attachments.serialize_attachment(attachment, attachment_id)
         rescue => e
-          Rails.logger.error "Failed to process OHI form: #{e.message}"
+          Rails.logger.error "Failed to process new custom attachment: #{e.message}"
           FileUtils.rm_f(file_path)
           raise
         end
@@ -494,13 +681,16 @@ module IvcChampva
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
         form = form_class.new(parsed_form_data)
+
+        # Optionally add a supporting document with arbitrary form-defined values.
+        add_blank_doc_and_stamp(form, parsed_form_data)
+
         # DataDog Tracking
         form.track_user_identity
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = Array.new(applicant_rounded_number) { form_id }
-        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = [form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
@@ -521,14 +711,85 @@ module IvcChampva
         # reduce down to just the attachment id strings:
         attachment_ids = cached_uploads.sort_by { |h| h[:created_at] }.pluck(:attachment_id)&.compact.presence
 
-        # Return either the attachment IDs or `claim_id`s (in the case of form 10-7959a):
-        attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+        # Return either the attachment IDs or `claim_id`s (fallback for form 10-7959a):
+        attachment_ids || parsed_form_data['supporting_docs']&.pluck('attachment_id')&.compact.presence ||
+          parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+      end
+
+      ##
+      # Builds the attachment_ids array for the given form submission.
+      # For 10-7959a resubmissions:
+      #  - If Claim control number selected: the main claim sheet is labeled "CVA Reopen",
+      #    supporting docs retain original types.
+      #  - If PDI selected: use the standard logic because the generated stamped doc
+      #    (created in stamp_metadata) is labeled "CVA Bene Response" by the model, and
+      #    supporting docs retain original types. Main claim sheet remains the default
+      #    form_id.
+      # For all other cases, uses the standard logic.
+      #
+      # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids for all documents
+      def build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        if Flipper.enabled?(:champva_resubmission_attachment_ids) &&
+           form_id == 'vha_10_7959a' &&
+           parsed_form_data['claim_status'] == 'resubmission'
+          selector = parsed_form_data['pdi_or_claim_number']
+
+          if selector == 'Claim control number'
+            # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
+            main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
+            main.concat(supporting_document_ids(parsed_form_data))
+          else
+            # Main claim sheet stays as default form_id; generated stamped page in model is labeled
+            # "CVA Bene Response"; supporting docs keep their original types.
+            build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+          end
+        else
+          build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        end
+      end
+
+      ##
+      # Builds the default attachment_ids array using the standard logic.
+      #
+      # @param [String] form_id The mapped form ID
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids
+      def build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = Array.new(applicant_rounded_number) { form_id }
+        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+      end
+
+      ##
+      # Add a blank page to the PDF with stamped metadata if the form allows it.
+      #
+      # This method checks if the form has a `stamp_metadata` method that returns a hash.
+      # If so, it creates a blank page, stamps it with the provided metadata values,
+      # and adds it as a supporting document to the parsed form data.
+      #
+      # @param form [Object] The form object that may contain stamp_metadata method
+      # @param parsed_form_data [Hash] The parsed form data where the supporting document will be added
+      # @return [nil] This method doesn't return any value
+      def add_blank_doc_and_stamp(form, parsed_form_data)
+        # Only triggers if the form in question has a method that returns values
+        # we want to stamp.
+        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Hash)
+          blank_page_path = IvcChampva::Attachments.get_blank_page
+          stamps = form.stamp_metadata
+          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
+          att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
+          add_supporting_doc(parsed_form_data, att)
+        end
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
         filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
@@ -575,3 +836,4 @@ module IvcChampva
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
