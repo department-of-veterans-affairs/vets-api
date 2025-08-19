@@ -387,7 +387,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
                 referral_number:).tap do |referral|
             # Override the referring facility code by setting it directly
             referral.instance_variable_set(:@referring_facility_code, nil)
-            # Override the provider NPI by setting it directly  
+            # Override the provider NPI by setting it directly
             referral.instance_variable_set(:@provider_npi, '')
           end
         end
