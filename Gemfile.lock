@@ -639,7 +639,7 @@ GEM
     jruby-openssl (0.15.3-java)
     json (2.13.2)
     json (2.13.2-java)
-    json-schema (5.2.1)
+    json-schema (5.2.2)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
     json_schema (0.21.0)
