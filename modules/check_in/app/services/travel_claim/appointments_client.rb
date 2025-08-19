@@ -5,7 +5,8 @@ module TravelClaim
   # Client for Travel Claim appointment API operations.
   #
   # Handles HTTP communication with appointment endpoints. Inherits from BaseClient
-  # for circuit breaker protection and error handling.
+  # for circuit breaker protection and error handling. Expects appointment dates
+  # to be provided in ISO 8601 format from the request.
   #
   class AppointmentsClient < BaseClient
     ##
@@ -17,7 +18,7 @@ module TravelClaim
     # request tracing across the entire orchestrator flow.
     #
     # @param tokens [Hash] Authentication tokens hash containing :veis_token and :btsss_token
-    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
+    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time from request
     # @param facility_id [String] VA facility identifier
     # @param patient_icn [String] Patient's Integrated Control Number
     # @param correlation_id [String] Request correlation ID for tracing
@@ -37,7 +38,7 @@ module TravelClaim
     ##
     # Builds the request body for the appointment API call.
     #
-    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
+    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time from request
     # @param facility_id [String] VA facility identifier
     # @param patient_icn [String] Patient's Integrated Control Number
     # @return [Hash] Request body hash with camelCase keys as expected by the API
