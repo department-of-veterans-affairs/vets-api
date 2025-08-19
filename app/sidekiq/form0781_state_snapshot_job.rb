@@ -109,7 +109,7 @@ class Form0781StateSnapshotJob
   def old_0781_submissions
     old_0781_submissions_saved_claims.pluck(:id)
   end
-  
+
   def old_0781_successful_submissions
     Form526Submission.where(
       saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
