@@ -196,7 +196,7 @@ jobs:
               echo "membership state: $membership_state"
             fi
 
-            if "$author_is_backend" == "false" ]]; then
+            if [[ "$author_is_backend" == "false" ]]; then
               author_membership_state=$(gh api -X GET \
                 "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
                 --jq '.state' 2>/dev/null || echo "")
