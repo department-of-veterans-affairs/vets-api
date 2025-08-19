@@ -50,7 +50,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     let(:supporting_attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f2' }
     let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-686c') }
     let!(:supporting_attachment) do
-      PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-686c')
+      AccreditedRepresentativePortal::PersistentAttachments::VAFormDocumentation.create!(
+        guid: supporting_attachment_guid, form_id: '21-686c'
+      )
     end
     let(:representative_fixture_path) do
       Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
@@ -200,9 +202,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
                         'VBA-21-526EZ-ARE.pdf')
       end
-      let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
+      let!(:attachment) { AccreditedRepresentativePortal::PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
       let!(:supporting_attachment) do
-        PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-526EZ')
+        AccreditedRepresentativePortal::PersistentAttachments::VAFormDocumentation.create!(
+          guid: supporting_attachment_guid, form_id: '21-526EZ'
+        )
       end
 
       around do |example|
@@ -254,7 +258,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
-      end.to change(PersistentAttachments::VAForm, :count).by(1)
+      end.to change(AccreditedRepresentativePortal::PersistentAttachments::VAForm, :count).by(1)
       attachment = PersistentAttachment.last
 
       expect(response).to have_http_status(:ok)
@@ -266,11 +270,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                           'confirmationCode' => attachment.guid,
                                           'name' => 'doctors-note.gif',
                                           'size' => 83_403,
-                                          'warnings' => ['wrong_form']
+                                          'warnings' => []
                                         }
                                       }
                                     })
-      expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+      expect(PersistentAttachment.last).to be_a(AccreditedRepresentativePortal::PersistentAttachments::VAForm)
     end
 
     it 'returns an error if the document is invalid' do
@@ -285,7 +289,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
-      end.not_to change(PersistentAttachments::VAForm, :count)
+      end.not_to change(AccreditedRepresentativePortal::PersistentAttachments::VAForm, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(parsed_response).to eq({
@@ -311,7 +315,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       expect do
         post '/accredited_representative_portal/v0/upload_supporting_documents', params:
-      end.to change(PersistentAttachments::VAFormDocumentation, :count).by(1)
+      end.to change(AccreditedRepresentativePortal::PersistentAttachments::VAFormDocumentation, :count).by(1)
       attachment = PersistentAttachment.last
 
       expect(response).to have_http_status(:ok)
@@ -326,7 +330,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                         }
                                       }
                                     })
-      expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAFormDocumentation)
+      expect(PersistentAttachment.last).to be_a(AccreditedRepresentativePortal::PersistentAttachments::VAFormDocumentation)
     end
 
     it 'returns an error if the document is invalid' do

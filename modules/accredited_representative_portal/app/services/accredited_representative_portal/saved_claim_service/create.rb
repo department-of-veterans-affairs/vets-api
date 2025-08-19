@@ -85,8 +85,8 @@ module AccreditedRepresentativePortal
               attachment
           end
 
-          forms = groups.delete(PersistentAttachments::VAForm).to_a
-          documentations = groups.delete(PersistentAttachments::VAFormDocumentation).to_a
+          forms = groups.delete(AccreditedRepresentativePortal::PersistentAttachments::VAForm).to_a
+          documentations = groups.delete(AccreditedRepresentativePortal::PersistentAttachments::VAFormDocumentation).to_a
 
           (forms.one? && groups.empty?) or
             raise WrongAttachmentsError, <<~MSG
