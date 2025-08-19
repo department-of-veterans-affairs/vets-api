@@ -212,7 +212,7 @@ jobs:
               approval_status=confirmed
               backend_approval_required=false
             fi
-          done < <(jq -r '.[]?' <<<"$PR_LABELS")
+          done
 
 
           if [[ "$team_approval_status" == "required" ]]; then
