@@ -6,6 +6,7 @@ RSpec.describe TravelClaim::AppointmentsClient do
   let(:client) { described_class.new }
   let(:veis_token) { 'veis-token-123' }
   let(:btsss_token) { 'btsss-token-456' }
+  let(:tokens) { { veis_token:, btsss_token: } }
   let(:appointment_date_time) { '2024-01-15T10:00:00Z' }
   let(:facility_id) { 'facility-123' }
   let(:patient_icn) { '123V456' }
@@ -34,7 +35,7 @@ RSpec.describe TravelClaim::AppointmentsClient do
       ).and_return(double('Response'))
 
       client.find_or_create_appointment(
-        { veis_token:, btsss_token: },
+        tokens:,
         appointment_date_time:,
         facility_id:,
         patient_icn:,
