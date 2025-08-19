@@ -28,6 +28,8 @@ module EVSS
         incoming_data['providerFacility'] = provider_facilities.map do |facility|
           if facility['treatedDisabilityNames'].present?
             facility.merge('conditionsTreated' => facility['treatedDisabilityNames'].join(', '))
+          else
+            facility.merge('conditionsTreated' => '')
           end
         end
         incoming_data
