@@ -34,9 +34,9 @@ class SimpleCovHelper
     if ENV['TEST_ENV_NUMBER'] # parallel specs
       SimpleCov.at_exit do
         # SimpleCovHelper.report_coverage
-        # result = SimpleCov.result
-        # result.format!
-        SimpleCovHelper.report_coverage # merge and format
+        result = SimpleCov.result
+        result.format!
+        # SimpleCovHelper.report_coverage # merge and format
       end
     end
   end
@@ -45,7 +45,6 @@ class SimpleCovHelper
     SimpleCov.collate Dir["#{base_dir}/.resultset*.json"] do
       add_filters
       add_modules
-      parse_codeowners
     end
   rescue RuntimeError
     nil
@@ -130,37 +129,3 @@ class SimpleCovHelper
     add_group 'OctoIdentity', octo_identity_files
   end
 end
-
-#  def merge_results
-#     SimpleCov.collate(all_results) do
-#       add_filters
-#       add_modules
-#       parse_codeowners
-#     end
-#   rescue RuntimeError
-#     nil
-#   end
-
-#   attr_reader :base_dir
-
-#   def initialize(base_dir:)
-#     @base_dir = base_dir
-#   end
-
-#   def all_results
-#     Dir["#{base_dir}/.resultset*.json"]
-#   end
-
-#   if ENV['CI']
-#     SimpleCov.minimum_coverage 90
-#     SimpleCov.refuse_coverage_drop
-#   end
-# end
-
-#   if ENV['TEST_ENV_NUMBER'] # parallel specs
-#     SimpleCov.at_exit do
-#       result = SimpleCov.result
-#       result.format! if ParallelTests.number_of_running_processes <= 1
-#     end
-#   end
-# end
