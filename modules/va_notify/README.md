@@ -331,6 +331,6 @@ If it succeeds, you should receive an email. If it fails, you will be able to vi
 
 If the VANotify module does not provide the functionality you need, feel free to reach out to us and explain what your team's requirements are. While we can't guarantee that every request will be implemented, we will thoughtfully consider each request and do our best to accommodate your team.
 
-For that or any other help during the integration process, feel free to reach out us on Slack via (#va-notify-public)[https://dsva.slack.com/archives/C010R6AUPHT]
+For that or any other help during the integration process, feel free to reach out us on Slack via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT)
 
 [Back to top](#top)
