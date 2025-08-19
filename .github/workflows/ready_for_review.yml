@@ -240,7 +240,7 @@ jobs:
           )
 
           author_membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/backend-review-group/memberships/$PR_AUTHOR" \
+              "orgs/department-of-veterans-affairs/teams/backend-review-group/memberships/$PR_AUTHOR" \
               --jq '.state' 2>/dev/null || echo "")
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
@@ -252,7 +252,7 @@ jobs:
               break
             elif [[ "$author_membership_state" != "active" ]]; then
               membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/${TEAM}/memberships/$PR_AUTHOR" \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
                 --jq '.state' 2>/dev/null || echo "")
               if [[ "$membership_state" == "active" ]]; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."

@@ -178,13 +178,13 @@ jobs:
 
             if [[ "$pr_reviewed" == "true" ]]; then
               membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/${TEAM}/memberships/$APPROVED" \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
                 --jq '.state' 2>/dev/null || echo "")
               echo "membership state: $membership_state"
             end
 
             author_membership_state=$(gh api -X GET \
-              "orgs/department-of-veterans-affairs/${TEAM}/memberships/$PR_AUTHOR" \
+              "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
               --jq '.state' 2>/dev/null || echo "")
 
             echo "author membership state: $author_membership_state"
