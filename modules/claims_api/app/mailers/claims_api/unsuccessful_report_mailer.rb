@@ -10,12 +10,12 @@ module ClaimsApi
       jgreene@technatomy.com
       kayla.watanabe@adhocteam.us
       mchristianson@technatomy.com
+      michael.clement@adhocteam.us
       michael.harlow@va.gov
+      mzanaty@technatomy.com
       robert.perea-martinez@adhocteam.us
       stone_christopher@bah.com
       zachary.goldfine@va.gov
-      michael.clement@adhocteam.us
-      mzanaty@technatomy.com
     ].freeze
 
     def build(date_from, date_to, data)
