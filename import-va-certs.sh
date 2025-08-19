@@ -43,7 +43,6 @@ set -euo pipefail
 
     # VA certificates with enhanced fallback
     echo "Downloading VA certificates..."
-
     wget \
         --level=1 \
         --quiet \
