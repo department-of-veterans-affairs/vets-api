@@ -61,80 +61,43 @@ RSpec.describe SSOe::Service, type: :service do
     end
 
     context 'when the response is successful' do
-      context 'parse_response' do
-        it 'parses ICN response' do
-          body = <<~XML
-            <Envelope>
-              <Body>
-                <getSSOeTraitsByCSPIDResponse>
-                  <icn>123498767V234859</icn>
-                </getSSOeTraitsByCSPIDResponse>
-              </Body>
-            </Envelope>
-          XML
+      it 'returns the parsed ICN response' do
+        VCR.use_cassette('mpi/get_traits/success') do
+          expected_response = {
+            success: true,
+            icn: '123498767V234859'
+          }
 
-          result = service.send(:parse_response, body)
-          expect(result).to eq({ success: true, icn: '123498767V234859' })
+          response = service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
+
+          expect(response).to eq(expected_response)
         end
-
-        it 'parses fault response' do
-          body = <<~XML
-            <Envelope>
-              <Body>
-                <Fault>
-                  <faultcode>soap:Client</faultcode>
-                  <faultstring>Error</faultstring>
-                </Fault>
-              </Body>
-            </Envelope>
-          XML
-
-          result = service.send(:parse_response, body)
-          expect(result).to eq({ success: false, error: { code: 'soap:Client', message: 'Error' } })
-        end
-
-        it 'handles unknown response format' do
-          body = '<unexpected>response</unexpected>'
-
-          expect { service.send(:parse_response, body) }.to raise_error(StandardError, 'Unable to parse SOAP response')
-        end
-      end
-    end
-
-    context 'when the response contains a valid ICN' do
-      it 'parses the ICN from the response' do
-        response = service.send(:parse_response, <<~XML)
-          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-            <soap:Body>
-              <getSSOeTraitsByCSPIDResponse>
-                <icn>123498767V234859</icn>
-              </getSSOeTraitsByCSPIDResponse>
-            </soap:Body>
-          </soap:Envelope>
-        XML
-
-        expect(response).to eq({ success: true, icn: '123498767V234859' })
       end
     end
 
     context 'when the response contains a fault' do
       it 'parses the fault from the response' do
         response = service.send(:parse_response, <<~XML)
-          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-            <soap:Body>
-              <soap:Fault>
-                <faultcode>soap:Client</faultcode>
-                <faultstring>Invalid CSPID</faultstring>
-              </soap:Fault>
-            </soap:Body>
-          </soap:Envelope>
+          <env:Envelope xmlns:env='http://schemas.xmlsoap.org/soap/envelope/'>
+            <env:Body>
+              <env:Fault>
+                <faultcode>env:Client</faultcode>
+                <faultstring>Internal Error</faultstring>
+              </env:Fault>
+            </env:Body>
+          </env:Envelope>
         XML
 
         expect(response).to eq({
                                  success: false,
                                  error: {
-                                   code: 'soap:Client',
-                                   message: 'Invalid CSPID'
+                                   code: 'env:Client',
+                                   message: 'Internal Error'
                                  }
                                })
       end

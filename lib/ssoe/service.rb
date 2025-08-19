@@ -29,6 +29,8 @@ module SSOe
         parse_response(raw_response.body)
       end
     rescue *CONNECTION_ERRORS => e
+      return parse_response(e.response.body) if e.respond_to?(:response) && e.response&.body
+
       error_response(e, :connection, 502)
     rescue => e
       error_response(e, :unknown, 500)
