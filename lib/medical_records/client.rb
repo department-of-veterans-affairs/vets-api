@@ -15,7 +15,7 @@ module MedicalRecords
     include RetriableConcern
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 200
+    DEFAULT_COUNT = 2
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
@@ -286,7 +286,7 @@ module MedicalRecords
                   end
                 else
                   result = fhir_client.next_page(reply, headers: default_headers)
-                  handle_api_errors(reply) if result.resource.nil?
+                  handle_api_errors(result) if result.resource.nil?
                   result
                 end
         combined_bundle = merge_bundles(combined_bundle, reply.resource)
