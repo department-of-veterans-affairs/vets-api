@@ -1294,6 +1294,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
     enable_in_development: true
+  mhv_medical_records_retry_next_page:
+    actor_type: user
+    description: Enables/disables retry get next page of the endpoint
+    enable_in_development: true
   mhv_medical_records_support_backend_pagination_allergy:
     actor_type: user
     description: Enables/disables backend caching/pagination for allergies
