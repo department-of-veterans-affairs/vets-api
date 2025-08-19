@@ -384,8 +384,10 @@ RSpec.describe BGS::DependentV2Service do
 
     it 'submits evidence pdf via claims evidence uploader' do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
-      expect(monitor).to receive(:track_event).with('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                                                    "#{stats_key}.submit_pdf.begin")
+      expect(monitor).to receive(:track_event).with(
+        'info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        "#{stats_key}.submit_pdf.begin"
+      )
       expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
 
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674-V2',
@@ -398,10 +400,14 @@ RSpec.describe BGS::DependentV2Service do
       expect(uploader).to receive(:upload_evidence).with(claim.id, pa.id, file_path: pdf_path, form_id: '21-674-V2',
                                                                           doctype: pa.document_type)
 
-      expect(monitor).to receive(:track_event).with('info', "BGS::DependentV2Service claims evidence upload of 686C-674-V2 claim_id #{claim.id}",
-                                                    "#{stats_key}.claims_evidence.upload", tags: ["form_id:686C-674-V2"])
-      expect(monitor).to receive(:track_event).with('info', "BGS::DependentV2Service claims evidence upload of 21-674-V2 claim_id #{claim.id}",
-                                                    "#{stats_key}.claims_evidence.upload", tags: ["form_id:21-674-V2"])
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentV2Service claims evidence upload of 686C-674-V2 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:686C-674-V2']
+      )
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentV2Service claims evidence upload of 21-674-V2 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:21-674-V2']
+      )
       expect(monitor).to receive(:track_event).with('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
