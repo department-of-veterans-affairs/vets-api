@@ -168,9 +168,13 @@ jobs:
               "orgs/department-of-veterans-affairs/${TEAM}/memberships/$APPROVED" \
               --jq '.state' 2>/dev/null || echo "")
 
+            echo "membership state: $membership_state"
+
             author_membership_state=$(gh api -X GET \
               "orgs/department-of-veterans-affairs/${TEAM}/memberships/$PR_AUTHOR" \
               --jq '.state' 2>/dev/null || echo "")
+
+            echo "author membership state: $author_membership_state"
 
             if [[ "$membership_state" == "active" ]]; then
               echo "Reviewer is a part of an exempt team"
@@ -194,14 +198,16 @@ jobs:
 
           # Check PR Labels
           PR_LABELS="${pr_labels}"
-
-          while IFS= read -r LABEL; do
+          echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
             echo "Fetching label: $LABEL"
             if [[ "$LABEL" == "exempt-be-review" ]]; then
+              echo "$LABEL exists"
               exempt_be_review=true
               backend_approval_required=false
             fi
+
             if [[ "$LABEL" == "final-review-confirmed" ]]; then
+              echo "$LABEL exists"
               team_approval_status=confirmed
               approval_status=confirmed
               backend_approval_required=false
