@@ -43,8 +43,6 @@ module TravelClaim
         # this returns an array of matching appointments - just return the first one
         data: appointments&.first
       }
-    rescue ArgumentError => e
-      handle_argument_error(e, appointment_date_time)
     rescue => e
       error_body = e.respond_to?(:original_body) ? e.original_body : e.message
       Rails.logger.error('Travel Claim API error', { uuid: check_in_session&.uuid, error_body: })
@@ -76,11 +74,6 @@ module TravelClaim
         patient_icn:,
         correlation_id:
       )
-    end
-
-    def handle_argument_error(error, appointment_date_time)
-      Rails.logger.error(message: "#{error} Invalid appointment date.")
-      raise ArgumentError, "#{error} Invalid appointment time date)."
     end
   end
 end
