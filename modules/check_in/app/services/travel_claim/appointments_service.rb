@@ -2,27 +2,22 @@
 
 module TravelClaim
   ##
-  # Service for orchestrating Travel Claim appointment operations.
-  #
-  # Coordinates between AuthManager for tokens and AppointmentsClient for HTTP requests.
-  # Expects AuthManager to be provided by an orchestrator service.
+  # Service for Travel Claim appointment operations.
   #
   class AppointmentsService
     include SentryLogging
 
     # @!attribute [r] auth_manager
-    #   @return [TravelClaim::AuthManager] Authentication manager for token operations
+    #   @return [TravelClaim::AuthManager] Authentication manager
     # @!attribute [r] check_in_session
-    #   @return [CheckIn::V2::Session, nil] Optional check-in session for patient context
+    #   @return [CheckIn::V2::Session, nil] Check-in session
     attr_reader :auth_manager, :check_in_session
 
     ##
-    # Initializes the appointments service with dependencies.
-    #
     # @param opts [Hash] Options hash
-    # @option opts [CheckIn::V2::Session] :check_in_session Check-in session for patient context
-    # @option opts [CheckIn::V2::Session] :check_in Alias for :check_in_session (backward compatibility)
-    # @option opts [TravelClaim::AuthManager] :auth_manager Authentication manager (provided by orchestrator)
+    # @option opts [CheckIn::V2::Session] :check_in_session Check-in session
+    # @option opts [CheckIn::V2::Session] :check_in Alias for :check_in_session
+    # @option opts [TravelClaim::AuthManager] :auth_manager Authentication manager
     #
     def initialize(opts = {})
       @check_in_session = opts[:check_in_session] || opts[:check_in]
@@ -33,18 +28,9 @@ module TravelClaim
     ##
     # Finds or creates an appointment in the Travel Claim system.
     #
-    # This method validates the input parameters, obtains fresh authentication tokens,
-    # and delegates to the AppointmentsClient to make the actual API request. The
-    # appointment_date_time is expected to be in ISO 8601 format from the request.
-    # The correlation_id is passed through to maintain request tracing across the
-    # orchestrator's 4-endpoint flow.
-    #
-    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time from request
+    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
     # @param facility_id [String] VA facility identifier
-    # @param correlation_id [String] Request correlation ID for tracing across API calls
     # @return [Hash] Hash containing appointment data: { data: Hash }
-    # @raise [ArgumentError] If appointment_date_time is invalid or nil
-    # @raise [Common::Exceptions::BackendServiceException] If the API request fails
     #
     def find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       validate_appointment_date_time(appointment_date_time)
