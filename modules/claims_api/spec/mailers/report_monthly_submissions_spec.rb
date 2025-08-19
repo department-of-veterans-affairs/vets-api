@@ -32,7 +32,6 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
           david.mazik@va.gov
           drew.fisher@adhocteam.us
           janet.coutinho@va.gov
-          jayson.perkins@adhocteam.us
           jgreene@technatomy.com
           kayla.watanabe@adhocteam.us
           michael.harlow@va.gov
@@ -40,6 +39,8 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
           robert.perea-martinez@adhocteam.us
           stone_christopher@bah.com
           zachary.goldfine@va.gov
+          michael.clement@adhocteam.us
+          mzanaty@technatomy.com
         ]
       )
     end
