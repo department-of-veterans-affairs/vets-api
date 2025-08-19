@@ -13,7 +13,7 @@ module VAProfile
         def initialize(candidate_res, validate: false)
           override_validation_key = candidate_res['override_validation_key']
           candidate_res['validation_key'] = override_validation_key
-          if (validate)
+          if validate
             validation_response(candidate_res)
           else
             candidate_response(candidate_res)

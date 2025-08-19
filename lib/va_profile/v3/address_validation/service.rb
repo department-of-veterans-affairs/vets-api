@@ -28,14 +28,18 @@ module VAProfile
 
             begin
               candidate_res = candidate(address)
-              Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}") if Settings.vsp_environment == 'staging'
+              if Settings.vsp_environment == 'staging'
+                Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}")
+              end
 
               AddressSuggestionsResponse.new(candidate_res)
             rescue Common::Exceptions::BackendServiceException => e
               # If candidate endpoint returns candidate address not found, validate provided address and return that
               if candidate_address_not_found?(e.detail)
                 validate_res = validate(address)
-                Rails.logger.info("AddressValidation VALIDATE RES: #{validate_res}") if Settings.vsp_environment == 'staging'
+                if Settings.vsp_environment == 'staging'
+                  Rails.logger.info("AddressValidation VALIDATE RES: #{validate_res}")
+                end
                 AddressSuggestionsResponse.new(validate_res, validate: true)
               else
                 handle_error(e)
@@ -92,6 +96,7 @@ module VAProfile
           messages = exception['messages'] || []
           messages.any? { |msg| msg['key'] == 'CandidateAddressNotFound' }
         end
+      end
     end
   end
 end
