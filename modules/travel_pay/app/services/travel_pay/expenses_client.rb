@@ -88,12 +88,12 @@ module TravelPay
       when 'mileage'
         'api/v2/expenses/mileage'
       when 'lodging'
-        'api/v2/expenses/lodging'
+        'api/v1/expenses/lodging'
       when 'meal'
-        'api/v2/expenses/meal'
+        'api/v1/expenses/meal'
       else
         # Default to a generic expenses endpoint
-        'api/v2/expenses/other'
+        'api/v1/expenses/other'
       end
     end
   end
