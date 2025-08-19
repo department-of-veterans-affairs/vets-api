@@ -14,6 +14,7 @@ module ClaimsApi
       michael.harlow@va.gov
       mzanaty@technatomy.com
       robert.perea-martinez@adhocteam.us
+      rrice@technatomy.com
       stone_christopher@bah.com
       zachary.goldfine@va.gov
     ].freeze
