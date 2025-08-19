@@ -3,8 +3,6 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
-  pull_request:
-     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested]
 permissions:
   id-token: write
   contents: read
@@ -131,7 +129,6 @@ jobs:
           author_is_backend=false
           backend_approval_required=true
           exempt_be_review=false
-          pr_reviewed=false
           membership_state=false
           author_membership_state=false
 
@@ -167,22 +164,14 @@ jobs:
             | .user.login // ""
           ' || true)
 
-          if [[ -n "$APPROVED" ]]; then
-            echo "Approved by: $APPROVED"
-            pr_reviewed=true
-          else
-            echo "No approvals found"
-          fi
+          echo "Approved by: $APPROVED"
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
-
-            if [[ "$pr_reviewed" == "true" ]]; then
-              membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
-                --jq '.state' 2>/dev/null || echo "")
-              echo "membership state: $membership_state"
-            fi
+            membership_state=$(gh api -X GET \
+              "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
+              --jq '.state' 2>/dev/null || echo "")
+            echo "membership state: $membership_state"
 
             if [[ "$author_is_backend" == "false" ]]; then
               author_membership_state=$(gh api -X GET \
