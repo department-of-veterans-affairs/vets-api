@@ -62,15 +62,6 @@ RSpec.describe TravelClaim::AppointmentsService do
       end.to raise_error(ArgumentError, /appointment time cannot be nil/)
     end
 
-    it 'validates appointment date format' do
-      invalid_date = 'not-a-date'
-      allow(service).to receive(:try_parse_date).and_raise(ArgumentError, 'Invalid date format')
-
-      expect do
-        service.find_or_create_appointment(appointment_date_time: invalid_date, facility_id:, correlation_id:)
-      end.to raise_error(ArgumentError, /Invalid date format.*Invalid appointment time provided.*not-a-date/)
-    end
-
     it 'delegates to appointments client with correlation_id' do
       expect(client).to receive(:find_or_create_appointment).with(
         tokens: { veis_token: 'veis-token', btsss_token: 'btsss-token' },
@@ -84,15 +75,15 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(result[:data]).to eq({ 'id' => 'appointment-123' })
     end
 
-    it 'handles API errors and logs to sentry' do
+    it 'handles API errors and logs to rails logger' do
       allow(client).to receive(:find_or_create_appointment).and_raise(Common::Exceptions::BackendServiceException)
-      allow(service).to receive(:log_message_to_sentry)
+      allow(Rails.logger).to receive(:error)
 
       expect do
         service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       end.to raise_error(Common::Exceptions::BackendServiceException)
 
-      expect(service).to have_received(:log_message_to_sentry)
+      expect(Rails.logger).to have_received(:error)
     end
 
     it 'handles empty response data gracefully' do

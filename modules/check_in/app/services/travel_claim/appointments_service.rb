@@ -35,10 +35,11 @@ module TravelClaim
     #
     # This method validates the input parameters, obtains fresh authentication tokens,
     # and delegates to the AppointmentsClient to make the actual API request. The
-    # correlation_id is passed through to maintain request tracing across the
+    # appointment_date_time is expected to be in ISO 8601 format from the request.
+    # The correlation_id is passed through to maintain request tracing across the
     # orchestrator's 4-endpoint flow.
     #
-    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
+    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time from request
     # @param facility_id [String] VA facility identifier
     # @param correlation_id [String] Request correlation ID for tracing across API calls
     # @return [Hash] Hash containing appointment data: { data: Hash }
@@ -47,7 +48,6 @@ module TravelClaim
     #
     def find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       validate_appointment_date_time(appointment_date_time)
-      try_parse_date(appointment_date_time)
 
       tokens = auth_manager.request_new_tokens
       faraday_response = make_appointment_request(tokens, appointment_date_time:, facility_id:, correlation_id:)
@@ -60,7 +60,9 @@ module TravelClaim
     rescue ArgumentError => e
       handle_argument_error(e, appointment_date_time)
     rescue => e
-      handle_general_error(e)
+      error_body = e.respond_to?(:original_body) ? e.original_body : e.message
+      Rails.logger.error('Travel Claim API error', { uuid: check_in_session&.uuid, error_body: })
+      raise e
     end
 
     private
@@ -93,32 +95,6 @@ module TravelClaim
     def handle_argument_error(error, appointment_date_time)
       Rails.logger.error(message: "#{error} Invalid appointment time provided (given: #{appointment_date_time}).")
       raise ArgumentError, "#{error} Invalid appointment time provided (given: #{appointment_date_time})."
-    end
-
-    def handle_general_error(error)
-      error_body = error.respond_to?(:original_body) ? error.original_body : error.message
-      log_message_to_sentry(error_body, :error,
-                            { uuid: check_in_session&.uuid },
-                            { external_service: 'BTSSS-API', team: 'check-in' })
-      raise error
-    end
-
-    ##
-    # Attempts to parse a datetime value into a Time object.
-    #
-    # @param datetime [String, Time, Date, nil] Datetime value to parse
-    # @return [Time] Parsed time object
-    # @raise [ArgumentError] If datetime is nil or cannot be parsed
-    #
-    def try_parse_date(datetime)
-      raise ArgumentError, 'Provided datetime is nil.' if datetime.nil?
-
-      return datetime.to_time if datetime.is_a?(Time) || datetime.is_a?(Date)
-
-      # Disabled Rails/Timezone rule because we don't care about the tz in this dojo.
-      # If we parse it any other 'recommended' way, the time will be converted based
-      # on the timezone, and the datetimes won't match
-      Time.parse(datetime) if datetime.is_a? String # rubocop:disable Rails/TimeZone
     end
   end
 end
