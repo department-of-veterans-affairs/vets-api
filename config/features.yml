@@ -157,9 +157,9 @@ features:
     actor_type: user
     description: Enables dependents verification emails
   event_bus_gateway_claim_label_filtering:
-    description: "Gateway:Enable filtering of specific claim type codes within supported EP codes"
+    description: "Gateway: Enable filtering of specific claim type codes within supported EP codes"
   event_bus_gateway_ep040_decision_letter_notifications:
-    description: "Gateway:Enable decision letter email notifications for EP040 claims"
+    description: "Gateway: Enable decision letter email notifications for EP040 claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
