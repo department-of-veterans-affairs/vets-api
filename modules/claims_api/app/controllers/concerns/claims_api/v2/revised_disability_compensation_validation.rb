@@ -569,6 +569,7 @@ module ClaimsApi
       end
 
       def collect_error(source:, title:, detail:)
+        @errors ||= []
         @errors << {
           source:,
           title:,
