@@ -330,6 +330,8 @@ Rails.application.routes.draw do
 
     get 'banners', to: 'banners#by_path'
     post 'datadog_action', to: 'datadog_action#create'
+
+    match 'csrf_token', to: 'csrf_token#index', via: :head
   end
   # end /v0
 
@@ -372,10 +374,6 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-
-    scope format: false do
-      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
-    end
   end
 
   root 'v0/example#index', module: 'v0'

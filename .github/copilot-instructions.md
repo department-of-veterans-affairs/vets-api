@@ -5,7 +5,7 @@
 vets-api is a Ruby on Rails API that powers the website VA.gov. It's a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of a veteran The main user of the APIs is vets-website, the frontend repo that powers VA.gov. Both of them are in this GitHub organization.
 
 ## Architecture & Patterns
-- Rails API-only app.
+- Rails API-only application.
 - Follows REST conventions.
 - Background Sidekiq jobs in `app/sidekiq` or `modules/<name>/app/sidekiq`
 - Uses the rubyconfig/config gem to manage environment-specific settings. Settings need to be added to three files: config/settings.yml, config/settings/test.yml, and config/settings/development.yml and must be in alphabetical order.
@@ -59,3 +59,34 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 - Reuse helpers and services when possible.
 - Write clear, concise code.
 - If asked to create an issue, create it in the department-of-veterans-affairs/va.gov-team repository.
+
+# Code Review Guidelines
+When performing a code review, ensure the code follows best practices. Additionally, pay close attention to these specific guidelines:
+
+## Ruby shorthand syntax
+- Always enforce Ruby shorthand syntax.
+- If a local variable is defined, using shorthand syntax like `{ exclude: }` is valid and correct.
+- Do **not** suggest that the key is missing a value.
+- Do **not** suggest changing it to `{ exclude: exclude }`.
+- Do **not** flag this syntax as an error, incomplete, or unclear.
+
+## Flipper usage in tests
+- Avoid enabling or disabling Flipper features in tests.
+- **Never** use `Flipper.enable` or `Flipper.disable` in tests.
+- Always stub Flipper like this:
+  ```ruby
+  allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)
+  ```
+  - Use this exact pattern inline in the example.
+
+## Active Record index migrations
+### Isolate index changes
+- If a migration includes `add_index` or `remove_index`, it must only include index changes.
+- Do **not** combine index changes with other table modifications in the same migration.
+
+### Avoid locking
+- A migration that includes `add_index` or `remove_index` must also:
+  - Use `algorithm: :concurrently`
+  - Include `disable_ddl_transaction!`
+
+This prevents table locking during deployment.

@@ -57,10 +57,8 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def get_auth_text_stamp
-      timestamp = Time.current
-      current_time = "#{timestamp.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')} UTC"
-      "Submitted via VA.gov at #{current_time}. Signed in and submitted with an identity-verified account."
+    def stamping_form_class
+      @claim.class::STAMPING_FORM_CLASS
     end
 
     ##
@@ -69,9 +67,12 @@ module AccreditedRepresentativePortal
     def stamp_pdf(record)
       case record
       when PersistentAttachments::VAFormDocumentation
+        time = "#{Time.current.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')} UTC"
+        text = "Submitted via VA.gov at #{time}. Signed in and submitted with an identity-verified account."
         pdf_path = record.to_pdf
+
         PDFUtilities::DatestampPdf.new(pdf_path).run(
-          text: get_auth_text_stamp, x: 5, y: 5, text_only: true
+          text:, x: 5, y: 5, text_only: true
         )
       when SavedClaim::BenefitsIntake
         record.to_pdf.tap do |stamped_template_path|
@@ -81,9 +82,9 @@ module AccreditedRepresentativePortal
           # not need.
           #
           SimpleFormsApi::PdfStamper.new(
-            form: SimpleFormsApi::VBA21686C.new({}),
+            form: stamping_form_class.new({}),
             stamped_template_path:,
-            current_loa: SignIn::Constants::Auth::LOA3,
+            current_loa: SignIn::Constants::Auth::LOA_THREE,
             timestamp: @claim.created_at
           ).stamp_pdf
         end

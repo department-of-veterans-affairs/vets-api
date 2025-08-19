@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_13_184013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -346,6 +346,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
     t.string "type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "recipient_type"
     t.index ["notification_id"], name: "idx_on_notification_id_2402e9daad"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_b7c74f46e5"
   end
@@ -845,6 +846,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
     t.index ["needs_kms_rotation"], name: "index_education_stem_automated_decisions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_education_stem_automated_decisions_on_user_account_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
+  end
+
+  create_table "event_bus_gateway_notifications", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.string "va_notify_id", null: false
+    t.string "template_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_event_bus_gateway_notifications_on_user_account_id"
   end
 
   create_table "evidence_submissions", force: :cascade do |t|
@@ -1757,6 +1767,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.text "service_api_key_path"
     t.index ["needs_kms_rotation"], name: "index_va_notify_notifications_on_needs_kms_rotation"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end
@@ -2104,6 +2115,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_14_141145) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "digital_dispute_submissions", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "event_bus_gateway_notifications", "user_accounts"
   add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
