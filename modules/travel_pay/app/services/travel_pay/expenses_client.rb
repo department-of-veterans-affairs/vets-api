@@ -87,8 +87,8 @@ module TravelPay
       case expense_type
       when 'mileage'
         'api/v2/expenses/mileage'
-      when 'lodging'
-        'api/v1/expenses/lodging'
+      when 'parking'
+
       when 'meal'
         'api/v1/expenses/meal'
       else

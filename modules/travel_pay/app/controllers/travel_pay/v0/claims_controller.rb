@@ -53,7 +53,8 @@ module TravelPay
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
-          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
+          expense_service.add_expense({ 'claim_id' => claim_id,
+                                                'appt_date' => params['appointment_date_time'] })
 
           Rails.logger.info(message: "SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)

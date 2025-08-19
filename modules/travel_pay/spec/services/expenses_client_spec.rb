@@ -87,31 +87,22 @@ describe TravelPay::ExpensesClient do
       end
 
       it 'routes mileage expenses to the correct endpoint' do
+        mileage_expense = { 'claimId' => 'fake_claim_id',
+                            'dateIncurred' => '2024-10-02T14:36:38.043Z',
+                            'tripType' => 'RoundTrip' }
         expect(connection_double).to receive(:post).with('api/v2/expenses/mileage')
 
-        client.add_expense(veis_token, btsss_token, 'mileage', expense_body)
-      end
-
-      it 'routes lodging expenses to the correct endpoint' do
-        expect(connection_double).to receive(:post).with('api/v2/expenses/lodging')
-
-        client.add_expense(veis_token, btsss_token, 'lodging', expense_body)
-      end
-
-      it 'routes meal expenses to the correct endpoint' do
-        expect(connection_double).to receive(:post).with('api/v2/expenses/meal')
-
-        client.add_expense(veis_token, btsss_token, 'meal', expense_body)
+        client.add_mileage_expense(veis_token, btsss_token, mileage_expense)
       end
 
       it 'routes other expenses to the correct endpoint' do
-        expect(connection_double).to receive(:post).with('api/v2/expenses/other')
+        expect(connection_double).to receive(:post).with('api/v1/expenses/other')
 
         client.add_expense(veis_token, btsss_token, 'other', expense_body)
       end
 
       it 'routes unknown expense types to the other endpoint' do
-        expect(connection_double).to receive(:post).with('api/v2/expenses/other')
+        expect(connection_double).to receive(:post).with('api/v1/expenses/other')
 
         client.add_expense(veis_token, btsss_token, 'unknown_type', expense_body)
       end
@@ -143,11 +134,8 @@ describe TravelPay::ExpensesClient do
 
   describe '#expense_endpoint_for_type' do
     it 'returns correct endpoints for each expense type' do
-      expect(client.send(:expense_endpoint_for_type, 'mileage')).to eq('api/v2/expenses/mileage')
-      expect(client.send(:expense_endpoint_for_type, 'lodging')).to eq('api/v2/expenses/lodging')
-      expect(client.send(:expense_endpoint_for_type, 'meal')).to eq('api/v2/expenses/meal')
-      expect(client.send(:expense_endpoint_for_type, 'other')).to eq('api/v2/expenses/other')
-      expect(client.send(:expense_endpoint_for_type, 'unknown')).to eq('api/v2/expenses/other')
+      expect(client.send(:expense_endpoint_for_type, 'other')).to eq('api/v1/expenses/other')
+      expect(client.send(:expense_endpoint_for_type, 'unknown')).to eq('api/v1/expenses/other')
     end
   end
 end

@@ -52,6 +52,10 @@
       :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/appointments/find-or-add"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
     - :method: :patch
       :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/submit"
       :file_path: "/travel_pay/claims/submit"

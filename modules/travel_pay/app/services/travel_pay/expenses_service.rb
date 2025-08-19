@@ -8,8 +8,8 @@ module TravelPay
       @auth_manager = auth_manager
     end
 
-    # Old method to handle SMOC expense creation
-    # TODO: Handle SMOC expenses in create_expense and remove add_expense
+    # Method to add a mileage expense, specifically for SMOC
+    # TODO: Integrate into create_expense when ready to handle non-SMOC mileage expenses
     def add_expense(params = {})
       @auth_manager.authorize => { veis_token:, btsss_token: }
 
@@ -30,28 +30,6 @@ module TravelPay
       # Validate required params
       raise ArgumentError, 'You must provide a claim ID to create an expense.' unless params['claim_id']
 
-      # Route to appropriate expense creation method based on type
-      case params['expense_type']
-      when 'mileage'
-        # For mileage expenses, use the existing add_expense method for SMOC compatibility
-        # Convert purchase_date to appt_date format expected by add_expense
-        mileage_params = {
-          'claim_id' => params['claim_id'],
-          'appt_date' => params['purchase_date'] || params['appt_date'],
-          'description' => params['description'] || 'mileage',
-          'trip_type' => params['trip_type'] || 'RoundTrip'
-        }
-        add_expense(mileage_params)
-      else
-        # For other expense types, use the generic client method
-        create_general_expense(veis_token, btsss_token, params)
-      end
-    end
-
-    private
-
-    def create_general_expense(veis_token, btsss_token, params)
-      # Use the new generic add_expense method from the client
       Rails.logger.info("Creating general expense of type: #{params['expense_type']}")
 
       # Build the request body for the API
@@ -65,6 +43,8 @@ module TravelPay
         raise TravelPay::ServiceError.raise_mapped_error(e)
       end
     end
+
+    private
 
     ##
     # Builds the request body for the expense API call
