@@ -151,6 +151,8 @@ check_in:
     service_name: BTSSS-API
     subscription_key: fake_subscription_key
     tenant_id: fake_template_id
+    travel_pay_client_id: fake_travel_pay_client_id
+    travel_pay_client_secret: fake_travel_pay_client_secret
   vaos:
     mock: false
 chip:
@@ -1327,6 +1329,7 @@ va_profile:
     mock: false
     timeout: 30
 vanotify:
+  callback_url: https://test-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

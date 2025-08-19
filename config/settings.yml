@@ -152,6 +152,8 @@ check_in:
     service_name: BTSSS-API
     subscription_key: <%= ENV['check_in__travel_reimbursement_api_v2__subscription_key'] %>
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
+    travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
+    travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
 chip:
@@ -1309,6 +1311,7 @@ va_profile:
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
 vanotify:
+  callback_url: <%= ENV['vanotify__callback_url'] %>
   client_url: <%= ENV['vanotify__client_url'] %>
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

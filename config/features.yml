@@ -124,10 +124,6 @@ features:
     actor_type: user
     description: Enables the After Visit Summary API.
     enable_in_development: true
-  bcas_letters_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view/download benefit letters.
-    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -207,10 +203,6 @@ features:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
     enable_in_development: true
-  ezr_use_correct_format_for_file_uploads:
-    actor_type: user
-    description: Correctly formats the `va:attachments` XML for file uploads
-    enable_in_development: true
   ezr_route_guard_enabled:
     actor_type: user
     description: Enables the route guard authentication for 10-10EZR application
@@ -280,6 +272,9 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_resubmission_attachment_ids:
+    actor_type: user
+    description: Corrects attachment IDs for resubmission of form 10-7959a
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
@@ -310,6 +305,14 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
+    enable_in_development: true
+  check_in_experience_travel_pay_api:
+    actor_type: user
+    description: Enables the use of Travel Pay API for travel claim operations
+    enable_in_development: true
+  check_in_experience_lorota_travel_reimbursement:
+    actor_type: user
+    description: Enables the full LoROTA standalone mileage-only travel reimbursement feature
     enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
@@ -406,10 +409,6 @@ features:
   lighthouse_claims_api_hardcode_wsdl:
     actor_type: user
     description: Use hardcoded namespaces for WSDL calls to BGS
-    enable_in_development: true
-  cst_5103_update_enabled:
-    actor_type: user
-    description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
     enable_in_development: true
   cst_show_document_upload_status:
     actor_type: user
@@ -641,6 +640,9 @@ features:
   dependents_claims_evidence_api_upload:
     actor_type: user
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
+  dependents_bypass_schema_validation:
+    actor_type: user
+    description: Bypasses vets_json_schema validation for dependency claims 
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -718,13 +720,10 @@ features:
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
-  disability_526_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in disability 526 applications
   disability_526_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in disability 526 applications
-  disability_526_form4142_use_2024_frontend:
+  disability_526_form4142_use_2024_version:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
@@ -1062,10 +1061,6 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
-    enable_in_development: true
-  letters_check_discrepancies:
-    actor_type: user
-    description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
   letters_page_new_design:
     actor_type: user
@@ -2114,6 +2109,10 @@ features:
     actor_type: user
     description: Enable the Intent to File for Pension
     enable_in_development: true
+  pension_itf_skip_missing_person_error_enabled:
+    actor_type: user
+    description: Enable ability to skip the missing person error when creating an ITF for Pension
+    enable_in_development: true
   pension_itf_show_alert:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension
@@ -2121,6 +2120,9 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
+  income_and_assets_browser_monitoring_enabled:
+    actor_type: user
+    description: Income and Assets Datadog RUM monitoring
   income_and_assets_content_updates:
     actor_type: user
     description: Implement plain language and content updates
@@ -2290,6 +2292,18 @@ features:
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
+  meb_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpointå
+    enable_in_development: false
+  toe_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpoint
+    enable_in_development: false
+  dea_fry_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpoint
+    enable_in_development: false
   accredited_representative_portal_sort_by:
     actor_type: user
     description: Enables sort by in POA Request Search page
@@ -2337,7 +2351,7 @@ features:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
   calculator_constants_versioning:
-    actor_type: 
+    actor_type:
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
