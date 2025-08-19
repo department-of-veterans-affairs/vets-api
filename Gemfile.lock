@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6f0a4a27b626ad2c619a3e4e262b00de684b8182
+  revision: c2e33402fd8f59eddb55c2f630ec199ff9584897
   branch: master
   specs:
-    vets_json_schema (25.1.6)
+    vets_json_schema (25.1.8)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -229,7 +229,7 @@ GEM
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     adler32 (0.0.2)
-    afm (0.2.2)
+    afm (1.0.0)
     akami (1.3.3)
       base64
       gyoku (>= 0.4.0)
@@ -245,8 +245,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1140.0)
-    aws-sdk-core (3.228.0)
+    aws-partitions (1.1145.0)
+    aws-sdk-core (3.229.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -260,11 +260,11 @@ GEM
     aws-sdk-kms (1.109.0)
       aws-sdk-core (~> 3, >= 3.228.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.195.0)
+    aws-sdk-s3 (1.196.1)
       aws-sdk-core (~> 3, >= 3.228.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.103.0)
+    aws-sdk-sns (1.104.0)
       aws-sdk-core (~> 3, >= 3.228.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
@@ -502,9 +502,9 @@ GEM
     flipper-active_support_cache_store (1.3.5)
       activesupport (>= 4.2, < 9)
       flipper (~> 1.3.5)
-    flipper-ui (1.3.5)
+    flipper-ui (1.3.6)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 1.3.5)
+      flipper (~> 1.3.6)
       rack (>= 1.4, < 4)
       rack-protection (>= 1.5.3, < 5.0.0)
       rack-session (>= 1.0.2, < 3.0.0)
@@ -550,21 +550,21 @@ GEM
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
-    google-protobuf (4.31.1)
+    google-protobuf (4.32.0)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.1-aarch64-linux-gnu)
+    google-protobuf (4.32.0-aarch64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.1-java)
+    google-protobuf (4.32.0-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.31.1-x86-mingw32)
+    google-protobuf (4.32.0-x86-mingw32)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.1-x86_64-linux-gnu)
+    google-protobuf (4.32.0-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     googleauth (1.14.0)
@@ -655,7 +655,7 @@ GEM
       base64
     jwt (2.10.2)
       base64
-    karafka-core (2.5.2)
+    karafka-core (2.5.5)
       karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
     karafka-rdkafka (0.20.1)
@@ -809,9 +809,9 @@ GEM
       safe_shell (>= 1.0.3, < 2.0)
     pdf-inspector (1.3.0)
       pdf-reader (>= 1.0, < 3.0.a)
-    pdf-reader (2.14.1)
+    pdf-reader (2.15.0)
       Ascii85 (>= 1.0, < 3.0, != 2.0.0)
-      afm (~> 0.2.1)
+      afm (>= 0.2.1, < 2)
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
@@ -1172,9 +1172,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.5)
+    waterdrop (2.8.6)
       karafka-core (>= 2.4.9, < 3.0.0)
-      karafka-rdkafka (>= 0.19.2)
+      karafka-rdkafka (>= 0.20.0)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)

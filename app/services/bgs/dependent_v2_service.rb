@@ -59,7 +59,7 @@ module BGS
 
       { submit_form_job_id: }
     rescue PDFSubmissionError
-      submit_to_central_service(claim:)
+      submit_to_central_service(claim:, encrypted_vet_info:)
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: e.message })
@@ -107,11 +107,11 @@ module BGS
 
       @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
-    rescue => e
+    rescue
       @monitor.track_event('warn',
                            'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      raise PDFSubmissionError, e.message
+                           "#{STATS_KEY}.submit_pdf.failure")
+      raise PDFSubmissionError
     end
 
     def submit_claim_via_claims_evidence(claim)
@@ -173,14 +173,13 @@ module BGS
       end
     end
 
-    def submit_to_central_service(claim:)
+    def submit_to_central_service(claim:, encrypted_vet_info:)
       vet_info = JSON.parse(claim.form)['dependents_application']
-      vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
       user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
         claim.id,
-        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        encrypted_vet_info,
         KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
       )
     end
