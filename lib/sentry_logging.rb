@@ -4,9 +4,10 @@ require 'sentry_logging'
 
 module SentryLogging
   # WARNING: This module is deprecated, and will be removed in October 2025. Please use Vets::SharedLogging instead.
-  # 
+  #
   # Migration Documentation: https://depo-platform-documentation.scrollhelp.site/developer-docs/logging-migration-guide
-  # 
+  #
+  # https://vfs.atlassian.net/wiki/spaces/pilot/pages/4276420628/How+to+Migrate+from+SentryLogging+to+Vets+SharedLogging
   # If your team currently uses this module, please see the migration guide above for step-by-step instructions
   # on transitioning to Vets::SharedLogging.
   unless Rails.env.test?
