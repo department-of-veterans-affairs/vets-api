@@ -3409,6 +3409,7 @@
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
+                      "finalStatus": false,
                       "code": null,
                       "detail": null,
                       "location": "http://some.fakesite.com/path/uuid",
@@ -3631,6 +3632,7 @@
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
+                      "finalStatus": false,
                       "code": null,
                       "detail": null,
                       "location": null,
@@ -5244,6 +5246,7 @@
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
+                      "finalStatus": false,
                       "code": null,
                       "detail": null,
                       "location": "http://some.fakesite.com/path/uuid",
@@ -5490,6 +5493,7 @@
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
+                      "finalStatus": false,
                       "code": null,
                       "detail": null,
                       "location": null,
