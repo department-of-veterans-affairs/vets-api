@@ -1,8 +1,6 @@
 name: Require backend-review-group approval
 on:
-  pull_request_review:
-    types: [submitted]
-    branches: master
+  push:
 permissions:
   id-token: write
   contents: read
@@ -194,21 +192,17 @@ jobs:
 
           # Check PR Labels
           PR_LABELS="${pr_labels}"
-          echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
+          while IFS= read -r LABEL; do
             echo "Fetching label: $LABEL"
             if [[ "$LABEL" == "exempt-be-review" ]]; then
-              echo "$LABEL exists"
               exempt_be_review=true
               backend_approval_required=false
-            fi
-
-            if [[ "$LABEL" == "final-review-confirmed" ]]; then
-              echo "$LABEL exists"
+            elif [[ "$LABEL" == "final-review-confirmed" ]]; then
               team_approval_status=confirmed
               approval_status=confirmed
               backend_approval_required=false
             fi
-          done
+          done < <(jq -r '.[]?' <<<"$PR_LABELS")
 
           if [[ "$team_approval_status" == "required" ]]; then
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
