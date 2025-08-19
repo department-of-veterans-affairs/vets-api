@@ -45,10 +45,11 @@ module ClaimsEvidenceApi
       # @param action [String|Symbol] eg. create, update, delete
       # @param attributes [Mixed] named key-value pairs of record attributes
       def track_event(action, **attributes)
+        call_location = caller_locations.first
         message = format_message("#{record.class} #{action}")
         tags = format_tags({ class: record.class.to_s.downcase.gsub(/:+/, '_'), action: })
 
-        track_request(:info, message, METRIC, tags:, **attributes)
+        track_request(:info, message, METRIC, call_location:, tags:, **attributes)
       end
     end
 

@@ -36,7 +36,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         tags = ["class:#{record.record.class.to_s.downcase.gsub(/:+/, '_')}", "action:#{action}"]
         attributes = { foo: :bar, 'test' => 23 }
 
-        expect(record).to receive(:track_request).with(:info, message, metric, tags:, **attributes)
+        expect(record).to receive(:track_request).with(:info, message, metric, call_location: anything, tags:, **attributes)
 
         record.track_event(action, **attributes)
       end

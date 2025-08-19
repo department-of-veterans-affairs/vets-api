@@ -120,7 +120,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       expect(error.message).to eq 'VEFSERR40009'
       expect(submission.file_uuid).to be_nil
-      expect(attempt.status).to eq 'failure'
+      expect(attempt.status).to eq 'failed'
       expect(attempt.metadata).to eq JSON.parse(provider_data.to_json)
       expect(attempt.error_message).to eq error.body
     end

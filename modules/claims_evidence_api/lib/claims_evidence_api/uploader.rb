@@ -162,7 +162,7 @@ module ClaimsEvidenceApi
       error_message = error.body if error.respond_to?('body')
       error_message ||= error.message
 
-      attempt.status = 'failure'
+      attempt.status = 'failed'
       attempt.error_message = error_message
       attempt.save
     end
