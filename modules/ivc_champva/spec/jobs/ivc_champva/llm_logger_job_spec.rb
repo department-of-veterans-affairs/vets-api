@@ -9,6 +9,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
   let(:attachment_id) { 'test_attachment_123' }
   let(:llm_service) { instance_double(IvcChampva::LlmService) }
   let(:logger) { instance_double(Logger) }
+  let(:monitor) { instance_double(IvcChampva::Monitor) }
 
   let(:mock_llm_response) do
     {
@@ -27,39 +28,38 @@ RSpec.describe IvcChampva::LlmLoggerJob do
     allow(logger).to receive(:info)
     allow(logger).to receive(:error)
     allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit).and_return(true)
+
+    # Mock the monitor and its methods
+    allow(IvcChampva::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_experiment_sample_size)
+    allow(monitor).to receive(:track_experiment_processing_time)
+    allow(monitor).to receive(:track_experiment_metric)
+    allow(monitor).to receive(:track_experiment_error)
   end
 
   describe '#perform' do
     context 'when feature flag is enabled' do
-      it 'logs job start' do
-        expect(logger).to receive(:info).with(
-          "IvcChampva::LlmLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}"
-        )
+      it 'tracks experiment sample size' do
+        expect(monitor).to receive(:track_experiment_sample_size).with('llm_validator', uuid)
 
         described_class.new.perform(form_id, uuid, file_path, attachment_id)
       end
 
-      it 'logs processing time' do
-        expect(logger).to receive(:info).with(
-          /IvcChampva::LlmLoggerJob #{uuid} LLM processing completed in \d+\.\d+ milliseconds/
-        )
+      it 'tracks processing time' do
+        expect(monitor).to receive(:track_experiment_processing_time).with('llm_validator', anything, uuid)
 
         described_class.new.perform(form_id, uuid, file_path, attachment_id)
       end
 
-      it 'logs LLM response fields' do
-        expect(logger).to receive(:info).with(
-          "IvcChampva::LlmLoggerJob #{uuid} doc_type: EOB"
-        )
-        expect(logger).to receive(:info).with(
-          "IvcChampva::LlmLoggerJob #{uuid} doc_type_matches: true"
-        )
-        expect(logger).to receive(:info).with(
-          "IvcChampva::LlmLoggerJob #{uuid} valid: true"
-        )
-        expect(logger).to receive(:info).with(
-          "IvcChampva::LlmLoggerJob #{uuid} confidence: 0.95"
-        )
+      it 'tracks LLM response metrics' do
+        expect(monitor).to receive(:track_experiment_metric).with('llm_validator', 'confidence', 0.95, uuid)
+        expect(monitor).to receive(:track_experiment_metric).with('llm_validator', 'validity', true, uuid)
+        expect(monitor).to receive(:track_experiment_metric).with('llm_validator', 'missing_fields_count', 2, uuid)
+
+        described_class.new.perform(form_id, uuid, file_path, attachment_id)
+      end
+
+      it 'logs missing fields count to Rails logger' do
         expect(logger).to receive(:info).with(
           "IvcChampva::LlmLoggerJob #{uuid} missing_fields_count: 2"
         )
@@ -87,10 +87,11 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         allow(llm_service).to receive(:process_document).and_raise(StandardError.new('Test error'))
       end
 
-      it 'logs the error' do
+      it 'logs the error and tracks it' do
         expect(logger).to receive(:error).with(
           "IvcChampva::LlmLoggerJob #{uuid} failed with error: Test error"
         )
+        expect(monitor).to receive(:track_experiment_error).with('llm_validator', 'StandardError', uuid, 'Test error')
 
         described_class.new.perform(form_id, uuid, file_path, attachment_id)
       end

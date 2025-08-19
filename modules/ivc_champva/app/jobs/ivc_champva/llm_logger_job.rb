@@ -17,10 +17,10 @@ module IvcChampva
     def perform(form_id, uuid, file_path, attachment_id)
       return unless Flipper.enabled?(:champva_enable_llm_on_submit)
 
-      Rails.logger.info("IvcChampva::LlmLoggerJob Beginning job for form_id: #{form_id}, " \
-                        "uuid: #{uuid}")
-
       begin
+        # Track sample size for this experiment
+        monitor.track_experiment_sample_size('llm_validator', uuid)
+
         start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
         llm_service = IvcChampva::LlmService.new
@@ -32,12 +32,14 @@ module IvcChampva
         )
 
         duration_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time) * 1000).round(2)
-        Rails.logger.info("IvcChampva::LlmLoggerJob #{uuid} LLM processing completed in " \
-                          "#{duration_ms} milliseconds")
+
+        # Track processing time for this experiment
+        monitor.track_experiment_processing_time('llm_validator', duration_ms, uuid)
 
         log_llm_results(llm_response, uuid)
       rescue => e
         Rails.logger.error("IvcChampva::LlmLoggerJob #{uuid} failed with error: #{e.message}")
+        monitor.track_experiment_error('llm_validator', e.class.name, uuid, e.message)
       end
     end
 
@@ -51,14 +53,28 @@ module IvcChampva
         return
       end
 
-      Rails.logger.info("IvcChampva::LlmLoggerJob #{uuid} doc_type: #{llm_response['doc_type']}")
-      Rails.logger.info("IvcChampva::LlmLoggerJob #{uuid} doc_type_matches: #{llm_response['doc_type_matches']}")
-      Rails.logger.info("IvcChampva::LlmLoggerJob #{uuid} valid: #{llm_response['valid']}")
-      Rails.logger.info("IvcChampva::LlmLoggerJob #{uuid} confidence: #{llm_response['confidence']}")
-
       missing_fields = llm_response['missing_fields']
       missing_fields_count = missing_fields.is_a?(Array) ? missing_fields.length : 0
       Rails.logger.info("IvcChampva::LlmLoggerJob #{uuid} missing_fields_count: #{missing_fields_count}")
+
+      if llm_response['confidence'].present?
+        monitor.track_experiment_metric('llm_validator', 'confidence', llm_response['confidence'],
+                                        uuid)
+      end
+      if llm_response['valid'].present?
+        monitor.track_experiment_metric('llm_validator', 'validity', llm_response['valid'],
+                                        uuid)
+      end
+      monitor.track_experiment_metric('llm_validator', 'missing_fields_count', missing_fields_count, uuid)
+    end
+
+    ##
+    # retrieve a monitor for tracking
+    #
+    # @return [IvcChampva::Monitor]
+    #
+    def monitor
+      @monitor ||= IvcChampva::Monitor.new
     end
   end
 end
