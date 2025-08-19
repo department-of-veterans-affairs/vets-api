@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -13,7 +13,7 @@ set -euo pipefail
         echo "Downloading DoD ECA certificates..."
 
         # Primary: HTTPS with timeout and retries
-        if curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
+        if curl --fail --silent --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -o unclass-certificates_pkcs7_ECA.zip https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
             echo "✓ DoD ECA downloaded via HTTPS"
         # Fallback 1: HTTP with timeout and retries
         elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
@@ -25,7 +25,7 @@ set -euo pipefail
         else
             echo "✗ All DoD ECA download attempts failed"
             echo "Continuing without DoD ECA certificates..."
-            exit 1
+            # Note: Removed exit 1 to allow script to continue
         fi
 
         # Process the downloaded certificates
@@ -33,7 +33,7 @@ set -euo pipefail
             unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA
             cd ECA_CA/certificates_pkcs7_v5_12_eca/
             openssl pkcs7 -inform DER -in ./certificates_pkcs7_v5_12_eca_ECA_Root_CA_5_der.p7b -print_certs | awk '/BEGIN/{i++} {print > ("eca_cert" i ".pem")}'
-            rm eca_cert.pem # first one is always invalid because of how awk is breaking it up
+            rm -f eca_cert.pem # first one is always invalid because of how awk is breaking it up
             cp *.pem ../../
             echo "✓ DoD ECA certificates processed successfully"
         else

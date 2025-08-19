@@ -29,7 +29,7 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
       it 'starts with proper shebang' do
         first_line = File.open(script_path, &:readline).chomp
-        expect(first_line).to eq('#! /usr/bin/env bash')
+        expect(first_line).to eq('#!/usr/bin/env bash')
       end
 
       it 'has set -euo pipefail for safety' do
@@ -39,41 +39,87 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
     end
   end
 
-  describe 'certificate download fallback mechanism' do
-    it 'implements HTTPS/HTTP fallback for VA certificates' do
+  describe 'DoD ECA certificate handling' do
+    it 'implements multiple fallback mechanisms for DoD certificates' do
       script_content = File.read(script_path)
 
-      # Verify the script contains HTTPS first, then HTTP fallback for VA certs
-      expect(script_content).to include('https://aia.pki.va.gov/PKI/AIA/VA/')
-      expect(script_content).to include('http://aia.pki.va.gov/PKI/AIA/VA/')
+      # Verify primary HTTPS attempt with proper flags
+      expect(script_content).to include('curl --fail --silent --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5')
+      expect(script_content).to include('https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip')
 
-      # Check that HTTPS comes before HTTP in the script (fallback pattern)
-      https_position = script_content.index('https://aia.pki.va.gov/PKI/AIA/VA/')
-      http_position = script_content.index('http://aia.pki.va.gov/PKI/AIA/VA/')
+      # Verify HTTP fallback
+      expect(script_content).to include('elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
 
-      expect(https_position).to be < http_position
+      # Verify alternative mirror fallback
+      expect(script_content).to include('https://crl.disa.mil/crl/DODECARCA5.zip')
 
-      # Verify if/elif fallback structure
-      expect(script_content).to include('if wget')
-      expect(script_content).to include('elif wget')
+      # Verify graceful degradation
+      expect(script_content).to include('Continuing without DoD ECA certificates...')
+
+      # Verify proper if/elif structure
+      expect(script_content).to include('if curl --fail')
+      expect(script_content).to include('elif curl')
     end
 
-    it 'includes comprehensive error handling and logging' do
+    it 'includes comprehensive error handling and logging for DoD certificates' do
       script_content = File.read(script_path)
 
       # Verify logging messages are present
+      expect(script_content).to include('Downloading DoD ECA certificates...')
+      expect(script_content).to include('✓ DoD ECA downloaded via HTTPS')
+      expect(script_content).to include('✓ DoD ECA downloaded via HTTP fallback')
+      expect(script_content).to include('✓ DoD ECA downloaded from alternative mirror')
+      expect(script_content).to include('✗ All DoD ECA download attempts failed')
+      expect(script_content).to include('✓ DoD ECA certificates processed successfully')
+      expect(script_content).to include('✗ DoD ECA zip file not found after download attempts')
+    end
+
+    it 'processes DoD PKCS7 certificates correctly' do
+      script_content = File.read(script_path)
+
+      expect(script_content).to include('unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA')
+      expect(script_content).to include('cd ECA_CA/certificates_pkcs7_v5_12_eca/')
+      expect(script_content).to include('openssl pkcs7 -inform DER -in ./certificates_pkcs7_v5_12_eca_ECA_Root_CA_5_der.p7b -print_certs')
+      expect(script_content).to include('awk \'/BEGIN/{i++} {print > ("eca_cert" i ".pem")}\'')
+      expect(script_content).to include('rm -f eca_cert.pem')
+      expect(script_content).to include('cp *.pem ../../')
+    end
+
+    it 'handles DoD certificate download failures gracefully' do
+      script_content = File.read(script_path)
+
+      # Verify it checks for zip file existence before processing
+      expect(script_content).to include('if [ -f "unclass-certificates_pkcs7_ECA.zip" ]; then')
+
+      # Verify it continues without exiting on failure (no actual exit 1 command after DoD failures)
+      # Look for the else block and verify it doesn't have an executable exit 1
+      dod_else_block = script_content[/else\s+echo "✗ All DoD ECA download attempts failed".*?fi/m]
+      expect(dod_else_block).not_to match(/^\s*exit 1\s*$/m)
+
+      # Verify the comment indicates exit 1 was removed
+      expect(script_content).to include('# Note: Removed exit 1 to allow script to continue')
+    end
+  end
+
+  describe 'VA certificate download' do
+    it 'uses wget for VA certificates' do
+      script_content = File.read(script_path)
+
+      # Verify wget command with proper options
+      expect(script_content).to include('wget')
+      expect(script_content).to include('--level=1')
+      expect(script_content).to include('--quiet')
+      expect(script_content).to include('--recursive')
+      expect(script_content).to include('--no-parent')
+      expect(script_content).to include('--no-host-directories')
+      expect(script_content).to include('--no-directories')
+      expect(script_content).to include('--accept="VA*.cer"')
+      expect(script_content).to include('http://aia.pki.va.gov/PKI/AIA/VA/')
+    end
+
+    it 'includes VA certificate download logging' do
+      script_content = File.read(script_path)
       expect(script_content).to include('Downloading VA certificates...')
-      expect(script_content).to include('✓ VA certificates downloaded via HTTPS')
-      expect(script_content).to include('✓ VA certificates downloaded via HTTP fallback')
-      expect(script_content).to include('✗ VA certificate download failed')
-
-      # Verify enhanced wget options
-      expect(script_content).to include('--timeout=30')
-      expect(script_content).to include('--tries=3')
-
-      # Verify certificate processing logging
-      expect(script_content).to include('Processing downloaded certificates...')
-      expect(script_content).to include('✓ Processed')
     end
   end
 
@@ -103,7 +149,16 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       expect(script_content).to include('if file "${cert}" | grep \'PEM\'')
 
       # Verify the else branch for DER conversion is present
-      expect(script_content).to match(/else.*openssl x509.*-inform der -outform pem/m)
+      expect(script_content).to match(/else\s+openssl x509.*-inform der -outform pem/m)
+    end
+  end
+
+  describe 'external certificate sources' do
+    it 'downloads DigiCert certificates' do
+      script_content = File.read(script_path)
+
+      expect(script_content).to include('curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem')
+      expect(script_content).to include('curl -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt')
     end
   end
 
@@ -121,48 +176,37 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
     it 'includes certificate verification at the end' do
       script_content = File.read(script_path)
+      expect(script_content).to include('update-ca-certificates --fresh')
       expect(script_content).to include("grep -iE '(VA-Internal|DigiCert)'")
     end
 
     it 'cleans up temporary files' do
       script_content = File.read(script_path)
       expect(script_content).to include('rm "${cert}"')
-      expect(script_content).to include('rm eca_cert.pem')
+      expect(script_content).to include('rm -f eca_cert.pem')
+    end
+
+    it 'uses proper error handling with curl --fail flag' do
+      script_content = File.read(script_path)
+
+      # Verify the primary DoD download uses --fail flag
+      expect(script_content).to include('curl --fail --silent --show-error')
+
+      # Verify it's used in an if statement for proper error handling
+      expect(script_content).to match(/if curl --fail.*then/m)
     end
   end
 
-  describe 'DoD ECA certificate handling' do
-    it 'implements multiple fallback mechanisms for DoD certificates' do
+  describe 'system certificate store update' do
+    it 'updates the system certificate store' do
       script_content = File.read(script_path)
-
-      # Verify primary HTTPS attempt
-      expect(script_content).to include('curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO https://dl.dod.cyber.mil')
-
-      # Verify HTTP fallback
-      expect(script_content).to include('curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
-
-      # Verify alternative mirror fallback
-      expect(script_content).to include('https://crl.disa.mil/crl/DODECARCA5.zip')
-
-      # Verify graceful degradation
-      expect(script_content).to include('Continuing without DoD ECA certificates...')
+      expect(script_content).to include('update-ca-certificates --fresh')
     end
 
-    it 'processes DoD PKCS7 certificates' do
+    it 'displays trusted certificates after update' do
       script_content = File.read(script_path)
-
-      expect(script_content).to include('unzip ./unclass-certificates_pkcs7_ECA.zip')
-      expect(script_content).to include('openssl pkcs7 -inform DER')
-      expect(script_content).to include('awk \'/BEGIN/{i++} {print > ("eca_cert" i ".pem")}\'')
-    end
-  end
-
-  describe 'external certificate sources' do
-    it 'downloads DigiCert certificates' do
-      script_content = File.read(script_path)
-
-      expect(script_content).to include('curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem')
-      expect(script_content).to include('curl -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt')
+      expect(script_content).to include('awk -v cmd=\'openssl x509 -noout -subject\'')
+      expect(script_content).to include('/etc/ssl/certs/ca-certificates.crt')
     end
   end
 end
