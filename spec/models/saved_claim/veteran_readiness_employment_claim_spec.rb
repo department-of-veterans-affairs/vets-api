@@ -139,7 +139,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
             it 'sends confirmation email' do
               expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
-                .with(user_object, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+                .with(user_object, 'VBMS', :confirmation_vbms, 'confirmation_vbms_email_template_id')
 
               claim.send_to_vre(user_object)
             end
@@ -214,7 +214,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             }
           )
 
-          claim.send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+          claim.send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, 'confirmation_vbms_email_template_id')
         end
       end
     end

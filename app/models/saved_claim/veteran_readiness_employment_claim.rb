@@ -304,7 +304,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-  def send_vbms_lighthouse_confirmation_email(user, service, _email_type, email_template)
+  def send_vbms_lighthouse_confirmation_email(user, service, email_type, email_template)
     if user.va_profile_email.blank?
       Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
                         { user_uuid: user&.uuid })
