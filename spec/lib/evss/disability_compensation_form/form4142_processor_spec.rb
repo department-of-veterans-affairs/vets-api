@@ -30,9 +30,6 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
   describe '#initialize' do
     it 'initializes with submission and jid' do
-      # By default, this flag is enabled in test environments, turning this off to avoid using the 2024 template
-      allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_use_2024_template).and_return(false)
-
       expect(PdfFill::Filler).to receive(:fill_ancillary_form)
         .and_call_original
         .once
