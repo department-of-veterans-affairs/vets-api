@@ -7,6 +7,7 @@
 | [Using one of our Sidekiq wrapper classes (async sending)][4] |
 | [API key details][5] |
 | [Zero Silent Failure (ZSF) Initiative][6] |
+| [Callback Integration][10] |
 | [Default Callbacks][1] |
 | [Custom Callbacks][2] |
 | [Delivery Status Reference][9] |
@@ -213,6 +214,7 @@ Using option #2:
 
 [Back to top][7]
 
+<a id="callback-integration"></a>
 ### VA Notify Callback Integration Guide for Vets-API
 
 ### Are you using our custom callbacks solution for the first time?
@@ -246,7 +248,6 @@ Integrating callback logic allows teams to:
 #### How Teams Can Integrate with Callbacks
 
 Reminder: [Flippers](https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access) can help alleviate issues during rollout
-
 
 **Option 1: Default Callback Class**
 <a id="default-callback"></a>
@@ -358,6 +359,20 @@ Here's a high-level overview of what happens behind the scenes when using VA Not
 5. Monitoring: Metrics and logs capture the outcome for reporting and troubleshooting.
 
 ---
+#### Request-level Callbacks
+
+- Pass callback options to `VANotify::Service.new`, as described above
+- a `Notification` record will be returned with a `callback_url`
+- Ensure your VANotify service's api_key follows the current convention of storage in the Settings.yml file
+
+```yml
+# settings.yml
+
+your_service_name:
+  api_key: value_here
+```
+
+---
 
 #### Delivery Status Reference
 
@@ -388,3 +403,4 @@ If you need any further clarification or help during the integration process, fe
 [7]: #top
 [8]: #contact-us
 [9]: #delivery-status-reference
+[10]: #callback-integration
