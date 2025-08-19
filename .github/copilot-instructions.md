@@ -4,6 +4,19 @@
 ## Overview
 vets-api is a Ruby on Rails API that powers the website VA.gov. It's a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of a veteran The main user of the APIs is vets-website, the frontend repo that powers VA.gov. Both of them are in this GitHub organization.
 
+## External Documentation References
+When reviewing code or suggesting improvements, reference these comprehensive VA Platform documentation resources:
+- **API Development Guidelines**: https://depo-platform-documentation.scrollhelp.site/developer-docs/api-development
+- **Architecture Patterns**: https://depo-platform-documentation.scrollhelp.site/design/architecture
+- **Security Standards**: https://depo-platform-documentation.scrollhelp.site/developer-docs/security
+- **Testing Guidelines**: https://depo-platform-documentation.scrollhelp.site/developer-docs/testing
+- **Platform Standards**: https://depo-platform-documentation.scrollhelp.site/developer-docs/platform-standards
+- **Error Handling**: https://depo-platform-documentation.scrollhelp.site/developer-docs/error-handling
+- **Database Guidelines**: https://depo-platform-documentation.scrollhelp.site/developer-docs/database
+- **Monitoring & Alerting**: https://depo-platform-documentation.scrollhelp.site/developer-docs/monitoring
+- **Code Review Best Practices**: https://depo-platform-documentation.scrollhelp.site/developer-docs/code-review
+- **API Documentation Standards**: https://depo-platform-documentation.scrollhelp.site/developer-docs/api-documentation
+
 ## Architecture & Patterns
 - Rails API-only app.
 - Follows REST conventions.
