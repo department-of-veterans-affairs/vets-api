@@ -278,6 +278,9 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_ves_retry_failures_job:
+    actor_type: user
+    description: Enables the sidekiq job to retry VES submissions that failed
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1116,6 +1119,14 @@ features:
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_care_notes_enabled:
+    actor_type: user
+    description: Control fetching OH care summary and notes data
+    enable_in_development: false
+  mhv_accelerated_delivery_conditions_enabled:
+    actor_type: user
+    description: Control fetching OH health condition data
     enable_in_development: false
   mhv_accelerated_delivery_labs_and_tests_enabled:
     actor_type: user
