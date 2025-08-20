@@ -290,6 +290,8 @@ jobs:
           if [[ -n "$APPROVED" ]]; then
             echo "Approved by: $APPROVED"
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+
             echo "Team Approvals: $TEAM_APPROVALS"
 
             if [ -z "$TEAM_APPROVALS" ]; then
@@ -299,25 +301,26 @@ jobs:
               team_approval_status=confirmed
             fi
 
-            for TEAM in "${EXEMPT_TEAMS[@]}"; do
-              echo "Fetching members of team: $TEAM"
+            if [ -z "$BE_APPROVALS" ]; then
+              echo "PR Reviewer '$APPROVED' is NOT a backend-review-group member."
+              for TEAM in "${EXEMPT_TEAMS[@]}"; do
+                echo "Fetching members of team: $TEAM"
+                membership_state=$(gh api -X GET \
+                  "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
+                  --jq '.state' 2>/dev/null || echo "")
 
-              membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
-                --jq '.state' 2>/dev/null || echo "")
-
-              if [[ "$membership_state" == "active" ]]; then
-                echo "Reviewer is a member of an exempt team"
-                exempt_team=true
-                backend_approval_required=false
-                approval_status=confirmed
-                team_approval_status=confirmed
-                break
-              fi
-            done
+                if [[ "$membership_state" == "active" ]]; then
+                  echo "Reviewer is a member of an exempt team"
+                  exempt_team=true
+                  backend_approval_required=false
+                  approval_status=confirmed
+                  team_approval_status=confirmed
+                  break
+                fi
+              done
+            fi
 
             if [[ "${exempt_team}" == "false" ]]; then
-              BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
               echo "Backend Approvals: $BE_APPROVALS"
               if [ -z "$BE_APPROVALS" ]; then
                 echo "BE APPROVAL REQUIRED"
