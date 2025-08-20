@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# SAVED FOR PART 2 PR - Controller Implementation
-# This spec file achieves 100% coverage for disability_compensation_controller.rb
-# To be added in the second PR along with the FES flipper implementation
-
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: :controller do
