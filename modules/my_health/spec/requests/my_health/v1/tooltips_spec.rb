@@ -138,7 +138,11 @@ RSpec.describe 'MyHealth::V1::Tooltips', type: :request do
 
       context 'with ActiveRecord errors' do
         it 'handles general exceptions' do
-          allow_any_instance_of(Tooltip).to receive(:save!).and_raise(StandardError, 'Database error')
+          tooltip_double = instance_double(Tooltip)
+          allow(Tooltip).to receive(:new).and_return(tooltip_double)
+          allow(tooltip_double).to receive(:save!).and_raise(StandardError, 'Database error')
+          allow(tooltip_double).to receive(:assign_attributes).and_call_original if tooltip_double.respond_to?(:assign_attributes)
+          allow(tooltip_double).to receive(:attributes).and_return({}) if tooltip_double.respond_to?(:attributes)
 
           post '/my_health/v1/tooltips', params: valid_params, headers:, as: :json
 
@@ -315,7 +319,7 @@ RSpec.describe 'MyHealth::V1::Tooltips', type: :request do
         end
 
         it 'handles ActiveRecord::RecordInvalid' do
-          allow_any_instance_of(Tooltip).to receive(:update)
+          allow(tooltip).to receive(:update)
             .and_raise(ActiveRecord::RecordInvalid.new(tooltip))
 
           patch "/my_health/v1/tooltips/#{tooltip.id}", params: valid_params, headers:, as: :json
@@ -326,7 +330,7 @@ RSpec.describe 'MyHealth::V1::Tooltips', type: :request do
         end
 
         it 'handles general exceptions' do
-          allow_any_instance_of(Tooltip).to receive(:update).and_raise(StandardError, 'General error')
+          allow(tooltip).to receive(:update).and_raise(StandardError, 'General error')
 
           patch "/my_health/v1/tooltips/#{tooltip.id}", params: valid_params, headers:, as: :json
 
