@@ -54,6 +54,7 @@ class SimpleCovHelper
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
+    add_filter 'lib/clamav/*'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
@@ -75,9 +76,10 @@ class SimpleCovHelper
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/pensions/app/swagger'
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
-    add_filter 'version.rb'
-    add_filter 'db'
     add_filter 'modules/*/db/*'
+    add_filter 'modules/*/lib/tasks/*'
+    add_filter 'rakelib/*'
+    add_filter 'version.rb'
   end
 
   def self.add_modules
