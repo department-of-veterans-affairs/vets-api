@@ -13,8 +13,8 @@ module AccreditedRepresentativePortal
     let(:registrations)             { [] }
 
     before do
-      allow(user.user_account).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
-      allow(user.user_account).to receive(:registrations).and_return(registrations)
+      allow(user.user_account).to receive_messages(power_of_attorney_holders:,
+                                                   registrations:)
     end
 
     describe '#index?' do
