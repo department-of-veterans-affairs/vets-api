@@ -103,6 +103,7 @@ PATH
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
+    dependents_benefits (0.1.0)
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
@@ -1263,6 +1264,7 @@ DEPENDENCIES
   debts_api!
   debug
   decision_reviews!
+  dependents_benefits!
   dependents_verification!
   dhp_connected_devices!
   dogstatsd-ruby
