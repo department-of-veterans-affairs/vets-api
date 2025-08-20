@@ -33,6 +33,7 @@ module TravelPay
     end
 
     def upload_document(claim_id, uploaded_document)
+      byebug
       unless claim_id.present? && uploaded_document.present?
         raise ArgumentError,
               message:
