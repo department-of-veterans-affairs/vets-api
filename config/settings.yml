@@ -152,6 +152,8 @@ check_in:
     service_name: BTSSS-API
     subscription_key: <%= ENV['check_in__travel_reimbursement_api_v2__subscription_key'] %>
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
+    travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
+    travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
 chip:
@@ -624,8 +626,6 @@ ivc_forms:
     missing_form_status_job:
       enabled: true
     old_records_cleanup_job:
-      enabled: true
-    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
@@ -1309,6 +1309,7 @@ va_profile:
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
 vanotify:
+  callback_url: <%= ENV['vanotify__callback_url'] %>
   client_url: <%= ENV['vanotify__client_url'] %>
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1446,6 +1447,9 @@ vanotify:
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
+        digital_dispute_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__digital_dispute_confirmation_email'] %>
+        digital_dispute_failure_email: <%= ENV['vanotify__services__dmc__template_id__digital_dispute_failure_email'] %>
+        digital_dispute_submission_email: <%= ENV['vanotify__services__dmc__template_id__digital_dispute_submission_email'] %>
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
         fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
         fsr_step_1_submission_in_progress_email: <%= ENV['vanotify__services__dmc__template_id__fsr_step_1_submission_in_progress_email'] %>
