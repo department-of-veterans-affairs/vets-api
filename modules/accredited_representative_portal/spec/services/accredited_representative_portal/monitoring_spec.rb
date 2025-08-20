@@ -49,7 +49,7 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
 
     before do
       allow(Datadog::Tracing).to receive(:trace).and_yield(mock_span)
-      allow(mock_span).to receive(:set_tag)
+      allow(mock_span).to receive(:set_error)
     end
 
     it 'calls Datadog::Tracing.trace with the correct span name and service' do
@@ -81,14 +81,12 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
       let(:error_message) { 'Something went wrong!' }
       let(:test_error) { StandardError.new(error_message) }
 
-      it 'sets error tags on the span' do
-        expect(mock_span).to receive(:set_tag).with('error', true)
-        expect(mock_span).to receive(:set_tag).with('error.type', test_error.class.name)
-        expect(mock_span).to receive(:set_tag).with('error.message', error_message)
+      it 'calls set_error on the span' do
+        expect(mock_span).to receive(:set_error).with(test_error)
 
         expect do
           subject.trace(span_name) { raise test_error }
-        end.to raise_error(test_error) # Ensure the original error is re-raised
+        end.to raise_error(test_error)
       end
 
       it 're-raises the original exception' do
