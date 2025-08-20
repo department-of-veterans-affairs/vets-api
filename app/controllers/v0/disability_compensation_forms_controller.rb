@@ -6,6 +6,7 @@ require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'lighthouse/benefits_reference_data/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
+require 'disability_compensation/loggers/monitor'
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
@@ -157,6 +158,22 @@ module V0
     end
 
     def log_failure(claim)
+      if Flipper.enabled?(:disability_526_track_saved_claim_error) && claim&.errors
+        monitor = DisabilityCompensation::Loggers::Monitor.new
+
+        begin
+          in_progress_form =
+            @current_user ? InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) : nil
+        ensure
+          monitor.track_saved_claim_save_error(
+            # Array of ActiveModel::Error instances from the claim that failed to save
+            claim&.errors&.errors,
+            in_progress_form&.id,
+            @current_user.uuid
+          )
+        end
+      end
+
       StatsD.increment("#{stats_key}.failure")
       raise Common::Exceptions::ValidationErrors, claim
     end
