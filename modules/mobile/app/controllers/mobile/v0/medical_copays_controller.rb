@@ -5,8 +5,6 @@ module Mobile
     class MedicalCopaysController < ApplicationController
       before_action { authorize :medical_copays, :access? }
 
-      rescue_from ::MedicalCopays::VBS::Service::StatementNotFound, with: :render_not_found
-
       def index
         render json: service.get_copays
       end
@@ -21,6 +19,10 @@ module Mobile
           type: 'application/pdf',
           filename: statement_params[:file_name]
         )
+      rescue => e
+        increment_pdf_statsd
+        status = e.is_a?(::MedicalCopays::VBS::Service::StatementNotFound) ? :not_found : :internal_server_error
+        render json: nil, status:
       end
 
       private
@@ -33,8 +35,9 @@ module Mobile
         @service ||= MedicalCopays::VBS::Service.build(user: @current_user)
       end
 
-      def render_not_found
-        render json: nil, status: :not_found
+      def increment_pdf_statsd
+        prefix = ::MedicalCopays::VBS::Service::STATSD_KEY_PREFIX
+        StatsD.increment("#{prefix}.pdf.failure")
       end
     end
   end
