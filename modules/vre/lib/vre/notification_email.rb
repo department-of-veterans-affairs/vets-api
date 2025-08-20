@@ -25,7 +25,7 @@ module VRE
                }
              else
                {
-                 'first_name' => user&.first_name&.upcase.presence,
+                 'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
                  'date' => Time.zone.today.strftime('%B %d, %Y')
                }
              end

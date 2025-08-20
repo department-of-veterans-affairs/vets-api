@@ -240,16 +240,9 @@ RSpec.describe VRE::VREMonitor do
                        [payload, msg]
                      end
 
-      if monitor_event == 'exhausted'
-        if has_confirmation_number
-          notification = double(VRE::NotificationEmail)
-          expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification)
-          expect(notification).to receive(:deliver).with(:error)
-        else
-          expect(VRE::NotificationEmail).not_to receive(:new)
-          expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.user_account_uuid,
-                                                               anything)
-        end
+      if (monitor_event == 'exhausted') && !has_confirmation_number
+        expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.user_account_uuid,
+                                                             anything)
       end
 
       expect(monitor).to receive(:track_request).with(

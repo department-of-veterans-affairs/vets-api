@@ -162,7 +162,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
-    send_submission_confirmation_email(user)
+    send_submission_confirmation_email
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -301,25 +301,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
-  # @see ::Logging::BenefitsIntake::Monitor#track_submission_exhaustion
-  def send_email(email_type)
-    VRE::NotificationEmail.new(id).deliver(email_type)
-  end
-
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-  def send_submission_confirmation_email(user)
+  def send_submission_confirmation_email
     sent_to = @sent_to_lighthouse ? LIGHTHOUSE : VBMS
     if Flipper.enabled?(:vre_use_new_vfs_notification_library)
-      send_email(
-        CONFIRMATION_EMAIL_TYPES[sent_to]
-      )
+      VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TYPES[sent_to])
     else
       VANotify::EmailJob.perform_async(
-        user.va_profile_email,
+        email,
         CONFIRMATION_EMAIL_TEMPLATES[sent_to],
         {
-          'first_name' => user&.first_name&.upcase.presence,
+          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
           'date' => Time.zone.today.strftime('%B %d, %Y')
         }
       )
@@ -343,21 +336,25 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     'VRE'
   end
 
-  # this failure email is not the ideal way to handle the Notification Emails as
-  # part of the ZSF work, but with the initial timeline it handles the email as intended.
-  # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-  def send_failure_email(email)
+  def email
+    @email ||= parsed_form['email']
+  end
+
+  def send_failure_email
     if email.present?
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-        {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      )
+      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
+        VRE::NotificationEmail.new(id).deliver(:error)
+      else
+        VANotify::EmailJob.perform_async(
+          email,
+          Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
+          {
+            'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number
+          }
+        )
+      end
       Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     else
       Rails.logger.warn('VRE claim failure email not sent: email not present.')
@@ -387,13 +384,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def bgs_client
     @service ||= BGS::Services.new(
-      external_uid: parsed_form['email'],
+      external_uid: email,
       external_key:
     )
   end
 
   def external_key
-    parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
+    parsed_form.dig('veteranInformation', 'fullName', 'first') || email
   end
 
   def veteran_information
@@ -453,7 +450,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def validate_email
-    value = parsed_form['email']
+    value = email
     if value.present? && value.is_a?(String) && value.length > 256
       errors.add('/email', 'must be 256 characters or less')
     end
