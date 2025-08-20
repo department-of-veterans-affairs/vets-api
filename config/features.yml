@@ -278,6 +278,9 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_ves_retry_failures_job:
+    actor_type: user
+    description: Enables the sidekiq job to retry VES submissions that failed
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -727,6 +730,9 @@ features:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
+  disability_526_track_saved_claim_error:
+    actor_type: user
+    description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1116,6 +1122,14 @@ features:
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_care_notes_enabled:
+    actor_type: user
+    description: Control fetching OH care summary and notes data
+    enable_in_development: false
+  mhv_accelerated_delivery_conditions_enabled:
+    actor_type: user
+    description: Control fetching OH health condition data
     enable_in_development: false
   mhv_accelerated_delivery_labs_and_tests_enabled:
     actor_type: user

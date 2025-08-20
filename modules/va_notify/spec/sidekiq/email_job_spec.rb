@@ -58,6 +58,7 @@ RSpec.describe VANotify::EmailJob, type: :worker do
       end
     end
 
+    # I believe that log_exception_to_sentry is being phased out in favor of log_exception_to_rails
     context 'when vanotify returns a 400 error' do
       it 'rescues and logs the error' do
         VCR.use_cassette('va_notify/bad_request_invalid_template_id') do
@@ -76,6 +77,24 @@ RSpec.describe VANotify::EmailJob, type: :worker do
           )
 
           job.perform(email, template_id)
+        end
+      end
+    end
+
+    context 'when vanotify returns a non-400 error' do
+      it 'raises the error and does not log to sentry' do
+        # Match the cassette's data exactly
+        email = 'test@email.com'
+        template_id = '1234'
+        personalisation = { 'foo' => 'bar' }
+
+        job = described_class.new
+        expect(job).not_to receive(:log_exception_to_sentry)
+
+        VCR.use_cassette('va_notify/auth_error_invalid_token') do
+          expect do
+            job.perform(email, template_id, personalisation)
+          end.to raise_error(VANotify::Forbidden, /Invalid token/)
         end
       end
     end
