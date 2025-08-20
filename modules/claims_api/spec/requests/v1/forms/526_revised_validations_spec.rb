@@ -18,6 +18,10 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       def initialize(attributes = {})
         @form_attributes = attributes
       end
+
+      def bgs_service
+        # This will be stubbed in individual tests
+      end
     end
   end
   let(:form_attributes) { {} }
@@ -661,6 +665,35 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  # rubocop:disable RSpec/SubjectStub
+  describe '#contention_classification_type_code_list' do
+    let(:mock_list) { [{ clsfcn_id: '1234', end_dt: nil }, { clsfcn_id: '5678', end_dt: '2020-01-01' }] }
+    let(:mock_data) { double('data', get_contention_classification_type_code_list: mock_list) }
+    let(:mock_bgs_service) { double('bgs_service', data: mock_data) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(false)
+      allow(subject).to receive(:bgs_service).and_return(mock_bgs_service)
+    end
+
+    it 'returns the contention classification type code list' do
+      expect(subject.contention_classification_type_code_list).to eq(mock_list)
+    end
+  end
+
+  describe '#bgs_classification_ids' do
+    let(:mock_list) { [{ clsfcn_id: '1234', end_dt: nil }, { clsfcn_id: '5678', end_dt: '2020-01-01' }] }
+
+    before do
+      allow(subject).to receive(:contention_classification_type_code_list).and_return(mock_list)
+    end
+
+    it 'returns an array of classification ids' do
+      expect(subject.bgs_classification_ids).to eq(%w[1234 5678])
+    end
+  end
+  # rubocop:enable RSpec/SubjectStub
 
   describe '#validate_form_526_fewer_than_150_disabilities!' do
     context 'when disabilities count is less than or equal to 150' do
