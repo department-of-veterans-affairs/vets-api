@@ -30,19 +30,16 @@ module TravelPay
         claim_id = params[:claim_id]
         document = params[:document]
 
-        # TODO: Maybe we can add the file name to the rails logger?
         Rails.logger.info(
           message: "Creating attachment for claim #{claim_id.slice(0, 8)}"
         )
 
-        # Should we verify the claim id exists? - no not right now
         # Verify the document is valid
         # Add file extension, file size
         # Validate the file extensions (kevin will provide to me) and file size (5 MB limit)
         # Call the service with claim_id and document
         document_id = service.upload_document(claim_id, document)
-        # return the documentId and success response
-        byebug
+
         render json: { documentId: document_id }, status: :created
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e)
@@ -93,6 +90,21 @@ module TravelPay
         return if params[:document].present?
 
         raise Common::Exceptions::BadRequest, detail: 'Document is required'
+      end
+
+      def validate_document_extension!(document)
+        return if !document.present?
+
+        allowed_extensions = %w[pdf jpeg jpg png gif bmp tif tiff doc docx]
+
+        # Extract the extension from the original filename
+        extension = File.extname(document.original_filename).delete('.').downcase
+
+        unless allowed_extensions.include?(extension)
+          message = "Invalid document type: .#{extension}. Allowed types are: #{allowed_extensions.join(', ')}"
+          Rails.logger.error(message)
+          raise Common::Exceptions::BadRequest, detail: message
+        end
       end
     end
   end

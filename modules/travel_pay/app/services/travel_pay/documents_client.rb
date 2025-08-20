@@ -58,7 +58,6 @@ module TravelPay
     # @return [TravelPay::DocumentId]
     #
     def add_document(veis_token, btsss_token, params = {})
-    byebug
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       params.symbolize_keys! # normalize keys

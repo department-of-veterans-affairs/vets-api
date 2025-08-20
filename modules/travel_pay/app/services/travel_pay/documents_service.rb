@@ -42,7 +42,8 @@ module TravelPay
       params = { claim_id:, document: }
       @auth_manager.authorize => { veis_token:, btsss_token: }
 
-      documents_response = client.get_document_ids(veis_token, btsss_token, params)
+      documents_response = client.add_document(veis_token, btsss_token, params)
+
       documents_response.body['data']
     end
 
