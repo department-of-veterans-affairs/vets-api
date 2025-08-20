@@ -6,6 +6,8 @@
   "maximum" : 500,
   "minimum" : 1,
   "pattern" : "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\\/@\\(\\)]*$",
+  "$comment": "This property is further checked against a predefined set from `contentsources`, hence the use of enum in addition to pattern",
+  "enum": ["VA.gov"],
   "title" : "Document content source",
   "type" : "string"
 }

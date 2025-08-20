@@ -14,11 +14,11 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:service) { ClaimsEvidenceApi::Service::Files.new }
   let(:stamper) { PDFUtilities::PDFStamper.new([]) }
   let(:pdf_path) { 'path/to/pdf.pdf' }
-  let(:content_source) { 'uploader_spec' }
+  let(:content_source) { 'VA.gov' }
   let(:va_received_at) { DateTime.parse(claim.created_at.to_s).strftime('%Y-%m-%d') }
 
   let(:folder_identifier) { 'VETERAN:SSN:123456789' }
-  let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source:) }
+  let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
 
   # stamping is stubbed, but will raise an error if the provided stamp_set is invalid
   let(:claim_stamp_set) { [anything] }

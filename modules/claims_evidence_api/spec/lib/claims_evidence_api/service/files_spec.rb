@@ -18,7 +18,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
   let(:file_name) { File.basename(file_path) }
   let(:provider_data) do
     # minimally required fields
-    { contentSource: 'VBMS', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23 }
+    { contentSource: 'VA.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23 }
   end
 
   let(:post_params) do
