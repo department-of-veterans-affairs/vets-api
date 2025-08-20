@@ -23,10 +23,12 @@ module TravelPay
       end
 
       def create
-        byebug
         verify_feature_flag_enabled!
         validate_claim_id_exists!
         validate_document_exists!
+
+        claim_id = params[:claim_id]
+        document = params[:document]
 
         # TODO: Maybe we can add the file name to the rails logger?
         Rails.logger.info(
@@ -38,8 +40,9 @@ module TravelPay
         # Add file extension, file size
         # Validate the file extensions (kevin will provide to me) and file size (5 MB limit)
         # Call the service with claim_id and document
-        document_id = service.upload_document(params[:claim_id], params[:document])
+        document_id = service.upload_document(claim_id, document)
         # return the documentId and success response
+        byebug
         render json: { documentId: document_id }, status: :created
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e)
@@ -73,8 +76,7 @@ module TravelPay
       end
 
       def verify_feature_flag_enabled!
-        byebug
-        return if Flipper.enabled?(:travel_pay_complex_claims, @current_user)
+        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
 
         message = 'Travel Pay expense submission unavailable per feature toggle'
         Rails.logger.error(message:)

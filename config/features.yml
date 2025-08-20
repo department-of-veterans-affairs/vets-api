@@ -2167,7 +2167,7 @@ features:
       A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
       Enabled - Entry point link and claim details page are viewable.
       Disabled - Entry point link and claim details page are not viewable.
-    travel_pay_enable_complex_claims:
+  travel_pay_enable_complex_claims:
     actor_type: user
     enable_in_development: true
     description: >-

@@ -32,15 +32,14 @@ module TravelPay
       }
     end
 
-    def upload_document(claim_id, uploaded_document)
-      byebug
-      unless claim_id.present? && uploaded_document.present?
+    def upload_document(claim_id, document)
+      unless claim_id.present? && document.present?
         raise ArgumentError,
               message:
-                "Missing Claim ID or Uploaded Document, given: claim_id=#{claim_id}, uploaded_doc=#{uploaded_document}"
+                "Missing Claim ID or Uploaded Document, given: claim_id=#{claim_id}, document=#{document}"
       end
 
-      params = { claim_id:, uploaded_doc: }
+      params = { claim_id:, document: }
       @auth_manager.authorize => { veis_token:, btsss_token: }
 
       documents_response = client.get_document_ids(veis_token, btsss_token, params)
