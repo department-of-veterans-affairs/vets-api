@@ -142,7 +142,7 @@ module BGS
 
       # compensate for the abnormal nature of 674 V2 submissions
       if form_674_pdfs.length > 1
-        file_uuid = form_674_pdfs.map { |fp| fp[0] } # rubocop:disable Rails/Pluck
+        file_uuid = form_674_pdfs.map { |fp| fp[0] }
         submission = claims_evidence_uploader.submission
         submission.update_reference_data(students: form_674_pdfs)
         submission.file_uuid = file_uuid.to_s # set to stringified array
