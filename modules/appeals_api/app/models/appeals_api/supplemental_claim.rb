@@ -8,6 +8,7 @@ module AppealsApi
     include ScStatus
     include PdfOutputPrep
     include ModelValidations
+    include AppealsApi::Concerns::InFinalStatusCheck
 
     required_claimant_headers %w[X-VA-NonVeteranClaimant-First-Name X-VA-NonVeteranClaimant-Last-Name]
 
