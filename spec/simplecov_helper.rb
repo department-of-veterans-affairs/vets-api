@@ -14,8 +14,7 @@ class SimpleCovHelper
       # SimpleCov.command_name "(#{ENV['TEST_ENV_NUMBER'] || '1'}/#{parallel_tests_count})"
 
       SimpleCov.command_name "rspec-#{ENV['TEST_ENV_NUMBER'] || '0'}"
-      track_files '{app,lib,modules}/**/*.rb'
-      # track_files '**/{app,lib}/**/*.rb'
+      track_files '**/{app,lib}/**/*.rb'
 
       add_filters
       add_modules
@@ -77,6 +76,9 @@ class SimpleCovHelper
     add_filter 'modules/pensions/app/swagger'
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
     add_filter 'version.rb'
+    add_filter 'db'
+    add_filter 'modules/*/db/*'
+
   end
 
   def self.add_modules
