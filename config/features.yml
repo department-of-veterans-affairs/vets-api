@@ -730,6 +730,9 @@ features:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
+  disability_526_track_saved_claim_error:
+    actor_type: user
+    description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
