@@ -120,7 +120,8 @@ module DecisionReviews
 
         return req_body_obj if area_code.is_a?(String) && !area_code.empty?
 
-        req_body_obj['data']['attributes']['veteran']['phone']&.delete('areaCode')
+        phone_hash = req_body_obj.dig('data', 'attributes', 'veteran', 'phone')
+        phone_hash.delete('areaCode') if phone_hash.is_a?(Hash)
         req_body_obj
       end
     end
