@@ -32,7 +32,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         "#{described_class} Form526 SavedClaim save error",
         described_class::CLAIM_STATS_KEY,
         form_id: '21-526EZ-ALLCLAIMS',
-        in_progress_form_id: in_progress_form_id,
+        in_progress_form_id:,
         errors: [{ form: 'invalid' }].to_s,
         user_account_uuid: user.uuid
       )
@@ -46,7 +46,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         anything,
         anything,
         errors: [].to_s,
-        in_progress_form_id: in_progress_form_id,
+        in_progress_form_id:,
         user_account_uuid: user.uuid,
         form_id: '21-526EZ-ALLCLAIMS'
       )
