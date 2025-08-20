@@ -77,8 +77,11 @@ module ClaimsEvidenceApi
         file_name = File.basename(file_path)
         mime_type = Marcel::MimeType.for(file_path)
 
+        # there is a bug in the endpoint validation - only accepts 'VBMS' despite regex match to other strings
+        provider_data[:contentSource] = 'VBMS'
+
         {
-          payload: validate_upload_payload(file_name, provider_data),
+          payload: validate_upload_payload(file_name, provider_data)&.to_json,
           file: Faraday::UploadIO.new(file_path, mime_type, file_name)
         }
       end
