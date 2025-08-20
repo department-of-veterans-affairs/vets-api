@@ -51,6 +51,7 @@ class SimpleCovHelper
 
   def self.add_filters
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
+    add_filter 'bin/*'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -67,6 +68,7 @@ class SimpleCovHelper
     add_filter 'lib/vet360/address_validation/configuration.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
+    add_filter 'lib/rubocop/*'
     add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
