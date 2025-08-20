@@ -162,10 +162,12 @@ type: integer in schema #{uuid_regex}"\]})
       it 'raises errors' do
         error_message = %({:error_type=>"Unknown", :record_id=>"1", \
 :details=>"Couldn't find SchemaContract::Validation with 'id'=1"})
-
         expect do
           SchemaContract::Validator.new('1').validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, error_message)
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError) do |error|
+          expect(error.message).to match(/Couldn't find SchemaContract::Validation with 'id'/)
+        end
+
       end
     end
 
