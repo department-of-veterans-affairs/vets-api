@@ -4,6 +4,8 @@ require_relative '../../../support/helpers/rails_helper'
 require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::MedicalCopays', type: :request do
+  include JsonSchemaMatchers
+
   let!(:user) { sis_user }
 
   describe 'GET medical_copays#index' do
@@ -14,19 +16,19 @@ RSpec.describe 'Mobile::V0::MedicalCopays', type: :request do
 
       get '/mobile/v0/medical_copays', headers: sis_headers
 
-      expect(Oj.load(response.body)).to eq({ 'data' => [], 'status' => 200 })
+      expect(response.body).to match_json_schema('medical_copays')
     end
   end
 
   describe 'GET medical_copays#show' do
-    let(:copay) { { data: {}, status: 200 } }
+    let(:copay) { { data: { id: 'abc123', details: [], station: {} }, status: 200 } }
 
     it 'returns a formatted hash response' do
       allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_by_id).and_return(copay)
 
       get '/mobile/v0/medical_copays/abc123', headers: sis_headers
 
-      expect(Oj.load(response.body)).to eq({ 'data' => {}, 'status' => 200 })
+      expect(response.body).to match_json_schema('medical_copay')
     end
   end
 
@@ -65,7 +67,8 @@ RSpec.describe 'Mobile::V0::MedicalCopays', type: :request do
       it 'returns the file contents and headers' do
         pdf_data = 'Sample PDF Contents'
         allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_pdf_statement_by_id).and_return(pdf_data)
-        get '/mobile/v0/medical_copays/download/abc123', headers: sis_headers, params: { file_name: 'sample_file.pdf' }
+        get '/mobile/v0/medical_copays/download/abc123', headers: sis_headers,
+                                                         params: { file_name: 'sample_file.pdf' }
         expect(response).to have_http_status(:ok)
         expect(response.headers['Content-Type']).to eq('application/pdf')
         expect(response.headers['Content-Disposition']).to include('attachment; filename="sample_file.pdf"')
@@ -76,7 +79,8 @@ RSpec.describe 'Mobile::V0::MedicalCopays', type: :request do
         pdf_data = 'Sample PDF Contents'
         allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_pdf_statement_by_id).and_return(pdf_data)
         allow(StatsD).to receive(:increment)
-        get '/mobile/v0/medical_copays/download/abc123', headers: sis_headers, params: { file_name: 'sample_file.pdf' }
+        get '/mobile/v0/medical_copays/download/abc123', headers: sis_headers,
+                                                         params: { file_name: 'sample_file.pdf' }
         expect(StatsD).not_to have_received(:increment).with('api.mcp.vbs.pdf.failure')
       end
     end
