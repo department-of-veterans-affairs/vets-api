@@ -2,18 +2,8 @@
 # Copilot Instructions for vets-api
 
 ## Overview
-vets-api is a Ruby on Rails API that powers the website VA.gov. It's a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of a veteran The main user of the APIs is vets-website, the frontend repo that powers VA.gov. Both of them are in this GitHub organization.
+vets-api is a Ruby on Rails API that powers the website VA.gov. It serves as a wrapper around VA data services with utilities and tools that support interaction with those services on behalf of veterans. The main consumer of these APIs is vets-website, the frontend repository that powers VA.gov. Both repositories are in this GitHub organization and work together to deliver services to veterans.
 
-## External Documentation References
-### Code and Build
-When reviewing code or suggesting improvements, reference these comprehensive VA Platform documentation resources:
-- **How we use Github Codeowners**: https://depo-platform-documentation.scrollhelp.site/developer-docs/how-we-use-github-code-owners
-- **How to Prepare your PR for Review**: https://depo-platform-documentation.scrollhelp.site/developer-docs/submitting-pull-requests-for-approval
-- **Best Practices for Writing PRs**: https://depo-platform-documentation.scrollhelp.site/developer-docs/pull-request-best-practices
-- **PII Guidelines**: https://depo-platform-documentation.scrollhelp.site/developer-docs/personal-identifiable-information-pii-guidelines
-- **Coding Best Practices PII**: https://depo-platform-documentation.scrollhelp.site/developer-docs/coding-best-practices-for-pii
-- **Sensitive Documentation Guidance**: https://depo-platform-documentation.scrollhelp.site/developer-docs/sensitive-documentation-guidance
-- **Github Code Scanning Policy**: https://depo-platform-documentation.scrollhelp.site/developer-docs/github-code-scanning-policy
 
 ## Architecture & Patterns
 - Rails API-only application.
@@ -36,11 +26,16 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 - Standard error responses in JSON format.
 
 ## Testing
-- Use RSpec for tests, located in `spec/` or `modules/<name>/app/spec`.
-- Use FactoryBot for fixtures.
-- If using a feature toggle, aka Flipper, write corresponding tests for both the Flipper on and Flipper off scenarios.
-- When invoking a feature toggle in a test, don't disable or enable it. Mock it instead, using this format for enabling a flipper: `allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)`
-- To enable logging during tests (disabled by default), set the `RAILS_ENABLE_TEST_LOG` environment variable to true: `RAILS_ENABLE_TEST_LOG=true bundle exec rspec path/to/spec.rb`. Test logs will be written to `log/test.log`.
+- **Test Framework**: Use RSpec for tests, located in `spec/` or `modules/<name>/app/spec`.
+- **Test Data**: Use FactoryBot for fixtures and test data generation.
+- **Feature Toggles**: If using a feature toggle (Flipper), write corresponding tests for both enabled and disabled scenarios.
+- **Mocking Flipper**: When testing feature toggles, don't use `Flipper.enable` or `Flipper.disable`. Mock instead:
+  ```ruby
+  allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)
+  ```
+- **Test Logging**: To enable logging during tests (disabled by default), set `RAILS_ENABLE_TEST_LOG=true bundle exec rspec path/to/spec.rb`. Test logs write to `log/test.log`.
+- **Coverage**: Ensure all new code has comprehensive test coverage including happy path, error cases, and edge cases.
+- **External Services**: Mock external service calls using Betamocks or VCR cassettes to ensure reliable, fast tests.
 
 ## Utilities
 - Faraday: The primary HTTP client for all external API calls. Use Faraday in service objects, and ensure requests are properly instrumented.
@@ -58,12 +53,26 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 - Document complex logic with comments.
 
 ## Security
-- Don't log anything that could contain PII or sensitive data, including an entire response_body and `user.icn`.
-- Never commit secrets or keys.
+- **PII Protection**: Never log anything that could contain PII or sensitive data, including entire `response_body` objects and `user.icn`.
+- **Secrets Management**: Never commit secrets, keys, or credentials to the repository.
+- **Data Classification**: Follow VA data classification guidelines when handling veteran data.
+- **Authentication**: All endpoints must properly authenticate and authorize requests.
+- **Input Validation**: Always validate and sanitize user inputs to prevent injection attacks.
+- **Error Messages**: Don't expose sensitive system information in error messages returned to clients.
+
+## VA-Specific Patterns
+- **User Context**: Always use the authenticated user context (`@current_user`) for data access and permissions.
+- **Veteran Verification**: Verify veteran status before accessing benefits-related data.
+- **BGS Integration**: Use BGS (Benefits Gateway Service) for veteran benefits data through established service patterns.
+- **MVI Integration**: Use MVI (Master Veteran Index) for veteran identity and demographic data.
+- **Form Submissions**: Follow established patterns for form submission processing and validation.
+- **Error Handling**: Use standardized error response formats with appropriate HTTP status codes.
 
 ## Adding Features
-- Add new controllers for new resources.
-- Write tests for all new code.
+- Add new controllers for new resources following RESTful conventions.
+- Write comprehensive tests for all new code including unit, integration, and end-to-end tests.
+- Follow established service object patterns for business logic.
+- Document any new external service integrations or API changes.
 
 # Tips for Copilot
 - Prefer existing patterns and structure.
