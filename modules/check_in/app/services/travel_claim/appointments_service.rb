@@ -67,9 +67,12 @@ module TravelClaim
     def valid_iso_format?(date_string)
       return false unless date_string.is_a?(String)
 
-      # ISO 8601 regex pattern: YYYY-MM-DDTHH:MM:SS.sssZ
-      iso_pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/
-      iso_pattern.match?(date_string)
+      begin
+        DateTime.iso8601(date_string)
+        true
+      rescue ArgumentError
+        false
+      end
     end
 
     def patient_icn
