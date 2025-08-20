@@ -5011,21 +5011,12 @@
         "summary": "/v0/medical_copays/{id}"
       }
     },
-    "/v0/medical_copays/download": {
+    "/v0/medical_copays/download/{id}": {
       "get": {
         "description": "Retrieves the statement PDF for the given ID",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
-          },
-          {
-            "description": "The ID number of the statement to be downloaded",
-            "example": "fe1776a8-3908-4efe-8e20-8dd31440ccb9",
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -5070,7 +5061,7 @@
             "Bearer": []
           }
         ],
-        "summary": "/v0/medical_copays/download"
+        "summary": "/v0/medical_copays/download{id}"
       }
     },
     "/v0/messaging/health/folders": {
