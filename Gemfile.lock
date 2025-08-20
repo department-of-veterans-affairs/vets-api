@@ -734,7 +734,7 @@ GEM
     nenv (0.3.0)
     net-http (0.6.0)
       uri
-    net-imap (0.5.7)
+    net-imap (0.5.9)
       date
       net-protocol
     net-pop (0.1.2)
@@ -743,7 +743,7 @@ GEM
       timeout
     net-sftp (4.0.0)
       net-ssh (>= 5.0.0, < 8.0.0)
-    net-smtp (0.5.0)
+    net-smtp (0.5.1)
       net-protocol
     net-ssh (7.2.0)
     nio4r (2.7.4)
@@ -1186,9 +1186,11 @@ GEM
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.9.1)
-    websocket-driver (0.7.6)
+    websocket-driver (0.8.0)
+      base64
       websocket-extensions (>= 0.1.0)
-    websocket-driver (0.7.6-java)
+    websocket-driver (0.8.0-java)
+      base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (4.0.1)
