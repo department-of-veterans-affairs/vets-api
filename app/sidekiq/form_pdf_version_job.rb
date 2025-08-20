@@ -23,6 +23,7 @@ class FormPdfVersionJob
     end
   rescue => e
     Rails.logger.error "Error in FormPdfVersionJob: #{e.message}"
+    raise e
   end
 
   private

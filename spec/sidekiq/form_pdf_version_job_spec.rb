@@ -32,6 +32,17 @@ RSpec.describe FormPdfVersionJob, type: :job do
   before do
     allow(Forms::Client).to receive(:new).with(nil).and_return(client)
     allow(client).to receive(:get_all).and_return(response)
+
+    @mock_cache = {}
+
+    allow(Rails.cache).to receive(:read) do |key|
+      @mock_cache[key]
+    end
+
+    allow(Rails.cache).to receive(:write) do |key, value|
+      @mock_cache[key] = value
+      true
+    end
   end
 
   describe '#perform' do
