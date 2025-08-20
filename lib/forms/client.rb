@@ -41,7 +41,6 @@ module Forms
       case error
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        binding.pry
         raise_backend_exception('FORMS_502', self.class, error)
       else
         raise error
