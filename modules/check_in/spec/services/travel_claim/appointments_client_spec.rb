@@ -42,5 +42,60 @@ RSpec.describe TravelClaim::AppointmentsClient do
         correlation_id:
       )
     end
+
+    it 'raises BackendServiceException when the Travel Claim API call fails' do
+      allow(client).to receive(:perform).and_raise(Common::Exceptions::BackendServiceException, 'API call failed')
+
+      expect do
+        client.find_or_create_appointment(
+          tokens:,
+          appointment_date_time:,
+          facility_id:,
+          patient_icn:,
+          correlation_id:
+        )
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+  end
+
+  describe 'private methods' do
+    describe '#build_appointment_body' do
+      it 'builds correct request body with camelCase keys' do
+        result = client.send(:build_appointment_body,
+                             appointment_date_time: '2024-01-15T10:00:00Z',
+                             facility_id: 'facility-123',
+                             patient_icn: '123V456')
+
+        expect(result).to eq({
+                               appointmentDateTime: '2024-01-15T10:00:00Z',
+                               facilityId: 'facility-123',
+                               patientIcn: '123V456'
+                             })
+      end
+    end
+
+    describe '#build_appointment_headers' do
+      it 'builds headers with authentication tokens and correlation ID' do
+        result = client.send(:build_appointment_headers, tokens, correlation_id)
+
+        expect(result).to include(
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer veis-token-123',
+          'X-BTSSS-Token' => 'btsss-token-456',
+          'X-Correlation-ID' => 'correlation-123'
+        )
+      end
+
+      it 'includes claim headers from base client' do
+        allow(client).to receive(:settings).and_return(
+          double('Settings', subscription_key: 'test-subscription-key')
+        )
+        allow(Settings).to receive(:vsp_environment).and_return('development')
+
+        result = client.send(:build_appointment_headers, tokens, correlation_id)
+
+        expect(result).to include('Ocp-Apim-Subscription-Key' => 'test-subscription-key')
+      end
+    end
   end
 end

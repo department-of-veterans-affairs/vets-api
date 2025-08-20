@@ -120,6 +120,24 @@ RSpec.describe TravelClaim::AppointmentsService do
       result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       expect(result[:data]).to be_nil
     end
+
+    it 'handles Redis client failures gracefully' do
+      allow(redis_client).to receive(:icn).and_raise(Redis::ConnectionError, 'Redis connection failed')
+      allow(Rails.logger).to receive(:error)
+
+      expect do
+        service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
+      end.to raise_error(Redis::ConnectionError)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'Travel Claim API error',
+        hash_including(
+          uuid: check_in_session.uuid,
+          error_class: 'Redis::ConnectionError',
+          error_message: 'Redis connection failed'
+        )
+      )
+    end
   end
 
   describe 'inheritance and modules' do
@@ -127,8 +145,8 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(described_class.superclass).to eq(Object)
     end
 
-    it 'includes SentryLogging' do
-      expect(described_class.included_modules).to include(SentryLogging)
+    it 'is a plain class without SentryLogging' do
+      expect(described_class.included_modules).not_to include(SentryLogging)
     end
   end
 
@@ -143,6 +161,50 @@ RSpec.describe TravelClaim::AppointmentsService do
 
         service.send(:patient_icn)
         service.send(:patient_icn) # Second call should use memoized value
+      end
+    end
+
+    describe '#valid_iso_format?' do
+      it 'returns true for valid ISO 8601 strings' do
+        expect(service.send(:valid_iso_format?, '2024-01-15T10:00:00Z')).to be true
+        expect(service.send(:valid_iso_format?, '2024-01-15T10:00:00.000Z')).to be true
+      end
+
+      it 'returns false for invalid date strings' do
+        expect(service.send(:valid_iso_format?, 'invalid-date')).to be false
+        expect(service.send(:valid_iso_format?, '0000-00-0T00:00:00.000Z')).to be false
+      end
+
+      it 'returns false for non-string inputs' do
+        expect(service.send(:valid_iso_format?, nil)).to be false
+        expect(service.send(:valid_iso_format?, 123)).to be false
+        expect(service.send(:valid_iso_format?, Date.new(2024, 1, 15))).to be false
+      end
+    end
+
+    describe '#make_appointment_request' do
+      it 'calls client with correct parameters' do
+        tokens = { veis_token: 'test-veis', btsss_token: 'test-btsss' }
+        mock_response = double('Response', body: { 'data' => [{ 'id' => 'test-appointment' }] })
+
+        expect(client).to receive(:find_or_create_appointment).with(
+          tokens:,
+          appointment_date_time:,
+          facility_id:,
+          patient_icn:,
+          correlation_id:
+        ).and_return(mock_response)
+
+        service.send(:make_appointment_request, tokens, appointment_date_time, facility_id, correlation_id)
+      end
+    end
+
+    describe '#redis_client' do
+      it 'memoizes the Redis client' do
+        expect(TravelClaim::RedisClient).to receive(:build).once.and_return(redis_client)
+
+        service.send(:redis_client)
+        service.send(:redis_client) # Second call should use memoized value
       end
     end
   end
