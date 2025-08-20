@@ -2167,6 +2167,14 @@ features:
       A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
       Enabled - Entry point link and claim details page are viewable.
       Disabled - Entry point link and claim details page are not viewable.
+    travel_pay_enable_complex_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles availability of the expense submission feature for travel pay claims. This feature flag can be retired when the feature is deployed
+      to 100% of logged-in users in production for > 30 days
+      Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
