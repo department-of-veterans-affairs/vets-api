@@ -8,29 +8,29 @@
     "link": [
         {
             "relation": "self",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_bundletype=searchset&_count=2&_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=6&_pretty=true"
+            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_bundletype=searchset&_count=2&_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=4&_pretty=true"
         },
         {
             "relation": "next",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=8&_count=2&_pretty=true&_bundletype=searchset"
+            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=6&_count=2&_pretty=true&_bundletype=searchset"
         },
         {
             "relation": "previous",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=4&_count=2&_pretty=true&_bundletype=searchset"
+            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=2&_count=2&_pretty=true&_bundletype=searchset"
         }
     ],
     "entry": [
         {
-            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/759",
+            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/757",
             "resource": {
                 "resourceType": "Observation",
-                "id": "759",
+                "id": "757",
                 "meta": {
                     "versionId": "1",
                     "lastUpdated": "2025-03-28T12:03:06.810-04:00",
                     "source": "#N4FPkGWwKji2IKWa",
                     "profile": [
-                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.vitals"
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.vitalsPain"
                     ]
                 },
                 "contained": [
@@ -46,17 +46,17 @@
                             {
                                 "use": "usual",
                                 "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
-                                "value": "HospitalLocationTO.3669"
+                                "value": "HospitalLocationTO.161"
                             }
                         ],
-                        "name": "ADTP BURNETT"
+                        "name": "DENTAL DWIGHT PEMBERTON"
                     }
                 ],
                 "identifier": [
                     {
                         "use": "usual",
                         "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
-                        "value": "VitalSignTO.6546076"
+                        "value": "VitalSignTO.6545980"
                     }
                 ],
                 "status": "final",
@@ -74,21 +74,21 @@
                     "coding": [
                         {
                             "system": "http://loinc.org",
-                            "code": "8310-5",
-                            "display": "Body temperature"
+                            "code": "72514-3",
+                            "display": "Pain severity - 0-10 verbal numeric rating [Score] - Reported"
                         },
                         {
                             "system": "urn:oid:2.16.840.1.113883.6.233",
-                            "code": "4500638",
-                            "display": "TEMPERATURE"
+                            "code": "4500635",
+                            "display": "PAIN"
                         }
                     ],
-                    "text": "TEMPERATURE"
+                    "text": "PAIN"
                 },
                 "subject": {
                     "reference": "Patient/703"
                 },
-                "effectiveDateTime": "2024-04-12T09:15:00-04:00",
+                "effectiveDateTime": "2024-04-12T11:59:24-04:00",
                 "performer": [
                     {
                         "extension": [
@@ -99,31 +99,26 @@
                                 }
                             }
                         ],
-                        "display": "ADTP BURNETT"
+                        "display": "DENTAL DWIGHT PEMBERTON"
                     }
                 ],
-                "valueQuantity": {
-                    "value": 99.5,
-                    "unit": "F",
-                    "system": "http://unitsofmeasure.org",
-                    "code": "[degF]"
-                }
+                "valueInteger": 10
             },
             "search": {
                 "mode": "match"
             }
         },
         {
-            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/760",
+            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/758",
             "resource": {
                 "resourceType": "Observation",
-                "id": "760",
+                "id": "758",
                 "meta": {
                     "versionId": "1",
                     "lastUpdated": "2025-03-28T12:03:06.810-04:00",
                     "source": "#N4FPkGWwKji2IKWa",
                     "profile": [
-                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.vitals"
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.vitalsPain"
                     ]
                 },
                 "contained": [
@@ -139,17 +134,17 @@
                             {
                                 "use": "usual",
                                 "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
-                                "value": "HospitalLocationTO.3669"
+                                "value": "HospitalLocationTO.4544"
                             }
                         ],
-                        "name": "ADTP BURNETT"
+                        "name": "TEST"
                     }
                 ],
                 "identifier": [
                     {
                         "use": "usual",
                         "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
-                        "value": "VitalSignTO.6546075"
+                        "value": "VitalSignTO.6545979"
                     }
                 ],
                 "status": "final",
@@ -167,21 +162,21 @@
                     "coding": [
                         {
                             "system": "http://loinc.org",
-                            "code": "8310-5",
-                            "display": "Body temperature"
+                            "code": "72514-3",
+                            "display": "Pain severity - 0-10 verbal numeric rating [Score] - Reported"
                         },
                         {
                             "system": "urn:oid:2.16.840.1.113883.6.233",
-                            "code": "4500638",
-                            "display": "TEMPERATURE"
+                            "code": "4500635",
+                            "display": "PAIN"
                         }
                     ],
-                    "text": "TEMPERATURE"
+                    "text": "PAIN"
                 },
                 "subject": {
                     "reference": "Patient/703"
                 },
-                "effectiveDateTime": "2024-04-11T09:10:00-04:00",
+                "effectiveDateTime": "2024-04-12T11:58:39-04:00",
                 "performer": [
                     {
                         "extension": [
@@ -192,15 +187,10 @@
                                 }
                             }
                         ],
-                        "display": "ADTP BURNETT"
+                        "display": "TEST"
                     }
                 ],
-                "valueQuantity": {
-                    "value": 99,
-                    "unit": "F",
-                    "system": "http://unitsofmeasure.org",
-                    "code": "[degF]"
-                }
+                "valueInteger": 8
             },
             "search": {
                 "mode": "match"

@@ -9,7 +9,7 @@
     "link": [
         {
             "relation": "self",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_bundletype=searchset&_count=2&_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=56&_pretty=true"
+            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_bundletype=searchset&_count=2&_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=8&_pretty=true"
         },
         {
             "relation": "previous",

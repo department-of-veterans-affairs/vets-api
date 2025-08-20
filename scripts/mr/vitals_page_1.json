@@ -2,29 +2,25 @@
     "resourceType": "Bundle",
     "id": "a97adfd5-4342-4406-b316-95dab282c425",
     "meta": {
-        "lastUpdated": "2025-08-19T03:08:12.127-04:00"
+        "lastUpdated": "2025-08-19T14:01:40.982-04:00"
     },
     "type": "searchset",
     "link": [
         {
             "relation": "self",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_bundletype=searchset&_count=2&_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=2&_pretty=true"
+            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation?_count=2&patient=703"
         },
         {
             "relation": "next",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=4&_count=2&_pretty=true&_bundletype=searchset"
-        },
-        {
-            "relation": "previous",
-            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=0&_count=2&_pretty=true&_bundletype=searchset"
+            "url": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir?_getpages=a97adfd5-4342-4406-b316-95dab282c425&_getpagesoffset=2&_count=2&_pretty=true&_bundletype=searchset"
         }
     ],
     "entry": [
         {
-            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/755",
+            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/753",
             "resource": {
                 "resourceType": "Observation",
-                "id": "755",
+                "id": "753",
                 "meta": {
                     "versionId": "1",
                     "lastUpdated": "2025-03-28T12:03:06.810-04:00",
@@ -56,7 +52,7 @@
                     {
                         "use": "usual",
                         "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
-                        "value": "VitalSignTO.6546078"
+                        "value": "VitalSignTO.6546080"
                     }
                 ],
                 "status": "final",
@@ -88,7 +84,7 @@
                 "subject": {
                     "reference": "Patient/703"
                 },
-                "effectiveDateTime": "2024-04-14T07:00:00-04:00",
+                "effectiveDateTime": "2024-04-16T07:00:00-04:00",
                 "performer": [
                     {
                         "extension": [
@@ -103,7 +99,7 @@
                     }
                 ],
                 "valueQuantity": {
-                    "value": 99.5,
+                    "value": 101,
                     "unit": "F",
                     "system": "http://unitsofmeasure.org",
                     "code": "[degF]"
@@ -114,10 +110,10 @@
             }
         },
         {
-            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/756",
+            "fullUrl": "https://mhv-np-fhir-api.mhv-np-services.svc.cluster.local:8443/fhir/Observation/754",
             "resource": {
                 "resourceType": "Observation",
-                "id": "756",
+                "id": "754",
                 "meta": {
                     "versionId": "1",
                     "lastUpdated": "2025-03-28T12:03:06.810-04:00",
@@ -149,7 +145,7 @@
                     {
                         "use": "usual",
                         "system": "urn:oid:2.16.840.1.113883.4.349.4.984",
-                        "value": "VitalSignTO.6546077"
+                        "value": "VitalSignTO.6546079"
                     }
                 ],
                 "status": "final",
@@ -181,7 +177,7 @@
                 "subject": {
                     "reference": "Patient/703"
                 },
-                "effectiveDateTime": "2024-04-13T08:10:00-04:00",
+                "effectiveDateTime": "2024-04-15T06:00:00-04:00",
                 "performer": [
                     {
                         "extension": [
@@ -196,7 +192,7 @@
                     }
                 ],
                 "valueQuantity": {
-                    "value": 99,
+                    "value": 100,
                     "unit": "F",
                     "system": "http://unitsofmeasure.org",
                     "code": "[degF]"
