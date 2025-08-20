@@ -212,7 +212,7 @@ jobs:
             done
 
             echo "Team Approvals: $TEAM_APPROVALS"
-            if [ "${team_approval_status]" == "false" ]; then
+            if [ "${team_approval_status}" == "false" ]; then
               echo "TEAM APPROVAL REQUIRED"
               team_approval_status=required
             else
