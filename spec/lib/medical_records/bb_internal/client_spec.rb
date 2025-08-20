@@ -76,7 +76,6 @@ describe BBInternal::Client do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
-        expect(studies.first).to have_key('studyIdUrn')
 
         expect(Rails.logger).not_to have_received(:info)
           .with(message: /Assigned studyIdUrn to new UUID/i)
@@ -91,7 +90,6 @@ describe BBInternal::Client do
       VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
-        expect(studies.first).to have_key('studyIdUrn')
         expect(studies.first).to have_key('studyIdUrn')
 
         expect(Rails.logger).to have_received(:info)
