@@ -108,7 +108,7 @@ jobs:
         if: steps.get_pr_data.outputs.pr_draft == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ needs.get-pr-data.outputs.pr_number }}
+          number: ${{ steps.get-pr-data.outputs.pr_number }}
           labels: ready-for-backend-review
 
       - name: Remove ready-for-review label
@@ -193,8 +193,8 @@ jobs:
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
     outputs:
-      exempt_team: ${{ needs.verify_approval.outputs.exempt_team }}
-      backend_approval_required: ${{ needs.verify_approval.outputs.backend_approval_required }}
+      exempt_team: ${{ steps.verify_approval.outputs.exempt_team }}
+      backend_approval_required: ${{ steps.verify_approval.outputs.backend_approval_required }}
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
