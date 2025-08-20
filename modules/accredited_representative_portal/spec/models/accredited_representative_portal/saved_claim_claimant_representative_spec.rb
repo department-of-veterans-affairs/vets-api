@@ -73,36 +73,6 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimClaimantRepresentative,
         create(:saved_claim_claimant_representative, saved_claim:)
         expect(described_class.for_power_of_attorney_holders([])).to be_none
       end
-
-      # it 'matches rows whose prefixed columns equal any of the given holder hashes' do
-      #   holder_a = poa_hash('A')
-      #   holder_b = poa_hash('B')
-      #   holder_c = poa_hash('C')
-
-      #   rec_a = create(
-      #     :saved_claim_claimant_representative,
-      #     saved_claim: create(:saved_claim_benefits_intake),
-      #     **prefixed_attrs(holder_a)
-      #   )
-      #   rec_b = create(
-      #     :saved_claim_claimant_representative,
-      #     saved_claim: create(:saved_claim_benefits_intake),
-      #     **prefixed_attrs(holder_b)
-      #   )
-      #   create(
-      #     :saved_claim_claimant_representative,
-      #     saved_claim: create(:saved_claim_benefits_intake),
-      #     **prefixed_attrs(holder_c)
-      #   )
-
-      #   poa_holders = [
-      #     instance_double(DummyPOAHolder, to_h: holder_a),
-      #     instance_double(DummyPOAHolder, to_h: holder_b)
-      #   ]
-
-      #   result = described_class.for_power_of_attorney_holders(poa_holders)
-      #   expect(result).to contain_exactly(rec_a, rec_b)
-      # end
     end
 
     describe '.sorted_by' do
