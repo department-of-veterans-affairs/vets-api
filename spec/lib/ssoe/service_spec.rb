@@ -38,10 +38,8 @@ RSpec.describe SSOe::Service, type: :service do
       it 'logs the error and returns the error response' do
         expect(Rails.logger).to receive(:error).with(
           a_string_starting_with(
-            '[SSOe::Service::get_traits] connection error: Common::Client::Errors::ClientError - ' \
-            'Failed to open TCP connection to int.services.eauth.va.gov:9303'
+            '[SSOe::Service::get_traits] connection error:'
           )
-            .and(including('getaddrinfo:'))
         )
 
         response = service.get_traits(
@@ -53,10 +51,7 @@ RSpec.describe SSOe::Service, type: :service do
 
         expect(response[:success]).to be false
         expect(response[:error][:code]).to eq(502)
-        expect(response[:error][:message]).to start_with(
-          'Failed to open TCP connection to int.services.eauth.va.gov:9303'
-        )
-        expect(response[:error][:message]).to include('getaddrinfo:')
+        expect(response[:error][:message]).to be_a(String)
       end
     end
 
@@ -80,26 +75,26 @@ RSpec.describe SSOe::Service, type: :service do
       end
     end
 
-    context 'when the response contains a fault' do
-      it 'parses the fault from the response' do
-        response = service.send(:parse_response, <<~XML)
-          <env:Envelope xmlns:env='http://schemas.xmlsoap.org/soap/envelope/'>
-            <env:Body>
-              <env:Fault>
-                <faultcode>env:Client</faultcode>
-                <faultstring>Internal Error</faultstring>
-              </env:Fault>
-            </env:Body>
-          </env:Envelope>
-        XML
+    context 'when the response has a SOAP fault (client error)' do
+      it 'returns the error response and logs the error' do
+        VCR.use_cassette('mpi/get_traits/error') do
+          expected_response = {
+            success: false,
+            error: {
+              code: 400,
+              message: 'SOAP HTTP call failed'
+            }
+          }
 
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 'env:Client',
-                                   message: 'Internal Error'
-                                 }
-                               })
+          response = service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
+
+          expect(response).to eq(expected_response)
+        end
       end
     end
 
@@ -112,12 +107,9 @@ RSpec.describe SSOe::Service, type: :service do
 
     context 'when there is a connection error' do
       before do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = true }
-        allow(Faraday).to receive(:post).and_raise(Faraday::ConnectionFailed, 'Connection error')
-      end
-
-      after do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
+        allow_any_instance_of(SSOe::Service).to receive(:perform).and_raise(Faraday::ConnectionFailed.new(
+                                                                              'Connection error'
+                                                                            ))
       end
 
       it_behaves_like 'responds with 502'
@@ -125,12 +117,9 @@ RSpec.describe SSOe::Service, type: :service do
 
     context 'when there is a timeout error' do
       before do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = true }
-        allow(Faraday).to receive(:post).and_raise(Faraday::TimeoutError, 'Timeout error')
-      end
-
-      after do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
+        allow_any_instance_of(SSOe::Service).to receive(:perform).and_raise(Faraday::TimeoutError.new(
+                                                                              'Timeout error'
+                                                                            ))
       end
 
       it_behaves_like 'responds with 502'

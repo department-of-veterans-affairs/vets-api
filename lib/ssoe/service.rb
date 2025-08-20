@@ -13,6 +13,7 @@ module SSOe
     STATSD_KEY_PREFIX = 'api.ssoe'
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
+      Faraday::TimeoutError,
       Common::Client::Errors::ClientError,
       Common::Exceptions::GatewayTimeout,
       Breakers::OutageException
@@ -28,6 +29,8 @@ module SSOe
         )
         parse_response(raw_response.body)
       end
+    rescue Common::Client::Errors::ClientError => e
+      error_response(e, :client, e.status)
     rescue *CONNECTION_ERRORS => e
       return parse_response(e.response.body) if e.respond_to?(:response) && e.response&.body
 
@@ -68,7 +71,7 @@ module SSOe
     end
 
     def parse_response(response_body)
-      parsed = Hash.from_xml(response_body)
+      parsed = Hash.from_xml(Ox.dump(response_body))
       icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
       return { success: true, icn: } if icn.present?
 
