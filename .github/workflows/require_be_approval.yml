@@ -126,6 +126,8 @@ jobs:
           backend_approval_required=true
           exempt_be_review=false
           backend_approval=false
+          review_complete=false
+
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -183,7 +185,7 @@ jobs:
                 if [[ "$membership_state" == "active" ]]; then
                   echo "$approve is an active member of $TEAM"
                   review_complete=true
-                  exempt_team=true
+                  exempt_be_review=true
                   backend_approval_required=false
                   approval_status=confirmed
                 fi
