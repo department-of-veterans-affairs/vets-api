@@ -78,7 +78,6 @@ class SimpleCovHelper
     add_filter 'version.rb'
     add_filter 'db'
     add_filter 'modules/*/db/*'
-
   end
 
   def self.add_modules
