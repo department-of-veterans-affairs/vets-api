@@ -6,9 +6,7 @@ module TravelClaim
   # Gets authentication tokens from the provided AuthManager.
   #
   class AppointmentsService
-    # @!attribute [r] auth_manager
-    #   @return [TravelClaim::AuthManager] Authentication manager
-    # @!attribute [r] check_in_session
+
     #   @return [CheckIn::V2::Session, nil] Check-in session
     attr_reader :auth_manager, :check_in_session
 
@@ -55,10 +53,10 @@ module TravelClaim
 
     def validate_appointment_date_time(appointment_date_time)
       if appointment_date_time.nil?
-        Rails.logger.error(message: 'Invalid appointment date provided (appointment date cannot be nil).')
+        Rails.logger.error('Invalid appointment date provided (appointment date cannot be nil).')
         raise ArgumentError, 'Invalid appointment date provided (appointment date cannot be nil).'
       elsif !valid_iso_format?(appointment_date_time)
-        Rails.logger.error(message: 'Invalid appointment date format. Expected ISO 8601 format.')
+        Rails.logger.error('Invalid appointment date format. Expected ISO 8601 format.')
         raise ArgumentError, 'Invalid appointment date format. Expected ISO 8601 format.'
       end
     end
