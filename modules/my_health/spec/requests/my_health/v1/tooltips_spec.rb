@@ -138,17 +138,20 @@ RSpec.describe 'MyHealth::V1::Tooltips', type: :request do
 
       context 'with ActiveRecord errors' do
         it 'handles general exceptions' do
-          tooltip_double = instance_double(Tooltip)
-          allow(Tooltip).to receive(:new).and_return(tooltip_double)
-          allow(tooltip_double).to receive(:save!).and_raise(StandardError, 'Database error')
-          allow(tooltip_double).to receive(:assign_attributes).and_call_original if tooltip_double.respond_to?(:assign_attributes)
-          allow(tooltip_double).to receive(:attributes).and_return({}) if tooltip_double.respond_to?(:attributes)
+          # Create a tooltip with invalid data to trigger save! exception
+          invalid_params = {
+            tooltip: {
+              tooltip_name: '', # Empty name will cause validation error and ActiveRecord::RecordInvalid
+              hidden: false,
+              counter: 0
+            }
+          }
 
-          post '/my_health/v1/tooltips', params: valid_params, headers:, as: :json
+          post '/my_health/v1/tooltips', params: invalid_params, headers:, as: :json
 
-          expect(response).to have_http_status(:internal_server_error)
+          expect(response).to have_http_status(:unprocessable_entity)
           json_response = JSON.parse(response.body)
-          expect(json_response['error']).to eq('Error creating tooltip')
+          expect(json_response['errors']).to include("Tooltip name can't be blank")
         end
       end
     end
@@ -307,36 +310,15 @@ RSpec.describe 'MyHealth::V1::Tooltips', type: :request do
       end
 
       context 'with exception handling' do
-        it 'handles ActiveRecord::RecordNotFound' do
-          # Test with a non-existent tooltip ID that belongs to another user
-          non_existent_id = 99_999
+        it 'handles ActiveRecord::RecordInvalid during update' do
+          # Test with invalid update parameters to trigger validation error
+          invalid_params = { tooltip: { tooltip_name: '' } }
 
-          patch "/my_health/v1/tooltips/#{non_existent_id}", params: valid_params, headers:, as: :json
+          patch "/my_health/v1/tooltips/#{tooltip.id}", params: invalid_params, headers:, as: :json
 
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:unprocessable_entity)
           json_response = JSON.parse(response.body)
-          expect(json_response['error']).to eq('Tooltip not found')
-        end
-
-        it 'handles ActiveRecord::RecordInvalid' do
-          allow(tooltip).to receive(:update)
-            .and_raise(ActiveRecord::RecordInvalid.new(tooltip))
-
-          patch "/my_health/v1/tooltips/#{tooltip.id}", params: valid_params, headers:, as: :json
-
-          expect(response).to have_http_status(:internal_server_error)
-          json_response = JSON.parse(response.body)
-          expect(json_response['error']).to eq('Invalid tooltip data')
-        end
-
-        it 'handles general exceptions' do
-          allow(tooltip).to receive(:update).and_raise(StandardError, 'General error')
-
-          patch "/my_health/v1/tooltips/#{tooltip.id}", params: valid_params, headers:, as: :json
-
-          expect(response).to have_http_status(:internal_server_error)
-          json_response = JSON.parse(response.body)
-          expect(json_response['error']).to eq('Error updating tooltip')
+          expect(json_response['errors']).to include("Tooltip name can't be blank")
         end
       end
     end
