@@ -107,11 +107,11 @@ module BGS
 
       @monitor.track_event('debug', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
-    rescue => e
+    rescue
       @monitor.track_event('warn',
                            'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
-      raise PDFSubmissionError, e.message
+                           "#{STATS_KEY}.submit_pdf.failure")
+      raise PDFSubmissionError
     end
 
     def submit_claim_via_claims_evidence(claim)
@@ -142,7 +142,7 @@ module BGS
 
       # compensate for the abnormal nature of 674 V2 submissions
       if form_674_pdfs.length > 1
-        file_uuid = form_674_pdfs.map { |fp| fp[0] } # rubocop:disable Rails/Pluck
+        file_uuid = form_674_pdfs.map { |fp| fp[0] }
         submission = claims_evidence_uploader.submission
         submission.update_reference_data(students: form_674_pdfs)
         submission.file_uuid = file_uuid.to_s # set to stringified array

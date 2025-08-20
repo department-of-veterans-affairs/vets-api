@@ -124,10 +124,6 @@ features:
     actor_type: user
     description: Enables the After Visit Summary API.
     enable_in_development: true
-  bcas_letters_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view/download benefit letters.
-    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -207,10 +203,6 @@ features:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
     enable_in_development: true
-  ezr_use_correct_format_for_file_uploads:
-    actor_type: user
-    description: Correctly formats the `va:attachments` XML for file uploads
-    enable_in_development: true
   ezr_route_guard_enabled:
     actor_type: user
     description: Enables the route guard authentication for 10-10EZR application
@@ -280,9 +272,15 @@ features:
   champva_claims_llm_validation:
     actor_type: user
     description: Enables LLM validation of claims on form submissions
+  champva_resubmission_attachment_ids:
+    actor_type: user
+    description: Corrects attachment IDs for resubmission of form 10-7959a
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_ves_retry_failures_job:
+    actor_type: user
+    description: Enables the sidekiq job to retry VES submissions that failed
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -414,10 +412,6 @@ features:
   lighthouse_claims_api_hardcode_wsdl:
     actor_type: user
     description: Use hardcoded namespaces for WSDL calls to BGS
-    enable_in_development: true
-  cst_5103_update_enabled:
-    actor_type: user
-    description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
     enable_in_development: true
   cst_show_document_upload_status:
     actor_type: user
@@ -679,6 +673,10 @@ features:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
     enable_in_development: true
+  disability_526_show_confirmation_review:
+    actor_type: user
+    description: enables showing a submission review section on the 526 confirmation page
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -729,16 +727,16 @@ features:
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
-  disability_526_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in disability 526 applications
   disability_526_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in disability 526 applications
-  disability_526_form4142_use_2024_frontend:
+  disability_526_form4142_use_2024_version:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
+  disability_526_track_saved_claim_error:
+    actor_type: user
+    description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1074,10 +1072,6 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
-  letters_check_discrepancies:
-    actor_type: user
-    description: Enables ability to log letter discrepancies between evss and lighthouse
-    enable_in_development: true
   letters_page_new_design:
     actor_type: user
     description: Enables ability to show updated letter page design
@@ -1132,6 +1126,14 @@ features:
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_care_notes_enabled:
+    actor_type: user
+    description: Control fetching OH care summary and notes data
+    enable_in_development: false
+  mhv_accelerated_delivery_conditions_enabled:
+    actor_type: user
+    description: Control fetching OH health condition data
     enable_in_development: false
   mhv_accelerated_delivery_labs_and_tests_enabled:
     actor_type: user
@@ -2125,6 +2127,10 @@ features:
     actor_type: user
     description: Enable the Intent to File for Pension
     enable_in_development: true
+  pension_itf_skip_missing_person_error_enabled:
+    actor_type: user
+    description: Enable ability to skip the missing person error when creating an ITF for Pension
+    enable_in_development: true
   pension_itf_show_alert:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension
@@ -2304,6 +2310,18 @@ features:
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
+  meb_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpointå
+    enable_in_development: false
+  toe_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpoint
+    enable_in_development: false
+  dea_fry_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpoint
+    enable_in_development: false
   accredited_representative_portal_sort_by:
     actor_type: user
     description: Enables sort by in POA Request Search page
