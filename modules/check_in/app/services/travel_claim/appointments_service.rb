@@ -53,9 +53,20 @@ module TravelClaim
 
     def validate_appointment_date_time(appointment_date_time)
       if appointment_date_time.nil?
-        Rails.logger.error(message: 'Invalid appointment time provided (appointment time cannot be nil).')
-        raise ArgumentError, 'Invalid appointment time provided (appointment time cannot be nil).'
+        Rails.logger.error(message: 'Invalid appointment date provided (appointment date cannot be nil).')
+        raise ArgumentError, 'Invalid appointment date provided (appointment date cannot be nil).'
+      elsif !valid_iso_format?(appointment_date_time)
+        Rails.logger.error(message: 'Invalid appointment date format. Expected ISO 8601 format.')
+        raise ArgumentError, 'Invalid appointment date format. Expected ISO 8601 format.'
       end
+    end
+
+    def valid_iso_format?(date_string)
+      return false unless date_string.is_a?(String)
+
+      # ISO 8601 regex pattern: YYYY-MM-DDTHH:MM:SS.sssZ
+      iso_pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/
+      iso_pattern.match?(date_string)
     end
 
     def patient_icn

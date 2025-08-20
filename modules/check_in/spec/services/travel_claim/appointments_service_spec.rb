@@ -59,7 +59,26 @@ RSpec.describe TravelClaim::AppointmentsService do
     it 'validates appointment parameters' do
       expect do
         service.find_or_create_appointment(appointment_date_time: nil, facility_id:, correlation_id:)
-      end.to raise_error(ArgumentError, /appointment time cannot be nil/)
+      end.to raise_error(ArgumentError, /appointment date cannot be nil/)
+    end
+
+    it 'validates ISO format for appointment date' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: 'invalid-date', facility_id:, correlation_id:)
+      end.to raise_error(ArgumentError, /Expected ISO 8601 format/)
+    end
+
+    it 'accepts valid ISO format dates' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: '2024-01-15T10:00:00Z', facility_id:, correlation_id:)
+      end.not_to raise_error
+    end
+
+    it 'rejects malformed ISO dates' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: '0000-00-0T00:00:00.000Z', facility_id:,
+                                           correlation_id:)
+      end.to raise_error(ArgumentError, /Expected ISO 8601 format/)
     end
 
     it 'delegates to appointments client with correlation_id' do
