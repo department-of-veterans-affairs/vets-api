@@ -8,12 +8,6 @@ module AccreditedRepresentativePortal
     class ManualRemediation < ::ZeroSilentFailures::ManualRemediation::SavedClaim
       private
 
-      # specify the claim class to be used
-      def claim_class
-        proper_form_id = claim.proper_form_id
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.form_class_from_proper_form_id(proper_form_id)
-      end
-
       # override - add additional stamps
       # @see ZeroSilentFailures::ManualRemediation::SavedClaim#stamps
       #
@@ -43,20 +37,23 @@ module AccreditedRepresentativePortal
       #
       # @return [Hash]
       def generate_metadata
-        base = super
+        attempt = claim.latest_submission_attempt
+        form = claim.parsed_form
 
-        attempt = FormSubmissionAttempt
-                  .joins(:form_submission)
-                  .where(form_submissions: { saved_claim_id: claim.id })
-                  .order(id: :asc)
-                  .last
-
-        arp = {
+        {
+          claimId: claim.id,
+          docType: claim.form_id,
+          formStartDate: claim.created_at,
+          claimSubmissionDate: claim.created_at,
+          claimConfirmation: attempt.benefits_intake_uuid,
+          fileNumber: form['dependent']['ssn'] || form['veteran']['ssn'],
+          businessLine: claim.business_line,
           lighthouseBenefitIntakeSubmissionUUID: attempt&.benefits_intake_uuid,
-          lighthouseBenefitIntakeSubmissionDate: attempt&.created_at
+          lighthouseBenefitIntakeSubmissionDate: attempt&.created_at,
+          veteranFirstName: form['veteran']['name']['first'],
+          veteranLastName: form['veteran']['name']['last'],
+          zipCode: form['veteran']['postalCode']
         }
-
-        base.merge(arp)
       end
     end
   end
