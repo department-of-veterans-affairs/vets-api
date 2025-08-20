@@ -32,9 +32,21 @@
   "providers": [
     {
       "insuranceName": "MyInsurance",
-      "insurancePolicyHolderName": "FirstName ZZTEST ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ",
+      "insurancePolicyHolderName": "FirstName",
       "insurancePolicyNumber": "P1234",
       "insuranceGroupCode": "G1234"
+    },
+    {
+      "insuranceName": "My Other Insurance",
+      "insurancePolicyHolderName": "FirstName",
+      "insurancePolicyNumber": "P22222",
+      "insuranceGroupCode": "D8888888"
+    },
+    {
+      "insuranceName": "Yet Another Insurance",
+      "insurancePolicyHolderName": "FirstName",
+      "insurancePolicyNumber": "P33333",
+      "insuranceGroupCode": "D244444"
     }
   ],
   "isMedicaidEligible": true,
