@@ -2721,7 +2721,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: [ ]
-      summary: /v0/medical_copays/download{id}
+      summary: /v0/medical_copays/download/{id}
   /v0/messaging/health/folders:
     get:
       description: List available secure messaging folders
