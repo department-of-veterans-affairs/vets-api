@@ -53,13 +53,15 @@ RSpec.describe TravelClaim::BaseClient do
     end
   end
 
-  describe '#connection' do
-    it 'returns a Faraday connection' do
-      with_settings(Settings.check_in.travel_reimbursement_api_v2, service_name: 'BTSSS-API') do
-        conn = client.send(:connection, server_url: 'https://example.com')
-        expect(conn).to be_a(Faraday::Connection)
-        expect(conn.url_prefix.to_s).to eq('https://example.com/')
-      end
+  describe '#config' do
+    it 'returns a TravelClaim::Configuration instance' do
+      expect(client.config).to be_an_instance_of(TravelClaim::Configuration)
+    end
+  end
+
+  describe 'inheritance' do
+    it 'inherits from Common::Client::Base' do
+      expect(described_class.superclass).to eq(Common::Client::Base)
     end
   end
 end
