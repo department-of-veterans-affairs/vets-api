@@ -2,9 +2,25 @@
 
 require 'res/ch31_form'
 require 'vets/shared_logging'
-
+require 'openssl'
+require 'base64'
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
+
+  # Encryption key for sensitive data (should be stored securely in ENV or Rails credentials)
+  ENCRYPTION_KEY = ENV['VRE_SSN_ENCRYPTION_KEY'] || Rails.application.credentials.vre_ssn_encryption_key
+
+  def encrypt_sensitive_data(data)
+    cipher = OpenSSL::Cipher.new('aes-256-gcm')
+    cipher.encrypt
+    cipher.key = ENCRYPTION_KEY
+    iv = cipher.random_iv
+    cipher.auth_data = ''
+    encrypted = cipher.update(data.to_s) + cipher.final
+    tag = cipher.auth_tag
+    # Store as base64 for JSON compatibility
+    Base64.strict_encode64(iv + tag + encrypted)
+  end
 
   FORM = '28-1900'
   FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
@@ -195,7 +211,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_lighthouse!(user)
     form_copy = parsed_form.clone
 
-    form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
+    ssn = parsed_form.dig('veteranInformation', 'ssn')
+    form_copy['veteranSocialSecurityNumber'] = ssn.present? ? encrypt_sensitive_data(ssn) : nil
     form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
