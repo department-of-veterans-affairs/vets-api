@@ -6,7 +6,6 @@ module TravelClaim
   # Gets authentication tokens from the provided AuthManager.
   #
   class AppointmentsService
-
     # @!attribute [r] auth_manager
     #   @return [TravelClaim::AuthManager] Authentication manager
     # @!attribute [r] check_in_session
