@@ -30,7 +30,6 @@ module TravelPay
 
         validate_params!(claim_id, document)
         
-
         Rails.logger.info(
           message: "Creating attachment for claim #{claim_id.slice(0, 8)}"
         )
