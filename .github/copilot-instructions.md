@@ -171,8 +171,17 @@ end
 ✅ Always stub inline with pattern above.
 
 ### ActiveRecord index migrations
-* **Isolate index changes** → do not mix with other schema updates.
-* Always include `disable_ddl_transaction!` and `algorithm: :concurrently`.
+
+#### Isolate index changes
+- If a migration includes `add_index` or `remove_index`, it must only include index changes.
+- Do **not** combine index changes with other table modifications in the same migration.
+
+#### Avoid locking
+- A migration that includes `add_index` or `remove_index` must also:
+  - Use `algorithm: :concurrently`
+  - Include `disable_ddl_transaction!`
+  
+This prevents table locking during deployment.
 
 ---
 
