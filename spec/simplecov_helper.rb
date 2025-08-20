@@ -81,7 +81,6 @@ class SimpleCovHelper
     add_filter 'modules/**/db/*'
     add_filter 'modules/**/lib/tasks/*'
     add_filter '**/rakelib/**/*'
-    add_filter '**/rakelib/*'
     add_filter 'version.rb'
   end
 
