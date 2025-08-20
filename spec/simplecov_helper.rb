@@ -3,7 +3,7 @@
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
-require_relative 'support/codeowners_parser'
+# require_relative 'support/codeowners_parser'
 
 class SimpleCovHelper
   def self.start_coverage
@@ -55,6 +55,7 @@ class SimpleCovHelper
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/clamav/*'
+    add_filter 'lib/clamav/**/*'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
@@ -79,6 +80,8 @@ class SimpleCovHelper
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
     add_filter 'modules/**/db/*'
     add_filter 'modules/**/lib/tasks/*'
+    add_filter '**/rakelib/**/*'
+    add_filter '**/rakelib/*'
     add_filter 'version.rb'
   end
 
