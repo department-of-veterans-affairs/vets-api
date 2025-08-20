@@ -1,18 +1,31 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require_relative 'constants'
 
 module EventBusGateway
   class LetterReadyEmailJob
     include Sidekiq::Job
 
-    sidekiq_options retry: 0
-    NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
-    HOSTNAME_MAPPING = {
-      'dev-api.va.gov' => 'dev.va.gov',
-      'staging-api.va.gov' => 'staging.va.gov',
-      'api.va.gov' => 'www.va.gov'
-    }.freeze
+    include Constants
+
+    STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
+
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job_id = msg['jid']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+      timestamp = Time.now.utc
+
+      ::Rails.logger.error('LetterReadyEmailJob retries exhausted',
+                           { job_id:, timestamp:, error_class:, error_message: })
+      tags = Constants::DD_TAGS + ["function: #{error_message}"]
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
+    end
 
     def perform(participant_id, template_id)
       if get_mpi_profile(participant_id)
@@ -24,6 +37,7 @@ module EventBusGateway
         )
         EventBusGatewayNotification.create(user_account: user_account(participant_id), template_id:,
                                            va_notify_id: response.id)
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
       end
     rescue => e
       record_email_send_failure(e)
@@ -32,7 +46,7 @@ module EventBusGateway
     private
 
     def notify_client
-      @notify_client ||= VaNotify::Service.new(NOTIFY_SETTINGS.api_key,
+      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key,
                                                { callback_klass: 'EventBusGateway::VANotifyEmailStatusCallback' })
     end
 
@@ -73,7 +87,8 @@ module EventBusGateway
     def record_email_send_failure(error)
       error_message = 'LetterReadyEmailJob email error'
       ::Rails.logger.error(error_message, { message: error.message })
-      StatsD.increment('event_bus_gateway', tags: ['service:event-bus-gateway', "function: #{error_message}"])
+      tags = Constants::DD_TAGS + ["function: #{error_message}"]
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.failure", tags:)
     end
   end
 end

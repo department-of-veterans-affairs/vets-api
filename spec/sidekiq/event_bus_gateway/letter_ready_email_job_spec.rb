@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_notify/service'
+require_relative '../../../app/sidekiq/event_bus_gateway/constants'
 
 RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
   subject { described_class }
@@ -40,6 +41,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         .and_return(mpi_profile_response)
       allow_any_instance_of(BGS::PersonWebService)
         .to receive(:find_person_by_ptcpnt_id).and_return(bgs_profile)
+      allow(StatsD).to receive(:increment)
     end
 
     it 'sends an email using VA Notify and creates an EventBusGatewayNotification' do
@@ -49,6 +51,8 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         personalisation: { host: Settings.hostname, first_name: 'Joe' }
       }
       expect(va_notify_service).to receive(:send_email).with(expected_args)
+      expect(StatsD).to receive(:increment)
+        .with("#{described_class::STATSD_METRIC_PREFIX}.success", tags: EventBusGateway::Constants::DD_TAGS)
       expect do
         subject.new.perform(participant_id, template_id)
       end.to change(EventBusGatewayNotification, :count).by(1)
@@ -72,14 +76,14 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
     let(:error_message) { 'LetterReadyEmailJob email error' }
     let(:message_detail) { 'StandardError' }
-    let(:tags) { ['service:event-bus-gateway', "function: #{error_message}"] }
+    let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
     it 'does not send an email, logs the error, and increments the statsd metric' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger)
         .to receive(:error)
         .with(error_message, { message: message_detail })
-      expect(StatsD).to receive(:increment).with('event_bus_gateway', tags:)
+      expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
       end.not_to change(EventBusGatewayNotification, :count)
@@ -99,14 +103,14 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
     let(:error_message) { 'LetterReadyEmailJob email error' }
     let(:message_detail) { 'Participant ID cannot be found in BGS' }
-    let(:tags) { ['service:event-bus-gateway', "function: #{error_message}"] }
+    let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
     it 'does not send the email, logs the error, and increments the statsd metric' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger)
         .to receive(:error)
         .with(error_message, { message: message_detail })
-      expect(StatsD).to receive(:increment).with('event_bus_gateway', tags:)
+      expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
       end.not_to change(EventBusGatewayNotification, :count)
@@ -126,17 +130,55 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
     let(:error_message) { 'LetterReadyEmailJob email error' }
     let(:message_detail) { 'Failed to fetch MPI profile' }
-    let(:tags) { ['service:event-bus-gateway', "function: #{error_message}"] }
+    let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
     it 'does not send the email, logs the error, and increments the statsd metric' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger)
         .to receive(:error)
         .with(error_message, { message: message_detail })
-      expect(StatsD).to receive(:increment).with('event_bus_gateway', tags:)
+      expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
       end.not_to change(EventBusGatewayNotification, :count)
+    end
+  end
+
+  context 'when sidekiq retries are exhausted' do
+    before do
+      allow(Rails.logger).to receive(:error)
+      allow(StatsD).to receive(:increment)
+    end
+
+    let(:job_id) { 'test-job-id-123' }
+    let(:error_class) { 'StandardError' }
+    let(:error_message) { 'Some error message' }
+    let(:msg) do
+      {
+        'jid' => job_id,
+        'error_class' => error_class,
+        'error_message' => error_message
+      }
+    end
+    let(:exception) { StandardError.new(error_message) }
+
+    it 'logs the exhausted retries and increments the statsd metric' do
+      # Get the retries exhausted callback from the job class
+      retries_exhausted_callback = described_class.sidekiq_retries_exhausted_block
+
+      expect(Rails.logger).to receive(:error)
+        .with('LetterReadyEmailJob retries exhausted', {
+                job_id:,
+                timestamp: be_within(1.second).of(Time.now.utc),
+                error_class:,
+                error_message:
+              })
+
+      expect(StatsD).to receive(:increment)
+                    .with("#{described_class::STATSD_METRIC_PREFIX}.exhausted",
+                          tags: EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"])
+
+      retries_exhausted_callback.call(msg, exception)
     end
   end
 end
