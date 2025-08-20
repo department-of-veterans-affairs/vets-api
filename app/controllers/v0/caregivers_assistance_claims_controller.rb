@@ -47,7 +47,7 @@ module V0
         @claim.to_pdf(file_name, sign: false)
       end
 
-      client_file_name = file_name_for_pdf(@claim.veteran_data, '10-10CG')
+      client_file_name = file_name_for_pdf(@claim.veteran_data, 'fullName', '10-10CG')
       file_contents    = File.read(source_file_path)
 
       auditor.record(:pdf_download)

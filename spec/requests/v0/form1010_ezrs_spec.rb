@@ -165,7 +165,10 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
 
         expect(response).to have_http_status(:ok)
 
-        expected_filename = '10-10EZR_FirstName_ZZTEST.pdf'
+        veteran_full_name = JSON.parse(form)['veteranFullName']
+        expected_filename = "10-10EZR_#{veteran_full_name['first']}_#{veteran_full_name['last']}.pdf"
+
+        expect(response).to have_http_status(:ok)
         expect(response.headers['Content-Disposition']).to include("filename=\"#{expected_filename}\"")
         expect(response.content_type).to eq('application/pdf')
         expect(response.body).to start_with('%PDF')

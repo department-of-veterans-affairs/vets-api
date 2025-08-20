@@ -100,7 +100,7 @@ module V0
         PdfFill::Filler.fill_form(health_care_application, file_name)
       end
 
-      client_file_name = file_name_for_pdf(health_care_application.parsed_form, '10-10EZ')
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form, 'veteranFullName', '10-10EZ')
       file_contents    = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'

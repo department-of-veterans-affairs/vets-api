@@ -12,6 +12,8 @@ RSpec.describe PdfFilenameGenerator do
   let(:instance) { dummy_class.new }
 
   describe '#file_name_for_pdf' do
+    subject { instance.send(:file_name_for_pdf, parsed_form, 'veteranFullName', form_prefix) }
+
     let(:form_prefix) { '10-10EZ' }
 
     context 'with full veteran name' do
@@ -25,9 +27,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix and full name' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ_John_Doe.pdf')
+        expect(subject).to eq('10-10EZ_John_Doe.pdf')
       end
     end
 
@@ -42,9 +42,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix and first name only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ_John.pdf')
+        expect(subject).to eq('10-10EZ_John.pdf')
       end
     end
 
@@ -59,9 +57,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix and last name only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ_Doe.pdf')
+        expect(subject).to eq('10-10EZ_Doe.pdf')
       end
     end
 
@@ -76,9 +72,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ.pdf')
+        expect(subject).to eq('10-10EZ.pdf')
       end
     end
 
@@ -93,9 +87,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ.pdf')
+        expect(subject).to eq('10-10EZ.pdf')
       end
     end
 
@@ -110,9 +102,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ.pdf')
+        expect(subject).to eq('10-10EZ.pdf')
       end
     end
 
@@ -124,9 +114,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ.pdf')
+        expect(subject).to eq('10-10EZ.pdf')
       end
     end
 
@@ -140,9 +128,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with form prefix only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ.pdf')
+        expect(subject).to eq('10-10EZ.pdf')
       end
     end
 
@@ -150,9 +136,7 @@ RSpec.describe PdfFilenameGenerator do
       let(:parsed_form) { {} }
 
       it 'returns filename with form prefix only' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZ.pdf')
+        expect(subject).to eq('10-10EZ.pdf')
       end
     end
 
@@ -168,9 +152,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'returns filename with specified form prefix' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq('10-10EZR_Jane_Smith.pdf')
+        expect(subject).to eq('10-10EZR_Jane_Smith.pdf')
       end
     end
 
@@ -185,9 +167,7 @@ RSpec.describe PdfFilenameGenerator do
       end
 
       it 'preserves special characters in filename' do
-        result = instance.send(:file_name_for_pdf, parsed_form, form_prefix)
-
-        expect(result).to eq("10-10EZ_John-Paul_O'Connor.pdf")
+        expect(subject).to eq("10-10EZ_John-Paul_O'Connor.pdf")
       end
     end
   end
