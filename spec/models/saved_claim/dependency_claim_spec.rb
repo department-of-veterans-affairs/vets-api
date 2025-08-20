@@ -312,4 +312,109 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
   end
+
+  describe '#send_failure_email' do
+    let(:email) { 'test@example.com' }
+    let(:today_string) { 'August 15, 2025' }
+    let(:confirmation_number) { subject.guid }
+    let(:first_name) { 'JOHN' }
+
+    let(:expected_personalisation) do
+      {
+        'first_name' => first_name,
+        'date_submitted' => today_string,
+        'confirmation_number' => confirmation_number
+      }
+    end
+
+    before do
+      allow(Dependents::Form686c674FailureEmailJob).to receive(:perform_async)
+      subject.parsed_form['dependents_application']['veteran_information']['full_name']['first'] = first_name.downcase
+    end
+
+    context 'when both 686c and 674 forms are submittable' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim)
+          .to receive_messages(submittable_686?: true, submittable_674?: true)
+      end
+
+      it 'sends a combo email with the correct parameters', run_at: 'Thu, 15 Aug 2025 15:30:00 GMT' do
+        expect(Dependents::Form686c674FailureEmailJob)
+          .to receive(:perform_async)
+          .with(
+            subject.id,
+            email,
+            Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email,
+            expected_personalisation
+          )
+
+        subject.send_failure_email(email)
+      end
+    end
+
+    context 'when only 686c form is submittable' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim)
+          .to receive_messages(submittable_686?: true, submittable_674?: false)
+      end
+
+      it 'sends a 686c email with the correct parameters', run_at: 'Thu, 15 Aug 2025 15:30:00 GMT' do
+        expect(Dependents::Form686c674FailureEmailJob)
+          .to receive(:perform_async)
+          .with(
+            subject.id,
+            email,
+            Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email,
+            expected_personalisation
+          )
+
+        subject.send_failure_email(email)
+      end
+    end
+
+    context 'when only 674 form is submittable' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim)
+          .to receive_messages(submittable_686?: false, submittable_674?: true)
+      end
+
+      it 'sends a 674 email with the correct parameters', run_at: 'Thu, 15 Aug 2025 15:30:00 GMT' do
+        expect(Dependents::Form686c674FailureEmailJob)
+          .to receive(:perform_async)
+          .with(
+            subject.id,
+            email,
+            Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email,
+            expected_personalisation
+          )
+
+        subject.send_failure_email(email)
+      end
+    end
+
+    context 'when neither form is submittable' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim)
+          .to receive_messages(submittable_686?: false, submittable_674?: false)
+
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs an error and does not send email', run_at: 'Thu, 15 Aug 2025 15:30:00 GMT' do
+        expect(Rails.logger).to receive(:error).with('Email template cannot be assigned for SavedClaim',
+                                                     saved_claim_id: subject.id)
+        expect(Dependents::Form686c674FailureEmailJob).not_to receive(:perform_async)
+
+        subject.send_failure_email(email)
+      end
+    end
+
+    context 'when email is blank' do
+      it 'does not send an email', run_at: 'Thu, 15 Aug 2025 15:30:00 GMT' do
+        expect(Dependents::Form686c674FailureEmailJob).not_to receive(:perform_async)
+
+        subject.send_failure_email('')
+      end
+    end
+  end
 end
