@@ -21,7 +21,7 @@ module DecisionReviews
       end
 
       def create
-        req_body_obj = handle_area_code_for_schema_validation(request_body_hash)
+        req_body_obj = normalize_area_code_for_lighthouse_schema(request_body_hash)
         hlr_response_body = decision_review_service
                             .create_higher_level_review(request_body: req_body_obj, user: @current_user,
                                                         version: 'V2')

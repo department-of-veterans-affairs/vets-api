@@ -17,7 +17,7 @@ module DecisionReviews
       end
 
       def create
-        req_body_obj = handle_area_code_for_schema_validation(request_body_hash)
+        req_body_obj = normalize_area_code_for_lighthouse_schema(request_body_hash)
         nod_response_body = AppealSubmission.submit_nod(
           current_user: @current_user,
           request_body_hash: req_body_obj,

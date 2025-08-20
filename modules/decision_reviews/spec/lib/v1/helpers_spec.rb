@@ -65,7 +65,7 @@ describe DecisionReviews::V1::Helpers do
     end
   end
 
-  describe '#handle_area_code_for_schema_validation' do
+  describe '#normalize_area_code_for_lighthouse_schema' do
     context 'when area_code is present and valid with 3 characters (domestic number)' do
       let(:req_body_obj) do
         {
@@ -85,7 +85,7 @@ describe DecisionReviews::V1::Helpers do
 
       it 'returns the original object unchanged' do
         expected_result = req_body_obj
-        expect(helper.handle_area_code_for_schema_validation(req_body_obj)).to eq(expected_result)
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
       end
     end
 
@@ -108,7 +108,7 @@ describe DecisionReviews::V1::Helpers do
 
       it 'returns the original object unchanged' do
         expected_result = req_body_obj
-        expect(helper.handle_area_code_for_schema_validation(req_body_obj)).to eq(expected_result)
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
       end
     end
 
@@ -145,7 +145,7 @@ describe DecisionReviews::V1::Helpers do
       end
 
       it 'returns the object without an areaCode' do
-        expect(helper.handle_area_code_for_schema_validation(req_body_obj)).to eq(expected_result)
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
       end
     end
 
@@ -182,7 +182,7 @@ describe DecisionReviews::V1::Helpers do
       end
 
       it 'returns the object without an areaCode' do
-        expect(helper.handle_area_code_for_schema_validation(req_body_obj)).to eq(expected_result)
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
       end
     end
   end

@@ -114,7 +114,7 @@ module DecisionReviews
         headers
       end
 
-      def handle_area_code_for_schema_validation(req_body_obj)
+      def normalize_area_code_for_lighthouse_schema(req_body_obj)
         phone = req_body_obj.dig('data', 'attributes', 'veteran', 'phone')
         area_code = phone&.dig('areaCode')
 
