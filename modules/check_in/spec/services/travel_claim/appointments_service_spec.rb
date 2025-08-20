@@ -64,13 +64,15 @@ RSpec.describe TravelClaim::AppointmentsService do
 
     it 'validates ISO format for appointment date' do
       expect do
-        service.find_or_create_appointment(appointment_date_time: 'invalid-date', facility_id:, correlation_id:)
+        service.find_or_create_appointment(appointment_date_time: 'invalid-date', facility_id:,
+                                           correlation_id:)
       end.to raise_error(ArgumentError, /Expected ISO 8601 format/)
     end
 
     it 'accepts valid ISO format dates' do
       expect do
-        service.find_or_create_appointment(appointment_date_time: '2024-01-15T10:00:00Z', facility_id:, correlation_id:)
+        service.find_or_create_appointment(appointment_date_time: '2024-01-15T10:00:00Z', facility_id:,
+                                           correlation_id:)
       end.not_to raise_error
     end
 

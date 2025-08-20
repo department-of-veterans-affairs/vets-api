@@ -25,7 +25,7 @@ module TravelClaim
     end
 
     ##
-    # Finds or creates an appointment in the Travel Claim system.
+    # Finds or adds an appointment in the Travel Claim system.
     # Gets authentication tokens from the AuthManager and calls the Travel Claim API.
     #
     # @param appointment_date_time [String] ISO 8601 formatted appointment date/time

@@ -16,8 +16,7 @@ RSpec.describe TravelClaim::AppointmentsClient do
     it 'uses perform method to make appointment request' do
       expected_body = {
         appointmentDateTime: appointment_date_time,
-        facilityId: facility_id,
-        patientIcn: patient_icn
+        facilityStationNumber: facility_id
       }
 
       expected_headers = hash_including(
@@ -62,14 +61,13 @@ RSpec.describe TravelClaim::AppointmentsClient do
     describe '#build_appointment_body' do
       it 'builds correct request body with camelCase keys' do
         result = client.send(:build_appointment_body,
-                             appointment_date_time: '2024-01-15T10:00:00Z',
+                             appointment_date_time: '2024-01-15T10:00Z',
                              facility_id: 'facility-123',
                              patient_icn: '123V456')
 
         expect(result).to eq({
-                               appointmentDateTime: '2024-01-15T10:00:00Z',
-                               facilityId: 'facility-123',
-                               patientIcn: '123V456'
+                               appointmentDateTime: '2024-01-15T10:00Z',
+                               facilityStationNumber: 'facility-123'
                              })
       end
     end
