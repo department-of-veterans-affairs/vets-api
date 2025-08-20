@@ -125,6 +125,7 @@ jobs:
           author_is_backend=false
           backend_approval_required=true
           exempt_be_review=false
+          backend_approval=false
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -146,80 +147,87 @@ jobs:
             author_is_backend=true
           fi
 
-          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
-            [ .[]
-            | select(.state == "APPROVED")
-            ]
-            | sort_by(.submitted_at)
-            | last
-            | .user.login // ""
-          ' || true)
-
-          echo "Approvals: $APPROVED"
-          BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
-          TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+          readarray -t APPROVED < <(
+            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
+              [ .[]
+              | select(.state == "APPROVED")
+              ]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' || true
+          )
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
             if [[ "$author_is_backend" == "false" ]]; then
-              membership_state=$(gh api -X GET \
+              author_membership_state=$(gh api -X GET \
                 "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
                 --jq '.state' 2>/dev/null || echo "")
-              if [[ "$membership_state" == "active" ]]; then
+              if [[ "$author_membership_state" == "active" ]]; then
                 echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
                 exempt_be_review=true
                 backend_approval_required=false
-                break
               fi
             fi
-            if [ -n "$TEAM_APPROVALS" ]; then
-              reviewer_membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
-                --jq '.state' 2>/dev/null || echo "")
-             if [[ "$reviewer_membership_state" == "active" ]]; then
-                echo "PR author '$PR_AUTHOR' is a member of exempt team '$APPROVED'."
+            echo "Approvers: ${APPROVED[@]}"
+            for approve in "${APPROVED[@]}"; do
+              echo "Checking approver: $approve"
+              if echo "$approve" | grep -viE "^($BACKEND_REVIEWERS)$"; then
+                echo "PR Reviewer '$approve' is NOT a backend-review-group member."
+                team_approval_status=confirmed
+                membership_state=$(gh api -X GET \
+                  "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
+                  --jq '.state' 2>/dev/null || echo "")
+                if [[ "$membership_state" == "active" ]]; then
+                  echo "$approve is an active member of $TEAM"
+                  review_complete=true
+                  exempt_team=true
+                  backend_approval_required=false
+                  approval_status=confirmed
+                fi
+              else
+                echo "PR Reviewer '$approve' is a backend-review-group member."
+                backend_approval=true
+              fi
+            done
+          done
+
+          if [[ "${review_complete}" == "false" ]]; then
+            # Check PR Labels
+            PR_LABELS="${pr_labels}"
+            echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
+              echo "Fetching label: $LABEL"
+              if [[ "$LABEL" == "exempt-be-review" ]]; then
+                echo "$LABEL exists"
                 exempt_be_review=true
                 backend_approval_required=false
+              fi
+              if [[ "$LABEL" == "final-review-confirmed" ]]; then
+                echo "$LABEL exists"
                 team_approval_status=confirmed
                 approval_status=confirmed
-                break
               fi
-            fi
-          done
+            done
 
-          # Check PR Labels
-          PR_LABELS="${pr_labels}"
-          echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
-            echo "Fetching label: $LABEL"
-            if [[ "$LABEL" == "exempt-be-review" ]]; then
-              echo "$LABEL exists"
-              exempt_be_review=true
-              backend_approval_required=false
-            fi
-            if [[ "$LABEL" == "final-review-confirmed" ]]; then
-              echo "$LABEL exists"
-              team_approval_status=confirmed
-              approval_status=confirmed
-            fi
-          done
-
-          echo "Team Approvals: $TEAM_APPROVALS"
-          if [ -z "$TEAM_APPROVALS" ]; then
-            echo "TEAM APPROVAL REQUIRED"
-            team_approval_status=required
-          else
-            echo "TEAM APPROVAL CONFIRMED"
-            team_approval_status=confirmed
-          fi
-
-          if [[ "$exempt_be_review" == "false" ]]; then
-            echo "Backend Approvals: $BE_APPROVALS"
-            if [ -z "$BE_APPROVALS" ]; then
-              echo "BE APPROVAL NOT CONFIRMED"
-              approval_status=required
+            echo "Team Approvals: $TEAM_APPROVALS"
+            if [ "${team_approval_status]" == "false" ]; then
+              echo "TEAM APPROVAL REQUIRED"
+              team_approval_status=required
             else
-              echo "BE APPROVAL CONFIRMED"
-              approval_status=confirmed
+              echo "TEAM APPROVAL CONFIRMED"
+              team_approval_status=confirmed
+            fi
+
+            if [[ "${exempt_be_review}" == "false" ]]; then
+              if [[ "${backend_approval}" == "false" ]]; then
+                echo "BE APPROVAL NOT CONFIRMED"
+                approval_status=required
+              else
+                echo "BE APPROVAL CONFIRMED"
+                approval_status=confirmed
+              fi
             fi
           fi
 
