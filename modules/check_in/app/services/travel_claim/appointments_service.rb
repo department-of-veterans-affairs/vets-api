@@ -3,6 +3,7 @@
 module TravelClaim
   ##
   # Service for Travel Claim appointment operations.
+  # Gets authentication tokens from the provided AuthManager.
   #
   class AppointmentsService
     include SentryLogging
@@ -27,16 +28,18 @@ module TravelClaim
 
     ##
     # Finds or creates an appointment in the Travel Claim system.
+    # Gets authentication tokens from the AuthManager and calls the Travel Claim API.
     #
     # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
     # @param facility_id [String] VA facility identifier
+    # @param correlation_id [String] Request correlation ID for tracing
     # @return [Hash] Hash containing appointment data: { data: Hash }
     #
     def find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       validate_appointment_date_time(appointment_date_time)
 
-      tokens = auth_manager.request_new_tokens
-      faraday_response = make_appointment_request(tokens, appointment_date_time:, facility_id:, correlation_id:)
+      tokens = auth_manager.authorize
+      faraday_response = make_appointment_request(tokens, appointment_date_time, facility_id, correlation_id)
       appointments = faraday_response.body['data']
 
       {
@@ -77,7 +80,7 @@ module TravelClaim
       @redis_client ||= TravelClaim::RedisClient.build
     end
 
-    def make_appointment_request(tokens, appointment_date_time:, facility_id:, correlation_id:)
+    def make_appointment_request(tokens, appointment_date_time, facility_id, correlation_id)
       @client.find_or_create_appointment(
         tokens:,
         appointment_date_time:,

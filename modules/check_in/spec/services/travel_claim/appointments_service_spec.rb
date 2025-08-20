@@ -49,10 +49,10 @@ RSpec.describe TravelClaim::AppointmentsService do
     end
 
     before do
-      allow(auth_manager).to receive(:request_new_tokens).and_return({
-                                                                       veis_token: 'veis-token',
-                                                                       btsss_token: 'btsss-token'
-                                                                     })
+      allow(auth_manager).to receive(:authorize).and_return({
+                                                              veis_token: 'veis-token',
+                                                              btsss_token: 'btsss-token'
+                                                            })
       allow(client).to receive(:find_or_create_appointment).and_return(mock_response)
     end
 
