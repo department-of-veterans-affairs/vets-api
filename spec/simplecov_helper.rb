@@ -76,6 +76,7 @@ class SimpleCovHelper
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/pensions/app/swagger'
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
+    add_filter 'modules/vre/app/services/vre'
     add_filter 'version.rb'
   end
 
