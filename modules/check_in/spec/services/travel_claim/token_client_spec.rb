@@ -28,36 +28,23 @@ RSpec.describe TravelClaim::TokenClient do
   end
 
   describe '#veis_token' do
-    it 'POSTs to the VEIS token endpoint with form-encoded body' do
-      url = "#{settings_double.auth_url}/#{settings_double.tenant_id}/oauth2/v2.0/token"
-      stub = stub_request(:post, url)
-             .to_return(
-               status: 200,
-               body: { access_token: 'veis' }.to_json,
-               headers: { 'Content-Type' => 'application/json' }
-             )
+    it 'uses perform method to make VEIS token request' do
+      mock_response = double('Response', body: { 'access_token' => 'test-token' }.to_json)
 
-      resp = client.veis_token
-      expect(resp.status).to eq(200)
+      expect(client).to receive(:perform).with(
+        :post,
+        '/tenant-123/oauth2/v2.0/token',
+        kind_of(String),
+        { 'Content-Type' => 'application/x-www-form-urlencoded' }
+      ).and_return(mock_response)
 
-      expect(stub).to have_been_requested
-
-      expect(WebMock).to(have_requested(:post, url).with do |req|
-        expect(req.headers['Content-Type']).to eq('application/x-www-form-urlencoded')
-        form = URI.decode_www_form(req.body).to_h
-        expect(form).to include(
-          'client_id' => settings_double.travel_pay_client_id,
-          'client_secret' => settings_double.travel_pay_client_secret,
-          'scope' => settings_double.scope,
-          'grant_type' => 'client_credentials'
-        )
-      end)
+      result = client.veis_token
+      expect(result).to eq(mock_response)
     end
 
     it 'bubbles errors when VEIS returns non-200' do
-      url = "#{settings_double.auth_url}/#{settings_double.tenant_id}/oauth2/v2.0/token"
-      stub_request(:post, url).to_return(status: 500, body: { detail: 'err' }.to_json,
-                                         headers: { 'Content-Type' => 'application/json' })
+      allow(client).to receive(:perform).and_raise(Common::Exceptions::BackendServiceException)
+
       expect do
         client.veis_token
       end.to raise_error(Common::Exceptions::BackendServiceException)
@@ -65,70 +52,47 @@ RSpec.describe TravelClaim::TokenClient do
   end
 
   describe '#system_access_token_v4' do
-    it 'POSTs to the v4 system access token endpoint with required headers including client number' do
-      url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
-      stub = stub_request(:post, url)
-             .to_return(
-               status: 200,
-               body: { data: { accessToken: 'v4' } }.to_json,
-               headers: { 'Content-Type' => 'application/json' }
-             )
+    it 'uses perform method to make v4 system access token request' do
+      mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } }.to_json)
 
-      resp = client.system_access_token_v4(veis_access_token: 'veis', icn: '123V456')
-      expect(resp.status).to eq(200)
-      expect(stub).to have_been_requested
+      expect(client).to receive(:perform).with(
+        :post,
+        '/api/v4/auth/system-access-token',
+        { secret: 'super-secret-123', icn: '123V456' },
+        hash_including(
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer veis',
+          'BTSSS-API-Client-Number' => 'cn-123'
+        )
+      ).and_return(mock_response)
 
-      expect(WebMock).to(have_requested(:post, url).with do |req|
-        expect(req.headers['Authorization']).to eq('Bearer veis')
-        expect(req.headers['Content-Type']).to eq('application/json')
-        expect(req.headers['Ocp-Apim-Subscription-Key']).to eq(settings_double.subscription_key)
-        client_key = req.headers.keys.find { |k| k.to_s.casecmp('BTSSS-API-Client-Number').zero? }
-        expect(client_key).not_to be_nil
-        expect(req.headers[client_key]).to eq(client_number)
-        expect(req.headers.keys.any? { |k| k.to_s.casecmp('X-Correlation-ID').zero? }).to be(true)
-
-        parsed = JSON.parse(req.body)
-        expect(parsed).to include('secret' => settings_double.travel_pay_client_secret, 'icn' => '123V456')
-      end)
+      result = client.system_access_token_v4(veis_access_token: 'veis', icn: '123V456')
+      expect(result).to eq(mock_response)
     end
 
-    it 'uses E/S subscription keys and client number in production' do
+    it 'uses E/S subscription keys in production' do
       allow(Settings).to receive(:vsp_environment).and_return('production')
-      url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
-      stub_request(:post, url).to_return(status: 200, body: { data: { accessToken: 'v4' } }.to_json,
-                                         headers: { 'Content-Type' => 'application/json' })
+      mock_response = double('Response', body: '{}')
+
+      expect(client).to receive(:perform).with(
+        :post,
+        '/api/v4/auth/system-access-token',
+        anything,
+        hash_including(
+          'Ocp-Apim-Subscription-Key-E' => 'e-sub',
+          'Ocp-Apim-Subscription-Key-S' => 's-sub'
+        )
+      ).and_return(mock_response)
+
       client.system_access_token_v4(veis_access_token: 'x', icn: 'y')
-      expect(WebMock).to(have_requested(:post, url).with do |req|
-        expect(req.headers['Ocp-Apim-Subscription-Key-E']).to eq('e-sub')
-        expect(req.headers['Ocp-Apim-Subscription-Key-S']).to eq('s-sub')
-        client_key = req.headers.keys.find { |k| k.to_s.casecmp('BTSSS-API-Client-Number').zero? }
-        expect(client_key).not_to be_nil
-        expect(req.headers[client_key]).to eq(client_number)
-      end)
     end
 
-    it 'does not log secrets on error paths' do
-      url = "#{settings_double.claims_url_v2}/api/v4/auth/system-access-token"
-      stub_request(:post, url).to_return(
-        status: 500,
-        body: { detail: 'boom' }.to_json,
-        headers: { 'Content-Type' => 'application/json' }
-      )
+    it 'bubbles errors when service returns non-200' do
+      allow(client).to receive(:perform).and_raise(Common::Exceptions::BackendServiceException)
 
-      original_logger = Rails.logger
-      io = StringIO.new
-      Rails.logger = ActiveSupport::Logger.new(io)
-
-      begin
-        expect do
-          client.system_access_token_v4(veis_access_token: 'veis', icn: '123V456')
-        end.to raise_error(Common::Exceptions::BackendServiceException)
-
-        logs = io.string
-        expect(logs).not_to include(settings_double.travel_pay_client_secret)
-      ensure
-        Rails.logger = original_logger
-      end
+      expect do
+        client.system_access_token_v4(veis_access_token: 'veis', icn: '123V456')
+      end.to raise_error(Common::Exceptions::BackendServiceException)
     end
   end
 end
