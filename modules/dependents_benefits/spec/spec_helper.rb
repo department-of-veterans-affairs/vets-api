@@ -12,5 +12,10 @@ unless ENV['NOCOVERAGE']
     track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/swagger'
+
+    if ENV['CI']
+      SimpleCov.minimum_coverage 90
+      SimpleCov.refuse_coverage_drop
+    end
   end
 end
