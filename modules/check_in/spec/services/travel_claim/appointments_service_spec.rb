@@ -23,12 +23,7 @@ RSpec.describe TravelClaim::AppointmentsService do
 
   describe '#initialize' do
     it 'accepts check_in_session parameter' do
-      service = described_class.new(check_in_session:)
-      expect(service.check_in_session).to eq(check_in_session)
-    end
-
-    it 'accepts check_in parameter for backward compatibility' do
-      service = described_class.new(check_in: check_in_session)
+      service = described_class.new(check_in_session:, auth_manager:)
       expect(service.check_in_session).to eq(check_in_session)
     end
 
@@ -37,9 +32,10 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(service.auth_manager).to eq(auth_manager)
     end
 
-    it 'expects auth_manager to be provided by orchestrator' do
-      service = described_class.new(check_in_session:)
-      expect(service.auth_manager).to be_nil
+    it 'requires both parameters' do
+      expect { described_class.new }.to raise_error(ArgumentError)
+      expect { described_class.new(check_in_session:) }.to raise_error(ArgumentError)
+      expect { described_class.new(auth_manager:) }.to raise_error(ArgumentError)
     end
   end
 
