@@ -10,7 +10,7 @@ module MebApi
   module DGI
     module Toe
       class Service < MebApi::DGI::Service
-        configuration MebApi::DGI::Toe::Configuration
+        configuration MebApi::DGI::Letters::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.status'
 
         def get_toe_letter(claimant_id)

@@ -12,7 +12,6 @@ require 'dgi/eligibility/configuration'
 require 'dgi/status/configuration'
 require 'dgi/submission/configuration'
 require 'dgi/letters/configuration'
-require 'dgi/toe/configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/disability_compensation_form/configuration'
@@ -97,7 +96,6 @@ Rails.application.reloader.to_prepare do
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
-    MebApi::DGI::Toe::Configuration.instance.breakers_service,
     UnifiedHealthData::Configuration.instance.breakers_service,
     MDOT::Configuration.instance.breakers_service,
     Eps::Configuration.instance.breakers_service,
