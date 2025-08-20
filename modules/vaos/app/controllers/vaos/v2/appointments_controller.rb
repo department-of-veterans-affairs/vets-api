@@ -372,7 +372,8 @@ module VAOS
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
           facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
           avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
-          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims')),
+          eps: ActiveModel::Type::Boolean.new.deserialize(included&.include?('eps'))
         }
       end
 

@@ -18,6 +18,10 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       def initialize(attributes = {})
         @form_attributes = attributes
       end
+
+      def bgs_service
+        # This will be stubbed in individual tests
+      end
     end
   end
   let(:form_attributes) { {} }
@@ -658,6 +662,119 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_change_of_address! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  # rubocop:disable RSpec/SubjectStub
+  describe '#contention_classification_type_code_list' do
+    let(:mock_list) { [{ clsfcn_id: '1234', end_dt: nil }, { clsfcn_id: '5678', end_dt: '2020-01-01' }] }
+    let(:mock_data) { double('data', get_contention_classification_type_code_list: mock_list) }
+    let(:mock_bgs_service) { double('bgs_service', data: mock_data) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(false)
+      allow(subject).to receive(:bgs_service).and_return(mock_bgs_service)
+    end
+
+    it 'returns the contention classification type code list' do
+      expect(subject.contention_classification_type_code_list).to eq(mock_list)
+    end
+  end
+
+  describe '#bgs_classification_ids' do
+    let(:mock_list) { [{ clsfcn_id: '1234', end_dt: nil }, { clsfcn_id: '5678', end_dt: '2020-01-01' }] }
+
+    before do
+      allow(subject).to receive(:contention_classification_type_code_list).and_return(mock_list)
+    end
+
+    it 'returns an array of classification ids' do
+      expect(subject.bgs_classification_ids).to eq(%w[1234 5678])
+    end
+  end
+  # rubocop:enable RSpec/SubjectStub
+
+  describe '#validate_form_526_fewer_than_150_disabilities!' do
+    context 'when disabilities count is less than or equal to 150' do
+      let(:form_attributes) { { 'disabilities' => Array.new(150) { { 'name' => 'PTSD' } } } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }.not_to raise_error
+      end
+    end
+
+    context 'when disabilities count is greater than 150' do
+      let(:form_attributes) { { 'disabilities' => Array.new(151) { { 'name' => 'PTSD' } } } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_disability_classification_code!' do
+    let(:classification_code) { '1234' }
+    let(:expired_code) { '9999' }
+    let(:unknown_code) { '8888' }
+    let(:today) { Time.zone.today }
+    let(:valid_disabilities) do
+      [
+        { 'classificationCode' => classification_code },
+        { 'classificationCode' => nil },
+        { 'classificationCode' => '' }
+      ]
+    end
+    let(:form_attributes) { { 'disabilities' => valid_disabilities } }
+    let(:contention_list) do
+      [
+        { clsfcn_id: classification_code, end_dt: nil },
+        { clsfcn_id: expired_code, end_dt: (today - 1).to_s }
+      ]
+    end
+
+    before do
+      # Stubbing this because it's a method on the subject that fetches data from BRD
+      # rubocop:disable RSpec/SubjectStub
+      allow(subject).to receive_messages(
+        contention_classification_type_code_list: contention_list,
+        bgs_classification_ids: contention_list.map { |c|
+          c[:clsfcn_id]
+        }
+      )
+      # rubocop:enable RSpec/SubjectStub
+    end
+
+    context 'when all classification codes are valid and not expired' do
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_classification_code! }.not_to raise_error
+      end
+    end
+
+    context 'when a classification code is not in the BGS list' do
+      let(:form_attributes) { { 'disabilities' => [{ 'classificationCode' => unknown_code }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_classification_code! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when a classification code is expired' do
+      let(:form_attributes) { { 'disabilities' => [{ 'classificationCode' => expired_code }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_classification_code! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when classificationCode is nil or blank' do
+      let(:form_attributes) { { 'disabilities' => [{ 'classificationCode' => nil }, { 'classificationCode' => '' }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_classification_code! }.not_to raise_error
       end
     end
   end
