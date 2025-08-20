@@ -42,6 +42,22 @@ module TravelClaim
     end
 
     ##
+    # Submits a travel claim using the V3 API.
+    #
+    # @param claim_id [String] The claim ID to submit
+    # @param correlation_id [String] Request correlation ID
+    # @return [Faraday::Response] HTTP response from the submit operation
+    #
+    def submit_claim_v3(claim_id:, correlation_id:)
+      headers = build_submit_headers(correlation_id)
+      full_url = "#{settings.claims_url_v2}/api/v3/claims/#{claim_id}/submit"
+      
+      perform(:patch, full_url, nil, headers)
+    end
+
+    private
+
+    ##
     # Builds the request headers for the appointment API call.
     #
     # @param tokens [Hash] Authentication tokens hash
@@ -53,6 +69,22 @@ module TravelClaim
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{tokens[:veis_token]}",
         'X-BTSSS-Token' => tokens[:btsss_token],
+        'X-Correlation-ID' => correlation_id
+      }
+
+      headers.merge!(claim_headers)
+      headers
+    end
+
+    ##
+    # Builds the request headers for the submit claim V3 API call.
+    #
+    # @param correlation_id [String] Request correlation ID
+    # @return [Hash] Headers hash
+    #
+    def build_submit_headers(correlation_id)
+      headers = {
+        'Accept' => 'application/json',
         'X-Correlation-ID' => correlation_id
       }
 

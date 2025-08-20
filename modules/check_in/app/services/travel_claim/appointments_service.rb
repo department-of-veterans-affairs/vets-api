@@ -51,6 +51,31 @@ module TravelClaim
       raise e
     end
 
+    ##
+    # Submits a travel claim using the V3 API endpoint.
+    # This is a new implementation that does not replace the existing submit_claim functionality.
+    #
+    # @param claim_id [String] The claim ID to submit
+    # @param correlation_id [String] Request correlation ID for tracing
+    # @return [Hash] Hash containing submit response data: { data: Hash }
+    #
+    def submit_claim_v3(claim_id:, correlation_id:)
+      validate_claim_id(claim_id)
+
+      faraday_response = make_submit_request(claim_id, correlation_id)
+      submit_data = faraday_response.body['data']
+
+      {
+        data: submit_data
+      }
+    rescue => e
+      error_class = e.class.name
+      Rails.logger.error('Travel Claim V3 Submit API error',
+                         { uuid: check_in_session&.uuid, error_class:, error_message: e.message,
+                           claim_id:, correlation_id: })
+      raise e
+    end
+
     private
 
     def validate_appointment_date_time(appointment_date_time)
@@ -82,12 +107,26 @@ module TravelClaim
       @redis_client ||= TravelClaim::RedisClient.build
     end
 
+    def validate_claim_id(claim_id)
+      if claim_id.nil? || claim_id.strip.empty?
+        Rails.logger.error(message: 'Invalid claim ID provided (claim ID cannot be nil or empty).')
+        raise ArgumentError, 'Invalid claim ID provided (claim ID cannot be nil or empty).'
+      end
+    end
+
     def make_appointment_request(tokens, appointment_date_time, facility_id, correlation_id)
       @client.find_or_create_appointment(
         tokens:,
         appointment_date_time:,
         facility_id:,
         patient_icn:,
+        correlation_id:
+      )
+    end
+
+    def make_submit_request(claim_id, correlation_id)
+      @client.submit_claim_v3(
+        claim_id:,
         correlation_id:
       )
     end
