@@ -173,27 +173,31 @@ jobs:
                 backend_approval_required=false
               fi
             fi
-            echo "Approvers: ${APPROVED[@]}"
-            for approve in "${APPROVED[@]}"; do
-              echo "Checking approver: $approve"
-              if echo "$approve" | grep -viE "^($BACKEND_REVIEWERS)$"; then
-                echo "PR Reviewer '$approve' is NOT a backend-review-group member."
-                team_approval_status=confirmed
-                membership_state=$(gh api -X GET \
-                  "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
-                  --jq '.state' 2>/dev/null || echo "")
-                if [[ "$membership_state" == "active" ]]; then
-                  echo "$approve is an active member of $TEAM"
-                  review_complete=true
-                  exempt_be_review=true
-                  backend_approval_required=false
-                  approval_status=confirmed
+            if [ -n "${APPROVED[@]}" ]; then
+              echo "Approvers: ${APPROVED[@]}"
+              for approve in "${APPROVED[@]}"; do
+                echo "Checking approver: $approve"
+                if echo "$approve" | grep -viE "^($BACKEND_REVIEWERS)$"; then
+                  echo "PR Reviewer '$approve' is NOT a backend-review-group member."
+                  team_approval_status=confirmed
+                  membership_state=$(gh api -X GET \
+                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
+                    --jq '.state' 2>/dev/null || echo "")
+                  if [[ "$membership_state" == "active" ]]; then
+                    echo "$approve is an active member of $TEAM"
+                    review_complete=true
+                    exempt_be_review=true
+                    backend_approval_required=false
+                    approval_status=confirmed
+                  fi
+                else
+                  echo "PR Reviewer '$approve' is a backend-review-group member."
+                  backend_approval=true
                 fi
-              else
-                echo "PR Reviewer '$approve' is a backend-review-group member."
-                backend_approval=true
-              fi
-            done
+              done
+            else
+              echo "No approvals found."
+            fi
           done
 
           if [[ "${review_complete}" == "false" ]]; then
