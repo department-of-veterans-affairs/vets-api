@@ -14,7 +14,7 @@ class SimpleCovHelper
       # SimpleCov.command_name "(#{ENV['TEST_ENV_NUMBER'] || '1'}/#{parallel_tests_count})"
 
       SimpleCov.command_name "rspec-#{ENV['TEST_ENV_NUMBER'] || '0'}"
-      track_files '**/{app,lib}/**/*.rb'
+      track_files '{app,lib}/**/*.rb'
 
       add_filters
       add_modules
@@ -51,7 +51,6 @@ class SimpleCovHelper
 
   def self.add_filters
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
-    add_filter 'bin/*'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -80,7 +79,6 @@ class SimpleCovHelper
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
     add_filter 'modules/**/db/*'
     add_filter 'modules/**/lib/tasks/*'
-    add_filter 'rakelib/*'
     add_filter 'version.rb'
   end
 
