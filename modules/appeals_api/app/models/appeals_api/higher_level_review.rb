@@ -9,7 +9,6 @@ module AppealsApi
     include HlrStatus
     include PdfOutputPrep
     include ModelValidations
-    include AppealsApi::Concerns::InFinalStatusCheck
 
     required_claimant_headers %w[
       X-VA-NonVeteranClaimant-First-Name
