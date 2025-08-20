@@ -111,5 +111,3 @@ sample_client_api.update!(authentication: SignIn::Constants::Auth::API,
                           access_token_audience: 'sample_client',
                           logout_redirect_uri: 'http://localhost:4567',
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
-
-SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
