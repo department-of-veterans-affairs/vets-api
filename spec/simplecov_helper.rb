@@ -14,8 +14,7 @@ class SimpleCovHelper
       # SimpleCov.command_name "(#{ENV['TEST_ENV_NUMBER'] || '1'}/#{parallel_tests_count})"
 
       SimpleCov.command_name "rspec-#{ENV['TEST_ENV_NUMBER'] || '0'}"
-      track_files '{app,lib,modules}/**/*.rb'
-      # track_files '**/{app,lib}/**/*.rb'
+      track_files '{app,lib}/**/*.rb'
 
       add_filters
       add_modules
@@ -55,6 +54,7 @@ class SimpleCovHelper
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
+    add_filter 'lib/clamav/*'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
@@ -67,6 +67,7 @@ class SimpleCovHelper
     add_filter 'lib/vet360/address_validation/configuration.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
+    add_filter 'lib/rubocop/*'
     add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
@@ -76,6 +77,8 @@ class SimpleCovHelper
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/pensions/app/swagger'
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
+    add_filter 'modules/**/db/*'
+    add_filter 'modules/**/lib/tasks/*'
     add_filter 'version.rb'
   end
 
