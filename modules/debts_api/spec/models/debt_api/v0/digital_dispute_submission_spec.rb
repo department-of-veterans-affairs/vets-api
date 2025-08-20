@@ -29,9 +29,26 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
         allow(Settings).to receive(:vsp_environment).and_return('production')
       end
 
-      it 'sends failure email' do
-        expect(form_submission).to receive(:send_failure_email)
-        form_submission.register_failure(message)
+      context 'when digital_dispute_email_notifications is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true)
+        end
+
+        it 'sends failure email' do
+          expect(form_submission).to receive(:send_failure_email)
+          form_submission.register_failure(message)
+        end
+      end
+
+      context 'when digital_dispute_email_notifications is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
+        end
+
+        it 'does not send failure email' do
+          expect(form_submission).not_to receive(:send_failure_email)
+          form_submission.register_failure(message)
+        end
       end
     end
 
@@ -58,9 +75,26 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
         allow(Settings).to receive(:vsp_environment).and_return('production')
       end
 
-      it 'sends success email' do
-        expect(form_submission).to receive(:send_success_email)
-        form_submission.register_success
+      context 'when digital_dispute_email_notifications is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true)
+        end
+
+        it 'sends success email' do
+          expect(form_submission).to receive(:send_success_email)
+          form_submission.register_success
+        end
+      end
+
+      context 'when digital_dispute_email_notifications is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
+        end
+
+        it 'does not send success email' do
+          expect(form_submission).not_to receive(:send_success_email)
+          form_submission.register_success
+        end
       end
     end
 
