@@ -125,7 +125,6 @@ jobs:
           author_is_backend=false
           backend_approval_required=true
           exempt_be_review=false
-          PR_LABELS="${{ env.pr_labels }}"
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
