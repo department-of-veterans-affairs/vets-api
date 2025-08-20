@@ -15,7 +15,7 @@ module MedicalRecords
     include RetriableConcern
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 2
+    DEFAULT_COUNT = 200
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
