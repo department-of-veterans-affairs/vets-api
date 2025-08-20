@@ -203,7 +203,11 @@ module IvcChampva
     def self.transliterate_and_strip(text)
       return nil if text.blank?
 
-      I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
+      transliterated = I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
+
+      return nil if transliterated.blank?
+
+      transliterated
     end
 
     def self.validate_sponsor(request_body)
