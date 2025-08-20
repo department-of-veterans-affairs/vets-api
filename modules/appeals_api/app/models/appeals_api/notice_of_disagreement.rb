@@ -29,7 +29,7 @@ module AppealsApi
     scope :v1, -> { where(api_version: 'V1') }
     scope :v2, -> { where(api_version: 'V2') }
     scope :v0, -> { where(api_version: 'V0') }
-    
+
     def self.past?(date)
       date < Time.zone.today
     end
