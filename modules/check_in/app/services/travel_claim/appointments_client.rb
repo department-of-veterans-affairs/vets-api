@@ -11,12 +11,11 @@ module TravelClaim
     # @param tokens [Hash] Authentication tokens hash
     # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
     # @param facility_id [String] VA facility identifier (maps to facilityStationNumber)
-    # @param patient_icn [String] Patient's ICN (not used in API request)
     # @param correlation_id [String] Request correlation ID
     # @return [Faraday::Response] HTTP response containing appointment data
     #
-    def find_or_create_appointment(tokens:, appointment_date_time:, facility_id:, patient_icn:, correlation_id:)
-      body = build_appointment_body(appointment_date_time:, facility_id:, patient_icn:)
+    def find_or_create_appointment(tokens:, appointment_date_time:, facility_id:, correlation_id:)
+      body = build_appointment_body(appointment_date_time:, facility_id:)
       headers = build_appointment_headers(tokens, correlation_id)
 
       full_url = "#{settings.claims_url_v2}/api/v3/appointments/find-or-add"
@@ -30,10 +29,9 @@ module TravelClaim
     #
     # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
     # @param facility_id [String] VA facility identifier
-    # @param patient_icn [String] Patient's ICN
     # @return [Hash] Request body hash
     #
-    def build_appointment_body(appointment_date_time:, facility_id:, patient_icn:)
+    def build_appointment_body(appointment_date_time:, facility_id:)
       {
         appointmentDateTime: appointment_date_time,
         facilityStationNumber: facility_id

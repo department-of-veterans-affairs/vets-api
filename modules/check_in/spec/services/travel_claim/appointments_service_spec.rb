@@ -88,7 +88,6 @@ RSpec.describe TravelClaim::AppointmentsService do
         tokens: { veis_token: 'veis-token', btsss_token: 'btsss-token' },
         appointment_date_time:,
         facility_id:,
-        patient_icn:,
         correlation_id:
       ).and_return(mock_response)
 
@@ -122,24 +121,6 @@ RSpec.describe TravelClaim::AppointmentsService do
       result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       expect(result[:data]).to be_nil
     end
-
-    it 'handles Redis client failures gracefully' do
-      allow(redis_client).to receive(:icn).and_raise(Redis::ConnectionError, 'Redis connection failed')
-      allow(Rails.logger).to receive(:error)
-
-      expect do
-        service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
-      end.to raise_error(Redis::ConnectionError)
-
-      expect(Rails.logger).to have_received(:error).with(
-        'Travel Claim API error',
-        hash_including(
-          uuid: check_in_session.uuid,
-          error_class: 'Redis::ConnectionError',
-          error_message: 'Redis connection failed'
-        )
-      )
-    end
   end
 
   describe 'inheritance and modules' do
@@ -153,19 +134,6 @@ RSpec.describe TravelClaim::AppointmentsService do
   end
 
   describe 'private methods' do
-    describe '#patient_icn' do
-      it 'returns the patient ICN from Redis' do
-        expect(service.send(:patient_icn)).to eq(patient_icn)
-      end
-
-      it 'memoizes the patient ICN' do
-        expect(redis_client).to receive(:icn).with(uuid:).once.and_return(patient_icn)
-
-        service.send(:patient_icn)
-        service.send(:patient_icn) # Second call should use memoized value
-      end
-    end
-
     describe '#valid_iso_format?' do
       it 'returns true for valid ISO 8601 strings' do
         expect(service.send(:valid_iso_format?, '2024-01-15T10:00:00Z')).to be true
@@ -193,20 +161,10 @@ RSpec.describe TravelClaim::AppointmentsService do
           tokens:,
           appointment_date_time:,
           facility_id:,
-          patient_icn:,
           correlation_id:
         ).and_return(mock_response)
 
         service.send(:make_appointment_request, tokens, appointment_date_time, facility_id, correlation_id)
-      end
-    end
-
-    describe '#redis_client' do
-      it 'memoizes the Redis client' do
-        expect(TravelClaim::RedisClient).to receive(:build).once.and_return(redis_client)
-
-        service.send(:redis_client)
-        service.send(:redis_client) # Second call should use memoized value
       end
     end
   end

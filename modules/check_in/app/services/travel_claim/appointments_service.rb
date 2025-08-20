@@ -74,20 +74,11 @@ module TravelClaim
       end
     end
 
-    def patient_icn
-      @patient_icn ||= redis_client.icn(uuid: check_in_session.uuid) if check_in_session
-    end
-
-    def redis_client
-      @redis_client ||= TravelClaim::RedisClient.build
-    end
-
     def make_appointment_request(tokens, appointment_date_time, facility_id, correlation_id)
       @client.find_or_create_appointment(
         tokens:,
         appointment_date_time:,
         facility_id:,
-        patient_icn:,
         correlation_id:
       )
     end
