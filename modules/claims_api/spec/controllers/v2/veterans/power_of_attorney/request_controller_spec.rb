@@ -325,7 +325,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(service).to receive(:get_poa_request).and_return(poa_res_only_dependent_info)
       end
 
-      it 'has the claimant firstName andlastName in the response' do
+      it 'has the claimant firstName and lastName in the response' do
         mock_ccg(scopes) do |auth_header|
           show_request_with(id: poa_request_with_dependent.id, auth_header:)
 
@@ -339,12 +339,25 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
     let(:lighthouse_id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:vet_icn) { '1012667169V030190' }
+    let(:dependent_icn) { '1013093331V548481' }
     let(:request_response) do
       ClaimsApi::PowerOfAttorneyRequest.new(
         id: lighthouse_id,
         proc_id: '76529',
-        veteran_icn: '1008714701V416111',
+        veteran_icn: vet_icn,
         claimant_icn: '',
+        poa_code: '123',
+        metadata: {},
+        power_of_attorney_id: nil
+      )
+    end
+    let(:request_response_with_dependent) do
+      ClaimsApi::PowerOfAttorneyRequest.new(
+        id: lighthouse_id,
+        proc_id: '76529',
+        veteran_icn: vet_icn,
+        claimant_icn: dependent_icn,
         poa_code: '123',
         metadata: {},
         power_of_attorney_id: nil
@@ -366,7 +379,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
     let(:veteran) do
       OpenStruct.new(
-        icn: '1012861229V078999',
+        icn: vet_icn,
         first_name: 'Ralph',
         last_name: 'Lee',
         middle_name: nil,
@@ -377,7 +390,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         ssn: '796378782',
         participant_id: '600043284',
         mpi: OpenStruct.new(
-          icn: '1012861229V078999',
+          icn: vet_icn,
           profile: OpenStruct.new(ssn: '796378782')
         )
       )
@@ -470,9 +483,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'handling the ACCEPTED decision' do
       let(:ptcpnt_id) { '600043284' }
+      let(:representative_id) { '8942584724354' }
       let(:params) do
         {
-          decision: 'ACCEPTED', proc_id: '09876', representative_id: '8942584724354', poa_code:,
+          decision: 'ACCEPTED', proc_id: '09876', representative_id:, poa_code:,
           metadata: {}, veteran:, claimant: nil
         }
       end
@@ -497,6 +511,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow_any_instance_of(
           ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler
         ).to receive(:call).and_return(return_data)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow_any_instance_of(
           ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
         ).to receive(:build_auth_headers).and_return({})
@@ -524,6 +541,89 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         returned_poa = subject.send(:process_poa_decision, **params)
 
         expect(returned_poa.id).to eq(dummy_record.id)
+      end
+    end
+
+    context 'when the request has dependent information included' do
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Decide) }
+      let(:veteran_info) do
+        OpenStruct.new(
+          icn: '1013030865V203693',
+          first_name: 'Margie',
+          last_name: 'Curtis',
+          middle_name: nil,
+          birls_id: '234251634',
+          birth_date: '1948-10-30',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '234251634',
+          participant_id: '600052700',
+          mpi: OpenStruct.new(
+            icn: vet_icn,
+            profile: OpenStruct.new(ssn: '234251634')
+          )
+        )
+      end
+      let(:claimant_info) do
+        OpenStruct.new(
+          icn: '1013030865V203693',
+          first_name: 'Jerry',
+          last_name: 'Curtis',
+          middle_name: nil,
+          birls_id: '796378782',
+          birth_date: '1948-10-30',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '796378782',
+          participant_id: '600052699',
+          mpi: OpenStruct.new(
+            icn: vet_icn,
+            profile: OpenStruct.new(ssn: '796378782')
+          )
+        )
+      end
+      let(:poa_res_only_dependent_info) do
+        {
+          'VSOUserEmail' => nil, 'VSOUserFirstName' => 'VDC USER', 'VSOUserLastName' => nil,
+          'changeAddressAuth' => 'Y', 'claimantCity' => 'Los Angeles', 'claimantCountry' => 'Vietnam',
+          'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil, 'claimantState' => 'CA',
+          'claimantZip' => '92264', 'dateRequestActioned' => '2025-08-13T15:21:51-05:00',
+          'dateRequestReceived' => '2025-08-13T15:21:51-05:00', 'declinedReason' => nil, 'healthInfoAuth' => 'Y',
+          'poaCode' => '067', 'procID' => '3865154', 'secondaryStatus' => 'New', 'vetFirstName' => 'Margie',
+          'vetLastName' => 'Curtis', 'vetMiddleName' => nil, 'vetPtcpntID' => '600052700'
+        }
+      end
+      let(:poa_request_with_dependent) do
+        create(
+          :claims_api_power_of_attorney_request, veteran_icn: veteran_info.icn, claimant_icn: claimant_info.icn
+        )
+      end
+
+      before do
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:build_veteran_and_dependent_data).with(anything,
+                                                             anything).and_return([veteran_info, claimant_info])
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:get_poa_request).and_return(poa_res_only_dependent_info)
+      end
+
+      it 'has the claimant firstName and lastName in the response' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+            decide_request_with(id: poa_request_with_dependent.id, form_attributes: declined_form_attributes,
+                                auth_header:)
+
+            claimant_object = JSON.parse(response.body)['data']['attributes']['claimant']
+
+            expect(claimant_object['firstName']).to eq(claimant_info.first_name)
+            expect(claimant_object['lastName']).to eq(claimant_info.last_name)
+          end
+        end
       end
     end
 
