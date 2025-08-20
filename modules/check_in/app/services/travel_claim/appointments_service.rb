@@ -47,8 +47,9 @@ module TravelClaim
         data: appointments&.first
       }
     rescue => e
-      error_body = e.respond_to?(:original_body) ? e.original_body : e.message
-      Rails.logger.error('Travel Claim API error', { uuid: check_in_session&.uuid, error_body: })
+      error_class = e.class.name
+      Rails.logger.error('Travel Claim API error',
+                         { uuid: check_in_session&.uuid, error_class:, error_message: e.message })
       raise e
     end
 
