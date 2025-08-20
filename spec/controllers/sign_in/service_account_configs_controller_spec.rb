@@ -97,16 +97,41 @@ RSpec.describe SignIn::ServiceAccountConfigsController, type: :controller do
       end
 
       context 'with certs_attributes' do
-        let(:cert) { create(:sign_in_certificate) }
+        context 'when a cert with the pem already exists' do
+          let!(:cert) { create(:sign_in_certificate) }
 
-        it 'creates a new certificate for the service account config' do
-          post :create,
-               params: {
-                 service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
-               }, as: :json
-          expect(response).to have_http_status(:created)
-          expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
-          expect(SignIn::ServiceAccountConfig.last.certs).to include(cert)
+          it 'associates the existing cert with the service account config' do
+            post :create,
+                 params: {
+                   service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+                 }, as: :json
+            expect(response).to have_http_status(:created)
+            expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
+            expect(SignIn::ServiceAccountConfig.last.certs).to include(cert)
+          end
+
+          it 'does not create a new certificate' do
+            expect do
+              post :create,
+                   params: {
+                     service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+                   }, as: :json
+            end.not_to change(SignIn::Certificate, :count)
+          end
+        end
+
+        context 'when a cert with the pem does not exist' do
+          let(:cert) { build(:sign_in_certificate) }
+
+          it 'creates a new certificate for the service account config' do
+            post :create,
+                 params: {
+                   service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+                 }, as: :json
+            expect(response).to have_http_status(:created)
+            expect(response_body['certs']).to include(a_hash_including('pem' => cert.pem))
+            expect(SignIn::Certificate.count).to eq(1)
+          end
         end
       end
     end
