@@ -101,6 +101,7 @@ module AccreditedRepresentativePortal
         :succeeded
       # If any of the 3 critical steps have failed, mark as failed
       elsif Set.new(failed_steps).intersect? Set.new(CRITICAL_STEPS)
+        PoaRequestFailureNotifier.new(poa_form_submission.power_of_attorney_request).call
         :failed
       # Otherwise, continue to query the request
       else
