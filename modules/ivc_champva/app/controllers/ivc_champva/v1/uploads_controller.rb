@@ -669,8 +669,11 @@ module IvcChampva
       end
 
       def get_attachment_ids_and_form(parsed_form_data)
-        form_id = get_form_id
-        form_class = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
+        base_form_id = get_form_id
+        form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
+        form = IvcChampva::FormVersionManager.create_form_instance(form_id, parsed_form_data, @current_user)
+
+        form_class = form.class
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
         applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
 
@@ -679,8 +682,6 @@ module IvcChampva
         # Must always be at least 1, so that `attachment_ids` still contains the
         # `form_id` even on forms that don't have an `applicants` array (e.g. FMP2)
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
-
-        form = form_class.new(parsed_form_data)
 
         # Optionally add a supporting document with arbitrary form-defined values.
         add_blank_doc_and_stamp(form, parsed_form_data)
@@ -788,17 +789,30 @@ module IvcChampva
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        # Use the actual form ID for PDF generation, but legacy form ID for S3/metadata
+        actual_form_id = form.form_id
+        legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(actual_form_id)
+
+        filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid)
 
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
                       filler.generate
                     end
+
+        # Use legacy form ID in metadata for backwards compatibility
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+        metadata['docType'] = legacy_form_id if IvcChampva::FormVersionManager.versioned_form?(actual_form_id)
+
         file_paths = form.handle_attachments(file_path)
 
-        [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
+        # Use legacy form ID in attachment IDs for S3 compatibility
+        legacy_attachment_ids = attachment_ids.map do |id|
+          id == actual_form_id ? legacy_form_id : id
+        end
+
+        [file_paths, metadata.merge({ 'attachment_ids' => legacy_attachment_ids })]
       end
 
       def get_form_id
