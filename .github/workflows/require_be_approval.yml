@@ -232,7 +232,7 @@ jobs:
             fi
           done
 
-          if [[ "${author_is_backend}" == "true" && "${backend_approval}" == true ]]; then
+          if [[ "${author_is_backend}" == "true" && "${backend_approval}" == "true" ]]; then
             backend_approval_required=true
             team_approval_status=confirmed
             approval_status=confirmed
