@@ -175,7 +175,11 @@ end
 
 ### Flipper usage in tests
 🚫 Never call `Flipper.enable` or `Flipper.disable`.
-✅ Always stub inline with pattern above.
+✅ Always stub inline with specific feature flag:
+```ruby
+allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)
+```
+🚫 Generic stub missing feature flag: `allow(Flipper).to receive(:enabled?).and_return(true)`
 
 ### ActiveRecord index migrations
 
@@ -213,6 +217,8 @@ This prevents table locking during deployment.
 - **Hardcoded secrets or API keys** in source code instead of environment variables.
 - **Heavy I/O operations** like `sleep()` calls directly in controller actions.
 - **Non-idempotent operations** without duplicate prevention (create without uniqueness checks).
+- **Generic Flipper stubs** in tests missing specific feature flag parameter.
+- **Tests missing authentication context** (no sign_in or user setup for authenticated endpoints).
 
 ---
 
@@ -231,6 +237,8 @@ This prevents table locking during deployment.
 - _"Hardcoded API key `sk-1234...` in source. Move to environment variable or SSM parameter."_
 - _"Non-idempotent `create!` without uniqueness check. Add validation or `find_or_create_by`."_
 - _"Error response `{ message: '...' }` inconsistent. Use standard envelope: `{ error: { code: '...', message: '...' } }`."_
+- _"Flipper stub missing feature flag parameter. Should be `.with(:feature_name)`."_
+- _"Test for authenticated endpoint missing `sign_in(user)` or authentication setup."_
 
 ---
 
