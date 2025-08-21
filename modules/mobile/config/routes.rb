@@ -55,6 +55,8 @@ Mobile::Engine.routes.draw do
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
     get '/maintenance_windows', to: 'maintenance_windows#index'
+    resources :medical_copays, only: %i[index show]
+    get '/medical_copays/download/:id', to: 'medical_copays#download'
     get '/messaging/health/folders', to: 'folders#index'
     post '/messaging/health/folders', to: 'folders#create'
     get '/messaging/health/folders/:folder_id/messages', to: 'messages#index'
