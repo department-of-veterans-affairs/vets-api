@@ -61,8 +61,8 @@ module DebtsApi
             "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
         )
         begin
-          send_failure_email if Settings.vsp_environment == 'production' && 
-                                 Flipper.enabled?(:digital_dispute_email_notifications)
+          send_failure_email if Settings.vsp_environment == 'production' &&
+                                Flipper.enabled?(:digital_dispute_email_notifications)
         rescue
           StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
         end
@@ -70,7 +70,7 @@ module DebtsApi
 
       def register_success
         submitted!
-        send_success_email if Settings.vsp_environment == 'production' && 
+        send_success_email if Settings.vsp_environment == 'production' &&
                               Flipper.enabled?(:digital_dispute_email_notifications)
       end
 
