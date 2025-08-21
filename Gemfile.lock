@@ -440,7 +440,7 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    ethon (0.16.0)
+    ethon (0.17.0)
       ffi (>= 1.15.0)
     factory_bot (6.5.4)
       activesupport (>= 6.1.0)
