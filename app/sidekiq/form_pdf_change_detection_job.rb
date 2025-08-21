@@ -2,7 +2,7 @@
 
 require 'forms/client'
 
-class FormPdfVersionJob
+class FormPdfChangeDetectionJob
   include Sidekiq::Job
 
   sidekiq_options retry: 10

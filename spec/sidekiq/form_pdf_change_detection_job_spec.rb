@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FormPdfVersionJob, type: :job do
+RSpec.describe FormPdfChangeDetectionJob, type: :job do
   let(:forms_response) do
     {
       'data' => [
