@@ -227,6 +227,7 @@ claims_api:
 claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
+  include_request: false
   jwt_secret: fake-secret
   mock: false
   ssl: false
