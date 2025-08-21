@@ -51,6 +51,12 @@ FactoryBot.define do
       detail { 'Upload rejected' }
     end
 
+    trait :status_emms_error do
+      status { 'error'}
+      code { 'DOC202'}
+      detail { 'image failed to process' }
+    end
+
     trait :status_final_success do
       status { 'success' }
       metadata { { final_success_status: Time.now.utc } }
