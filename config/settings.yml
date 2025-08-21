@@ -228,6 +228,7 @@ claims_api:
 claims_evidence_api:
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
   breakers_error_threshold: 80
+  include_request: false
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
