@@ -11,8 +11,7 @@ class FormPdfVersionJob
   CACHE_PREFIX = 'form_pdf_revision_sha256'
 
   def perform
-    response = Forms::Client.new(nil).get_all
-    forms = response.body['data']
+    forms = fetch_forms_data
 
     cache_keys, current_sha_map = get_current_form_data(forms)
     cached_sha_map = fetch_cached_values(cache_keys)
@@ -26,15 +25,9 @@ class FormPdfVersionJob
 
   private
 
-  def fetch_cached_values(cache_keys)
-    Rails.cache.fetch_multi(*cache_keys) do |_key|
-      nil
-    end
-  end
-
-  def update_cached_values(current_sha_map)
-    cache_data = current_sha_map.transform_values { |data| data[:sha256] }
-    Rails.cache.write_multi(cache_data, expires_in: CACHE_TTL) unless cache_data.empty?
+  def fetch_forms_data
+    response = Forms::Client.new(nil).get_all
+    response.body['data']
   end
 
   def get_current_form_data(forms)
@@ -58,6 +51,17 @@ class FormPdfVersionJob
     end
 
     [cache_keys, current_sha_map]
+  end
+
+  def fetch_cached_values(cache_keys)
+    Rails.cache.fetch_multi(*cache_keys) do |_key|
+      nil
+    end
+  end
+
+  def update_cached_values(current_sha_map)
+    cache_data = current_sha_map.transform_values { |data| data[:sha256] }
+    Rails.cache.write_multi(cache_data, expires_in: CACHE_TTL) unless cache_data.empty?
   end
 
   def log_form_revisions(current_sha_map, cached_sha_map)
