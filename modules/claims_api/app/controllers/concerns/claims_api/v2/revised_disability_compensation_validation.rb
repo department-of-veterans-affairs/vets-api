@@ -19,10 +19,14 @@ module ClaimsApi
         # Validate service information
         validate_service_information!
 
+        # Validate disabilities
+        validate_disabilities!
+
+        # Validate special circumstances
+        validate_special_circumstances!
+
         # Return collected errors
         error_collection if @errors
-
-        # TODO: Future PRs will add more validations here
       end
 
       private
@@ -258,6 +262,270 @@ module ClaimsApi
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
+      end
+
+      ### FES Val Section 7: disabilities validations
+      def validate_disabilities!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.nil?
+
+        # FES Val Section 7.a-b: Must have 1-150 disabilities
+        validate_disabilities_count!(disabilities)
+
+        # FES Val Warning Section ii: Check for duplicate disability names
+        # Note: This is listed as a warning but actually causes FES errors
+        validate_duplicate_disability_names!(disabilities)
+
+        disabilities.each_with_index do |disability, idx|
+          validate_disability_fields!(disability, idx)
+          validate_disability_dates!(disability, idx)
+          validate_disability_special_issues!(disability, idx)
+        end
+      end
+
+      def validate_disabilities_count!(disabilities)
+        # FES Val Section 7.a: Must have at least 1 disability
+        if disabilities.empty?
+          collect_error(
+            source: '/disabilities',
+            title: 'Missing required field',
+            detail: 'List of disabilities must be provided'
+          )
+        end
+
+        # FES Val Section 7.b: Maximum of 150 disabilities
+        return unless disabilities.size > 150
+
+        collect_error(
+          source: '/disabilities',
+          title: 'Invalid array',
+          detail: "Number of disabilities #{disabilities.size} must be between 1 and 150 inclusive"
+        )
+      end
+
+      def validate_disability_fields!(disability, idx)
+        action_type = disability['disabilityActionType']
+
+        # Section 7.f.ii: diagnosticCode required for NONE with secondary disabilities
+        validate_none_with_secondary!(disability, idx, action_type)
+
+        # Section 7.m.ii, 7.n.ii: name validations
+        validate_disability_name!(disability, idx)
+
+        # Section 7.o.ii: REOPEN not supported
+        validate_reopen_not_supported!(disability, idx, action_type)
+      end
+
+      def validate_none_with_secondary!(disability, idx, action_type)
+        return unless action_type == 'NONE' && disability['secondaryDisabilities'].present?
+        return if disability['diagnosticCode'].present?
+
+        collect_error(
+          source: "/disabilities/#{idx}/diagnosticCode",
+          title: 'Bad Request',
+          detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
+                  'is not currently supported.'
+        )
+      end
+
+      def validate_reopen_not_supported!(_disability, idx, action_type)
+        return unless action_type == 'REOPEN'
+
+        collect_error(
+          source: "/disabilities/#{idx}/disabilityActionType",
+          title: 'Bad Request',
+          detail: 'The request failed disability validation: The disability Action Type of "REOPEN" ' \
+                  'is not currently supported. REOPEN will be supported in a future release'
+        )
+      end
+
+      def validate_disability_name!(disability, idx)
+        name = disability['name']
+        action_type = disability['disabilityActionType']
+
+        return validate_name_required!(idx) if name.blank?
+
+        validate_name_length!(name, idx)
+        validate_new_disability_name_format!(name, action_type, idx)
+      end
+
+      def validate_name_required!(idx)
+        collect_error(
+          source: "/disabilities/#{idx}/name",
+          title: 'Missing required field',
+          detail: "The disability name (#{idx}) is required"
+        )
+      end
+
+      def validate_name_length!(name, idx)
+        return unless name.length > 255
+
+        collect_error(
+          source: "/disabilities/#{idx}/name",
+          title: 'Invalid value',
+          detail: 'The disability name must be less than 256 characters'
+        )
+      end
+
+      def validate_new_disability_name_format!(name, action_type, idx)
+        return unless action_type == 'NEW' && !name.match?(%r{^[a-zA-Z0-9\-'.,/\(\)]([a-zA-Z0-9\-',. ])*$})
+
+        collect_error(
+          source: "/disabilities/#{idx}/name",
+          title: 'Bad Request',
+          detail: "The disability name \"#{name}\" does not match the expected format for a " \
+                  'disabilityActionType of "NEW"'
+        )
+      end
+
+      def validate_disability_dates!(disability, idx)
+        approximate_date = disability['approximateBeginDate']
+        return if approximate_date.blank?
+
+        # Section 7.q.ii, 7.r.ii, 7.s.ii: Date format validations
+        validate_date_format!(approximate_date, idx)
+
+        # Parse and validate date
+        parsed_date = parse_date_safely(approximate_date)
+        return if parsed_date.nil?
+
+        # Section 7.t.ii: approximateBeginDate must be in the past
+        return unless parsed_date > Date.current
+
+        collect_error(
+          source: "/disabilities/#{idx}/approximateBeginDate",
+          title: 'Invalid value',
+          detail: 'The ApproximateBeginDate in primary disability must be in the past'
+        )
+      end
+
+      def validate_date_format!(date_string, idx)
+        parts = date_string.split('-')
+        validate_month_format!(parts, idx)
+        validate_day_format!(parts, idx)
+        validate_day_year_combination!(date_string, parts, idx)
+      end
+
+      def validate_month_format!(parts, idx)
+        # Section 7.q.ii: Month validation (must be 1-12)
+        return unless parts.length >= 2
+
+        month = parts[1].to_i
+        return unless month < 1 || month > 12
+
+        collect_error(
+          source: "/disabilities/#{idx}/approximateBeginDate",
+          title: 'Invalid value',
+          detail: 'The month is not a valid value'
+        )
+      end
+
+      def validate_day_format!(parts, idx)
+        # Section 7.r.ii: Day validation
+        return unless parts.length == 3
+
+        day = parts[2].to_i
+        month = parts[1].to_i
+        return unless day < 1 || day > 31 || (month == 2 && day > 29)
+
+        collect_error(
+          source: "/disabilities/#{idx}/approximateBeginDate",
+          title: 'Invalid value',
+          detail: 'The day is not a valid value'
+        )
+      end
+
+      def validate_day_year_combination!(date_string, parts, idx)
+        # Section 7.s.ii: Day and Year without month not allowed
+        return unless date_string.match?(/^\d{4}-\d{2}$/) && parts[1] == '00'
+
+        collect_error(
+          source: "/disabilities/#{idx}/approximateBeginDate",
+          title: 'Invalid value',
+          detail: 'Day and Year is not a valid combination. Accepted combinations are: ' \
+                  'Year/Month/Day, Year/Month, Or Year'
+        )
+      end
+
+      def validate_disability_special_issues!(disability, idx)
+        special_issues = disability['specialIssues']
+        return if special_issues.blank?
+
+        validate_increase_special_issues!(disability, idx, special_issues)
+        validate_hepc_special_issue!(disability, idx, special_issues)
+        validate_pow_special_issue!(idx, special_issues)
+      end
+
+      def validate_increase_special_issues!(disability, idx, special_issues)
+        action_type = disability['disabilityActionType']
+        # Section 7.u.ii: specialIssues validation for INCREASE
+        return unless action_type == 'INCREASE' && special_issues.present?
+        return if [['EMP'], ['RRD']].include?(special_issues)
+
+        collect_error(
+          source: "/disabilities/#{idx}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A Special Issue cannot be added to a primary disability after the disability has been rated'
+        )
+      end
+
+      def validate_hepc_special_issue!(disability, idx, special_issues)
+        name = disability['name']
+        # Section 7.v.ii: HEPC special issue validation
+        return unless special_issues.include?('HEPC') && name != 'Hepatitis'
+
+        collect_error(
+          source: "/disabilities/#{idx}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A special issue of HEPC can only exist for the disability Hepatitis'
+        )
+      end
+
+      def validate_pow_special_issue!(idx, special_issues)
+        # Section 7.w.ii: POW requires confinements
+        return unless special_issues.include?('POW')
+
+        confinements = form_attributes.dig('serviceInformation', 'confinements')
+        return if confinements.present?
+
+        collect_error(
+          source: "/disabilities/#{idx}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A prisoner of war must have at least one period of confinement record'
+        )
+      end
+
+      def validate_duplicate_disability_names!(disabilities)
+        # FES Val Section 7.x: The same name must appear only once in the list of disabilities
+        # Although listed as a warning, this actually causes FES errors
+        names = disabilities.map { |d| d['name'] }.compact
+        duplicates = names.select { |name| names.count(name) > 1 }.uniq
+
+        return if duplicates.empty?
+
+        duplicates.each do |duplicate_name|
+          collect_error(
+            source: '/disabilities',
+            title: 'Invalid value',
+            detail: "Duplicate disability name found: #{duplicate_name}"
+          )
+        end
+      end
+
+      ### FES Val Section 10: Special Circumstances validation
+      def validate_special_circumstances!
+        special_circumstances = form_attributes['specialCircumstances']
+        return if special_circumstances.nil?
+
+        # Section 10.a is crossed out: "specialCircumstances must not be in the JSON request"
+        # Section 10.b: A maximum of 100 special circumstances are allowed
+        return unless special_circumstances.is_a?(Array) && special_circumstances.size > 100
+
+        collect_error(
+          source: '/specialCircumstances',
+          title: 'Invalid array',
+          detail: 'A maximum of 100 special circumstances are allowed'
+        )
       end
 
       # Utility methods grouped at the bottom
