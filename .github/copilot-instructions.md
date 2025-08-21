@@ -37,7 +37,9 @@
    - Secrets/config must come from env/SSM, not source.
 
 5. **Maintainability**
-   - Keep classes small; follow Sandi Metz's rules (objects < 100 lines; methods < 5 lines when practical; max 3 args; no long conditionals).
+   - **Sandi Metz Rules**: Objects < 100 lines; methods < 5 lines when practical; max 3 args per method; no long conditionals.
+   - **Class Size**: Keep classes small and focused on single responsibility.
+   - **Method Length**: Flag methods longer than 5 lines for potential refactoring.
    - Follow Rails conventions (fat models are OK up to a point; avoid fat controllers; extract service objects/jobs).
 
 ---
@@ -195,6 +197,9 @@ This prevents table locking during deployment.
 - Adds N+1 queries or removes needed indexes.
 - Non-idempotent POST/PUT without safeguards.
 - Large migrations without safety plan.
+- **Methods longer than 5 lines** without clear justification.
+- **Classes longer than 100 lines** that could be refactored.
+- **Methods with more than 3 parameters** that could use parameter objects.
 
 ---
 
@@ -205,6 +210,7 @@ This prevents table locking during deployment.
 - _"This new column is filtered by `WHERE status = ...`. Please add an index on `status` or a composite if combined with `user_id`."_
 - _"Potential PII in this log line (`user_email`). Please remove or redact."_
 - _"Controller does heavy IO; move to Sidekiq job and respond 202 Accepted with a job ID."_
+- _"This method is 10+ lines long. Consider extracting smaller methods following Sandi Metz rules (methods < 5 lines)."_
 
 ---
 
