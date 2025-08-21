@@ -179,10 +179,19 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           get_single_claim
         end
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4,
-                               'displayName')).to eq('RV1 - Reserve Records Request')
+        relevant_item = parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4)
+        expect(relevant_item['displayName']).to eq('RV1 - Reserve Records Request')
         # In the cassette, this value is NEEDED_FROM_YOU
-        expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
+        expect(relevant_item['status']).to eq('NEEDED_FROM_OTHERS')
+        expect(relevant_item['description']).to eq('RV1 can have its status overriden with a feature flipper.')
+        expect(relevant_item['overdue']).to be(false)
+        expect(relevant_item['friendlyName']).to eq('Reserve records')
+        expect(relevant_item['activityDescription'])
+          .to eq('We’ve requested your reserve records on your behalf. No action is needed.')
+        expect(relevant_item['shortDescription'])
+          .to eq('We’ve requested your service records or treatment records from your reserve unit.')
+        expect(relevant_item['canUploadFile']).to be(true)
+        expect(relevant_item['uploaded']).to be(true)
       end
 
       context 'when :cst_suppress_evidence_requests_website is enabled' do
