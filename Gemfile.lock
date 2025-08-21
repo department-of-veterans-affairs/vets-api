@@ -389,7 +389,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.6.2)
     docile (1.4.0)
-    dogstatsd-ruby (5.7.0)
+    dogstatsd-ruby (5.7.1)
     domain_name (0.6.20240107)
     down (5.4.2)
       addressable (~> 2.8)
@@ -717,7 +717,7 @@ GEM
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
-    mini_magick (5.3.0)
+    mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)

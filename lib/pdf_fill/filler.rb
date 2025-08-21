@@ -97,7 +97,7 @@ module PdfFill
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
-        PDF_FORMS.cat(old_file_path, extras_path, file_path)
+        merge_pdfs(old_file_path, extras_path, file_path)
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -106,6 +106,29 @@ module PdfFill
       else
         old_file_path
       end
+    end
+
+    ##
+    # Merges multiple PDF files into a single PDF file using HexaPDF.
+    #
+    # @param file_paths [Array<String>] The paths of the PDF files to merge.
+    # @param new_file_path [String] The path for the final merged PDF file.
+    #
+    # @return [void]
+    #
+    def merge_pdfs(*file_paths, new_file_path)
+      # Use the first file as the target document so that we get its metadata and
+      # other properties in the merged document without having to do extra steps.
+      target = HexaPDF::Document.open(file_paths.first)
+
+      file_paths.drop(1).each do |file_path|
+        pdf = HexaPDF::Document.open(file_path)
+        pdf.pages.each do |page|
+          target.pages << target.import(page)
+        end
+      end
+
+      target.write(new_file_path)
     end
 
     ##
