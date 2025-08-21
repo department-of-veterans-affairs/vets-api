@@ -28,10 +28,25 @@ Model.create!(params)                             # ❌ WRONG - no validation
 # Should use: find_or_create_by, validations, or uniqueness constraints
 ```
 
+### Faraday/HTTP Client Issues
+```ruby
+@client = Faraday.new('https://external-api.va.gov')  # ❌ WRONG - no timeouts
+response = @client.get("/users/#{user_id}")           # ❌ WRONG - no error handling
+JSON.parse(response.body)                             # ❌ WRONG - no validation
+# Should have: timeouts, retries, error handling, response validation
+```
+
+### Response Validation Issues
+```ruby
+JSON.parse(response.body)                             # ❌ WRONG - no nil check
+data = JSON.parse(response.body)                      # ❌ WRONG - no rescue
+# Should validate response exists, handle JSON parse errors
+```
+
 ### Other Critical Issues
 - **Hardcoded secrets**: `api_key = "sk-..."` or `password = "..."` 
 - **PII in logs**: `Rails.logger.info "User: #{params[:email]}"`
-- **Blocking operations**: `sleep(5)` in controller actions
+- **Blocking operations**: `sleep(10)` in service methods
 
 ---
 
@@ -111,6 +126,20 @@ end
 * Wrap calls with clear error handling; map upstream errors to domain-specific errors.
 * **Breakers**: Circuit breaker for external API calls.
 * **Betamocks**: Mock external HTTP services in development and test.
+
+### **REQUIRED Response Validation Pattern**
+```ruby
+# ❌ WRONG - No validation
+response = @client.get("/users/#{user_id}")
+JSON.parse(response.body)
+
+# ✅ CORRECT - With validation
+response = @client.get("/users/#{user_id}")
+raise ServiceError, "Invalid response" if response.nil? || !response.success?
+data = JSON.parse(response.body)
+rescue JSON::ParserError => e
+  handle_parse_error(e)
+```
 
 ---
 
@@ -245,7 +274,9 @@ This prevents table locking during deployment.
 - **Blocking operations in controllers**: `sleep()`, long external calls, file processing
 
 ### **PERFORMANCE & RELIABILITY**
-- External HTTP calls without timeouts/retries
+- **Faraday without timeouts**: `Faraday.new(url)` missing `timeout:` and `open_timeout:`
+- **HTTP calls without error handling**: `@client.get(path)` not wrapped in begin/rescue
+- **Unvalidated JSON parsing**: `JSON.parse(response.body)` without nil check or rescue
 - N+1 queries without `includes`/`preload`
 - Large migrations without safety plan
 
@@ -262,6 +293,8 @@ This prevents table locking during deployment.
 
 - _"Consider adding `includes(:association)` to avoid N+1 on `index`."_
 - _"This Faraday client lacks explicit `timeout`/`open_timeout`. Recommend `timeout: 8, open_timeout: 2` and retry with backoff."_
+- _"Line 17: `@client.get` has no error handling. Wrap in begin/rescue or use Faraday error middleware."_
+- _"Line 20: `JSON.parse(response.body)` unsafe - response might be nil or invalid JSON. Add validation and error handling."_
 - _"This new column is filtered by `WHERE status = ...`. Please add an index on `status` or a composite if combined with `user_id`."_
 - _"Potential PII in this log line (`user_email`). Please remove or redact."_
 - _"Controller does heavy IO; move to Sidekiq job and respond 202 Accepted with a job ID."_
