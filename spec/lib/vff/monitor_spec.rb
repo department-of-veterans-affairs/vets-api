@@ -21,11 +21,31 @@ RSpec.describe VFF::Monitor do
       expect(described_class::BENEFITS_INTAKE_STATS_KEY).to eq('vff.benefits_intake')
     end
 
-    it_behaves_like 'detects form types correctly', %w[21-0966 21-4142 21-10210 21-0972 21P-0847 20-10206 20-10207 21-0845]
+    it_behaves_like 'detects form types correctly', [%w[21-0966 21-4142 21-10210 21-0972 21P-0847 20-10206 20-10207 21-0845]]
   end
 
   describe '#initialize' do
-    it_behaves_like 'a zero silent failures monitor', 'veteran-facing-forms'
+    it 'inherits from ZeroSilentFailures::Monitor' do
+      expect(monitor).to be_a(ZeroSilentFailures::Monitor)
+    end
+
+    it 'uses correct service name in StatsD tags' do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:error)
+
+      monitor.track_benefits_intake_failure('test-uuid', '21-0966', false)
+
+      expect(StatsD).to have_received(:increment).with(
+        'vff.benefits_intake.failure',
+        tags: ['form_id:21-0966', 'service:veteran-facing-forms']
+      )
+    end
+
+    it 'responds to core ZSF methods' do
+      expect(monitor).to respond_to(:log_silent_failure)
+      expect(monitor).to respond_to(:log_silent_failure_avoided)
+      expect(monitor).to respond_to(:log_silent_failure_no_confirmation)
+    end
   end
 
   describe '#track_benefits_intake_failure' do

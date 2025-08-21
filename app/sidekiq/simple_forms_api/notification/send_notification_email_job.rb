@@ -83,6 +83,16 @@ module SimpleFormsApi
       def send_email
         email = form_upload_supported? ? form_upload_notification_email : notification_email
 
+        # Record that the email notification job has been enqueued for VFF forms
+        if vff_form?
+          form_id = @form_number.gsub('vba_', '').gsub('_', '-').upcase
+          form_id = form_id.gsub('21P', '21P-') if form_id.include?('21P')
+          StatsD.increment(
+            'vff.benefits_intake.email_send_scheduled',
+            tags: ["form_id:#{form_id}", 'service:veteran-facing-forms']
+          )
+        end
+
         email.send(at: time_to_send)
       end
 
@@ -104,7 +114,7 @@ module SimpleFormsApi
         track_vff_email_failure(e) if vff_form?
       end
 
-      private
+      private # rubocop:disable Lint/UselessAccessModifier
 
       # Check if this is a VFF form
       def vff_form?
@@ -130,7 +140,7 @@ module SimpleFormsApi
           @benefits_intake_uuid,
           error,
           {
-            notification_type: notification_type,
+            notification_type:,
             form_number: @form_number,
             benefits_intake_uuid: @benefits_intake_uuid
           }
