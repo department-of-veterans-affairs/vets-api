@@ -626,8 +626,6 @@ ivc_forms:
       enabled: true
     old_records_cleanup_job:
       enabled: true
-    ves_retry_failures_job:
-      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
@@ -1330,6 +1328,7 @@ va_profile:
     mock: false
     timeout: 30
 vanotify:
+  callback_url: https://dev-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
