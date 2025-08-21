@@ -98,7 +98,7 @@ module ClaimsApi
             )
           end
 
-          get_poa_response = decide_service.get_poa_request(ptcpnt_id: veteran_info.participant_id, lighthouse_id:)
+          get_poa_response = decide_service.handle_poa_response(lighthouse_id, veteran_info, claimant_info)
           # Two different responses needed, if declined no location URL is required
           if decision_response.nil?
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(get_poa_response,

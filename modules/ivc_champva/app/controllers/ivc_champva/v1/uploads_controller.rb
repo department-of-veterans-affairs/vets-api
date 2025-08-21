@@ -356,6 +356,7 @@ module IvcChampva
         tmpfile.binmode
         tmpfile.write(attachment.file.read)
         tmpfile.flush
+        tmpfile.rewind
 
         content_type = if attachment.file.respond_to?(:content_type)
                          attachment.file.content_type

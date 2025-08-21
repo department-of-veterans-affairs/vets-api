@@ -6,7 +6,10 @@ module SignIn
     attribute :refresh_token_duration, :interval
 
     has_many :config_certificates, as: :config, dependent: :destroy, inverse_of: :config
-    has_many :certs, through: :config_certificates, class_name: 'SignIn::Certificate', inverse_of: :client_configs
+    has_many :certs, through: :config_certificates,
+                     class_name: 'SignIn::Certificate',
+                     inverse_of: :client_configs,
+                     index_errors: true
 
     accepts_nested_attributes_for :certs,
                                   allow_destroy: true,
@@ -80,7 +83,7 @@ module SignIn
           cert = certs.find(id)
           certs.destroy(cert)
         else
-          cert = SignIn::Certificate.find_or_create_by(pem:)
+          cert = SignIn::Certificate.find_or_initialize_by(pem:)
           certs << cert unless certs.include?(cert)
         end
       end
