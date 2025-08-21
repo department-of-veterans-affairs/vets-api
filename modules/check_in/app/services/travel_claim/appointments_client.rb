@@ -18,7 +18,7 @@ module TravelClaim
       body = build_appointment_body(appointment_date_time:, facility_id:)
       headers = build_appointment_headers(tokens, correlation_id)
 
-      full_url = "#{settings.claims_url_v2}/api/v3/appointments/find-or-add"
+      full_url = "#{settings.claims_base_path}/api/v3/appointments/find-or-add"
       perform(:post, full_url, body, headers)
     end
 
