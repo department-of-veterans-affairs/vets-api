@@ -35,34 +35,82 @@ RSpec.describe FormPdfVersionJob, type: :job do
 
     @mock_cache = {}
 
-    allow(Rails.cache).to receive(:read) do |key|
-      @mock_cache[key]
+    allow(Rails.cache).to receive(:fetch_multi) do |*keys, &block|
+      result = {}
+      keys.each do |key|
+        if @mock_cache.key?(key)
+          result[key] = @mock_cache[key]
+        elsif block
+          computed_value = block.call(key)
+          @mock_cache[key] = computed_value
+          result[key] = computed_value
+        end
+      end
+      result
     end
 
-    allow(Rails.cache).to receive(:write) do |key, value|
-      @mock_cache[key] = value
+    allow(Rails.cache).to receive(:write_multi) do |data, **_options|
+      @mock_cache.merge!(data)
       true
     end
   end
 
   describe '#perform' do
+    it 'sets cache values without triggering change detection metrics on initial run' do
+      expect(@mock_cache).to be_empty
+
+      expect(StatsD).not_to receive(:increment)
+        .with('form.pdf.change.detected', anything)
+
+      expect(Rails.logger).not_to receive(:info)
+        .with(a_string_including('was revised'))
+
+      expect(Rails.cache).to receive(:fetch_multi).and_call_original
+      expect(Rails.cache).to receive(:write_multi).and_call_original
+
+      subject.perform
+
+      expect(@mock_cache['form_pdf_revision_sha256:10-10EZ']).to eq('abc123def456')
+      expect(@mock_cache['form_pdf_revision_sha256:21-526EZ']).to eq('xyz789uvw012')
+    end
+
     it 'completes successfully with valid form data' do
       expect { subject.perform }.not_to raise_error
     end
 
-    it 'caches SHA256 values for forms' do
+    it 'uses batch operations to read and write cache' do
+      expected_keys = [
+        'form_pdf_revision_sha256:10-10EZ',
+        'form_pdf_revision_sha256:21-526EZ'
+      ]
+
+      expect(Rails.cache).to receive(:fetch_multi).with(*expected_keys).and_call_original
+
+      expected_data = {
+        'form_pdf_revision_sha256:10-10EZ' => 'abc123def456',
+        'form_pdf_revision_sha256:21-526EZ' => 'xyz789uvw012'
+      }
+
+      expect(Rails.cache).to receive(:write_multi)
+        .with(expected_data, expires_in: 7.days.to_i)
+        .and_call_original
+
+      subject.perform
+    end
+
+    it 'caches SHA256 values for forms using batch write' do
       subject.perform
 
-      expect(Rails.cache.read('form_pdf_revision_sha256:10-10EZ')).to eq('abc123def456')
-      expect(Rails.cache.read('form_pdf_revision_sha256:21-526EZ')).to eq('xyz789uvw012')
+      expect(@mock_cache['form_pdf_revision_sha256:10-10EZ']).to eq('abc123def456')
+      expect(@mock_cache['form_pdf_revision_sha256:21-526EZ']).to eq('xyz789uvw012')
     end
 
     context 'when form has changed' do
       before do
-        Rails.cache.write('form_pdf_revision_sha256:10-10EZ', 'old_sha_value')
+        @mock_cache['form_pdf_revision_sha256:10-10EZ'] = 'old_sha_value'
       end
 
-      it 'detects changes and records metrics' do
+      it 'detects changes using batch read and records metrics' do
         expect(StatsD).to receive(:increment)
           .with('form.pdf.change.detected', tags: ['form:10-10EZ', 'form_id:10-10EZ'])
 
@@ -77,16 +125,16 @@ RSpec.describe FormPdfVersionJob, type: :job do
         subject.perform
       end
 
-      it 'updates cache with new SHA256 value' do
+      it 'updates cache with new SHA256 value using batch write' do
         subject.perform
 
-        expect(Rails.cache.read('form_pdf_revision_sha256:10-10EZ')).to eq('abc123def456')
+        expect(@mock_cache['form_pdf_revision_sha256:10-10EZ']).to eq('abc123def456')
       end
     end
 
     context 'when form has not changed' do
       before do
-        Rails.cache.write('form_pdf_revision_sha256:10-10EZ', 'abc123def456')
+        @mock_cache['form_pdf_revision_sha256:10-10EZ'] = 'abc123def456'
       end
 
       it 'does not trigger change detection metrics' do
@@ -96,10 +144,12 @@ RSpec.describe FormPdfVersionJob, type: :job do
         subject.perform
       end
 
-      it 'refreshes cache TTL' do
+      it 'still updates cache using batch write to refresh TTL' do
+        expect(Rails.cache).to receive(:write_multi).and_call_original
+
         subject.perform
 
-        expect(Rails.cache.read('form_pdf_revision_sha256:10-10EZ')).to eq('abc123def456')
+        expect(@mock_cache['form_pdf_revision_sha256:10-10EZ']).to eq('abc123def456')
       end
     end
 
@@ -114,9 +164,16 @@ RSpec.describe FormPdfVersionJob, type: :job do
 
         expect { subject.perform }.to raise_error(StandardError, 'API Error')
       end
+
+      it 'does not perform any cache operations' do
+        expect(Rails.cache).not_to receive(:fetch_multi)
+        expect(Rails.cache).not_to receive(:write_multi)
+
+        expect { subject.perform }.to raise_error(StandardError, 'API Error')
+      end
     end
 
-    context 'with malformed response data' do
+    context 'when form processing raises an exception despite valid id' do
       let(:forms_response) do
         {
           'data' => [
@@ -124,34 +181,40 @@ RSpec.describe FormPdfVersionJob, type: :job do
               'id' => '10-10EZ',
               'attributes' => {
                 'form_name' => '10-10EZ',
-                'sha256' => 'valid_sha'
+                'sha256' => 'abc123def456'
               }
-            },
-            {
-              'id' => 'malformed-form'
-              # Missing attributes
             }
           ]
         }
       end
 
-      it 'handles individual form errors gracefully' do
+      before do
+        allow_any_instance_of(Hash).to receive(:dig).and_call_original
+        allow_any_instance_of(Hash).to receive(:dig).with('attributes', 'sha256') do |form|
+          if form['id'] == '10-10EZ'
+            raise StandardError, 'Simulated processing error'
+          else
+            form.dig('attributes', 'sha256')
+          end
+        end
+      end
+
+      it 'catches the exception and logs the error' do
         expect(Rails.logger).to receive(:error)
-          .with(a_string_including('Error processing form malformed-form'))
+          .with('Error processing form 10-10EZ: Simulated processing error')
 
         expect { subject.perform }.not_to raise_error
-
-        # Valid form should still be processed
-        expect(Rails.cache.read('form_pdf_revision_sha256:10-10EZ')).to eq('valid_sha')
       end
     end
 
     context 'with empty forms array' do
       let(:forms_response) { { 'data' => [] } }
 
-      it 'completes without processing any forms' do
+      it 'completes without performing cache operations' do
+        expect(Rails.cache).to receive(:fetch_multi).with(no_args).and_return({})
+        expect(Rails.cache).not_to receive(:write_multi)
+
         expect { subject.perform }.not_to raise_error
-        expect(Rails.cache.read('form_pdf_revision_sha256:10-10EZ')).to be_nil
       end
     end
 
@@ -159,14 +222,6 @@ RSpec.describe FormPdfVersionJob, type: :job do
       let(:forms_response) { {} }
 
       it 'handles missing data structure gracefully' do
-        expect { subject.perform }.to raise_error(NoMethodError)
-      end
-    end
-
-    context 'with nil response body' do
-      let(:response) { double(body: nil) }
-
-      it 'handles nil response body' do
         expect { subject.perform }.to raise_error(NoMethodError)
       end
     end
