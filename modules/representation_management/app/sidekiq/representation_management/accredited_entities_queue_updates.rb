@@ -47,6 +47,7 @@ module RepresentationManagement
       @force_update_types = force_update_types
       initialize_instance_variables
       @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
+      setup_daily_report
 
       # Don't save fresh API counts if updates are forced
       @entity_counts.save_api_counts unless @force_update_types.any?
@@ -58,11 +59,15 @@ module RepresentationManagement
       delete_removed_accreditations
     rescue => e
       log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
+    ensure
+      finalize_and_send_report
     end
 
     private
 
     def initialize_instance_variables
+      @start_time = Time.current
+      @report = String.new
       @agent_ids = []
       @attorney_ids = []
       @vso_ids = []
@@ -72,6 +77,20 @@ module RepresentationManagement
       @representative_json_for_address_validation = []
       @rep_to_vso_associations = {}
       @accreditation_ids = []
+    end
+
+    def setup_daily_report
+      @report << 'RepresentationManagement::AccreditedEntitiesQueueUpdates Report'
+      @report << "📊 **Entity Counts:**\n"
+      @report << "```\n#{@entity_counts&.count_report || 'Entity counts unavailable'}\n```\n"
+    end
+
+    def finalize_and_send_report
+      end_time = Time.current
+      duration = calculate_duration(@start_time, end_time)
+
+      @report << "\nJob Duration: #{duration}\n"
+      log_to_slack_channel(@report)
     end
 
     # Processes entities of a specific type based on count validation and force update settings
@@ -85,9 +104,11 @@ module RepresentationManagement
       if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
         if entity_type == AGENTS
           update_agents
+          @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
           validate_agent_addresses
         else # attorneys
           update_attorneys
+          @report << "Attorneys processed: #{@attorney_ids.uniq.compact.size}\n"
           validate_attorney_addresses
         end
       else
@@ -115,9 +136,11 @@ module RepresentationManagement
 
       # Process VSOs first (must exist before representatives can reference them)
       update_vsos
+      @report << "VSOs processed: #{@vso_ids.uniq.compact.size}\n"
 
       # Process representatives
       update_reps
+      @report << "Representatives processed: #{@representative_ids.uniq.compact.size} (deduplicated)\n"
       validate_rep_addresses
 
       # Create or update join records
@@ -154,6 +177,8 @@ module RepresentationManagement
         entities.each { |entity| handle_entity_record(entity, config) }
         page += 1
       end
+    rescue => e
+      log_error("Error updating #{entity_type}s: #{e.message}")
     end
 
     # Fetches VSO data from the GCLAWS API and updates database records
@@ -267,7 +292,8 @@ module RepresentationManagement
                                   address_line2: rep['workAddress2'],
                                   address_line3: rep['workAddress3'],
                                   zip_code: rep['workZip'],
-                                  raw_address: raw_address_for_representative(rep)
+                                  raw_address: raw_address_for_representative(rep),
+                                  registration_number: rep.dig('representative', 'id')
                                 })
     end
 
@@ -292,26 +318,45 @@ module RepresentationManagement
     # @param rep [Hash] Raw representative data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_representative_json(record, rep)
-      rep_raw_address = raw_address_for_representative(rep)
-      individual_entity_json(
-        record,
-        rep,
-        :representative,
-        {
-          city: rep_raw_address['city'],
-          state: { state_code: rep_raw_address['state_code'] }
-        }
-      )
+      individual_entity_json(record, rep, :representative)
+    end
+
+    def processed_individual_types
+      # Determine which individual types were processed based on force_update_types
+      [AGENTS, ATTORNEYS, REPRESENTATIVES].filter_map do |type|
+        ENTITY_CONFIG.public_send(type.downcase).individual_type if @force_update_types.include?(type)
+      end
     end
 
     # Removes AccreditedIndividual records that are no longer present in the GCLAWS API
+    # When force_update_types is specified, only deletes records of the processed types
     #
     # @return [void]
     def delete_removed_accredited_individuals
-      AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
-        record.destroy
-      rescue => e
-        log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+      # @force_update_types are only present when manually reprocessing entity types.  They aren't present in the
+      # ordinary daily job run.
+      if @force_update_types.any?
+        # Only delete records of types that were actually processed
+
+        # If no individual types were processed, return early to avoid deleting any records.
+        # This safeguards against accidental deletion when no types were selected for processing.
+        return if processed_individual_types.empty?
+
+        # Delete only records of processed types that are not in the current ID lists
+        AccreditedIndividual.where(individual_type: processed_individual_types)
+                            .where.not(id: @agent_ids + @attorney_ids + @representative_ids)
+                            .find_each do |record|
+          record.destroy
+        rescue => e
+          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+        end
+      else
+        # Original behavior: delete all records not in current ID lists
+        AccreditedIndividual.where.not(id: @agent_ids + @attorney_ids + @representative_ids).find_each do |record|
+          record.destroy
+        rescue => e
+          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+        end
       end
     end
 
@@ -427,7 +472,7 @@ module RepresentationManagement
     # @param agent [Hash] Raw agent data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_agent_json(record, agent)
-      individual_entity_json(record, agent, :agent, { city: nil })
+      individual_entity_json(record, agent, :agent)
     end
 
     # Creates a JSON object for an attorney's address, used for address validation
@@ -436,16 +481,7 @@ module RepresentationManagement
     # @param attorney [Hash] Raw attorney data from the GCLAWS API
     # @return [Hash] JSON structure for address validation
     def individual_attorney_json(record, attorney)
-      attorney_raw_address = raw_address_for_attorney(attorney)
-      individual_entity_json(
-        record,
-        attorney,
-        :attorney,
-        {
-          city: attorney_raw_address['city'],
-          state: { state_code: attorney_raw_address['state_code'] }
-        }
-      )
+      individual_entity_json(record, attorney, :attorney)
     end
 
     # Base method to create a JSON object for entity address validation
@@ -453,9 +489,8 @@ module RepresentationManagement
     # @param record [AccreditedIndividual] The database record for the entity
     # @param entity [Hash] Raw entity data from the GCLAWS API
     # @param entity_type [Symbol] The type of entity (:agent, :attorney, or :representative)
-    # @param additional_fields [Hash] Additional address fields specific to this entity type
     # @return [Hash] JSON structure for address validation
-    def individual_entity_json(record, entity, entity_type, additional_fields = {})
+    def individual_entity_json(record, entity, entity_type)
       raw_address = send("raw_address_for_#{entity_type}", entity)
 
       {
@@ -465,8 +500,10 @@ module RepresentationManagement
           address_line1: raw_address['address_line1'],
           address_line2: raw_address['address_line2'],
           address_line3: raw_address['address_line3'],
+          city: raw_address['city'],
+          state: { state_code: raw_address['state_code'] },
           zip_code5: raw_address['zip_code']
-        }.merge(additional_fields)
+        }
       }
     end
 
@@ -542,7 +579,32 @@ module RepresentationManagement
     # @param message [String] The error message to log
     # @return [void]
     def log_error(message)
+      log_to_slack_channel("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
       Rails.logger.error("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
+    end
+
+    def log_to_slack_channel(message)
+      return unless Settings.vsp_environment == 'production'
+
+      slack_client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                             channel: '#benefits-representation-management-notifications',
+                                             username: 'RepresentationManagement::AccreditationApiEntityCountBot')
+      slack_client.notify(message)
+    end
+
+    def calculate_duration(start_time, end_time)
+      total_seconds = (end_time - start_time).to_i
+      hours = total_seconds / 3600
+      minutes = (total_seconds % 3600) / 60
+      seconds = total_seconds % 60
+
+      if hours.positive?
+        "#{hours}h #{minutes}m #{seconds}s"
+      elsif minutes.positive?
+        "#{minutes}m #{seconds}s"
+      else
+        "#{seconds}s"
+      end
     end
 
     # Helper method to get array of org and rep types
@@ -574,17 +636,25 @@ module RepresentationManagement
     end
 
     # Removes AccreditedOrganization records that are no longer present in the GCLAWS API
+    # When force_update_types is specified, only deletes when VSOs were processed
     #
     # @return [void]
     def delete_removed_accredited_organizations
-      delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
+      # Only delete VSO records if VSOs were processed or no force update specified
+      if @force_update_types.empty? || @force_update_types.include?(VSOS)
+        delete_removed_records(AccreditedOrganization, @vso_ids, 'accredited organization')
+      end
     end
 
     # Removes Accreditation records that are no longer valid
+    # When force_update_types is specified, only deletes when representatives or VSOs were processed
     #
     # @return [void]
     def delete_removed_accreditations
-      delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
+      # Only delete accreditation records if representatives or VSOs were processed or no force update specified
+      if @force_update_types.empty? || @force_update_types.intersect?([REPRESENTATIVES, VSOS])
+        delete_removed_records(Accreditation, @accreditation_ids, 'accreditation')
+      end
     end
 
     # Creates or updates Accreditation records based on representative-VSO associations

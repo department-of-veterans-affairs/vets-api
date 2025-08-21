@@ -48,7 +48,11 @@ module V0
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      clear_saved_form(FORM_ID)
+      begin
+        clear_saved_form(FORM_ID) if current_user
+      rescue => e
+        Rails.logger.warn("[10-10EZ] - Failed to clear saved form: #{e.message}")
+      end
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
@@ -62,7 +66,7 @@ module V0
 
       icn = if loa3
               current_user.icn
-            elsif request.get? && Flipper.enabled?(:hca_enrollment_status_filter_get)
+            elsif request.get?
               # Return nil if `GET` request and user is not loa3
               nil
             else

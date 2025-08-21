@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+# StdInstitutionImportJob
+#
+# This Sidekiq job imports and synchronizes standard institution facility data from a remote CSV source.
+#
+# Why:
+# - Keeps the StdInstitutionFacility table up-to-date with authoritative data.
+# - Ensures downstream processes and user features have current institution information.
+#
+# How:
+# - Downloads a CSV file from a remote S3 bucket.
+# - Parses and maps the data to the local schema.
+# - Upserts new and updated records, and logs new institutions.
+# - Triggers a HealthFacilitiesImportJob to update related health facility data.
+#
+# See also: StdInstitutionFacility model, HealthFacilitiesImportJob for downstream updates.
+
 require 'csv'
 require 'net/http'
 

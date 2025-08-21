@@ -20,11 +20,22 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#merge_fields' do
-    it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
-      .merge_fields.to_json)).to eq(
-        JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
-      )
+    context 'form data with a domestic phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
+        )
+      end
+    end
+
+    context 'form data with an international phone number' do
+      it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink_intl_phone'))
+        .merge_fields.to_json)).to eq(
+          JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields_intl_phone').to_json)
+        )
+      end
     end
   end
 
@@ -170,13 +181,7 @@ describe PdfFill::Forms::Va2141422024 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                              'phone_last_four_numbers' => '1234' },
-          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' },
-          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
-                               'phone_last_four_numbers' => '1234' }
+                              'phone_last_four_numbers' => '1234' }
         )
       end
     end
