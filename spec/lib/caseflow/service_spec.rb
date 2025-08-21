@@ -68,7 +68,8 @@ RSpec.describe Caseflow::Service do
         allow(Rails.logger).to receive(:warn)
       end
 
-      it 'increments a statsd metric, logs the appeals, and creates a PersonalInformationLog',
+      it 'increments a statsd metric, logs the offending appeals, ' \
+         'creates a PersonalInformationLog, and raises a JSON schema error',
          run_at: 'Wed, 20 Aug 2025 21:59:18 GMT' do
         VCR.use_cassette('caseflow/example', { match_requests_on: %i[method uri body] }) do
           expect(StatsD).to receive(:increment).with(
@@ -83,7 +84,7 @@ RSpec.describe Caseflow::Service do
             error_class: 'Caseflow AppealsWithNullIssueDescriptions'
           )
 
-          subject.get_appeals(user)
+          expect { subject.get_appeals(user) }.to raise_error(JSON::Schema::ValidationError)
         end
       end
     end
