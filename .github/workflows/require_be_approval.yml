@@ -3,6 +3,9 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+    branches: [master]
 permissions:
   id-token: write
   contents: read
@@ -73,14 +76,24 @@ jobs:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: final-review-confirmed
 
-      - name: Fail if draft or failures
+      - name: Remove exempt-be-review label
         if: steps.pr_data.outputs.pr_draft == 'true'
-        run: exit 1
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ steps.get_pr_data.outputs.pr_number }}
+          labels: exempt-be-review
+
+      - name: Skip backend approval for draft PR
+        if: steps.pr_data.outputs.pr_draft == 'true'
+        run: |
+          echo "PR is in draft mode. Skipping backend approval requirements."
+          echo "Labels have been removed. No further action needed."
 
   # Fetch approvals when required workflows are successful.
   fetch-pr-reviews:
     name: Succeed if backend approval is confirmed
     needs: [get-pr-data]
+    if: github.event_name == 'pull_request_review' || needs.get-pr-data.outputs.pr_draft == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -103,19 +116,29 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Skip backend approval check for draft PR
+        if: env.pr_draft == 'true'
+        run: |
+          echo "PR is in draft mode. Backend approval check not required."
+          echo "This job succeeds to satisfy branch protection requirements."
+          exit 0
+
       - name: Configure AWS Credentials
+        if: env.pr_draft == 'false'
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
 
       - name: Get bot token from Parameter Store
+        if: env.pr_draft == 'false'
         uses: marvinpinto/action-inject-ssm-secrets@latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Verify backend-review-group approval
+        if: env.pr_draft == 'false'
         id: verify_approval
         run: |
           approval_status=required
@@ -210,7 +233,7 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Remove ready-for-review label
-        if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.team_approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
@@ -218,34 +241,41 @@ jobs:
 
       - name: Remove ready-for-backend-review label
         if: |
-          steps.verify_approval.outputs.approval_status == 'confirmed' ||
-          steps.verify_approval.outputs.backend_approval_required == 'false'
+          env.pr_draft == 'false' && (
+            steps.verify_approval.outputs.approval_status == 'confirmed' ||
+            steps.verify_approval.outputs.backend_approval_required == 'false'
+          )
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
       - name: Add exempt-be-review label
-        if: steps.verify_approval.outputs.exempt_be_review == 'true'
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.exempt_be_review == 'true'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: exempt-be-review
 
-      - name: Fail if draft or failures
-        if: steps.verify_approval.outputs.approval_status == 'required'
-        run: exit 1
+      - name: Fail if backend approval still required
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.approval_status == 'required'
+        run: |
+          echo "Backend approval is still required."
+          exit 1
 
       - name: Fail if backend approval not confirmed
-        if: steps.verify_approval.outputs.approval_status == 'not_confirmed'
-        run: exit 1
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.approval_status == 'not_confirmed'
+        run: |
+          echo "Backend approval not confirmed."
+          exit 1
 
       - name: Exit for non backend approvals
-        if: steps.verify_approval.outputs.backend_approval_required == 'false'
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.backend_approval_required == 'false'
         run: exit 0
 
       - name: Add ready-for-backend-review label
         if: |
+          env.pr_draft == 'false' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           steps.verify_approval.outputs.team_approval_status == 'confirmed'
         uses: actions-ecosystem/action-add-labels@v1
@@ -254,12 +284,12 @@ jobs:
           labels: ready-for-backend-review
 
       - name: Add final-review-confirmed label
-        if: steps.verify_approval.outputs.approval_status == 'confirmed'
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.approval_status == 'confirmed'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: final-review-confirmed
 
       - name: Backend Approval Confirmed
-        if: steps.verify_approval.outputs.approval_status == 'confirmed'
+        if: env.pr_draft == 'false' && steps.verify_approval.outputs.approval_status == 'confirmed'
         run: exit 0
