@@ -144,7 +144,7 @@ jobs:
 
           # Get PR author
           PR_AUTHOR=${{ github.event.pull_request.user.login }}
-          if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+          if echo "$PR_AUTHOR" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             author_is_backend=true
           fi
@@ -160,8 +160,11 @@ jobs:
               | .[].user.login
             ' || true
           )
+          echo "Approvers: ${APPROVED[@]}"
+
+
           readarray -t DISMISSED < <(
-            gh api /repos/department-of-veterans-affairs/vets-api/pulls/23698/reviews --jq '
+            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
               [ .[]
               | select(.state == "DISMISSED")
               ]
@@ -171,9 +174,11 @@ jobs:
               | .[].user.login
             ' || true
           )
+          echo "DISMISSED: ${DISMISSED[@]}"
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
+
             if [[ "$author_is_backend" == "false" ]]; then
               author_membership_state=$(gh api -X GET \
                 "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
@@ -184,8 +189,8 @@ jobs:
                 backend_approval_required=false
               fi
             fi
+
             if [ -n "${APPROVED[@]}" ]; then
-              echo "Approvers: ${APPROVED[@]}"
               for approve in "${APPROVED[@]}"; do
                 echo "Checking approver: $approve"
                 if ! echo "$approve" | grep -iqE "^($BACKEND_REVIEWERS)$" >/dev/null; then
