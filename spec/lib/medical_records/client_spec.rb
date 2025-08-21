@@ -825,15 +825,15 @@ describe MedicalRecords::Client do
 
           # Mock merge_bundles to return progressively larger bundles
           intermediate_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3])
-          end_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3,
-                                                FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '4'))])
+          bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3,
+                                            FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '4'))])
 
           allow(client).to receive(:merge_bundles)
             .with(first_bundle, second_bundle)
             .and_return(intermediate_bundle)
           allow(client).to receive(:merge_bundles)
             .with(intermediate_bundle, third_bundle)
-            .and_return(end_bundle)
+            .and_return(bundle)
         end
 
         it 'fetches all three pages and merges them sequentially' do
@@ -851,7 +851,7 @@ describe MedicalRecords::Client do
           # Override the parent context setup and make fhir_search_query raise an exception directly
           allow(client).to receive(:handle_api_errors).and_call_original
           allow(client).to receive(:fhir_search_query).and_raise(Common::Exceptions::BackendServiceException.new(400,
-                                                                                                                 'Error'))
+                                                                                                                 'Error')) # rubocop:disable Layout/LineLength
         end
 
         it 'handles API errors from the initial query' do
