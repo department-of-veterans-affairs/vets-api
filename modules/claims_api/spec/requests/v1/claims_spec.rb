@@ -48,25 +48,33 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   end
 
   context 'index' do
-    it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claims') do
-          allow_any_instance_of(ClaimsApi::V1::ApplicationController)
-            .to receive(:target_veteran).and_return(target_veteran)
-          get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
-          expect(response).to match_response_schema('claims_api/claims')
+    it 'lists all Claims' do
+      Timecop.freeze('Tue, 12 Dec 2017 03:09:06 GMT') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
+            expect(response).to match_response_schema('claims_api/claims')
+          end
         end
+      ensure
+        Timecop.return
       end
     end
 
-    it 'lists all Claims when camel-inflection', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claims') do
-          allow_any_instance_of(ClaimsApi::V1::ApplicationController)
-            .to receive(:target_veteran).and_return(target_veteran)
-          get '/services/claims/v1/claims', params: nil, headers: request_headers_camel.merge(auth_header)
-          expect(response).to match_camelized_response_schema('claims_api/claims')
+    it 'lists all Claims when camel-inflection' do
+      Timecop.freeze('Tue, 12 Dec 2017 03:09:06 GMT') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            get '/services/claims/v1/claims', params: nil, headers: request_headers_camel.merge(auth_header)
+            expect(response).to match_camelized_response_schema('claims_api/claims')
+          end
         end
+      ensure
+        Timecop.return
       end
     end
 
@@ -83,107 +91,130 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   end
 
   context 'for a single claim' do
-    it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claim') do
-          get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
-          expect(response).to match_response_schema('claims_api/claim')
+    it 'shows a single Claim' do
+      Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claim') do
+            get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
+            expect(response).to match_response_schema('claims_api/claim')
+          end
         end
+      ensure
+        Timecop.return
       end
     end
 
-    it 'shows a single Claim when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      mock_acg(scopes) do |auth_header|
-        VCR.use_cassette('claims_api/bgs/claims/claim') do
-          get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil,
-                                                            headers: request_headers_camel.merge(auth_header)
-          expect(response).to match_camelized_response_schema('claims_api/claim')
+    it 'shows a single Claim when camel-inflected' do
+      Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claim') do
+            get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil,
+                                                              headers: request_headers_camel.merge(auth_header)
+            expect(response).to match_camelized_response_schema('claims_api/claim')
+          end
         end
+      ensure
+        Timecop.return
       end
     end
 
     context 'when source matches' do
       context 'when evss_id is provided' do
-        it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          mock_acg(scopes) do |auth_header|
-            create(:auto_established_claim,
-                   status: 'pending',
-                   source: 'abraham lincoln',
-                   auth_headers: { some: 'data' },
-                   evss_id: 600_118_851,
-                   id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('claims_api/bgs/claims/claim') do
-              get(
-                "/services/claims/v1/claims/#{bgs_claim_id}",
-                params: nil, headers: request_headers.merge(auth_header)
-              )
-              expect(response).to match_response_schema('claims_api/claim')
-              expect(JSON.parse(response.body)['data']['id']).to eq(bgs_claim_id)
+        it 'shows a single Claim through auto established claims' do
+          Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+            mock_acg(scopes) do |auth_header|
+              create(:auto_established_claim,
+                    status: 'pending',
+                    source: 'abraham lincoln',
+                    auth_headers: { some: 'data' },
+                    evss_id: 600_118_851,
+                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+              VCR.use_cassette('claims_api/bgs/claims/claim') do
+                get(
+                  "/services/claims/v1/claims/#{bgs_claim_id}",
+                  params: nil, headers: request_headers.merge(auth_header)
+                )
+                expect(response).to match_response_schema('claims_api/claim')
+                expect(JSON.parse(response.body)['data']['id']).to eq(bgs_claim_id)
+              end
             end
+          ensure
+            Timecop.return
           end
         end
 
-        it 'shows a single Claim through auto established claims when camel-inflected',
-           run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          mock_acg(scopes) do |auth_header|
-            create(:auto_established_claim,
-                   status: 'pending',
-                   source: 'abraham lincoln',
-                   auth_headers: { some: 'data' },
-                   evss_id: 600_118_851,
-                   id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('claims_api/bgs/claims/claim') do
-              get(
-                "/services/claims/v1/claims/#{bgs_claim_id}",
-                params: nil, headers: request_headers_camel.merge(auth_header)
-              )
-              expect(response).to match_camelized_response_schema('claims_api/claim')
-              expect(JSON.parse(response.body)['data']['id']).to eq(bgs_claim_id)
+        it 'shows a single Claim through auto established claims when camel-inflected' do
+          Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+            mock_acg(scopes) do |auth_header|
+              create(:auto_established_claim,
+                    status: 'pending',
+                    source: 'abraham lincoln',
+                    auth_headers: { some: 'data' },
+                    evss_id: 600_118_851,
+                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+              VCR.use_cassette('claims_api/bgs/claims/claim') do
+                get(
+                  "/services/claims/v1/claims/#{bgs_claim_id}",
+                  params: nil, headers: request_headers_camel.merge(auth_header)
+                )
+                expect(response).to match_camelized_response_schema('claims_api/claim')
+                expect(JSON.parse(response.body)['data']['id']).to eq(bgs_claim_id)
+              end
             end
+          ensure
+            Timecop.return
           end
         end
       end
 
       context 'when uuid is provided' do
-        it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          mock_acg(scopes) do |auth_header|
-            create(:auto_established_claim,
-                   status: 'pending',
-                   source: 'abraham lincoln',
-                   auth_headers: { some: 'data' },
-                   evss_id: 600_118_851,
-                   id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('claims_api/bgs/claims/claim') do
-              get(
-                '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
-                params: nil, headers: request_headers.merge(auth_header)
-              )
-              expect(response).to match_response_schema('claims_api/claim')
-              expect(JSON.parse(response.body)['data']['id']).to eq('d5536c5c-0465-4038-a368-1a9d9daf65c9')
+        it 'shows a single Claim through auto established claims' do
+          Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+            mock_acg(scopes) do |auth_header|
+              create(:auto_established_claim,
+                    status: 'pending',
+                    source: 'abraham lincoln',
+                    auth_headers: { some: 'data' },
+                    evss_id: 600_118_851,
+                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+              VCR.use_cassette('claims_api/bgs/claims/claim') do
+                get(
+                  '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+                  params: nil, headers: request_headers.merge(auth_header)
+                )
+                expect(response).to match_response_schema('claims_api/claim')
+                expect(JSON.parse(response.body)['data']['id']).to eq('d5536c5c-0465-4038-a368-1a9d9daf65c9')
+              end
             end
+          ensure
+            Timecop.return
           end
         end
       end
     end
 
     context 'when source does not match' do
-      it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        mock_acg(scopes) do |auth_header|
-          create(:auto_established_claim,
-                 status: 'pending',
-                 source: 'oddball',
-                 auth_headers: { some: 'data' },
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-          expect_any_instance_of(claims_service).to receive(:update_from_remote)
-            .and_raise(StandardError.new('no claim found'))
-          VCR.use_cassette('claims_api/bgs/claims/claim') do
-            get(
-              "/services/claims/v1/claims/#{bgs_claim_id}",
-              params: nil, headers: request_headers.merge(auth_header)
-            )
-            expect(response.code.to_i).to eq(404)
+      it 'shows a single Claim through auto established claims' do
+        Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+          mock_acg(scopes) do |auth_header|
+            create(:auto_established_claim,
+                  status: 'pending',
+                  source: 'oddball',
+                  auth_headers: { some: 'data' },
+                  evss_id: 600_118_851,
+                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+            expect_any_instance_of(claims_service).to receive(:update_from_remote)
+              .and_raise(StandardError.new('no claim found'))
+            VCR.use_cassette('claims_api/bgs/claims/claim') do
+              get(
+                "/services/claims/v1/claims/#{bgs_claim_id}",
+                params: nil, headers: request_headers.merge(auth_header)
+              )
+              expect(response.code.to_i).to eq(404)
+            end
           end
+        ensure
+          Timecop.return
         end
       end
     end
@@ -253,37 +284,45 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
         end
       end
 
-      it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        mock_acg(scopes) do |auth_header|
-          create(:auto_established_claim,
-                 source: 'abraham lincoln',
-                 auth_headers: auth_header,
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
-                 status: 'errored',
-                 evss_response: [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }])
-          VCR.use_cassette('claims_api/bgs/claims/claim') do
-            headers = request_headers.merge(auth_header)
-            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
-            expect(response).to have_http_status(:unprocessable_entity)
+      it 'shows a single errored Claim with an error message' do
+        Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+          mock_acg(scopes) do |auth_header|
+            create(:auto_established_claim,
+                  source: 'abraham lincoln',
+                  auth_headers: auth_header,
+                  evss_id: 600_118_851,
+                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+                  status: 'errored',
+                  evss_response: [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }])
+            VCR.use_cassette('claims_api/bgs/claims/claim') do
+              headers = request_headers.merge(auth_header)
+              get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
           end
+        ensure
+          Timecop.return
         end
       end
 
-      it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        mock_acg(scopes) do |auth_header|
-          create(:auto_established_claim,
-                 source: 'abraham lincoln',
-                 auth_headers: auth_header,
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
-                 status: 'errored',
-                 evss_response: nil)
-          VCR.use_cassette('claims_api/bgs/claims/claim') do
-            headers = request_headers.merge(auth_header)
-            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
-            expect(response).to have_http_status(:unprocessable_entity)
+      it 'shows a single errored Claim without an error message' do
+        Timecop.freeze('Wed, 13 Dec 2017 03:28:23 GMT') do
+          mock_acg(scopes) do |auth_header|
+            create(:auto_established_claim,
+                  source: 'abraham lincoln',
+                  auth_headers: auth_header,
+                  evss_id: 600_118_851,
+                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+                  status: 'errored',
+                  evss_response: nil)
+            VCR.use_cassette('claims_api/bgs/claims/claim') do
+              headers = request_headers.merge(auth_header)
+              get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
           end
+        ensure
+          Timecop.return
         end
       end
     end
@@ -305,43 +344,55 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   end
 
   context 'with oauth user and no headers' do
-    it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      mock_acg(scopes) do |auth_header|
-        verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
-        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-        allow(verifier_stub).to receive(:verify)
-        VCR.use_cassette('claims_api/bgs/claims/claims') do
-          allow_any_instance_of(ClaimsApi::V1::ApplicationController)
-            .to receive(:target_veteran).and_return(target_veteran)
-          get '/services/claims/v1/claims', params: nil, headers: auth_header
-          expect(response).to match_response_schema('claims_api/claims')
+    it 'lists all Claims' do
+      Timecop.freeze('Tue, 12 Dec 2017 03:09:06 GMT') do
+        mock_acg(scopes) do |auth_header|
+          verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
+          allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+          allow(verifier_stub).to receive(:verify)
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            get '/services/claims/v1/claims', params: nil, headers: auth_header
+            expect(response).to match_response_schema('claims_api/claims')
+          end
         end
+      ensure
+        Timecop.return
       end
     end
 
-    it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      mock_acg(scopes) do |auth_header|
-        verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
-        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-        allow(verifier_stub).to receive(:verify)
-        VCR.use_cassette('claims_api/bgs/claims/claims') do
-          get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)
-          expect(response).to match_camelized_response_schema('claims_api/claims')
+    it 'lists all Claims when camel-inflected' do
+      Timecop.freeze('Tue, 12 Dec 2017 03:09:06 GMT') do
+        mock_acg(scopes) do |auth_header|
+          verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
+          allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+          allow(verifier_stub).to receive(:verify)
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)
+            expect(response).to match_camelized_response_schema('claims_api/claims')
+          end
         end
+      ensure
+        Timecop.return
       end
     end
   end
 
   context "when a 'Token Validation Error' is received" do
-    it "raises a 'Common::Exceptions::Unauthorized' exception", run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      auth = { Authorization: 'Bearer The-quick-brown-fox-jumped-over-the-lazy-dog' }
-      VCR.use_cassette('claims_api/bgs/claims/claims') do
-        get '/services/claims/v1/claims', params: nil,
-                                          headers: request_headers.merge(auth)
-        parsed_response = JSON.parse(response.body)
+    it "raises a 'Common::Exceptions::Unauthorized' exception" do
+      Timecop.freeze('Tue, 12 Dec 2017 03:09:06 GMT') do
+        auth = { Authorization: 'Bearer The-quick-brown-fox-jumped-over-the-lazy-dog' }
+        VCR.use_cassette('claims_api/bgs/claims/claims') do
+          get '/services/claims/v1/claims', params: nil,
+                                            headers: request_headers.merge(auth)
+          parsed_response = JSON.parse(response.body)
 
-        expect(response).to have_http_status(:unauthorized)
-        expect(parsed_response['errors'].first['title']).to eq('Not authorized')
+          expect(response).to have_http_status(:unauthorized)
+          expect(parsed_response['errors'].first['title']).to eq('Not authorized')
+        end
+      ensure
+        Timecop.return
       end
     end
   end

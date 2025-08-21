@@ -31,10 +31,14 @@ describe PdfFill::Forms::Va210781v2 do
   )
 
   describe '#merge_fields' do
-    it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do
-      expect(described_class.new(get_fixture('pdf_fill/21-0781V2/kitchen_sink')).merge_fields.to_json).to eq(
-        get_fixture('pdf_fill/21-0781V2/merge_fields').to_json
-      )
+    it 'merges the right fields' do
+      Timecop.freeze(Time.zone.parse('2024-03-21 00:00:00 EDT')) do
+        expect(described_class.new(get_fixture('pdf_fill/21-0781V2/kitchen_sink')).merge_fields.to_json).to eq(
+          get_fixture('pdf_fill/21-0781V2/merge_fields').to_json
+        )
+      end
+    ensure
+      Timecop.return
     end
   end
 
