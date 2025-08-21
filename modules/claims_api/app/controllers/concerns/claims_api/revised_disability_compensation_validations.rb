@@ -264,7 +264,6 @@ module ClaimsApi
 
     def validate_form_526_disability_approximate_begin_date!
       disabilities = form_attributes['disabilities']
-      return if disabilities.blank?
 
       disabilities.each do |disability|
         approx_begin_date = disability['approximateBeginDate']
