@@ -389,6 +389,39 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             end
           end
 
+          it 'fetches appointment list that include eps appointments' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              VCR.use_cassette('vaos/eps/get_appointments/200',
+                               match_requests_on: %i[method path query], allow_playback_repeats: true) do
+                VCR.use_cassette('vaos/eps/search_provider_services/200',
+                                 match_requests_on: %i[method path], allow_playback_repeats: true) do
+                  VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
+                    allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+                      .and_return(avs_path)
+
+                    get '/vaos/v2/appointments' \
+                        '?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&_include=eps',
+                        params:, headers: inflection_header
+
+                    data = JSON.parse(response.body)['data']
+
+                    expect(response).to have_http_status(:ok)
+                    expect(response.body).to be_a(String)
+
+                    expect(data.size).to eq(2)
+                    data.each do |appointment|
+                      expect(appointment['type']).to eq('appointments')
+                      expect(appointment['attributes']['status']).to eq('booked')
+                      expect { DateTime.iso8601(appointment['attributes']['start']) }.not_to raise_error
+                    end
+                    expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+                  end
+                end
+              end
+            end
+          end
+
           it 'fetches appointment list and bypasses avs when query param is not included' do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
