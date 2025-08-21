@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Rails/Pluck
 module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
