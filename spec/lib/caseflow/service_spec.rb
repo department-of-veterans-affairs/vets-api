@@ -11,49 +11,15 @@ RSpec.describe Caseflow::Service do
     [
       {
         'id' => 'HLR7970',
-        'type' => 'higherLevelReview',
-        'attributes' => {
-          'appealIds' => ['HLR7970'],
-          'updated' => '2025-08-20T12:51:51-04:00',
-          'incompleteHistory' => false,
-          'active' => true,
-          'description' =>
-            'Service connection for Tinnitus is granted with an ' \
-            'evaluation of 10 percent effective August 1, 2012. and 3 others',
-          'location' => 'aoj',
-          'aoj' => 'vba',
-          'programArea' => 'compensation',
-          'status' => {
-            'type' => 'hlr_received',
-            'details' => {}
-          },
-          'alerts' => [],
-          'issues' => [
-            {
-              'active' => true,
-              'lastAction' => nil,
-              'date' => nil,
-              'description' => nil,
-              'diagnosticCode' => nil
-            },
-            {
-              'active' => true,
-              'lastAction' => nil,
-              'date' => nil,
-              'description' =>
-                'Service connection for Tinnitus is granted with an ' \
-                'evaluation of 10 percent effective August 1, 2012.',
-              'diagnosticCode' => '6260'
-            }
-          ],
-          'events' => [
-            {
-              'type' => 'hlr_request',
-              'date' => '2024-10-04'
-            }
-          ],
-          'evidence' => []
-        }
+        'issues' => [
+          {
+            'active' => true,
+            'lastAction' => nil,
+            'date' => nil,
+            'description' => nil,
+            'diagnosticCode' => nil
+          }
+        ]
       }
     ]
   end
@@ -68,7 +34,10 @@ RSpec.describe Caseflow::Service do
       it 'increments a statsd metric, logs the offending appeals, ' \
          'creates a PersonalInformationLog, and raises a JSON schema error',
          run_at: 'Wed, 20 Aug 2025 21:59:18 GMT' do
-        VCR.use_cassette('caseflow/example', { match_requests_on: %i[method uri body] }) do
+        VCR.use_cassette(
+          'caseflow/appeal_with_null_issue_description',
+          { match_requests_on: %i[method uri body] }
+        ) do
           expect(StatsD).to receive(:increment).with(
             'api.appeals.appeals_with_null_issue_descriptions'
           )

@@ -116,7 +116,10 @@ module Caseflow
 
         if issues_with_null_description.any?
           StatsD.increment("#{STATSD_KEY_PREFIX}.appeals_with_null_issue_descriptions")
-          appeals_with_null_issue_descriptions << appeal
+          appeals_with_null_issue_descriptions << {
+            'id' => appeal['id'],
+            'issues' => issues_with_null_description
+          }
         end
       end
 
