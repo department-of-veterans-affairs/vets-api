@@ -190,10 +190,10 @@ jobs:
               fi
             fi
 
-            if [ -n "${APPROVED[@]}" ]; then
+            if [ "${#APPROVED[@]}" -gt 0 ]; then
               for approve in "${APPROVED[@]}"; do
                 echo "Checking approver: $approve"
-                if ! echo "$approve" | grep -iqE "^($BACKEND_REVIEWERS)$" >/dev/null; then
+                if ! echo "$approve" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
                   echo "PR Reviewer '$approve' is NOT a backend-review-group member."
                   team_approval_status=confirmed
                   membership_state=$(gh api -X GET \
@@ -212,23 +212,22 @@ jobs:
                   backend_approval=true
                 fi
               done
-            else
-              if [ -n "${DISMISSED[@]}" ]; then
-                echo "Approvers: ${DISMISSED[@]}"
-                for dismiss in "${DISMISSED[@]}"; do
-                  echo "Checking dismissed review: $dismiss"
-                  if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$" >/dev/null; then
-                    membership_state=$(gh api -X GET \
-                      "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
-                      --jq '.state' 2>/dev/null || echo "")
-                    if [[ "$membership_state" == "active" ]]; then
-                      echo "$dismiss is an active member of $TEAM"
-                      exempt_be_review=true
-                      backend_approval_required=false
-                    fi
+            fi
+            if [ "${#DISMISSED[@]}" -gt 0 ]; then
+              echo "Approvers: ${DISMISSED[@]}"
+              for dismiss in "${DISMISSED[@]}"; do
+                echo "Checking dismissed review: $dismiss"
+                if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
+                  membership_state=$(gh api -X GET \
+                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
+                    --jq '.state' 2>/dev/null || echo "")
+                  if [[ "$membership_state" == "active" ]]; then
+                    echo "$dismiss is an active member of $TEAM"
+                    exempt_be_review=true
+                    backend_approval_required=false
                   fi
-                done
-              fi
+                fi
+              done
             fi
           done
 
