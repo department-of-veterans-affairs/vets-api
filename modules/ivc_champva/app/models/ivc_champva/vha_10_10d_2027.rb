@@ -18,11 +18,12 @@ module IvcChampva
       @form_id = 'vha_10_10d_2027'
     end
 
-    def metadata
+    def metadata # rubocop:disable Metrics/MethodLength
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'veteranEmail' => @data.dig('veteran', 'email_address'),
         'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
         'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
         'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
