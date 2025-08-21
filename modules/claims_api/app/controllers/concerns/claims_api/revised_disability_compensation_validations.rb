@@ -24,6 +24,9 @@ module ClaimsApi
       validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
       validate_form_526_change_of_address!
+      # ensure no more than 150 disabilities are provided
+      # ensure any provided 'disability.classificationCode' is a known value in BGS
+      validate_form_526_disabilities!
     end
 
     def retrieve_separation_locations
@@ -199,6 +202,63 @@ module ClaimsApi
       return if valid_countries.include?(change_of_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
+    end
+
+    def validate_form_526_disabilities!
+      validate_form_526_fewer_than_150_disabilities!
+      validate_form_526_disability_classification_code!
+      # TODO: pull these validations over from original 526 validations
+      # validate_form_526_disability_approximate_begin_date!
+      # validate_form_526_special_issues!
+      # validate_form_526_disability_secondary_disabilities!
+    end
+
+    def validate_form_526_fewer_than_150_disabilities!
+      disabilities = form_attributes['disabilities']
+      return if disabilities.size <= 150
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities', 'A maximum of 150 disabilities allowed')
+    end
+
+    def contention_classification_type_code_list
+      @contention_classification_type_code_list ||= if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                                                      service = ClaimsApi::StandardDataService.new(
+                                                        external_uid: Settings.bgs.external_uid,
+                                                        external_key: Settings.bgs.external_key
+                                                      )
+                                                      service.get_contention_classification_type_code_list
+                                                    else
+                                                      bgs_service.data.get_contention_classification_type_code_list
+                                                    end
+    end
+
+    def bgs_classification_ids
+      contention_classification_type_code_list.pluck(:clsfcn_id)
+    end
+
+    def validate_form_526_disability_classification_code_end_date!(classification_code, index)
+      bgs_disability = contention_classification_type_code_list.find { |d| d[:clsfcn_id] == classification_code }
+      end_date = bgs_disability[:end_dt] if bgs_disability
+
+      return if end_date.nil?
+
+      return if Date.parse(end_date) >= Time.zone.today
+
+      raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode", classification_code)
+    end
+
+    def validate_form_526_disability_classification_code!
+      form_attributes['disabilities'].each_with_index do |disability, index|
+        classification_code = disability['classificationCode']
+        next if classification_code.nil? || classification_code.blank?
+
+        if bgs_classification_ids.include?(classification_code)
+          validate_form_526_disability_classification_code_end_date!(classification_code, index)
+        else
+          raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode",
+                                                            classification_code)
+        end
+      end
     end
   end
 end
