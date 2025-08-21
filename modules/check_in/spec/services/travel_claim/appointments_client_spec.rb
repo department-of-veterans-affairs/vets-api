@@ -68,9 +68,9 @@ RSpec.describe TravelClaim::AppointmentsClient do
       end
     end
 
-    describe '#build_appointment_headers' do
+    describe '#build_standard_headers' do
       it 'builds headers with authentication tokens and correlation ID' do
-        result = client.send(:build_appointment_headers, tokens, correlation_id)
+        result = client.send(:build_standard_headers, tokens, correlation_id)
 
         expect(result).to include(
           'Content-Type' => 'application/json',
@@ -80,13 +80,13 @@ RSpec.describe TravelClaim::AppointmentsClient do
         )
       end
 
-      it 'includes claim headers from base client' do
+      it 'includes subscription key headers from base client' do
         allow(client).to receive(:settings).and_return(
           double('Settings', subscription_key: 'test-subscription-key')
         )
         allow(Settings).to receive(:vsp_environment).and_return('development')
 
-        result = client.send(:build_appointment_headers, tokens, correlation_id)
+        result = client.send(:build_standard_headers, tokens, correlation_id)
 
         expect(result).to include('Ocp-Apim-Subscription-Key' => 'test-subscription-key')
       end
