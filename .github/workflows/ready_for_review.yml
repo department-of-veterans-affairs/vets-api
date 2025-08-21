@@ -281,7 +281,7 @@ jobs:
             ' || true
           )
 
-          # if [ -n "${APPROVED[@]}" ]; then
+          # if [ "${#APPROVED[@]}" -gt 0 ]; then
           #   echo "Approvers: ${APPROVED[@]}"
           #   for approve in "${APPROVED[@]}"; do
           #     echo "Checking approver: $approve"
@@ -311,7 +311,7 @@ jobs:
           #     fi
           #   done
           # else
-            if [ -n "${DISMISSED[@]}" ]; then
+            if [ "${#DISMISSED[@]}" -gt 0 ]; then
               for dismiss in "${DISMISSED[@]}"; do
                 echo "Checking dismissed review: $dismiss"
                 if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$" >/dev/null; then
