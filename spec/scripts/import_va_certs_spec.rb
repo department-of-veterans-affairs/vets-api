@@ -52,9 +52,6 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       # Verify HTTP fallback
       expect(script_content).to include('elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
 
-      # Verify alternative mirror fallback
-      expect(script_content).to include('https://crl.disa.mil/crl/DODECARCA5.zip')
-
       # Verify graceful degradation
       expect(script_content).to include('Continuing without DoD ECA certificates...')
 
@@ -70,7 +67,6 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       expect(script_content).to include('Downloading DoD ECA certificates...')
       expect(script_content).to include('✓ DoD ECA downloaded via HTTPS')
       expect(script_content).to include('✓ DoD ECA downloaded via HTTP fallback')
-      expect(script_content).to include('✓ DoD ECA downloaded from alternative mirror')
       expect(script_content).to include('✗ All DoD ECA download attempts failed')
       expect(script_content).to include('✓ DoD ECA certificates processed successfully')
       expect(script_content).to include('✗ DoD ECA zip file not found after download attempts')
@@ -81,7 +77,6 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
       expect(script_content).to include('unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA')
       expect(script_content).to include('cd ECA_CA/certificates_pkcs7_v5_12_eca/')
-      expect(script_content).to include
       expect(script_content).to include('awk \'/BEGIN/{i++} {print > ("eca_cert" i ".pem")}\'')
       expect(script_content).to include('rm -f eca_cert.pem')
       expect(script_content).to include('cp *.pem ../../')

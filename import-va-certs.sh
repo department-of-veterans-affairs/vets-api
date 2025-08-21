@@ -18,10 +18,6 @@ set -euo pipefail
         # Fallback 1: HTTP with timeout and retries
         elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
             echo "✓ DoD ECA downloaded via HTTP fallback"
-        # Fallback 2: Alternative DoD mirror (if available)
-        elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO https://crl.disa.mil/crl/DODECARCA5.zip; then
-            echo "✓ DoD ECA downloaded from alternative mirror"
-            mv DODECARCA5.zip unclass-certificates_pkcs7_ECA.zip
         else
             echo "✗ All DoD ECA download attempts failed"
             echo "Continuing without DoD ECA certificates..."
@@ -41,7 +37,6 @@ set -euo pipefail
         fi
     )
 
-    # VA certificates with enhanced fallback
     echo "Downloading VA certificates..."
     wget \
         --level=1 \
