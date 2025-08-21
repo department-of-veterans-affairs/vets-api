@@ -144,6 +144,12 @@ class FormSubmissionAttempt < ApplicationRecord
     form_number = simple_forms_form_number
     Rails.logger.info('Queuing SimpleFormsAPI notification email to VaNotify', form_number:, benefits_intake_uuid:)
     jid = SimpleFormsApi::Notification::SendNotificationEmailJob.perform_async(benefits_intake_uuid, form_number)
+    if jid
+      StatsD.increment(
+        'vff.benefits_intake.email_enqueued',
+        tags: ["form_id:#{form_submission.form_type}", 'service:veteran-facing-forms']
+      )
+    end
     Rails.logger.info(
       'Queuing SimpleFormsAPI notification email to VaNotify completed',
       jid:,

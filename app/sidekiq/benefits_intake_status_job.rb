@@ -47,8 +47,8 @@ class BenefitsIntakeStatusJob
       batch_uuids = batch.map(&:benefits_intake_uuid)
       response = intake_service.bulk_status(uuids: batch_uuids)
 
-      # Log the entire response for debugging purposes
-      Rails.logger.info("Received bulk status response: #{response.body}")
+      # Log a lightweight summary of the response to limit noise in logs
+      Rails.logger.debug('Received bulk status response', size: response.body.to_s.bytesize)
 
       errors << response.body unless response.success?
 
@@ -88,8 +88,8 @@ class BenefitsIntakeStatusJob
       # https://developer.va.gov/explore/api/benefits-intake/docs
       status = submission.dig('attributes', 'status')
 
-      # Log the status for debugging
-      Rails.logger.info("Processing submission UUID: #{uuid}, Status: #{status}")
+      # Log the status at debug level to reduce log noise
+      Rails.logger.debug('Processing submission', uuid:, status:)
 
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
       if status == 'expired'
@@ -98,6 +98,7 @@ class BenefitsIntakeStatusJob
         form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition, error_message)
+        increment_vff_status(form_id, 'failure')
         monitor_failure(form_id, saved_claim_id, uuid)
       elsif status == 'error'
         # Error - Indicates that there was an error. Refer to the error code and detail for further information.
@@ -105,21 +106,31 @@ class BenefitsIntakeStatusJob
         form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition, error_message)
+        increment_vff_status(form_id, 'failure')
         monitor_failure(form_id, saved_claim_id, uuid)
       elsif status == 'vbms'
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
         log_result('success', form_id, uuid, time_to_transition)
+        increment_vff_status(form_id, 'success')
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
         log_result('stale', form_id, uuid, time_to_transition)
+        increment_vff_status(form_id, 'stale')
       else
         # no change being tracked
         log_result('pending', form_id, uuid)
-        Rails.logger.info(
-          "Submission UUID: #{uuid} is still pending, status: #{status}, time to transition: #{time_to_transition}"
+        increment_vff_status(form_id, 'pending')
+        Rails.logger.debug(
+          'Submission still pending', uuid:, status:, time_to_transition:
         )
+      end
+
+      # Record queue time as a distribution for SLO/SLA monitoring (seconds)
+      if VFF::Monitor.vff_form?(form_id)
+        StatsD.distribution('vff.benefits_intake.queue_time_seconds', time_to_transition,
+                            tags: ["form_id:#{form_id}", 'service:veteran-facing-forms'])
       end
 
       total_handled += 1
@@ -139,62 +150,108 @@ class BenefitsIntakeStatusJob
     end
   end
 
-  # rubocop:disable Metrics/MethodLength
+  def increment_vff_status(form_id, result)
+    return unless VFF::Monitor.vff_form?(form_id)
+
+    # Optional VFF-scoped status metric to simplify dashboards
+    StatsD.increment(
+      "vff.benefits_intake.status.#{result}",
+      tags: ["form_id:#{form_id}", 'service:veteran-facing-forms']
+    )
+  end
+
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
-    context = {
-      form_id:,
-      claim_id: saved_claim_id,
-      benefits_intake_uuid: bi_uuid
-    }
+    case form_id
+    when '686C-674'
+      monitor_dependents_failure(form_id, saved_claim_id, bi_uuid)
+    when '28-8832'
+      monitor_pcpg_failure(form_id, saved_claim_id, bi_uuid)
+    when '28-1900'
+      monitor_vre_failure(form_id, saved_claim_id, bi_uuid)
+    else
+      # Check if it's a VFF form and monitor if so
+      monitor_vff_failure(form_id, saved_claim_id, bi_uuid) if VFF::Monitor.vff_form?(form_id)
+    end
+  rescue => e
+    # Swallow monitoring errors by design - monitoring failures should not break the main job
+    Rails.logger.warn(
+      'Form failure monitoring error - continuing job execution',
+      {
+        form_id:,
+        saved_claim_id:,
+        benefits_intake_uuid: bi_uuid,
+        error_class: e.class.name,
+        error_message: e.message
+      }
+    )
+  end
+
+  def monitor_dependents_failure(form_id, saved_claim_id, bi_uuid)
+    claim = begin
+      SavedClaim::DependencyClaim.find(saved_claim_id)
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+    email = if claim.present?
+              claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')
+            end
+    context = { form_id:, claim_id: saved_claim_id, benefits_intake_uuid: bi_uuid }
     call_location = caller_locations.first
 
-    # Dependents
-    if %w[686C-674].include?(form_id)
-      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      email = if claim.present?
-                claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')
-              end
-      if claim.present? && email.present?
-        claim.send_failure_email(email)
-        claim.monitor.log_silent_failure_no_confirmation(context, call_location:)
-      else
-        monitor = claim.present? ? claim.monitor : Dependents::Monitor.new(false)
-        monitor.log_silent_failure(context, call_location:)
-      end
-    end
-
-    # PCPG
-    if %w[28-8832].include?(form_id)
-      claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
-      email = claim.parsed_form.dig('claimantInformation', 'emailAddress') if claim.present?
-      if claim.present? && email.present?
-        claim.send_failure_email(email)
-        PCPG::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
-      else
-        PCPG::Monitor.new.log_silent_failure(context, call_location:)
-      end
-    end
-
-    # VRE
-    if %w[28-1900].include?(form_id)
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
-      email = claim.parsed_form['email'] if claim.present?
-      if claim.present? && email.present?
-        claim.send_failure_email(email)
-        VRE::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
-      else
-        VRE::Monitor.new.log_silent_failure(context, call_location:)
-      end
-    end
-
-    # VFF Forms (Simple Forms API)
-    if VFF::Monitor.vff_form?(form_id)
-      monitor = VFF::Monitor.new
-      form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: bi_uuid)
-      email_sent = form_submission_attempt&.should_send_simple_forms_email || false
-      monitor.track_benefits_intake_failure(bi_uuid, form_id, email_sent)
+    if claim.present? && email.present?
+      claim.send_failure_email(email)
+      claim.monitor.log_silent_failure_no_confirmation(context, call_location:)
+    else
+      monitor = claim.present? ? claim.monitor : Dependents::Monitor.new(false)
+      monitor.log_silent_failure(context, call_location:)
     end
   end
+
+  def monitor_pcpg_failure(form_id, saved_claim_id, bi_uuid)
+    claim = begin
+      SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+    email = claim.parsed_form.dig('claimantInformation', 'emailAddress') if claim.present?
+    context = { form_id:, claim_id: saved_claim_id, benefits_intake_uuid: bi_uuid }
+    call_location = caller_locations.first
+
+    if claim.present? && email.present?
+      claim.send_failure_email(email)
+      PCPG::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
+    else
+      PCPG::Monitor.new.log_silent_failure(context, call_location:)
+    end
+  end
+
+  def monitor_vre_failure(form_id, saved_claim_id, bi_uuid)
+    claim = begin
+      SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+    email = claim.parsed_form['email'] if claim.present?
+    context = { form_id:, claim_id: saved_claim_id, benefits_intake_uuid: bi_uuid }
+    call_location = caller_locations.first
+
+    if claim.present? && email.present?
+      claim.send_failure_email(email)
+      VRE::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
+    else
+      VRE::Monitor.new.log_silent_failure(context, call_location:)
+    end
+  end
+
+  def monitor_vff_failure(form_id, saved_claim_id, bi_uuid)
+    # Look up the form submission attempt to determine if email notification is expected
+    form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: bi_uuid)
+    email_notification_expected = form_submission_attempt&.send(:should_send_simple_forms_email) || false
+
+    monitor = VFF::Monitor.new
+    monitor.track_benefits_intake_failure(bi_uuid, form_id, email_notification_expected)
+  end
+
   def form_submission_attempts_hash
     @_form_submission_attempts_hash ||= FormSubmissionAttempt
                                         .where(aasm_state: 'pending')

@@ -27,23 +27,25 @@ module VFF
       super('veteran-facing-forms')
     end
 
+
+
     # Track benefits intake failures following established ZSF pattern
     # Similar to PCPG::Monitor#track_submission_exhaustion and VRE::Monitor#track_submission_exhaustion
     #
     # @param benefits_intake_uuid [String] Benefits Intake UUID
     # @param form_id [String] VFF form identifier (e.g., '21-0966')
-    # @param email_sent [Boolean] whether email notification was sent to veteran
-    def track_benefits_intake_failure(benefits_intake_uuid, form_id, email_sent = false)
+    # @param email_sent [Boolean] whether an email notification is expected for this failure
+    def track_benefits_intake_failure(benefits_intake_uuid, form_id, email_sent = false) # rubocop:disable Style/OptionalBooleanParameter
       additional_context = {
-        benefits_intake_uuid: benefits_intake_uuid,
-        form_id: form_id
+        benefits_intake_uuid:,
+        form_id:
       }
 
       if email_sent
-        # Email was sent - silent failure avoided but no confirmation of delivery
+        # Email notification expected - silent failure likely to be avoided, but delivery not confirmed here
         log_silent_failure_no_confirmation(additional_context, nil, call_location: caller_locations.first)
       else
-        # No email sent - true silent failure
+        # No email notification expected - true silent failure
         log_silent_failure(additional_context, nil, call_location: caller_locations.first)
       end
 
@@ -53,15 +55,14 @@ module VFF
       Rails.logger.error(
         "VFF Benefits Intake failure for form #{form_id}",
         {
-          service: service,
-          benefits_intake_uuid: benefits_intake_uuid,
-          form_id: form_id,
-          email_sent: email_sent
+          service:,
+          benefits_intake_uuid:,
+          form_id:,
+          email_sent: email_sent,
+          email_notification_expected: email_sent
         }
       )
     end
-
-
 
     # Track failed email notification for VFF forms
     # Used by SendNotificationEmailJob when email sending fails
@@ -73,14 +74,17 @@ module VFF
     def track_email_notification_failure(form_type, confirmation_number, error, additional_context = {})
       context = {
         form_id: form_type,
-        confirmation_number: confirmation_number,
+        confirmation_number:,
         error_class: error.class.name,
         error_message: error.message,
         **additional_context
       }
 
-      StatsD.increment("#{BENEFITS_INTAKE_STATS_KEY}.email_failure", tags: ["form_id:#{form_type}", "service:#{service}"])
-      Rails.logger.error('VFF email notification failed', { service: service, **context })
+      StatsD.increment(
+        "#{BENEFITS_INTAKE_STATS_KEY}.email_failure",
+        tags: ["form_id:#{form_type}", "service:#{service}"]
+      )
+      Rails.logger.error('VFF email notification failed', { service:, **context })
     end
 
     # Class method to check if a form ID is a VFF form
