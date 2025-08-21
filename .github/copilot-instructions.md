@@ -2,16 +2,36 @@
 # Copilot Instructions for `vets-api`
 
 > Use these instructions when reviewing pull requests in this repository. Prefer concise, actionable comments with links to the lines in the diff. When confident, suggest exact code edits.
+> **IMPORTANT**: Mention each issue ONLY ONCE. Do not repeat the same feedback multiple times.
 
 ## 🚨 CRITICAL PATTERNS TO FLAG IMMEDIATELY
 
-**ALWAYS flag these patterns in controllers:**
-1. **Missing authentication**: No `before_action :authenticate_user!` or similar
-2. **Wrong error format**: `render json: { message: "..." }` instead of `{ error: { code: "...", message: "..." } }`  
-3. **Non-idempotent creates**: `Model.create!` without validation/uniqueness checks
-4. **Hardcoded secrets**: `api_key = "sk-..."` or similar hardcoded values
-5. **PII in logs**: `Rails.logger.info "User email: #{params[:email]}"`
-6. **Blocking operations**: `sleep()`, long external API calls in controller actions
+**ALWAYS flag these EXACT patterns:**
+
+### Authentication Missing
+```ruby
+class V0::SomeController < ApplicationController
+  # NO before_action :authenticate_user! present
+```
+
+### Wrong Error Response Format  
+```ruby
+render json: { message: 'Something went wrong' }  # ❌ WRONG
+render json: { status: 'error' }                  # ❌ WRONG
+# Should be: { error: { code: '...', message: '...' } }
+```
+
+### Non-Idempotent Creates
+```ruby
+ExampleRecord.create!(name: params[:name])        # ❌ WRONG - no duplicate protection
+Model.create!(params)                             # ❌ WRONG - no validation
+# Should use: find_or_create_by, validations, or uniqueness constraints
+```
+
+### Other Critical Issues
+- **Hardcoded secrets**: `api_key = "sk-..."` or `password = "..."` 
+- **PII in logs**: `Rails.logger.info "User: #{params[:email]}"`
+- **Blocking operations**: `sleep(5)` in controller actions
 
 ---
 
@@ -251,8 +271,8 @@ This prevents table locking during deployment.
 - _"Service method `slow_external_call` blocks request. Move to Sidekiq background job."_
 - _"Controller missing authentication. Add `before_action :authenticate_user!` or similar."_
 - _"Hardcoded API key `sk-1234...` in source. Move to environment variable or SSM parameter."_
-- _"Non-idempotent `create!` without uniqueness check. Add validation or `find_or_create_by`."_
-- _"Error response `{ message: '...' }` inconsistent. Use standard envelope: `{ error: { code: '...', message: '...' } }`."_
+- _"Line 28-31: `ExampleRecord.create!` is not idempotent. Use `find_or_create_by` or add uniqueness validation."_
+- _"Line 34: Error response `{ message: 'Something went wrong' }` doesn't follow standard. Use `{ error: { code: 'internal_error', message: 'Something went wrong' } }`."_
 - _"Flipper stub missing feature flag parameter. Should be `.with(:feature_name)`."_
 - _"Test for authenticated endpoint missing `sign_in(user)` or authentication setup."_
 
@@ -260,6 +280,9 @@ This prevents table locking during deployment.
 
 ## Tips for Copilot
 
+* **Review Structure**: Group related issues together. Mention each issue ONLY ONCE.
+* **Be Specific**: Reference exact line numbers and provide fix suggestions.
+* **Prioritize**: Start with CRITICAL issues (security, data loss), then functionality, then code quality.
 * Stick to established patterns and structure.
 * Reuse existing helpers and services.
 * Keep code clear and concise.
