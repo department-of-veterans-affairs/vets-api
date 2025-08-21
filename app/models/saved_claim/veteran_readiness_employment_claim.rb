@@ -335,8 +335,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # part of the ZSF work, but with the initial timeline it handles the email as intended.
   # Future work will be integrating into the Va Notify common lib:
   # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-  def send_failure_email
-    if email.present?
+  def send_failure_email(email_override = nil)
+    recipient_email = email_override || email
+    if recipient_email.present?
       VANotify::EmailJob.perform_async(
         email,
         Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
