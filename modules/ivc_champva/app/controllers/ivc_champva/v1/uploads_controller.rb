@@ -793,7 +793,7 @@ module IvcChampva
         actual_form_id = form.form_id
         legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(actual_form_id)
 
-        filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid)
+        filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid, name: legacy_form_id)
 
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
