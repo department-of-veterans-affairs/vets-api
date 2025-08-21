@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data","status"],
+  "properties": {
+    "data": {
+      "$ref": "medical_copay_record.json"
+    },
+    "status": {
+      "type": "integer"
+    }
+  }
+}
