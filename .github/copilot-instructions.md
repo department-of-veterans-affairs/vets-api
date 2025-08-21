@@ -3,6 +3,16 @@
 
 > Use these instructions when reviewing pull requests in this repository. Prefer concise, actionable comments with links to the lines in the diff. When confident, suggest exact code edits.
 
+## 🚨 CRITICAL PATTERNS TO FLAG IMMEDIATELY
+
+**ALWAYS flag these patterns in controllers:**
+1. **Missing authentication**: No `before_action :authenticate_user!` or similar
+2. **Wrong error format**: `render json: { message: "..." }` instead of `{ error: { code: "...", message: "..." } }`  
+3. **Non-idempotent creates**: `Model.create!` without validation/uniqueness checks
+4. **Hardcoded secrets**: `api_key = "sk-..."` or similar hardcoded values
+5. **PII in logs**: `Rails.logger.info "User email: #{params[:email]}"`
+6. **Blocking operations**: `sleep()`, long external API calls in controller actions
+
 ---
 
 ## Project Overview
@@ -87,13 +97,16 @@ end
 ## Controllers & Error Handling
 
 * Endpoints are **RESTful**, versioned under `/v0/`, `/v1/`, etc.
+* **REQUIRED**: Every controller must have `before_action :authenticate_user!` or equivalent authentication.
 * Use **strong parameters** for input validation.
 * Authentication via **JWT** or **OAuth2**.
-* **All error responses** must use consistent error envelope:
+* **REQUIRED**: All error responses must use this exact format:
   ```json
   { "error": { "code": "string", "message": "human-readable", "details": {...} } }
   ```
+* **FORBIDDEN**: Error responses like `{ message: "..." }`, `{ error: "..." }`, or `{ status: "error" }`.
 * **Service classes** should also return proper error responses, not simple hashes like `{ success: true }`.
+* **REQUIRED**: All `create` operations must be idempotent - use validations, `find_or_create_by`, or duplicate checks.
 * Return appropriate status codes (422 for validation, 404 for missing, 429 for throttling, 5xx only for unknown/transient server issues).
 * Prefer `render json:` with serializers or JBuilder; don't build JSON by string concatenation.
 
@@ -199,26 +212,29 @@ This prevents table locking during deployment.
 ## What To **Praise**
 - Deleted code; reduced complexity; moved blocking IO to jobs; added tests for failure paths; added indexes with evidence; improved logging redaction.
 
-## What To **Question or Block**
-- Introduces or increases request timeout without addressing upstream.
-- Adds external HTTP call in request path without timeouts/retries.
-- Logs or outputs any PII/PHI.
-- Adds N+1 queries or removes needed indexes.
-- Non-idempotent POST/PUT without safeguards.
-- Large migrations without safety plan.
-- **Methods longer than 5 lines** without clear justification.
-- **Classes longer than 100 lines** that could be refactored.
-- **Methods with more than 3 parameters** that could use parameter objects.
-- **Synchronous slow operations** in controllers or services (sleep, long external calls, file processing).
-- **Blocking I/O operations** that should be moved to Sidekiq background jobs.
-- **Inconsistent error responses** that don't follow the standard error envelope format.
-- **Service methods returning simple hashes** instead of proper error envelopes.
-- **Controllers missing authentication** (`before_action :authenticate_user!` or similar).
-- **Hardcoded secrets or API keys** in source code instead of environment variables.
-- **Heavy I/O operations** like `sleep()` calls directly in controller actions.
-- **Non-idempotent operations** without duplicate prevention (create without uniqueness checks).
-- **Generic Flipper stubs** in tests missing specific feature flag parameter.
-- **Tests missing authentication context** (no sign_in or user setup for authenticated endpoints).
+## What To **Question or Block** - MUST FIX
+
+### **CRITICAL SECURITY ISSUES**
+- **Controllers without `before_action :authenticate_user!`** - FLAG IMMEDIATELY
+- **Hardcoded API keys** like `api_key = 'sk-...'` - FLAG IMMEDIATELY  
+- **PII in logs** like `user.email`, `user.ssn` - FLAG IMMEDIATELY
+
+### **CRITICAL FUNCTIONALITY ISSUES**  
+- **Error responses not using envelope**: `{ message: "..." }` instead of `{ error: { code: "...", message: "..." } }`
+- **Non-idempotent creates**: `Model.create!` without validations or `find_or_create_by`
+- **Blocking operations in controllers**: `sleep()`, long external calls, file processing
+
+### **PERFORMANCE & RELIABILITY**
+- External HTTP calls without timeouts/retries
+- N+1 queries without `includes`/`preload`
+- Large migrations without safety plan
+
+### **CODE QUALITY**
+- Methods longer than 5 lines without justification
+- Classes longer than 100 lines that could be refactored  
+- Methods with more than 3 parameters
+- Generic Flipper stubs missing specific feature flag parameter
+- Tests missing authentication context for authenticated endpoints
 
 ---
 
