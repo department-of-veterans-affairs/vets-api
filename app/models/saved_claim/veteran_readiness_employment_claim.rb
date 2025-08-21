@@ -339,7 +339,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     recipient_email = email_override || email
     if recipient_email.present?
       VANotify::EmailJob.perform_async(
-        email,
+        recipient_email,
         Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
         {
           'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
