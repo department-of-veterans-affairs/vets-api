@@ -43,6 +43,21 @@ data = JSON.parse(response.body)                      # ❌ WRONG - no rescue
 # Should validate response exists, handle JSON parse errors
 ```
 
+### Service Method Return Values
+```ruby
+# ❌ WRONG - Service methods returning simple hashes
+def create_record(data)
+  { success: true }                                   # ❌ WRONG
+  { status: 'ok' }                                    # ❌ WRONG
+end
+
+# ✅ CORRECT - Use proper error envelope
+def create_record(data)
+  { error: nil, data: { id: record.id } }            # ✅ For success
+  { error: { code: 'validation_error', message: 'Invalid data' } }  # ✅ For errors
+end
+```
+
 ### Other Critical Issues
 - **Hardcoded secrets**: `api_key = "sk-..."` or `password = "..."` 
 - **PII in logs**: `Rails.logger.info "User: #{params[:email]}"`
@@ -270,6 +285,8 @@ This prevents table locking during deployment.
 
 ### **CRITICAL FUNCTIONALITY ISSUES**  
 - **Error responses not using envelope**: `{ message: "..." }` instead of `{ error: { code: "...", message: "..." } }`
+- **Service methods returning `{ success: true }`** instead of proper error envelope
+- **Service methods returning `{ status: 'ok' }`** or other non-standard formats
 - **Non-idempotent creates**: `Model.create!` without validations or `find_or_create_by`
 - **Blocking operations in controllers**: `sleep()`, long external calls, file processing
 
@@ -300,7 +317,7 @@ This prevents table locking during deployment.
 - _"Controller does heavy IO; move to Sidekiq job and respond 202 Accepted with a job ID."_
 - _"This method is 10+ lines long. Consider extracting smaller methods following Sandi Metz rules (methods < 5 lines)."_
 - _"Synchronous `sleep(5)` in controller blocks request thread. Move to background job and return 202 with job ID."_
-- _"Service returns `{ success: true }` instead of standard error envelope. Use `{ error: { code: '...', message: '...' } }`."_
+- _"Line 32: Service returns `{ success: true }` instead of standard error envelope. Use `{ error: { code: '...', message: '...' } }` or `{ error: nil, data: {...} }`."_
 - _"Service method `slow_external_call` blocks request. Move to Sidekiq background job."_
 - _"Controller missing authentication. Add `before_action :authenticate_user!` or similar."_
 - _"Hardcoded API key `sk-1234...` in source. Move to environment variable or SSM parameter."_
