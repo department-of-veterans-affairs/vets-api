@@ -1,0 +1,35 @@
+---
+http_interactions:
+  - request:
+      method: patch
+      uri: https://dev.integration.d365.va.gov/api/v3/claims/a1178d06-ec2f-400c-fa9e-77e479fc5ef8/submit
+      headers:
+        Accept:
+          - application/json
+        X-Correlation-ID:
+          - a1178d06-ec2f-400c-fa9e-77e479fc5ef8
+        Ocp-Apim-Subscription-Key:
+          - fake_subscription_key
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2024 15:46:52 GMT
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "data": {
+              "claimId": "a1178d06-ec2f-400c-fa9e-77e479fc5ef8",
+              "status": "submitted",
+              "submittedAt": "2024-01-15T10:00:00Z"
+            }
+          }
+    recorded_at: Thu, 15 Jan 2024 16:45:03 GMT
+recorded_with: VCR 6.0.0

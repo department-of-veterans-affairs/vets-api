@@ -29,7 +29,7 @@ module TravelClaim
     # Performs HTTP requests using the inherited Common::Client::Base functionality.
     # This method provides circuit breaker protection, logging, and error handling.
     #
-    # @param method [Symbol] HTTP method (:get, :post, :put, :delete)
+    # @param method [Symbol] HTTP method (:get, :post, :put, :delete, :patch)
     # @param path [String] Full URL or path for the request
     # @param params [Hash, String] Request body or query parameters
     # @param headers [Hash] Additional request headers
@@ -39,6 +39,8 @@ module TravelClaim
     def perform(method, path, params, headers = nil, options = nil)
       super(method, path, params, headers, options)
     end
+
+
 
     private
 

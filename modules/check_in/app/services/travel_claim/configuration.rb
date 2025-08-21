@@ -37,6 +37,16 @@ module TravelClaim
     end
 
     ##
+    # Returns the supported HTTP request types.
+    # Adds PATCH method support for V3 API endpoints.
+    #
+    # @return [Array<Symbol>] Array of supported HTTP methods
+    #
+    def request_types
+      %i[get post put delete patch]
+    end
+
+    ##
     # Creates and configures a Faraday connection with the complete middleware stack.
     # The connection includes:
     # - Circuit breaker middleware for fault tolerance

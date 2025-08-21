@@ -58,6 +58,48 @@ RSpec.describe TravelClaim::AppointmentsClient do
     end
   end
 
+  describe '#submit_claim_v3' do
+    let(:claim_id) { 'a1178d06-ec2f-400c-fa9e-77e479fc5ef8' }
+
+    it 'uses patch method to make submit claim request' do
+      expected_headers = hash_including(
+        'Accept' => 'application/json',
+        'X-Correlation-ID' => correlation_id
+      )
+
+      expect(client).to receive(:patch).with(
+        kind_of(String),
+        nil,
+        expected_headers
+      ).and_return(double('Response'))
+
+      client.submit_claim_v3(claim_id:, correlation_id:)
+    end
+
+    it 'constructs correct URL for V3 submit endpoint' do
+      allow(client).to receive(:settings).and_return(
+        double('Settings', claims_url_v2: 'https://test.va.gov', subscription_key: 'test-subscription-key')
+      )
+      allow(Settings).to receive(:vsp_environment).and_return('development')
+
+      expect(client).to receive(:patch).with(
+        'https://test.va.gov/api/v3/claims/a1178d06-ec2f-400c-fa9e-77e479fc5ef8/submit',
+        nil,
+        anything
+      ).and_return(double('Response'))
+
+      client.submit_claim_v3(claim_id:, correlation_id:)
+    end
+
+    it 'raises BackendServiceException when the Travel Claim V3 API call fails' do
+      allow(client).to receive(:patch).and_raise(Common::Exceptions::BackendServiceException, 'V3 API call failed')
+
+      expect do
+        client.submit_claim_v3(claim_id:, correlation_id:)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+  end
+
   describe 'private methods' do
     describe '#build_appointment_body' do
       it 'builds correct request body with camelCase keys' do
@@ -93,6 +135,28 @@ RSpec.describe TravelClaim::AppointmentsClient do
         allow(Settings).to receive(:vsp_environment).and_return('development')
 
         result = client.send(:build_appointment_headers, tokens, correlation_id)
+
+        expect(result).to include('Ocp-Apim-Subscription-Key' => 'test-subscription-key')
+      end
+    end
+
+    describe '#build_submit_headers' do
+      it 'builds headers with correlation ID and accept header' do
+        result = client.send(:build_submit_headers, correlation_id)
+
+        expect(result).to include(
+          'Accept' => 'application/json',
+          'X-Correlation-ID' => 'correlation-123'
+        )
+      end
+
+      it 'includes claim headers from base client' do
+        allow(client).to receive(:settings).and_return(
+          double('Settings', subscription_key: 'test-subscription-key')
+        )
+        allow(Settings).to receive(:vsp_environment).and_return('development')
+
+        result = client.send(:build_submit_headers, correlation_id)
 
         expect(result).to include('Ocp-Apim-Subscription-Key' => 'test-subscription-key')
       end
