@@ -210,7 +210,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             'ch31_vbms_fake_template_id',
             {
               'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first')
+              'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
             }
           )
 
