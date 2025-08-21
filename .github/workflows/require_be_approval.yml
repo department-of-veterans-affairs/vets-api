@@ -265,6 +265,9 @@ jobs:
               else
                 echo "BE APPROVAL CONFIRMED"
                 approval_status=confirmed
+                if [[ "${author_is_backend}" == "true" ]]; then
+                  team_approval_status=confirmed
+                fi
               fi
             fi
           fi
