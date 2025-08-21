@@ -73,6 +73,12 @@ features:
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
+  ar_poa_request_failure_claimant_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_rep_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -628,6 +634,10 @@ features:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
     enable_in_development: true
+  dependents_module_enabled:
+    actor_type: user
+    description: Enables new Dependents module
+    enable_in_development: true
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -645,7 +655,7 @@ features:
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
   dependents_bypass_schema_validation:
     actor_type: user
-    description: Bypasses vets_json_schema validation for dependency claims 
+    description: Bypasses vets_json_schema validation for dependency claims
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -2185,6 +2195,13 @@ features:
       A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
       Enabled - Entry point link and claim details page are viewable.
       Disabled - Entry point link and claim details page are not viewable.
+  travel_pay_enable_complex_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
+      Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
