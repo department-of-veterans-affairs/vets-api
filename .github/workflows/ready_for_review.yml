@@ -281,36 +281,36 @@ jobs:
             ' || true
           )
 
-          if [ -n "${APPROVED[@]}" ]; then
-            echo "Approvers: ${APPROVED[@]}"
-            for approve in "${APPROVED[@]}"; do
-              echo "Checking approver: $approve"
-              TEAM_APPROVALS=$(echo "$approve" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
-              BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
-              if [[ -n "$TEAM_APPROVALS" ]]; then
-                echo "PR Reviewer '$approve' is NOT a backend-review-group member."
-                team_approval_status=confirmed
-                 echo "TEAM APPROVAL CONFIRMED"
+          # if [ -n "${APPROVED[@]}" ]; then
+          #   echo "Approvers: ${APPROVED[@]}"
+          #   for approve in "${APPROVED[@]}"; do
+          #     echo "Checking approver: $approve"
+          #     TEAM_APPROVALS=$(echo "$approve" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+          #     BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+          #     if [[ -n "$TEAM_APPROVALS" ]]; then
+          #       echo "PR Reviewer '$approve' is NOT a backend-review-group member."
+          #       team_approval_status=confirmed
+          #        echo "TEAM APPROVAL CONFIRMED"
 
-                for TEAM in "${EXEMPT_TEAMS[@]}"; do
-                  membership_state=$(gh api -X GET \
-                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
-                    --jq '.state' 2>/dev/null || echo "")
-                  if [[ "$membership_state" == "active" ]]; then
-                    echo "$approve is an active member of $TEAM"
-                    review_complete=true
-                    exempt_team=true
-                    backend_approval_required=false
-                    approval_status=confirmed
-                    break
-                  fi
-                done
-              elif [[ -n "$BE_APPROVALS" ]]; then
-                echo "BE APPROVAL CONFIRMED"
-                approval_status=confirmed
-              fi
-            done
-          else
+          #       for TEAM in "${EXEMPT_TEAMS[@]}"; do
+          #         membership_state=$(gh api -X GET \
+          #           "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
+          #           --jq '.state' 2>/dev/null || echo "")
+          #         if [[ "$membership_state" == "active" ]]; then
+          #           echo "$approve is an active member of $TEAM"
+          #           review_complete=true
+          #           exempt_team=true
+          #           backend_approval_required=false
+          #           approval_status=confirmed
+          #           break
+          #         fi
+          #       done
+          #     elif [[ -n "$BE_APPROVALS" ]]; then
+          #       echo "BE APPROVAL CONFIRMED"
+          #       approval_status=confirmed
+          #     fi
+          #   done
+          # else
             if [ -n "${DISMISSED[@]}" ]; then
               for dismiss in "${DISMISSED[@]}"; do
                 echo "Checking dismissed review: $dismiss"
@@ -326,7 +326,7 @@ jobs:
                 fi
               done
             fi
-          fi
+          # fi
 
           if [[ "${review_complete}" == "false" ]]; then
             if [ -z "$PR_REQUESTED_TEAMS_JSON" ] || [ "$PR_REQUESTED_TEAMS_JSON" = "[]" ]; then
