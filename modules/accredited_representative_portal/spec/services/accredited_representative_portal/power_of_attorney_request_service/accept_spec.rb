@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'ostruct'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept, type: :service do
   subject(:service_call) { described_class.new(poa_request, creator).call }
@@ -8,7 +9,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
   let!(:creator)     { create(:representative_user) }
   let!(:poa_request) { create(:power_of_attorney_request) }
 
-  let(:monitor) { instance_spy('Monitoring') }
+  let(:monitor) { instance_spy(Monitoring) }
 
   before do
     stub_const('Monitoring', Class.new) unless Object.const_defined?('Monitoring')
@@ -58,18 +59,18 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
   end
 
   def stub_benefits_claims_submit2122_returning(id:)
-    svc = instance_double('BenefitsClaims::Service')
+    svc = instance_double(BenefitsClaims::Service)
     allow(BenefitsClaims::Service).to receive(:new)
       .with(poa_request.claimant.icn)
       .and_return(svc)
     allow(svc).to receive(:submit2122).and_return(
-      instance_double('Response', body: { 'data' => { 'id' => id } })
+      OpenStruct.new(body: { 'data' => { 'id' => id } })
     )
     svc
   end
 
   describe 'happy path' do
-    it 'creates acceptance, submits to BenefitsClaims, enqueues job, tracks metrics, and returns the submission record' do
+    it 'creates acceptance, submits, enqueues job, tracks metrics, and returns the submission' do
       stub_benefits_claims_submit2122_returning(id: 'svc-123')
       allow(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob)
         .to receive(:perform_async)
@@ -85,7 +86,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
         expect(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob)
           .to have_received(:perform_async).with(result.id)
 
-        # Acceptance decision creation is invoked (stubbed)
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision)
           .to have_received(:create_acceptance!)
       end.to change(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission, :count).by(1)
@@ -99,7 +99,9 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
       described_class.new(poa_request, creator).call
 
       expect(svc).to have_received(:submit2122) do |payload|
-        expect(payload).to include(:veteran, :serviceOrganization, :recordConsent, :consentLimits, :consentAddressChange)
+        expect(payload).to include(
+          :veteran, :serviceOrganization, :recordConsent, :consentLimits, :consentAddressChange
+        )
 
         expect(payload[:serviceOrganization]).to eq(
           poaCode: poa_request.power_of_attorney_holder_poa_code,
@@ -133,24 +135,24 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
 
   describe 'error handling' do
     let(:svc) do
-      s = instance_double('BenefitsClaims::Service')
+      s = instance_double(BenefitsClaims::Service)
       allow(BenefitsClaims::Service).to receive(:new).and_return(s)
       s
     end
 
     it 'wraps Common::Exceptions::ResourceNotFound as Accept::Error with :not_found' do
-      # allocate an instance and supply the needed methods without verified-doubles issues
       not_found = Common::Exceptions::ResourceNotFound.allocate
       not_found.define_singleton_method(:detail)  { 'not found' }
       not_found.define_singleton_method(:message) { 'not found' }
 
       allow(svc).to receive(:submit2122).and_raise(not_found)
 
-      expect { service_call }
-        .to raise_error(described_class::Error) { |e|
-          expect(e.status).to eq(:not_found)
-          expect(e.message).to eq('not found')
-        }
+      expect do
+        service_call
+      end.to raise_error(described_class::Error) { |e|
+        expect(e.status).to eq(:not_found)
+        expect(e.message).to eq('not found')
+      }
     end
 
     it 'wraps ActiveRecord::RecordInvalid as Accept::Error with :bad_request' do
@@ -159,34 +161,36 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
 
       allow(svc).to receive(:submit2122).and_raise(invalid)
 
-      expect { service_call }
-        .to raise_error(described_class::Error) { |e|
-          expect(e.status).to eq(:bad_request)
-          expect(e.message).to eq('invalid')
-        }
+      expect do
+        service_call
+      end.to raise_error(described_class::Error) { |e|
+        expect(e.status).to eq(:bad_request)
+        expect(e.message).to eq('invalid')
+      }
     end
 
     it 'maps Faraday::TimeoutError to Accept::Error with :gateway_timeout' do
       allow(svc).to receive(:submit2122).and_raise(Faraday::TimeoutError.new('timeout'))
 
-      expect { service_call }
-        .to raise_error(described_class::Error) { |e|
-          expect(e.status).to eq(:gateway_timeout)
-          expect(e.message).to eq('timeout')
-        }
+      expect do
+        service_call
+      end.to raise_error(described_class::Error) { |e|
+        expect(e.status).to eq(:gateway_timeout)
+        expect(e.message).to eq('timeout')
+      }
     end
 
     it 'handles configured FATAL errors: creates failed submission and raises Accept::Error(:not_found)' do
-      class SyntheticFatal < StandardError
+      fatal_klass = Class.new(StandardError) do
         def detail = 'bad request'
       end
-      stub_const("#{described_class.name}::FATAL_ERROR_TYPES", [SyntheticFatal])
+      stub_const("#{described_class.name}::FATAL_ERROR_TYPES", [fatal_klass])
 
-      allow(svc).to receive(:submit2122).and_raise(SyntheticFatal.new('bad request'))
+      allow(svc).to receive(:submit2122).and_raise(fatal_klass.new('bad request'))
 
-      expect {
+      expect do
         service_call
-      }.to raise_error(described_class::Error) { |e|
+      end.to raise_error(described_class::Error) { |e|
         expect(e.status).to eq(:not_found)
         expect(e.message).to eq('bad request')
       }
@@ -195,36 +199,40 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
       expect(failed.status).to eq('enqueue_failed')
       expect(failed.error_message).to eq('bad request')
 
-      expect(monitor).to have_received(:track_duration).with('ar.poa.submission.duration', from: poa_request.created_at)
-      expect(monitor).to have_received(:track_duration).with('ar.poa.submission.enqueue_failed.duration', from: poa_request.created_at)
+      expect(monitor).to have_received(:track_duration)
+        .with('ar.poa.submission.duration', from: poa_request.created_at)
+      expect(monitor).to have_received(:track_duration)
+        .with('ar.poa.submission.enqueue_failed.duration', from: poa_request.created_at)
     end
 
     it 'handles configured TRANSIENT errors: raises Accept::Error(:gateway_timeout)' do
-      class SyntheticTransient < StandardError; end
-      stub_const("#{described_class.name}::TRANSIENT_ERROR_TYPES", [SyntheticTransient])
+      transient_klass = Class.new(StandardError)
+      stub_const("#{described_class.name}::TRANSIENT_ERROR_TYPES", [transient_klass])
 
-      allow(svc).to receive(:submit2122).and_raise(SyntheticTransient.new('please retry'))
+      allow(svc).to receive(:submit2122).and_raise(transient_klass.new('please retry'))
 
-      expect { service_call }
-        .to raise_error(described_class::Error) { |e|
-          expect(e.status).to eq(:gateway_timeout)
-          expect(e.message).to eq('please retry')
-        }
+      expect do
+        service_call
+      end.to raise_error(described_class::Error) { |e|
+        expect(e.status).to eq(:gateway_timeout)
+        expect(e.message).to eq('please retry')
+      }
     end
 
     it 'handles unexpected errors: logs, creates failed submission, and re-raises' do
       allow(Rails.logger).to receive(:error)
       allow(svc).to receive(:submit2122).and_raise(RuntimeError, 'boom')
 
-      expect {
+      expect do
         service_call
-      }.to raise_error(RuntimeError, 'boom')
+      end.to raise_error(RuntimeError, 'boom')
 
       failed = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.order(:created_at).last
       expect(failed.status).to eq('enqueue_failed')
       expect(failed.error_message).to eq('boom')
 
-      expect(Rails.logger).to have_received(:error).with(/Unexpected error in Accept#call: RuntimeError - boom/)
+      expect(Rails.logger).to have_received(:error)
+        .with(/Unexpected error in Accept#call: RuntimeError - boom/)
       expect(Rails.logger).to have_received(:error).at_least(:twice)
     end
   end
