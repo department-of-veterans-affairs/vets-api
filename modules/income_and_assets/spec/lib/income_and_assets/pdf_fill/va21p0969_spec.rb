@@ -43,7 +43,7 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
           'modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/merge_fields'
         )
 
-        expected = expected.is_a?(Hash) ? expected : JSON.parse(File.read(expected))
+        expected = JSON.parse(File.read(expected)) unless expected.is_a?(Hash)
 
         actual = described_class.new(form_data).merge_fields
 
