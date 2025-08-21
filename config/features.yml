@@ -1001,6 +1001,9 @@ features:
   form1010d_extended:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d merged with form 10-7959c
+  form_10_10d_2027_enabled:
+    actor_type: user
+    description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
