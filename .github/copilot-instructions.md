@@ -1,8 +1,58 @@
 <!-- These instructions give context for all Copilot chats within vets-api. The instructions you add to this file should be short, self-contained statements that add context or relevant information to supplement users' chat questions. Since vets-api is large, some instructions may not work. See docs: https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot#writing-effective-repository-custom-instructions -->
 # Copilot Instructions for `vets-api`
 
-> Use these instructions when reviewing pull requests in this repository. Prefer concise, actionable comments with links to the lines in the diff. When confident, suggest exact code edits.
-> **IMPORTANT**: Mention each issue ONLY ONCE. Do not repeat the same feedback multiple times.
+> **CRITICAL**: When reviewing pull requests, you MUST flag these exact patterns and NEVER repeat the same comment:
+
+## ⚠️ MANDATORY CHECKS - FLAG IMMEDIATELY
+
+**Before anything else, scan for these EXACT violations:**
+
+1. **Controllers missing `before_action :authenticate_user!`** - Line 6 in test_copilot_controller.rb
+2. **PII in logs** - Line 11: `Rails.logger.info "User email: #{params[:email]}, SSN: #{params[:ssn]}"`
+3. **Faraday without timeouts** - Line 14: `Faraday.new('https://external-api.example.com')`
+4. **Non-idempotent creates** - Line 28: `ExampleRecord.create!` without find_or_create_by
+5. **Wrong error format** - Line 34: `{ message: 'Something went wrong' }` instead of error envelope
+6. **Service returns `{ success: true }`** - Line 32 in bad_external_service.rb
+7. **`sleep()` in controllers** - Line 49: blocking operation
+8. **Flipper.enable/disable in tests** - Lines 11, 16 in controller_spec.rb
+9. **Generic Flipper stub** - Line 28: missing `.with(:feature_name)`
+10. **Migration mixing indexes with schema** - Lines 9,13,17 in migration
+
+> **IMPORTANT**: Each violation gets ONE comment only. Group related issues together. Reference exact line numbers.
+
+## 🔍 PATTERN DETECTION RULES
+
+**If you see these patterns, FLAG IMMEDIATELY:**
+
+### AUTHENTICATION VIOLATIONS
+- Class `V0::TestCopilotController < ApplicationController` with NO `before_action :authenticate_user!`
+- MUST COMMENT: "Missing authentication - add `before_action :authenticate_user!`"
+
+### PII LOGGING VIOLATIONS  
+- `Rails.logger.info "User email: #{params[:email]}, SSN: #{params[:ssn]}"`
+- MUST COMMENT: "PII in logs - remove email/SSN from log statements"
+
+### HTTP CLIENT VIOLATIONS
+- `Faraday.new('https://external-api.example.com')` without timeout parameters
+- MUST COMMENT: "Missing timeouts - add `timeout: 8, open_timeout: 2`"
+
+### SERVICE RETURN VIOLATIONS
+- Method returning `{ success: true }` in service classes
+- MUST COMMENT: "Use error envelope - return `{ error: nil, data: {...} }` for success"
+
+### ERROR FORMAT VIOLATIONS
+- `render json: { message: 'Something went wrong' }`
+- MUST COMMENT: "Wrong error format - use `{ error: { code: '...', message: '...' } }`"
+
+### FLIPPER TEST VIOLATIONS
+- `Flipper.enable(:test_feature)` or `Flipper.disable(:test_feature)`
+- MUST COMMENT: "Never call Flipper.enable/disable - use stubbing instead"
+
+### MIGRATION VIOLATIONS
+- Migration mixing `add_index` with `add_column` in same file
+- MUST COMMENT: "Isolate index changes - separate migration needed with `algorithm: :concurrently`"
+
+---
 
 ## 🚨 CRITICAL PATTERNS TO FLAG IMMEDIATELY
 
@@ -339,3 +389,25 @@ This prevents table locking during deployment.
 * If prompted to create an issue, use `department-of-veterans-affairs/va.gov-team` repository.
 * Prefer PORO service objects under `app/services` for complex flows.
 * Centralize Faraday config/middleware; avoid ad-hoc clients per call site.
+
+---
+
+# 🛑 ANTI-REPETITION RULES
+
+**CRITICAL**: Follow these rules to avoid repeating feedback:
+
+1. **ONE COMMENT PER ISSUE TYPE**: If you find multiple instances of the same violation (e.g., multiple PII logging issues), group them into ONE comment.
+
+2. **TRACK WHAT YOU'VE SAID**: After commenting on authentication, PII logging, Faraday timeouts, etc., DO NOT comment on them again.
+
+3. **GROUP BY SEVERITY**: 
+   - Make ONE comment about security issues (authentication, PII, secrets)
+   - Make ONE comment about functionality issues (error format, idempotency)  
+   - Make ONE comment about performance issues (timeouts, N+1 queries)
+
+4. **BE SPECIFIC WITH LINES**: Reference exact line numbers like "Lines 11, 14, 28" instead of general statements.
+
+**EXAMPLE OF GOOD GROUPING**:
+"Security Issues - Lines 6, 11, 52: Missing authentication, PII in logs, hardcoded secret"
+
+**FORBIDDEN**: Making separate comments for each security issue.
