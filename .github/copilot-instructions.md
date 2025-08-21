@@ -88,10 +88,11 @@ end
 * Endpoints are **RESTful**, versioned under `/v0/`, `/v1/`, etc.
 * Use **strong parameters** for input validation.
 * Authentication via **JWT** or **OAuth2**.
-* Use consistent error envelope:
+* **All error responses** must use consistent error envelope:
   ```json
   { "error": { "code": "string", "message": "human-readable", "details": {...} } }
   ```
+* **Service classes** should also return proper error responses, not simple hashes like `{ success: true }`.
 * Return appropriate status codes (422 for validation, 404 for missing, 429 for throttling, 5xx only for unknown/transient server issues).
 * Prefer `render json:` with serializers or JBuilder; don't build JSON by string concatenation.
 
@@ -202,8 +203,10 @@ This prevents table locking during deployment.
 - **Methods longer than 5 lines** without clear justification.
 - **Classes longer than 100 lines** that could be refactored.
 - **Methods with more than 3 parameters** that could use parameter objects.
-- **Synchronous slow operations** in controllers (sleep, long external calls, file processing).
+- **Synchronous slow operations** in controllers or services (sleep, long external calls, file processing).
 - **Blocking I/O operations** that should be moved to Sidekiq background jobs.
+- **Inconsistent error responses** that don't follow the standard error envelope format.
+- **Service methods returning simple hashes** instead of proper error envelopes.
 
 ---
 
@@ -216,6 +219,8 @@ This prevents table locking during deployment.
 - _"Controller does heavy IO; move to Sidekiq job and respond 202 Accepted with a job ID."_
 - _"This method is 10+ lines long. Consider extracting smaller methods following Sandi Metz rules (methods < 5 lines)."_
 - _"Synchronous `sleep(5)` in controller blocks request thread. Move to background job and return 202 with job ID."_
+- _"Service returns `{ success: true }` instead of standard error envelope. Use `{ error: { code: '...', message: '...' } }`."_
+- _"Service method `slow_external_call` blocks request. Move to Sidekiq background job."_
 
 ---
 
