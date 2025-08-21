@@ -27,11 +27,6 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
   let(:processor) { described_class.new(submission, jid) }
   let(:received_date) { submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
-  let(:form4142_post_db_post_transform) do
-    JSON.parse(
-      File.read('spec/support/disability_compensation_form/submissions/with_4142_2024_post_transform_4142.json')
-    )['form4142'].merge({ 'signatureDate' => received_date })
-  end
 
   describe '#initialize' do
     before do
@@ -39,10 +34,14 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
     end
 
     it 'initializes with submission and jid' do
+      expected_provider_facility = form4142['providerFacility'].map do |facility|
+        facility.merge('conditionsTreated' => facility['treatedDisabilityNames'].join(', '))
+      end
+      expected = form4142.clone.merge('providerFacility' => expected_provider_facility)
       expect(PdfFill::Filler).to receive(:fill_ancillary_form)
         .and_call_original
         .once
-        .with(form4142_post_db_post_transform, submission.submitted_claim_id, '21-4142-2024')
+        .with(expected, submission.submitted_claim_id, '21-4142-2024')
 
       expect(processor.instance_variable_get(:@pdf_path)).to be_a(String)
       expect(processor.instance_variable_get(:@request_body)).to be_a(Hash)
@@ -53,7 +52,9 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
                                         JSON.parse(form_json)['form4142'])['providerFacility']
 
       expect(transformed_data.size).to eq(3)
-      expect(transformed_data[0]['conditionsTreated']).to eq('PTSD (post traumatic stress disorder)')
+      expect(transformed_data[0]['conditionsTreated']).to eq(
+        'PTSD (post traumatic stress disorder), Coding Trauma, Nasal Trauma'
+      )
       expect(transformed_data[1]['conditionsTreated']).to eq('Coding Trauma')
       expect(transformed_data[2]['conditionsTreated']).to eq(
         'PTSD (post traumatic stress disorder), Coding Trauma, Nasal Trauma'
