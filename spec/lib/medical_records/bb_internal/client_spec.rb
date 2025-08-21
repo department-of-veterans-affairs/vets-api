@@ -56,13 +56,44 @@ describe BBInternal::Client do
   end
 
   describe '#list_imaging_studies' do
-    it 'gets the list of imaging studies' do
+    let(:cached_list_data) do
+      { 'f1c9a455-9a43-4d73-ac5b-e417bac1d3bb' => '451-72913365',
+        'a3de79e7-93d1-4df4-ab00-e38f8a31f157' => '453-2487450',
+        '2830903b-08da-49c2-89e2-7a49ea1204d9' => '453-2487448' }.to_json
+    end
+
+    include_context 'redis setup'
+
+    before do
+      allow(redis).to receive(:set)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    it 'gets the list of imaging studies with IDs from cache' do
+      allow(redis).to receive(:get).with(study_data_key).and_return(cached_list_data)
+
       VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
+
+        expect(Rails.logger).not_to have_received(:info)
+          .with(message: /Assigned studyIdUrn to new UUID/i)
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
+      end
+    end
+
+    it 'gets the list of imaging studies and saves UUIDs to redis' do
+      allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
+
+      VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
+        studies = client.list_imaging_studies
+        expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
 
+        expect(Rails.logger).to have_received(:info)
+          .with(message: /Assigned studyIdUrn to new UUID/i).at_least(:once)
         # Check if 'studyIdUrn' was replaced by a UUID
         expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
       end
@@ -72,6 +103,10 @@ describe BBInternal::Client do
   describe '#request_study' do
     include_context 'redis setup'
 
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
         result = client.request_study(uuid)
@@ -79,8 +114,22 @@ describe BBInternal::Client do
         expect(result).to have_key('status')
         expect(result).to have_key('studyIdUrn')
 
+        expect(Rails.logger).not_to have_received(:info)
+          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
+
         # 'studyIdUrn' should match a specific UUID
         expect(result['studyIdUrn']).to equal(uuid)
+      end
+    end
+
+    it 'raises RecordNotFound exception and logs the uuid if not in the cache' do
+      allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
+
+      VCR.use_cassette 'mr_client/bb_internal/request_study' do
+        expect { client.request_study(uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
+
+        expect(Rails.logger).to have_received(:info)
+          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
       end
     end
   end
