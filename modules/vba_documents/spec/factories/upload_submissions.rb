@@ -52,8 +52,8 @@ FactoryBot.define do
     end
 
     trait :status_emms_error do
-      status { 'error'}
-      code { 'DOC202'}
+      status { 'error' }
+      code { 'DOC202' }
       detail { 'image failed to process' }
     end
 

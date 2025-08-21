@@ -30,7 +30,8 @@ RSpec.describe VBADocuments::UploadUpstreamProcessingErrorBatch, type: :job do
       allow(Rails.logger).to receive(:info)
       expect(Rails.logger).to receive(:info).with(
         'VBADocuments::UploadSubmission EMMS processing error resolved',
-        { guid: emms_error_upload.guid, code: "DOC202", detail: "image failed to process" })
+        { guid: emms_error_upload.guid, code: 'DOC202', detail: 'image failed to process' }
+      )
       expect(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:status).with([emms_error_upload.guid]).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
@@ -43,10 +44,9 @@ RSpec.describe VBADocuments::UploadUpstreamProcessingErrorBatch, type: :job do
           VBADocuments::UploadUpstreamProcessingErrorBatch.new.perform
         end
         emms_error_upload.reload
-        expect(emms_error_upload.status).to eq('vbms')
-        expect(emms_error_upload.detail).to eq(nil)
-        expect(emms_error_upload.code).to eq(nil)
-
+        expect(emms_error_upload.status).to eql('vbms')
+        expect(emms_error_upload.detail).to be_nil
+        expect(emms_error_upload.code).to be_nil
       end
     end
   end

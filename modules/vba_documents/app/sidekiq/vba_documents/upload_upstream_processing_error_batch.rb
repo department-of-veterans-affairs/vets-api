@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+
 # Job polls EMMS for status updates for UploadSubmission that hit an EMMS internal procession error.  EMMS seems
 # to have re-processing capacitity and some EMMS errors self recover
+
 require 'sidekiq'
 
 module VBADocuments
@@ -13,10 +15,10 @@ module VBADocuments
     BATCH_SIZE = 100
 
     def perform
-      return unless enabled? 
-      
+      return unless enabled?
+
       us_guids = filtered_submission_guids
-      return unless us_guids.present?
+      return if us_guids.blank?
 
       Sidekiq::Batch.new.jobs do
         us_guids.each_slice(BATCH_SIZE).with_index do |guids, i|
@@ -30,7 +32,7 @@ module VBADocuments
 
     def filtered_submission_guids
       ups = VBADocuments::UploadSubmission.emms_internal_processing_error
-      ups = ups.where("created_at >= ?", UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS.days.ago)
+      ups = ups.where('created_at >= ?', UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS.days.ago)
       ups.order(created_at: :asc).pluck(:guid)
     end
 

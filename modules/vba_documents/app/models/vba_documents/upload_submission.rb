@@ -45,7 +45,7 @@ module VBADocuments
     scope :not_final_success, lambda {
       where("metadata -> '#{FINAL_SUCCESS_STATUS_KEY}' IS NULL AND created_at >= '#{VBMS_STATUS_DEPLOYMENT_DATE}'")
     }
-    scope :emms_internal_processing_error, -> { where(status: 'error', code: 'DOC202')}
+    scope :emms_internal_processing_error, -> { where(status: 'error', code: 'DOC202') }
 
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|
@@ -144,7 +144,8 @@ module VBADocuments
                      (status == 'success' && metadata[FINAL_SUCCESS_STATUS_KEY].present?) ||
                      (status == 'error' && code.start_with?('DOC1')) || # non-upstream errors only
                      (status == 'error' && code == 'DOC202' &&
-                      (Time.now - created_at) / 1.day >= MAX_UPSTREAM_ERROR_AGE_DAYS)
+                      (Time.zone.now - created_at) / 1.day >= MAX_UPSTREAM_ERROR_AGE_DAYS)
+
       false
     end
 
@@ -271,11 +272,11 @@ module VBADocuments
       # to a non-error state and clear out the old error fields
       if status_changed?(from: 'error')
         # log any emms upstream processing errors that get resolved
-        if self.code == 'DOC202'
-          Rails.logger.info('VBADocuments::UploadSubmission EMMS processing error resolved', 
-                            {guid:, code:, detail:})
+        if code == 'DOC202'
+          Rails.logger.info('VBADocuments::UploadSubmission EMMS processing error resolved',
+                            { guid:, code:, detail: })
         end
-        
+
         self.code = nil
         self.detail = nil
       end
