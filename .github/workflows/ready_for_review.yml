@@ -5,9 +5,9 @@ on:
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Service Tags", "CodeQL"]
     types: [completed]
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+#   cancel-in-progress: true
 permissions:
   id-token: write
   contents: read
