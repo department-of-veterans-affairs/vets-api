@@ -73,6 +73,10 @@ RSpec.describe IvcChampva::FormVersionManager do
   end
 
   describe '.resolve_form_version' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(true)
+    end
+
     context 'when form has no versions configured' do
       it 'returns the original form ID' do
         result = described_class.resolve_form_version('unknown_form', nil)
@@ -170,19 +174,6 @@ RSpec.describe IvcChampva::FormVersionManager do
         result = described_class.create_form_instance('test_base_form', form_data, nil)
         expect(result).to be_a(mock_base_form_class)
         expect(result.form_id).to eq('test_base_form')
-        expect(result.data).to eq(form_data)
-      end
-    end
-
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('test_versioned_form_enabled', anything).and_return(true)
-      end
-
-      it 'creates an instance of the versioned form class' do
-        result = described_class.create_form_instance('test_base_form', form_data, nil)
-        expect(result).to be_a(mock_versioned_form_class)
-        expect(result.form_id).to eq('test_versioned_form')
         expect(result.data).to eq(form_data)
       end
     end

@@ -12,7 +12,7 @@ module IvcChampva
 
     # Feature flags for form versions
     FORM_VERSION_FLAGS = {
-      'vha_10_10d_2027' => 'form_10_10d_2027_enabled'
+      'vha_10_10d_2027' => 'champva_form_10_10d_2027'
     }.freeze
 
     # Mapping of new form IDs back to legacy form IDs for S3/metadata compatibility
@@ -28,7 +28,10 @@ module IvcChampva
       # @param current_user [User, nil] Current user for feature flag evaluation
       # @return [String] The actual form ID to use
       def resolve_form_version(base_form_id, current_user = nil)
-        return base_form_id unless FORM_VERSIONS.key?(base_form_id)
+        # top-level feature flag check for form versioning
+        unless Flipper.enabled?(:champva_form_versioning, current_user) && FORM_VERSIONS.key?(base_form_id)
+          return base_form_id
+        end
 
         versions = FORM_VERSIONS[base_form_id]
 
@@ -37,6 +40,7 @@ module IvcChampva
           next if version_key == :current
 
           feature_flag = FORM_VERSION_FLAGS[form_id]
+          # check for feature flag for each version
           if feature_flag && Flipper.enabled?(feature_flag, current_user)
             Rails.logger.info("IVC ChampVA Forms - Using form version #{form_id} for #{base_form_id}")
             return form_id
@@ -62,12 +66,7 @@ module IvcChampva
       # @param form_id [String] The form ID
       # @return [Class] The form model class
       def get_form_class(form_id)
-        case form_id
-        when 'vha_10_10d_2027'
-          IvcChampva::VHA1010d2027
-        else
-          "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
-        end
+        "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
       end
 
       ##

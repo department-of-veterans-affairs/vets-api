@@ -670,9 +670,10 @@ module IvcChampva
 
       def get_attachment_ids_and_form(parsed_form_data)
         base_form_id = get_form_id
-        actual_form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
+        form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
+        form = IvcChampva::FormVersionManager.create_form_instance(form_id, parsed_form_data, @current_user)
 
-        form_class = IvcChampva::FormVersionManager.get_form_class(actual_form_id)
+        form_class = form.class
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
         applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
 
@@ -682,8 +683,6 @@ module IvcChampva
         # `form_id` even on forms that don't have an `applicants` array (e.g. FMP2)
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
-        form = IvcChampva::FormVersionManager.create_form_instance(base_form_id, parsed_form_data, @current_user)
-
         # Optionally add a supporting document with arbitrary form-defined values.
         add_blank_doc_and_stamp(form, parsed_form_data)
 
@@ -692,8 +691,8 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = build_attachment_ids(actual_form_id, parsed_form_data, applicant_rounded_number)
-        attachment_ids = [actual_form_id] if attachment_ids.empty?
+        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = [form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
       end
