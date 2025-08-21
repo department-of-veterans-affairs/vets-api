@@ -223,4 +223,43 @@ describe VAProfile::V3::AddressValidation::Service do
       end
     end
   end
+
+  describe '#validate' do
+    context 'after an invalid address' do
+      it 'returns a validation_key' do
+        VCR.use_cassette(
+          'va_profile/v3/address_validation/validate_after_candidate_no_match',
+          VCR::MATCH_EVERYTHING
+        ) do
+          expect(described_class.new.validate(invalid_address)).to eq(
+            'candidate_addresses' => [
+              {
+                'address_line1' => 'Sdfdsfsdf',
+                'city_name' => 'Sparks Glencoe',
+                'zip_code5' => '21152',
+                'state' => {
+                  'state_name' => 'Maryland',
+                  'state_code' => 'MD'
+                },
+                'country' => {
+                  'country_name' => 'United States',
+                  'country_code_fips' => 'US',
+                  'country_code_iso2' => 'US',
+                  'country_code_iso3' => 'USA'
+                },
+                'geocode' => {
+                  'calc_date' => '2024-10-22T19:26:20+00:00Z',
+                  'latitude' => 39.5412,
+                  'longitude' => -76.6676
+                },
+                'confidence' => 0.0,
+                'address_type' => 'Domestic'
+              }
+            ],
+            'override_validation_key' => 1_499_210_294
+          )
+        end
+      end
+    end
+  end
 end
