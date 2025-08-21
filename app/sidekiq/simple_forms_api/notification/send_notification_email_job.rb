@@ -83,6 +83,16 @@ module SimpleFormsApi
       def send_email
         email = form_upload_supported? ? form_upload_notification_email : notification_email
 
+        # Record that the email notification job has been enqueued for VFF forms
+        if vff_form?
+          form_id = @form_number.gsub('vba_', '').gsub('_', '-').upcase
+          form_id = form_id.gsub('21P', '21P-') if form_id.include?('21P')
+          StatsD.increment(
+            'vff.benefits_intake.email_send_scheduled',
+            tags: ["form_id:#{form_id}", 'service:veteran-facing-forms']
+          )
+        end
+
         email.send(at: time_to_send)
       end
 
@@ -99,6 +109,42 @@ module SimpleFormsApi
         )
 
         StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
+
+        # Track VFF email notification failure if this is a VFF form
+        track_vff_email_failure(e) if vff_form?
+      end
+
+      private # rubocop:disable Lint/UselessAccessModifier
+
+      # Check if this is a VFF form
+      def vff_form?
+        return false unless @form_number
+
+        # Convert form number back to form ID format for VFF check
+        form_id = @form_number.gsub('vba_', '').gsub('_', '-').upcase
+        form_id = form_id.gsub('21P', '21P-') if form_id.include?('21P')
+
+        VFF::Monitor.vff_form?(form_id)
+      end
+
+      # Track email notification failure for VFF forms
+      def track_vff_email_failure(error)
+        return unless @form_number && @benefits_intake_uuid
+
+        monitor = VFF::Monitor.new
+        form_id = @form_number.gsub('vba_', '').gsub('_', '-').upcase
+        form_id = form_id.gsub('21P', '21P-') if form_id.include?('21P')
+
+        monitor.track_email_notification_failure(
+          form_id,
+          @benefits_intake_uuid,
+          error,
+          {
+            notification_type:,
+            form_number: @form_number,
+            benefits_intake_uuid: @benefits_intake_uuid
+          }
+        )
       end
     end
   end
