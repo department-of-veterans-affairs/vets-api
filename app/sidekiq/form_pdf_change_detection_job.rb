@@ -14,12 +14,12 @@ class FormPdfChangeDetectionJob
     forms = fetch_forms_data
 
     cache_keys, current_sha_map = get_current_form_data(forms)
-    cached_sha_map = fetch_cached_values(cache_keys)
+    cached_sha_map = Rails.cache.read_multi(*cache_keys)
 
     log_form_revisions(current_sha_map, cached_sha_map)
     update_cached_values(current_sha_map)
   rescue => e
-    Rails.logger.error "Error in FormPdfVersionJob: #{e.message}"
+    Rails.logger.error "Error in #{self.class.name}: #{e.message}"
     raise e
   end
 
@@ -51,12 +51,6 @@ class FormPdfChangeDetectionJob
     end
 
     [cache_keys, current_sha_map]
-  end
-
-  def fetch_cached_values(cache_keys)
-    Rails.cache.fetch_multi(*cache_keys) do |_key|
-      nil
-    end
   end
 
   def update_cached_values(current_sha_map)

@@ -35,16 +35,10 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
 
     @mock_cache = {}
 
-    allow(Rails.cache).to receive(:fetch_multi) do |*keys, &block|
+    allow(Rails.cache).to receive(:read_multi) do |*keys|
       result = {}
       keys.each do |key|
-        if @mock_cache.key?(key)
-          result[key] = @mock_cache[key]
-        elsif block
-          computed_value = block.call(key)
-          @mock_cache[key] = computed_value
-          result[key] = computed_value
-        end
+        result[key] = @mock_cache[key] if @mock_cache.key?(key)
       end
       result
     end
@@ -65,11 +59,8 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
       expect(Rails.logger).not_to receive(:info)
         .with(a_string_including('was revised'))
 
-      expect(Rails.cache).to receive(:fetch_multi).and_call_original
-      expect(Rails.cache).to receive(:write_multi).and_call_original
-
       subject.perform
-
+      
       expect(@mock_cache['form_pdf_revision_sha256:10-10EZ']).to eq('abc123def456')
       expect(@mock_cache['form_pdf_revision_sha256:21-526EZ']).to eq('xyz789uvw012')
     end
@@ -84,16 +75,14 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         'form_pdf_revision_sha256:21-526EZ'
       ]
 
-      expect(Rails.cache).to receive(:fetch_multi).with(*expected_keys).and_call_original
+      expect(Rails.cache).to receive(:read_multi).with(*expected_keys)
 
       expected_data = {
         'form_pdf_revision_sha256:10-10EZ' => 'abc123def456',
         'form_pdf_revision_sha256:21-526EZ' => 'xyz789uvw012'
       }
 
-      expect(Rails.cache).to receive(:write_multi)
-        .with(expected_data, expires_in: 7.days.to_i)
-        .and_call_original
+      expect(Rails.cache).to receive(:write_multi).with(expected_data, expires_in: 7.days.to_i)
 
       subject.perform
     end
@@ -145,7 +134,7 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
       end
 
       it 'still updates cache using batch write to refresh TTL' do
-        expect(Rails.cache).to receive(:write_multi).and_call_original
+        expect(Rails.cache).to receive(:write_multi)
 
         subject.perform
 
@@ -160,13 +149,13 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
 
       it 'logs the error and re-raises' do
         expect(Rails.logger).to receive(:error)
-          .with('Error in FormPdfVersionJob: API Error')
+          .with('Error in FormPdfChangeDetectionJob: API Error')
 
         expect { subject.perform }.to raise_error(StandardError, 'API Error')
       end
 
       it 'does not perform any cache operations' do
-        expect(Rails.cache).not_to receive(:fetch_multi)
+        expect(Rails.cache).not_to receive(:read_multi)
         expect(Rails.cache).not_to receive(:write_multi)
 
         expect { subject.perform }.to raise_error(StandardError, 'API Error')
@@ -211,7 +200,7 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
       let(:forms_response) { { 'data' => [] } }
 
       it 'completes without performing cache operations' do
-        expect(Rails.cache).to receive(:fetch_multi).with(no_args).and_return({})
+        expect(Rails.cache).to receive(:read_multi).with(no_args).and_return({})
         expect(Rails.cache).not_to receive(:write_multi)
 
         expect { subject.perform }.not_to raise_error
