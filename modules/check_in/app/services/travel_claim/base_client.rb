@@ -51,7 +51,7 @@ module TravelClaim
     #
     # @return [Hash] Headers hash with appropriate subscription keys
     #
-    def claim_headers
+    def subscription_key_headers
       if Settings.vsp_environment == 'production'
         {
           'Ocp-Apim-Subscription-Key-E' => settings.e_subscription_key,
@@ -70,6 +70,26 @@ module TravelClaim
     #
     def mock_enabled?
       settings.mock || Flipper.enabled?('check_in_experience_mock_enabled')
+    end
+
+    ##
+    # Builds standard headers for Travel Claim API requests.
+    # Includes content type, authorization, and correlation ID.
+    #
+    # @param tokens [Hash] Authentication tokens hash with :veis_token and :btsss_token
+    # @param correlation_id [String] Request correlation ID for tracing
+    # @return [Hash] Complete headers hash including base claim headers
+    #
+    def build_standard_headers(tokens, correlation_id)
+      headers = {
+        'Content-Type' => 'application/json',
+        'Authorization' => "Bearer #{tokens[:veis_token]}",
+        'X-BTSSS-Token' => tokens[:btsss_token],
+        'X-Correlation-ID' => correlation_id
+      }
+
+      headers.merge!(subscription_key_headers)
+      headers
     end
   end
 end

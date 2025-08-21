@@ -66,7 +66,7 @@ module TravelClaim
         'X-Correlation-ID' => SecureRandom.uuid,
         'BTSSS-API-Client-Number' => @client_number.to_s,
         'Authorization' => "Bearer #{veis_access_token}"
-      }.merge(claim_headers)
+      }.merge(subscription_key_headers)
 
       perform(:post, "#{settings.claims_base_path}/api/v4/auth/system-access-token", body, headers)
     end
