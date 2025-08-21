@@ -29,7 +29,7 @@ module VRE
 
     def self.trigger_failure_events(msg)
       monitor = VRE::VREMonitor.new
-      claim_id, _encrypted_user = msg['args']
+      claim_id = msg['args'][0]
       claim = ::SavedClaim.find(claim_id)
       monitor.track_submission_exhaustion(msg, claim.email)
       claim.send_failure_email if claim.present?
