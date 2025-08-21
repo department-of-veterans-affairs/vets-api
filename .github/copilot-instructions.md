@@ -102,7 +102,9 @@ end
 * Background jobs in `app/sidekiq` or `modules/<name>/app/sidekiq`
 * Jobs must be **idempotent** and **retry-safe**. Guard against duplicate work.
 * Use `sidekiq_options retry: X, dead: false` with a finite retry policy.
-* Long-running external calls belong in jobs, not controllers. Pass only minimal identifiers, not large payloads.
+* **Move to background jobs**: Long-running external calls, file processing, email sending, heavy computations, `sleep()` calls.
+* **Controllers should NOT**: Make slow external API calls, process files, send emails, or perform any blocking I/O.
+* Pass only minimal identifiers, not large payloads, to background jobs.
 
 ---
 
@@ -200,6 +202,8 @@ This prevents table locking during deployment.
 - **Methods longer than 5 lines** without clear justification.
 - **Classes longer than 100 lines** that could be refactored.
 - **Methods with more than 3 parameters** that could use parameter objects.
+- **Synchronous slow operations** in controllers (sleep, long external calls, file processing).
+- **Blocking I/O operations** that should be moved to Sidekiq background jobs.
 
 ---
 
@@ -211,6 +215,7 @@ This prevents table locking during deployment.
 - _"Potential PII in this log line (`user_email`). Please remove or redact."_
 - _"Controller does heavy IO; move to Sidekiq job and respond 202 Accepted with a job ID."_
 - _"This method is 10+ lines long. Consider extracting smaller methods following Sandi Metz rules (methods < 5 lines)."_
+- _"Synchronous `sleep(5)` in controller blocks request thread. Move to background job and return 202 with job ID."_
 
 ---
 
