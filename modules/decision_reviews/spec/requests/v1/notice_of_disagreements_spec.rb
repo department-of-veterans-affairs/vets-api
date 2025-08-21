@@ -72,7 +72,8 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
 
     context 'when the service raises an error' do
       let(:expected_error_class) do
-        'DecisionReviews::V1::NoticeOfDisagreementsController#show exception VCR::Errors::UnhandledHTTPRequestError (NOD_V1)'
+        'DecisionReviews::V1::NoticeOfDisagreementsController#show exception ' \
+          'VCR::Errors::UnhandledHTTPRequestError (NOD_V1)'
       end
 
       it 'logs the exception properly' do

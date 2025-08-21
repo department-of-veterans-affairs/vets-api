@@ -84,7 +84,8 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
 
     context 'when the service raises an error' do
       let(:expected_error_class) do
-        'DecisionReviews::V2::HigherLevelReviewsController#show exception VCR::Errors::UnhandledHTTPRequestError (HLR_V2)'
+        'DecisionReviews::V2::HigherLevelReviewsController#show exception ' \
+          'VCR::Errors::UnhandledHTTPRequestError (HLR_V2)'
       end
 
       it 'logs the exception properly' do
