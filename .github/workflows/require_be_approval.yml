@@ -212,22 +212,23 @@ jobs:
                   backend_approval=true
                 fi
               done
-            fi
-            if [ "${#DISMISSED[@]}" -gt 0 ]; then
-              echo "Approvers: ${DISMISSED[@]}"
-              for dismiss in "${DISMISSED[@]}"; do
-                echo "Checking dismissed review: $dismiss"
-                if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
-                  membership_state=$(gh api -X GET \
-                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
-                    --jq '.state' 2>/dev/null || echo "")
-                  if [[ "$membership_state" == "active" ]]; then
-                    echo "$dismiss is an active member of $TEAM"
-                    exempt_be_review=true
-                    backend_approval_required=false
+            else
+              if [ "${#DISMISSED[@]}" -gt 0 ]; then
+                echo "DISMISSED: ${DISMISSED[@]}"
+                for dismiss in "${DISMISSED[@]}"; do
+                  echo "Checking dismissed review: $dismiss"
+                  if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
+                    membership_state=$(gh api -X GET \
+                      "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
+                      --jq '.state' 2>/dev/null || echo "")
+                    if [[ "$membership_state" == "active" ]]; then
+                      echo "$dismiss is an active member of $TEAM"
+                      exempt_be_review=true
+                      backend_approval_required=false
+                    fi
                   fi
-                fi
-              done
+                done
+              fi
             fi
           done
 
