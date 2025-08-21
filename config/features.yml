@@ -2381,3 +2381,4 @@ features:
   discover_your_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Discover Your Benefits Datadog RUM monitoring
+
