@@ -628,6 +628,10 @@ features:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
     enable_in_development: true
+  dependents_module_enabled:
+    actor_type: user
+    description: Enables new Dependents module
+    enable_in_development: true
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -672,6 +676,10 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
+  disability_526_show_confirmation_review:
+    actor_type: user
+    description: enables showing a submission review section on the 526 confirmation page
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
