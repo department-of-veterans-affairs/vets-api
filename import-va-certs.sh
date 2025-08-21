@@ -20,8 +20,6 @@ set -euo pipefail
             echo "✓ DoD ECA downloaded via HTTP fallback"
         else
             echo "✗ All DoD ECA download attempts failed"
-            echo "Continuing without DoD ECA certificates..."
-            # Note: Removed exit 1 to allow script to continue
         fi
 
         # Process the downloaded certificates

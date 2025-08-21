@@ -52,9 +52,6 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       # Verify HTTP fallback
       expect(script_content).to include('elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
 
-      # Verify graceful degradation
-      expect(script_content).to include('Continuing without DoD ECA certificates...')
-
       # Verify proper if/elif structure
       expect(script_content).to include('if curl --fail')
       expect(script_content).to include('elif curl')
@@ -92,9 +89,6 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       # Look for the else block and verify it doesn't have an executable exit 1
       dod_else_block = script_content[/else\s+echo "✗ All DoD ECA download attempts failed".*?fi/m]
       expect(dod_else_block).not_to match(/^\s*exit 1\s*$/m)
-
-      # Verify the comment indicates exit 1 was removed
-      expect(script_content).to include('# Note: Removed exit 1 to allow script to continue')
     end
   end
 
