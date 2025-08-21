@@ -38,7 +38,7 @@ RSpec.describe ClaimsEvidenceApi::Validation do
                    providerData: { contentSource: content_source, dateVaReceivedDocument: '1955-11-05',
                                    documentTypeId: 23 } }
       result = subject.validate_upload_payload('foo.bar',
-                                               { contentSource:, dateVaReceivedDocument: '1955-11-05',
+                                               { contentSource: content_source, dateVaReceivedDocument: '1955-11-05',
                                                  documentTypeId: 23 })
 
       expect(result).to eq expected
