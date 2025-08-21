@@ -314,7 +314,7 @@ jobs:
             if [ -n "${DISMISSED[@]}" ]; then
               for dismiss in "${DISMISSED[@]}"; do
                 echo "Checking dismissed review: $dismiss"
-                if echo "$dismiss" | grep -viE "^($BACKEND_REVIEWERS)$"; then
+                if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$" >/dev/null; then
                   membership_state=$(gh api -X GET \
                     "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
                     --jq '.state' 2>/dev/null || echo "")
