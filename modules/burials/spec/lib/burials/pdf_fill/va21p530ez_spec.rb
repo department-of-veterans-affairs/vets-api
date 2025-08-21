@@ -172,39 +172,47 @@ describe Burials::PdfFill::Forms::Va21p530ez do
   end
 
   describe '#merge_fields' do
-    it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do
-      expect(described_class.new(
-        JSON.parse(File.read(
-                     "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json"
-                   ))
-      ).merge_fields.to_json).to eq(
-        JSON.parse(File.read(
-                     "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json"
-                   )).to_json
-      )
+    it 'merges the right fields' do
+      Timecop.freeze(Time.zone.parse('2024-03-21 00:00:00 EDT')) do
+        expect(described_class.new(
+          JSON.parse(File.read(
+                      "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json"
+                    ))
+        ).merge_fields.to_json).to eq(
+          JSON.parse(File.read(
+                      "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json"
+                    )).to_json
+        )
+      ensure
+        Timecop.return
+      end
     end
 
-    it 'leaves benefit selections blank on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
-      unselected_benefits_data = JSON.parse(
-        File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json")
-      ).except(
-        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
-        'previouslyReceivedAllowance', 'govtContributions'
-      )
+    it 'leaves benefit selections blank on pdf if unselected' do
+      Timecop.freeze(Time.zone.parse('2024-03-21 00:00:00 EDT')) do
+        unselected_benefits_data = JSON.parse(
+          File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json")
+        ).except(
+          'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
+          'previouslyReceivedAllowance', 'govtContributions'
+        )
 
-      expected_merge_data = JSON.parse(
-        File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json")
-      ).except(
-        'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
-        'previouslyReceivedAllowance', 'govtContributions', 'hasBurialExpenseResponsibility',
-        'noBurialExpenseResponsibility', 'hasPlotExpenseResponsibility', 'noPlotExpenseResponsibility'
-      )
-      expected_merge_data['hasTransportation'] = nil
-      expected_merge_data['hasGovtContributions'] = nil
-      expected_merge_data['hasPreviouslyReceivedAllowance'] = nil
-      expect(described_class.new(unselected_benefits_data).merge_fields.to_json).to eq(
-        expected_merge_data.to_json
-      )
+        expected_merge_data = JSON.parse(
+          File.read("#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json")
+        ).except(
+          'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportationExpenses',
+          'previouslyReceivedAllowance', 'govtContributions', 'hasBurialExpenseResponsibility',
+          'noBurialExpenseResponsibility', 'hasPlotExpenseResponsibility', 'noPlotExpenseResponsibility'
+        )
+        expected_merge_data['hasTransportation'] = nil
+        expected_merge_data['hasGovtContributions'] = nil
+        expected_merge_data['hasPreviouslyReceivedAllowance'] = nil
+        expect(described_class.new(unselected_benefits_data).merge_fields.to_json).to eq(
+          expected_merge_data.to_json
+        )
+      ensure
+        Timecop.return
+      end
     end
   end
 end
