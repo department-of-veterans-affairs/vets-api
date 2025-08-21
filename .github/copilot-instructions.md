@@ -32,9 +32,10 @@
    - Add DB indexes for new query filters and foreign keys. Avoid full-table scans in hot paths.
 
 4. **Security**
+   - **Authentication**: Controllers must have authentication checks (`before_action :authenticate_user!`).
+   - **No hardcoded secrets**: API keys, tokens, passwords must come from env/SSM, never in source code.
    - Use strong params; forbid mass assignment.
    - Escape output; avoid stringly SQL; prefer Arel or parameterized queries.
-   - Secrets/config must come from env/SSM, not source.
 
 5. **Maintainability**
    - **Sandi Metz Rules**: Objects < 100 lines; methods < 5 lines when practical; max 3 args per method; no long conditionals.
@@ -139,7 +140,8 @@ end
 ## Security & PII Protection
 
 * **Never log** PII/PHI in logs, errors, or metrics (e.g., `response_body`, `user.icn`).
-* **Never commit secrets or keys**. Secrets/config must come from env/SSM, not source.
+* **Never commit secrets or keys**. API keys, tokens, passwords must come from environment variables or SSM, never hardcoded.
+* **Authentication Required**: Controllers must have `before_action :authenticate_user!` or equivalent authentication checks.
 * Authentication/authorization must be explicit; never trust client-provided roles/flags.
 * Input validation against allowlists; reject unknown fields when strict.
 * **User Context**: Always use authenticated user context (`@current_user`) for data access.
@@ -207,6 +209,10 @@ This prevents table locking during deployment.
 - **Blocking I/O operations** that should be moved to Sidekiq background jobs.
 - **Inconsistent error responses** that don't follow the standard error envelope format.
 - **Service methods returning simple hashes** instead of proper error envelopes.
+- **Controllers missing authentication** (`before_action :authenticate_user!` or similar).
+- **Hardcoded secrets or API keys** in source code instead of environment variables.
+- **Heavy I/O operations** like `sleep()` calls directly in controller actions.
+- **Non-idempotent operations** without duplicate prevention (create without uniqueness checks).
 
 ---
 
@@ -221,6 +227,10 @@ This prevents table locking during deployment.
 - _"Synchronous `sleep(5)` in controller blocks request thread. Move to background job and return 202 with job ID."_
 - _"Service returns `{ success: true }` instead of standard error envelope. Use `{ error: { code: '...', message: '...' } }`."_
 - _"Service method `slow_external_call` blocks request. Move to Sidekiq background job."_
+- _"Controller missing authentication. Add `before_action :authenticate_user!` or similar."_
+- _"Hardcoded API key `sk-1234...` in source. Move to environment variable or SSM parameter."_
+- _"Non-idempotent `create!` without uniqueness check. Add validation or `find_or_create_by`."_
+- _"Error response `{ message: '...' }` inconsistent. Use standard envelope: `{ error: { code: '...', message: '...' } }`."_
 
 ---
 
