@@ -160,6 +160,17 @@ jobs:
               | .[].user.login
             ' || true
           )
+          readarray -t DISMISSED < <(
+            gh api /repos/department-of-veterans-affairs/vets-api/pulls/23698/reviews --jq '
+              [ .[]
+              | select(.state == "DISMISSED")
+              ]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' || true
+          )
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
             echo "Non BE Requested Team: $TEAM"
@@ -196,7 +207,22 @@ jobs:
                 fi
               done
             else
-              echo "No approvals found."
+              if [ -n "${DISMISSED[@]}" ]; then
+                echo "Approvers: ${DISMISSED[@]}"
+                for dismiss in "${DISMISSED[@]}"; do
+                  echo "Checking dismissed review: $dismiss"
+                  if echo "$dismiss" | grep -viE "^($BACKEND_REVIEWERS)$"; then
+                    membership_state=$(gh api -X GET \
+                      "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
+                      --jq '.state' 2>/dev/null || echo "")
+                    if [[ "$membership_state" == "active" ]]; then
+                      echo "$dismiss is an active member of $TEAM"
+                      exempt_be_review=true
+                      backend_approval_required=false
+                    fi
+                  fi
+                done
+              fi
             fi
           done
 
