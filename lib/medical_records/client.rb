@@ -279,16 +279,16 @@ module MedicalRecords
         break unless reply.resource.next_link
 
         reply = if Flipper.enabled?(:mhv_medical_records_retry_next_page)
-          with_retries(fhir_model) do
-            result = fhir_client.next_page(reply, headers: default_headers)
-            handle_api_errors(result) if result.resource.nil?
-            result
-          end
-        else
-          result = fhir_client.next_page(reply, headers: default_headers)
-          handle_api_errors(result) if result.resource.nil?
-          result
-        end
+                  with_retries(fhir_model) do
+                    result = fhir_client.next_page(reply, headers: default_headers)
+                    handle_api_errors(result) if result.resource.nil?
+                    result
+                  end
+                else
+                  result = fhir_client.next_page(reply, headers: default_headers)
+                  handle_api_errors(result) if result.resource.nil?
+                  result
+                end
         combined_bundle = merge_bundles(combined_bundle, reply.resource)
       end
       combined_bundle

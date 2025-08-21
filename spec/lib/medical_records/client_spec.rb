@@ -679,10 +679,13 @@ describe MedicalRecords::Client do
     let(:entry3) { FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '3')) }
 
     before do
-      allow(client).to receive(:fhir_client).and_return(mock_fhir_client)
-      allow(client).to receive(:default_headers).and_return({ 'Cache-Control' => 'no-cache' })
-      allow(client).to receive(:handle_api_errors).and_raise(Common::Exceptions::BackendServiceException.new(400, 'Error'))
-      allow(client).to receive(:rewrite_next_link)
+      allow(client).to receive_messages(
+        fhir_client: mock_fhir_client,
+        default_headers: { 'Cache-Control' => 'no-cache' },
+        rewrite_next_link: nil
+      )
+      allow(client).to receive(:handle_api_errors).and_raise(Common::Exceptions::BackendServiceException.new(400,
+                                                                                                             'Error'))
       MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
     end
 
@@ -807,14 +810,15 @@ describe MedicalRecords::Client do
 
         # Mock merge_bundles to return progressively larger bundles
         intermediate_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3])
-        final_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3, FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '4'))])
+        end_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3,
+                                              FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '4'))])
 
         allow(client).to receive(:merge_bundles)
           .with(first_bundle, second_bundle)
           .and_return(intermediate_bundle)
         allow(client).to receive(:merge_bundles)
           .with(intermediate_bundle, third_bundle)
-          .and_return(final_bundle)
+          .and_return(end_bundle)
       end
 
       it 'fetches all three pages and merges them sequentially' do
@@ -831,7 +835,8 @@ describe MedicalRecords::Client do
       before do
         # Override the parent context setup and make fhir_search_query raise an exception directly
         allow(client).to receive(:handle_api_errors).and_call_original
-        allow(client).to receive(:fhir_search_query).and_raise(Common::Exceptions::BackendServiceException.new(400, 'Error'))
+        allow(client).to receive(:fhir_search_query).and_raise(Common::Exceptions::BackendServiceException.new(400,
+                                                                                                               'Error'))
       end
 
       it 'handles API errors from the initial query' do
