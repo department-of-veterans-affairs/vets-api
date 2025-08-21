@@ -7,9 +7,6 @@ RSpec.describe Caseflow::Service do
   subject { described_class.new }
 
   let(:user) { build(:user, :loa3, ssn: '796127160') }
-  let(:appeals_with_null_issue_descriptions) do
-    JSON.parse(File.read('spec/fixtures/caseflow/appeals_with_null_issue_descriptions.json'))
-  end
   let(:appeal_with_null_issue_description) do
     [
       {
