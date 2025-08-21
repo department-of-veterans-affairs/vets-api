@@ -117,8 +117,9 @@ module DebtsApi
             'template_id' => CONFIRMATION_TEMPLATE
           }
         )
-      rescue
+      rescue => e
         StatsD.increment("#{STATS_KEY}.send_success_email.failure")
+        Rails.logger.error("Failed to send digital dispute success email: #{e.message}")
         nil
       end
 
@@ -135,8 +136,9 @@ module DebtsApi
           failure_email_personalization_info(user),
           { id_type: 'email', failure_mailer: true }
         )
-      rescue
+      rescue => e
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.failure")
+        Rails.logger.error("Failed to send digital dispute failure email: #{e.message}")
         nil
       end
 
