@@ -205,7 +205,6 @@ jobs:
                     exempt_be_review=true
                     backend_approval_required=false
                     approval_status=confirmed
-                    break
                   fi
                 else
                   echo "PR Reviewer '$approve' is a backend-review-group member."
@@ -225,12 +224,20 @@ jobs:
                       echo "$dismiss is an active member of $TEAM"
                       exempt_be_review=true
                       backend_approval_required=false
+                      break
                     fi
                   fi
                 done
               fi
             fi
           done
+
+          if [[ "${author_is_backend}" == "true" && "${backend_approval}" == true ]]; then
+            backend_approval_required=true
+            team_approval_status=confirmed
+            approval_status=confirmed
+            review_complete=true
+          fi
 
           if [[ "${review_complete}" == "false" ]]; then
             # Check PR Labels
@@ -265,9 +272,6 @@ jobs:
               else
                 echo "BE APPROVAL CONFIRMED"
                 approval_status=confirmed
-                if [[ "${author_is_backend}" == "true" ]]; then
-                  team_approval_status=confirmed
-                fi
               fi
             fi
           fi
