@@ -49,6 +49,7 @@ class V0::TestCopilotController < ApplicationController
     sleep(5) # Simulating slow external API call
 
     # Violation 10: Secret in source code
+    api_key = "sk-1234567890abcdef"
 
     render json: { status: 'created' }
   end

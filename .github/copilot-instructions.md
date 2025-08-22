@@ -1,50 +1,47 @@
 # Copilot Instructions for `vets-api`
 
-## 🔴 NO DUPLICATE COMMENTS - CRITICAL RULE
+## 🔴 NO DUPLICATE COMMENTS - ONE COMMENT PER ISSUE TYPE
 
-**ONE COMMENT PER ISSUE TYPE**
-- Find same issue multiple times? Make ONE consolidated comment
-- List ALL lines in that single comment
-- NEVER repeat the same feedback
+**NEVER REPEAT THE SAME FEEDBACK** - Consolidate similar issues into single comments.
 
-**Examples:**
-❌ Bad: 3 comments about SQL injection
-✅ Good: "SQL injection - Lines 42, 67. Use parameterized queries"
+Example: ❌ 3 SQL injection comments → ✅ "SQL injection - Lines 42, 67. Use parameterized queries"
 
-## Priority Issues
+## ⚠️ CRITICAL PATTERNS TO FLAG
 
-**Security (Critical)**
-- Missing authentication
-- PII in logs (email, SSN) 
-- SQL injection
-- Hardcoded secrets
+**Security Issues**
+- Missing `before_action :authenticate_user!`
+- PII in logs: `"User email: #{params[:email]}"`  
+- SQL injection: `"SELECT * FROM users WHERE name = '#{param}'"`
+- Hardcoded secrets: `api_key = "sk-123"`
+- Mass assignment: `User.create(params[:user])`
 
-**Performance**
-- N+1 queries (missing includes)
-- Missing HTTP timeouts
-- Blocking operations in controllers
+**Performance Issues**  
+- N+1 queries: `users.map { |u| u.profile.name }` without `.includes`
+- Missing timeouts: `Faraday.new(url)` without timeout params
+- Blocking operations: `sleep()` in controllers
+- Background job needed: Slow external calls in controllers
 
-**Quality**
-- Wrong error format - use `{ error: { code, message } }`
-- Non-idempotent creates
-- Service methods returning `{ success: true }`
+**Code Quality Issues**
+- Wrong error format: `{ message: 'error' }` → use `{ error: { code, message } }`
+- Service returning `{ success: true }` → use error envelope  
+- Non-idempotent: `Model.create!` → use `find_or_create_by`
+- No response validation: `JSON.parse(response.body)` without checks
+- Method too long: >5-10 lines → extract smaller methods
 
-**Testing**
-- No `Flipper.enable/disable` - use stubs with `.with(:feature)`
+**Testing Issues**
+- `Flipper.enable/disable` → use `allow(Flipper).to receive(:enabled?).with(:feature)`
+- Generic stubs missing `.with(:specific_feature)`
 
-**Migrations** 
-- Index changes need separate migration with `algorithm: :concurrently`
+**Migration Issues**
+- Mixing indexes with schema changes → separate migration with `algorithm: :concurrently`
 
 ## Consolidation Template
 ```
-[Category] Issues:
-- Line X: [specific issue]
-- Line Y: [specific issue]
+[Category] Issues Found:
+- Line X: [violation]  
+- Line Y: [violation]
 [Fix recommendation]
 ```
 
 ## Context
-- API serves veterans via VA.gov
-- PII/PHI protection paramount
-- External services fail often - use timeouts
-- Security > functionality > style
+Rails API serving veterans via VA.gov. Security and performance critical.
