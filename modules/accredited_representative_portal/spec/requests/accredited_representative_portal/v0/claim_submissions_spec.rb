@@ -130,7 +130,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
         expect(body['data'].size).to eq(2)
 
         dates = body['data'].map { |h| Date.iso8601(h['submittedDate']) }
-        expect(dates).to eq(dates.sort.reverse)           # sorted desc
+        expect(dates).to eq(dates.sort.reverse) # sorted desc
         expect(dates).to include(newest.created_at.to_date) # newest included on page 1
       end
     end
