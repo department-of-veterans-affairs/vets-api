@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'dgi/forms/service/submission_service'
+require 'dgi/forms/service/letter_service'
 
 Rspec.describe 'MebApi::V0 Forms', type: :request do
   include SchemaMatchers
