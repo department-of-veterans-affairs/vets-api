@@ -37,7 +37,7 @@ module AccreditedRepresentativePortal
     def deny_access_unless_form_enabled(form_id)
       form_class = SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
       routing_error unless form_class&.const_defined?(:FEATURE_FLAG) &&
-                           Flipper.enabled?(form_class::FEATURE_FLAG)
+                           Flipper.enabled?(form_class::FEATURE_FLAG, @current_user)
     end
 
     def routing_error
