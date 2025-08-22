@@ -326,7 +326,6 @@ module ClaimsApi
       # if 'specialIssues' includes 'EMP' or 'RRD', then EVSS allows the disability to be submitted with a type of
       # INCREASE otherwise, the disability must not have any special issues
       !(special_issues.include?('EMP') || special_issues.include?('RRD'))
-      # true unless special_issues.include?('EMP') || special_issues.include?('RRD')
     end
 
     def validate_form_526_disability_names!
