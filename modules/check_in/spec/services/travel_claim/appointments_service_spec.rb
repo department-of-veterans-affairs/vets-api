@@ -194,15 +194,13 @@ RSpec.describe TravelClaim::AppointmentsService do
         service.submit_claim_v3(claim_id:, correlation_id:)
       end.to raise_error(Common::Exceptions::BackendServiceException)
 
-      expect(Rails.logger).to have_received(:error).with(
-        'Travel Claim V3 Submit API error',
-        hash_including(
-          uuid: check_in_session.uuid,
-          error_class: 'Common::Exceptions::BackendServiceException',
-          claim_id:,
-          correlation_id:
+              expect(Rails.logger).to have_received(:error).with(
+          'Travel Claim V3 Submit API error',
+          hash_including(
+            uuid: check_in_session.uuid,
+            error_class: 'Common::Exceptions::BackendServiceException'
+          )
         )
-      )
     end
 
     it 'handles empty response data gracefully' do

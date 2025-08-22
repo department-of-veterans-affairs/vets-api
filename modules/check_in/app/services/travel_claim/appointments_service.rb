@@ -71,8 +71,7 @@ module TravelClaim
     rescue => e
       error_class = e.class.name
       Rails.logger.error('Travel Claim V3 Submit API error',
-                         { uuid: check_in_session&.uuid, error_class:, error_message: e.message,
-                           claim_id:, correlation_id: })
+                         { uuid: check_in_session&.uuid, error_class:, error_message: e.message })
       raise e
     end
 
