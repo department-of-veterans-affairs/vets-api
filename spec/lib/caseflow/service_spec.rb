@@ -50,7 +50,7 @@ RSpec.describe Caseflow::Service do
             error_class: 'Caseflow AppealsWithNullIssueDescriptions'
           )
 
-          subject.get_appeals(user)
+          expect { subject.get_appeals(user) }.to raise_error(JSON::Schema::ValidationError)
         end
       end
     end
