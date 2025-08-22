@@ -302,6 +302,9 @@ module Burials
               key: 'form1[0].#subform[82].CurrentMailingAddress_Country[0]'
             },
             'postalCode' => {
+              'firstFive' => {
+                key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
+              },
               'lastFour' => {
                 key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
                 limit: 4,
