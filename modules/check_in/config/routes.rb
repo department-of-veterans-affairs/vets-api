@@ -23,6 +23,7 @@ CheckIn::Engine.routes.draw do
 
     resources :pre_check_ins, only: %i[show create]
     resources :demographics, only: %i[update]
+    resources :travel_claims, only: %i[create]
 
     get 'apidocs', to: 'apidocs#index'
   end

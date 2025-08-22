@@ -1,0 +1,331 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe TravelClaim::AppointmentsService do
+  let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+  let(:check_in_session) { CheckIn::V2::Session.build(data: { uuid: }) }
+  let(:auth_manager) { instance_double(TravelClaim::AuthManager) }
+  let(:redis_client) { instance_double(TravelClaim::RedisClient) }
+  let(:client) { instance_double(TravelClaim::AppointmentsClient) }
+  let(:patient_icn) { '123456789' }
+  let(:service) { described_class.new(check_in_session:, auth_manager:) }
+
+  let(:appointment_date_time) { '2024-01-15T10:00:00Z' }
+  let(:facility_id) { 'facility-123' }
+  let(:correlation_id) { 'correlation-123' }
+
+  before do
+    allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+    allow(redis_client).to receive(:icn).with(uuid:).and_return(patient_icn)
+    allow(TravelClaim::AppointmentsClient).to receive(:new).and_return(client)
+  end
+
+  describe '#initialize' do
+    it 'accepts check_in_session parameter' do
+      service = described_class.new(check_in_session:)
+      expect(service.check_in_session).to eq(check_in_session)
+    end
+
+    it 'accepts check_in parameter for backward compatibility' do
+      service = described_class.new(check_in: check_in_session)
+      expect(service.check_in_session).to eq(check_in_session)
+    end
+
+    it 'uses provided auth_manager' do
+      service = described_class.new(check_in_session:, auth_manager:)
+      expect(service.auth_manager).to eq(auth_manager)
+    end
+
+    it 'expects auth_manager to be provided by orchestrator' do
+      service = described_class.new(check_in_session:)
+      expect(service.auth_manager).to be_nil
+    end
+  end
+
+  describe '#find_or_create_appointment' do
+    let(:mock_response) do
+      double('Response', body: { 'data' => [{ 'id' => 'appointment-123' }] })
+    end
+
+    before do
+      allow(auth_manager).to receive(:authorize).and_return({
+                                                              veis_token: 'veis-token',
+                                                              btsss_token: 'btsss-token'
+                                                            })
+      allow(client).to receive(:find_or_create_appointment).and_return(mock_response)
+    end
+
+    it 'validates appointment parameters' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: nil, facility_id:,
+                                           correlation_id:)
+      end.to raise_error(ArgumentError, /appointment date cannot be nil/)
+    end
+
+    it 'validates ISO format for appointment date' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: 'invalid-date', facility_id:,
+                                           correlation_id:)
+      end.to raise_error(ArgumentError, /Expected ISO 8601 format/)
+    end
+
+    it 'accepts valid ISO format dates' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: '2024-01-15T10:00:00Z', facility_id:,
+                                           correlation_id:)
+      end.not_to raise_error
+    end
+
+    it 'rejects malformed ISO dates' do
+      expect do
+        service.find_or_create_appointment(appointment_date_time: '0000-00-0T00:00:00.000Z', facility_id:,
+                                           correlation_id:)
+      end.to raise_error(ArgumentError, /Expected ISO 8601 format/)
+    end
+
+    it 'delegates to appointments client with correlation_id' do
+      expect(client).to receive(:find_or_create_appointment).with(
+        tokens: { veis_token: 'veis-token', btsss_token: 'btsss-token' },
+        appointment_date_time:,
+        facility_id:,
+        patient_icn:,
+        correlation_id:
+      ).and_return(mock_response)
+
+      result = service.find_or_create_appointment(appointment_date_time:,
+                                                  facility_id:, correlation_id:)
+      expect(result[:data]).to eq({ 'id' => 'appointment-123' })
+    end
+
+    it 'handles API errors and logs to rails logger' do
+      allow(client).to receive(:find_or_create_appointment).and_raise(Common::Exceptions::BackendServiceException)
+      allow(Rails.logger).to receive(:error)
+
+      expect do
+        service.find_or_create_appointment(appointment_date_time:, facility_id:,
+                                           correlation_id:)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+
+      expect(Rails.logger).to have_received(:error)
+    end
+
+    it 'handles empty response data gracefully' do
+      empty_response = double('Response', body: { 'data' => [] })
+      allow(client).to receive(:find_or_create_appointment).and_return(empty_response)
+
+      result = service.find_or_create_appointment(appointment_date_time:,
+                                                  facility_id:, correlation_id:)
+      expect(result[:data]).to be_nil
+    end
+
+    it 'handles malformed response data gracefully' do
+      malformed_response = double('Response', body: { 'data' => nil })
+      allow(client).to receive(:find_or_create_appointment).and_return(malformed_response)
+
+      result = service.find_or_create_appointment(appointment_date_time:,
+                                                  facility_id:, correlation_id:)
+      expect(result[:data]).to be_nil
+    end
+
+    it 'handles Redis client failures gracefully' do
+      allow(redis_client).to receive(:icn).and_raise(Redis::ConnectionError, 'Redis connection failed')
+      allow(Rails.logger).to receive(:error)
+
+      expect do
+        service.find_or_create_appointment(appointment_date_time:, facility_id:,
+                                           correlation_id:)
+      end.to raise_error(Redis::ConnectionError)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'Travel Claim API error',
+        hash_including(
+          uuid: check_in_session.uuid,
+          error_class: 'Redis::ConnectionError',
+          error_message: 'Redis connection failed'
+        )
+      )
+    end
+  end
+
+  describe '#submit_claim_v3' do
+    let(:claim_id) { 'a1178d06-ec2f-400c-fa9e-77e479fc5ef8' }
+    let(:mock_response) do
+      double('Response', body: { 'data' => { 'status' => 'submitted', 'claimId' => claim_id } })
+    end
+
+    before do
+      allow(client).to receive(:submit_claim_v3).and_return(mock_response)
+    end
+
+    it 'validates claim_id parameter' do
+      expect do
+        service.submit_claim_v3(claim_id: nil, correlation_id:)
+      end.to raise_error(ArgumentError, /claim ID cannot be nil or empty/)
+    end
+
+    it 'validates claim_id is not empty string' do
+      expect do
+        service.submit_claim_v3(claim_id: '   ', correlation_id:)
+      end.to raise_error(ArgumentError, /claim ID cannot be nil or empty/)
+    end
+
+    it 'accepts valid claim_id' do
+      expect do
+        service.submit_claim_v3(claim_id:, correlation_id:)
+      end.not_to raise_error
+    end
+
+    it 'delegates to appointments client with correct parameters' do
+      expect(client).to receive(:submit_claim_v3).with(
+        claim_id:,
+        correlation_id:
+      ).and_return(mock_response)
+
+      result = service.submit_claim_v3(claim_id:, correlation_id:)
+      expect(result[:data]).to eq({ 'status' => 'submitted', 'claimId' => claim_id })
+    end
+
+    it 'handles API errors and logs to rails logger' do
+      allow(client).to receive(:submit_claim_v3).and_raise(Common::Exceptions::BackendServiceException)
+      allow(Rails.logger).to receive(:error)
+
+      expect do
+        service.submit_claim_v3(claim_id:, correlation_id:)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+
+              expect(Rails.logger).to have_received(:error).with(
+          'Travel Claim V3 Submit API error',
+          hash_including(
+            uuid: check_in_session.uuid,
+            error_class: 'Common::Exceptions::BackendServiceException'
+          )
+        )
+    end
+
+    it 'handles empty response data gracefully' do
+      empty_response = double('Response', body: { 'data' => nil })
+      allow(client).to receive(:submit_claim_v3).and_return(empty_response)
+
+      result = service.submit_claim_v3(claim_id:, correlation_id:)
+      expect(result[:data]).to be_nil
+    end
+
+    it 'handles malformed response data gracefully' do
+      malformed_response = double('Response', body: {})
+      allow(client).to receive(:submit_claim_v3).and_return(malformed_response)
+
+      result = service.submit_claim_v3(claim_id:, correlation_id:)
+      expect(result[:data]).to be_nil
+    end
+  end
+
+  describe 'inheritance and modules' do
+    it 'is a plain class' do
+      expect(described_class.superclass).to eq(Object)
+    end
+
+    it 'is a plain class without SentryLogging' do
+      expect(described_class.included_modules).not_to include(SentryLogging)
+    end
+  end
+
+  describe 'private methods' do
+    describe '#patient_icn' do
+      it 'returns the patient ICN from Redis' do
+        expect(service.send(:patient_icn)).to eq(patient_icn)
+      end
+
+      it 'memoizes the patient ICN' do
+        expect(redis_client).to receive(:icn).with(uuid:).once.and_return(patient_icn)
+
+        service.send(:patient_icn)
+        service.send(:patient_icn) # Second call should use memoized value
+      end
+    end
+
+    describe '#valid_iso_format?' do
+      it 'returns true for valid ISO 8601 strings' do
+        expect(service.send(:valid_iso_format?, '2024-01-15T10:00:00Z')).to be true
+        expect(service.send(:valid_iso_format?, '2024-01-15T10:00:00.000Z')).to be true
+      end
+
+      it 'returns false for invalid date strings' do
+        expect(service.send(:valid_iso_format?, 'invalid-date')).to be false
+        expect(service.send(:valid_iso_format?, '0000-00-0T00:00:00.000Z')).to be false
+      end
+
+      it 'returns false for non-string inputs' do
+        expect(service.send(:valid_iso_format?, nil)).to be false
+        expect(service.send(:valid_iso_format?, 123)).to be false
+        expect(service.send(:valid_iso_format?, Date.new(2024, 1, 15))).to be false
+      end
+    end
+
+    describe '#make_appointment_request' do
+      it 'calls client with correct parameters' do
+        tokens = { veis_token: 'test-veis', btsss_token: 'test-btsss' }
+        mock_response = double('Response', body: { 'data' => [{ 'id' => 'test-appointment' }] })
+
+        expect(client).to receive(:find_or_create_appointment).with(
+          tokens:,
+          appointment_date_time:,
+          facility_id:,
+          patient_icn:,
+          correlation_id:
+        ).and_return(mock_response)
+
+        service.send(:make_appointment_request, tokens, appointment_date_time, facility_id, correlation_id)
+      end
+    end
+
+    describe '#redis_client' do
+      it 'memoizes the Redis client' do
+        expect(TravelClaim::RedisClient).to receive(:build).once.and_return(redis_client)
+
+        service.send(:redis_client)
+        service.send(:redis_client) # Second call should use memoized value
+      end
+    end
+
+    describe '#validate_claim_id' do
+      it 'raises error for nil claim_id' do
+        expect do
+          service.send(:validate_claim_id, nil)
+        end.to raise_error(ArgumentError, /claim ID cannot be nil or empty/)
+      end
+
+      it 'raises error for empty string claim_id' do
+        expect do
+          service.send(:validate_claim_id, '')
+        end.to raise_error(ArgumentError, /claim ID cannot be nil or empty/)
+      end
+
+      it 'raises error for whitespace-only claim_id' do
+        expect do
+          service.send(:validate_claim_id, '   ')
+        end.to raise_error(ArgumentError, /claim ID cannot be nil or empty/)
+      end
+
+      it 'does not raise error for valid claim_id' do
+        expect do
+          service.send(:validate_claim_id, 'valid-claim-id')
+        end.not_to raise_error
+      end
+    end
+
+    describe '#make_submit_request' do
+      it 'calls client with correct parameters' do
+        claim_id = 'test-claim-id'
+        mock_response = double('Response', body: { 'data' => { 'status' => 'submitted' } })
+
+        expect(client).to receive(:submit_claim_v3).with(
+          claim_id:,
+          correlation_id:
+        ).and_return(mock_response)
+
+        service.send(:make_submit_request, claim_id, correlation_id)
+      end
+    end
+  end
+end
