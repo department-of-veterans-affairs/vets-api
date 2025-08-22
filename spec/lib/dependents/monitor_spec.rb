@@ -121,7 +121,7 @@ RSpec.describe Dependents::Monitor do
                                                        statsd: 'test.monitor.exhaustion'
                                                      })
 
-        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', { message: 'test' })
+        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', { message: '[FILTERED]' })
       end
 
       it 'handles an info log' do
@@ -146,7 +146,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.success'
                                                     })
 
-        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', { message: 'test' })
+        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', { message: '[FILTERED]' })
       end
 
       it 'handles a warning' do
@@ -171,7 +171,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.failure'
                                                     })
 
-        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { message: 'test' })
+        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { message: '[FILTERED]' })
       end
     end
   end
@@ -248,7 +248,7 @@ RSpec.describe Dependents::Monitor do
                                                        statsd: 'test.monitor.exhaustion'
                                                      })
 
-        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', { message: 'test' })
+        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', { message: '[FILTERED]' })
       end
 
       it 'handles an info log' do
@@ -273,7 +273,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.success'
                                                     })
 
-        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', { message: 'test' })
+        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', { message: '[FILTERED]' })
       end
 
       it 'handles a warning' do
@@ -298,7 +298,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.failure'
                                                     })
 
-        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', { message: 'test' })
+        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', { message: '[FILTERED]' })
       end
     end
   end
