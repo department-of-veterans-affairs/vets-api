@@ -64,4 +64,126 @@ describe DecisionReviews::V1::Helpers do
       end
     end
   end
+
+  describe '#normalize_area_code_for_lighthouse_schema' do
+    context 'when area_code is present and valid with 3 characters (domestic number)' do
+      let(:req_body_obj) do
+        {
+          'data' => {
+            'attributes' => {
+              'veteran' => {
+                'phone' => {
+                  'areaCode' => '123',
+                  'phoneNumber' => '1234567',
+                  'countryCode' => '1'
+                }
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the original object unchanged' do
+        expected_result = req_body_obj
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
+      end
+    end
+
+    context 'when area_code is present and valid with 2 characters (international number)' do
+      let(:req_body_obj) do
+        {
+          'data' => {
+            'attributes' => {
+              'veteran' => {
+                'phone' => {
+                  'areaCode' => '10',
+                  'phoneNumber' => '49808232',
+                  'countryCode' => '100'
+                }
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the original object unchanged' do
+        expected_result = req_body_obj
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
+      end
+    end
+
+    context 'when area_code is present and empty' do
+      let(:req_body_obj) do
+        {
+          'data' => {
+            'attributes' => {
+              'veteran' => {
+                'phone' => {
+                  'areaCode' => '',
+                  'phoneNumber' => '12343432567',
+                  'countryCode' => '44'
+                }
+              }
+            }
+          }
+        }
+      end
+
+      let(:expected_result) do
+        {
+          'data' => {
+            'attributes' => {
+              'veteran' => {
+                'phone' => {
+                  'phoneNumber' => '12343432567',
+                  'countryCode' => '44'
+                }
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the object without an areaCode' do
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
+      end
+    end
+
+    context 'when area_code is present and nil' do
+      let(:req_body_obj) do
+        {
+          'data' => {
+            'attributes' => {
+              'veteran' => {
+                'phone' => {
+                  'areaCode' => nil,
+                  'phoneNumber' => '12343432567',
+                  'countryCode' => '44'
+                }
+              }
+            }
+          }
+        }
+      end
+
+      let(:expected_result) do
+        {
+          'data' => {
+            'attributes' => {
+              'veteran' => {
+                'phone' => {
+                  'phoneNumber' => '12343432567',
+                  'countryCode' => '44'
+                }
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the object without an areaCode' do
+        expect(helper.normalize_area_code_for_lighthouse_schema(req_body_obj)).to eq(expected_result)
+      end
+    end
+  end
 end
