@@ -31,11 +31,7 @@ describe PdfFill::Filler, type: :model do
       it 'generates extras and combine the files' do
         file_path = 'tmp/pdfs/file_path_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
-        expect(described_class::PDF_FORMS).to receive(:cat).once.with(
-          old_file_path,
-          'extras.pdf',
-          file_path
-        )
+        expect(described_class).to receive(:merge_pdfs).once.with(old_file_path, 'extras.pdf', file_path)
         expect(File).to receive(:delete).once.with('extras.pdf')
         expect(File).to receive(:delete).once.with(old_file_path)
 
@@ -73,12 +69,6 @@ describe PdfFill::Filler, type: :model do
             end
 
             it 'fills the form correctly' do
-              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
-
-              # Skip test early if the expected reference PDFs are missing for this form/type
-              main_fixture = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
-              skip("Missing PDF fixture: #{main_fixture}. Add it to enable this test.") unless File.exist?(main_fixture)
-
               if type == 'overflow'
                 the_extras_generator = nil
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
@@ -94,19 +84,17 @@ describe PdfFill::Filler, type: :model do
 
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
 
+              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
+
               if type == 'overflow'
-                extras_fixture = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
-                unless File.exist?(extras_fixture)
-                  skip("Missing extras PDF fixture: #{extras_fixture}. Add it to enable this test.")
-                end
                 extras_path = the_extras_generator.generate
-                fixture_pdf = extras_fixture
+                fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
               end
 
-              fixture_pdf = main_fixture
+              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
               expect(file_path).to match_pdf_fields(fixture_pdf)
 
               File.delete(file_path)
