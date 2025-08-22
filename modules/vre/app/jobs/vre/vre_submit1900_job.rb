@@ -28,13 +28,10 @@ module VRE
     end
 
     def self.trigger_failure_events(msg)
-      monitor = VRE::VREMonitor.new
-      claim_id, encrypted_user = msg['args']
+      claim_id, _encrypted_user = msg['args']
       claim = ::SavedClaim.find(claim_id)
-      user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
-      email = claim.parsed_form['email'] || user.try(:va_profile_email)
-      monitor.track_submission_exhaustion(msg, email)
-      claim.send_failure_email(email) if claim.present?
+      VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
+      claim.send_failure_email if claim.present?
     end
   end
 end

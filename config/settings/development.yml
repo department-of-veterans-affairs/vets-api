@@ -1798,11 +1798,11 @@ veteran_readiness_and_employment:
       - VRE-CMS.VBAVACO@va.gov
   email:
     confirmation_lighthouse:
-      template_id: 'confirmation_lighthouse'
+      template_id: 'confirmation_lighthouse_email_template_id'
     confirmation_vbms:
-      template_id: 'confirmation_vbms'
+      template_id: 'confirmation_vbms_email_template_id'
     error:
-      template_id: 'error'
+      template_id: 'error_email_template_id'
 vetext:
   mock: ~
 vetext_push:

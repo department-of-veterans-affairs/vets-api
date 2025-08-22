@@ -2,6 +2,7 @@
 
 require 'res/ch31_form'
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
@@ -12,9 +13,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
-  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email
-  CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE =
-    Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email
+  VBMS = 'vbms'
+  LIGHTHOUSE = 'lighthouse'
+
+  CONFIRMATION_EMAIL_TEMPLATES = {
+    VBMS => Settings.veteran_readiness_and_employment.email.confirmation_vbms.template_id,
+    LIGHTHOUSE => Settings.veteran_readiness_and_employment.email.confirmation_lighthouse.template_id
+  }.freeze
+
+  CONFIRMATION_EMAIL_TYPES = {
+    VBMS => :confirmation_vbms,
+    LIGHTHOUSE => :confirmation_lighthouse
+  }.freeze
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -152,6 +162,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
+    send_submission_confirmation_email
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -177,8 +188,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         update!(form: updated_form.to_json)
       end
     end
-
-    send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, CONFIRMATION_EMAIL_TEMPLATE_VBMS)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -211,9 +220,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     process_attachments!
     @sent_to_lighthouse = true
-
-    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
-                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -297,24 +303,21 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-  def send_vbms_lighthouse_confirmation_email(user, service, _email_type, email_template)
-    if user.va_profile_email.blank?
-      Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
-                        { user_uuid: user&.uuid })
-      return
-    end
-
-    unless Flipper.enabled?(:vre_use_new_vfs_notification_library)
+  def send_submission_confirmation_email
+    sent_to = @sent_to_lighthouse ? LIGHTHOUSE : VBMS
+    if Flipper.enabled?(:vre_use_new_vfs_notification_library)
+      VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TYPES[sent_to])
+    else
       VANotify::EmailJob.perform_async(
-        user.va_profile_email,
-        email_template,
+        email,
+        CONFIRMATION_EMAIL_TEMPLATES[sent_to],
         {
-          'first_name' => user&.first_name&.upcase.presence,
+          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
           'date' => Time.zone.today.strftime('%B %d, %Y')
         }
       )
     end
-    Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
+    Rails.logger.info("VRE Submit1900Job successful. #{sent_to} confirmation email sent.")
   end
 
   def process_attachments!
@@ -333,21 +336,25 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     'VRE'
   end
 
-  # this failure email is not the ideal way to handle the Notification Emails as
-  # part of the ZSF work, but with the initial timeline it handles the email as intended.
-  # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-  def send_failure_email(email)
+  def email
+    @email ||= parsed_form['email']
+  end
+
+  def send_failure_email
     if email.present?
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-        {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      )
+      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
+        VRE::NotificationEmail.new(id).deliver(:error)
+      else
+        VANotify::EmailJob.perform_async(
+          email,
+          Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
+          {
+            'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number
+          }
+        )
+      end
       Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     else
       Rails.logger.warn('VRE claim failure email not sent: email not present.')
@@ -377,13 +384,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def bgs_client
     @service ||= BGS::Services.new(
-      external_uid: parsed_form['email'],
+      external_uid: email,
       external_key:
     )
   end
 
   def external_key
-    parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
+    parsed_form.dig('veteranInformation', 'fullName', 'first') || email
   end
 
   def veteran_information
@@ -443,7 +450,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def validate_email
-    value = parsed_form['email']
+    value = email
     if value.present? && value.is_a?(String) && value.length > 256
       errors.add('/email', 'must be 256 characters or less')
     end
