@@ -60,7 +60,7 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         .with(a_string_including('was revised'))
 
       subject.perform
-      
+
       expect(@mock_cache['form_pdf_revision_sha256:10-10EZ']).to eq('abc123def456')
       expect(@mock_cache['form_pdf_revision_sha256:21-526EZ']).to eq('xyz789uvw012')
     end
