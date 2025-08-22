@@ -27,7 +27,7 @@ module FacilitiesApi
     attribute :provider_identifier, String
     attribute :provider_name, String
     attribute :provider_type, String
-    attribute :trainings, String, array: true, default: []
+    attribute :trainings, String, array: true, default: -> { [] }
 
     def initialize(attr = {})
       new_attr = attr.dup.transform_keys { |k| k.to_s.snakecase.to_sym }

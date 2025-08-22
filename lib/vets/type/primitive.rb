@@ -9,8 +9,8 @@ require 'vets/type/base'
 class BooleanSafeString < ActiveModel::Type::String
   def cast(value)
     case value
-    when true  then "true"
-    when false then "false"
+    when true  then 'true'
+    when false then 'false'
     else
       super
     end
@@ -18,7 +18,6 @@ class BooleanSafeString < ActiveModel::Type::String
 end
 
 ActiveRecord::Type.register(:boolean_safe_string, BooleanSafeString)
-
 
 module Vets
   module Type
