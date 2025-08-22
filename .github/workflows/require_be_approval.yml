@@ -197,7 +197,7 @@ jobs:
                   membership_state=$(gh api -X GET \
                     "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
                     --jq '.state' 2>/dev/null || echo "")
-                  if [[ "$membership_state" == "active" ]]; then
+                  if [[ "$membership_state" == "active" || "$exempt_be_review" == "true" ]]; then
                     echo "$approve is an active member of $TEAM"
                     review_complete=true
                     exempt_be_review=true
