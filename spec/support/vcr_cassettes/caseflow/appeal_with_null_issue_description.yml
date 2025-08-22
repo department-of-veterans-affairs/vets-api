@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com/api/v2/appeals
+    uri: "<CASEFLOW_API_HOST>/api/v2/appeals"
     body:
       encoding: US-ASCII
       string: ''
