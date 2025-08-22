@@ -88,7 +88,7 @@ module TravelPay
       when 'mileage'
         'api/v2/expenses/mileage'
       when 'parking'
-
+        'api/v1/expenses/parking'
       when 'meal'
         'api/v1/expenses/meal'
       else
