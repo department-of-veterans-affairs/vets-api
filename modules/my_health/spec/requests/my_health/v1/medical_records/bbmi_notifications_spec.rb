@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'medical_records/bb_internal/client'
 
-
 RSpec.describe 'MyHealth::V1::BbmiNotificationController', type: :request do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
@@ -13,7 +12,7 @@ RSpec.describe 'MyHealth::V1::BbmiNotificationController', type: :request do
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv) }
 
-    before do
+  before do
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id: 11_375_034,
@@ -31,13 +30,13 @@ RSpec.describe 'MyHealth::V1::BbmiNotificationController', type: :request do
                         match_requests_on: %i[method sm_user_ignoring_path_param])
   end
 
-    describe 'responds to GET #status' do
-      it 'successfully' do
-        VCR.use_cassette('mr_client/bb_internal/get_bbmi_notification_setting') do
-          get '/my_health/v1/medical_records/bbmi_notification/status'
-        end
-        expect(response).to be_successful
-        expect(response.parsed_body['flag']).to eq(true)
+  describe 'responds to GET #status' do
+    it 'successfully' do
+      VCR.use_cassette('mr_client/bb_internal/get_bbmi_notification_setting') do
+        get '/my_health/v1/medical_records/bbmi_notification/status'
       end
+      expect(response).to be_successful
+      expect(response.parsed_body['flag']).to eq(true)
     end
   end
+end
