@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../rails_helper'
-require 'claims_api/v2/disability_compensation_pdf_generator'
+require_relative '../rails_helper'
+require 'claims_api/disability_compensation_pdf_generator'
 
-RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
+RSpec.describe ClaimsApi::DisabilityCompensationPdfGenerator, type: :job do
   subject { described_class }
 
   before do
