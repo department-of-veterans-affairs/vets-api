@@ -927,4 +927,91 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_form_526_disability_unique_names!' do
+    context 'when all disability names are unique' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'Back Pain' },
+          { 'name' => 'Hearing Loss' }
+        ] }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_unique_names! }.not_to raise_error
+      end
+    end
+
+    context 'when there are duplicate disability names (case-insensitive)' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'ptsd' },
+          { 'name' => 'Back Pain' }
+        ] }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_unique_names! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when disabilities is blank' do
+      let(:form_attributes) { { 'disabilities' => [] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_unique_names! }.not_to raise_error
+      end
+    end
+  end
+
+  describe '#validate_form_526_disability_names!' do
+    context 'when disabilities is blank' do
+      let(:form_attributes) { { 'disabilities' => [] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_names! }.not_to raise_error
+      end
+    end
+
+    context "when disabilityActionType is not 'NEW'" do
+      let(:form_attributes) do
+        {
+          'disabilityActionType' => 'INCREASE',
+          'disabilities' => [{ 'name' => 'PTSD' }]
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_names! }.not_to raise_error
+      end
+    end
+
+    context "when disabilityActionType is 'NEW'" do
+      let(:form_attributes) do
+        {
+          'disabilityActionType' => 'NEW',
+          'disabilities' => [{ 'name' => 'PTSD' }]
+        }
+      end
+
+      it 'does not raise an error for valid name' do
+        expect { subject.validate_form_526_disability_names! }.not_to raise_error
+      end
+
+      it 'raises error for invalid format' do
+        form_attributes['disabilities'][0]['name'] = 'PTSD!'
+        expect { subject.validate_form_526_disability_names! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises error for name longer than 255 chars' do
+        form_attributes['disabilities'][0]['name'] = 'A' * 256
+        expect { subject.validate_form_526_disability_names! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
 end
