@@ -33,8 +33,7 @@ module VRE
     end
 
     def callback_klass
-      'Add when NotificationCallback implemented'
-      # VRE::NotificationCallback.to_s
+      VRE::NotificationCallback.to_s
     end
 
     # Add 'claim_id' to the metadata for consistency in DataDog and VRE::VREMonitor
