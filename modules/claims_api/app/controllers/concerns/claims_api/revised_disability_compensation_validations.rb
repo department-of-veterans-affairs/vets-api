@@ -353,7 +353,7 @@ module ClaimsApi
     end
 
     def valid_disability_name_format?(name)
-      %r{\A([a-zA-Z0-9\-'.,/()]([a-zA-Z0-9\-',. ])?)+\z}.match?(name)
+      %r{([a-zA-Z0-9\-'.,/()]([a-zA-Z0-9\-',. ])?)+$}.match?(name)
     end
 
     def valid_disability_name_length?(name)
