@@ -36,16 +36,18 @@ ALLOWLIST = %w[
   included
   kafka_payload
   line
-  message
   message_id
+  method
   number
   os_name
   page
   persistent_attachment_id
   qqtotalfilesize
   queue_time
+  reason
   reply_id
   result
+  root
   saved_claim_id
   service
   showCompleted

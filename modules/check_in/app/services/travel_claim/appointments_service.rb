@@ -1,31 +1,43 @@
 # frozen_string_literal: true
 
 module TravelClaim
-  ##
-  # Service for Travel Claim appointment operations.
-  # Gets authentication tokens from the provided AuthManager.
+  # Service for managing Travel Claim appointment operations.
+  #
+  # This class is responsible for finding or creating appointments in the Travel Claim system.
+  # It uses an authentication manager to obtain tokens and interacts with the Travel Claim API.
+  #
+  # == Usage Example
+  #   auth_manager = TravelClaim::AuthManager.new(...)
+  #   session = CheckIn::V2::Session.new(...)
+  #   service = TravelClaim::AppointmentsService.new(
+  #     check_in_session: session,
+  #     auth_manager: auth_manager
+  #   )
+  #   result = service.find_or_create_appointment(
+  #     appointment_date_time: "2024-06-01T10:00:00Z",
+  #     facility_id: "123",
+  #     correlation_id: "abc-123"
+  #   )
+  #
+  # == Initialization Parameters
+  # @param check_in_session [CheckIn::V2::Session] The check-in session associated with the appointment.
+  # @param auth_manager [TravelClaim::AuthManager] The authentication manager used to obtain tokens.
   #
   class AppointmentsService
-    # @!attribute [r] auth_manager
-    #   @return [TravelClaim::AuthManager] Authentication manager
-    # @!attribute [r] check_in_session
-    #   @return [CheckIn::V2::Session, nil] Check-in session
     attr_reader :auth_manager, :check_in_session
 
     ##
-    # @param opts [Hash] Options hash
-    # @option opts [CheckIn::V2::Session] :check_in_session Check-in session
-    # @option opts [CheckIn::V2::Session] :check_in Alias for :check_in_session
-    # @option opts [TravelClaim::AuthManager] :auth_manager Authentication manager
+    # @param check_in_session [CheckIn::V2::Session] Check-in session
+    # @param auth_manager [TravelClaim::AuthManager] Authentication manager
     #
-    def initialize(opts = {})
-      @check_in_session = opts[:check_in_session] || opts[:check_in]
-      @auth_manager = opts[:auth_manager]
+    def initialize(check_in_session:, auth_manager:)
+      @check_in_session = check_in_session
+      @auth_manager = auth_manager
       @client = AppointmentsClient.new
     end
 
     ##
-    # Finds or creates an appointment in the Travel Claim system.
+    # Finds or adds an appointment in the Travel Claim system.
     # Gets authentication tokens from the AuthManager and calls the Travel Claim API.
     #
     # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
@@ -80,10 +92,8 @@ module TravelClaim
 
     def validate_appointment_date_time(appointment_date_time)
       if appointment_date_time.nil?
-        Rails.logger.error(message: 'Invalid appointment date provided (appointment date cannot be nil).')
         raise ArgumentError, 'Invalid appointment date provided (appointment date cannot be nil).'
       elsif !valid_iso_format?(appointment_date_time)
-        Rails.logger.error(message: 'Invalid appointment date format. Expected ISO 8601 format.')
         raise ArgumentError, 'Invalid appointment date format. Expected ISO 8601 format.'
       end
     end

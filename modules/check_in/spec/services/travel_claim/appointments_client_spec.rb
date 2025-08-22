@@ -7,17 +7,15 @@ RSpec.describe TravelClaim::AppointmentsClient do
   let(:veis_token) { 'veis-token-123' }
   let(:btsss_token) { 'btsss-token-456' }
   let(:tokens) { { veis_token:, btsss_token: } }
-  let(:appointment_date_time) { '2024-01-15T10:00:00Z' }
+  let(:appointment_date_time) { '2024-01-15T00:00:00Z' }
   let(:facility_id) { 'facility-123' }
-  let(:patient_icn) { '123V456' }
   let(:correlation_id) { 'correlation-123' }
 
   describe '#find_or_create_appointment' do
     it 'uses perform method to make appointment request' do
       expected_body = {
         appointmentDateTime: appointment_date_time,
-        facilityId: facility_id,
-        patientIcn: patient_icn
+        facilityStationNumber: facility_id
       }
 
       expected_headers = hash_including(
@@ -38,7 +36,6 @@ RSpec.describe TravelClaim::AppointmentsClient do
         tokens:,
         appointment_date_time:,
         facility_id:,
-        patient_icn:,
         correlation_id:
       )
     end
@@ -51,7 +48,6 @@ RSpec.describe TravelClaim::AppointmentsClient do
           tokens:,
           appointment_date_time:,
           facility_id:,
-          patient_icn:,
           correlation_id:
         )
       end.to raise_error(Common::Exceptions::BackendServiceException)
@@ -104,14 +100,12 @@ RSpec.describe TravelClaim::AppointmentsClient do
     describe '#build_appointment_body' do
       it 'builds correct request body with camelCase keys' do
         result = client.send(:build_appointment_body,
-                             appointment_date_time: '2024-01-15T10:00:00Z',
-                             facility_id: 'facility-123',
-                             patient_icn: '123V456')
+                             appointment_date_time: '2024-01-15T10:00Z',
+                             facility_id: 'facility-123')
 
         expect(result).to eq({
-                               appointmentDateTime: '2024-01-15T10:00:00Z',
-                               facilityId: 'facility-123',
-                               patientIcn: '123V456'
+                               appointmentDateTime: '2024-01-15T10:00Z',
+                               facilityStationNumber: 'facility-123'
                              })
       end
     end

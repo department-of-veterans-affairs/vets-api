@@ -778,4 +778,153 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_form_526_disability_approximate_begin_date!' do
+    context 'when disabilities is blank' do
+      let(:form_attributes) { { 'disabilities' => [] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }.not_to raise_error
+      end
+    end
+
+    context 'when approximateBeginDate is blank' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => nil }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }.not_to raise_error
+      end
+    end
+
+    context 'when approximateBeginDate is in the past' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => 1.day.ago.to_date.iso8601 }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }.not_to raise_error
+      end
+    end
+
+    context 'when approximateBeginDate is today' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => Time.zone.today.iso8601 }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when approximateBeginDate is in the future' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => 1.day.from_now.to_date.iso8601 }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'with multiple disabilities, one with invalid date' do
+      let(:form_attributes) do
+        {
+          'disabilities' => [
+            { 'approximateBeginDate' => 1.year.ago.to_date.iso8601 },
+            { 'approximateBeginDate' => 1.day.from_now.to_date.iso8601 }
+          ]
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_special_issues!' do
+    let(:form_attributes) do
+      { 'disabilities' => disabilities, 'serviceInformation' => service_information,
+        'disabilityActionType' => disability_action_type }
+    end
+    let(:service_information) { {} }
+    let(:disability_action_type) { nil }
+
+    context 'when disabilities is blank' do
+      let(:disabilities) { [] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context 'when specialIssues is blank' do
+      let(:disabilities) { [{ 'specialIssues' => nil }] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when specialIssues includes 'HEPC' and name is 'hepatitis'" do
+      let(:disabilities) { [{ 'specialIssues' => ['HEPC'], 'name' => 'hepatitis' }] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when specialIssues includes 'HEPC' and name is not 'hepatitis'" do
+      let(:disabilities) { [{ 'specialIssues' => ['HEPC'], 'name' => 'PTSD' }] }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_special_issues! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context "when specialIssues includes 'POW' and confinements is present" do
+      let(:disabilities) { [{ 'specialIssues' => ['POW'] }] }
+      let(:service_information) { { 'confinements' => ['some confinement'] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when specialIssues includes 'POW' and confinements is blank" do
+      let(:disabilities) { [{ 'specialIssues' => ['POW'] }] }
+      let(:service_information) { { 'confinements' => nil } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_special_issues! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context "when disabilityActionType is 'INCREASE' and specialIssues includes 'EMP'" do
+      let(:disabilities) { [{ 'specialIssues' => ['EMP'] }] }
+      let(:disability_action_type) { 'INCREASE' }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when disabilityActionType is 'INCREASE' and specialIssues includes 'RRD'" do
+      let(:disabilities) { [{ 'specialIssues' => ['RRD'] }] }
+      let(:disability_action_type) { 'INCREASE' }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when disabilityActionType is 'INCREASE' and specialIssues includes other value" do
+      let(:disabilities) { [{ 'specialIssues' => ['OTHER'] }] }
+      let(:disability_action_type) { 'INCREASE' }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_special_issues! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
 end

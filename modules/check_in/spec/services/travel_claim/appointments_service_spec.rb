@@ -23,12 +23,7 @@ RSpec.describe TravelClaim::AppointmentsService do
 
   describe '#initialize' do
     it 'accepts check_in_session parameter' do
-      service = described_class.new(check_in_session:)
-      expect(service.check_in_session).to eq(check_in_session)
-    end
-
-    it 'accepts check_in parameter for backward compatibility' do
-      service = described_class.new(check_in: check_in_session)
+      service = described_class.new(check_in_session:, auth_manager:)
       expect(service.check_in_session).to eq(check_in_session)
     end
 
@@ -37,9 +32,10 @@ RSpec.describe TravelClaim::AppointmentsService do
       expect(service.auth_manager).to eq(auth_manager)
     end
 
-    it 'expects auth_manager to be provided by orchestrator' do
-      service = described_class.new(check_in_session:)
-      expect(service.auth_manager).to be_nil
+    it 'requires both parameters' do
+      expect { described_class.new }.to raise_error(ArgumentError)
+      expect { described_class.new(check_in_session:) }.to raise_error(ArgumentError)
+      expect { described_class.new(auth_manager:) }.to raise_error(ArgumentError)
     end
   end
 
@@ -58,8 +54,7 @@ RSpec.describe TravelClaim::AppointmentsService do
 
     it 'validates appointment parameters' do
       expect do
-        service.find_or_create_appointment(appointment_date_time: nil, facility_id:,
-                                           correlation_id:)
+        service.find_or_create_appointment(appointment_date_time: nil, facility_id:, correlation_id:)
       end.to raise_error(ArgumentError, /appointment date cannot be nil/)
     end
 
@@ -89,12 +84,10 @@ RSpec.describe TravelClaim::AppointmentsService do
         tokens: { veis_token: 'veis-token', btsss_token: 'btsss-token' },
         appointment_date_time:,
         facility_id:,
-        patient_icn:,
         correlation_id:
       ).and_return(mock_response)
 
-      result = service.find_or_create_appointment(appointment_date_time:,
-                                                  facility_id:, correlation_id:)
+      result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       expect(result[:data]).to eq({ 'id' => 'appointment-123' })
     end
 
@@ -103,8 +96,7 @@ RSpec.describe TravelClaim::AppointmentsService do
       allow(Rails.logger).to receive(:error)
 
       expect do
-        service.find_or_create_appointment(appointment_date_time:, facility_id:,
-                                           correlation_id:)
+        service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       end.to raise_error(Common::Exceptions::BackendServiceException)
 
       expect(Rails.logger).to have_received(:error)
@@ -114,8 +106,7 @@ RSpec.describe TravelClaim::AppointmentsService do
       empty_response = double('Response', body: { 'data' => [] })
       allow(client).to receive(:find_or_create_appointment).and_return(empty_response)
 
-      result = service.find_or_create_appointment(appointment_date_time:,
-                                                  facility_id:, correlation_id:)
+      result = service.find_or_create_appointment(appointment_date_time:, facility_id:, correlation_id:)
       expect(result[:data]).to be_nil
     end
 
