@@ -16,8 +16,8 @@ set -euo pipefail
         if curl --fail --silent --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -o unclass-certificates_pkcs7_ECA.zip https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
             echo "✓ DoD ECA downloaded via HTTPS"
         # Fallback 1: HTTP with timeout and retries
-        elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
-            echo "✓ DoD ECA downloaded via HTTP fallback"
+        # elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
+        #     echo "✓ DoD ECA downloaded via HTTP fallback"
         else
             echo "✗ All DoD ECA download attempts failed"
         fi
