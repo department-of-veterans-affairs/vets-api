@@ -207,10 +207,11 @@ module ClaimsApi
     def validate_form_526_disabilities!
       validate_form_526_fewer_than_150_disabilities!
       validate_form_526_disability_classification_code!
-      # TODO: pull these validations over from original 526 validations
-      # validate_form_526_disability_approximate_begin_date!
-      # validate_form_526_special_issues!
-      # validate_form_526_disability_secondary_disabilities!
+      validate_form_526_disability_approximate_begin_date!
+      validate_form_526_special_issues!
+      # TODO: These will be added in a followup
+      # validate_form_526_disability_unique_names!
+      # validate_form_526_disability_names!
     end
 
     def validate_form_526_fewer_than_150_disabilities!
@@ -259,6 +260,67 @@ module ClaimsApi
                                                             classification_code)
         end
       end
+    end
+
+    def validate_form_526_disability_approximate_begin_date!
+      disabilities = form_attributes['disabilities']
+
+      disabilities.each do |disability|
+        approx_begin_date = disability['approximateBeginDate']
+        next if approx_begin_date.blank?
+
+        next if Date.parse(approx_begin_date) < Time.zone.today
+
+        raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateBeginDate', approx_begin_date)
+      end
+    end
+
+    def validate_form_526_special_issues!
+      disabilities = form_attributes['disabilities']
+      return if disabilities.blank?
+
+      disabilities.each do |disability|
+        special_issues = disability['specialIssues']
+        next if special_issues.blank?
+
+        if invalid_hepatitis_c_special_issue?(special_issues:, disability:)
+          message = "'disability.specialIssues' :: Claim must include a disability with the name 'hepatitis'"
+          raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
+        end
+
+        if invalid_pow_special_issue?(special_issues:)
+          message = "'disability.specialIssues' :: Claim must include valid 'serviceInformation.confinements' value"
+          raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
+        end
+
+        if invalid_type_increase_special_issue?(special_issues:)
+          message = "'disability.specialIssues' :: A Special Issue cannot be added to a primary disability after " \
+                    'the disability has been rated'
+          raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
+        end
+      end
+    end
+
+    def invalid_hepatitis_c_special_issue?(special_issues:, disability:)
+      # if 'specialIssues' includes 'HEPC', then EVSS requires the disability 'name' to equal 'hepatitis'
+      special_issues.include?('HEPC') && !disability['name'].casecmp?('hepatitis')
+    end
+
+    def invalid_pow_special_issue?(special_issues:)
+      return false unless special_issues.include?('POW')
+
+      # if 'specialIssues' includes 'POW', then EVSS requires there also be a 'serviceInformation.confinements'
+      confinements = form_attributes['serviceInformation']['confinements']
+      confinements.blank?
+    end
+
+    def invalid_type_increase_special_issue?(special_issues:)
+      return false unless form_attributes['disabilityActionType'] == 'INCREASE'
+      return false if special_issues.blank?
+
+      # if 'specialIssues' includes 'EMP' or 'RRD', then EVSS allows the disability to be submitted with a type of
+      # INCREASE otherwise, the disability must not have any special issues
+      !(special_issues.include?('EMP') || special_issues.include?('RRD'))
     end
   end
 end
