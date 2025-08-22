@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'claims_evidence_api/uploader'
 
 RSpec.describe ClaimsEvidenceApi::Uploader do
-  let(:claim) { build(:fake_saved_claim, id: 23) }
-  let(:pa) { build(:claim_evidence) }
+  let(:created_at) { Time.zone.now }
+  let(:claim) { build(:fake_saved_claim, id: 23, created_at:) }
+  let(:pa) { build(:claim_evidence, id: 42, created_at:) }
   let(:submission) { build(:claims_evidence_submission) }
   let(:attempt) { build(:claims_evidence_submission_attempt) }
 
@@ -13,10 +14,11 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:service) { ClaimsEvidenceApi::Service::Files.new }
   let(:stamper) { PDFUtilities::PDFStamper.new([]) }
   let(:pdf_path) { 'path/to/pdf.pdf' }
-  let(:content_source) { __FILE__ }
+  let(:content_source) { 'VA.gov' }
+  let(:va_received_at) { DateTime.parse(claim.created_at.to_s).strftime('%Y-%m-%d') }
 
   let(:folder_identifier) { 'VETERAN:SSN:123456789' }
-  let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source:) }
+  let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
 
   # stamping is stubbed, but will raise an error if the provided stamp_set is invalid
   let(:claim_stamp_set) { [anything] }
@@ -44,7 +46,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       provider_data = {
         contentSource: content_source,
-        dateVaReceivedDocument: claim.created_at,
+        dateVaReceivedDocument: va_received_at,
         documentTypeId: claim.document_type
       }
       response = build(:claims_evidence_service_files_response, :success)
@@ -74,7 +76,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       provider_data = {
         contentSource: content_source,
-        dateVaReceivedDocument: pa.created_at,
+        dateVaReceivedDocument: va_received_at,
         documentTypeId: pa.document_type
       }
       response = build(:claims_evidence_service_files_response, :success)
@@ -104,7 +106,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       provider_data = {
         contentSource: content_source,
-        dateVaReceivedDocument: claim.created_at,
+        dateVaReceivedDocument: va_received_at,
         documentTypeId: claim.document_type
       }
       error = build(:claims_evidence_service_files_error, :error)
@@ -118,7 +120,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
       expect(error.message).to eq 'VEFSERR40009'
       expect(submission.file_uuid).to be_nil
-      expect(attempt.status).to eq 'failure'
+      expect(attempt.status).to eq 'failed'
       expect(attempt.metadata).to eq JSON.parse(provider_data.to_json)
       expect(attempt.error_message).to eq error.body
     end
