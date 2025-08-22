@@ -35,6 +35,19 @@ Rails.application.routes.draw do
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
     end
+
+    namespace :webauthn do
+      scope :registrations, controller: :registrations do
+        post :options
+        post :verify
+      end
+
+      scope :authentications, controller: :authentications do
+        post :options_discoverable
+        post :options
+        post :verify
+      end
+    end
   end
 
   namespace :sts do

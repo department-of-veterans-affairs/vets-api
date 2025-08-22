@@ -6,6 +6,7 @@ module SignIn
     include SignIn::Instrumentation
     include Pundit::Authorization
     include ActionController::Cookies
+    include ActionController::RequestForgeryProtection
     include ExceptionHandling
     include Headers
     include ControllerLoggingContext
@@ -24,5 +25,9 @@ module SignIn
     private
 
     attr_reader :current_user
+
+    def set_csrf_header
+      response.set_header('X-CSRF-Token', form_authenticity_token)
+    end
   end
 end
