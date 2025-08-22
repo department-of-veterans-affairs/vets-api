@@ -1,22 +1,41 @@
 # frozen_string_literal: true
 
 module TravelClaim
-  class AuthManager < BaseClient
+  ##
+  # Manages authentication tokens for Travel Claim API operations.
+  #
+  # Handles token acquisition, caching, and refresh for VEIS and BTSSS v4 tokens.
+  # Uses Redis for caching with non-PHI keys. Expects to be provided by an orchestrator.
+  #
+  class AuthManager
     attr_reader :redis_client, :check_in_session
 
     CACHE_NAMESPACE = 'check-in-travel-pay-cache'
     CACHE_KEY_PREFIX = 'travel_pay_v4_token'
 
+    ##
+    # Initializes the AuthManager with optional check-in session.
+    #
+    # @param check_in_session [CheckIn::V2::Session, nil] Optional session for ICN resolution
+    #
     def initialize(check_in_session: nil)
-      super()
+      @settings = Settings.check_in.travel_reimbursement_api_v2
       @check_in_session = check_in_session
       @redis_client = ::TravelClaim::RedisClient.build
-      @token_client = TokenClient.new
+      @token_client = TravelClaim::TokenClient.new
     end
 
-    # Returns a BTSSS system access token (v4)
-    # If icn is nil, attempts to resolve from Redis using check_in_session
-    # Caches token per ICN (non-PHI keys)
+    ##
+    # Returns a valid BTSSS v4 system access token for the given ICN.
+    #
+    # This method first checks the Redis cache for an existing valid token.
+    # If no cached token exists, it obtains a fresh VEIS token and uses it
+    # to request a new BTSSS v4 system access token, which is then cached.
+    #
+    # @param icn [String, nil] Patient's ICN. If nil, attempts to resolve from check_in_session
+    # @return [String] Valid BTSSS v4 system access token
+    # @raise [ArgumentError] If ICN cannot be resolved
+    #
     def authorize(icn: nil)
       resolved_icn = resolve_icn(icn)
       raise ArgumentError, 'ICN not available' if resolved_icn.blank?
@@ -33,7 +52,17 @@ module TravelClaim
       access_token
     end
 
-    # Mirrors travel_pay behavior: requests fresh VEIS and BTSSS(v4) tokens, persists them, and returns both.
+    ##
+    # Requests fresh VEIS and BTSSS v4 tokens and returns both.
+    #
+    # This method mirrors the travel_pay module behavior by always requesting
+    # fresh tokens and persisting them in Redis. It's useful when you need
+    # both token types or want to ensure you have the latest tokens.
+    #
+    # @param icn [String, nil] Patient's ICN. If nil, attempts to resolve from check_in_session
+    # @return [Hash] Hash containing both tokens: { veis_token: String, btsss_token: String }
+    # @raise [ArgumentError] If ICN cannot be resolved
+    #
     def request_new_tokens(icn: nil)
       resolved_icn = resolve_icn(icn)
       raise ArgumentError, 'ICN not available' if resolved_icn.blank?
