@@ -9,14 +9,9 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   let(:doc_id) { 'doc-456' }
   let(:user) { build(:user) }
   let(:service) { instance_double(TravelPay::DocumentsService) }
-  # let(:valid_document) do
-  # Rack::Test::UploadedFile.new(
-  #   Rails.root.join('modules/travel_pay/spec/fixtures/documents/test.pdf')
-  # )
   let(:valid_document) do
     Rack::Test::UploadedFile.new(
-      Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf', 'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf', 'spec', 'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf',
-                      'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf')
+      Rails.root.join('modules/travel_pay/spec/fixtures/documents/test.pdf')
     )
   end
 
