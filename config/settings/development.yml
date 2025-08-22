@@ -228,7 +228,6 @@ claims_api:
 claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
-  include_request: false
   jwt_secret: fake-secret
   mock: false
   ssl: false
@@ -626,6 +625,8 @@ ivc_forms:
     missing_form_status_job:
       enabled: true
     old_records_cleanup_job:
+      enabled: true
+    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
@@ -1523,8 +1524,6 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
-        accredited_representative_portal_poa_request_failure_claimant_email: accredited_representative_portal_poa_request_failure_claimant_email_template_id
-        accredited_representative_portal_poa_request_failure_rep_email: accredited_representative_portal_poa_request_failure_rep_email_template_id
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
         appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
@@ -1609,6 +1608,15 @@ vanotify:
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
         va_appointment_failure: fake_template_id
+    veteran_readiness_and_employment:
+      api_key: ~
+      email:
+        confirmation_lighthouse:
+          template_id: 'confirmation_lighthouse_email_template_id'
+        confirmation_vbms:
+          template_id: 'confirmation_vbms_email_template_id'
+        error:
+          template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1730,7 +1738,6 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
-  api_key: ~
   auth_endpoint: ~
   base_url: ~
   credentials: ~
@@ -1796,13 +1803,6 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
-  email:
-    confirmation_lighthouse:
-      template_id: 'confirmation_lighthouse'
-    confirmation_vbms:
-      template_id: 'confirmation_vbms'
-    error:
-      template_id: 'error'
 vetext:
   mock: ~
 vetext_push:
