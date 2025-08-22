@@ -239,3 +239,128 @@ RSpec.shared_context 'expected response with optional client state' do
     it_behaves_like 'error response'
   end
 end
+
+# =============================================================================
+# CALLBACK ROUTE SHARED EXAMPLES AND CONTEXTS
+# =============================================================================
+
+RSpec.shared_context 'callback_setup' do
+  subject { get(:callback, params: {}.merge(code).merge(state).merge(error)) }
+
+  let(:code) { { code: code_value } }
+  let(:state) { { state: state_value } }
+  let(:error) { { error: error_value } }
+  let(:state_value) { 'some-state' }
+  let(:code_value) { 'some-code' }
+  let(:error_value) { 'some-error' }
+  let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"] }
+  let(:type) {}
+  let(:acr) { nil }
+  let(:mpi_update_profile_response) { create(:add_person_response) }
+  let(:mpi_add_person_response) { create(:add_person_response, parsed_codes: { icn: add_person_icn }) }
+  let(:add_person_icn) { nil }
+  let(:find_profile) { create(:find_profile_response, profile: mpi_profile) }
+  let(:mpi_profile) { nil }
+  let(:client_id) { client_config.client_id }
+  let(:authentication) { SignIn::Constants::Auth::API }
+  let!(:client_config) { create(:client_config, authentication:, enforced_terms:, terms_of_use_url:) }
+  let(:enforced_terms) { nil }
+  let(:terms_of_use_url) { 'some-terms-of-use-url' }
+  let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
+  let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
+  let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
+
+  before do
+    allow(Rails.logger).to receive(:info)
+    allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(mpi_update_profile_response)
+    allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(find_profile)
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile)
+    allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(mpi_add_person_response)
+  end
+end
+
+RSpec.shared_examples 'callback api based error response' do
+  let(:expected_error_json) { { 'errors' => expected_error } }
+  let(:expected_error_status) { :bad_request }
+  let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
+  let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
+  let(:expected_error_message) do
+    { errors: expected_error, client_id:, type:, acr: }
+  end
+
+  it 'renders expected error' do
+    expect(JSON.parse(subject.body)).to eq(expected_error_json)
+  end
+
+  it 'returns expected status' do
+    expect(subject).to have_http_status(expected_error_status)
+  end
+
+  it 'logs the failed callback' do
+    expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message)
+    subject
+  end
+
+  it 'updates StatsD with a callback request failure' do
+    expect { subject }.to trigger_statsd_increment(statsd_callback_failure)
+  end
+end
+
+RSpec.shared_examples 'callback error response' do
+  let(:expected_error_json) { { 'errors' => expected_error } }
+  let(:expected_error_status) { :bad_request }
+  let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
+
+  context 'and client_id maps to a web based configuration' do
+    let(:authentication) { SignIn::Constants::Auth::COOKIE }
+    let(:expected_error_status) { :ok }
+    let(:auth_param) { 'fail' }
+    let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
+    let(:expected_error_message) { { errors: expected_error, client_id:, type:, acr: } }
+    let(:request_id) { SecureRandom.uuid }
+    let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
+
+    before do
+      allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
+    end
+
+    it 'renders the oauth_get_form template with meta refresh tag' do
+      expect(subject.body).to include(meta_refresh_tag)
+    end
+
+    it 'directs to the given redirect url set in the client configuration' do
+      expect(subject.body).to include(client_config.redirect_uri)
+    end
+
+    it 'includes expected auth param' do
+      expect(subject.body).to include(auth_param)
+    end
+
+    it 'includes expected code param' do
+      expect(subject.body).to include(error_code)
+    end
+
+    it 'includes expected request_id param' do
+      expect(subject.body).to include(request_id)
+    end
+
+    it 'returns expected status' do
+      expect(subject).to have_http_status(expected_error_status)
+    end
+
+    it 'logs the failed callback' do
+      expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message)
+      subject
+    end
+
+    it 'updates StatsD with a callback request failure' do
+      expect { subject }.to trigger_statsd_increment(statsd_callback_failure)
+    end
+  end
+
+  context 'and client_id maps to an api based configuration' do
+    let(:authentication) { SignIn::Constants::Auth::API }
+
+    it_behaves_like 'callback api based error response'
+  end
+end
