@@ -10,9 +10,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   let(:user) { build(:user) }
   let(:service) { instance_double(TravelPay::DocumentsService) }
   let(:valid_document) do
-    Rack::Test::UploadedFile.new(
-      Rails.root.join('modules/travel_pay/spec/fixtures/documents/test.pdf')
-    )
+    Rack::Test::UploadedFile.new('modules/travel_pay/spec/fixtures/documents/test.pdf')
   end
 
   before do
