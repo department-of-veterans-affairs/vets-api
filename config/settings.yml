@@ -1718,7 +1718,6 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
-  api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
   auth_endpoint: <%= ENV['veteran_readiness_and_employment__auth_endpoint'] %>
   base_url: <%= ENV['veteran_readiness_and_employment__base_url'] %>
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
