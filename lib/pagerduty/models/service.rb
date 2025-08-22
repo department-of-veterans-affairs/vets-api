@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-require 'common/models/attribute_types/iso8601_time'
+require 'vets/model'
 require 'pagerduty/configuration'
 
 module PagerDuty
   module Models
     class Service
-      include ActiveModel::Validations
-      include Virtus.model(nullify_blank: true)
+      include Vets::Model
 
       # 5 potential PagerDuty API `service#status` values
       # @see response schema from https://api-reference.pagerduty.com/#!/Services/get_services
@@ -23,7 +21,7 @@ module PagerDuty
       attribute :service, String
       attribute :service_id, String
       attribute :status, String
-      attribute :last_incident_timestamp, Common::ISO8601Time
+      attribute :last_incident_timestamp, Vets::Type::ISO8601Time
 
       validates :service, :status, presence: true
       validates :status, inclusion: { in: STATUSES }
