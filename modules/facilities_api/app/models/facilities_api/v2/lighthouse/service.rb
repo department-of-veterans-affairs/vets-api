@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module FacilitiesApi
-  class V2::Lighthouse::Service < Common::Base
-    include ActiveModel::Serializers::JSON
+  class V2::Lighthouse::Service
+    include Vets::Model
 
     attribute :serviceName, String
     attribute :service, String
@@ -17,15 +17,18 @@ module FacilitiesApi
     # serviceLocations, Array # (not used in frontend)
 
     def initialize(svc)
-      super(svc)
-      self.serviceName = svc['serviceInfo']['name'] if svc['serviceInfo']['name']
-      self.service = svc['serviceInfo']['serviceId'] if svc['serviceInfo']['serviceId']
-      self.serviceType = svc['serviceInfo']['serviceType'] if svc['serviceInfo']['serviceType']
+
+      @serviceName = svc['serviceInfo']['name'] if svc['serviceInfo']['name']
+      @service = svc['serviceInfo']['serviceId'] if svc['serviceInfo']['serviceId']
+      @serviceType = svc['serviceInfo']['serviceType'] if svc['serviceInfo']['serviceType']
+
       if svc['waitTime']
-        self.new = svc['waitTime']['new']
-        self.established = svc['waitTime']['established']
-        self.effectiveDate = svc['waitTime']['effectiveDate']
+        @new = svc['waitTime']['new']
+        @established = svc['waitTime']['established']
+        @effectiveDate = svc['waitTime']['effectiveDate']
       end
+
+      super(svc)
     end
   end
 end
