@@ -1473,16 +1473,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           expect(llm_job).to receive(:perform_async).with(
             form_id,
             attachment_guid,
-            match(%r{^/.*\.pdf$}), # PDF path after conversion
+            attachment.id, # attachment record ID instead of PDF path
             'EOB'
           )
-          # Mock the tempfile_from_attachment method to return a temp file
-          allow(controller).to receive(:tempfile_from_attachment).and_return(double(path: '/tmp/test_file.pdf'))
-          # Mock the Common::ConvertToPdf class to avoid loading issues
-          converter_double = double('ConvertToPdf')
-          allow(converter_double).to receive(:run).and_return('/tmp/converted.pdf')
-          stub_const('Common::ConvertToPdf', double('Class'))
-          allow(Common::ConvertToPdf).to receive(:new).and_return(converter_double)
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')
         end

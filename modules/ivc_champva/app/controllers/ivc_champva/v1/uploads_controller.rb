@@ -294,12 +294,8 @@ module IvcChampva
       def launch_llm_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
-            # create a temp file from the persistent attachment object
-            tmpfile = tempfile_from_attachment(attachment, form_id)
-
-            # queue LLM job for tmpfile
-            pdf_path = Common::ConvertToPdf.new(tmpfile).run
-            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+            # queue LLM job for attachment record
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
             Rails.logger.info(
               "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
