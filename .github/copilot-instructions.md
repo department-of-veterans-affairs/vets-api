@@ -33,13 +33,14 @@
 1. **Controllers missing `before_action :authenticate_user!`** - Line 6 in test_copilot_controller.rb
 2. **PII in logs** - Line 11: `Rails.logger.info "User email: #{params[:email]}, SSN: #{params[:ssn]}"`
 3. **Faraday without timeouts** - Line 14: `Faraday.new('https://external-api.example.com')`
-4. **Non-idempotent creates** - Line 28: `ExampleRecord.create!` without find_or_create_by
-5. **Wrong error format** - Line 34: `{ message: 'Something went wrong' }` instead of error envelope
-6. **Service returns `{ success: true }`** - Line 32 in bad_external_service.rb
-7. **`sleep()` in controllers** - Line 49: blocking operation
-8. **Flipper.enable/disable in tests** - Lines 11, 16 in controller_spec.rb
-9. **Generic Flipper stub** - Line 28: missing `.with(:feature_name)`
-10. **Migration mixing indexes with schema** - Lines 9,13,17 in migration
+4. **N+1 QUERIES** - Lines 18-24: `users.map { |user| user.profile.name }` without `.includes(:profile)`
+5. **Non-idempotent creates** - Line 28: `ExampleRecord.create!` without find_or_create_by
+6. **Wrong error format** - Line 34: `{ message: 'Something went wrong' }` instead of error envelope
+7. **Service returns `{ success: true }`** - Line 32 in bad_external_service.rb
+8. **`sleep()` in controllers** - Line 49: blocking operation
+9. **Flipper.enable/disable in tests** - Lines 11, 16 in controller_spec.rb
+10. **Generic Flipper stub** - Line 28: missing `.with(:feature_name)`
+11. **Migration mixing indexes with schema** - Lines 9,13,17 in migration
 
 > **IMPORTANT**: Each violation gets ONE comment only. Group related issues together. Reference exact line numbers.
 
@@ -54,6 +55,11 @@
 ### PII LOGGING VIOLATIONS  
 - `Rails.logger.info "User email: #{params[:email]}, SSN: #{params[:ssn]}"`
 - MUST COMMENT: "PII in logs - remove email/SSN from log statements"
+
+### N+1 QUERY VIOLATIONS
+- `users.map { |user| user.profile.name }` without `.includes(:profile)`
+- `Model.all.each { |m| m.association.field }` without includes/preload
+- MUST COMMENT: "N+1 query detected - add `.includes(:association)` to avoid multiple queries"
 
 ### HTTP CLIENT VIOLATIONS
 - `Faraday.new('https://external-api.example.com')` without timeout parameters
@@ -85,6 +91,18 @@
 ```ruby
 class V0::SomeController < ApplicationController
   # NO before_action :authenticate_user! present
+```
+
+### N+1 Query Problems
+```ruby
+# ❌ WRONG - N+1 query pattern
+users = User.all
+users.map { |user| user.profile.name }           # Loads profile for each user
+users.each { |u| puts u.posts.count }           # Queries posts for each user
+
+# ✅ CORRECT - Eager loading
+users = User.includes(:profile).all
+users = User.includes(:posts).all
 ```
 
 ### Wrong Error Response Format  
@@ -364,10 +382,10 @@ This prevents table locking during deployment.
 - **Blocking operations in controllers**: `sleep()`, long external calls, file processing
 
 ### **PERFORMANCE & RELIABILITY**
+- **N+1 QUERIES**: `users.map { |user| user.profile.name }` without `.includes(:profile)` - FLAG IMMEDIATELY
 - **Faraday without timeouts**: `Faraday.new(url)` missing `timeout:` and `open_timeout:`
 - **HTTP calls without error handling**: `@client.get(path)` not wrapped in begin/rescue
 - **Unvalidated JSON parsing**: `JSON.parse(response.body)` without nil check or rescue
-- N+1 queries without `includes`/`preload`
 - Large migrations without safety plan
 
 ### **CODE QUALITY**
@@ -438,6 +456,7 @@ This prevents table locking during deployment.
 Track what you've already commented on:
 - [ ] Authentication issues - COMMENTED? Stop.
 - [ ] PII logging issues - COMMENTED? Stop.
+- [ ] N+1 query issues - COMMENTED? Stop.
 - [ ] Faraday/HTTP timeouts - COMMENTED? Stop.
 - [ ] Error format issues - COMMENTED? Stop.
 - [ ] Idempotency issues - COMMENTED? Stop.
