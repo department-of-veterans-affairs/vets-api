@@ -41,7 +41,7 @@ module TravelPay
 
       validate_document_extension!(document)
       validate_document_size!(document)
-      
+
       params = { claim_id:, document: }
       @auth_manager.authorize => { veis_token:, btsss_token: }
 
