@@ -261,6 +261,10 @@ jobs:
             else
               echo "TEAM APPROVAL CONFIRMED"
               team_approval_status=confirmed
+              if [[ "${exempt_be_review}" == "true" ]]; then
+                echo "Approvals Confirmed"
+                approval_status=confirmed
+              fi
             fi
 
             if [[ "${exempt_be_review}" == "false" ]]; then
