@@ -218,6 +218,9 @@ module Burials
               question_label: "Claimant's First Name",
               question_text: "CLAIMANT'S FIRST NAME"
             },
+            'middleInitial' => {
+              key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
+            },
             'last' => {
               key: 'form1[0].#subform[82].ClaimantsLastName[0]',
               limit: 18,
@@ -231,6 +234,17 @@ module Burials
               limit: 0,
               question_label: "Claimant's Suffix",
               question_text: "CLAIMANT'S SUFFIX"
+            }
+          },
+          'claimantSocialSecurityNumber' => {
+            'first' => {
+              key: 'form1[0].#subform[82].Claimants_SocialSecurityNumber_FirstThreeNumbers[0]'
+            },
+            'second' => {
+              key: 'form1[0].#subform[82].Claimants_SocialSecurityNumber_SecondTwoNumbers[0]'
+            },
+            'third' => {
+              key: 'form1[0].#subform[82].Claimants_SocialSecurityNumber_LastFourNumbers[0]'
             }
           },
           'claimantDateOfBirth' => {
@@ -281,7 +295,12 @@ module Burials
               question_label: "Claimant's Address - City",
               question_text: "CLAIMANT'S ADDRESS - CITY"
             },
-            # ...existing code...
+            'state' => {
+              key: 'form1[0].#subform[82].CurrentMailingAddress_StateOrProvince[0]'
+            },
+            'country' => {
+              key: 'form1[0].#subform[82].CurrentMailingAddress_Country[0]'
+            },
             'postalCode' => {
               'lastFour' => {
                 key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
@@ -303,7 +322,6 @@ module Burials
               key: 'form1[0].#subform[82].TelephoneNumber_LastFourNumbers[0]'
             }
           },
-          # ...existing code...
           'claimantIntPhone' => {
             key: 'form1[0].#subform[82].IntTelephoneNumber[0]',
             question_num: 11,
