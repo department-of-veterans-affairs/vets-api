@@ -21,13 +21,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
              poa_codes: [poa_code])
     end
     let!(:vso) { create(:organization, poa: poa_code, can_accept_digital_poa_requests: false) }
-    let!(:saved_claim_claimant_representative_a) { create(:saved_claim_claimant_representative) }
-    let!(:saved_claim_claimant_representative_b) { create(:saved_claim_claimant_representative) }
-    # different PoA code
+
+    # Default two that should be visible to the rep.
+    # Make them older so the sorting test can deterministically place newer records on page 1.
+    let!(:saved_claim_claimant_representative_a) do
+      create(:saved_claim_claimant_representative, created_at: 10.days.ago)
+    end
+    let!(:saved_claim_claimant_representative_b) do
+      create(:saved_claim_claimant_representative, created_at: 9.days.ago)
+    end
+
+    # different PoA code → should be filtered out
     let!(:saved_claim_claimant_representative_c) do
       create(:saved_claim_claimant_representative, power_of_attorney_holder_poa_code: '002')
     end
-    # different registration number
+    # different registration number → should be filtered out
     let!(:saved_claim_claimant_representative_d) do
       create(:saved_claim_claimant_representative, accredited_individual_registration_number: '987675')
     end
@@ -100,11 +108,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
     end
 
     describe 'sorting and pagination plumbing' do
-      before do
-        saved_claim_claimant_representative_a.update_column(:created_at, 10.days.ago)
-        saved_claim_claimant_representative_b.update_column(:created_at, 9.days.ago)
-      end
-
       let!(:older)  { create(:saved_claim_claimant_representative, created_at: 3.days.ago) }
       let!(:newest) { create(:saved_claim_claimant_representative, created_at: 1.day.ago) }
 
@@ -112,9 +115,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
         allow(AccreditedRepresentativePortal::SubmissionsService::ParamsSchema)
           .to receive(:validate_and_normalize!)
           .and_return({
-            sort: { by: 'created_at', order: 'desc' },
-            page: { number: 1, size: 2 }
-          })
+                        sort: { by: 'created_at', order: 'desc' },
+                        page: { number: 1, size: 2 }
+                      })
       end
 
       it 'returns results ordered by submittedDate desc and paginates' do
