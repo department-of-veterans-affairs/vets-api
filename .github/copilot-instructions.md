@@ -1,6 +1,29 @@
 <!-- These instructions give context for all Copilot chats within vets-api. The instructions you add to this file should be short, self-contained statements that add context or relevant information to supplement users' chat questions. Since vets-api is large, some instructions may not work. See docs: https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot#writing-effective-repository-custom-instructions -->
 # Copilot Instructions for `vets-api`
 
+# ⚠️ MANDATORY PR REVIEW PROTOCOL - READ FIRST
+
+## 🔴 STOP REPEATING COMMENTS - CRITICAL RULE #1
+
+**YOU MUST FOLLOW THIS PROTOCOL OR YOUR REVIEW WILL BE REJECTED:**
+
+1. **SCAN ENTIRE PR FIRST** - Identify ALL issues before commenting
+2. **ONE COMMENT PER ISSUE TYPE** - Group all similar issues together
+3. **MAXIMUM 5-7 TOTAL COMMENTS** - More means you're being repetitive
+4. **NEVER COMMENT TWICE** on the same type of issue
+
+### EXAMPLE OF WHAT NOT TO DO:
+❌ Comment 1: "Missing timeout on line 14"
+❌ Comment 2: "Missing timeout on line 28"  
+❌ Comment 3: "Missing timeout on line 45"
+
+### EXAMPLE OF CORRECT BEHAVIOR:
+✅ ONE Comment: "Missing timeouts - Lines 14, 28, 45. Add `timeout: 8, open_timeout: 2`"
+
+**IF YOU VIOLATE THIS RULE, YOUR ENTIRE REVIEW IS INVALID.**
+
+---
+
 > **CRITICAL**: When reviewing pull requests, you MUST flag these exact patterns and NEVER repeat the same comment:
 
 ## ⚠️ MANDATORY CHECKS - FLAG IMMEDIATELY
@@ -392,22 +415,94 @@ This prevents table locking during deployment.
 
 ---
 
-# 🛑 ANTI-REPETITION RULES
+# 🛑 ANTI-REPETITION RULES - MANDATORY
 
-**CRITICAL**: Follow these rules to avoid repeating feedback:
+## ⚡ COMMENT DEDUPLICATION PROTOCOL
 
-1. **ONE COMMENT PER ISSUE TYPE**: If you find multiple instances of the same violation (e.g., multiple PII logging issues), group them into ONE comment.
+**BEFORE SUBMITTING ANY COMMENT, YOU MUST:**
 
-2. **TRACK WHAT YOU'VE SAID**: After commenting on authentication, PII logging, Faraday timeouts, etc., DO NOT comment on them again.
+1. **CHECK**: Have I already commented on this issue type in this PR?
+   - YES → DO NOT COMMENT AGAIN
+   - NO → Proceed with ONE consolidated comment
 
-3. **GROUP BY SEVERITY**: 
-   - Make ONE comment about security issues (authentication, PII, secrets)
-   - Make ONE comment about functionality issues (error format, idempotency)  
-   - Make ONE comment about performance issues (timeouts, N+1 queries)
+2. **BATCH**: Group ALL instances of the same issue into ONE comment
+   - ✅ CORRECT: "Missing timeouts in Faraday clients - Lines 14, 28, 45, 67"
+   - ❌ WRONG: Four separate comments about missing timeouts
 
-4. **BE SPECIFIC WITH LINES**: Reference exact line numbers like "Lines 11, 14, 28" instead of general statements.
+3. **LIMIT**: Maximum 5-7 TOTAL comments per PR review
+   - Exceeding this limit means you're being repetitive
+   - Quality > Quantity
 
-**EXAMPLE OF GOOD GROUPING**:
-"Security Issues - Lines 6, 11, 52: Missing authentication, PII in logs, hardcoded secret"
+## 📋 COMMENT TRACKING CHECKLIST
 
-**FORBIDDEN**: Making separate comments for each security issue.
+Track what you've already commented on:
+- [ ] Authentication issues - COMMENTED? Stop.
+- [ ] PII logging issues - COMMENTED? Stop.
+- [ ] Faraday/HTTP timeouts - COMMENTED? Stop.
+- [ ] Error format issues - COMMENTED? Stop.
+- [ ] Idempotency issues - COMMENTED? Stop.
+- [ ] Service return values - COMMENTED? Stop.
+- [ ] Flipper test issues - COMMENTED? Stop.
+- [ ] Migration issues - COMMENTED? Stop.
+
+## 🎯 COMMENT CONSOLIDATION RULES
+
+### RULE 1: ONE COMMENT PER VIOLATION TYPE
+If you see the same issue 10 times, make ONE comment listing all occurrences:
+```
+Missing Faraday timeouts found in multiple locations:
+- Line 14: `Faraday.new('https://api1.example.com')`
+- Line 28: `Faraday.new('https://api2.example.com')`
+- Line 45: `Faraday.new('https://api3.example.com')`
+All need `timeout: 8, open_timeout: 2`
+```
+
+### RULE 2: GROUP BY CATEGORY
+Combine related issues into category comments:
+```
+SECURITY ISSUES:
+- Line 6: Missing authentication
+- Line 11: PII in logs
+- Line 52: Hardcoded API key
+```
+
+### RULE 3: STOP AFTER FIRST MENTION
+Once you've commented on an issue type, NEVER comment on it again in the same PR.
+
+## ❌ FORBIDDEN BEHAVIORS
+
+**NEVER DO THIS:**
+- Comment on Line 14 about missing timeout
+- Comment on Line 28 about missing timeout  
+- Comment on Line 45 about missing timeout
+
+**NEVER DO THIS:**
+- Comment "Missing authentication" on controller A
+- Comment "Missing authentication" on controller B
+- Comment "Missing authentication" on controller C
+
+**NEVER DO THIS:**
+- Make more than 7 comments total
+- Repeat the same feedback in different words
+- Comment on every instance of a pattern
+
+## ✅ CORRECT BEHAVIOR
+
+**ALWAYS DO THIS:**
+1. Scan the ENTIRE PR first
+2. Identify ALL instances of each issue type
+3. Make ONE comment per issue type with ALL line numbers
+4. Stop after 5-7 total comments
+5. Prioritize CRITICAL issues only
+
+**EXAMPLE OF PERFECT COMMENT**:
+```
+[CRITICAL - Security]
+Authentication missing in multiple controllers:
+- test_copilot_controller.rb:6
+- admin_controller.rb:8  
+- api_controller.rb:10
+Add `before_action :authenticate_user!` to all.
+```
+
+**FORBIDDEN**: Making separate comments for each controller.
