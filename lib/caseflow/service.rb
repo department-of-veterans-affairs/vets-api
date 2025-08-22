@@ -37,10 +37,15 @@ module Caseflow
           additional_headers.merge('ssn' => user.ssn)
         )
 
-        appeals = response.body['data']
         # Track null issue descriptions in appeals
         # If we are seeing a lot of these, we will need to take further action
-        handle_appeals_with_null_issue_descriptions(user, appeals) if appeals.present?
+        begin
+          appeals = response.body['data']
+
+          handle_appeals_with_null_issue_descriptions(user, appeals) if appeals.present?
+        rescue => e
+          Rails.logger.error("Logging null description issues for appeals failed: #{e.message}")
+        end
 
         Caseflow::Responses::Caseflow.new(response.body, response.status)
       end

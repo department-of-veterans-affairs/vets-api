@@ -50,7 +50,34 @@ RSpec.describe Caseflow::Service do
             error_class: 'Caseflow AppealsWithNullIssueDescriptions'
           )
 
-          expect { subject.get_appeals(user) }.to raise_error(JSON::Schema::ValidationError)
+          subject.get_appeals(user)
+        end
+      end
+    end
+
+    context 'when an exception is raised while logging null description issues' do
+      let(:user) { build(:user, :loa3, ssn: '120495723') }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        allow_any_instance_of(
+          Caseflow::Service
+        ).to receive(
+          :handle_appeals_with_null_issue_descriptions
+        ).and_raise(StandardError, 'test error')
+      end
+
+      it 'logs the error',
+         run_at: 'Fri, 19 Jan 2018 17:26:32 GMT' do
+        VCR.use_cassette(
+          'caseflow/appeals_no_alert_details_due_date',
+          { match_requests_on: %i[method uri body] }
+        ) do
+          expect(Rails.logger).to receive(:error).with(
+            'Logging null description issues for appeals failed: test error'
+          )
+
+          subject.get_appeals(user)
         end
       end
     end
