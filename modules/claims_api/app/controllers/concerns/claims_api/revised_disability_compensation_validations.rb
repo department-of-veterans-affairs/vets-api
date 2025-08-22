@@ -26,6 +26,12 @@ module ClaimsApi
       validate_form_526_change_of_address!
       # ensure no more than 150 disabilities are provided
       # ensure any provided 'disability.classificationCode' is a known value in BGS
+      # ensure any provided 'disability.approximateBeginDate' is in the past
+      # ensure a 'disability.specialIssue' of 'HEPC' has a `disability.name` of 'hepatitis'
+      # ensure a 'disability.specialIssue' of 'POW' has a valid 'serviceInformation.confinement'
+      # ensure any provided 'disability.name' is <= 255 characters in length
+      # ensure any provided 'disability.name' meets appropriate regex format
+      # ensure any provided 'disability.name' is unique across all disabilities
       validate_form_526_disabilities!
     end
 
