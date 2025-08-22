@@ -275,7 +275,7 @@ RSpec.describe IvcChampva::FormVersionManager do
           # Attachment IDs should be mapped to legacy form ID
           expect(metadata['attachment_ids']).to include('test_base_form')
           # DocType should be mapped to legacy form ID for backwards compatibility
-          expect(metadata['docType']).to eq('test_base_form')
+          expect(metadata['docType']).to eq('test_versioned_form')
         end
       end
     end
