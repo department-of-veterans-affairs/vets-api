@@ -96,7 +96,7 @@ describe VRE::Submit1900Job do
           VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
             expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
             exhaustion_msg['args'] = [claim.id, encrypted_user]
-            claim.parsed_form.delete('email')
+            allow(claim).to receive(:email).and_return(nil)
             expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
           end
         end
