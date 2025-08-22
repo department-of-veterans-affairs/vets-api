@@ -21,7 +21,7 @@ module VRE
                {
                  'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first'),
                  'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                 'confirmation_number' => confirmation_number
+                 'confirmation_number' => claim.confirmation_number
                }
              else
                {
