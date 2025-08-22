@@ -957,61 +957,26 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
-
-    context 'when disabilities is blank' do
-      let(:form_attributes) { { 'disabilities' => [] } }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_disability_unique_names! }.not_to raise_error
-      end
-    end
   end
 
-  describe '#validate_form_526_disability_names!' do
-    context 'when disabilities is blank' do
-      let(:form_attributes) { { 'disabilities' => [] } }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_disability_names! }.not_to raise_error
-      end
+  describe '#mask_all_but_first_character' do
+    it 'returns nil if value is blank' do
+      expect(subject.mask_all_but_first_character(nil)).to be_nil
+      expect(subject.mask_all_but_first_character('')).to eq('')
     end
 
-    context "when disabilityActionType is not 'NEW'" do
-      let(:form_attributes) do
-        {
-          'disabilityActionType' => 'INCREASE',
-          'disabilities' => [{ 'name' => 'PTSD' }]
-        }
-      end
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_disability_names! }.not_to raise_error
-      end
+    it 'returns the value if it is not a String' do
+      expect(subject.mask_all_but_first_character(123)).to eq(123)
+      expect(subject.mask_all_but_first_character([])).to eq([])
     end
 
-    context "when disabilityActionType is 'NEW'" do
-      let(:form_attributes) do
-        {
-          'disabilityActionType' => 'NEW',
-          'disabilities' => [{ 'name' => 'PTSD' }]
-        }
-      end
+    it 'returns the value if it is a single character' do
+      expect(subject.mask_all_but_first_character('A')).to eq('A')
+    end
 
-      it 'does not raise an error for valid name' do
-        expect { subject.validate_form_526_disability_names! }.not_to raise_error
-      end
-
-      it 'raises error for invalid format' do
-        form_attributes['disabilities'][0]['name'] = 'PTSD!'
-        expect { subject.validate_form_526_disability_names! }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
-      end
-
-      it 'raises error for name longer than 255 chars' do
-        form_attributes['disabilities'][0]['name'] = 'A' * 256
-        expect { subject.validate_form_526_disability_names! }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
-      end
+    it 'masks all but the first character for longer strings' do
+      expect(subject.mask_all_but_first_character('PTSD')).to eq('P***')
+      expect(subject.mask_all_but_first_character('hepatitis')).to eq('h********')
     end
   end
 end

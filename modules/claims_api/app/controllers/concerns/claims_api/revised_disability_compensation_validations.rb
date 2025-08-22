@@ -29,8 +29,6 @@ module ClaimsApi
       # ensure any provided 'disability.approximateBeginDate' is in the past
       # ensure a 'disability.specialIssue' of 'HEPC' has a `disability.name` of 'hepatitis'
       # ensure a 'disability.specialIssue' of 'POW' has a valid 'serviceInformation.confinement'
-      # ensure any provided 'disability.name' is <= 255 characters in length
-      # ensure any provided 'disability.name' meets appropriate regex format
       # ensure any provided 'disability.name' is unique across all disabilities
       validate_form_526_disabilities!
     end
@@ -216,7 +214,6 @@ module ClaimsApi
       validate_form_526_disability_approximate_begin_date!
       validate_form_526_special_issues!
       validate_form_526_disability_unique_names!
-      validate_form_526_disability_names!
     end
 
     def validate_form_526_fewer_than_150_disabilities!
@@ -328,49 +325,27 @@ module ClaimsApi
       !(special_issues.include?('EMP') || special_issues.include?('RRD'))
     end
 
-    def validate_form_526_disability_names!
-      return if form_attributes['disabilities'].blank?
-      return unless form_attributes['disabilityActionType'] == 'NEW'
-
-      form_attributes['disabilities'].each do |disability|
-        name = disability['name']
-        unless valid_disability_name_format?(name)
-          raise ::Common::Exceptions::InvalidFieldValue.new(
-            'disabilities.name',
-            "The request failed disability validation: The disability name #{name} does not match " \
-            "the expected format for a disabilityActionType of 'NEW'"
-          )
-        end
-
-        unless valid_disability_name_length?(name)
-          raise ::Common::Exceptions::InvalidFieldValue.new(
-            'disabilities.name',
-            'The disability name must be less than 256 characters'
-          )
-        end
-      end
-    end
-
-    def valid_disability_name_format?(name)
-      %r{([a-zA-Z0-9\-'.,/()]([a-zA-Z0-9\-',. ])?)+$}.match?(name)
-    end
-
-    def valid_disability_name_length?(name)
-      name.length < 256
-    end
-
     def validate_form_526_disability_unique_names!
       disabilities = form_attributes['disabilities']
       return if disabilities.blank?
 
       names = disabilities.map { |d| d['name'].downcase }
       duplicates = names.select { |name| names.count(name) > 1 }.uniq
+      masked_duplicates = duplicates.map { |name| mask_all_but_first_character(name) }
 
       unless duplicates.empty?
         raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.name',
                                                           'Duplicate disability name found: ' \
-                                                          "#{duplicates.join(', ')}")
+                                                          "#{masked_duplicates.join(', ')}")
       end
+    end
+
+    def mask_all_but_first_character(value)
+      return value if value.blank?
+      return value unless value.is_a? String
+
+      # Mask all but the first character of the string
+      value[0] + ('*' * (value.length - 1))
     end
   end
 end
