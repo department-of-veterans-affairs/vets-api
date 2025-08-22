@@ -40,7 +40,8 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
 
           before do
             expired_certificate.save(validate: false)
-            config.certs << expired_certificate
+            config_certificate = config.config_certificates.new(cert: expired_certificate, config:)
+            config_certificate.save(validate: false)
             config.save(validate: false)
           end
 
@@ -143,7 +144,8 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
 
             before do
               expired_certificate.save(validate: false)
-              config.certs << expired_certificate
+              config_certificate = config.config_certificates.new(cert: expired_certificate, config:)
+              config_certificate.save(validate: false)
               config.save(validate: false)
             end
 
@@ -169,7 +171,10 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
           before do
             expired_cert1.save(validate: false)
             expired_cert2.save(validate: false)
-            config.certs << expired_cert1 << expired_cert2
+            config_certificate1 = config.config_certificates.new(cert: expired_cert1, config:)
+            config_certificate2 = config.config_certificates.new(cert: expired_cert2, config:)
+            config_certificate1.save(validate: false)
+            config_certificate2.save(validate: false)
             config.save(validate: false)
           end
 
