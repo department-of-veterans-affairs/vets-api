@@ -801,9 +801,8 @@ module IvcChampva
                       filler.generate
                     end
 
-        # Use legacy form ID in metadata for backwards compatibility
+        # Get validated metadata (form models already set docType to the correct display form number)
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
-        metadata['docType'] = legacy_form_id if IvcChampva::FormVersionManager.versioned_form?(actual_form_id)
 
         file_paths = form.handle_attachments(file_path)
 
