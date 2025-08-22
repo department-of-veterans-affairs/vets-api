@@ -36,12 +36,8 @@ module TravelPay
         Rails.logger.info(
           message: "Creating attachment for claim #{claim_id.slice(0, 8)}"
         )
-
-        document_id = service.upload_document(claim_id, document)
-
-        render json: { documentId: document_id }, status: :created
-      rescue Common::Exceptions::BadRequest => e
-        render json: { errors: [{ detail: e.detail }] }, status: :bad_request
+        response_data = service.upload_document(claim_id, document)
+        render json: { documentId: response_data['documentId'] }, status: :created
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e)
       rescue Faraday::Error => e
@@ -55,7 +51,14 @@ module TravelPay
       private
 
       def render_bad_request(e)
-        render json: { errors: [{ detail: e.detail }] }, status: :bad_request
+        # Extract the first detail from errors array, fallback to generic
+        error_detail = if e.respond_to?(:errors) && e.errors.any?
+                         e.errors.first[:detail] || 'Bad request'
+                       else
+                         'Bad request'
+                       end
+
+        render json: { errors: [{ detail: error_detail }] }, status: :bad_request
       end
 
       def auth_manager
@@ -88,19 +91,15 @@ module TravelPay
       def validate_claim_id_exists!(claim_id)
         # NOTE: In request specs, you can’t make params[:claim_id] truly missing because
         # it’s part of the URL path and Rails routing prevents that.
-        if claim_id.blank?
-          raise Common::Exceptions::BadRequest, detail: 'Claim ID is required'
-        end
+        raise Common::Exceptions::BadRequest.new(detail: 'Claim ID is required') if claim_id.blank?
 
-        unless claim_id =~ /\A[\w-]+\z/
-          raise Common::Exceptions::BadRequest, detail: 'Claim ID is invalid'
-        end
+        raise Common::Exceptions::BadRequest.new(detail: 'Claim ID is invalid') unless claim_id =~ /\A[\w-]+\z/
       end
 
       def validate_document_exists!(document)
         return if document.present?
 
-        raise Common::Exceptions::BadRequest, detail: 'Document is required'
+        raise Common::Exceptions::BadRequest.new(detail: 'Document is required')
       end
     end
   end

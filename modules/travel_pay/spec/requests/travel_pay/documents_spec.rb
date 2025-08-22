@@ -9,14 +9,15 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   let(:doc_id) { 'doc-456' }
   let(:user) { build(:user) }
   let(:service) { instance_double(TravelPay::DocumentsService) }
+  # let(:valid_document) do
+  # Rack::Test::UploadedFile.new(
+  #   Rails.root.join('modules/travel_pay/spec/fixtures/documents/test.pdf')
+  # )
   let(:valid_document) do
-    fixture_file_upload(Rails.root.join('modules/travel_pay/spec/fixtures/documents/test.pdf'), 'application/pdf')
-  end
-  let(:invalid_document) do
-    fixture_file_upload(Rails.root.join('modules/travel_pay/spec/fixtures/documents/invalid.txt'), 'text/plain')
-  end
-  let(:big_document) do
-    fixture_file_upload(Rails.root.join('modules/travel_pay/spec/fixtures/documents/big_test.pdf'), 'application/pdf')
+    Rack::Test::UploadedFile.new(
+      Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf', 'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf', 'spec', 'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf',
+                      'fixtures', 'documents', 'test.pdf', 'test.pdf', 'documents', 'test.pdf', 'test.pdf')
+    )
   end
 
   before do
@@ -66,11 +67,9 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
     end
   end
 
-  # POST /travel_pay/v0/documents/:document
+  # POST /travel_pay/v0/claims/:claim_id/documents
   describe '#create' do
     before do
-      allow_any_instance_of(TravelPay::V0::DocumentsController)
-        .to receive(:service).and_return(service)
       allow_any_instance_of(TravelPay::V0::DocumentsController).to receive(:current_user).and_return(user)
     end
 
@@ -79,11 +78,24 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
       end
 
-      context 'when valid params' do
+      context 'VCR-backed integration tests' do
+        it 'uploads document and returns documentId using vcr_cassette' do
+          VCR.use_cassette('travel_pay/documents/post/success', match_requests_on: %i[method uri]) do
+            post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
+
+            expect(response).to have_http_status(:created)
+            expect(JSON.parse(response.body)['documentId']).to eq('abc-123')
+          end
+        end
+      end
+
+      context 'stubbed controller behavior' do
         before do
           allow(service).to receive(:upload_document)
             .with(claim_id, kind_of(ActionDispatch::Http::UploadedFile))
-            .and_return('abc-123')
+            .and_return({ 'documentId' => 'abc-123' })
+          allow_any_instance_of(TravelPay::V0::DocumentsController)
+            .to receive(:service).and_return(service)
         end
 
         it 'uploads document and returns documentId' do
@@ -92,25 +104,29 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           expect(response).to have_http_status(:created)
           expect(JSON.parse(response.body)).to eq('documentId' => 'abc-123')
         end
-      end
 
-      context 'when claim_id is invalid' do
-        # TODO: Figure out how to get this test to pass 
+        it 'returns bad request when document param is missing' do
+          post("/travel_pay/v0/claims/#{claim_id}/documents", params: {})
+
+          expect(response).to have_http_status(:bad_request)
+          body = JSON.parse(response.body)
+          expect(body['errors'].first['detail']).to eq('Document is required')
+        end
+
         # NOTE: In request specs, you can’t make params[:claim_id] truly missing because
         # it’s part of the URL path and Rails routing prevents that.
-        # it 'returns bad request' do
-        #   invalid_claim_id = 'invalid$' # safe in URL, fails regex \A[\w-]+\z
+        it 'returns bad request when claim_id is invalid' do
+          invalid_claim_id = 'invalid$' # safe in URL, fails regex \A[\w-]+\z
 
-        #   post("/travel_pay/v0/claims/#{invalid_claim_id}/documents", params: { Document: valid_document })
+          post("/travel_pay/v0/claims/#{invalid_claim_id}/documents", params: { Document: valid_document })
 
-        #   expect(response).to have_http_status(:bad_request)
-        #   body = JSON.parse(response.body)
-        #   expect(body['errors'].first['detail']).to eq('Claim ID is invalid')
-        # end
-      end
+          expect(response).to have_http_status(:bad_request)
+          body = JSON.parse(response.body)
+          puts response
+          expect(body['errors'].first['detail']).to eq('Claim ID is invalid')
+        end
 
-      context 'when Faraday::ResourceNotFound' do
-        it 'returns not found' do
+        it 'returns not found when Faraday::ResourceNotFound' do
           exception = Faraday::ResourceNotFound.new('Not found')
           allow(exception).to receive(:response).and_return(
             request: { headers: { 'X-Correlation-ID' => 'abc' } }
@@ -123,23 +139,8 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           expect(JSON.parse(response.body)['error']).to eq('Document not found')
           expect(JSON.parse(response.body)['correlation_id']).to eq('abc')
         end
-      end
 
-      context 'when Faraday::Error' do
-        it 'returns error json with status' do
-          error = Faraday::Error.new('ERROR')
-          allow(error).to receive(:response).and_return({ status: 502 }) # 502 = bad_gateway error
-          allow(service).to receive(:upload_document).and_raise(error)
-
-          post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
-
-          expect(response).to have_http_status(:bad_gateway)
-          expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
-        end
-      end
-
-      context 'when BackendServiceException' do
-        it 'returns error json with original status' do
+        it 'returns error json with original status when BackendServiceException' do
           error = Common::Exceptions::BackendServiceException.new('ERROR')
           allow(error).to receive(:original_status).and_return(503)
           allow(service).to receive(:upload_document).and_raise(error)
@@ -147,6 +148,17 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
 
           expect(response).to have_http_status(:service_unavailable)
+          expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
+        end
+
+        it 'returns error json with status when Faraday::Error' do
+          error = Faraday::Error.new('ERROR')
+          allow(error).to receive(:response).and_return({ status: 502 }) # 502 = bad_gateway error
+          allow(service).to receive(:upload_document).and_raise(error)
+
+          post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
+
+          expect(response).to have_http_status(:bad_gateway)
           expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
         end
       end
