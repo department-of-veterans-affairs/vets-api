@@ -106,7 +106,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     # The email's more likely to be deliverable if the profile email is available. Users
     # can fat finger their email on the form or it might not be their primary email.
     # If they're not logged in, we have to use the form email
-    email = user&.email || parsed_form['email']
+    email = @user&.email || parsed_form['email']
     return if email.blank?
 
     send_education_benefits_confirmation_email(email, parsed_form, {})

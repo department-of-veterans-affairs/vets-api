@@ -38,7 +38,29 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       expect(BenefitsEducation::Service).to have_received(:new).with(user.icn).exactly(2).times
     end
 
+    context 'when get_gi_bill_status raises an error' do
+      before do
+        allow(Rails.logger).to receive(:error)
+        allow(service).to receive(:get_gi_bill_status).and_raise(StandardError)
+      end
+
+      it 'logs an error' do
+        instance.after_submit(user)
+        expect(Rails.logger).to have_received(:error)
+      end
+    end
+
     context 'sends email confirmation via VANotify (with feature flag)' do
+      let(:callback_options) do
+        {
+          callback_metadata: {
+            notification_type: 'confirmation',
+            form_number: '22-10203',
+            statsd_tags: { service: 'submit-10203-form', function: 'form_10203_failure_confirmation_email_sending' }
+          }
+        }
+      end
+
       it 'is skipped when feature flag is turned off' do
         Flipper.disable(:form21_10203_confirmation_email)
         allow(VANotify::EmailJob).to receive(:perform_async)
@@ -58,15 +80,60 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         confirmation_number = subject.education_benefits_claim.confirmation_number
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'test@sample.com',
+          'abraham.lincoln@vets.gov',
           'form21_10203_confirmation_email_template_id',
           {
             'first_name' => 'MARK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
-          }
+          },
+          Settings.vanotify.services.va_gov.api_key,
+          callback_options
         )
+      end
+
+      context 'when the user is not logged in' do
+        let(:user) { nil }
+
+        it 'sends the confirmation email using the email from the form' do
+          Flipper.enable(:form21_10203_confirmation_email)
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          subject = instance
+          subject.after_submit(user)
+          confirmation_number = subject.education_benefits_claim.confirmation_number
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'test@sample.com',
+            'form21_10203_confirmation_email_template_id',
+            {
+              'first_name' => 'MARK',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => confirmation_number,
+              'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
+            },
+            Settings.vanotify.services.va_gov.api_key,
+            callback_options
+          )
+        end
+
+        context 'when the email is not present (not logged in and no form email)' do
+          it 'does not send the confirmation email' do
+            Flipper.enable(:form21_10203_confirmation_email)
+            allow(VANotify::EmailJob).to receive(:perform_async)
+
+            subject = instance
+            # remove the email from the form and put it back into the model
+            # user is already nil so no email there either
+            form = JSON.parse(subject.form)
+            form.delete('email')
+            subject.form = form.to_json
+            subject.after_submit(user)
+
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          end
+        end
       end
     end
 
@@ -142,9 +209,75 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         Flipper.enable(:form21_10203_confirmation_email)
       end
 
-      it 'calls SendSchoolCertifyingOfficialsEmail' do
+      it 'increments the SendSchoolCertifyingOfficialsEmail job queue (calls the job)' do
         expect { instance.after_submit(user) }
           .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
+      end
+
+      it 'calls SendSchoolCertifyingOfficialsEmail with correct arguments (gibill status is {})' do
+        allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
+
+        instance.after_submit(user)
+
+        expect(EducationForm::SendSchoolCertifyingOfficialsEmail)
+          .to have_received(:perform_async)
+          .with(instance.id, false, {})
+      end
+
+      it 'calls SendSchoolCertifyingOfficialsEmail (remaining entitlement < 6 months)' do
+        # Load the VCR cassette response
+        cassette_data = YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response.yml')
+        # There are 2 interactions and the second one is the one we want
+        response_body_string = cassette_data['http_interactions'][1]['response']['body']['string']
+        response_status = cassette_data['http_interactions'][1]['response']['status']['code']
+
+        # Parse the response JSON string to a hash
+        parsed_body = JSON.parse(response_body_string)
+
+        # Create a mock response object that matches what the service expects
+        mock_raw_response = double('raw_response', status: response_status, body: parsed_body)
+        mock_benefits_response = BenefitsEducation::Response.new(response_status, mock_raw_response)
+
+        # Override the service mock for this specific test
+        allow(service).to receive(:get_gi_bill_status).and_return(mock_benefits_response)
+        allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
+
+        instance.after_submit(user)
+
+        expect(EducationForm::SendSchoolCertifyingOfficialsEmail)
+          .to have_received(:perform_async)
+          .with(instance.id, true, '11902614')
+      end
+
+      it 'calls SendSchoolCertifyingOfficialsEmail (remaining entitlement >= 6 months)' do
+        # Load the VCR cassette response
+        cassette_data = YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response_gt_6_mos.yml')
+        # There are 2 interactions and the second one is the one we want
+        response_body_string = cassette_data['http_interactions'][1]['response']['body']['string']
+        response_status = cassette_data['http_interactions'][1]['response']['status']['code']
+
+        # Parse the response JSON string to a hash
+        parsed_body = JSON.parse(response_body_string)
+
+        # Create a mock response object that matches what the service expects
+        mock_raw_response = double('raw_response', status: response_status, body: parsed_body)
+        mock_benefits_response = BenefitsEducation::Response.new(response_status, mock_raw_response)
+
+        # Override the service mock for this specific test
+        allow(service).to receive(:get_gi_bill_status).and_return(mock_benefits_response)
+        allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
+
+        instance.after_submit(user)
+
+        expect(EducationForm::SendSchoolCertifyingOfficialsEmail)
+          .to have_received(:perform_async)
+          .with(instance.id, false, '11902614')
+      end
+
+      context 'when the environment is production' do
+        before { allow(Settings).to receive(:vsp_environment).and_return('production') }
+
+
       end
     end
 
