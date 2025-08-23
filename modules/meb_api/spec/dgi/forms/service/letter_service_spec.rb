@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'dgi/forms/service/letter_service'
 
 RSpec.describe MebApi::DGI::Forms::Letters::Service do
-  subject(:service) { described_class.new(nil) }
+  let(:service) { described_class.new(nil) }
 
   before do
     allow(MebApi::AuthenticationTokenService).to receive(:call).and_return('token123')

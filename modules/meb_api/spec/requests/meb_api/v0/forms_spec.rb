@@ -238,7 +238,9 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
         end
 
         it 'proceeds without direct deposit info and logs warning' do
-          expect(Rails.logger).to receive(:warn).with('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+          expect(Rails.logger).to receive(:warn).with(
+            'DirectDeposit::Client returned nil response, proceeding without direct deposit info'
+          )
           post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
           expect(submission_service).to have_received(:submit_claim).with(
             hash_including(test_param: 'value'),
@@ -267,7 +269,7 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
   describe 'GET /meb_api/v0/forms_claim_status with error cases' do
     require 'dgi/claimant/service'
     require 'dgi/status/service'
-    
+
     let(:claimant_service) { instance_double(MebApi::DGI::Claimant::Service) }
     let(:status_service) { instance_double(MebApi::DGI::Status::Service) }
 

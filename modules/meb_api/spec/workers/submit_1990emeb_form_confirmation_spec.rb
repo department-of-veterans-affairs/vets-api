@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
@@ -13,9 +15,8 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
 
   context 'when claim status is ELIGIBLE' do
     before do
-      allow(Settings).to receive_message_chain(
-        :vanotify, :services, :va_gov, :template_id, :form1990emeb_approved_confirmation_email
-      ).and_return('approved_template')
+      template_double = double('template_id', form1990emeb_approved_confirmation_email: 'approved_template')
+      allow(Settings.vanotify.services.va_gov).to receive(:template_id).and_return(template_double)
     end
 
     it 'uses the approved template id' do
@@ -37,9 +38,8 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
 
   context 'when claim status is DENIED' do
     before do
-      allow(Settings).to receive_message_chain(
-        :vanotify, :services, :va_gov, :template_id, :form1990emeb_denied_confirmation_email
-      ).and_return('denied_template')
+      template_double = double('template_id', form1990emeb_denied_confirmation_email: 'denied_template')
+      allow(Settings.vanotify.services.va_gov).to receive(:template_id).and_return(template_double)
     end
 
     it 'uses the denied template id' do
@@ -58,9 +58,8 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
 
   context 'when claim status is something else' do
     before do
-      allow(Settings).to receive_message_chain(
-        :vanotify, :services, :va_gov, :template_id, :form1990emeb_offramp_confirmation_email
-      ).and_return('offramp_template')
+      template_double = double('template_id', form1990emeb_offramp_confirmation_email: 'offramp_template')
+      allow(Settings.vanotify.services.va_gov).to receive(:template_id).and_return(template_double)
     end
 
     it 'uses the offramp template id' do

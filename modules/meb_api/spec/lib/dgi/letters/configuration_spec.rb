@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe MebApi::DGI::Letters::Configuration do
@@ -6,8 +8,11 @@ describe MebApi::DGI::Letters::Configuration do
   let(:mock_enabled) { false }
 
   before do
-    allow(Settings).to receive_message_chain(:dgi, :vets, :url).and_return('https://example.com')
-    allow(Settings).to receive_message_chain(:dgi, :vets, :mock).and_return(mock_enabled)
+    # stub nested Settings without using receive_message_chain
+    allow(Settings.dgi.vets).to receive_messages(
+      url: 'https://example.com',
+      mock: mock_enabled
+    )
   end
 
   context 'when mock is disabled' do
@@ -22,7 +27,7 @@ describe MebApi::DGI::Letters::Configuration do
     end
 
     it 'indicates mock is disabled' do
-      expect(config.mock_enabled?).to be_falsey
+      expect(config).not_to be_mock_enabled
     end
   end
 
@@ -30,7 +35,7 @@ describe MebApi::DGI::Letters::Configuration do
     let(:mock_enabled) { true }
 
     it 'indicates mock is enabled' do
-      expect(config.mock_enabled?).to be_truthy
+      expect(config).to be_mock_enabled
     end
   end
 
