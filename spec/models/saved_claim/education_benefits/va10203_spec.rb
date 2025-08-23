@@ -273,12 +273,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
           .to have_received(:perform_async)
           .with(instance.id, false, '11902614')
       end
-
-      context 'when the environment is production' do
-        before { allow(Settings).to receive(:vsp_environment).and_return('production') }
-
-
-      end
     end
 
     context 'unauthorized' do
