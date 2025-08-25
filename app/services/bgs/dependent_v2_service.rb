@@ -22,6 +22,7 @@ module BGS
     STATS_KEY = 'bgs.dependent_service'
 
     class PDFSubmissionError < StandardError; end
+    class BgsServicesError < StandardError; end
 
     def initialize(user)
       @first_name = user.first_name
@@ -61,17 +62,32 @@ module BGS
     rescue PDFSubmissionError
       submit_to_central_service(claim:, encrypted_vet_info:)
     rescue => e
-      @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: e.message })
+      log_bgs_errors(e)
       log_exception_to_sentry(e, { uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
     end
 
+    # So basically the idea is to look at the error.cause&.message and if it has "HTTP error (302)" in it then do StatsD.iterate(whatever.302) or StatsD.iterate(whatever, tags:[error_category:http302] (or something like that)
+
     private
 
     def service
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
+    end
+
+    def log_bgs_errors(error)
+      if Flipper.enabled?(:va_dependents_bgs_extra_error_logging)
+        error_types = ['HTTP error (302)', 'HTTP error (502)']
+        status_types = [302, 500, 502]
+        nested_error_message = error.cause&.message
+        should_increment = error_types.any? do |et|
+          nested_error_message&.include?(et)
+        end || status_types.include?(error.status)
+        StatsD.increment("#{STATS_KEY}.non_validation_error", tags: ["form_id:#{form_id}"]) if should_increment
+      end
+      @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
+                           "#{STATS_KEY}.failure", { error: error.message })
     end
 
     def folder_identifier
@@ -216,6 +232,11 @@ module BGS
       # submission failed.
 
       generate_hash_from_details
+    rescue
+      @monitor.track_event('warn',
+                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
+                           "#{STATS_KEY}.submit_pdf.failure")
+      raise BgsServicesError
     end
 
     def generate_hash_from_details
