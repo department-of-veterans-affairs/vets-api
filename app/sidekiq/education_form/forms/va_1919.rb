@@ -5,15 +5,7 @@ module EducationForm::Forms
     def initialize(education_benefits_claim)
       @education_benefits_claim = education_benefits_claim
       @applicant = education_benefits_claim.parsed_form
-      super(app)
-    end
-
-    def certifying_official_first_name
-      @applicant['certifyingOfficial']['first']
-    end
-
-    def certifying_official_last_name
-      @applicant['certifyingOfficial']['last']
+      super(education_benefits_claim)
     end
 
     def institution_name
@@ -24,12 +16,46 @@ module EducationForm::Forms
       @applicant['institutionDetails']['facilityCode']
     end
 
-    def statement_of_truth_signature
-      @applicant['statementOfTruthSignature']
+    def certifying_official_name
+      official = @applicant['certifyingOfficial']
+      return '' unless official
+
+      "#{official['first']} #{official['last']}"
     end
 
-    def date_signed
-      @applicant['dateSigned']
+    def certifying_official_role
+      role = @applicant['certifyingOfficial']['role']
+      return '' unless role
+
+      role['level'] == 'other' ? role['other'] : role['level']
+    end
+
+    def proprietary_conflicts_count
+      conflicts = @applicant['proprietaryProfitConflicts']
+      return 0 unless conflicts
+
+      [conflicts.length, 2].min # Max 2 as per requirement
+    end
+
+    def proprietary_conflicts
+      conflicts = @applicant['proprietaryProfitConflicts']
+      return [] unless conflicts
+
+      conflicts.first(2) # Take only first 2
+    end
+
+    def all_proprietary_conflicts_count
+      conflicts = @applicant['allProprietaryProfitConflicts']
+      return 0 unless conflicts
+
+      [conflicts.length, 2].min # Max 2 as per requirement
+    end
+
+    def all_proprietary_conflicts
+      conflicts = @applicant['allProprietaryProfitConflicts']
+      return [] unless conflicts
+
+      conflicts.first(2) # Take only first 2
     end
 
     def header_form_type
