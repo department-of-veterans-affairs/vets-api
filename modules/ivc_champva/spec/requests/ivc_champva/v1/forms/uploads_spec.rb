@@ -545,6 +545,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:mock_user) { double('User', loa: { current: 3 }) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(false)
       allow(controller).to receive_messages(
         params: { form_number: '10-10D' },
         current_user: mock_user
