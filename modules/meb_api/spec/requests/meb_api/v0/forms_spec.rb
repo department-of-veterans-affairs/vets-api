@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'dgi/forms/service/submission_service'
 require 'dgi/forms/service/letter_service'
 
-Rspec.describe 'MebApi::V0 Forms', type: :request do
+RSpec.describe 'MebApi::V0 Forms', type: :request do
   include SchemaMatchers
   include ActiveSupport::Testing::TimeHelpers
 
@@ -36,7 +36,6 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
 
   before do
     sign_in_as(user)
-    Flipper.enable(:show_forms_app)
   end
 
   describe 'POST /meb_api/v0/forms_sponsors' do
@@ -122,12 +121,11 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
 
     context 'when the feature flag is disabled' do
       it 'does not send the confirmation email' do
+        allow(Flipper).to receive(:enabled?).with(:form1990emeb_confirmation_email).and_return(false)
         allow(MebApi::V0::Submit1990emebFormConfirmation).to receive(:perform_async)
-        Flipper.disable(:form1990emeb_confirmation_email)
         post('/meb_api/v0/forms_send_confirmation_email', params: {}, headers:)
         expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
         expect(response).to have_http_status(:no_content)
-        Flipper.enable(:form1990emeb_confirmation_email)
       end
     end
   end
@@ -214,13 +212,9 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
       let(:payment_info) { { account_number: '1234', routing_number: '5678' } }
 
       before do
-        Flipper.enable(:toe_light_house_dgi_direct_deposit)
+        allow(Flipper).to receive(:enabled?).with(:toe_light_house_dgi_direct_deposit).and_return(true)
         allow(DirectDeposit::Client).to receive(:new).and_return(direct_deposit_client)
         allow(direct_deposit_client).to receive(:get_payment_info).and_return(payment_info)
-      end
-
-      after do
-        Flipper.disable(:toe_light_house_dgi_direct_deposit)
       end
 
       it 'includes direct deposit information in submission' do
