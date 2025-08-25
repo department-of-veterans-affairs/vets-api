@@ -14,7 +14,7 @@ RSpec.describe TravelClaim::MileageExpenseClient do
   before do
     allow(client).to receive_messages(
       perform: double('Response'),
-      settings: double('Settings', claims_base_path: '/api/v3'),
+      settings: double('Settings', claims_base_path: 'test-base-path'),
       subscription_key_headers: { 'Ocp-Apim-Subscription-Key' => 'test-key' }
     )
   end
@@ -23,7 +23,7 @@ RSpec.describe TravelClaim::MileageExpenseClient do
     it 'calls perform with correct parameters' do
       expect(client).to receive(:perform).with(
         :post,
-        '/api/v3/api/v3/expenses/mileage',
+        'test-base-path/api/v3/expenses/mileage',
         {
           claimId: claim_id,
           dateIncurred: date_incurred,
@@ -92,7 +92,7 @@ RSpec.describe TravelClaim::MileageExpenseClient do
     end
 
     it 'constructs correct URL' do
-      expect(client).to receive(:perform).with(anything, '/api/v3/api/v3/expenses/mileage', anything, anything)
+      expect(client).to receive(:perform).with(anything, 'test-base-path/api/v3/expenses/mileage', anything, anything)
       client.add_mileage_expense(
         tokens:,
         claim_id:,
