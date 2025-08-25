@@ -130,7 +130,7 @@ module ClaimsEvidenceApi
     # @param doctype [Integer|String] document type of the file
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
-        contentSource: 'VA.gov', # schema/properties/contentSource
+        contentSource: ClaimsEvidenceApi::CONTENT_SOURCE,
         dateVaReceivedDocument: DateTime.parse(va_received_at.to_s).strftime('%Y-%m-%d'),
         documentTypeId: doctype
       }
@@ -156,8 +156,7 @@ module ClaimsEvidenceApi
     def attempt_failed(error)
       return unless attempt
 
-      error_message = error.body if error.respond_to?('body')
-      error_message ||= error.message
+      error_message = error.respond_to?('body') ? error.body : error.message
 
       attempt.status = 'failed'
       attempt.error_message = error_message

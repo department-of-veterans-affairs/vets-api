@@ -393,7 +393,7 @@ RSpec.describe BGS::DependentV2Service do
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674-V2',
                                                                    doctype: claim.document_type)
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '21-674-V2',
-                                                                   doctype: '142')
+                                                                   doctype: 142)
 
       expect(claim).to receive(:persistent_attachments).and_return([pa])
       expect(stamper).to receive(:run).and_return(pdf_path)
