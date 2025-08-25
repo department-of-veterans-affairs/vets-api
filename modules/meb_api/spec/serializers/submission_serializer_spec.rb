@@ -18,3 +18,4 @@ describe SubmissionSerializer, type: :serializer do
     expect(attributes['education_benefit']).to eq({ '@type' => 'Chapter33' })
   end
 end
+

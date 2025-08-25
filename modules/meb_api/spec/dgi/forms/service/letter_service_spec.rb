@@ -37,3 +37,4 @@ RSpec.describe MebApi::DGI::Forms::Letters::Service do
     end
   end
 end
+
