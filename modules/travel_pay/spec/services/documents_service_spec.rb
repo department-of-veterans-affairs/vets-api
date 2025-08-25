@@ -110,8 +110,10 @@ describe TravelPay::DocumentsService do
       end
 
       context 'when document type is invalid' do
-        let(:invalid_file_path) { 'modules/travel_pay/spec/fixtures/documents/invalid.txt' }
-        let(:invalid_file) { Rack::Test::UploadedFile.new(invalid_file_path, 'text/plain') }
+        let(:invalid_file) do
+          tf = Tempfile.new(['invalid', '.txt'])
+          Rack::Test::UploadedFile.new(tf.path, 'text/plain')
+        end
 
         it 'raises a Common::Exceptions::BadRequest' do
           expect { service.upload_document(claim_id, invalid_file) }.to raise_error(
@@ -124,8 +126,8 @@ describe TravelPay::DocumentsService do
         let(:oversized_pdf_file) do
           tf = Tempfile.new(['oversized', '.pdf'])
           tf.binmode # switches the Tempfile into binary mode
-          # Minimal PDF header + repeat '0' to exceed 5 MB
-          tf.write("%PDF-1.4\n#{'0' * ((5 * 1024 * 1024) + 1)}")
+          # increase the file size to exceed 5 MB
+          tf.write('0' * ((5 * 1024 * 1024) + 1))
           tf.rewind # makes sure the uploaded file is actually readable as expected after writing to it.
           Rack::Test::UploadedFile.new(tf.path, 'application/pdf')
         end
