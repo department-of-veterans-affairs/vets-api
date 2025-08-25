@@ -281,7 +281,7 @@ module IvcChampva
         if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # queue Tesseract OCR job for tmpfile
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id, @current_user)
             Rails.logger.info(
               "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -295,7 +295,7 @@ module IvcChampva
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # queue LLM job for attachment record
-            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id, @current_user)
             Rails.logger.info(
               "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )

@@ -14,8 +14,9 @@ module IvcChampva
     # @param [String] uuid The UUID of the attachment
     # @param [Integer] attachment_record_id The ID of the attachment record to be processed
     # @param [String] attachment_id The doc_type of the attachment
-    def perform(form_id, uuid, attachment_record_id, attachment_id) # rubocop:disable Metrics/MethodLength
-      return unless Flipper.enabled?(:champva_enable_llm_on_submit)
+    # @param [User] current_user The current user
+    def perform(form_id, uuid, attachment_record_id, attachment_id, current_user) # rubocop:disable Metrics/MethodLength
+      return unless Flipper.enabled?(:champva_enable_llm_on_submit, current_user)
 
       Rails.logger.info(
         "IvcChampva::LlmLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}," \

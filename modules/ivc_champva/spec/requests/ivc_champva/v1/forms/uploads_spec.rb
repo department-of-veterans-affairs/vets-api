@@ -1462,7 +1462,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             form_id,
             attachment_guid,
             attachment.id,
-            'EOB'
+            'EOB',
+            anything
           )
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')
@@ -1474,7 +1475,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             form_id,
             attachment_guid,
             attachment.id, # attachment record ID instead of PDF path
-            'EOB'
+            'EOB',
+            anything
           )
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')

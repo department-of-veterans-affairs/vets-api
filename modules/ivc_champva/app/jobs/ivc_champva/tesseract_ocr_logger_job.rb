@@ -15,8 +15,9 @@ module IvcChampva
     # @param attachment_record_id [Integer] The ID of the attachment record to be processed
     # @param attachment_id [String] The attachment type ID of the attachment being processed, see
     # SupportingDocumentValidator.VALIDATOR_MAP
-    def perform(form_id, uuid, attachment_record_id, attachment_id) # rubocop:disable Metrics/MethodLength
-      return unless Flipper.enabled?(:champva_enable_ocr_on_submit)
+    # @param [User] current_user The current user
+    def perform(form_id, uuid, attachment_record_id, attachment_id, current_user) # rubocop:disable Metrics/MethodLength
+      return unless Flipper.enabled?(:champva_enable_ocr_on_submit, current_user)
 
       Rails.logger.info(
         "IvcChampva::TesseractOcrLoggerJob Beginning job for form_id: #{form_id}, uuid: #{uuid}," \

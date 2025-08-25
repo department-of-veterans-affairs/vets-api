@@ -43,7 +43,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
     allow(logger).to receive(:error)
     allow(logger).to receive(:warn)
     allow(mock_file).to receive(:read).and_return('file content', nil) # It's important to return nil after the content
-    allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(true)
 
     # Mock tempfile creation and PDF conversion
     tempfile = double('tempfile', path: '/tmp/test_file.pdf', close!: true)
@@ -63,13 +63,13 @@ RSpec.describe IvcChampva::LlmLoggerJob do
       it 'tracks experiment sample size' do
         expect(monitor).to receive(:track_experiment_sample_size).with('llm_validator', uuid)
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
 
       it 'tracks processing time' do
         expect(monitor).to receive(:track_experiment_processing_time).with('llm_validator', anything, uuid)
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
 
       it 'tracks LLM response metrics' do
@@ -77,7 +77,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         expect(monitor).to receive(:track_experiment_metric).with('llm_validator', 'validity', true, uuid)
         expect(monitor).to receive(:track_experiment_metric).with('llm_validator', 'missing_fields_count', 2, uuid)
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
 
       it 'logs missing fields count to Rails logger' do
@@ -85,13 +85,13 @@ RSpec.describe IvcChampva::LlmLoggerJob do
           "IvcChampva::LlmLoggerJob #{uuid} missing_fields_count: 2"
         )
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_enable_llm_on_submit, anything).and_return(false)
       end
 
       it 'does not process document or log anything' do
@@ -99,7 +99,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         expect(logger).not_to receive(:info)
         expect(logger).not_to receive(:error)
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
@@ -114,7 +114,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         )
         expect(monitor).to receive(:track_experiment_error).with('llm_validator', 'StandardError', uuid, 'Test error')
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
@@ -126,7 +126,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
           "IvcChampva::LlmLoggerJob #{uuid} unexpected LLM response format: String"
         )
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
@@ -143,7 +143,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         )
         expect(llm_service).not_to receive(:process_document)
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
@@ -170,7 +170,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         )
         expect(llm_service).not_to receive(:process_document)
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
@@ -186,7 +186,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         expect(monitor).to receive(:track_experiment_error).with('llm_validator', 'Errno::ENOENT',
                                                                  uuid, 'No such file or directory - PDF file not found')
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
 
@@ -202,7 +202,7 @@ RSpec.describe IvcChampva::LlmLoggerJob do
         expect(monitor).to receive(:track_experiment_error).with('llm_validator', 'Errno::ENOENT',
                                                                  uuid, 'No such file or directory - PDF path is nil')
 
-        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id)
+        described_class.new.perform(form_id, uuid, attachment_record_id, attachment_id, 'current_user')
       end
     end
   end
