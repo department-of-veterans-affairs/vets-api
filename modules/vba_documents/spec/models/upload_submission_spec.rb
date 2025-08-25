@@ -23,6 +23,12 @@ describe VBADocuments::UploadSubmission, type: :model do
            status: 'error', code: 'DOC202',
            detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.')
   end
+  let(:upload_error_upstream_old) do
+    create(:upload_submission,
+           created_at: 20.days.ago,
+           status: 'error', code: 'DOC202',
+           detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.')
+  end
   let(:client_stub) { instance_double(CentralMail::Service) }
   let(:faraday_response) { instance_double(Faraday::Response) }
 
@@ -556,6 +562,10 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     it 'returns false when status is error and the error code is DOC2XX (upstream error)' do
       expect(upload_error_upstream.in_final_status?).to be(false)
+    end
+
+    it 'returns true when status is error and the error code is DOC2XX (upstream error) and 14 days or older' do
+      expect(upload_error_upstream_old.in_final_status?).to be(true)
     end
   end
 
