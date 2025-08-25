@@ -67,9 +67,12 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       VCR.use_cassette('mr_client/get_a_list_of_allergies') do
         get '/my_health/v1/medical_records/allergies'
       end
-
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+      expect(body['entry']).to be_a(Array)
+      expect(body['entry'][0]['resource']['resourceType']).to eq('AllergyIntolerance')
+      expect(body['entry'][0]['resource']['category'][0]).to eq('medication')
     end
 
     it 'responds to GET #show' do
@@ -78,7 +81,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('AllergyIntolerance')
+      expect(body['code']['coding'][0]['display']).to eq('Ibuprofen')
     end
 
     context 'when the patient is not found' do
