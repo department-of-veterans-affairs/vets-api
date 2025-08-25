@@ -9,7 +9,7 @@ module PagerDuty
   module ExternalServices
     class Response < PagerDuty::Response
       attribute :reported_at, Vets::Type::ISO8601Time
-      attribute :statuses, PagerDuty::Models::Service, array: true
+      attribute :statuses, Hash, array: true # PagerDuty::Models::Service
 
       validates :reported_at, presence: true
 

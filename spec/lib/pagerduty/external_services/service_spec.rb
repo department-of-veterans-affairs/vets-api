@@ -21,9 +21,9 @@ describe PagerDuty::ExternalServices::Service do
       expect(response.reported_at).to be_present
     end
 
-    it 'returns an array of PagerDuty::Models::Service', :aggregate_failures do
+    it 'returns an array of PagerDuty::Models::Service hashes', :aggregate_failures do
       expect(response.statuses).to be_a(Array)
-      expect(response.statuses.first).to be_a(PagerDuty::Models::Service)
+      expect(response.statuses.first).to be_a(Hash)
     end
 
     context 'when PagerDuty returns an unknown service status' do

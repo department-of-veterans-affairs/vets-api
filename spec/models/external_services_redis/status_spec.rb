@@ -31,7 +31,7 @@ describe ExternalServicesRedis::Status do
       expect(fetch_or_cache.statuses.class).to eq Array
 
       fetch_or_cache.statuses.each do |status|
-        expect(status.class).to eq Hash
+        expect(status).to be_a(Hash)
       end
     end
 
