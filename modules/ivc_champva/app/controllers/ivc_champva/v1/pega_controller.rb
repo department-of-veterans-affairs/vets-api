@@ -37,7 +37,7 @@ module IvcChampva
 
       private
 
-      def update_data(form_uuid, file_names, status, case_id)
+      def update_data(form_uuid, file_names, status, case_id) # rubocop:disable Metrics/MethodLength
         # First get the query that defines which records we want to update
         ivc_forms = if file_names.any? { |name| name.end_with?('_merged.pdf') }
                       # Use all forms for this UUID if it's a merged PDF case
@@ -48,6 +48,14 @@ module IvcChampva
                     end
 
         if ivc_forms.any?
+          begin
+            # Track metrics for submit to callback duration using already-fetched forms
+            track_submit_to_callback_duration(form_uuid, file_names, ivc_forms) if status == 'Processed'
+          rescue => e
+            Rails.logger.error "Error tracking submit to callback duration: #{e.message}"
+            # Don't raise the error to avoid disrupting the main callback flow
+          end
+
           ivc_forms.each { |form| form.update!(pega_status: status, case_id:) }
 
           # We only need the first form, outside of the file_names field, the data is the same.
@@ -134,6 +142,42 @@ module IvcChampva
       #
       def monitor
         @monitor ||= IvcChampva::Monitor.new
+      end
+
+      ##
+      # Tracks metrics for the duration between form submission (DB record creation)
+      # and pega callback confirmation
+      #
+      # @param [String] form_uuid The UUID of the form submission
+      # @param [Array<String>] file_names The file names being processed by pega
+      # @param [ActiveRecord::Relation] forms The already-fetched forms collection
+      #
+      def track_submit_to_callback_duration(_form_uuid, file_names, forms)
+        return unless forms.any?
+
+        # Filter for form files (not supporting documents) that match the provided file_names
+        form_files = forms.select do |form|
+          # Check if this form's file_name is in the provided file_names and is not a supporting document
+          file_names.include?(form.file_name) && form.file_name.exclude?('supporting_doc')
+        end
+
+        return unless form_files.any?
+
+        # Calculate and publish metrics for first matching form file
+        form_files.first do |form|
+          duration_seconds = (Time.current - form.created_at).to_i
+
+          tags = [
+            'service:veteran-ivc-champva-forms',
+            "form_number:#{form.form_number}"
+          ]
+
+          # Publish the duration metric
+          StatsD.histogram('champva.submit_to_callback.duration_seconds', duration_seconds, tags:)
+        end
+      rescue => e
+        Rails.logger.error "Error tracking submit to callback duration: #{e.message}"
+        # Don't raise the error to avoid disrupting the main callback flow
       end
     end
   end
