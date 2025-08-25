@@ -97,7 +97,6 @@ describe VAProfile::V3::AddressValidation::Service do
             'va_profile/v3/address_validation/validate_after_candidate_no_match',
             VCR::MATCH_EVERYTHING
           ) do
-
             res = described_class.new.address_suggestions(invalid_address)
             expect(JSON.parse(res.to_json)).to eq(
               'addresses' => [
@@ -116,10 +115,10 @@ describe VAProfile::V3::AddressValidation::Service do
                     'address_type' => 'Domestic',
                     'delivery_point_validation' => 'MISSING_ZIP'
                   }
-                },
+                }
               ],
-              'override_validation_key' => 1499210293,
-              'validation_key' => 1499210293
+              'override_validation_key' => 1_499_210_293,
+              'validation_key' => 1_499_210_293
             )
           end
         end
