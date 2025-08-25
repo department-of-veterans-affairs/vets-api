@@ -121,40 +121,19 @@ RSpec.describe BenefitsClaims::Service do
       describe 'when requesting one single benefit claim' do
         before { allow(Flipper).to receive(:enabled?).and_call_original }
 
-        context 'when the PMR Pending override flipper is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(true)
-          end
-
-          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = service.get_claim('600383363')
-              # In the cassette, the status is NEEDED_FROM_YOU
-              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('PMR Pending')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Proof of service (DD214, etc.)')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2,
-                                  'displayName')).to eq('NG1 - National Guard Records Request')
-            end
-          end
-        end
-
-        context 'when the PMR Pending override flipper is disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(false)
-          end
-
-          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = service.get_claim('600383363')
-              # In the cassette, the status is NEEDED_FROM_YOU
-              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_YOU')
-              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'displayName')).to eq('PMR Pending')
-            end
+        it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            response = service.get_claim('600383363')
+            # In the cassette, the status is NEEDED_FROM_YOU
+            expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
+            expect(response.dig('data', 'attributes', 'trackedItems', 0,
+                                'displayName')).to eq('PMR Pending')
+            expect(response.dig('data', 'attributes', 'trackedItems', 1, 'status')).to eq('NEEDED_FROM_OTHERS')
+            expect(response.dig('data', 'attributes', 'trackedItems', 1,
+                                'displayName')).to eq('Proof of service (DD214, etc.)')
+            expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+            expect(response.dig('data', 'attributes', 'trackedItems', 2,
+                                'displayName')).to eq('NG1 - National Guard Records Request')
           end
         end
       end

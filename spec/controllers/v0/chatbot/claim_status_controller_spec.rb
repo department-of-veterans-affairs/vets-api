@@ -163,6 +163,7 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     context 'authorized' do
       before do
+        allow(Flipper).to receive(:enabled?).and_call_original
         @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
         allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
 
@@ -173,45 +174,28 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           .and_return(@mock_cxi_reporting_service)
       end
 
-      context 'when cst_override_reserve_records_website flipper is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+      it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get_single_claim
         end
-
-        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get_single_claim
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
-        end
-      end
-
-      context 'when cst_override_reserve_records_website flipper is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
-        end
-
-        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get_single_claim
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # Do not override the cassette value
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 3, 'status')).to eq('NEEDED_FROM_YOU')
-        end
+        parsed_body = JSON.parse(response.body)
+        relevant_item = parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 4)
+        expect(relevant_item['displayName']).to eq('RV1 - Reserve Records Request')
+        # In the cassette, this value is NEEDED_FROM_YOU
+        expect(relevant_item['status']).to eq('NEEDED_FROM_OTHERS')
+        expect(relevant_item['description']).to eq('RV1 can have its status overriden with a feature flipper.')
+        expect(relevant_item['overdue']).to be(false)
+        expect(relevant_item['friendlyName']).to eq('Reserve records')
+        expect(relevant_item['activityDescription'])
+          .to eq('We’ve requested your reserve records on your behalf. No action is needed.')
+        expect(relevant_item['shortDescription'])
+          .to eq('We’ve requested your service records or treatment records from your reserve unit.')
+        expect(relevant_item['canUploadFile']).to be(true)
+        expect(relevant_item['uploaded']).to be(true)
       end
 
       context 'when :cst_suppress_evidence_requests_website is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
         end
 
@@ -229,7 +213,6 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
       context 'when :cst_suppress_evidence_requests_website is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
         end
 

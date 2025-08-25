@@ -927,4 +927,56 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
+
+  describe '#validate_form_526_disability_unique_names!' do
+    context 'when all disability names are unique' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'Back Pain' },
+          { 'name' => 'Hearing Loss' }
+        ] }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_unique_names! }.not_to raise_error
+      end
+    end
+
+    context 'when there are duplicate disability names (case-insensitive)' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'ptsd' },
+          { 'name' => 'Back Pain' }
+        ] }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_unique_names! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#mask_all_but_first_character' do
+    it 'returns nil if value is blank' do
+      expect(subject.mask_all_but_first_character(nil)).to be_nil
+      expect(subject.mask_all_but_first_character('')).to eq('')
+    end
+
+    it 'returns the value if it is not a String' do
+      expect(subject.mask_all_but_first_character(123)).to eq(123)
+      expect(subject.mask_all_but_first_character([])).to eq([])
+    end
+
+    it 'returns the value if it is a single character' do
+      expect(subject.mask_all_but_first_character('A')).to eq('A')
+    end
+
+    it 'masks all but the first character for longer strings' do
+      expect(subject.mask_all_but_first_character('PTSD')).to eq('P***')
+      expect(subject.mask_all_but_first_character('hepatitis')).to eq('h********')
+    end
+  end
 end
