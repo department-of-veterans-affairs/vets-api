@@ -2,33 +2,36 @@
 
 require 'rails_helper'
 
-# Test spec that violates Copilot Flipper instructions
+# Test spec focusing on human judgment issues in testing patterns
 RSpec.describe V0::TestCopilotController, type: :controller do
   describe '#index' do
-    context 'with feature flag enabled' do
+    context 'with veteran benefit processing feature' do
       before do
-        # Violation 1: Using Flipper.enable instead of stubbing
-        Flipper.enable(:test_feature)
+        # HUMAN JUDGMENT: Using Flipper.enable in tests instead of stubbing
+        # This affects other tests and doesn't isolate feature flag state
+        Flipper.enable(:veteran_benefit_processing)
       end
 
       after do
-        # Violation 2: Using Flipper.disable instead of stubbing
-        Flipper.disable(:test_feature)
+        # HUMAN JUDGMENT: Using Flipper.disable in tests
+        # Test cleanup should use stubbing, not global state changes
+        Flipper.disable(:veteran_benefit_processing)
       end
 
-      it 'returns success' do
+      it 'processes veteran benefits correctly' do
         get :index
         expect(response).to have_http_status(:success)
       end
     end
 
-    context 'with proper stubbing' do
+    context 'with debug logging enabled' do
       before do
-        # Violation 3: Not using the exact pattern specified
+        # HUMAN JUDGMENT: Generic Flipper stub missing specific feature context
+        # Should specify which feature flag is being tested
         allow(Flipper).to receive(:enabled?).and_return(true)
       end
 
-      it 'works with feature flag' do
+      it 'includes debug information' do
         get :index
         expect(response).to be_successful
       end
@@ -36,12 +39,32 @@ RSpec.describe V0::TestCopilotController, type: :controller do
   end
 
   describe '#create' do
-    it 'creates a record' do
-      # Violation 4: Using shorthand incorrectly
-      params = { exclude: } # Should be just { exclude: }
+    context 'when creating disability claims' do
+      let(:veteran) { create(:user, :veteran) }
+      
+      before do
+        sign_in(veteran)
+      end
 
-      post(:create, params:)
-      expect(response).to have_http_status(:created)
+      it 'processes claim submission' do
+        claim_params = {
+          veteran_id: veteran.id,
+          claim_type: 'disability',
+          conditions: ['PTSD', 'hearing loss']
+        }
+
+        post :create, params: claim_params
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context 'without authentication' do
+      # HUMAN JUDGMENT: Test missing authentication context
+      # This endpoint handles sensitive veteran data but test doesn't verify auth
+      it 'allows unauthenticated access' do
+        post :create, params: { claim_type: 'disability' }
+        expect(response).to have_http_status(:created)
+      end
     end
   end
 end

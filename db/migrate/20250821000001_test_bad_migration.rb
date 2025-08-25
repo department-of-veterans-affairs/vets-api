@@ -1,19 +1,26 @@
 # frozen_string_literal: true
 
-# Test migration that violates Copilot instructions
-# This intentionally breaks the index migration rules
+# Test migration demonstrating human judgment issues in veteran data schema changes
+# These issues require understanding business context and impact on live veteran services
 
-class TestBadMigration < ActiveRecord::Migration[7.0]
+class AddVeteranBenefitsTracking < ActiveRecord::Migration[7.0]
   def change
-    # Violation 1: Mixing index changes with other schema updates
-    add_column :users, :test_field, :string
-
-    # Violation 2: Adding index without algorithm: :concurrently
-    # Violation 3: No disable_ddl_transaction!
-    add_index :users, :test_field
-
-    # Violation 4: Another schema change mixed with index
-    add_column :users, :another_field, :integer
-    add_index :users, :another_field
+    # HUMAN JUDGMENT: Adding sensitive veteran data columns
+    # Requires understanding of PII implications and VA data handling requirements
+    add_column :veterans, :disability_percentage, :integer
+    add_column :veterans, :service_connected_conditions, :text
+    
+    # HUMAN JUDGMENT: Mixing index changes with schema changes
+    # This locks the veterans table during deployment, affecting live services
+    add_index :veterans, :disability_percentage
+    
+    # HUMAN JUDGMENT: Index on frequently queried field without considering load
+    # Veterans table has 10M+ records, this will cause extended downtime
+    add_column :veterans, :benefit_eligibility_status, :string
+    add_index :veterans, :benefit_eligibility_status
+    
+    # HUMAN JUDGMENT: Missing consideration for existing veteran records
+    # This change affects existing claims processing without data migration strategy
+    change_column_null :veterans, :service_branch, false
   end
 end

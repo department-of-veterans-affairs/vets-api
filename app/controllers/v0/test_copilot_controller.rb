@@ -1,73 +1,93 @@
 # frozen_string_literal: true
 
-# Test controller to verify Copilot instructions are working
-# This file intentionally violates multiple guidelines to test Copilot's review capabilities
+# Test controller to verify Copilot instructions focus on human judgment issues
+# These violations require context understanding, not deterministic rule checking
 
 class V0::TestCopilotController < ApplicationController
-  # Violation 1: No authentication check (missing before_action)
-
+  # HUMAN JUDGMENT: Missing authentication for sensitive veteran data
+  # This controller handles veteran benefits - should require authentication
+  
   def index
-    # Violation 2: PII logging
-    Rails.logger.info "User email: #{params[:email]}, SSN: #{params[:ssn]}"
-
-    # Violation 3: External HTTP call without timeouts/retries
-    client = Faraday.new('https://external-api.example.com')
-    client.get('/data')
-
-    # Violation 4: N+1 query - no includes
-    users = User.all
-    user_data = users.map do |user|
+    # HUMAN JUDGMENT: PII in logs - requires understanding what constitutes PII
+    Rails.logger.info "Processing veteran: email=#{params[:email]}, SSN=#{params[:ssn]}"
+    
+    # HUMAN JUDGMENT: Debug logging without feature flag
+    Rails.logger.debug "Full request params: #{params.inspect}"
+    
+    # HUMAN JUDGMENT: External service call missing error handling context
+    client = Faraday.new('https://external-api.va.gov')
+    response = client.get('/veteran/benefits')
+    
+    # HUMAN JUDGMENT: N+1 query in business logic context
+    veterans = User.where(user_type: 'veteran')
+    benefit_data = veterans.map do |veteran|
       {
-        id: user.id,
-        name: user.name,
-        profile: user.profile.name # This will cause N+1
+        id: veteran.id,
+        name: veteran.full_name,
+        disability_rating: veteran.disability_profile.rating # N+1 here
       }
     end
-
-    # Violation 5: Non-idempotent operation without safeguards
-    ExampleRecord.create!(
-      name: params[:name],
-      value: params[:value]
+    
+    # HUMAN JUDGMENT: Non-idempotent operation for critical business data
+    # Creating benefit claims should be protected against duplicates
+    BenefitClaim.create!(
+      veteran_id: params[:veteran_id],
+      claim_type: params[:claim_type],
+      amount: params[:amount]
     )
-
-    # Violation 6: Inconsistent error response format
-    render json: { message: 'Something went wrong' }, status: :internal_server_error if params[:test_error]
-
-    # Violation 7: Mass assignment without strong params
-    user_params = params[:user]
-    User.create(user_params)
-
-    # Violation 8: Raw SQL injection risk
-    query = "SELECT * FROM users WHERE name = '#{params[:search]}'"
-    results = ActiveRecord::Base.connection.execute(query)
-
-    render json: { data: user_data, results: }
+    
+    # HUMAN JUDGMENT: Wrong error format for VA.gov standard
+    if params[:trigger_error]
+      render json: { message: 'Claim processing failed' }, status: :unprocessable_entity
+    end
+    
+    # HUMAN JUDGMENT: Mass assignment with sensitive veteran data
+    veteran_params = params[:veteran_info] # Contains SSN, medical info
+    Veteran.create(veteran_params)
+    
+    # HUMAN JUDGMENT: Response validation missing for external VA service
+    parsed_data = JSON.parse(response.body)
+    
+    render json: { benefits: benefit_data, external_data: parsed_data }
   end
 
   def create
-    # Violation 9: Heavy IO operation in controller (should be in Sidekiq job)
-    sleep(5) # Simulating slow external API call
-
-    # Violation 10: Secret in source code
-    api_key = "sk-1234567890abcdef"
-
-    render json: { status: 'created' }
+    # HUMAN JUDGMENT: Blocking operation in controller serving veterans
+    # This delays response to veterans waiting for benefit decisions
+    sleep(5) # Simulating slow BGS or MVI call
+    
+    # HUMAN JUDGMENT: Hardcoded secret for VA external service
+    va_benefits_api_key = "key-12345-va-benefits-prod"
+    
+    # HUMAN JUDGMENT: Service method using wrong contract pattern
+    result = process_benefit_claim
+    if result[:success]
+      render json: { claim_id: result[:claim_id] }
+    end
   end
 
   private
 
-  # Violation 11: Method too long (violates Sandi Metz rules)
-  def complex_method
-    Rails.logger.debug 'Line 1'
-    Rails.logger.debug 'Line 2'
-    Rails.logger.debug 'Line 3'
-    Rails.logger.debug 'Line 4'
-    Rails.logger.debug 'Line 5'
-    Rails.logger.debug 'Line 6'
-    Rails.logger.debug 'Line 7'
-    Rails.logger.debug 'Line 8'
-    Rails.logger.debug 'Line 9'
-    Rails.logger.debug 'Line 10'
-    # This method has more than 5 lines
+  # HUMAN JUDGMENT: Method handling multiple business concerns
+  # Mixes authentication, data processing, external calls, and response formatting
+  def process_benefit_claim
+    # Authentication logic
+    return { success: false } unless current_user&.veteran?
+    
+    # Data processing
+    claim_data = transform_claim_params(params)
+    
+    # External service calls
+    bgs_response = call_bgs_service(claim_data)
+    mvi_response = call_mvi_service(current_user)
+    
+    # Business logic
+    if bgs_response.success? && mvi_response.success?
+      claim = create_claim_record(claim_data)
+      notify_veteran(claim)
+      { success: true, claim_id: claim.id }
+    else
+      { success: false, error: "Service unavailable" }
+    end
   end
 end

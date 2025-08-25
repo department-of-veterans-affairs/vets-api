@@ -1,42 +1,56 @@
 # frozen_string_literal: true
 
-# Service class that violates HTTP client guidelines
-class BadExternalService
+# Service class that demonstrates human judgment issues in external VA service integration
+class VaExternalService
   def initialize
-    # Violation 1: No timeouts specified
-    # Violation 2: No retry logic
-    # Violation 3: No error handling
-    @client = Faraday.new('https://external-api.va.gov')
+    # HUMAN JUDGMENT: Missing context for VA service reliability
+    # VA external services are notoriously unreliable and require defensive programming
+    @client = Faraday.new('https://benefits.va.gov/api')
   end
 
-  def fetch_user_data(user_id)
-    # Violation 4: PII in logs
-    Rails.logger.info "Fetching data for user SSN: #{user_id}"
+  def fetch_veteran_benefits(veteran_ssn)
+    # HUMAN JUDGMENT: PII in logs for debugging
+    Rails.logger.info "Fetching benefits for veteran SSN: #{veteran_ssn[-4..-1]}"
+    Rails.logger.debug "Full veteran lookup: SSN=#{veteran_ssn}, timestamp=#{Time.current}"
 
-    # Violation 5: No timeout, retry, or error handling on external call
-    response = @client.get("/users/#{user_id}")
+    # HUMAN JUDGMENT: External call to critical VA service without error handling
+    response = @client.get("/veterans/#{veteran_ssn}/benefits")
 
-    # Violation 6: No validation of response
-    JSON.parse(response.body)
+    # HUMAN JUDGMENT: Response validation missing for VA service
+    # VA services often return malformed or incomplete data
+    benefit_data = JSON.parse(response.body)
+    
+    benefit_data
   rescue => e
-    # Violation 7: Logging full error which might contain PII
-    Rails.logger.error "Full error: #{e.inspect}"
+    # HUMAN JUDGMENT: Error logging may contain veteran PII
+    Rails.logger.error "BGS service failure: #{e.message} - Request: #{veteran_ssn}"
     raise
   end
 
-  def create_record(data)
-    # Violation 8: Should be in background job, not synchronous
-    slow_external_call(data)
+  def submit_disability_claim(claim_data)
+    # HUMAN JUDGMENT: Synchronous operation that should be background job
+    # Disability claim submission can take 30+ seconds due to BGS complexity
+    validate_claim(claim_data)
+    submit_to_bgs(claim_data)
+    notify_veteran(claim_data[:veteran_email])
+    generate_confirmation_pdf(claim_data)
 
-    # Return without proper error envelope
-    { success: true }
+    # HUMAN JUDGMENT: Service returning wrong contract pattern
+    # Should use VA.gov standard error envelope
+    { success: true, message: "Claim submitted successfully" }
   end
 
   private
 
-  def slow_external_call(data)
-    # Simulating a slow call that should be in Sidekiq
-    sleep(10)
-    @client.post('/records', data.to_json)
+  def submit_to_bgs(data)
+    # HUMAN JUDGMENT: Long-running VA service call in synchronous method
+    sleep(15) # Simulating BGS submission time
+    @client.post('/claims/submit', data.to_json)
+  end
+  
+  def validate_claim(claim_data)
+    # HUMAN JUDGMENT: Missing response validation
+    response = @client.post('/claims/validate', claim_data.to_json)
+    JSON.parse(response.body) # Could fail if BGS returns XML instead of JSON
   end
 end
