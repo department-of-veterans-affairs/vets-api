@@ -99,21 +99,6 @@ module IvcChampva
       def get_available_versions(base_form_id)
         FORM_VERSIONS.fetch(base_form_id, {})
       end
-
-      ##
-      # Add a new form version configuration
-      #
-      # @param base_form_id [String] The base form ID
-      # @param version_key [String] Version identifier (e.g., '2027')
-      # @param versioned_form_id [String] The actual form ID for this version
-      # @param feature_flag [String] Feature flag name
-      # @param legacy_form_id [String, nil] Legacy form ID for backwards compatibility
-      def register_form_version(base_form_id, version_key, versioned_form_id, feature_flag, legacy_form_id = nil)
-        FORM_VERSIONS[base_form_id] ||= { current: base_form_id }
-        FORM_VERSIONS[base_form_id][version_key] = versioned_form_id
-        FORM_VERSION_FLAGS[versioned_form_id] = feature_flag
-        LEGACY_MAPPING[versioned_form_id] = legacy_form_id if legacy_form_id
-      end
     end
   end
 end
