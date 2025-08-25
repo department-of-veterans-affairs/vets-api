@@ -44,7 +44,8 @@ module Burials
         return if lighthouse_submission_pending_or_success
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf)
+        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
+                                                                 omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
