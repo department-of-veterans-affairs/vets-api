@@ -113,7 +113,8 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
           post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
                         as: :json
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(response_body.dig('errors', 'certs[0].pem')).to include('not a valid X.509 certificate')
+          expect(response_body.dig('errors',
+                                   'config_certificates[0].cert.pem')).to include('not a valid X.509 certificate')
         end
       end
     end
