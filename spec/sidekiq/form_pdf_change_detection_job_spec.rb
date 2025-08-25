@@ -11,7 +11,8 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
           'attributes' => {
             'form_name' => '10-10EZ',
             'sha256' => 'abc123def456',
-            'last_revision_on' => '2024-01-15'
+            'last_revision_on' => '2024-01-15',
+            'url' => 'some-url.com'
           }
         },
         {
@@ -19,7 +20,8 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
           'attributes' => {
             'form_name' => '21-526EZ',
             'sha256' => 'xyz789uvw012',
-            'last_revision_on' => '2024-01-10'
+            'last_revision_on' => '2024-01-10',
+            'url' => 'some-other-url.com'
           }
         }
       ]
@@ -107,8 +109,15 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
       end
 
       it 'logs revision information' do
+        form = forms_response['data'][0]
+        attributes = form['attributes']
+
         expect(Rails.logger).to receive(:info).with(
-          a_string_including('PDF form 10-10EZ (form_id: 10-10EZ) was revised')
+          a_string_including(
+            "PDF form #{attributes['form_name']} (form_id: #{form['id']}) was revised. " \
+            "Last revised on date: #{attributes['last_revision_on']}. " \
+            "URL: #{attributes['url']}"
+          )
         )
 
         subject.perform
