@@ -24,9 +24,11 @@ module AccreditedRepresentativePortal
           service = SavedClaimService::Create
           current_form_number = metadata[:formNumber]
 
-          # Tags for tracing
           span.set_tag('form_id', current_form_number)
           Datadog::Tracing.active_trace&.set_tag('form_id', current_form_number)
+
+          span.set_tag('org', organization) if organization
+          Datadog::Tracing.active_trace&.set_tag('org', organization) if organization
 
           saved_claim = service.perform(
             type: form_class,
@@ -140,6 +142,8 @@ module AccreditedRepresentativePortal
         ar_monitoring.trace('ar.claims.form_upload.handle_attachment_upload') do |span|
           service = SavedClaimService::Attach
 
+          span.set_tag('org', organization) if organization
+
           attachment = service.perform(
             model_klass,
             file: params[:file],
@@ -154,9 +158,7 @@ module AccreditedRepresentativePortal
           end
           span.set_tag('form_upload.file_size', params[:file].size) if params[:file].respond_to?(:size)
 
-          json = serializer_klass.new(attachment).as_json.deep_transform_keys! do |key|
-            key.camelize(:lower)
-          end
+          json = serializer_klass.new(attachment).as_json.deep_transform_keys! { |key| key.camelize(:lower) }
 
           render json:
         rescue service::RecordInvalidError => e
@@ -173,14 +175,28 @@ module AccreditedRepresentativePortal
       # rubocop:enable Metrics/MethodLength
 
       def ar_monitoring
+        org_tag = "org:#{organization}" if organization
+
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
-          default_tags: ["controller:#{controller_name}", "action:#{action_name}"]
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}",
+            org_tag
+          ].compact
         )
       end
 
       def form_class
         SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
+      end
+
+      def organization
+        @organization ||= Veteran::Service::Organization.where(
+          poa: claimant_representative&.to_h&.[](:power_of_attorney_holder_poa_code)
+        ).first&.name
+      rescue
+        nil
       end
     end
   end
