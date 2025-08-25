@@ -26,6 +26,8 @@ module PagerDuty
       validates :service, :status, presence: true
       validates :status, inclusion: { in: STATUSES }
 
+      alias to_h attributes
+
       # Maps over the raw PagerDuty service hashes returned from PagerDuty's API GET /services
       # call, and converts those into PagerDuty::Models::Service objects
       #
