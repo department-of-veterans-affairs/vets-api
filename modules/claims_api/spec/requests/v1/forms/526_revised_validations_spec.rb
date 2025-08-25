@@ -447,7 +447,6 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
   end
 
-
   describe '#validate_form_526_service_periods_begin_in_past!' do
     context 'when all begin dates are in the past' do
       let(:form_attributes) do
@@ -455,11 +454,12 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           'serviceInformation' => {
             'servicePeriods' => [
               { 'activeDutyBeginDate' => 3.days.ago.to_date.to_s },
-              { 'activeDutyBeginDate' => 5.days.ago.to_date.to_s },
+              { 'activeDutyBeginDate' => 5.days.ago.to_date.to_s }
             ]
           }
         }
       end
+
       it 'does not raise an error' do
         expect { subject.validate_form_526_service_periods_begin_in_past! }.not_to raise_error
       end
@@ -477,9 +477,9 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
 
       it 'raises an InvalidFieldValue error' do
-        expect {
+        expect do
           subject.validate_form_526_service_periods_begin_in_past!
-        }.to raise_error(Common::Exceptions::InvalidFieldValue)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
 
@@ -495,9 +495,9 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
 
       it 'raises an InvalidFieldValue error' do
-        expect {
+        expect do
           subject.validate_form_526_service_periods_begin_in_past!
-        }.to raise_error(Common::Exceptions::InvalidFieldValue)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
 
@@ -507,16 +507,16 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           'serviceInformation' => {
             'servicePeriods' => [
               { 'activeDutyBeginDate' => 2.days.ago.to_date.to_s },
-              { 'activeDutyBeginDate' => 2.days.from_now.to_date.to_s  }
+              { 'activeDutyBeginDate' => 2.days.from_now.to_date.to_s }
             ]
           }
         }
       end
 
       it 'raises an InvalidFieldValue error' do
-        expect {
+        expect do
           subject.validate_form_526_service_periods_begin_in_past!
-        }.to raise_error(Common::Exceptions::InvalidFieldValue)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
   end
