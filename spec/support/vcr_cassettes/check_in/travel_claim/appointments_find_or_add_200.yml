@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "https://api.example.com/api/v3/appointments/find-or-add"
+    body:
+      encoding: UTF-8
+      string: '{"appointmentDateTime":"2025-08-15T11:00:00Z","facilityStationNumber":"46ac2b1a-20d4-eb11-8235-001dd80493e7"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer <TOKEN>
+      X-BTSSS-Token:
+      - <BTSSS_TOKEN>
+      X-Correlation-ID:
+      - e359e352-10d8-4475-a453-9feec6bb8a10
+      Ocp-Apim-Subscription-Key:
+      - <SUBSCRIPTION_KEY>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 20 Aug 2025 20:07:09 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecordCount": 1,
+        "correlationId": "e359e352-10d8-4475-a453-9feec6bb8a10",
+        "timeStamp": "2025-08-20T20:07:09.4474906Z",
+        "statusCode": 200,
+        "message": "Data retrieved successfully.",
+        "success": true,
+        "data": [
+            {
+                "id": "97d2e536-017e-f011-b4cc-001dd806c742",
+                "appointmentSource": "API",
+                "appointmentDateTime": "2025-08-15T11:00:00Z",
+                "appointmentName": "Customer created appointment at (21st) Century Oncology of Las Vegas (3006)",
+                "appointmentType": "Other",
+                "facilityId": "46ac2b1a-20d4-eb11-8235-001dd80493e7",
+                "facilityName": "(21st) Century Oncology of Las Vegas (3006)",
+                "serviceConnectedDisability": 421750001,
+                "currentStatus": "",
+                "appointmentStatus": "",
+                "externalAppointmentId": null,
+                "associatedClaimId": null,
+                "associatedClaimNumber": null,
+                "isCompleted": false
+            }
+        ]
+    }'
+  recorded_at: Wed, 20 Aug 2025 20:07:09 GMT

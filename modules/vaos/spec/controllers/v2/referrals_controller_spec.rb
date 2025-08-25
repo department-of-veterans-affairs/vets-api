@@ -78,6 +78,137 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(first_referral['attributes']['expirationDate']).to eq((Date.current + 60.days).strftime('%Y-%m-%d'))
       end
 
+      it 'logs multiple referrals count with JSON structured format and records StatsD gauge' do
+        expected_count = 3
+        expected_log_message = "CCRA referrals retrieved: #{expected_count}"
+        expected_json_data = { referral_count: expected_count }.to_json
+
+        expect(Rails.logger).to receive(:info).with(expected_log_message, expected_json_data)
+        expect(StatsD).to receive(:gauge).with(
+          'api.vaos.referrals.retrieved',
+          expected_count,
+          tags: ['has_referrals:true']
+        )
+
+        get '/vaos/v2/referrals'
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      context 'when testing referral count logging and StatsD metrics' do
+        context 'with zero referrals' do
+          let(:empty_referral_list) { [] }
+
+          before do
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_vaos_referral_list)
+              .with(icn, referral_statuses)
+              .and_return(empty_referral_list)
+          end
+
+          it 'logs zero count with JSON structured format and records StatsD gauge with has_referrals:false' do
+            expected_count = 0
+            expected_log_message = "CCRA referrals retrieved: #{expected_count}"
+            expected_json_data = { referral_count: expected_count }.to_json
+
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_json_data)
+            expect(StatsD).to receive(:gauge).with(
+              'api.vaos.referrals.retrieved',
+              expected_count,
+              tags: ['has_referrals:false']
+            )
+
+            get '/vaos/v2/referrals'
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+            expect(response_data['data']).to be_empty
+          end
+        end
+
+        context 'with one referral' do
+          let(:single_referral_list) { build_list(:ccra_referral_list_entry, 1) }
+
+          before do
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_vaos_referral_list)
+              .with(icn, referral_statuses)
+              .and_return(single_referral_list)
+          end
+
+          it 'logs single count with JSON structured format and records StatsD gauge with has_referrals:true' do
+            expected_count = 1
+            expected_log_message = "CCRA referrals retrieved: #{expected_count}"
+            expected_json_data = { referral_count: expected_count }.to_json
+
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_json_data)
+            expect(StatsD).to receive(:gauge).with(
+              'api.vaos.referrals.retrieved',
+              expected_count,
+              tags: ['has_referrals:true']
+            )
+
+            get '/vaos/v2/referrals'
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+            expect(response_data['data'].size).to eq(1)
+          end
+        end
+
+        context 'with multiple referrals' do
+          let(:multiple_referrals_list) { build_list(:ccra_referral_list_entry, 5) }
+
+          before do
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_vaos_referral_list)
+              .with(icn, referral_statuses)
+              .and_return(multiple_referrals_list)
+          end
+
+          it 'logs multiple count with JSON structured format and records StatsD gauge with has_referrals:true' do
+            expected_count = 5
+            expected_log_message = "CCRA referrals retrieved: #{expected_count}"
+            expected_json_data = { referral_count: expected_count }.to_json
+
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_json_data)
+            expect(StatsD).to receive(:gauge).with(
+              'api.vaos.referrals.retrieved',
+              expected_count,
+              tags: ['has_referrals:true']
+            )
+
+            get '/vaos/v2/referrals'
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+            expect(response_data['data'].size).to eq(5)
+          end
+        end
+
+        context 'when service returns nil' do
+          before do
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_vaos_referral_list)
+              .with(icn, referral_statuses)
+              .and_return(nil)
+          end
+
+          it 'logs zero count when service returns nil' do
+            expected_count = 0
+            expected_log_message = "CCRA referrals retrieved: #{expected_count}"
+            expected_json_data = { referral_count: expected_count }.to_json
+
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_json_data)
+            expect(StatsD).to receive(:gauge).with(
+              'api.vaos.referrals.retrieved',
+              expected_count,
+              tags: ['has_referrals:false']
+            )
+
+            get '/vaos/v2/referrals'
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
       context 'with a custom status parameter' do
         let(:custom_statuses) { "'A','I'" }
 
@@ -247,6 +378,103 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(StatsD).to receive(:increment).with('api.rack.request', any_args)
 
         get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+      end
+
+      context 'when testing structured logging for missing provider data' do
+        let(:referral_detail_missing_data) do
+          build(:ccra_referral_detail,
+                referral_consult_id:,
+                referral_number:).tap do |referral|
+            # Override the referring facility code by setting it directly
+            referral.instance_variable_set(:@referring_facility_code, nil)
+            # Override the provider NPI by setting it directly
+            referral.instance_variable_set(:@provider_npi, '')
+          end
+        end
+
+        before do
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+            .with(referral_consult_id, icn)
+            .and_return(referral_detail_missing_data)
+        end
+
+        it 'logs missing provider data with JSON structured format' do
+          expected_error_message = 'Community Care Appointments: Referral detail view: Missing provider data'
+          expected_json_data = {
+            missing_data: %w[referring_facility_code referral_provider_npi],
+            station_id: '528A6',
+            user_uuid: user.uuid
+          }
+
+          expect(Rails.logger).to receive(:error).with(expected_error_message, expected_json_data)
+          expect(StatsD).to receive(:increment)
+            .with(
+              described_class::REFERRAL_DETAIL_VIEW_METRIC,
+              tags: [
+                'service:community_care_appointments',
+                'referring_facility_code:no_value',
+                'referral_provider_npi:no_value',
+                'station_id:528A6'
+              ]
+            )
+          # Allow for middleware StatsD calls
+          allow(StatsD).to receive(:increment).with('api.rack.request', any_args)
+
+          get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+
+          expect(response).to have_http_status(:ok)
+        end
+
+        context 'when only referring facility code is missing' do
+          let(:referral_detail_partial_missing) do
+            build(:ccra_referral_detail,
+                  referral_consult_id:,
+                  referral_number:).tap do |referral|
+              # Override the referring facility code by setting it directly
+              referral.instance_variable_set(:@referring_facility_code, nil)
+              # Keep the provider NPI as is from factory (should be '1234567890')
+            end
+          end
+
+          before do
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+              .with(referral_consult_id, icn)
+              .and_return(referral_detail_partial_missing)
+          end
+
+          it 'logs only the missing referring facility code in structured format' do
+            expected_error_message = 'Community Care Appointments: Referral detail view: Missing provider data'
+            expected_json_data = {
+              missing_data: ['referring_facility_code'],
+              station_id: '528A6',
+              user_uuid: user.uuid
+            }
+
+            expect(Rails.logger).to receive(:error).with(expected_error_message, expected_json_data)
+
+            get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        context 'when no provider data is missing' do
+          before do
+            # Override the mock to return the default referral detail (which has complete data)
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+              .with(referral_consult_id, icn)
+              .and_return(referral_detail)
+          end
+
+          it 'does not log any missing provider data errors' do
+            expect(Rails.logger).not_to receive(:error)
+              .with('Community Care Appointments: Referral detail view: Missing provider data', anything)
+
+            get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
       end
     end
   end
