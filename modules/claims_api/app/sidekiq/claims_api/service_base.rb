@@ -258,6 +258,10 @@ module ClaimsApi
       ClaimsApi::EVSSService::Base.new
     end
 
+    def fes_service
+      ClaimsApi::FesService::Base.new
+    end
+
     def rescue_generic_errors(power_of_attorney, e)
       power_of_attorney.status = ClaimsApi::PowerOfAttorney::ERRORED
       power_of_attorney.vbms_error_message = e&.message || e&.original_body

@@ -5,6 +5,11 @@ class PersistentAttachments::DependencyClaim < PersistentAttachment
 
   before_destroy(:delete_file)
 
+  # @see PersistentAttachment#requires_stamped_pdf_validation
+  def requires_stamped_pdf_validation?
+    true
+  end
+
   private
 
   def delete_file
