@@ -128,8 +128,7 @@ RSpec.describe TravelClaim::MileageExpenseService do
           {
             uuid:,
             claim_id: '0000',
-            error_class: 'Common::Exceptions::BackendServiceException',
-            error_message: 'BackendServiceException: {:code=>"VA900"}'
+            error_class: 'Common::Exceptions::BackendServiceException'
           }
         )
       end
@@ -154,8 +153,7 @@ RSpec.describe TravelClaim::MileageExpenseService do
           {
             uuid:,
             claim_id: '0000',
-            error_class: 'Common::Exceptions::BackendServiceException',
-            error_message: 'BackendServiceException: {:code=>"VA900"}'
+            error_class: 'Common::Exceptions::BackendServiceException'
           }
         )
       end
@@ -179,8 +177,7 @@ RSpec.describe TravelClaim::MileageExpenseService do
           {
             uuid:,
             claim_id: '0000',
-            error_class: 'StandardError',
-            error_message: 'Auth Error'
+            error_class: 'StandardError'
           }
         )
       end
