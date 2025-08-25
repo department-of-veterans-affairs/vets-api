@@ -152,9 +152,8 @@ describe TravelPay::DocumentsClient do
       end
 
       client = TravelPay::DocumentsClient.new
-      expect {
-        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
-      }.to raise_error(Faraday::ServerError)
+      expect { client.add_document('veis_token', 'btsss_token', claim_id:, document: file) }
+        .to raise_error(Faraday::ServerError)
     end
 
     it 'raises an error when the server responds with 400 Bad Request' do
@@ -200,13 +199,14 @@ describe TravelPay::DocumentsClient do
 
       client = TravelPay::DocumentsClient.new
 
-      expect do
+      begin
         client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
-      end.to raise_error(Faraday::ClientError) do |error|
-        # Optional: check that the response body matches what the API returned
-        expect(error.response[:status]).to eq(413)
-        expect(JSON.parse(error.response[:body])['message']).to eq('Content Too Large')
+      rescue Faraday::ClientError => e
+        error = e
       end
+
+      expect(error.response[:status]).to eq(413)
+      expect(JSON.parse(error.response[:body])['message']).to eq('Content Too Large')
     end
   end
 end
