@@ -34,4 +34,3 @@ module Lighthouse
     end
   end
 end
-

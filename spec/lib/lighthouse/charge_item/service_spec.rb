@@ -8,7 +8,7 @@ require 'common/client/errors'
 RSpec.describe ChargeItem::Service do
   let(:invoice_id)        { '12345' }
   let(:service)           { described_class.new(invoice_id) }
-  let(:response_body)     { Rails.root.join('spec/fixtures/lighthouse_charge_item/response.json').read }
+  let(:response_body)     { Rails.root.join('spec', 'fixtures', 'lighthouse_charge_item', 'response.json').read }
   let(:faraday_response)  { instance_double(Faraday::Response, body: response_body) }
   let(:expected_url)      { "#{service.send(:config).charge_item_url}/#{invoice_id}" }
 

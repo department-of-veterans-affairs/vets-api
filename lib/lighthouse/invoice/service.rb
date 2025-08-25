@@ -20,7 +20,7 @@ module Invoice
 
       response = config.connection.get(endpoint, params)
       response.body
-    rescue StandardError => e
+    rescue => e
       handle_error(e, nil, endpoint)
     end
 

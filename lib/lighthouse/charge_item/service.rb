@@ -18,7 +18,7 @@ module ChargeItem
       endpoint = "#{config.charge_item_url}/#{@invoice_id}"
       response = config.connection.get(endpoint)
       response.body
-    rescue StandardError => e
+    rescue => e
       handle_error(e, nil, endpoint)
     end
 

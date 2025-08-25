@@ -9,7 +9,7 @@ RSpec.describe Invoice::Service do
 
   describe '#get_invoice' do
     let(:endpoint) { 'invoices' }
-    let(:response_body) { Rails.root.join('spec/fixtures/lighthouse_invoice/response.json').read }
+    let(:response_body) { Rails.root.join('spec', 'fixtures', 'lighthouse_invoice', 'response.json').read }
     let(:faraday_response) { instance_double(Faraday::Response, body: response_body) }
 
     before do
