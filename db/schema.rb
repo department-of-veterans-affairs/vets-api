@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_13_184013) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_19_181750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -854,6 +854,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_13_184013) do
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "attempts", default: 1
     t.index ["user_account_id"], name: "index_event_bus_gateway_notifications_on_user_account_id"
   end
 
