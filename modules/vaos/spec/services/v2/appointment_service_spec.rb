@@ -2267,15 +2267,15 @@ describe VAOS::V2::AppointmentsService do
       # demonstrates that the preferred dates from reason code text are not overwritten.
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
       subject.send(:extract_appointment_fields, appt)
-      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
-                                            'Wed, June 26, 2024 in the afternoon'])
+      expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                            'Wednesday, June 26, 2024 in the afternoon'])
     end
 
     it 'extracts preferred dates if possible' do
       appt = build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
       subject.send(:extract_appointment_fields, appt)
-      expect(appt[:preferred_dates]).to eq(['Wed, August 28, 2024 in the morning',
-                                            'Wed, August 28, 2024 in the afternoon'])
+      expect(appt[:preferred_dates]).to eq(['Wednesday, August 28, 2024 in the morning',
+                                            'Wednesday, August 28, 2024 in the afternoon'])
     end
 
     it 'do not extract preferred dates if no requested periods' do

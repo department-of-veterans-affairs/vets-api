@@ -42,9 +42,9 @@ module VAOS
       ].freeze
 
       # Output format for preferred dates
-      # Example: "Thu, July 18, 2024 in the ..."
-      OUTPUT_FORMAT_AM = '%a, %B %-d, %Y in the morning'
-      OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
+      # Example: "Thursday, July 8, 2024 in the ..."
+      OUTPUT_FORMAT_AM = '%A, %B %-d, %Y in the morning'
+      OUTPUT_FORMAT_PM = '%A, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
