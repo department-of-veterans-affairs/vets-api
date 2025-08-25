@@ -59,7 +59,9 @@ module ClaimsApi
 
         raise StandardError, 'FES host URL missing' if Settings.claims_api.fes.host.blank?
 
-        Faraday.new(base_url, headers:) do |f|
+        Faraday.new(base_url,
+                    ssl: { verify: Settings.claims_api&.fes&.ssl != false },
+                    headers:) do |f|
           f.request :json
           f.response :betamocks if @use_mock
           f.response :raise_custom_error
