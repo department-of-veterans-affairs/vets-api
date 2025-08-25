@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "564dc89b-3ff6-423a-9039-a3a1410f9ab8",
+                    "id": "58e89e35-6d87-4ba8-8aab-8b825baeaf43",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-30",
+                      "date_request_accepted": "2025-08-25",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "352b054f-5a5d-47d0-8277-fa0771686e9b",
+                    "id": "06ffdf25-bf6e-4187-9351-10108d071dcd",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-30",
+                      "date_request_accepted": "2025-08-25",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -5031,7 +5031,7 @@
                                     ]
                                   },
                                   "activeDutyBeginDate": {
-                                    "description": "Date Started Active Duty.",
+                                    "description": "Date Started Active Duty. This date must be in the past.",
                                     "type": "string",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "example": "1980-02-05"
@@ -6893,7 +6893,7 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date Started Active Duty.",
+                                      "description": "Date Started Active Duty. This date must be in the past.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "1980-02-05"
@@ -9144,7 +9144,7 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date Started Active Duty.",
+                                      "description": "Date Started Active Duty. This date must be in the past.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "1980-02-05"
