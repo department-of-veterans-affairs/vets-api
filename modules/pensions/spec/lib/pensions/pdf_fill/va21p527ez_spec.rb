@@ -20,7 +20,8 @@ describe Pensions::PdfFill::Va21p527ez do
     factory: :pensions_saved_claim,
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/pensions/spec/fixtures',
-    output_pdf_fixture_dir: 'modules/pensions/spec/fixtures'
+    output_pdf_fixture_dir: 'modules/pensions/spec/fixtures',
+    fill_options: { extras_redesign: true, omit_esign_stamp: true }
   }
 
   describe '#merge_fields' do
