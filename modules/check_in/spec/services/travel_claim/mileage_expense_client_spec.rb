@@ -12,11 +12,11 @@ RSpec.describe TravelClaim::MileageExpenseClient do
   let(:correlation_id) { 'correlation-123' }
 
   before do
-    allow(client).to receive(:perform).and_return(double('Response'))
-    allow(client).to receive(:settings).and_return(
-      double('Settings', claims_base_path: '/api/v3')
+    allow(client).to receive_messages(
+      perform: double('Response'),
+      settings: double('Settings', claims_base_path: '/api/v3'),
+      subscription_key_headers: { 'Ocp-Apim-Subscription-Key' => 'test-key' }
     )
-    allow(client).to receive(:subscription_key_headers).and_return({ 'Ocp-Apim-Subscription-Key' => 'test-key' })
   end
 
   describe '#add_mileage_expense' do
@@ -164,13 +164,6 @@ RSpec.describe TravelClaim::MileageExpenseClient do
   end
 
   describe 'edge cases' do
-    it 'always uses hardcoded description' do
-      body = client.send(:build_mileage_expense_body,
-                         claim_id:, date_incurred:)
-
-      expect(body[:description]).to eq('mileage')
-    end
-
     it 'always uses hardcoded description regardless of input' do
       body = client.send(:build_mileage_expense_body,
                          claim_id:, date_incurred:)

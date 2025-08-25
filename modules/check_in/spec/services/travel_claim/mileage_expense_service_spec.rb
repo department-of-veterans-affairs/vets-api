@@ -78,8 +78,6 @@ RSpec.describe TravelClaim::MileageExpenseService do
         end.to raise_error(ArgumentError, /claim ID cannot be nil/)
       end
 
-
-
       it 'validates date_incurred is not nil' do
         expect do
           service.add_mileage_expense(
