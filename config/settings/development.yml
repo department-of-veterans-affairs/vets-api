@@ -721,6 +721,14 @@ lighthouse:
     path: "/services/va-letter-generator/v1/"
     url: https://sandbox-api.va.gov
     use_mocks: false
+  invoice:
+    access_token:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
+        client_id: ~
+        rsa_key: ~
+    path: "/services/invoice/v1/"
+    url: https://staging-api.va.gov
+    use_mocks: false
   s3:
     aws_access_key_id: ~
     aws_secret_access_key: ~

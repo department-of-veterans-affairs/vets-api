@@ -722,6 +722,14 @@ lighthouse:
     path: <%= ENV['lighthouse__letters_generator__path'] %>
     url: <%= ENV['lighthouse__letters_generator__url'] %>
     use_mocks: <%= ENV['lighthouse__letters_generator__use_mocks'] %>
+  invoice:
+    access_token:
+      aud_claim_url: <%= ENV['lighthouse__invoice__access_token__aud_claim_url'] %>
+      client_id: <%= ENV['lighthouse__invoice__access_token__client_id'] %>
+      rsa_key: <%= ENV['lighthouse__invoice__access_token__rsa_key'] %>
+    path: <%= ENV['lighthouse__invoice__path'] %>
+    url: <%= ENV['lighthouse__invoice__url'] %>
+    use_mocks: <%= ENV['lighthouse__invoice__use_mocks'] %>
   s3:
     aws_access_key_id: <%= ENV['lighthouse__s3__aws_access_key_id'] %>
     aws_secret_access_key: <%= ENV['lighthouse__s3__aws_secret_access_key'] %>
